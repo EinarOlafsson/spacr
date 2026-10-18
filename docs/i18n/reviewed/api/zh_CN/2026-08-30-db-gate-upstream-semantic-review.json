@@ -371,14 +371,18 @@
       "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
       "source": "Adjust the variance with the dispersion parameter.",
       "context": "Adjust the variance with the dispersion parameter.",
-      "translation": "使用离散参数调整方差。"
+      "translation": "使用离散参数调整方差。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.beta_logit#0",
       "source_sha256": "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
       "source": "A proportion on the logit scale, with the endpoints squeezed in.",
       "context": "A proportion on the logit scale, with the endpoints squeezed in.",
-      "translation": "logit 尺度上的比例值，并将端点向内压缩。"
+      "translation": "logit 尺度上的比例值，并将端点向内压缩。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.beta_logit#1",
@@ -399,14 +403,18 @@
       "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
       "source": "Check if the data is normally distributed using the Shapiro-Wilk test.",
       "context": "Check if the data is normally distributed using the Shapiro-Wilk test.",
-      "translation": "使用 Shapiro-Wilk 检验检查数据是否服从正态分布。"
+      "translation": "使用 Shapiro-Wilk 检验检查数据是否服从正态分布。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#0",
       "source_sha256": "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
       "source": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.",
       "context": "Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.",
-      "translation": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。"
+      "translation": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#1",
@@ -557,7 +565,9 @@
       "source_sha256": "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
       "source": "Read paired inputs and resolve plate identity without filename guesses.",
       "context": "Read paired inputs and resolve plate identity without filename guesses.",
-      "translation": "读取配对输入，并在不猜测文件名的情况下解析微孔板身份。"
+      "translation": "读取配对输入，并在不猜测文件名的情况下解析微孔板身份。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.load_regression_input_pairs#1",
@@ -571,7 +581,9 @@
       "source_sha256": "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
       "source": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
       "context": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
-      "translation": "返回显式的 ``score``/``count`` 行，并迁移旧版列表。"
+      "translation": "返回显式的 ``score``/``count`` 行，并迁移旧版列表。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.normalize_regression_input_pairs#1",
@@ -679,7 +691,9 @@
       "source_sha256": "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
       "source": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
       "context": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
-      "translation": "根据设计选择 ``analysis_mode``，用于 ``inference='auto'``。"
+      "translation": "根据设计选择 ``analysis_mode``，用于 ``inference='auto'``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#1",
@@ -749,7 +763,9 @@
       "source_sha256": "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
       "source": "Whether ``screenID`` can be a term in this frame's design.",
       "context": "Whether ``screenID`` can be a term in this frame's design.",
-      "translation": "``screenID`` 是否可以作为此数据框设计中的一项。"
+      "translation": "``screenID`` 是否可以作为此数据框设计中的一项。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#1",
@@ -875,7 +891,9 @@
       "source_sha256": "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
       "source": "Populate default settings for gRNA/score regression analysis.",
       "context": "Populate default settings for gRNA/score regression analysis.",
-      "translation": "填充 gRNA/score 回归分析的默认设置。"
+      "translation": "填充 gRNA/score 回归分析的默认设置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#1",

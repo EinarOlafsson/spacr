@@ -839,3 +839,36 @@ def test_generic_diameter_must_be_positive_while_object_zero_retains_auto(diamet
     for valid in (30, None):
         positive = V.validate_settings({'diameter': valid}, '')
         assert not [p for p in positive if p.setting == 'diameter']
+
+
+def test_text_that_is_neither_yes_nor_no_or_a_list_stays_as_typed():
+    """Only clear yes/no words become booleans; a number is not a list."""
+    from spacr.validate import coerce_expected_types
+
+    out = coerce_expected_types({"unmix": "maybe", "channels": "3",
+                                 "n2v_denoise": "no"})
+    assert out == {"unmix": "maybe", "channels": "3", "n2v_denoise": False}
+
+
+def test_a_custom_model_with_an_unreadable_pin_is_reported_missing(tmp_path):
+    """A broken model pin is not evidence that the model will be there."""
+    from spacr.validate import _check_required_paths, _has_planned_model_pin
+
+    settings = {"custom_model": str(tmp_path / "gone.CP_model"),
+                "model_metadata": {"schema_version": 2, "settings": {}}}
+    assert _has_planned_model_pin(settings, "custom_model", ("cellpose",)) is False
+    problems = [p for p in _check_required_paths(settings, "mask")
+                if p.setting == "custom_model"]
+    assert len(problems) == 1
+    assert "does not exist" in problems[0].message
+
+
+def test_the_plan_names_an_organelle_diameter_in_pixels():
+    """An organelle has no magnification default, so its diameter is shown."""
+    from spacr.validate import _describe_objects
+
+    lines = _describe_objects({"organelle_channel": 2, "organelle_diameter": 12,
+                               "organelleb_channel": 3}, "mask")
+    assert "organelle: channel 2, diameter 12 px" in lines[0]
+    assert lines[1].startswith(
+        "organelleb: channel 3, diameter from magnification 20x")

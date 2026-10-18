@@ -478,7 +478,7 @@
       "source": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
       "source_sha256": "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741",
       "context": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
-      "translation": "A vertical é invertida porque o y da triagem cresce para baixo e o dos dados não -- sem isso o gráfico é desenhado de cabeça para baixo e ainda parece plausível.",
+      "translation": "A vertical é invertida porque o y da tela cresce para baixo e o dos dados não -- sem isso o gráfico é desenhado de cabeça para baixo e ainda parece plausível.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

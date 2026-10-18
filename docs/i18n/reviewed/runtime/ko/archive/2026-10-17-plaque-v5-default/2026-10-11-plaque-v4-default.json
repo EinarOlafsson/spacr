@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v4 is the current model.",
+      "source_sha256": "db4b1199854cf7fe3d21b47ead4081c5404ba94506d127cc4d6a58b417f0f970",
+      "translation": "'bundled'는 과거에 패키지된 플라크 모델입니다. 이전 실행을 재현할 수 있도록 유지되며, 문헌 이미지에서 플라크의 약 3분의 1을 놓칩니다. 현재 모델은 toxoplasma_plaque_v4 입니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
+      "translation": "플라크를 분할하는 Cellpose 체크포인트입니다. 모델 저장소 키를 지정하면 처음 사용할 때 체크섬을 검증한 체크포인트를 다운로드합니다. 'toxoplasma_plaque_v4'는 cpsam_v2 기반 6차 모델입니다. 'toxoplasma_plaque_v3'는 2026-10-11까지 기본값이던 cpsam_plaque_r5_geldoc으로, 홀드아웃 필드와 Gel Doc 웰에서 더 높은 점수를 냅니다. 'toxoplasma_plaque_v2'는 그 이전의 기본값입니다. 파일 시스템 경로를 지정하면 사용자 체크포인트를 선택합니다. 'bundled'는 과거에 패키지에 포함된 모델이며, Cellpose 3이 필요한 Cellpose 3 체크포인트입니다. 모델을 바꾸면 모든 플라크 계수가 달라질 수 있으므로 기록된 실행에서는 선택한 값을 보존해야 합니다. 기본값 'toxoplasma_plaque_v4'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
+}

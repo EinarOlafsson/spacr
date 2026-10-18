@@ -105,8 +105,9 @@ msgstr "분류기 평가, 보정, 분할 누수 진단입니다."
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "이 모듈은 모델과 무관하며 레이블, 확률, 폴드 ID, 표본 경로를 사용합니다. 따라서 딥러닝 교차 검증과 향후의 고전적 머신러닝 파이프라인이 같은 평가 번들을 쓸 수 있고, Qt 워크벤치는 하나의 안정적인 산출물 형식을 표시할 수 있습니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Result of auditing every cross-validation fold for leakage."
-msgstr ""
+msgstr "모든 교차 검증 폴드의 누수를 감사한 결과입니다."
 
 msgid "Parameters"
 msgstr "매개변수"
@@ -210,13 +211,13 @@ msgstr "경로별 선택적 클래스로, 경로마다 값 하나입니다. 폴�
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "폴드 경계를 넘을 수 없는 식별 수준입니다. ``none``, ``field``, ``well`` 또는 ``plate`` 입니다. 웰 단위로 묶은 분할은 같은 플레이트가 양쪽에 있는 것은 허용하지만 같은 웰은 절대 허용하지 않습니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
-msgstr "파일 내용(CONTENT)도 비교하여 이름이 다른 바이트 동일 복사본을 잡아냅니다. 파일마다 한 번씩 읽어야 합니다."
+msgstr "파일 내용도 비교하여 이름이 다른 바이트 동일 복사본을 감지합니다. 파일마다 한 번씩 읽어야 합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
-msgstr "검증 불가(UNVERIFIABLE)를 심각한 문제로 처리합니다. 그렇지 않으면 요청된 식별 정보를 담지 않은 파일 이름이나 해시를 계산할 수 없는 파일은 경고에 그칩니다. 따라서 이 값을 False로 두면 깨끗한 보고서라도 아무도 확인할 수 없었던 누수를 숨길 수 있습니다."
+msgstr "검증할 수 없는 샘플을 심각한 문제로 처리합니다. 그렇지 않으면 요청된 식별 정보를 담지 않은 파일 이름이나 해시를 계산할 수 없는 파일은 경고에 그치므로, 이 값이 False이면 통과한 보고서에도 누수가 확인되지 않은 샘플이 포함될 수 있습니다."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "``passed`` 가 False인 보고서를 반환하는 대신 :class:`LeakageError` 를 발생시킵니다."

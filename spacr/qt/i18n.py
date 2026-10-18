@@ -3839,8 +3839,10 @@ def _translate_qt_text(obj, getter_name: str, setter_name: str,
                 return
             source = current
         rendered = tr(source, language)
-        setter(rendered)
-        obj.setProperty(rendered_property, rendered)
+        if rendered != current:
+            setter(rendered)
+        if last_rendered != rendered:
+            obj.setProperty(rendered_property, rendered)
     except (AttributeError, RuntimeError, TypeError):
         return
 
@@ -4008,6 +4010,15 @@ def _pass_stamp(code: str) -> str:
 _A11Y_DERIVED_NAME = "_spacr_a11y_derived_name"
 _A11Y_DERIVED_DESCRIPTION = "_spacr_a11y_derived_description"
 
+#: The pass stamp a control's derived name was last computed under. A pass
+#: asked for ``only_new`` leaves a control carrying the current stamp alone,
+#: since neither its language nor its catalog has changed since.
+_A11Y_NAMED_STAMP = "_spacr_a11y_named"
+
+#: How many widgets the scroll-area fallback looks at before settling for
+#: the caption it found or the shared "Details".
+_A11Y_SCROLL_SEARCH = 64
+
 _A11Y_TAG = re.compile(r"<[^>]+>")
 _A11Y_SPACE = re.compile(r"\s+")
 _A11Y_CAMEL = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
@@ -4050,13 +4061,14 @@ def _a11y_interactive_types():
         QLineEdit,
         QListView,
         QPlainTextEdit,
+        QScrollArea,
         QTextEdit,
         QTableView,
         QTreeView,
     )
     return (QAbstractButton, QComboBox, QLineEdit, QAbstractSpinBox,
             QAbstractSlider, QTextEdit, QPlainTextEdit,
-            QListView, QTableView, QTreeView)
+            QListView, QTableView, QTreeView, QScrollArea)
 
 
 def _a11y_layout_holding(layout, child):
@@ -4100,22 +4112,21 @@ def _a11y_label_beside(widget):
             return None
         found = None
         index = layout.indexOf(current)
-        if index >= 0:
-            if isinstance(layout, QFormLayout):
-                found = layout.labelForField(current)
-            elif isinstance(layout, QGridLayout):
-                row, column, _rs, _cs = layout.getItemPosition(index)
-                for left in range(column - 1, -1, -1):
-                    item = layout.itemAtPosition(row, left)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
-            elif isinstance(layout, QBoxLayout):
-                for before in range(index - 1, -1, -1):
-                    item = layout.itemAt(before)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
+        if isinstance(layout, QFormLayout):
+            found = layout.labelForField(current)
+        elif isinstance(layout, QGridLayout):
+            row, column, _rs, _cs = layout.getItemPosition(index)
+            for left in range(column - 1, -1, -1):
+                item = layout.itemAtPosition(row, left)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
+        elif isinstance(layout, QBoxLayout):
+            for before in range(index - 1, -1, -1):
+                item = layout.itemAt(before)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
         if isinstance(found, QLabel) and _a11y_plain(found.text()):
             return found
         if found is not None:
@@ -4166,6 +4177,7 @@ def _a11y_source(widget, labels_by_key):
     from PySide6.QtWidgets import (
         QAbstractSpinBox,
         QComboBox,
+        QScrollArea,
         QTableView,
         QTabWidget,
     )
@@ -4208,8 +4220,70 @@ def _a11y_source(widget, labels_by_key):
                 "Storage cache table": "Cache",
             }
             name = tr(shared_labels.get(caption, caption))
+    if not name and isinstance(widget, QScrollArea):
+        name = _a11y_scroll_area_name(widget)
     description = "" if tip else label_help
     return name, description
+
+
+def _a11y_scroll_area_name(area) -> str:
+    """Name a scroll area after its first titled group or caption.
+
+    The search runs breadth first from the scrolled content and stops after
+    :data:`_A11Y_SCROLL_SEARCH` widgets, so a settings panel with hundreds of
+    rows costs the same few visits as a small one: the title that describes
+    the area sits near its top, never deep inside one of its rows.
+
+    :param area: a ``QScrollArea`` with no other source of a name.
+    :returns: that title or caption, or the shared "Details" when it holds
+        neither.
+    """
+    from PySide6.QtWidgets import QGroupBox, QLabel, QWidget
+
+    content = area.widget()
+    level = [content] if content is not None else []
+    caption = ""
+    visited = 0
+    while level and visited < _A11Y_SCROLL_SEARCH:
+        below = []
+        for child in level:
+            visited += 1
+            if visited > _A11Y_SCROLL_SEARCH:
+                break
+            if isinstance(child, QGroupBox):
+                title = _a11y_plain(child.title(), 80)
+                if title:
+                    return title
+            elif not caption and isinstance(child, QLabel):
+                caption = _a11y_plain(child.text(), 80)
+            below.extend(item for item in child.children()
+                         if isinstance(item, QWidget))
+        level = below
+    return caption or tr("Details")
+
+
+def _a11y_qt_may_name(widget, buddies) -> bool:
+    """Whether Qt could name ``widget`` itself once a derived name is cleared.
+
+    Qt names a button after its caption, and any widget after the label it
+    is the buddy of, the titled group box holding it or its window title.
+    When none of those has text, clearing a derived name only to read the
+    empty result back would send assistive technology two name changes for
+    nothing on every pass.
+
+    :param widget: a control carrying a name this pass derived.
+    :param buddies: the buddies of the captioned labels seen in this pass.
+    """
+    from PySide6.QtWidgets import QAbstractButton, QGroupBox
+
+    if isinstance(widget, QAbstractButton) and _a11y_plain(widget.text()):
+        return True
+    if widget.isWindow() and widget.windowTitle():
+        return True
+    parent = widget.parentWidget()
+    if isinstance(parent, QGroupBox) and parent.title():
+        return True
+    return widget in buddies
 
 
 def _keep_tab_moving_focus(widget) -> None:
@@ -4233,7 +4307,7 @@ def _keep_tab_moving_focus(widget) -> None:
             widget.setTabKeyNavigation(False)
 
 
-def _name_for_assistive_tech(widgets) -> int:
+def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
     """Give each unnamed control in ``widgets`` an accessible name.
 
     A control a screen reader would announce with no name -- an icon-only
@@ -4246,33 +4320,76 @@ def _name_for_assistive_tech(widgets) -> int:
     control (see :func:`_keep_tab_moving_focus`).
 
     A name or description set by application code is never replaced. One this
-    pass set is recomputed on every pass, so it follows a language change.
+    pass set is recomputed on every full pass, so it follows a language
+    change, and it is written back only when it differs: every write is an
+    event a screen reader is sent, and rewriting several hundred unchanged
+    names is what froze a module screen while assistive technology listened.
 
     :param widgets: the widgets of one language pass.
+    :param stamp: the pass stamp (see :func:`_pass_stamp`) each control
+        named here is marked with.
+    :param only_new: leave alone a control already marked with ``stamp``;
+        its language and catalog are the ones it was named under. A scroll
+        area is always looked at again, since its contents may have arrived
+        after it.
     :returns: how many names or descriptions were set or refreshed.
     """
     try:
-        from PySide6.QtWidgets import QAbstractItemView, QLabel
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import (
+            QAbstractItemView,
+            QLabel,
+            QMenu,
+            QScrollArea,
+            QTabWidget,
+        )
         interactive = _a11y_interactive_types()
     except Exception:
         return 0
     labels_by_key = {}
+    buddies = set()
     targets = []
+    menus = []
     for widget in widgets:
         try:
-            if isinstance(widget, QLabel):
+            if isinstance(widget, QMenu):
+                menus.append(widget)
+            elif isinstance(widget, QLabel):
                 key = widget.property("settingKey")
                 if key and widget.text():
                     labels_by_key.setdefault(str(key), widget)
+                buddy = widget.buddy()
+                if buddy is not None and widget.text():
+                    buddies.add(buddy)
             elif isinstance(widget, interactive):
                 targets.append(widget)
             if isinstance(widget, interactive + (QAbstractItemView,)):
                 _keep_tab_moving_focus(widget)
+            elif (isinstance(widget, QTabWidget)
+                  and not widget.tabBar().isVisibleTo(widget)
+                  and widget.focusPolicy() != Qt.NoFocus):
+                widget.setFocusPolicy(Qt.NoFocus)
         except (AttributeError, RuntimeError):
             continue
     changed = 0
+    for menu in menus:
+        try:
+            current = str(menu.accessibleName() or "")
+            if current and current != menu.property(_A11Y_DERIVED_NAME):
+                continue
+            title = _a11y_plain(menu.title())
+            if title != current:
+                menu.setAccessibleName(title)
+                if title:
+                    menu.setProperty(_A11Y_DERIVED_NAME, title)
+                changed += 1
+        except (AttributeError, RuntimeError):
+            continue
     for widget in targets:
         try:
+            if (only_new and stamp is not None
+                    and widget.property(_A11Y_NAMED_STAMP) == stamp):
+                continue
             current = str(widget.accessibleName() or "")
             derived = widget.property(_A11Y_DERIVED_NAME)
             owned = bool(current) and current != derived
@@ -4283,20 +4400,30 @@ def _name_for_assistive_tech(widgets) -> int:
                                  != derived_description)
             if owned and owned_description:
                 continue
-            if not owned and derived:
-                widget.setAccessibleName("")
-            needs_name = not owned and not _a11y_effective_name(widget).strip()
+            kept = False
+            if not owned and derived and current:
+                if _a11y_qt_may_name(widget, buddies):
+                    widget.setAccessibleName("")
+                    current = ""
+                else:
+                    kept = True
+            needs_name = not owned and (
+                kept or not _a11y_effective_name(widget).strip())
             if not needs_name and owned_description:
                 continue
             name, description = _a11y_source(widget, labels_by_key)
-            if needs_name and name:
+            if needs_name and name != current:
                 widget.setAccessibleName(name)
-                widget.setProperty(_A11Y_DERIVED_NAME, name)
+                if name:
+                    widget.setProperty(_A11Y_DERIVED_NAME, name)
                 changed += 1
             if not owned_description and description != current_description:
                 widget.setAccessibleDescription(description)
                 widget.setProperty(_A11Y_DERIVED_DESCRIPTION, description)
                 changed += 1
+            if (stamp is not None and not isinstance(widget, QScrollArea)
+                    and widget.property(_A11Y_NAMED_STAMP) != stamp):
+                widget.setProperty(_A11Y_NAMED_STAMP, stamp)
         except (AttributeError, RuntimeError, TypeError):
             continue
     return changed
@@ -4511,8 +4638,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         except (AttributeError, RuntimeError):
             pass
 
-    _name_for_assistive_tech(widgets)
-
     actions = []
     try:
         actions = root.findChildren(QAction)
@@ -4528,6 +4653,8 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 action, "statusTip", "setStatusTip",
                 "_spacr_i18n_status_tip", code)
         _refresh_module_help(action, code)
+
+    _name_for_assistive_tech(widgets, stamp, only_new)
 
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return

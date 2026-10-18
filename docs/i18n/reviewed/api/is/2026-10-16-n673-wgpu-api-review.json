@@ -1,0 +1,321 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Report what can draw the True 3D view: wgpu, OpenGL and the CPU.",
+      "label": "spacr.doctor.check_3d_backends#0",
+      "source": "Report what can draw the True 3D view: wgpu, OpenGL and the CPU.",
+      "source_sha256": "b8eda718d991bac384bf33693d42036cdbfa7d99b111d365cca9a114f2e68fb2",
+      "translation": "Greina frá því hvað getur teiknað True 3D-sýnina: wgpu, OpenGL og CPU."
+    },
+    {
+      "context": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "label": "spacr.doctor.check_3d_backends#1",
+      "source": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "source_sha256": "8b11956791f38a4e23ee2f831e5b4c6819337c27b3e53ef09c857cca45f5bd4d",
+      "translation": "wgpu (Vulkan, Metal, Direct3D 12) er eitt af sjálfgefnu forritasöfnunum sem forritið byggir á, en uppsetning án þess er einnig studd: sýnin er þá teiknuð með OpenGL (VisPy) eða CPU. Ef wgpu vantar er niðurstaðan því ``PASS``; aðeins wgpu sem er uppsett en ekki hægt að flytja inn gefur ``WARN``."
+    },
+    {
+      "context": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "label": "spacr.doctor.check_3d_backends#2",
+      "source": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "source_sha256": "bc637b236eaa56b418404fdcb02699e855d7295011b712e270206bf20b640fee",
+      "translation": "``probe_gpu=True`` lætur wgpu telja upp grafíkmillistykkin sín. Það hleður grafíkrekla en teiknar ekkert; þessu er sleppt þegar ``SPACR_NO_GPU_RENDER`` er stillt eða ``CUDA_VISIBLE_DEVICES`` er tómt, því True 3D-sýnin notar þá ekki GPU."
+    },
+    {
+      "context": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "label": "spacr.install_profile.build_parser#4",
+      "source": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "source_sha256": "edd2b6caa23768597c33730155e2562a5e2fdfbd21e09aa99f2d09a71b1a8b24",
+      "translation": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) skráir að wgpu hafi verið sleppt við uppsetningu, svo uppfærslur úr forritinu sleppi því líka."
+    },
+    {
+      "context": "the parser, with ``--path``, ``--requested``, ``--detected``, the consent flags and ``--without-wgpu``.",
+      "label": "spacr.install_profile.build_parser#5",
+      "source": "the parser, with ``--path``, ``--requested``, ``--detected``, the consent flags and ``--without-wgpu``.",
+      "source_sha256": "4ed0871efb158aee3e9898fdb74a439e9810f77931ad61e2d0d705e9503bbd1e",
+      "translation": "þáttarinn, með ``--path``, ``--requested``, ``--detected``, samþykkisflöggunum og ``--without-wgpu``."
+    },
+    {
+      "context": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "label": "spacr.install_profile.no_wgpu_override#0",
+      "source": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "source_sha256": "6e915bf8a163ef6cdd629f54467df54a4d9adaf60cb01f5cf12221270fa35260",
+      "translation": "uv-skráin fyrir ``--override`` sem heldur wgpu utan uppsetningarinnar ef því var sleppt við uppsetningu."
+    },
+    {
+      "context": "a profile from :func:`read_profile`, or ``None``.",
+      "label": "spacr.install_profile.no_wgpu_override#1",
+      "source": "a profile from :func:`read_profile`, or ``None``.",
+      "source_sha256": "7f0680fac5d236f36d4de7238ecf0c86c0e7f120388fea161c00acc60c91a789",
+      "translation": "uppsetningarsnið frá :func:`read_profile`, eða ``None``."
+    },
+    {
+      "context": "where to write the file; defaults to beside the profile.",
+      "label": "spacr.install_profile.no_wgpu_override#2",
+      "source": "where to write the file; defaults to beside the profile.",
+      "source_sha256": "362533b017eb61cf2094b7a12d697e97dd84b6bd129bb91ac3ffeab7fd8d01c7",
+      "translation": "hvar á að skrifa skrána; sjálfgefið í sömu möppu og sniðskráin."
+    },
+    {
+      "context": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "label": "spacr.install_profile.no_wgpu_override#3",
+      "source": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "source_sha256": "2539b0109d0371747e2bdee1aae364986d74d1e251ac9e68923edd157e0e3a3d",
+      "translation": "skráin sem var skrifuð þegar uppsetningarsniðið skráir ``without_wgpu``, annars ``None`` (einnig ef ekki er hægt að skrifa skrána)."
+    },
+    {
+      "context": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "label": "spacr.install_profile.write_profile#4",
+      "source": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "source_sha256": "038864379b17789f078c632901fe9be0c4d9c44eeff811a401ee2b1251040c3f",
+      "translation": "wgpu var sleppt við uppsetningu (valkosturinn \"Install without wgpu\" í uppsetningarforritunum, eða Linux með glibc eldra en 2.28); það er skráð svo uppfærsla úr forritinu sleppi því líka (:func:`no_wgpu_override`)."
+    },
+    {
+      "context": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "label": "spacr.layers.WGPUVolumeRenderer#0",
+      "source": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "source_sha256": "c2dd98ecc2dd29cce527c278aece94156886a94ddfa71e8627e8e93f96aa9b00",
+      "translation": ":func:`render_volume`, reiknað skref fyrir skref eftir geislum á GPU í gegnum wgpu (WGSL)."
+    },
+    {
+      "context": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "label": "spacr.layers.WGPUVolumeRenderer#1",
+      "source": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "source_sha256": "df87602fa9ec4c3c20c6a9672078f968d0e89ad2282ca16daf356e2dcdb6d565",
+      "translation": "Þriðji teiknarinn fyrir sama myndramma: Vulkan, Metal eða Direct3D 12 eftir því hvaða grafíkmillistykki hann fær. Sömu geislar (:class:`VolumeRays`), teikniaðferðir, yfirborðsáferð og linsa og í :func:`render_volume` og :class:`GLVolumeRenderer`; hver útreikningskeyrsla fer eftir einum geisla. Þrívíð gögn eru lesin með ``textureLoad`` og brúuð í skyggingarforritinu nákvæmlega eins og :func:`scipy.ndimage.map_coordinates` gerir (``order=1``, jaðargildi endurtekin). Myndlög eru lögð saman, merkjalög lögð yfir þau í staflaröð og hvert merkjalag skráir hlutinn næst áhorfandanum eftir hverjum geisla til að hægt sé að velja hluti. Myndramminn er teiknaður í geymslubiðminni, stærð hans aðlöguð að myndinni og hann lesinn aftur, svo hann birtist á sömu matplotlib-ásum og myndramminn frá CPU."
+    },
+    {
+      "context": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "label": "spacr.layers.WGPUVolumeRenderer#2",
+      "source": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "source_sha256": "7982e7e8cb9341b4386ec24d61f951c3531bf5db1cbd4b2b9d3388efc4af9ccb",
+      "translation": "Þrívíð gögn eru hlaðin upp einu sinni og geymd með minni þeirra sem lykil svo lengi sem þau eru teiknuð í hverjum myndramma, eins og :class:`GLVolumeRenderer` gerir."
+    },
+    {
+      "context": "a wgpu adapter (:func:`wgpu_adapter`).",
+      "label": "spacr.layers.WGPUVolumeRenderer#3",
+      "source": "a wgpu adapter (:func:`wgpu_adapter`).",
+      "source_sha256": "de05919194fc058d0659dcb79f1e32cd166d47e99812894145bf8b01c90b858b",
+      "translation": "wgpu-grafíkmillistykki (:func:`wgpu_adapter`)."
+    },
+    {
+      "context": "Free every volume, buffer and the device.",
+      "label": "spacr.layers.WGPUVolumeRenderer.close#0",
+      "source": "Free every volume, buffer and the device.",
+      "source_sha256": "5c7a7de2b931c0483b52dc1a028ca177a96ca65eed2d343c0ea9e6defeee2eac",
+      "translation": "Losa öll þrívíð gögn, öll biðminni og tækið."
+    },
+    {
+      "context": "The adapter's name, its backend and its largest 3-D texture side.",
+      "label": "spacr.layers.WGPUVolumeRenderer.limits#0",
+      "source": "The adapter's name, its backend and its largest 3-D texture side.",
+      "source_sha256": "25086d94b9b80315930098d8d53fbe49cd5827bb04f2fcd7f00b1d3b8b5b2606",
+      "translation": "Nafn grafíkmillistykkisins, bakendi þess og hámarkshliðarlengd 3D-áferðar."
+    },
+    {
+      "context": "Draw one frame; the same picture as :func:`render_volume`.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#0",
+      "source": "Draw one frame; the same picture as :func:`render_volume`.",
+      "source_sha256": "70a2013676a8d386c2fdd2947a30979964b58a9a1663add195dfeef9f2418f88",
+      "translation": "Teikna einn myndramma; sömu mynd og :func:`render_volume`."
+    },
+    {
+      "context": "the layers, bottom first.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#1",
+      "source": "the layers, bottom first.",
+      "source_sha256": "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+      "translation": "lögin, neðsta lagið fyrst."
+    },
+    {
+      "context": "where to sample, in the layers' array indices.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#2",
+      "source": "where to sample, in the layers' array indices.",
+      "source_sha256": "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+      "translation": "hvar á að taka sýni, gefið með fylkisvísum laganna."
+    },
+    {
+      "context": "an object drawn lighter.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#3",
+      "source": "an object drawn lighter.",
+      "source_sha256": "f966b4c17af8888f15b83a7d7d9f82d6a7b9a30237f2fe40217ec200744caaba",
+      "translation": "hlutur sem er teiknaður ljósari."
+    },
+    {
+      "context": "physical voxel length along each array axis.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#4",
+      "source": "physical voxel length along each array axis.",
+      "source_sha256": "f330bc9cf061ec48d1f709b73377e5e76ee98b96cf0eb933369b3552b89de5b1",
+      "translation": "raunlengd rúmpixils eftir hverjum ás fylkisins."
+    },
+    {
+      "context": "a magnifier cube, or ``None``.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#5",
+      "source": "a magnifier cube, or ``None``.",
+      "source_sha256": "2743d26a84c1777382ed737de8712c4367cebfc01a4d335e6070bc1c55dd3e02",
+      "translation": "stækkunarteningur, eða ``None``."
+    },
+    {
+      "context": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#6",
+      "source": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "source_sha256": "0a9043e1d517e66b1cb0f97bc382fcc563fd7cf463bd8702c3e07d04e9e1b8af",
+      "translation": "``(rows, columns)`` fyrir myndina sem er skilað, stækkaða úr geislagrindinni á GPU; ``None`` heldur geislagrindinni óbreyttri."
+    },
+    {
+      "context": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#7",
+      "source": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "source_sha256": "b6f4c0bcba01c984cead4919d8021998e3a2b7b8c0e77a5ee1ad73d1cdf5cd8a",
+      "translation": "``(rgb, picked)``: litgögn af gerðinni ``uint8`` og stærðinni ``size`` ásamt hlutnum næst áhorfandanum eftir hverjum geisla (``int64``, á geislagrindinni)."
+    },
+    {
+      "context": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "label": "spacr.layers.gpu_render_refusal#0",
+      "source": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "source_sha256": "13ff1b338956527418011a1b790b28302b5ccf67840c2570b77c7ab14dbd15dd",
+      "translation": "Ástæðan fyrir því að ekki má teikna 3D-sýn á GPU hér, eða ``\"\"``."
+    },
+    {
+      "context": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "label": "spacr.layers.gpu_render_refusal#1",
+      "source": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "source_sha256": "c1557f4cc874f1e28bdcc5daf187a3af10d957238b2371ec0d713b883deb898d",
+      "translation": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, hvaða gildi sem er nema ``0`` eða tómt), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (stillt á tómt gildi), eða ``\"\"`` þegar nota má GPU."
+    },
+    {
+      "context": "A fresh wgpu adapter of one backend, the best kind first.",
+      "label": "spacr.layers.wgpu_adapter#0",
+      "source": "A fresh wgpu adapter of one backend, the best kind first.",
+      "source_sha256": "c9c2b4ad69ac3aa2d7f278dc6ac69b629300afb5cc5b68707cc6aca28a883574",
+      "translation": "Nýtt wgpu-grafíkmillistykki fyrir einn bakenda, besta gerðin fyrst."
+    },
+    {
+      "context": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "label": "spacr.layers.wgpu_adapter#1",
+      "source": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "source_sha256": "a0b6510272d616f54ebcd2f50331a91ad981015e8f574a1cb57800c34b39c220",
+      "translation": "Sérstakt GPU er valið fremur en innbyggt, og hugbúnaðarrastrari (``adapter_type`` ``CPU``) kemur síðast eða er alls ekki leyfður."
+    },
+    {
+      "context": "a key of :data:`WGPU_BACKENDS`.",
+      "label": "spacr.layers.wgpu_adapter#2",
+      "source": "a key of :data:`WGPU_BACKENDS`.",
+      "source_sha256": "ab940514c5d4db0f209bdb261cd4014c1d9068f1fdc42bc3bf7a86eeb94bbc18",
+      "translation": "lykill í :data:`WGPU_BACKENDS`."
+    },
+    {
+      "context": "with a one-line reason when there is none.",
+      "label": "spacr.layers.wgpu_adapter#5",
+      "source": "with a one-line reason when there is none.",
+      "source_sha256": "e784eb68bf47f8bc3321c4ddf1a267e4c641c033aa6fea9d7e9e093dfa2fea8c",
+      "translation": "með ástæðu á einni línu þegar ekkert millistykki finnst."
+    },
+    {
+      "context": "The graphics adapters wgpu can draw the True 3D view with.",
+      "label": "spacr.layers.wgpu_adapters#0",
+      "source": "The graphics adapters wgpu can draw the True 3D view with.",
+      "source_sha256": "fe49253da26f9b6a6d0b62804952e4cf5038e3b38ef2ffa3d268361d6ca62012",
+      "translation": "Grafíkmillistykkin sem wgpu getur notað til að teikna True 3D-sýnina."
+    },
+    {
+      "context": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "label": "spacr.layers.wgpu_adapters#1",
+      "source": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "source_sha256": "2cdb02e405e9c1ebdeeb068d68b2b6791e6d4331eabbf659ee021f3b2103bcac",
+      "translation": "wgpu er flutt inn í fyrsta skipti sem þessara upplýsinga er óskað, aldrei fyrr, svo tölva án þess beri ekki þann kostnað; niðurstaðan er síðan geymd í minni."
+    },
+    {
+      "context": "one ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` per Vulkan, Metal or Direct3D 12 adapter; empty without wgpu.",
+      "label": "spacr.layers.wgpu_adapters#3",
+      "source": "one ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` per Vulkan, Metal or Direct3D 12 adapter; empty without wgpu.",
+      "source_sha256": "ca81b70bce58fcc0560cec35f32dc8855d5f67b6baa35f03de3299e050c669b0",
+      "translation": "ein færsla ``{\"backend\", \"name\", \"adapter_type\", \"description\"}`` fyrir hvert Vulkan-, Metal- eða Direct3D 12-millistykki; tómt ef wgpu vantar."
+    },
+    {
+      "context": "a key-value mapping that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a structured-data name never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "label": "spacr.qt.preferences.get_volume_view#1",
+      "source": "a dict that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a key never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "source_sha256": "5a10d40273c87e39a871b830712422664da124f71b866eaeeb2fec37c45bfbaa",
+      "translation": "vörpun lykla á gildi sem getur innihaldið ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` eða ``cpu``), ``scale`` (teiknikvarðann, 1 til 100) og ``finish`` (yfirborðsáferð maskanna); lykill sem aldrei hefur verið valinn er ekki til staðar. Kallandinn athugar gildin, svo enn er hægt að opna stillingar sem nýrri útgáfa hefur skrifað."
+    },
+    {
+      "context": "The GPU backends a choice tries, in order, before the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#0",
+      "source": "The GPU backends a choice tries, in order, before the CPU.",
+      "source_sha256": "ad781141c364e0b2e5e0570975191cd4f44cfb51dde4ea7bc77297b0b0fe5a00",
+      "translation": "GPU-bakendarnir sem valkostur reynir í röð áður en CPU er notað."
+    },
+    {
+      "context": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#1",
+      "source": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "source_sha256": "96f292bd51a9124264d855e42ce94ab2e250d753306367a0b3af6e9fa5d7783e",
+      "translation": "Auto velur wgpu fyrst -- Vulkan á Linux og Windows, Metal á macOS og Direct3D 12 á Windows þegar Vulkan vantar -- og síðan OpenGL. Aðrir GPU-valkostir reyna aðeins valinn bakenda; ``cpu`` reynir engan."
+    },
+    {
+      "context": "a key of :data:`VOLUME_BACKENDS`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#2",
+      "source": "a key of :data:`VOLUME_BACKENDS`.",
+      "source_sha256": "394671030ef87be733409bbac66adf8e886c14b0decd274efd335c8df07ca40c",
+      "translation": "lykill í :data:`VOLUME_BACKENDS`."
+    },
+    {
+      "context": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#3",
+      "source": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "source_sha256": "23a414b6a8cdccb5361548026b3b5853e9c7c756035ac213ccb2573e0f91f6ce",
+      "translation": "bakendarnir sem eru í boði; sjálfgefið er niðurstaða :func:`volume_render_backends`."
+    },
+    {
+      "context": "``sys.platform``; defaults to this computer's.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#4",
+      "source": "``sys.platform``; defaults to this computer's.",
+      "source_sha256": "98cecf4522321d185f3c6acbe53b4718e9467034b1efa6e29a81a10f9114352d",
+      "translation": "``sys.platform``; sjálfgefið er gildi þessarar tölvu."
+    },
+    {
+      "context": "GPU backend keys, best first.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#5",
+      "source": "GPU backend keys, best first.",
+      "source_sha256": "6f5ca7279131b7b5b3d31f756f623ce45006cc6344d36555445df47bd825a3ab",
+      "translation": "Lyklar GPU-bakenda, sá besti fyrst."
+    },
+    {
+      "context": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#0",
+      "source": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "source_sha256": "9f4ae569cf871d5e81685fbb7333907b1858712f0a7f70351ed47d92b1fd35df",
+      "translation": "Ástæðan fyrir því að ekki má teikna True 3D-sýnina á GPU hér, eða ``''``."
+    },
+    {
+      "context": ":func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#1",
+      "source": ":func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.",
+      "source_sha256": "3dc916385589681e081292b0ffc59486ac787adef4832b619af7856e8544feb9",
+      "translation": ":func:`spacr.layers.gpu_render_refusal`: ef ``SPACR_NO_GPU_RENDER`` er stillt, eða ``CUDA_VISIBLE_DEVICES`` er stillt og tómt, heldur sýnin áfram að nota CPU."
+    },
+    {
+      "context": "a one-line reason naming the variable, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#2",
+      "source": "a one-line reason naming the variable, or ``''``.",
+      "source_sha256": "002a142ff3b97da71419c4e17b8b70b9c4263634e6e950e9151ab4bfcf7d8142",
+      "translation": "ástæða á einni línu sem nefnir breytuna, eða ``''``."
+    },
+    {
+      "context": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "label": "spacr.qt.screens.make_masks.volume_render_backends#1",
+      "source": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "source_sha256": "60e2f48fcd39dab08fe4f6024740cf91c1f765664cb6cbeffe72a5fdb920bed6",
+      "translation": "``auto`` og ``cpu`` eru alltaf í boði; ``vulkan``, ``metal`` og ``d3d12`` þegar wgpu er uppsett og finnur millistykki af þeirri gerð (:func:`spacr.layers.wgpu_adapters`, sem flytur wgpu inn við fyrsta kall og aldrei fyrr); ``opengl`` þegar hægt er að flytja inn VisPy (forritasafn sem spaCR er háð). Þegar slökkt er á GPU (:func:`volume_gpu_refusal`) eru aðeins ``auto`` og ``cpu`` í boði. Hvort bakendi geti í raun teiknað kemur ekki í ljós fyrr en fyrsti myndramminn er teiknaður; :meth:`_VolumeStage._active_backend` kannar það og Auto reynir varakosti í röðinni sem :func:`volume_backend_chain` gefur."
+    },
+    {
+      "context": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "source_sha256": "a9946bbe0907d70735d911e3509181d5ad71030515170b76b29ef6bc509582d6",
+      "translation": "Uppsetning sem sleppti wgpu (uppsetningarsnið hennar skráir ``without_wgpu``) er uppfærð með ``--override`` úr uv frá :func:`spacr.install_profile.no_wgpu_override`, svo uppfærslan sleppi því líka."
+    }
+  ],
+  "schema": 1
+}

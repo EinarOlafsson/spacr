@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 through 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Codecov coverage
 
@@ -115,16 +115,22 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: Use **Load test data…** in Import, Make Masks, Annotate or an assay screen to
-    download example data. From a terminal, use ``spacr-download``.
 - h2: Hardware support
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
+  details:
+  - 'Auto: True 3D in Make Masks tries each available backend in order: Linux: Vulkan → OpenGL
+    → CPU; Windows: Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan → OpenGL →
+    CPU. Vulkan, Metal and Direct3D 12 use wgpu. A failed or unavailable GPU backend falls
+    back to the next backend; CPU rendering remains available.'
+  - wgpu is installed by default with Python 3.10 or later on Windows (x64, ARM64), macOS
+    (Intel, Apple silicon) and Linux (x86-64, ARM64, glibc 2.28 or later). Python 3.9, other
+    processors, Linux with older glibc and installations made without wgpu use OpenGL, then
+    CPU. The purple 3D cells indicate implemented GPU support awaiting real-display acceptance.
+  - CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
     i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This
+    is a historical example, not a speed guarantee. GPU acceleration requires a usable backend
+    and compatible libraries. See the `recorded hardware measurement <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Install spaCR
 - p: 'Choose an install route:'
 - list:
@@ -137,8 +143,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: The `Docker guide <docs/source/installer_guide.rst#container-images>`_ covers
-    GPU setup, data mounts and pipeline commands.
+- p: The `Docker guide (nightly, English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    covers GPU setup, data mounts and pipeline commands.
 - h3: Desktop application
 - p: The installers bundle their own Python. Conda is not required.
 - generated: installer-links
@@ -149,9 +155,10 @@ blocks:
   lang: bash
 - p: On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
     blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
-- p: See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
-    offline and troubleshooting instructions, and `system requirements <docs/source/system_requirements.rst>`_
-    for workstation and server recommendations and the GPU compatibility tables.
+- p: For installation, updates, reinstallation, uninstallation, offline use and troubleshooting,
+    see the `current nightly installer guide (English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
+    See `system requirements <docs/source/system_requirements.rst>`_ for workstation
+    and server recommendations and GPU compatibility tables.
 - h3: PyPI installation
 - p: 'For the PyPI release, install spaCR with pip inside a Conda environment. Python
     3.12 has the widest choice of optional scientific packages:'
@@ -175,8 +182,8 @@ blocks:
   lang: bash
 - p: Optional integrations are installed separately, for example ``spacr[zarr]``,
     ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `installation
-    guide <docs/source/installer_guide.rst>`_ for the complete extras and Python-version
-    compatibility table.
+    guide (nightly, English) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    for the complete extras and Python-version compatibility table.
 - h3: Conda-forge installation
 - p: 'The official conda-forge package installs spaCR and its desktop dependencies
     into the active environment:'

@@ -274,7 +274,10 @@
       "label": "spacr.power_model.scan_parameters#17",
       "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
       "source_sha256": "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
-      "translation": "如果未给出任何参数、 ``on_error`` 无法识别、 ``n_replicates < 1`` 、进度文件已存在但列布局不同(把错位的行追加到 TSV 是一种悄无声息的数据损坏缺陷,所以我们选择停止),或者进度文件非空且 ``resume=False`` 。"
+      "translation": "如果未给出任何参数、 ``on_error`` 无法识别、 ``n_replicates < 1`` 、进度文件已存在但列布局不同(把错位的行追加到 TSV 是一种悄无声息的数据损坏缺陷,所以我们选择停止),或者进度文件非空且 ``resume=False`` 。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",

@@ -49,7 +49,9 @@
       "source_sha256": "0f185865a3c7bf23962f7984a098d8b0e8ede018610abd1e794c1f6adf47c578",
       "source": "Simulate the imaged cells per genotype per well and the classifier's calls.",
       "context": "Simulate the imaged cells per genotype per microplate sample position and the machine-learning classification model's calls.",
-      "translation": "Hermdu eftir ímynduðum frumum fyrir hvert arfgerð á hverju sýnisstæði í öruggsplötu og köllum vélnáms flokkunarlíkansins."
+      "translation": "Hermdu eftir ímynduðum frumum fyrir hvert arfgerð á hverju sýnisstæði í öruggsplötu og köllum vélnáms flokkunarlíkansins.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.database_schema#3",

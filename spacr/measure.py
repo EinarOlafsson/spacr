@@ -11649,7 +11649,7 @@ def generate_object_dataset(
         image channels). Override if your arrays have a different channel count.
     :param save_png: write PNG files (set False to only collect arrays).
     :param return_arrays: also return the cropped arrays in the manifest.
-    :param limit: cap the number of objects processed (handy for previews).
+    :param limit: cap the number of objects processed, for example for previews.
     :param db_path: explicit path to ``measurements.db`` (else derived from src).
     :param verbose: print a short progress summary.
     :returns: a manifest ``list[dict]``; each entry has ``object_label``,
@@ -12749,3 +12749,253 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         'stems': written['stems'],
         'merged': written['merged'],
     }
+
+
+def _volume_measure_spacing(axes, spacing, unit):
+    """Normalize declared spatial distances to ZYX micrometres or pixels."""
+    from .qt.i18n import tr
+
+    axes = str(axes)
+    if sorted(axes) != ['X', 'Y', 'Z']:
+        raise ValueError(tr('3D measurement requires exactly three spatial axes.'))
+    distances = tuple(float(value) for value in spacing)
+    if (len(distances) != 3
+            or not all(np.isfinite(value) and value > 0 for value in distances)):
+        raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+    factors = {'nm': .001, 'um': 1., 'µm': 1., 'μm': 1.,
+               'micron': 1., 'microns': 1., 'mm': 1000., 'm': 1_000_000.}
+    unit = str(unit).strip().lower()
+    if unit in ('pixel', 'pixels', 'px'):
+        units, factor = UNITS_PX, 1.
+    elif unit in factors:
+        units, factor = UNITS_UM, factors[unit]
+    else:
+        raise ValueError(tr('Unsupported volume measurement unit: {unit}.', unit=unit))
+    ordered = tuple(distances[axes.index(axis)] * factor for axis in 'ZYX')
+    return ordered, units
+
+
+def _volume_measure_input(row):
+    """Load one spatial image set, retaining current unsaved label snapshots.
+
+    Extra files share the source voxel grid. Declared physical spacing must
+    agree; uncalibrated channel TIFFs may inherit the source grid, but their
+    shape must still agree after spatial axes are reordered.
+    """
+    from pathlib import Path
+    from .qt import mask_engine
+    from .qt.i18n import tr
+
+    source = Path(row['source_path']).expanduser().resolve()
+    if not source.is_file():
+        raise ValueError(tr('The volume image does not exist: {path}.', path=str(source)))
+    snapshot = row.get('snapshot')
+    mask_path = row.get('mask_path') if snapshot is None else None
+    if snapshot is None:
+        if mask_path:
+            reader = (mask_engine._read_mrc_volume
+                      if source.suffix.lower() in mask_engine._VOLUME_MRC_SUFFIXES
+                      else mask_engine._read_tiff_volume)
+            image, axes, spacing, unit = reader(source)
+            channels = tuple(image) if image.ndim == 4 else (image,)
+            snapshot = {'channels': channels, 'mask': np.zeros(channels[0].shape, dtype=np.uint16),
+                        'axes': axes, 'spacing': spacing, 'unit': unit}
+        else:
+            session = mask_engine.load_volume_image_and_mask(str(source.parent), source.name)
+            snapshot = {'channels': session.channels, 'mask': session.mask,
+                        'axes': session.axes, 'spacing': session.spacing, 'unit': session.unit}
+    axes = str(snapshot['axes'])
+    spacing, units = _volume_measure_spacing(axes, snapshot['spacing'], snapshot['unit'])
+    order = tuple(axes.index(axis) for axis in 'ZYX')
+    channels = [np.asarray(channel).transpose(order) for channel in snapshot['channels']]
+    labels = np.asarray(snapshot['mask']).transpose(order)
+    if mask_path:
+        mask_data, mask_axes, mask_spacing, mask_unit = mask_engine._read_tiff_volume(Path(mask_path).expanduser())
+        if mask_data.ndim != 3:
+            raise ValueError(tr('Choose a single 3D label volume for the mask.'))
+        mask_spacing, mask_units = _volume_measure_spacing(mask_axes, mask_spacing, mask_unit)
+        calibrated = mask_units != UNITS_PX or not np.allclose(mask_spacing, (1., 1., 1.))
+        if calibrated and (mask_units != units or not np.allclose(mask_spacing, spacing)):
+            raise ValueError(tr('The mask voxel spacing does not match the source image: {path}.', path=str(mask_path)))
+        labels = np.asarray(mask_data).transpose(tuple(mask_axes.index(axis) for axis in 'ZYX'))
+    if (labels.ndim != 3 or not labels.size or labels.dtype.kind not in 'ui'
+            or labels.min() < 0 or labels.max() > 65535
+            or labels.size > mask_engine.VolumeMaskSession.MAX_VOXELS):
+        raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+    if not np.any(labels):
+        raise ValueError(tr('Draw or load object labels before measuring {name}.', name=source.name))
+    labels = labels.astype(np.uint16, copy=False)
+    paths = []
+    origins = [{'path': str(source), 'channel': index} for index in range(len(channels))]
+    for raw_path in row.get('channel_paths', ()):
+        path = Path(raw_path).expanduser().resolve()
+        paths.append(str(path))
+        reader = (mask_engine._read_mrc_volume
+                  if path.suffix.lower() in mask_engine._VOLUME_MRC_SUFFIXES
+                  else mask_engine._read_tiff_volume)
+        values, extra_axes, extra_spacing, extra_unit = reader(path)
+        extra_spacing, extra_units = _volume_measure_spacing(extra_axes, extra_spacing, extra_unit)
+        calibrated = extra_units != UNITS_PX or not np.allclose(extra_spacing, (1., 1., 1.))
+        if calibrated and (extra_units != units or not np.allclose(extra_spacing, spacing)):
+            raise ValueError(tr('The channel voxel spacing does not match the source image: {path}.', path=str(path)))
+        extra = tuple(values) if values.ndim == 4 else (values,)
+        extra_order = tuple(extra_axes.index(axis) for axis in 'ZYX')
+        channels.extend(np.asarray(value).transpose(extra_order) for value in extra)
+        origins.extend({'path': str(path), 'channel': index} for index in range(len(extra)))
+    if (not channels or len(channels) > 16
+            or sum(channel.nbytes for channel in channels) > 256 * 1024 * 1024):
+        raise ValueError(tr('A measurement image set supports up to 16 channels within the 256 MiB volume budget.'))
+    if any(channel.shape != labels.shape or channel.dtype.kind not in 'uif'
+           or not np.isfinite(channel).all() for channel in channels):
+        raise ValueError(tr('Every channel must contain finite numeric intensities on the same 3D grid as its labels.'))
+    return source, labels, channels, spacing, units, paths, origins
+
+
+def _volume_measure_frame(row, object_type):
+    """Measure native voxels with the same feature names as spaCR Measure."""
+    import hashlib
+    from . import schema
+
+    source, labels, channels, spacing, units, paths, origins = _volume_measure_input(row)
+    props = [prop for prop in MORPHOLOGICAL_PROPS if prop not in PROPS_2D_ONLY]
+    frame = _safe_morphology_table(labels, props, spacing=spacing)
+    counts = np.bincount(labels.ravel().astype(np.int64, copy=False))
+    frame['volume_voxels'] = counts[frame['label'].to_numpy(dtype=int)]
+    if units == UNITS_UM:
+        frame['volume_um3'] = frame['volume_voxels'] * np.prod(spacing)
+    positions = pd.DataFrame(regionprops_table(labels, properties=('label', 'centroid'), spacing=spacing))
+    frame = frame.merge(_rename_3d_centroids(positions), on='label', validate='one_to_one')
+    spatial = _spatial_measurements(labels, spacing=spacing)
+    frame = frame.merge(spatial, on='label', validate='one_to_one')
+    frame = frame.rename(columns={name: f'{object_type}_{name}' for name in frame.columns if name != 'label'})
+    for index, channel in enumerate(channels):
+        measured = _extended_regionprops_table(
+            labels, channel, ('label', 'centroid_weighted', 'max_intensity',
+                              'mean_intensity', 'min_intensity'), spacing=spacing)
+        measured = measured.rename(columns={name: f'{object_type}_channel_{index}_{name}'
+                                             for name in measured.columns if name != 'label'})
+        frame = frame.merge(measured, on='label', validate='one_to_one')
+    correlation_labels = labels
+    if not np.any(labels == 0):
+        correlation_labels = np.pad(labels, 1)
+    for first in range(len(channels)):
+        for second in range(first + 1, len(channels)):
+            images = (channels[first], channels[second])
+            if correlation_labels is not labels:
+                images = tuple(np.pad(channel, 1) for channel in images)
+            correlation = _calculate_correlation_object_level(*images, correlation_labels, {})
+            correlation = correlation.rename(columns={
+                name: ('label' if name == 'label_correlation'
+                       else f'{object_type}_channel_{first}_channel_{second}_{name}')
+                for name in correlation.columns})
+            frame = frame.merge(correlation, on='label', validate='one_to_one')
+    image_key = hashlib.sha256(json.dumps([str(source), paths]).encode('utf-8')).hexdigest()
+    plate = 'make_masks_volume'
+    field = schema.FieldID.build(plate, well='A01', field=int(image_key[:15], 16))
+    identity = {
+        **field.to_dict(), 'prcf': field.prcf,
+        'file_name': source.name, 'path_name': str(source),
+        'measurement_ndim': 3, 'measurement_units': units, 'n_z': labels.shape[0],
+        'voxel_size_z_um': spacing[0] if units == UNITS_UM else None,
+        'voxel_size_xy_um': (spacing[1] if units == UNITS_UM
+                             and np.isclose(spacing[1], spacing[2]) else None),
+        'measurement_source': 'make_masks_3d', 'measurement_image_key': image_key,
+        'measurement_channel_sources': json.dumps(origins, ensure_ascii=False),
+        'measurement_spacing_z': spacing[0], 'measurement_spacing_y': spacing[1],
+        'measurement_spacing_x': spacing[2],
+    }
+    frame = frame.rename(columns={'label': 'object_label'})
+    for name, value in identity.items():
+        frame[name] = value
+    frame = schema.validate_object_table_frame(frame, object_type, timelapse=False)
+    target = source.parent / 'measurements.db'
+    existing = source.parent / 'measurements' / 'measurements.db'
+    if not target.exists() and existing.exists():
+        target = existing
+    return str(target), frame
+
+
+def _write_volume_measurements(db_path, frames, object_type):
+    """Append image sets atomically, updating only this entry point's own rows."""
+    import uuid
+    from .database_concurrency import _commit_write_packet, connect
+    from .tabular import write_database
+    from .utils import _assert_measurement_units_compatible, _widen_table_for
+    from .qt.i18n import tr
+
+    def write(frame):
+        """Validate the destination inside its writer transaction before changing it."""
+        _assert_measurement_units_compatible(db_path, object_type, frame.iloc[0].to_dict())
+        connection = connect(db_path)
+        columns = {row[1] for row in connection.execute(f'PRAGMA table_info("{object_type}")')}
+        if columns:
+            if 'prcf' not in columns:
+                raise ValueError(tr('The existing object table has no field identity; choose another image folder.'))
+            key = frame['prcf'].iloc[0]
+            count = connection.execute(f'SELECT COUNT(*) FROM "{object_type}" WHERE prcf=?', (key,)).fetchone()[0]
+            if count:
+                ownership = {'measurement_source', 'measurement_image_key'}
+                owned = 0
+                if ownership <= columns:
+                    owned = connection.execute(
+                        f'SELECT COUNT(*) FROM "{object_type}" WHERE prcf=? AND measurement_source=? AND measurement_image_key=?',
+                        (key, 'make_masks_3d', frame['measurement_image_key'].iloc[0])).fetchone()[0]
+                if owned != count:
+                    raise ValueError(tr('This image identity already belongs to other measurements; existing rows were preserved.'))
+                connection.execute(f'DELETE FROM "{object_type}" WHERE prcf=?', (key,))
+            _widen_table_for(connection, object_type, frame)
+        write_database(frame, db_path, object_type, if_exists='append')
+
+    packet = {'ticket': uuid.uuid4().hex, 'field': 'make_masks_3d', 'operations': frames}
+    _commit_write_packet(db_path, packet, write)
+
+
+def measure_volume_rows(rows, *, object_type='cell', progress=None):
+    """Measure current or saved 3D image sets into their image-folder databases.
+
+    :param rows: dictionaries with ``source_path``, optional ``mask_path`` and
+        extra ``channel_paths``. The current image supplies a ``snapshot``
+        containing immutable channels, copied labels, axes, spacing and unit,
+        so unsaved edits are measured without changing their saved mask.
+    :param object_type: canonical object role, such as ``cell`` or ``nucleus``.
+    :param progress: optional worker-safe callback receiving translated text.
+    :returns: database paths, image count and object count. All rows are
+        measured before any write; each destination commits atomically.
+
+    Stored morphology, intensity, correlation and spatial feature names follow
+    Measure. Pixel coordinates stay explicitly pixel coordinates; physical
+    metadata are converted to micrometres. Repeating an image set replaces
+    only this entry point's earlier rows. Other fields and tables are retained.
+    """
+    from . import schema
+    from .qt.i18n import tr
+
+    if object_type not in schema.CANONICAL_OBJECT_TABLES:
+        raise ValueError(tr('Choose a supported object type for 3D measurement.'))
+    rows = tuple(rows)
+    if not rows:
+        raise ValueError(tr('Add an image set to measure.'))
+
+    def report(message):
+        """Keep a closed progress display from changing a database result."""
+        if progress is not None:
+            try:
+                progress(message)
+            except Exception:
+                pass
+
+    grouped = defaultdict(list)
+    identities = set()
+    for index, row in enumerate(rows):
+        report(tr('Measuring 3D image set {current} of {total}...', current=index + 1, total=len(rows)))
+        target, frame = _volume_measure_frame(row, object_type)
+        identity = (target, frame['measurement_image_key'].iloc[0])
+        if identity in identities:
+            raise ValueError(tr('The same image set appears more than once in the measurement rows.'))
+        identities.add(identity)
+        grouped[target].append(frame)
+    for target, frames in grouped.items():
+        _write_volume_measurements(target, frames, object_type)
+        report(tr('Measurements saved: {path}', path=target))
+    return {'db_paths': tuple(grouped), 'images': len(rows),
+            'objects': sum(len(frame) for frames in grouped.values() for frame in frames)}

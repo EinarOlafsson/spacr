@@ -1,4 +1,4 @@
-"""Settings templates — named bundles you can reuse and share.
+"""Settings templates: named, reusable and shareable bundles of settings.
 
 The historical Recipe API, JSON format and storage paths remain compatible.
 

@@ -59,12 +59,17 @@ on:
 # is to notice upstream wheel availability without anybody remembering to
 # look could be destroyed by an unrelated commit, silently and weekly.
 #
-# A push still cancels the previous PUSH grid, so the 5 August protection is
-# exactly as it was. Only a deliberately dispatched run is exempt, and cron
-# now merely gets a lane of its own rather than an exemption.
+# As in tests.yml, let the running push grid finish: tutorial and docs pushes
+# repeatedly superseded the release compatibility verdict on 2026-10-17.
+# Each group still keeps only one running and one pending run; a newer pending
+# push replaces the older pending push. Only pull requests cancel a running
+# predecessor. Manual and scheduled runs keep their separate event lanes.
 concurrency:
   group: compat-matrix-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NUMBA_DISABLE_ERROR_MESSAGE_HIGHLIGHTING: '1'
 
 jobs:
   # -------------------------------------------------------------------------

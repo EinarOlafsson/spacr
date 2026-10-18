@@ -291,13 +291,6 @@
     },
     {
       "table": "ui",
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "translation": "Uma noite de céu limpo: índigo, violeta, azul-gelo e o azul-lilás pálido que permanece no céu muito depois do pôr do sol.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
-    },
-    {
-      "table": "ui",
       "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "translation": "Uma condição em SQL sobre as próprias colunas da tabela de recortes. O banco de dados é aberto somente para leitura; nada que você digitar aqui pode alterá-lo.",
@@ -326,31 +319,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "translation": "Um arpejo ascendente que resolve na tônica quando a execução de um módulo termina com sucesso, para avisar quando spaCR estiver em outra janela.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "translation": "Um som curto e suave de corda dedilhada, na tonalidade do conjunto de sons, ao pressionar um botão, interruptor, aba, lista ou controle deslizante: confirmação discreta de que a ação foi registrada.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
-    },
-    {
-      "table": "ui",
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "translation": "Uma sequência descendente mais lenta quando uma execução termina com erro, para distinguir pelo som o sucesso da falha. Uma execução interrompida por você não emite som.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
-    },
-    {
-      "table": "ui",
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "translation": "O sol perto do horizonte e a matéria que sua luz atravessa: dourado, âmbar, dourado pálido e verde-musgo.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
     },
     {
       "table": "ui",
@@ -365,13 +337,6 @@
       "source": "Add field",
       "translation": "Adicionar campo",
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "translation": "Adiciona as mensagens DEBUG de spaCR aos arquivos de log em ~/.spacr/logs. Também permite que cellpose informe qual modelo carregou e registra quais botões você pressionou. Esse histórico torna um relatório de erro útil para a investigação.\n\nAtivar esta opção não aumentou o tempo de inicialização de spaCR nem de abertura das telas. A medição foi feita em uma estação de trabalho, abrindo cada módulo uma vez com a opção ativada e outra com ela desativada. Em ambos os casos, a tela inicial ficou pronta em cerca de 4 segundos após uma inicialização a frio. O módulo mais lento abriu em cerca de 7 segundos nas duas condições. O tempo de execução dos fluxos de processamento não foi medido.\n\nO Console continua mostrando apenas os níveis que você ativa na aba Registro. Esta opção não rastreia todas as chamadas de funções. Esse rastreador é uma ferramenta separada para desenvolvedores, e nada aqui o ativa.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
     },
     {
       "table": "ui",
@@ -560,6 +525,46 @@
       "translation": "Um modelo 4PL é simétrico em torno de seu ponto médio. A assimetria real pode existir, e um 4PL a absorve deslocando o EC50. O 5PL a ajusta com um parâmetro a mais, exige mais uma concentração e informa se esse parâmetro adicional se justifica.",
       "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "Uma noite de céu limpo: índigo, violeta, azul-gelo e o azul-lilás pálido que permanece no céu muito depois do pôr do sol.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "Um arpejo ascendente que resolve na tônica quando a execução de um módulo termina com sucesso, para avisar quando spaCR estiver em outra janela.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "Um som curto e suave de corda dedilhada, na tonalidade do conjunto de sons, ao pressionar um botão, interruptor, aba, lista ou controle deslizante: confirmação discreta de que a ação foi registrada.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "O sol perto do horizonte e a matéria que sua luz atravessa: dourado, âmbar, dourado pálido e verde-musgo.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "Adiciona as mensagens DEBUG de spaCR aos arquivos de log em ~/.spacr/logs. Também permite que cellpose informe qual modelo carregou e registra quais botões você pressionou. Esse histórico torna um relatório de erro útil para a investigação.\n\nAtivar esta opção não aumentou o tempo de inicialização de spaCR nem de abertura das telas. A medição foi feita em uma estação de trabalho, abrindo cada módulo uma vez com a opção ativada e outra com ela desativada. Em ambos os casos, a tela inicial ficou pronta em cerca de 4 segundos após uma inicialização a frio. O módulo mais lento abriu em cerca de 7 segundos nas duas condições. O tempo de execução dos fluxos de processamento não foi medido.\n\nO Console continua mostrando apenas os níveis que você ativa na aba Registro. Esta opção não rastreia todas as chamadas de funções. Esse rastreador é uma ferramenta separada para desenvolvedores, e nada aqui o ativa.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

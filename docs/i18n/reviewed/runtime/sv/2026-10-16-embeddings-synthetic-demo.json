@@ -13,13 +13,6 @@
     },
     {
       "table": "ui",
-      "key": "Load 24 generated shapes with labels. ResNet-18 runs on the CPU; pretrained weights download only if not cached.",
-      "source": "Load 24 generated shapes with labels. ResNet-18 runs on the CPU; pretrained weights download only if not cached.",
-      "source_sha256": "0b165afb412c9e4840986e14a0b7e4d334d15bbda0c094de10dafb344b518979",
-      "translation": "Läs in 24 genererade former med etiketter. ResNet-18 körs på processorn (CPU); förtränade vikter hämtas bara om de inte redan finns i cachen."
-    },
-    {
-      "table": "ui",
       "key": "Loading synthetic demo crops…",
       "source": "Loading synthetic demo crops…",
       "source_sha256": "5d6b1c5b4558c7a846817b81df2c5a2d1b7e39ecbce762f3d078452b29669580",

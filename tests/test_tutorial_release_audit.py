@@ -99,7 +99,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     }
     refreshed_scenes = {
         "01_pypi_github": 8, "02_install_spacr": 17,
-        "04_platform_installers": 14, "05_home": 31,
+        "04_platform_installers": 14, "05_home": 33,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
@@ -109,6 +109,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
     # the republished Platform Installers lesson (4014dbdef) has 11 (was 10).
     # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
+    # The 2026-10-17 re-recorded 05 Home lesson (d7d31509f) has 33 scenes (was 31).
     # Re-record wave 1 (candidate kq8y8lq2): 22 13 (was 7), 32 10 (was 9), 41 12 (was 11), 43 14 (was 13).
     # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
     # Wave 3 (candidate nmw7tksc): 08 13 (was 12), 14 41 (was 32), 58 23 (was 12), 64 25 (was 22),
@@ -125,8 +126,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
         scene["visual"] for scene in make_masks["scenes"]
     }
     # The accepted Home revision removes its hidden Spaceout ending.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1158
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1219
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1160
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1221
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

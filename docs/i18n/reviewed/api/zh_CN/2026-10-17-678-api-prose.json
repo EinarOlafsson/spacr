@@ -1,0 +1,385 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "Uses plain streamed HTTP rather than the ``hf_hub`` download machinery, so a one-off demo download creates no Hugging Face cache directory.",
+      "label": "spacr.example_archives.download_archive#1",
+      "source": "Uses plain streamed HTTP rather than the ``hf_hub`` download machinery, so a one-off demo download creates no Hugging Face cache directory.",
+      "source_sha256": "a71e65281faebda5fb6c5e203baaa97b061e851127e44dec5d28f97d4b0a3b89",
+      "translation": "使用普通的流式 HTTP，而不是 ``hf_hub`` 的下载机制，因此一次性的演示下载不会创建 Hugging Face 缓存目录。"
+    },
+    {
+      "context": "If a column has only one annotated value (e.g., only '1's), a '<column>_random' class is added from unannotated rows of that column: as many rows as positives, or every unannotated row when there are fewer; with none, no class is added.",
+      "label": "spacr.io.generate_training_dataset#5",
+      "source": "If a column has only one annotated value (e.g., only '1's), a '<column>_random' class is added from unannotated rows of that column: as many rows as positives, or every unannotated row when there are fewer; with none, no class is added.",
+      "source_sha256": "858239c2e77af408e79bec7ba95a7862401c9306f5921a76d725e0d5c89ec7ff",
+      "translation": "如果某列只有一个已标注的值（例如只有 '1'），则从该列的未标注行中添加一个 '<column>_random' 类：行数与阳性样本数相同；若未标注行更少，则使用全部未标注行；若没有未标注行，则不添加类。"
+    },
+    {
+      "context": "also attach a StreamHandler to stderr, for headless and CI runs in which the log file is not inspected.",
+      "label": "spacr.logging_util.setup_logging#4",
+      "source": "also attach a StreamHandler to stderr, for headless and CI runs in which the log file is not inspected.",
+      "source_sha256": "d8a06344090f6867948e72c2e67aabe6aa1223b408858ae23c2c0a58aae09145",
+      "translation": "同时将一个 StreamHandler 附加到 stderr，用于无图形界面运行和 CI 运行，这些情况下不会查看日志文件。"
+    },
+    {
+      "context": "Idempotent — functions that already carry ``__spacr_timed__`` are skipped. Intended for ad-hoc profiling; not recommended for production imports because it slows every call by ~1 µs.",
+      "label": "spacr.logging_util.time_module#1",
+      "source": "Idempotent — functions that already carry ``__spacr_timed__`` are skipped. Intended for ad-hoc profiling; not recommended for production imports because it slows every call by ~1 µs.",
+      "source_sha256": "9423197b625b11cfb41ade61d02a470e530488f926f2ac5ace6ce53dd2fb9401",
+      "translation": "幂等 — 已带有 ``__spacr_timed__`` 的函数会被跳过。适用于临时性能分析；不建议用于生产环境导入，因为它会使每次调用变慢 ~1 µs。"
+    },
+    {
+      "context": "cap the number of objects processed, for example for previews.",
+      "label": "spacr.measure.generate_object_dataset#20",
+      "source": "cap the number of objects processed, for example for previews.",
+      "source_sha256": "445a2c99ac0f3f1289cfcdda783c12b381b6a44bd5206e2d18a20fcb32399c99",
+      "translation": "限制处理的对象数量，例如用于预览。"
+    },
+    {
+      "context": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots that show which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel contribute most to the score.",
+      "label": "spacr.ml.interpret_vision_model#1",
+      "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots that show which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel contribute most to the score.",
+      "source_sha256": "5eea276ea60d7660300f026e66a7df0de904a6046fd20af593cf5d09efcba7ac",
+      "translation": "将所选测量存储中的逐对象测量数据与预测得分的 CSV 合并，在排名靠前的特征上运行 RF 特征重要性、置换重要性和 SHAP 的任意组合，然后将 SHAP 贡献汇总为区室和通道雷达图，显示哪个区域（细胞 / 细胞核 / 病原体 / 细胞质）和哪个荧光通道对得分贡献最大。"
+    },
+    {
+      "context": "folder to scan. Not recursive: images are expected at the top level, as in the current spacr layout.",
+      "label": "spacr.pipeline_v2.FilenameMapper.discover#1",
+      "source": "folder to scan. Not recursive: images are expected at the top level, as in the current spacr layout.",
+      "source_sha256": "f321802185006254c2d01c7bcff5f1208b98b4c0d37542552af1df718021910b",
+      "translation": "要扫描的文件夹。不递归：图像应位于顶层，与当前 spacr 布局一致。"
+    },
+    {
+      "context": "*How many microplate sample positions, how many cells per well, and how good a machine-learning classification model do I need before a pooled CRISPR screening experiment can actually find its hits?*  The estimate comes from simulating screening experiments with known true hits, fitting the model that the real analysis uses, and measuring how well the fit recovers the simulated hits.  :func:`scan_parameters` sweeps that loop over a design grid.",
+      "label": "spacr.power_model#5",
+      "source": "*How many wells, how many cells per well, and how good a classifier do I need before a pooled CRISPR screen can actually find its hits?*  The estimate comes from simulating screens with known true hits, fitting the model that the real analysis uses, and measuring how well the fit recovers the simulated hits.  :func:`scan_parameters` sweeps that loop over a design grid.",
+      "source_sha256": "b94439a9683093d771f7eab3bc3a04d5fd62103a82c7b796c50977137f7c6550",
+      "translation": "*需要多少个孔、每孔多少个细胞以及多好的分类器，混合 CRISPR 筛选才能真正找到其命中？*  该估计通过以下方式得到：模拟具有已知真实命中的筛选，拟合真实分析所使用的模型，并衡量拟合对模拟命中的恢复程度。  :func:`scan_parameters` 在一个设计网格上执行该循环。"
+    },
+    {
+      "context": "``Ntotal`` is read from an ``imaging_n_cells_per_well`` column if the simulator provides one (it must then be constant within a microplate sample position, or :class:`PowerFitError` is raised); otherwise it is summed from ``imaging_n_cells_per_gene_per_well``.  The two agree by construction, since the per-gene counts are a multinomial split of the per-microplate sample position total.",
+      "label": "spacr.power_model.prepare_model_data#2",
+      "source": "``Ntotal`` is read from an ``imaging_n_cells_per_well`` column if the simulator provides one (it must then be constant within a well, or :class:`PowerFitError` is raised); otherwise it is summed from ``imaging_n_cells_per_gene_per_well``.  The two agree by construction, since the per-gene counts are a multinomial split of the per-well total.",
+      "source_sha256": "20d73ca50f6959e5879d3e9215847fa0cd5800b4994381d9e08f8e15204f3318",
+      "translation": "``Ntotal`` 从 ``imaging_n_cells_per_well`` 列读取（如果模拟器提供该列；此时它在一个孔内必须保持恒定，否则会引发 :class:`PowerFitError`）；否则由 ``imaging_n_cells_per_gene_per_well`` 求和得到。  两者在构造上一致，因为每个基因的计数是每孔总数的多项式划分。"
+    },
+    {
+      "context": "The R writes ``Npositive = sum(well_data$positive[1])`` — ``sum`` of a single element, i.e. the positive count of whichever gene happens to sort first in the microplate sample position, not the microplate sample position's total.  That is a bug in the R (the surrounding documentation says \"number of positive\"), and reproducing it would throw away most of the response.  This function sums over all genes in the microplate sample position.",
+      "label": "spacr.power_model.prepare_model_data#4",
+      "source": "The R writes ``Npositive = sum(well_data$positive[1])`` — ``sum`` of a single element, i.e. the positive count of whichever gene happens to sort first in the well, not the well's total.  That is a bug in the R (the surrounding documentation says \"number of positive\"), and reproducing it would throw away most of the response.  This function sums over all genes in the well.",
+      "source_sha256": "e4e3d1433eec0f9ce88e073da5751c1870363c91c307c4fe111737a579e8fd1b",
+      "translation": "R 代码写的是 ``Npositive = sum(well_data$positive[1])`` — 对单个元素的 ``sum``，即孔中恰好排在第一位的那个基因的阳性计数，而不是该孔的总数。  这是 R 代码中的一个缺陷（周围的文档写的是 \"number of positive\"），复现它会丢弃大部分响应。  本函数对孔中所有基因求和。"
+    },
+    {
+      "context": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV would silently corrupt it), or the progress file is non-empty and ``resume=False``.",
+      "label": "spacr.power_model.scan_parameters#17",
+      "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV would silently corrupt it), or the progress file is non-empty and ``resume=False``.",
+      "source_sha256": "ca47e411dba0be276b3ee73bb71fe2f8a60e396510f26fc65a1a5d225ca7df2a",
+      "translation": "如果未给出任何参数、``on_error`` 无法识别、``n_replicates < 1``、进度文件已存在但列布局不同（向 TSV 追加未对齐的行会在无提示的情况下损坏它），或者进度文件非空且 ``resume=False``。"
+    },
+    {
+      "context": "Zero genes, zero microplate sample positions, a hit rate outside ``[0, 1]``, a non-positive abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into the two-element vector ``c(1, 0)`` and simulates two microplate sample positions; there is no silently-empty frame to return here, so the design is rejected instead.",
+      "label": "spacr.power_simulate.ScreenDesignError#1",
+      "source": "Zero genes, zero wells, a hit rate outside ``[0, 1]``, a non-positive abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into the two-element vector ``c(1, 0)`` and simulates two wells; there is no silently-empty frame to return here, so the design is rejected instead.",
+      "source_sha256": "ec040e7432def4dc0b7ccfa7a0f71d609ee4d1ab1faff59cf87dc5ecf94ef4ac",
+      "translation": "零个基因、零个孔、超出 ``[0, 1]`` 的命中率、非正的丰度浓度。R 的 ``1:n_wells`` 惯用法会把 ``n_wells = 0`` 变成二元素向量 ``c(1, 0)`` 并模拟两个孔；这里没有可以静默返回的空数据表，因此改为拒绝该设计。"
+    },
+    {
+      "context": "The URL is truncated to ~7.5 KB so it fits GitHub's parser limit; an ellipsis and a note are appended to the body when it is clipped.",
+      "label": "spacr.qt.ai.issue_report.issue_url#1",
+      "source": "The URL is truncated to ~7.5 KB so it fits GitHub's parser limit; an ellipsis and a note are appended to the body when it is clipped.",
+      "source_sha256": "cbeb45a6b578cdd6f99ba864c458eb007d5e8b928631ac4c9525fa2b04f0492b",
+      "translation": "URL 会被截断到 ~7.5 KB，以符合 GitHub 解析器的限制；截断时会在正文后追加省略号和一条说明。"
+    },
+    {
+      "context": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. This method terminates the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
+      "label": "spacr.qt.ai.worker.StreamWorker.cancel#1",
+      "source": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. This method terminates the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
+      "source_sha256": "548f7d67fda83459abf6424dd03dffe3e0499519f72eaddeecd89ac9472c9829",
+      "translation": "仅设置一个 Python 标志是不够的 — 工作线程阻塞在 `for line in proc.stdout` 迭代中，直到子进程写入或关闭。此方法通过 `provider.cancel_stream()` 直接终止子进程；随后读取器以一次空读取退出，run() 正常完成。"
+    },
+    {
+      "context": "True when channels can be extracted from the filename or the folder — otherwise every file is treated as channel 1.",
+      "label": "spacr.qt.folder_metadata.assign_missing_fields#6",
+      "source": "True when channels can be extracted from the filename or the folder — otherwise every file is treated as channel 1.",
+      "source_sha256": "29ccc11c60aeed05bb6619f707c38cb60c20953603853d6df3c414dde082eb3a",
+      "translation": "当可以从文件名或文件夹中提取通道时为 True — 否则每个文件都被视为通道 1。"
+    },
+    {
+      "context": "a :class:`FolderTemplate` describing the detected layout, or None if no layout can be inferred.",
+      "label": "spacr.qt.folder_metadata.detect_folder_metadata#4",
+      "source": "a :class:`FolderTemplate` describing the detected layout, or None if no layout can be inferred.",
+      "source_sha256": "67e0c67c5975797c54f06b44eeabf59cb7cddfe2d6d138adc01c518c10880364",
+      "translation": "一个描述检测到的布局的 :class:`FolderTemplate`，如果无法推断布局则为 None。"
+    },
+    {
+      "context": "**qtawesome glyphs** — vector, painted in the colour the caller requests. Wrapped so callers stay decoupled from Font Awesome glyph names. When the optional font is unavailable a bundled, theme-aware glyph is returned; toolbar affordances never silently turn into blank buttons.",
+      "label": "spacr.qt.iconset#2",
+      "source": "**qtawesome glyphs** — vector, painted in the colour the caller requests. Wrapped so callers stay decoupled from Font Awesome glyph names. When the optional font is unavailable a bundled, theme-aware glyph is returned; toolbar affordances never silently turn into blank buttons.",
+      "source_sha256": "6c6cedec641999b94b91a47d1830dfb1643e128598d851c2557aced89c9acd62",
+      "translation": "**qtawesome glyphs** — 矢量图标，以调用方请求的颜色绘制。经过封装，使调用方与 Font Awesome 字形名称解耦。当可选字体不可用时，返回一个随附的、适配主题的字形；工具栏控件绝不会在无提示的情况下变成空白按钮。"
+    },
+    {
+      "context": "Highlight the object another view selected, if this viewer shows it.",
+      "label": "spacr.qt.layer_viewer.LayerViewer.on_linked_selection_changed#0",
+      "source": "Highlight the object another view selected, if this viewer shows it.",
+      "source_sha256": "1fffa36132bb002c4a4d0be8040a7eaf7352c115833fe8b19249c91a324f093c",
+      "translation": "如果此查看器显示了另一个视图所选的对象，则高亮该对象。"
+    },
+    {
+      "context": "For example, a file dialog has just reported that a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or executing probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "label": "spacr.qt.path_probe.prime#1",
+      "source": "For example, a file dialog has just reported that a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or running probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "source_sha256": "62cf45daf1ba7a77972aca74783bc51fb63bd8c4e5a39ec8e3b37692da2c6869",
+      "translation": "例如，文件对话框刚刚报告某个路径存在；再次查询文件系统就是对已知事实的第二次 stat 调用。此操作会清除对应的待处理标记，但不会取消已排队或正在运行的探测。此类探测之后可能覆盖预置的答案，并在其结果改变缓存值时发出 ``answered`` 信号（位于 :data:`probes` 上）。此调用本身不发出任何信号。"
+    },
+    {
+      "context": "The explicit way out. A user who has been frozen — by the old dialog or by their own click — otherwise has no route back to automatic at all, because nothing else clears the explicit setting.",
+      "label": "spacr.qt.preferences.set_figure_colors_auto#1",
+      "source": "The explicit way out. A user who has been frozen — by the old dialog or by their own click — otherwise has no route back to automatic at all, because nothing else clears the explicit setting.",
+      "source_sha256": "dca06ff58c530d4d75f36113a7df28cdcd6c01bf944bc9eedd4c1a675656ef10",
+      "translation": "显式的退出途径。被冻结的用户 — 无论是因为旧对话框还是因为自己的点击 — 否则完全无法回到自动模式，因为没有其他操作会清除该显式设置。"
+    },
+    {
+      "context": "Settings templates: named, reusable and shareable bundles of settings.",
+      "label": "spacr.qt.recipes#0",
+      "source": "Settings templates: named, reusable and shareable bundles of settings.",
+      "source_sha256": "804c722c520f893e775390b5962dea1bbb9882e9d22316fd5669d71840755042",
+      "translation": "设置模板：有名称、可重用且可共享的设置集合。"
+    },
+    {
+      "context": "pre-fill the input with this pattern; empty means auto-detection runs when the dialog is shown.",
+      "label": "spacr.qt.regex_editor.RegexEditorDialog#2",
+      "source": "pre-fill the input with this pattern; empty means auto-detection runs when the dialog is shown.",
+      "source_sha256": "fb4b27b767828be27a9e94cfdaa3a3e6358f644916ac0fbda9c68c4e56f19ea7",
+      "translation": "用此模式预填输入框；为空表示在显示对话框时运行自动检测。"
+    },
+    {
+      "context": "Silence does not blank the backdrop: with a zero drive level the engine falls back to its own slow idle oscillation, set by :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, so the plate stays drawn.",
+      "label": "spacr.qt.resonance.silence#1",
+      "source": "Silence does not blank the backdrop: with a zero drive level the engine falls back to its own slow idle oscillation, set by :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`, so the plate stays drawn.",
+      "source_sha256": "e60b749f6a85e5bcd1aa60505b8590e48faf594f469e4ea74a22773ce05f54a2",
+      "translation": "静音不会使背景变为空白：驱动电平为零时，引擎会回退到其自身缓慢的空闲振荡（由 :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` 设置），因此平板仍会被绘制。"
+    },
+    {
+      "context": "``isolation_level = None`` leaves transaction control to this class, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "label": "spacr.qt.screens.db_browser.WritableDb.connect#1",
+      "source": "``isolation_level = None`` leaves transaction control to this class, so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real ones and do not fight Python's implicit transaction handling (which differs between 3.11 and 3.12+).",
+      "source_sha256": "ce599b4878499083b717c5d97f8f583874b058805dd89414af0fe9be7c2dd2ea",
+      "translation": "``isolation_level = None`` 将事务控制交给此类，因此 :meth:`update_cell` 中的 BEGIN/COMMIT/ROLLBACK 是真正生效的语句，不会与 Python 的隐式事务处理（在 3.11 与 3.12+ 之间有所不同）发生冲突。"
+    },
+    {
+      "context": "Not modal, and not re-created: the data-selection boundary view stays usable while the window is open, so the effect of a change can be seen without closing it. The same dialog is raised again so its tab and scroll position are kept between openings.",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.open_settings#1",
+      "source": "Not modal, and not re-created: the gate view stays usable while the window is open, so the effect of a change can be seen without closing it. The same dialog is raised again so its tab and scroll position are kept between openings.",
+      "source_sha256": "40210f60ab96d2f6186c7c671d1cf20c97653f157ba832ed4a1d7f19c434b73b",
+      "translation": "非模态，且不会重新创建：窗口打开时门控视图仍可使用，因此无需关闭窗口即可看到更改的效果。再次打开时会重新提升同一个对话框，因此其选项卡和滚动位置在多次打开之间得以保留。"
+    },
+    {
+      "context": "The Graph Builder application view: a table, a filter and a chart built by drag and drop.",
+      "label": "spacr.qt.screens.graph_builder#0",
+      "source": "The Graph Builder screen: a table, a filter and a chart built by drag and drop.",
+      "source_sha256": "2f6cb1def5cb78e00999eede5d99f8ec7c286d775211b6feb2b05aeb89230971",
+      "translation": "Graph Builder 视图：一个表格、一个过滤器和一个通过拖放构建的图表。"
+    },
+    {
+      "context": "Reveal and highlight what another view selected, if the tree contains it.",
+      "label": "spacr.qt.screens.lineage.LineageScreen.on_linked_selection_changed#0",
+      "source": "Reveal and highlight what another view selected, if the tree contains it.",
+      "source_sha256": "7b14f80033557f19d42ddfb15c7367c9e7f0a2fbb0e64749e98d3010e3352ad2",
+      "translation": "如果树中包含另一个视图所选的内容，则将其展开显示并高亮。"
+    },
+    {
+      "context": "The `except` is the one thing :meth:`LinkedView.unlink_selection` does not provide: it is flag-guarded, so a double close is already silent, but during interpreter teardown the C++ side of the process-wide `LinkedSelection` can be gone before this widget's `closeEvent` runs, and PySide produces an error on the disconnect then.",
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.closeEvent#1",
+      "source": "The `except` is the one thing :meth:`LinkedView.unlink_selection` does not provide: it is flag-guarded, so a double close is already silent, but during interpreter teardown the C++ side of the process-wide `LinkedSelection` can be gone before this widget's `closeEvent` runs, and PySide raises on the disconnect then.",
+      "source_sha256": "ae39f00573fa3ab66d9b4dea6afcecec26fb51e2198bda38f96ce2cc890687cf",
+      "translation": "`except` 是 :meth:`LinkedView.unlink_selection` 唯一没有提供的部分：它受标志保护，因此重复关闭本身已是静默的，但在解释器关闭期间，进程级 `LinkedSelection` 的 C++ 端可能在此部件的 `closeEvent` 运行之前就已消失，此时 PySide 会在断开连接时引发异常。"
+    },
+    {
+      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment with known true hits, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the simulated hits. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "label": "spacr.qt.screens.power#1",
+      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen with known true hits, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the simulated hits. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
+      "source_sha256": "ab4cb197465910f40277af69cbacb5b3e6ecee6d5ff9d064505792599d3cfcd2",
+      "translation": "自 spaCRPower 移植合入以来，科学部分就已在代码树中：:mod:`spacr.power_simulate` 构建一个具有已知真实命中的筛选，:mod:`spacr.power_model` 对其拟合 horseshoe-Poisson 模型，并评估拟合对模拟命中的恢复程度。一直不存在的是这样一个场所：让进行筛选的人提出他们真正关心的问题，这个问题不是 \"well_abundance_factor_mu = 4.6 的设计的 AUROC 是多少\"，而是"
+    },
+    {
+      "context": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. This module consumes the same conversion output and materializes each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "label": "spacr.qt.screens.settings_model#1",
+      "source": "The existing spacr GUI expresses settings as `{name: (widget_type, options, default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`. This module consumes the same conversion output and materializes each entry as a real Qt widget grouped into logical Section boxes based on `spacr.settings.categories`.",
+      "source_sha256": "2d3a1d0f5be2b06191eff17cc1ce888c0e041571c88cb93150ded1a234cf1e81",
+      "translation": "现有的 spacr GUI 将设置表示为 `{name: (widget_type, options, default)}` 三元组，这是通过 `spacr.gui_utils.convert_settings_dict_for_gui` 实现的。此模块使用相同的转换输出，并将每个条目实例化为真实的 Qt 部件，按照 `spacr.settings.categories` 分组到逻辑分区框中。"
+    },
+    {
+      "context": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self`; if Python garbage-collected it, Qt might never deliver the finished signal.",
+      "label": "spacr.qt.widgets.ai_chat_panel#4",
+      "source": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self`; if Python garbage-collected it, Qt might never deliver the finished signal.",
+      "source_sha256": "051f55062b6e788ee9f3965dd23b03f825475bba42c013a44d9d1d8ea8090500",
+      "translation": "流式传输通过 `spacr.qt.ai.worker.StreamWorker` 在 QThread 中完成。工作对象的引用保存在 `self` 上；如果 Python 将其垃圾回收，Qt 可能永远不会发送完成信号。"
+    },
+    {
+      "context": "The larger of the current drive level and the idle oscillation, so a quiet passage never drives the picture below what silence would have drawn. Idle animation and the response to audio therefore use the same code path.",
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine.energy#1",
+      "source": "The larger of the current drive level and the idle oscillation, so a quiet passage never drives the picture below what silence would have drawn. Idle animation and the response to audio therefore use the same code path.",
+      "source_sha256": "7489324b12675f0aa0996203e9a99c1ad6c1bdaf8ccadc6807ce157163037df9",
+      "translation": "取当前驱动电平与空闲振荡中的较大者，因此安静的段落绝不会使画面低于静音时本应绘制的效果。因此，空闲动画和对音频的响应使用同一代码路径。"
+    },
+    {
+      "context": "The cancel path kills the CLI subprocess directly so the stream reader unblocks immediately; this method then waits for the worker's run() to return and the QThread to quit normally.",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.shutdown#1",
+      "source": "The cancel path kills the CLI subprocess directly so the stream reader unblocks immediately; this method then waits for the worker's run() to return and the QThread to quit normally.",
+      "source_sha256": "5f677580e94725f603b1efd917a3f8614f40845b5c2b72c589d2ed2fe596b594",
+      "translation": "取消路径会直接终止 CLI 子进程，使流读取器立即解除阻塞；随后此方法等待工作对象的 run() 返回以及 QThread 正常退出。"
+    },
+    {
+      "context": "Arm the guard if a click on the anchor button is closing the popover.",
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.hideEvent#0",
+      "source": "Arm the guard if a click on the anchor button is closing the popover.",
+      "source_sha256": "8f2b06c5e53509bbbe27e1b79880b18ad9884cc4723426a9dfa9ef5b94f47f8c",
+      "translation": "如果对锚点按钮的点击正在关闭弹出面板，则启用保护。"
+    },
+    {
+      "context": "Record a press that will close the popover *and* be replayed.",
+      "label": "spacr.qt.widgets.dna_rain_settings.DnaRainSettingsPopover.mousePressEvent#0",
+      "source": "Record a press that will close the popover *and* be replayed.",
+      "source_sha256": "928e2e8d00290b7b23db646ced47cd4aa0b2a63a2125859d0b5d3e38fc8d9db4",
+      "translation": "记录一次将关闭弹出面板 *并且* 会被重放的按下操作。"
+    },
+    {
+      "context": "Allow shrinking to a few characters so the parent layout can limit the width.",
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.minimumSizeHint#0",
+      "source": "Allow shrinking to a few characters so the parent layout can limit the width.",
+      "source_sha256": "0f6c09dce5111cc63bf6fcbab979e13b795618a101dfd741a3f1ad9cd2a0bebb",
+      "translation": "允许缩小到只显示几个字符，以便父布局可以限制宽度。"
+    },
+    {
+      "context": "Re-elide whenever the layout assigns a different width.",
+      "label": "spacr.qt.widgets.eliding.ElidingLabel.resizeEvent#0",
+      "source": "Re-elide whenever the layout assigns a different width.",
+      "source_sha256": "06cdcff46cf1ce928ba088bd32e7d3efd317be59144d2fc38327c8034a79ad2e",
+      "translation": "每当布局分配不同宽度时重新进行省略。"
+    },
+    {
+      "context": "Re-elide whenever the layout assigns a different width.",
+      "label": "spacr.qt.widgets.eliding.ElidingPushButton.resizeEvent#0",
+      "source": "Re-elide whenever the layout assigns a different width.",
+      "source_sha256": "06cdcff46cf1ce928ba088bd32e7d3efd317be59144d2fc38327c8034a79ad2e",
+      "translation": "每当布局分配不同宽度时重新进行省略。"
+    },
+    {
+      "context": "Used on application views whose primary content requires the user to first pick a source folder / open a database (annotate, make-masks) — instead of showing an empty grid or blank canvas, these application views show this panel centered.",
+      "label": "spacr.qt.widgets.empty_state#1",
+      "source": "Used on screens whose primary content requires the user to first pick a source folder / open a database (annotate, make-masks) — instead of showing an empty grid or blank canvas, these screens show this panel centered.",
+      "source_sha256": "3ddec38225e3c1bbd4eb59db185a07aeca51fff8607850709e7f35f76b184a12",
+      "translation": "用于那些主要内容需要用户先选择源文件夹 / 打开数据库的视图（annotate、make-masks）— 这些视图不显示空网格或空白画布，而是居中显示此面板。"
+    },
+    {
+      "context": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is well defined on a discrete count.",
+      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
+      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is well defined on a discrete count.",
+      "source_sha256": "a7904dfcc6af20a9fb1d80f1fd28341f619ef617839643a83e9c78185e63c768",
+      "translation": "**不是** ``column_kinds() == CONTINUOUS``，而且这一区别很重要。:func:`~spacr.qt.widgets.data_filter_panel.classify_columns` 将不同取值不超过十二个的数值列视为 *类别*，这对于决定提供滑块还是勾选列表是正确的规则 — 但在这里是错误的，因为 ``pathogen_count`` 的取值范围为 0–8，恰恰是排序所要呈现的那类特征。分离统计量在离散计数上是有明确定义的。"
+    },
+    {
+      "context": "``prerendered_png`` is a PNG the workflow bridge already rendered in a background execution unit. When it is supplied, that file is adopted (a file move and a QPixmap load) instead of executing the slower savefig on the main GUI execution path, so the UI stays responsive while many figures stream in.",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.add_figure#1",
+      "source": "``prerendered_png`` is a PNG the pipeline bridge already rendered in a WORKER thread. When it is supplied, that file is adopted (a file move and a QPixmap load) instead of running the slower savefig on the GUI thread, so the UI stays responsive while many figures stream in.",
+      "source_sha256": "cd451192f08b1caad6220597f01e3eb8e0b81a5aab258c061cd4065f5f06b9d6",
+      "translation": "``prerendered_png`` 是管线桥接层已在 WORKER 线程中渲染好的 PNG。提供该参数时，会直接采用该文件（一次文件移动和一次 QPixmap 加载），而不是在 GUI 线程上运行较慢的 savefig，因此在大量图形陆续传入时 UI 仍能保持响应。"
+    },
+    {
+      "context": "``Chat`` The same box, addressed in English. It is wired to whatever assistant the host provides. When none is configured it replies that no assistant is configured, rather than accepting questions and returning nothing.",
+      "label": "spacr.qt.widgets.gate_console#3",
+      "source": "``Chat`` The same box, addressed in English. It is wired to whatever assistant the host provides. When none is configured it replies that no assistant is configured, rather than accepting questions and returning nothing.",
+      "source_sha256": "bebb0505eacccc041c13fcb003ec95abec35eac823b0967d7879b58fab9c4a67",
+      "translation": "``Chat`` 同一个输入框，用英语进行对话。它连接到宿主提供的任意助手。未配置助手时，它会回复未配置助手，而不是接受问题却不返回任何内容。"
+    },
+    {
+      "context": "Without one, each question receives a reply saying that no assistant is configured, rather than no reply.",
+      "label": "spacr.qt.widgets.gate_console.GateConsole.set_responder#1",
+      "source": "Without one, each question receives a reply saying that no assistant is configured, rather than no reply.",
+      "source_sha256": "138227efd92610fbed2e321c9d3c58a67162f48064a25c10c5e415fac8d88604",
+      "translation": "没有响应器时，每个问题都会收到一条说明未配置助手的回复，而不是没有回复。"
+    },
+    {
+      "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that labels 90% of the plate as noise and tightly clusters the rest scores high although it has discarded most of the data.",
+      "label": "spacr.qt.widgets.gate_spec.ClusterCandidate#1",
+      "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that labels 90% of the plate as noise and tightly clusters the rest scores high although it has discarded most of the data.",
+      "source_sha256": "19f9bc05d22e03b27d513446b8508500167945bfbd4821909e1cad3624ba48eb",
+      "translation": "以数据形式保留，而不是直接渲染到表格中，这样搜索无需 GUI 即可测试，并且由调用方决定 \"best\" 的含义 -- 调用方必须这样做，因为这些得分是有意相互不一致的。轮廓系数不考虑丢弃了多少数据，因此一次把板上 90% 标记为噪声、并将其余部分紧密聚类的运行会得到高分，尽管它丢弃了大部分数据。"
+    },
+    {
+      "context": "The popup is ONE surface. Its two layout containers paint nothing, so the rounded grey frame is the only fill and the page-opacity preference moves it as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers transparent, because a container with its own fill drew a dark rectangle inside the frame.",
+      "label": "spacr.qt.widgets.hover_tooltip#19",
+      "source": "The popup is ONE surface. Its two layout containers paint nothing, so the rounded grey frame is the only fill and the page-opacity preference moves it as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers transparent, because a container with its own fill drew a dark rectangle inside the frame.",
+      "source_sha256": "f8fa5c35615d2e7836006f07edb549cca51e9cddf255a10d147d002b9cae46c7",
+      "translation": "弹出窗口是一个整体表面。它的两个布局容器不绘制任何内容，因此圆角灰色边框是唯一的填充，页面不透明度偏好将其作为单个图层进行调整。:meth:`HoverTooltip._apply_theme` 使两个容器都保持透明，因为带有自身填充的容器曾在边框内绘制出一个深色矩形。"
+    },
+    {
+      "context": "A tool-tip window with custom painting: shown without activating, so it never takes focus from what the pointer is over.",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip#2",
+      "source": "A tool-tip window with custom painting: shown without activating, so it never takes focus from what the pointer is over.",
+      "source_sha256": "1e4e6b1dfe92cabace1f0b918f10e1e50cfcc9c0fc6ca4d8914987b29e17c249",
+      "translation": "一个采用自定义绘制的工具提示窗口：显示时不激活，因此绝不会从指针下方的内容夺取焦点。"
+    },
+    {
+      "context": "Resolve the user-supplied path to one concrete merged ``.npy`` file.",
+      "label": "spacr.qt.widgets.measure_preview.resolve_merged_source#0",
+      "source": "Resolve the user-supplied path to one concrete merged ``.npy`` file.",
+      "source_sha256": "5015f2bc68c5b52ee8d25f9e205981b9de20e9c3a685d766b9de8caedc30b1bd",
+      "translation": "将用户提供的路径解析为一个具体的合并 ``.npy`` 文件。"
+    },
+    {
+      "context": "What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.",
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "source": "What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.",
+      "source_sha256": "79e7129c323a594ab0f3a54111b2606d94aea5dc2d092020c4dc873d98d01a75",
+      "translation": "空斑模型框提供的选项：默认模型、模型库中的其他空斑模型，然后是 ``bundled``。"
+    },
+    {
+      "context": "setting values, the default first, then the newest zoo model.",
+      "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "source": "setting values, the default first, then the newest zoo model.",
+      "source_sha256": "76b0ca394a8e0b2c684eb919cd3014fe6bb2dfa38f12f74a749449ff8168a4f2",
+      "translation": "设置值，默认值在前，其后是模型库中最新的模型。"
+    },
+    {
+      "context": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. The HTML file is the complete report.",
+      "label": "spacr.report#23",
+      "source": "The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages` — a monospace transcription of the same content plus one page per embedded figure. spaCR has no HTML-to-PDF engine among its dependencies and this module refuses to add one, so the PDF is a faithful *summary*, not a rendering of the HTML. The HTML file is the complete report.",
+      "source_sha256": "b2529a0c31dd0246cf2be8e05adac45f7c70981015ae6d4b93ca8f2a5ebae303",
+      "translation": "PDF 由 :class:`matplotlib.backends.backend_pdf.PdfPages` 生成 — 相同内容的等宽字体转录，外加每个嵌入图形一页。spaCR 的依赖项中没有 HTML 转 PDF 引擎，且本模块拒绝添加此类引擎，因此 PDF 是一份忠实的 *摘要*，而不是 HTML 的渲染结果。HTML 文件才是完整报告。"
+    },
+    {
+      "context": "an unambiguous *prefix* of a processing-session id (``\"2026-07-23_2147\"``), which shortens command-line use.",
+      "label": "spacr.run_journal.resolve_run_dir#6",
+      "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), which shortens command-line use.",
+      "source_sha256": "dfd51c11c002fa6c2854c201c323a863463c7a4d6d04b00273ed59c80858982a",
+      "translation": "运行 ID 的一个无歧义 *前缀* （``\"2026-07-23_2147\"``），可缩短命令行使用。"
+    },
+    {
+      "context": "Restore the record factory that was installed before spaCR's.",
+      "label": "spacr.runctx.uninstall_run_id_logging#0",
+      "source": "Restore the record factory that was installed before spaCR's.",
+      "source_sha256": "2119fed191519a0fac885cb80ddf2ed28084b8579462095b3f6c3658dfff5891",
+      "translation": "恢复在 spaCR 之前安装的记录工厂。"
+    },
+    {
+      "context": "Only undoes spaCR's own installation: if other code replaced the factory in the meantime, removing spaCR's factory would also discard that replacement, so the chain is left unchanged.",
+      "label": "spacr.runctx.uninstall_run_id_logging#1",
+      "source": "Only undoes spaCR's own installation: if other code replaced the factory in the meantime, removing spaCR's factory would also discard that replacement, so the chain is left unchanged.",
+      "source_sha256": "969203ec8eadeaf9bfc253075a8d82a00c557b142bc3435fbed8fc4811906639",
+      "translation": "仅撤销 spaCR 自身的安装：如果在此期间其他代码替换了该工厂，移除 spaCR 的工厂也会丢弃该替换，因此保持链不变。"
+    },
+    {
+      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel, which shows whether the machine-learning classification model's score depends mainly on pathogen or on cell features.",
+      "label": "spacr.submodules.interpret_vision_model#1",
+      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel, which shows whether the classifier's score depends mainly on pathogen or on cell features.",
+      "source_sha256": "d40886ab2c57f2960bc2e0512e5319c59969503f68a671a24342cac377eea6ec",
+      "translation": "将逐对象的 CNN 预测（``score_column``）与 :func:`spacr.measure.measure_crop` 得到的形态和强度测量数据合并，展开跨区室特征比值（例如 ``nucleus_cell_area``），然后在排名靠前的特征上运行随机森林特征重要性、置换重要性以及（可选的）SHAP。还按区室和按通道对重要性进行分组，从而显示分类器的得分主要取决于病原体特征还是细胞特征。"
+    }
+  ]
+}

@@ -39,6 +39,25 @@ def _wheel(folder, version, *, broken=False):
     return path
 
 
+def acknowledging_spawn(launched):
+    """A relaunch stand-in that answers as the verified new desktop would.
+
+    The helper now waits for the restarted GUI to confirm its main window
+    (:func:`spacr.install_cleanup._launch_updated_desktop`); this records the
+    launch and writes the receipt the real window writes, echoing the request.
+    """
+    def spawn(argv, environment, cwd):
+        launched.append(argv)
+        folder, binding = json.loads(environment["SPACR_UPDATE_LAUNCH"])
+        channel = ic._UpdateLaunchHandshake(folder, binding)
+        expected = channel._read("launch-request.json")["details"]
+        channel._write("launch-result.json", "ready", details={
+            "version": expected["version"], "executable": expected["executable"],
+            "module": os.path.join(expected["root"], "spacr", "__init__.py")})
+        return None
+    return spawn
+
+
 def _snapshot(root):
     return {str(path.relative_to(root)): ('link',os.readlink(path)) if path.is_symlink()
             else ('file',hashlib.sha256(path.read_bytes()).hexdigest())

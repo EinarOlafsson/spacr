@@ -1,0 +1,560 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(float) Cross-correlation below which a pair is rejected and the tile keeps its stage position.",
+      "source": "(float) Cross-correlation below which a pair is rejected and the tile keeps its stage position.",
+      "source_sha256": "86c9c59621e93fc3d0b4ccc98e8033a5b0a877512984355b54b8cbaba097b485",
+      "translation": "(float) वह क्रॉस-सहसंबंध जिससे कम होने पर जोड़ी अस्वीकार कर दी जाती है और टाइल अपनी स्टेज स्थिति पर रहती है।"
+    },
+    {
+      "table": "ui",
+      "key": "(float, px) max_displacement — single-frame jumps are interpolated, and any track that still jumps further than this is dropped as an impossible link.",
+      "source": "(float, px) max_displacement — single-frame jumps are interpolated, and any track that still jumps further than this is dropped as an impossible link.",
+      "source_sha256": "04e41eb3176818133f1f6ba74ef55ca71ffb3e9f038f9d02754c25fb88d4e9bc",
+      "translation": "(float, px) max_displacement — एकल-फ़्रेम छलाँगों को इंटरपोलेट किया जाता है, और जो ट्रैक इसके बाद भी इससे अधिक दूर छलाँग लगाता है उसे असंभव लिंक मानकर हटा दिया जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "(float, px/µm) pixels_per_um. Left unknown, velocities are reported in px/frame; no scale is assumed.",
+      "source": "(float, px/µm) pixels_per_um. Left unknown, velocities are reported in px/frame; no scale is assumed.",
+      "source_sha256": "6b24e8edb940bf4e9b3237c13d26c1f961927b9f2d34bd3ecbb190c7f3f6d852",
+      "translation": "(float, px/µm) pixels_per_um. अज्ञात छोड़ने पर वेग px/frame में रिपोर्ट किए जाते हैं; कोई स्केल नहीं माना जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "(float, s) seconds_per_frame. Left unknown, velocities are reported in px/frame; no interval is assumed.",
+      "source": "(float, s) seconds_per_frame. Left unknown, velocities are reported in px/frame; no interval is assumed.",
+      "source_sha256": "4aaec563b8cf3ae8f3d0c82033fd5b691a1c9c433597f2bdd22149f3a10fa062",
+      "translation": "(float, s) seconds_per_frame. अज्ञात छोड़ने पर वेग px/frame में रिपोर्ट किए जाते हैं; कोई अंतराल नहीं माना जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Ceiling on the band buffer the write allocates. This buffer, not the canvas size, sets the RAM the stitch uses.",
+      "source": "(int) Ceiling on the band buffer the write allocates. This buffer, not the canvas size, sets the RAM the stitch uses.",
+      "source_sha256": "388512feaa48fbcfce51308a7e17a2f3c6f79b97f474c42057f65c16134d2a39",
+      "translation": "(int) लेखन द्वारा आवंटित बैंड बफ़र की अधिकतम सीमा। स्टिच द्वारा उपयोग की जाने वाली RAM कैनवास के आकार से नहीं, इसी बफ़र से तय होती है।"
+    },
+    {
+      "table": "ui",
+      "key": "(str) Cellpose model used to segment every frame. Changing this re-segments every frame, the slower part of the preview.",
+      "source": "(str) Cellpose model used to segment every frame. Changing this re-segments every frame, the slower part of the preview.",
+      "source_sha256": "7d44587b520e2b6e935bcb1fabe39da31a0e182683d71caca3d3fc84366b573b",
+      "translation": "(str) हर फ़्रेम को सेगमेंट करने के लिए उपयोग किया जाने वाला Cellpose मॉडल। इसे बदलने से हर फ़्रेम फिर से सेगमेंट होता है, जो पूर्वावलोकन का धीमा भाग है।"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and reports an F test of whether that parameter improves the fit.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and reports an F test of whether that parameter improves the fit.",
+      "source_sha256": "61a601066b834204f1e97c858d314405fa0fa2c218e0225efc63bec9420b7bdd",
+      "translation": "4PL अपने मध्यबिंदु के चारों ओर सममित होता है। वास्तविक असममिति होती है, और 4PL उसे खिसके हुए EC50 में समाहित कर लेता है; 5PL एक अतिरिक्त पैरामीटर से उसे फ़िट करता है, एक अतिरिक्त सांद्रता माँगता है और एक F परीक्षण रिपोर्ट करता है कि वह पैरामीटर फ़िट में सुधार करता है या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "A path you entered is never overwritten. The button offers the new location; the setting changes only if you press it.",
+      "source": "A path you entered is never overwritten. The button offers the new location; the setting changes only if you press it.",
+      "source_sha256": "ec84f8f6615afac547c6b81c1f39f56cdab08e710b563466ddf923e6e17e5543",
+      "translation": "आपके द्वारा दर्ज किया गया पथ कभी अधिलेखित नहीं होता। बटन नया स्थान प्रस्तावित करता है; सेटिंग केवल तभी बदलती है जब आप उसे दबाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "A symmetric fence on a right-skewed measurement flags a large share of the right tail whatever the data. log10 makes the fence symmetric on the log scale — and refuses zero or negative values rather than adding a pseudocount.",
+      "source": "A symmetric fence on a right-skewed measurement flags a large share of the right tail whatever the data. log10 makes the fence symmetric on the log scale — and refuses zero or negative values rather than adding a pseudocount.",
+      "source_sha256": "fe945cc3a2715f06c0392f1d9ed811eb0df4eb802686cd545303141b6c4f6403",
+      "translation": "दाईं ओर झुके माप पर सममित सीमा, डेटा चाहे जो हो, दाएँ छोर के बड़े हिस्से को चिह्नित करती है। log10 सीमा को लॉग स्केल पर सममित बनाता है — और pseudocount जोड़ने के बजाय शून्य या ऋणात्मक मानों को अस्वीकार करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "A well with fewer objects than this is reported 'not scored' rather than compared or dropped — a median over a few objects varies more than the plate effects the scan looks for.",
+      "source": "A well with fewer objects than this is reported 'not scored' rather than compared or dropped — a median over a few objects varies more than the plate effects the scan looks for.",
+      "source_sha256": "937962b8fc38113df0c2e398f4cd2d41c3930d0049e9efbacf22d3a224a20763",
+      "translation": "इससे कम ऑब्जेक्ट वाले वेल की न तुलना की जाती है और न उसे हटाया जाता है, बल्कि उसे 'not scored' रिपोर्ट किया जाता है — कुछ ही ऑब्जेक्ट की माध्यिका उन प्लेट प्रभावों से अधिक बदलती है जिन्हें स्कैन खोजता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Arrows are each feature's correlation with the two components. Direction and relative length are meaningful; the absolute length is scaled to fit, and the dashed circle drawn at the same scale marks a correlation of 1.",
+      "source": "Arrows are each feature's correlation with the two components. Direction and relative length are meaningful; the absolute length is scaled to fit, and the dashed circle drawn at the same scale marks a correlation of 1.",
+      "source_sha256": "2fe6a0f4e9321e2000a97378ac8d4592a1d708f30f8cbdd9c99c6a75ef142331",
+      "translation": "तीर हर फ़ीचर का दोनों घटकों के साथ सहसंबंध दिखाते हैं। दिशा और सापेक्ष लंबाई अर्थपूर्ण हैं; निरपेक्ष लंबाई फ़िट होने के लिए स्केल की जाती है, और उसी स्केल पर बना धराशायी वृत्त 1 के सहसंबंध को दर्शाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Click any point to list all of its values.",
+      "source": "Click any point to list all of its values.",
+      "source_sha256": "0aee08c606defe22bc222a484509f2c09fda086e9e391f9477c580ed1973a296",
+      "translation": "किसी बिंदु के सभी मानों की सूची देखने के लिए उस पर क्लिक करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Colour each point by the database it came from. This shows whether the clusters of a merged embedding are the plates rather than biology.",
+      "source": "Colour each point by the database it came from. This shows whether the clusters of a merged embedding are the plates rather than biology.",
+      "source_sha256": "b6a5335ba0339346666143f870fb9241843586a25d91b1ba4823c21895fab369",
+      "translation": "हर बिंदु को उस डेटाबेस के अनुसार रंगें जिससे वह आया है। इससे पता चलता है कि मर्ज किए गए एम्बेडिंग के क्लस्टर जीवविज्ञान के बजाय प्लेटों को दर्शाते हैं या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Colour the scores by any column of the table, for example to see whether a label separates the objects.",
+      "source": "Colour the scores by any column of the table, for example to see whether a label separates the objects.",
+      "source_sha256": "5ac292a49aa5d91ec34e750618180302f73fdb1400a1db5b15ed7e947961d668",
+      "translation": "तालिका के किसी भी स्तंभ के अनुसार स्कोर को रंगें, उदाहरण के लिए यह देखने के लिए कि कोई लेबल ऑब्जेक्ट को अलग करता है या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Copy the selected job so you can edit the copy, for example to vary one setting.",
+      "source": "Copy the selected job so you can edit the copy, for example to vary one setting.",
+      "source_sha256": "c3d7777213ef26176527d6060db34b38ee31eae6f3a094fd401185e10795a038",
+      "translation": "चुने गए जॉब की प्रति बनाएँ ताकि आप प्रति को संपादित कर सकें, उदाहरण के लिए किसी एक सेटिंग को बदलने के लिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Display label only — it is not used in the calculation",
+      "source": "Display label only — it is not used in the calculation",
+      "source_sha256": "7f1a7b3adf5bf99a7ef1b6e4638ffa4fe4b338d6832ed76a2fbeee121419bd58",
+      "translation": "केवल प्रदर्शन लेबल — यह गणना में उपयोग नहीं होता"
+    },
+    {
+      "table": "ui",
+      "key": "Each added organelle is one more column in this table, seeded with the first organelle's values.",
+      "source": "Each added organelle is one more column in this table, seeded with the first organelle's values.",
+      "source_sha256": "cbe1bf1f2084b0b39eadf80a9a73e3413a34f5345b31b8a676d3b33dd76e23a1",
+      "translation": "हर जोड़ा गया ऑर्गेनेल इस तालिका में एक और स्तंभ है, जिसमें पहले ऑर्गेनेल के मान प्रारंभिक मान के रूप में भरे जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its checksum matches, and its result on three of your fields.",
+      "source": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its checksum matches, and its result on three of your fields.",
+      "source_sha256": "c5a6dff05b9239eefb85fd19c3d94194ca37d4dd83197862456e457532b5b127",
+      "translation": "इस मशीन से पहुँच योग्य हर Cellpose और वर्गीकारक चेकपॉइंट, साथ में यह कि उसे किस पर प्रशिक्षित किया गया, उसका चेकसम मेल खाता है या नहीं, और आपके तीन फ़ील्ड पर उसका परिणाम।"
+    },
+    {
+      "table": "ui",
+      "key": "Every cell with the nuclei and pathogens it contains, read from the cell_id links in the measurements database.",
+      "source": "Every cell with the nuclei and pathogens it contains, read from the cell_id links in the measurements database.",
+      "source_sha256": "f677a1c9c28d223ebac31e4804bd7da1d6a2a9eaa13c6f252ceba6b7bcd8ab6c",
+      "translation": "हर कोशिका, उसमें मौजूद नाभिकों और रोगजनकों के साथ, जिन्हें मापन डेटाबेस के cell_id लिंक से पढ़ा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Every panel on the same scale. When off, each panel has its own scale, so panels cannot be compared.",
+      "source": "Every panel on the same scale. When off, each panel has its own scale, so panels cannot be compared.",
+      "source_sha256": "9732203ac41a230423b6f80eaeeabc1edf708df0b1b2a42469eac34a3f193ec6",
+      "translation": "सभी पैनल एक ही स्केल पर। बंद होने पर हर पैनल का अपना स्केल होता है, इसलिए पैनलों की तुलना नहीं की जा सकती।"
+    },
+    {
+      "table": "ui",
+      "key": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+      "source": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+      "source_sha256": "09e7127405c8bad047fb00ee61cb05621b02d349aa1f073b80f8b5cdf6ba98af",
+      "translation": "हर दौर की होल्ड-आउट सटीकता, और यह कि लेबलिंग के अंतिम चरण ने उसे बदला या नहीं। सपाट वक्र दर्शाता है कि अधिक लेबल अब मॉडल में सुधार नहीं करते।"
+    },
+    {
+      "table": "ui",
+      "key": "Hover a point to see the object it stands for; click it to open the crop.",
+      "source": "Hover a point to see the object it stands for; click it to open the crop.",
+      "source_sha256": "a5b2868ffc4e4573b8c72e6bded2382864b4e409095bbc9ef670917ec5762029",
+      "translation": "किसी बिंदु पर होवर करके वह ऑब्जेक्ट देखें जिसका वह प्रतिनिधित्व करता है; क्रॉप खोलने के लिए उस पर क्लिक करें।"
+    },
+    {
+      "table": "ui",
+      "key": "How many files to read before deciding what the names mean. Only this sample is read, so inspecting a 400-plate archive takes as long as one plate; the naming convention is assumed to be the same in the rest of the folder.",
+      "source": "How many files to read before deciding what the names mean. Only this sample is read, so inspecting a 400-plate archive takes as long as one plate; the naming convention is assumed to be the same in the rest of the folder.",
+      "source_sha256": "0b2cf8d5dd3f6b3e79be296ad38a979d37d1aa985e3652522cb2c3bd43661a01",
+      "translation": "नामों का अर्थ तय करने से पहले कितनी फ़ाइलें पढ़नी हैं। केवल यही नमूना पढ़ा जाता है, इसलिए 400-प्लेट संग्रह का निरीक्षण एक प्लेट जितना समय लेता है; माना जाता है कि फ़ोल्डर के बाकी हिस्से में भी वही नामकरण पद्धति है।"
+    },
+    {
+      "table": "ui",
+      "key": "How to draw a cross-validated run: every fold, the fold mean with a ±1 sd band, or both. Drawing only the mean hides the spread between folds.",
+      "source": "How to draw a cross-validated run: every fold, the fold mean with a ±1 sd band, or both. Drawing only the mean hides the spread between folds.",
+      "source_sha256": "2f113af39151fc626204f7a09e3565d6e56048c282c9831f9a352e2256073b01",
+      "translation": "क्रॉस-वैलिडेटेड रन को कैसे बनाएँ: हर फ़ोल्ड, ±1 sd बैंड के साथ फ़ोल्ड माध्य, या दोनों। केवल माध्य बनाने से फ़ोल्ड के बीच का फैलाव छिप जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. Masks should outline every object and follow its edge closely.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. Masks should outline every object and follow its edge closely.",
+      "source_sha256": "6dd3a6f446f9ebf6b9a2a33b2eba2bb6af01a905eee35e96b74f59843e234b02",
+      "translation": "यदि आप स्वयं मॉडल प्रशिक्षित नहीं कर सकते, तो अपनी छवियाँ और मास्क यहाँ अपलोड करें और हम आपके लिए एक मॉडल प्रशिक्षित करेंगे। स्क्रीन पर दिख रही छवि उसके मास्क के साथ, यहाँ क्यूरेट की गई हर छवि, या एक छवि फ़ोल्डर के साथ समान नामों वाले मास्क रखने वाला मास्क फ़ोल्डर भेजें। बताएँ कि वे क्या दिखाती हैं (जीव, ऑब्जेक्ट प्रकार, स्टेन), और वे Hugging Face पर अपने स्वयं के सामुदायिक डेटासेट में पुल रिक्वेस्ट के रूप में जाती हैं, जिसकी समीक्षा अनुरक्षक किसी भी मॉडल के प्रशिक्षण से पहले करता है। वे {licence} के तहत साझा की जाती हैं, इसलिए केवल वही छवियाँ भेजें जिन्हें साझा करने का आपको अधिकार है। मास्क को हर ऑब्जेक्ट की रूपरेखा बनानी चाहिए और उसके किनारे का बारीकी से अनुसरण करना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Join the table carrying the value the screen is regressing on. It joins by plateID, rowID, columnID, fieldID and objectID when they are all there; when one is missing it falls back to splitting the crop path, then to translating the well into a row and a column. Which route was used is reported.",
+      "source": "Join the table carrying the value the screen is regressing on. It joins by plateID, rowID, columnID, fieldID and objectID when they are all there; when one is missing it falls back to splitting the crop path, then to translating the well into a row and a column. Which route was used is reported.",
+      "source_sha256": "bf46f0364e46bc87c9e1d6f338dba4c1602ac8791d455aaee3db9e2bd84f4176",
+      "translation": "उस तालिका को जोड़ें जिसमें वह मान है जिस पर स्क्रीनिंग रिग्रेशन करती है। जब plateID, rowID, columnID, fieldID और objectID सभी मौजूद हों तो यह इन्हीं से जोड़ती है; किसी एक के न होने पर यह क्रॉप पथ को विभाजित करने का सहारा लेती है, फिर वेल को पंक्ति और स्तंभ में बदलने का। कौन सा तरीका उपयोग हुआ, यह रिपोर्ट किया जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Keeps cells without a pathogen or organelle, which in a screen are usually the control population. Off restricts the analysis to cells that contain a pathogen or organelle.",
+      "source": "Keeps cells without a pathogen or organelle, which in a screen are usually the control population. Off restricts the analysis to cells that contain a pathogen or organelle.",
+      "source_sha256": "f6af6828ddf24abdd3430afdf20012807e7a36dd1b48c3d38f10ce5c837cd910",
+      "translation": "रोगजनक या ऑर्गेनेल रहित कोशिकाओं को रखता है, जो स्क्रीनिंग में आमतौर पर नियंत्रण आबादी होती हैं। बंद करने पर विश्लेषण केवल उन कोशिकाओं तक सीमित रहता है जिनमें रोगजनक या ऑर्गेनेल है।"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement columns to keep out of the sweep, by name and comma separated.",
+      "source": "Measurement columns to keep out of the sweep, by name and comma separated.",
+      "source_sha256": "2307283e12c8e2825f1a84e4ed8ad8da2e9ab65f0321805c99437a93ffe683ab",
+      "translation": "स्वीप से बाहर रखे जाने वाले मापन स्तंभ, नाम से और अल्पविराम से अलग करके।"
+    },
+    {
+      "table": "ui",
+      "key": "Models in spaCR's catalogue. A model already on this machine can be used straight away; the rest are downloaded when you ask for one.",
+      "source": "Models in spaCR's catalogue. A model already on this machine can be used straight away; the rest are downloaded when you ask for one.",
+      "source_sha256": "d4527a3e8fdf04ca177bfd819474c466c4f1cc2f341ad95268dd25dbdd4a9b8b",
+      "translation": "spaCR के कैटलॉग में मौजूद मॉडल। इस मशीन पर पहले से मौजूद मॉडल तुरंत उपयोग किया जा सकता है; बाकी तब डाउनलोड होते हैं जब आप उन्हें माँगते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Name for this template, for example “Toxo PVM, 40×”:",
+      "source": "Name for this template, for example “Toxo PVM, 40×”:",
+      "source_sha256": "b5e7ccf3330bca935a8ca90c3524cf7b29f43ffa0a28651123eddc0beecdbebf",
+      "translation": "इस टेम्पलेट का नाम, उदाहरण के लिए “Toxo PVM, 40×”:"
+    },
+    {
+      "table": "ui",
+      "key": "No axes selected — the Walk falls back to n_neighbors and min_dist.",
+      "source": "No axes selected — the Walk falls back to n_neighbors and min_dist.",
+      "source_sha256": "694bc904445cf81bb4cda8e0f402091e5fda3ffa4fb79bdecd9c4970f28b1020",
+      "translation": "कोई अक्ष नहीं चुना गया — चरणबद्ध खोज n_neighbors और min_dist पर लौट जाती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Off, the settings tab shows only what differs. On, it shows every key both runs set, so you can confirm that something you expected to change did not.",
+      "source": "Off, the settings tab shows only what differs. On, it shows every key both runs set, so you can confirm that something you expected to change did not.",
+      "source_sha256": "84304cf72beb757d109b5df5f6a14023c5a2dad381f55d68795e8e05da83f152",
+      "translation": "बंद होने पर सेटिंग्स टैब केवल वही दिखाता है जो अलग है। चालू होने पर यह दोनों रन द्वारा सेट की गई हर कुंजी दिखाता है, ताकि आप पुष्टि कर सकें कि जिस चीज़ के बदलने की आपको अपेक्षा थी वह नहीं बदली।"
+    },
+    {
+      "table": "ui",
+      "key": "Open each file for its own axis metadata. A channel that lives as a page inside an OME-TIFF is invisible without this, and it is the only thing that can tell a Z-stack from a timelapse when their filenames are identical. Turn it off for a fast first look at a very large archive.",
+      "source": "Open each file for its own axis metadata. A channel that lives as a page inside an OME-TIFF is invisible without this, and it is the only thing that can tell a Z-stack from a timelapse when their filenames are identical. Turn it off for a fast first look at a very large archive.",
+      "source_sha256": "bf623e7c697cfd3dff45892c8e0206c1d9ce536e4d11d8ea97c5ca5b255e5a29",
+      "translation": "हर फ़ाइल को उसके अपने अक्ष मेटाडेटा के लिए खोलें। इसके बिना OME-TIFF के भीतर एक पृष्ठ के रूप में मौजूद चैनल दिखाई नहीं देता, और जब फ़ाइल नाम समान हों तो Z-stack और टाइमलैप्स में अंतर बताने का यही एकमात्र तरीका है। बहुत बड़े संग्रह पर तेज़ प्रारंभिक नज़र के लिए इसे बंद करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Open the tabbed search, graph and module settings window.",
+      "source": "Open the tabbed search, graph and module settings window.",
+      "source_sha256": "8072f44e1ecf281ef59820231d1a57f40bda4c7eae4dc9fc5a3d83d705792ba6",
+      "translation": "टैब वाली खोज, ग्राफ़ और मॉड्यूल सेटिंग्स विंडो खोलें।"
+    },
+    {
+      "table": "ui",
+      "key": "Permute the class labels and re-rank, 50 times, keeping the best score each time. The 95th percentile is the separation the best of your features reaches by chance; a feature below it separates the classes no better than chance. Each shuffle repeats the ranking.",
+      "source": "Permute the class labels and re-rank, 50 times, keeping the best score each time. The 95th percentile is the separation the best of your features reaches by chance; a feature below it separates the classes no better than chance. Each shuffle repeats the ranking.",
+      "source_sha256": "c8200732933d30b89bd595f2fd7aec04203afd0a0410199b9fd7c5f0c8cf5443",
+      "translation": "क्लास लेबल को क्रमचयित करें और फिर से रैंक करें, 50 बार, हर बार सर्वश्रेष्ठ स्कोर रखते हुए। 95वाँ प्रतिशतक वह पृथक्करण है जिस तक आपके सर्वश्रेष्ठ फ़ीचर संयोग से पहुँचते हैं; उससे नीचे का फ़ीचर क्लास को संयोग से बेहतर अलग नहीं करता। हर शफ़ल रैंकिंग को दोहराता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Produce the three tables despite the blocker above. The numbers are subtracted, but whether the difference is meaningful is not checked.",
+      "source": "Produce the three tables despite the blocker above. The numbers are subtracted, but whether the difference is meaningful is not checked.",
+      "source_sha256": "5f9a816ba469590fafc5476e79d947dd827af5bb7227aae88d5c3540d9c3af70",
+      "translation": "ऊपर दिए गए अवरोधक के बावजूद तीनों तालिकाएँ बनाएँ। संख्याएँ घटाई जाती हैं, लेकिन यह जाँचा नहीं जाता कि अंतर अर्थपूर्ण है या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Publish the selected object and everything inside it, so the whole family is highlighted in every other open view.",
+      "source": "Publish the selected object and everything inside it, so the whole family is highlighted in every other open view.",
+      "source_sha256": "7300964571afdc3a5ab86572bc44c316909fbcbc84c418bee6e88cf7b6064e64",
+      "translation": "चुने गए ऑब्जेक्ट और उसके भीतर की हर चीज़ को प्रकाशित करें, ताकि पूरा परिवार हर अन्य खुले दृश्य में हाइलाइट हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Register an arbitrary number of tiles into one canvas and write it incrementally, so a 20000x20000 mosaic never has to fit in RAM. Offsets are solved globally rather than accumulated, and any tile that failed to register is drawn in orange and recorded as such, so tiles placed at their stage positions are visible before the stack is written.",
+      "source": "Register an arbitrary number of tiles into one canvas and write it incrementally, so a 20000x20000 mosaic never has to fit in RAM. Offsets are solved globally rather than accumulated, and any tile that failed to register is drawn in orange and recorded as such, so tiles placed at their stage positions are visible before the stack is written.",
+      "source_sha256": "830f4f371138e05ec7c76ab75fe5385dd7d84e2a9ee06e5da78a5e577157e2d8",
+      "translation": "किसी भी संख्या में टाइलों को एक कैनवास में रजिस्टर करें और उसे क्रमिक रूप से लिखें, ताकि 20000x20000 मोज़ेक को कभी पूरा RAM में न समाना पड़े। ऑफ़सेट संचित करने के बजाय वैश्विक रूप से हल किए जाते हैं, और रजिस्टर होने में विफल हर टाइल नारंगी रंग में बनाई जाती है और वैसे ही दर्ज की जाती है, ताकि स्टैक लिखे जाने से पहले अपनी स्टेज स्थितियों पर रखी गई टाइलें दिखाई दें।"
+    },
+    {
+      "table": "ui",
+      "key": "Seed for the random layout. The same seed regenerates the same layout, so it can be checked later.",
+      "source": "Seed for the random layout. The same seed regenerates the same layout, so it can be checked later.",
+      "source_sha256": "936c164b6905f10fa33de1e36d7f896da147def2a9f3add7a1414ec27251d6ec",
+      "translation": "यादृच्छिक लेआउट का सीड। वही सीड वही लेआउट फिर से बनाता है, ताकि बाद में उसकी जाँच की जा सके।"
+    },
+    {
+      "table": "ui",
+      "key": "Select a job to read its own log. Every job writes its own log file, so the logs of different jobs are not interleaved.",
+      "source": "Select a job to read its own log. Every job writes its own log file, so the logs of different jobs are not interleaved.",
+      "source_sha256": "38b3ab3957357e8383f2769343719d47598949ab6b1eae6bb10002dcf17dc60d",
+      "translation": "किसी जॉब का अपना लॉग पढ़ने के लिए उसे चुनें। हर जॉब अपनी लॉग फ़ाइल लिखता है, इसलिए अलग-अलग जॉब के लॉग आपस में मिलते नहीं हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Ranking by uncertainty alone tends to concentrate on one or two wells, so the same kind of crop is labelled repeatedly. 'none' turns the spreading off.",
+      "source": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Ranking by uncertainty alone tends to concentrate on one or two wells, so the same kind of crop is labelled repeatedly. 'none' turns the spreading off.",
+      "source_sha256": "76613fc50b5713cc085cc4969e807dd29376b819c1f78088cfb00dc43cb070ef",
+      "translation": "सबसे अनिश्चित क्रॉप को रैंक क्रम में देने के बजाय कतार को सभी वेल में फैलाएँ। केवल अनिश्चितता के आधार पर रैंकिंग एक या दो वेल पर केंद्रित हो जाती है, जिससे एक ही प्रकार के क्रॉप बार-बार लेबल होते हैं। 'none' फैलाव को बंद करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Stop the queue after this many failed jobs in a row; consecutive failures usually share a cause that would also fail the remaining jobs. 0 disables the check.",
+      "source": "Stop the queue after this many failed jobs in a row; consecutive failures usually share a cause that would also fail the remaining jobs. 0 disables the check.",
+      "source_sha256": "6b57ecaa2411e25a87210ccc45b3ab260801407d1810092a356df722080460a4",
+      "translation": "लगातार इतने जॉब विफल होने के बाद कतार रोकें; लगातार विफलताओं का आमतौर पर एक ही कारण होता है जो शेष जॉब को भी विफल कर देगा। 0 इस जाँच को अक्षम करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Symlink each image under its spaCR name rather than duplicating it. Renaming does not require copying, and copying a 300 GB plate would use another 300 GB of disk. Untick it if the project has to survive the originals moving, or if it is going somewhere symlinks do not work.",
+      "source": "Symlink each image under its spaCR name rather than duplicating it. Renaming does not require copying, and copying a 300 GB plate would use another 300 GB of disk. Untick it if the project has to survive the originals moving, or if it is going somewhere symlinks do not work.",
+      "source_sha256": "b59524aef531e9a48933916af5c8f81814f61725e409d98efa2063638f4faac8",
+      "translation": "हर छवि को डुप्लिकेट करने के बजाय उसके spaCR नाम से सिमलिंक करें। नाम बदलने के लिए कॉपी करना आवश्यक नहीं है, और 300 GB प्लेट को कॉपी करने से 300 GB और डिस्क लगेगी। यदि मूल फ़ाइलें हटने पर भी प्रोजेक्ट को काम करना है, या वह ऐसी जगह जा रहा है जहाँ सिमलिंक काम नहीं करते, तो इसका चयन हटाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "The Walk searches the space these parameters define. Every one of them changes the structure of the embedding, so searching only n_neighbors and min_dist leaves the others at their defaults.",
+      "source": "The Walk searches the space these parameters define. Every one of them changes the structure of the embedding, so searching only n_neighbors and min_dist leaves the others at their defaults.",
+      "source_sha256": "c932d8259c8c08b1448be74df0f3be5bd442bdd837e4a1f6e6bc4f13458e1180",
+      "translation": "चरणबद्ध खोज इन पैरामीटर द्वारा परिभाषित स्थान में खोज करती है। इनमें से हर एक एम्बेडिंग की संरचना बदलता है, इसलिए केवल n_neighbors और min_dist खोजने से बाकी अपने डिफ़ॉल्ट मानों पर रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "The numeric measurements of the merged frame. Pick as many as you like: each one becomes its own run, with its own folder and its own row in the Runs tab, so they can be compared there.",
+      "source": "The numeric measurements of the merged frame. Pick as many as you like: each one becomes its own run, with its own folder and its own row in the Runs tab, so they can be compared there.",
+      "source_sha256": "a332ad084f56b68540c1bc8a55944ba38376d0863312857cbc930fe6c3bcd935",
+      "translation": "मर्ज किए गए फ़्रेम के संख्यात्मक माप। जितने चाहें चुनें: हर एक अपना अलग रन बनता है, अपने फ़ोल्डर और रन टैब में अपनी पंक्ति के साथ, ताकि उनकी वहाँ तुलना की जा सके।"
+    },
+    {
+      "table": "ui",
+      "key": "The penalty weight of a penalised fit, not the significance level above. Greyed out for a model that has no penalty, because the number would change nothing there and the run refuses it rather than ignoring it.",
+      "source": "The penalty weight of a penalised fit, not the significance level above. Greyed out for a model that has no penalty, because the number would change nothing there and the run refuses it rather than ignoring it.",
+      "source_sha256": "5dd0d9f018821cbd3f3810d72c3fb2b28a97017ba5e644bf10173a5ead245a62",
+      "translation": "दंडित फ़िट का दंड भार, ऊपर दिया गया सार्थकता स्तर नहीं। जिस मॉडल में दंड नहीं है उसके लिए यह धूसर रहता है, क्योंकि वहाँ यह संख्या कुछ नहीं बदलेगी और रन इसे अनदेखा करने के बजाय अस्वीकार करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "The percentile mapped to black. Raise it to darken more of the background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to darken more of the background; 0 keeps the dimmest pixel.",
+      "source_sha256": "5f32ce686a224451a0603fd581ab26ca0d36ff6b29f262517c168282431419df",
+      "translation": "वह प्रतिशतक जिसे काले पर मैप किया जाता है। पृष्ठभूमि का अधिक भाग गहरा करने के लिए इसे बढ़ाएँ; 0 सबसे धुंधले पिक्सेल को भी बनाए रखता है।"
+    },
+    {
+      "table": "ui",
+      "key": "The run order or date. Leave empty and the order is inferred from the plate id, and every run-based rule uses that order.",
+      "source": "The run order or date. Leave empty and the order is inferred from the plate id, and every run-based rule uses that order.",
+      "source_sha256": "3e478e9bd01639d4b42fd11c381060142d5918984f03c8e61e9285370b32a02c",
+      "translation": "रन क्रम या तारीख। खाली छोड़ने पर क्रम plate id से अनुमानित होता है, और हर रन-आधारित नियम उसी क्रम का उपयोग करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Tick two or more columns — agreement needs at least two annotators.",
+      "source": "Tick two or more columns — agreement needs at least two annotators.",
+      "source_sha256": "7c62335e06011d69e933121c2d134865433413ac7f492e34d1c398fddaff7007",
+      "translation": "दो या अधिक स्तंभ चुनें — सहमति के लिए कम से कम दो एनोटेटर आवश्यक हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "What the bar's whisker means. SD describes the spread of the observations themselves; SEM describes how well their mean is pinned down and is SD over the square root of n -- at n=3000 the two differ fifty-five-fold; the variance is SD squared, so its whisker is in squared units. The caption under the plot names whichever was drawn.",
+      "source": "What the bar's whisker means. SD describes the spread of the observations themselves; SEM describes how well their mean is pinned down and is SD over the square root of n -- at n=3000 the two differ fifty-five-fold; the variance is SD squared, so its whisker is in squared units. The caption under the plot names whichever was drawn.",
+      "source_sha256": "666cf1824e741234db605f56271f8f5d88e68092570d906a477229f6c951a77f",
+      "translation": "बार के व्हिस्कर का अर्थ। SD स्वयं प्रेक्षणों के फैलाव का वर्णन करता है; SEM बताता है कि उनका माध्य कितनी अच्छी तरह निर्धारित है और यह SD को n के वर्गमूल से विभाजित करने पर मिलता है -- n=3000 पर दोनों में पचपन गुना अंतर होता है; प्रसरण SD का वर्ग है, इसलिए उसका व्हिस्कर वर्ग इकाइयों में होता है। प्लॉट के नीचे का कैप्शन बताता है कि कौन सा बनाया गया।"
+    },
+    {
+      "table": "ui",
+      "key": "What to do when a field arrives as several tiles. Stitching is the default: spaCR's filename convention has no tile slot, so four tiles of one field would share one name, while a stitched field is one image with one name. Keeping the tiles as fields loses the information that they are one field, so per-field measurements are wrong; skipping them leaves them out, with a reason.",
+      "source": "What to do when a field arrives as several tiles. Stitching is the default: spaCR's filename convention has no tile slot, so four tiles of one field would share one name, while a stitched field is one image with one name. Keeping the tiles as fields loses the information that they are one field, so per-field measurements are wrong; skipping them leaves them out, with a reason.",
+      "source_sha256": "35c1ec9ff85e0f02b5c6ecc8038f77e487752b3425b6e14727c5d059204b0bd3",
+      "translation": "जब कोई फ़ील्ड कई टाइलों के रूप में आए तो क्या करें। स्टिचिंग डिफ़ॉल्ट है: spaCR की फ़ाइल नाम पद्धति में टाइल के लिए कोई स्थान नहीं है, इसलिए एक फ़ील्ड की चार टाइलों का एक ही नाम होगा, जबकि स्टिच किया गया फ़ील्ड एक नाम वाली एक छवि है। टाइलों को फ़ील्ड के रूप में रखने से यह जानकारी खो जाती है कि वे एक ही फ़ील्ड हैं, इसलिए प्रति-फ़ील्ड माप गलत होते हैं; उन्हें छोड़ने पर वे कारण सहित बाहर रहती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits twice — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits twice — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source_sha256": "6fec42f63ed1dad89e371886c985ce9b64eb4d74635537c21b30ec50d3612ccd",
+      "translation": "हर टैब गुणांकों का कौन सा परिवार बनाता है।\n\nlevel='both' पर फ़िट किया गया रन दो बार फ़िट करता है — एक बार प्रति guide और एक बार प्रति gene — और दोनों को एक तालिका में लिखता है। ये दो बहु-परीक्षण परिवार हैं, इसलिए q-values, Q-Q का मुद्रास्फीति आंकड़ा और सार्थकता रेखा हर परिवार के भीतर गणना की जाती हैं, दोनों को मिलाकर नहीं।\n\nBoth उन्हें एक साथ दिखाता है। तब एक जीन और उसके guide अलग-अलग लेबल वाली अलग पंक्तियाँ होते हैं: gene_fraction:gene[225160] के साथ fraction:grna[225160_1], और तालिका में एक level स्तंभ बताता है कि कौन सा क्या है।"
+    },
+    {
+      "table": "ui",
+      "key": "Work the pattern out from the filenames themselves: tokenise them, align the set, and the parts that vary are the groups.",
+      "source": "Work the pattern out from the filenames themselves: tokenise them, align the set, and the parts that vary are the groups.",
+      "source_sha256": "7d74011ee038f57d6b08fff1be36f313bdb482e467ef925a23b38e55a9472c29",
+      "translation": "पैटर्न को स्वयं फ़ाइल नामों से निकालें: उन्हें टोकन में बाँटें, समूह को संरेखित करें, और जो भाग बदलते हैं वे ही समूह हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "consolidate_on_cell. Off keeps every cell and leaves the child's columns empty. This is not a blanket join type: the join is decided per table by the object type.",
+      "source": "consolidate_on_cell. Off keeps every cell and leaves the child's columns empty. This is not a blanket join type: the join is decided per table by the object type.",
+      "source_sha256": "bdfbb62ff63e4f4b87a02cd04c980ea1a225e49ea65568b93424058521c8780c",
+      "translation": "consolidate_on_cell. बंद होने पर हर कोशिका रखी जाती है और चाइल्ड ऑब्जेक्ट के स्तंभ खाली छोड़े जाते हैं। यह एक समान जॉइन प्रकार नहीं है: जॉइन हर तालिका के लिए ऑब्जेक्ट प्रकार के आधार पर तय होता है।"
+    },
+    {
+      "table": "ui",
+      "key": "cuML is installed. Restart spaCR before using it — pip may have upgraded numpy or scipy underneath this process, which has already imported them.",
+      "source": "cuML is installed. Restart spaCR before using it — pip may have upgraded numpy or scipy underneath this process, which has already imported them.",
+      "source_sha256": "98a381772c6eb2d9dc0fc74992a7428289317ee47351883f2524815382d5c68a",
+      "translation": "cuML इंस्टॉल हो गया है। इसका उपयोग करने से पहले spaCR को पुनः आरंभ करें — हो सकता है pip ने इस प्रक्रिया के नीचे numpy या scipy को अपग्रेड कर दिया हो, जिन्हें यह प्रक्रिया पहले ही इम्पोर्ट कर चुकी है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_bud_guard",
+      "source": "Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Divisions whose bud signal stays below the threshold are rejected, so divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+      "source_sha256": "5c012f9a9f25a7dc5173cddf1a8558cfd53d7ebd4005e5fca62d243cac5cbe7e",
+      "translation": "किसी अनुमानित विभाजन को केवल तभी स्वीकार करें जब उससे पहले के 8 फ़्रेम में माँ कोशिका में संतति कलियाँ दिखें: उसके मास्क के भीतर, उस चैनल का 95वाँ प्रतिशतक/माध्यिका अनुपात, जिस पर ऑब्जेक्ट सेगमेंट किए गए थे (जैसे IMC1 जैसा कोई आंतरिक झिल्ली संकुल मार्कर), timelapse_lineage_bud_threshold तक पहुँचना चाहिए। जिन विभाजनों का कली संकेत सीमा से नीचे रहता है उन्हें अस्वीकार कर दिया जाता है, इसलिए धुंधली कलियों वाले विभाजन छूट जाते हैं। इसे छवियों की आवश्यकता होती है, इसलिए यह मास्क बनाते समय लागू होता है, मापन में नहीं। जब तक timelapse_lineage चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
+      "source_sha256": "0ece9951871a2f14afd863616a443682bee0a88492112fbc02e790b774f7dbd6",
+      "translation": "Annotate लेबल वाला png_list कॉलम, जिनसे xgboost और torch विधियाँ सीखती हैं: G1, S, G2 और M के लिए 1 से 4, या अवस्थाओं के नाम। लेबल उनकी कोशिका के माध्यम से नाभिकों से मिलाए जाते हैं। खाली होने पर इसके बजाय गेट के विश्वसनीय निर्णयों पर प्रशिक्षण होता है, इसलिए सीखी गई विधियाँ गेट के निर्णयों को ही दोहराती हैं; एनोटेट किए गए प्रोफ़ेज़ और एनाफ़ेज़ नाभिक ऐसी जानकारी जोड़ते हैं जो गेट नहीं देते। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. 'cv' calls spacr.deep_spacr.deep_spacr and 'ml' calls spacr.ml.generate_ml_scores, both unchanged. Default 'cv'.",
+      "source_sha256": "43d1db680e6e8d2a3e9cc12173be288b82718618e24a013798bfb2b4a734a2c9",
+      "translation": "merged Classify मॉड्यूल कौन सा वर्गीकारक चलाता है: 'cv' ऑब्जेक्ट क्रॉप पर Torch मॉडल प्रशिक्षित करता है, 'ml' मापे गए फ़ीचर पर gradient-boosted मॉडल फ़िट करता है। दूसरे परिवार द्वारा उपयोग की जाने वाली सेटिंग्स छिपी नहीं, धूसर होती हैं - वे अपने मान बनाए रखती हैं। 'cv' spacr.deep_spacr.deep_spacr को और 'ml' spacr.ml.generate_ml_scores को कॉल करता है, दोनों अपरिवर्तित। डिफ़ॉल्ट 'cv'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0f3ff86ceb03a2d26d3667056c0c1fdaa09ebb3594a615596ca99270eb7589cc",
+      "translation": "count CSV में गाइड पहचानकर्ता वाले कॉलम का नाम। यह मान सीक्वेंसिंग पाइपलाइन द्वारा बनाए गए कॉलम पर सेट करें। डिफ़ॉल्ट 'grna'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Set it when the file names this column differently, for example 'reads' or 'n'. Default 'count'.",
+      "source_sha256": "c3e98b47a9eea11808765aad4f902249f2f2e44e41ab211ca5373eae0d2cc00e",
+      "translation": "count CSV में उस कॉलम का नाम जिसमें एक वेल में एक गाइड की रीड गिनती है; यह वह प्रति-वेल अंश बनता है जिस पर fraction_threshold स्वीप काम करता है। जब फ़ाइल में इस कॉलम का नाम अलग हो, उदाहरण के लिए 'reads' या 'n', तब इसे सेट करें। डिफ़ॉल्ट 'count'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_generator",
+      "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+      "source_sha256": "86fe3b16be0b1a6c1f5adbca6d27f55d80b49de9a62dc625a755558abe769252",
+      "translation": "वह मॉडल जो प्रतितथ्यात्मक उदाहरण बनाता है। 'autoencoder' तेज़ है और क्लासिफ़ायर का निर्णय पलटने के लिए प्रशिक्षित है। 'diffusion' केवल हर वर्ग की छवि-कतरनें बनाने के लिए प्रशिक्षित है और आंशिक रूप से शोरयुक्त कतरन को लक्ष्य वर्ग के अंतर्गत फिर से बनाता है, इसलिए निर्णय पलटना वह लक्ष्य नहीं है जिसके लिए इसे अनुकूलित किया गया; यह धीमा है और इसे GPU, हज़ारों कतरनों और सैकड़ों epochs की आवश्यकता होती है; कुछ सौ कतरनों के साथ यह कतरनों को बहुत कम बदलता है। डिफ़्यूज़न भार तालिकाओं के बगल में counterfactual_diffusion.pt के रूप में सहेजे जाते हैं। counterfactuals चालू होने पर ही लागू। डिफ़ॉल्ट 'autoencoder'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "fc0daa17b3e41b11d35a30cb7ec60317ab303d9a3c5365667ed64d78042fc9a8",
+      "translation": "एक अकेले train/test विभाजन के बजाय क्लास-स्तरीकृत क्रॉस-वैलिडेशन से फ़ीचर-आधारित वर्गीकारक (Classify, 'ml' परिवार) को स्कोर करें: अधिकतम 5 फ़ोल्ड, हर फ़ोल्ड में पूरे cv_group_by समूह, ताकि हर नियंत्रण ऑब्जेक्ट को आउट-ऑफ़-फ़ोल्ड पूर्वानुमान मिले। verbose चालू होने पर हर फ़ोल्ड की इष्टतम प्रायिकता सीमा की गणना करके प्रिंट की जाती है; पूर्वानुमानों पर सीमा दोबारा लागू नहीं की जाती। छोटे नियंत्रण सेट पर कम परिवर्तनशील सटीकता अनुमान देता है, लगभग 5x प्रशिक्षण समय पर। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the feature-based (ml) classifier.",
+      "source_sha256": "04bc2a895e4a5c8f02f21c3902fdf0608383b2474d3475239f608083e81e0c62",
+      "translation": "एक val_split होल्डआउट के बजाय विज़न वर्गीकारक प्रशिक्षित करने के लिए उपयोग किए जाने वाले k-fold विभाजनों की संख्या। 0 (डिफ़ॉल्ट) या 1 एक यादृच्छिक विभाजन का उपयोग करता है; 2 या अधिक प्रति फ़ोल्ड एक अलग मॉडल प्रशिक्षित करता है, हर मॉडल का उसके अलग रखे फ़ोल्ड पर मूल्यांकन करता है, और माध्य, फ़ोल्ड-दर-फ़ोल्ड मानक विचलन और रेंज रिपोर्ट करता है। ये सांख्यिकी डेटा विभाजन के प्रति संवेदनशीलता मापती हैं। रनटाइम लगभग k के अनुपात में है। 'cross_validation' से अलग, जो फ़ीचर-आधारित (ml) वर्गीकारक को नियंत्रित करता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source": "Image format of the pre-generated crops, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It filters by format only; path_string selects the object type, so the pair can select, for example, every nucleus crop in any format or every TIFF of any object. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "source_sha256": "d26bee95081d3bad21742e43d72a316a7743a2fa87b945f0561d80a822038967",
+      "translation": "पहले से तैयार क्रॉप की छवि का प्रारूप फ़ाइल एक्सटेंशन के रूप में निर्दिष्ट करें: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' या 'npy'। यह केवल प्रारूप के आधार पर फ़िल्टर करता है; ऑब्जेक्ट प्रकार path_string चुनता है, इसलिए यह जोड़ी उदाहरण के लिए किसी भी प्रारूप में हर nucleus क्रॉप या किसी भी ऑब्जेक्ट की हर TIFF चुन सकती है। '<object>_png' के रूप में पुराना मान अब भी स्वीकार किया जाता है और उसके एक्सटेंशन के रूप में पढ़ा जाता है, इसलिए पुरानी सेटिंग फ़ाइल कार्य करती रहती है। खाली मान किसी भी प्रारूप को स्वीकार करता है। डिफ़ॉल्ट 'cell_png' है, जिसे 'png' के रूप में पढ़ा जाता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its single strongest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "63f98762f489b431264a0f56756bb32a4bf10b80ad9aec389e2080d96c61ff0a",
+      "translation": "group lasso का दंड भार, जो एक जीन के सभी गाइड को एक-एक करके नहीं बल्कि एक साथ छोटा करता है, ताकि कोई जीन अपने एकल सबसे मज़बूत गाइड के आधार पर नहीं, बल्कि एक इकाई के रूप में मॉडल में आए या जाए। बड़े मान कम जीन रखते हैं; 0 फ़िट को बिना दंड छोड़ता है और ऋणात्मक अस्वीकार होता है। क्रॉस-वैलिडेशन से चुनने के लिए इसे auto पर सेट करें। डिफ़ॉल्ट auto। regression_type 'group_lasso' द्वारा पढ़ा जाता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, which removes position-dependent intensity bias across the field of view.",
+      "source_sha256": "e79cadbc68fddd333f4dc44f43f77a5a0d55ba413c1fb8898b2ca2d4437faa5e",
+      "translation": "प्रदीप्ति / फ़्लैट-फ़ील्ड सुधार। माइक्रोस्कोप की असमान प्रदीप्ति का अनुमान एक बार प्लेट के दृश्य-क्षेत्रों से लगाता है और हर सक्षम चरण पर पिक्सेल को उससे विभाजित करता है, जिससे पूरे दृश्य-क्षेत्र में स्थिति-निर्भर तीव्रता पूर्वाग्रह हट जाता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. On, intensities are corrected for the position in the field of view, which removes position-dependent intensity bias such as vignetting. Default False.",
+      "source_sha256": "8706c15b6f8640452c83302126ab7dee2c385f88955e1f4c29416288cad32022",
+      "translation": "माइक्रोस्कोप की असमान प्रदीप्ति का अनुमान स्वयं दृश्य-क्षेत्रों से लगाएँ और हर सक्षम चरण पर पिक्सेल को उससे विभाजित करें। चालू होने पर तीव्रताओं को दृश्य-क्षेत्र में स्थिति के लिए सुधारा जाता है, जिससे विग्नेटिंग जैसे स्थिति-निर्भर तीव्रता पूर्वाग्रह हट जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head added on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "932012c5c8135c5b9c46d41fc843523df7ace74b603d801b77383407c7749dc6",
+      "translation": "बैकबोन को यादृच्छिक प्रारंभ के बजाय ImageNet-पूर्व-प्रशिक्षित भारों से शुरू करें; ऊपर जोड़ा गया spaCR वर्गीकारक हेड दोनों ही स्थितियों में यादृच्छिक रूप से प्रारंभ होता है। इसे चालू रखें - यहाँ के सामान्य छोटे एनोटेट सेट पर transfer learning कहीं कम एपॉक में अभिसरित होता है। इसे केवल बहुत बड़े डेटासेट पर शुरू से प्रशिक्षण के लिए, या पूर्व-प्रशिक्षण का योगदान मापने के लिए बंद करें। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter list of more consistently selected terms; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "235d276241abe79ab7a8bcc4185c54ef7e9e2b1f418423543de15e17335c4d00",
+      "translation": "किसी lasso या elastic-net गुणांक को हिट कहे जाने के लिए न्यूनतम bootstrap चयन आवृत्ति, 0 और 1 के बीच। 0.6 का अर्थ है कि gRNA ने कम से कम तीन-पाँचवें पुनर्नमूनों में गैर-शून्य गुणांक रखा। अधिक सुसंगत रूप से चुने गए पदों की छोटी सूची के लिए इसे बढ़ाएँ; लगभग 0.5 से कम मान उन पदों को स्वीकार करता है जिन्हें दंड जितनी बार रखता है उतनी ही बार हटाता है। डिफ़ॉल्ट 0.6। regression_type 'elasticnet', 'group_lasso', 'lasso' द्वारा पढ़ा जाता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "6b3ba2b8d28e3317899be945c5bffd0237c98be3d520ef51e9d2228babc2a25f",
+      "translation": "धनात्मक और ऋणात्मक नियंत्रणों के ज्ञात मिश्रण वाले वेल, उदा. ['c3']। अन्य दो की तरह रिग्रेशन से हटाए जाते हैं। इन वेल में प्रति-कोशिका पहचान अज्ञात है, लेकिन कुल अनुपात सीक्वेंसिंग से ज्ञात हैं, इसलिए एनोटेशन विधियों को सिम्युलेटेड के बजाय वास्तविक कोशिकाओं पर स्कोर किया जा सकता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it off when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "685de1a2edc476d6b7eab14c7b84dbb4189cb81257570c67e97688d6fad3bc79",
+      "translation": "जहाँ spaCR को उपयोग योग्य ग्राफ़िक्स कार्ड मिले वहाँ इस रन को उसका उपयोग करने दें: टाइल रजिस्ट्रेशन के FFTs और Cellpose आउटलाइन दोनों का GPU पथ है, और कार्ड के मना करने पर दोनों स्वयं CPU पर लौट जाते हैं। जब कार्ड किसी अन्य जॉब में व्यस्त हो तो इसे बंद करें -- साझा GPU सामान्य स्थिति है, और प्लेट के बीच मेमोरी-समाप्ति की कीमत GPU द्वारा बचाए गए समय से अधिक होती है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly, which measures decoding success. Empty still calls barcodes but cannot score them against a library. Default None.",
+      "source_sha256": "cff4b2bce8f6eb57f46c9809bf94ca740dc7be3a4d2c47c44535c990cf267a28",
+      "translation": "गाइड बारकोड की एक CSV, जिसमें उन्हें रखने वाले स्तंभ का नाम prefix, barcode या sequence हो। यह देने पर प्रत्येक नाभिक का पहचाना गया बारकोड उसके निकटतम गाइड से भी मिलाया जाता है, और रन बताता है कि कितने स्पॉट लाइब्रेरी से सटीक मेल खाते हैं, जो डिकोडिंग की सफलता को मापता है। खाली होने पर भी बारकोड पहचाने जाते हैं, लेकिन लाइब्रेरी के सापेक्ष उनका स्कोर नहीं बन सकता। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is off by default because the table is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "670726ba9fe47c5ecca5d3055c2a03340488ca3edf4c73a619cad9f5fe616e22",
+      "translation": "बारकोड के पीछे का हर रीड ops_reads तालिका में लिखें: प्रति चक्र प्रति रीड एक पंक्ति, पहचाने गए बेस, उसके मार्जिन और उन चार तीव्रताओं के साथ जिनसे वह पहचाना गया। इसी से किसी संदिग्ध बारकोड को उसके पिक्सेल तक खोजा जाता है। यह डिफ़ॉल्ट रूप से बंद है क्योंकि तालिका बड़ी है -- संदर्भ प्लेट का एक पूरा वेल लगभग तीन करोड़ पंक्तियाँ है -- इसलिए इसे पूरी प्लेट के बजाय एक-दो वेल के लिए चालू करें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the default for fine-tuning; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "29acf3ede4098d711dcd769ed35bb138a900a1f06cb1e2ff84e33704397c4bf2",
+      "translation": "deep_spacr.train_model द्वारा उपयोग किया जाने वाला PyTorch ऑप्टिमाइज़र: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' या 'asgd'। AdamW फ़ाइन-ट्यूनिंग के लिए डिफ़ॉल्ट है; SGD बेहतर सामान्यीकरण कर सकता है लेकिन सामान्यतः अधिक एपॉक चाहिए। amsgrad केवल Adam/AdamW पर लागू होता है। API: spacr.deep_spacr.train_model(optimizer_type=...)। डिफ़ॉल्ट 'adamw'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3', the default until 2026-10-11, scores higher on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "01ef869742a956fb394d3b1571df69067cac6eaa49a0ccc21de1fe7eafe594ec",
+      "translation": "प्लाक विभाजन के लिए Cellpose चेकपॉइंट: मॉडल संग्रह की कुंजी देने पर पहली बार उपयोग में चेकसम से सत्यापित चेकपॉइंट डाउनलोड होता है ('toxoplasma_plaque_v4', cpsam_v2 पर आधारित राउंड-6 मॉडल है; 'toxoplasma_plaque_v3', जो 2026-10-11 तक डिफ़ॉल्ट था, Gel Doc वेल पर अधिक स्कोर करता है; 'toxoplasma_plaque_v2' उससे पहले का डिफ़ॉल्ट है), फ़ाइल-सिस्टम पथ अपना चेकपॉइंट चुनता है, और 'bundled' एक Cellpose 3 चेकपॉइंट है जिसे Cellpose 3 चाहिए। इसे बदलने से प्लाक गणनाएँ बदलती हैं, इसलिए दर्ज किए गए रन में उनका मान बनाए रखना चाहिए। डिफ़ॉल्ट 'toxoplasma_plaque_v4'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "source_sha256": "468dfadcd279c00a361b9b50baa1317e888ee1f0ae2eedcfab8697da05981efd",
+      "translation": "सहेजी गई PNG के हर रंग में कौन सा स्रोत चैनल जाता है, उदा. {'r': 2, 'g': 1, 'b': 0}: चैनल 2 लाल है, 1 हरा है, 0 नीला है। जिन चैनलों का नाम नहीं दिया गया वे क्रॉप में अनुपस्थित रहते हैं (माप अप्रभावित रहते हैं); खाली छोड़ा गया रंग एक खाली तल है। तीनों के लिए एक ही चैनल नामित करने से ग्रेस्केल PNG लिखी जाती है। डिफ़ॉल्ट {'r': 2, 'g': 1, 'b': 0}, जो मानक 405/488/555 स्टैक के लिए नाभिकीय स्टेन को नीले में रखता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. Not implemented: when it is True, generate_image_umap raises NotImplementedError before embedding. Leave it False. Default False.",
+      "source_sha256": "681a3d431184971338dc0e27935462755c6e97280df5396276f58c152d98ace4",
+      "translation": "मापी गई फ़ीचर तालिका के बजाय ResNet फ़ीचर से कच्चे क्रॉप एम्बेड करने के लिए प्लेसहोल्डर। लागू नहीं किया गया है: True होने पर generate_image_umap एम्बेडिंग से पहले NotImplementedError उठाता है। इसे False छोड़ें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_knots",
+      "source": "Number of knots in the spline basis of each continuous covariate. More knots let the fitted curve bend more freely and use more degrees of freedom; a covariate with fewer distinct values than the degree is left linear and gets no spline basis. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+      "source_sha256": "a6a39f6e680d7113323f0ec166a7019efdbbdbdd04ffe7838a102672db9c0105",
+      "translation": "प्रत्येक सतत सहचर के स्प्लाइन आधार में नॉट्स की संख्या। अधिक नॉट्स फ़िट किए गए वक्र को अधिक स्वतंत्र रूप से मुड़ने देते हैं और अधिक स्वतंत्रता-घातों का उपयोग करते हैं; जिस सहचर के विशिष्ट मानों की संख्या घात से कम हो, उसे रैखिक छोड़ा जाता है और उसे कोई स्प्लाइन आधार नहीं मिलता। गाइड स्तंभों को कभी आधार नहीं दिया जाता, इसलिए फ़िट अब भी प्रत्येक गाइड के लिए एक गुणांक और एक p-मान लौटाता है। केवल regression_type 'spline' द्वारा पढ़ा जाता है। डिफ़ॉल्ट 4।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much a well's invasion efficiency depends on the threshold. Widening it widens the bracket and makes the inflation flag (inflation_warn) trigger more often. Default 0.25.",
+      "source_sha256": "1ea52bf72d9d998cca2c1e12a8e5d23ed607d8ffec22db42f86ba7080d01b8c3",
+      "translation": "आंशिक मात्रा जिससे सीमा को ऊपर और नीचे खिसकाकर invasion_efficiency_low_threshold और _high_threshold दायरा बनाया जाता है, जो दिखाता है कि किसी वेल की आक्रमण दक्षता सीमा पर कितनी निर्भर करती है। इसे चौड़ा करने से दायरा चौड़ा होता है और वृद्धि चेतावनी (inflation_warn) अधिक बार लगती है। डिफ़ॉल्ट 0.25।"
+    }
+  ]
+}

@@ -108,8 +108,8 @@ class SoundPage:
         row = self._event_row("click", "SoundClick")
         row.setToolTip(
             "A short, quiet pluck in the sound set's key when you press a "
-            "button, a switch, a tab, a list or a slider: confirmation that "
-            "the press registered, felt more than heard.")
+            "button, a switch, a tab, a list or a slider, confirming that "
+            "the press registered.")
         form.addRow(tr("Click"), row)
 
         row = self._event_row("hover", "SoundHover")
@@ -123,7 +123,7 @@ class SoundPage:
         row = self._event_row("run_finished", "SoundRunFinished")
         row.setToolTip(
             "A rising arpeggio that resolves onto the key's home note when a "
-            "module's run finishes successfully, for when spaCR is in "
+            "module's run finishes successfully, audible while spaCR is in "
             "another window.")
         form.addRow(tr("Run finished"), row)
 

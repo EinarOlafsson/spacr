@@ -1,4 +1,4 @@
-"""The Graph Builder screen — a table, a filter, and a chart you drag together.
+"""The Graph Builder screen: a table, a filter and a chart built by drag and drop.
 
 Assembles three things that already exist into one surface:
 

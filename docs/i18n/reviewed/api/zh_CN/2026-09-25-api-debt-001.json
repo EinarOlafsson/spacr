@@ -120,7 +120,9 @@
       "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
       "context": "Where a run of ``table`` would write, given the destination it was handed.",
       "translation": "根据传入的目标位置，``table`` 的运行将写入的位置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#1",
@@ -162,7 +164,9 @@
       "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
       "context": "The measure_crop settings this table decides, over the ones it does not.",
       "translation": "此表格所决定的 measure_crop 设置，覆盖其不决定的设置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_settings#1",
@@ -218,7 +222,9 @@
       "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
       "context": "Resolve what a user typed in a mask column to a spaCR object role.",
       "translation": "将用户在掩膜列中输入的内容解析为 spaCR 对象角色。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.mask_role_of#1",
@@ -258,7 +264,9 @@
       "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
       "context": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
       "translation": "测量一个由手工挑选的图像和掩膜组成的表格。这是 FEATURES 的入口点。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.measure_from_field_table#1",
@@ -372,7 +380,9 @@
       "source_sha256": "1bc0f9f16cdf085ffcdbb5fa13f1ccc50e61bd2a585788b6d941de69beb45611",
       "context": "Write the table out as the folders the Mask module leaves behind.",
       "translation": "将表格写出为 Mask 模块会留下的那些文件夹。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#1",
@@ -616,7 +626,9 @@
       "source_sha256": "3cecf04f719ddfc2894e372b74cc978c2264dcddb6c149372c60d6e46db3414c",
       "context": "The Hugging Face page for this model, derived from its download uri.",
       "translation": "此模型的 Hugging Face 页面，由其下载 URI 推导而来。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.ModelEntry.model_card_url#1",
@@ -632,7 +644,9 @@
       "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
       "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
       "translation": "bioimage.io 发布的每个 Cellpose 模型，作为模型库中的行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.bioimageio_entries#1",
@@ -696,7 +710,9 @@
       "source_sha256": "3f8d93eb9b2d2460875a1858e8632b77035401139aadd552fe264a1ef580465a",
       "context": "Unvetted models uploaded by spaCR users, or an empty list.",
       "translation": "由 spaCR 用户上传的未经审核的模型，或空列表。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#1",
@@ -722,7 +738,9 @@
       "source_sha256": "ce40c7898b5b6cd32f4dc53651316e0be8842d53de9464c6a259bec17c1ca6c2",
       "context": "The rows belonging to the headings that are on, in the given order.",
       "translation": "属于已开启标题的行，按给定顺序排列。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.entries_from_sources#1",
@@ -754,7 +772,9 @@
       "source_sha256": "9343baba1544caf7e62ccc464d512618e0de13c12345c503ecd7272d6a151612",
       "context": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
       "translation": "将列表拆分到 :data:`ZOO_SOURCES` 中，并保持每个来源内部的顺序。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.group_by_source#1",
@@ -786,7 +806,9 @@
       "source_sha256": "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
       "context": "Every optional segmentation backend, in whatever state it is here.",
       "translation": "每个可选的分割后端，无论它在本机处于何种状态。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.installable_backend_entries#1",
@@ -804,7 +826,9 @@
       "source_sha256": "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
       "context": "The model's scorecard as an HTML table, for a tooltip.",
       "translation": "以 HTML 表格形式呈现的模型评分卡，用于工具提示。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#1",
@@ -852,7 +876,9 @@
       "source_sha256": "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
       "context": "Which of :data:`ZOO_SOURCES` this row belongs under.",
       "translation": "此行应归入 :data:`ZOO_SOURCES` 中的哪一个。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#1",
@@ -906,7 +932,9 @@
       "source_sha256": "3413d54520dbbf73561affe9e8fb675855a81d96ee46b80fd7244a0f335b15c7",
       "context": "Every model the installed Cellpose can fetch for itself.",
       "translation": "已安装的 Cellpose 能够自行获取的所有模型。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.stock_cellpose_entries#1",
@@ -1046,7 +1074,9 @@
       "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
       "context": "Adapt a count regressor to the object-head prediction interface.",
       "translation": "将计数回归器适配到对象预测头的预测接口。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#1",
@@ -1070,7 +1100,9 @@
       "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
       "context": "Return unrounded counts and display classes for an extracted image region batch.",
       "translation": "为一批裁剪图返回未取整的计数和显示类别。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
@@ -1102,7 +1134,9 @@
       "source_sha256": "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
       "context": "Put a predicted parasite count in the bin a report shows it in.",
       "translation": "将预测的寄生虫计数放入报告中显示它的区间。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#1",
@@ -1154,7 +1188,9 @@
       "source_sha256": "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
       "context": "Classify every object of a mask that already exists.",
       "translation": "对已存在掩膜中的每个对象进行分类。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.classify_objects#1",
@@ -1284,7 +1320,9 @@
       "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
       "context": "Join each pair into one object, keeping the lower id.",
       "translation": "将每一对合并为一个对象，保留较小的 ID。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.merge_halves#1",
@@ -1324,7 +1362,9 @@
       "source_sha256": "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
       "context": "Take objects out of a mask without renumbering what is left.",
       "translation": "从掩膜中移除对象，且不对剩余对象重新编号。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.remove_labels#2",
@@ -1348,7 +1388,9 @@
       "source_sha256": "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
       "context": "Segment a field with any backend, then classify what it found.",
       "translation": "使用任意后端分割一个视野，然后对找到的对象进行分类。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.segment_and_classify#1",
@@ -1406,7 +1448,9 @@
       "source_sha256": "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
       "context": "Pairs of labels that look like one object cut in two.",
       "translation": "看起来像是一个对象被切成两半的标签对。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.split_candidates#1",
@@ -1446,7 +1490,9 @@
       "source_sha256": "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
       "context": "Whether object ``label`` runs into the edge of the microscope field of view.",
       "translation": "对象 ``label`` 是否延伸到视野边缘。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.touches_border#2",
@@ -1558,7 +1604,9 @@
       "source_sha256": "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
       "context": "Stitch, place, segment and decode the microplate sample positions of one sequencing acquisition.",
       "translation": "对一次测序采集中的各孔进行拼接、定位、分割和解码。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#1",
@@ -1618,7 +1666,9 @@
       "source_sha256": "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
       "context": "One record per group no window saw whole, for a run report.",
       "translation": "为每个没有任何窗口完整看到的分组生成一条记录，用于运行报告。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#1",
@@ -1678,7 +1728,9 @@
       "source_sha256": "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
       "context": "The intensities a call was made on, the barcode, and the margin per cycle.",
       "translation": "进行碱基判读时所依据的强度、条形码，以及每个循环的判读余量。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_sbs.called_bases#1",
@@ -1816,7 +1868,9 @@
       "source_sha256": "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
       "context": "The shapes ``method`` is a legal detector for.",
       "translation": "``method`` 可作为合法检测器的形状。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.morphologies_for_method#1",
@@ -1988,7 +2042,9 @@
       "source_sha256": "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
       "context": "The flow picture and cell probability out of a Cellpose result.",
       "translation": "从 Cellpose 结果中提取的流场图和细胞概率。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.plaque_flow_outputs#1",
@@ -2012,7 +2068,9 @@
       "source_sha256": "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
       "context": "Segment one plaque image the way both Plaque mode's preview and run do.",
       "translation": "以 Plaque 模式的预览和运行共同采用的方式分割一幅蚀斑图像。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#1",
@@ -3186,7 +3244,9 @@
       "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
       "context": "Describe object types once, collapsing organelle slots into a regex.",
       "translation": "对对象类型各描述一次，将细胞器槽位合并为一个正则表达式。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.object_type_summary#1",
@@ -3432,7 +3492,9 @@
       "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
       "context": "Fields scored ``'fail'`` in current, readable cards.",
       "translation": "在当前可读的记分卡中被评为 ``'fail'`` 的视野。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.QCDigest.n_fields#0",
@@ -3440,7 +3502,9 @@
       "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
       "context": "Fields scored in current, readable cards; stale rows are excluded.",
       "translation": "在当前可读的记分卡中被评分的视野；过期的行不计入。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.Scorecard.verdict#0",
@@ -3448,7 +3512,9 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
       "translation": "``'ok'``、``'warn'``、``'fail'``、``'empty'`` 或 ``'error'``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.qc_mode#3",
@@ -3634,7 +3700,9 @@
       "source_sha256": "46d518afbab370488c9f31bebb0eb8f9c9918f51a7d37e237053973294b4ef07",
       "context": "Cellpose-SAM's encoder as a feature extractor, sharing its weights.",
       "translation": "将 Cellpose-SAM 的编码器用作特征提取器，并共享其权重。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.CellposeSamFeatures#1",
@@ -3682,7 +3750,9 @@
       "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
       "context": "The encoder's parameters, for freezing and the optimiser.",
       "translation": "编码器的参数，用于冻结和优化器。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.TimeflowsNet#0",
@@ -3690,7 +3760,9 @@
       "source_sha256": "4f7397c59463ef05fda46b5cee01e57eaa76bab81f224935e1ffc6fb3e993707",
       "context": "The time head on a shared backbone, as a ``torch.nn.Module``.",
       "translation": "位于共享主干网络上的时间预测头，作为一个 ``torch.nn.Module``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.TimeflowsNet#1",
@@ -3806,7 +3878,9 @@
       "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
       "context": "``label -> (y, x, equivalent diameter)`` for every object.",
       "translation": "每个对象的 ``label -> (y, x, equivalent diameter)``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.object_centroids#1",
@@ -3830,7 +3904,9 @@
       "source_sha256": "7bbfa2698c17c4dfef7fe3424e5826af27c212be30bd38001a465c69a409bdf6",
       "context": "Weights that draw pairs evenly across how far their objects move.",
       "translation": "使抽取的帧对在对象移动距离上均匀分布的权重。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#1",
@@ -3872,7 +3948,9 @@
       "source_sha256": "7dfd478da4a5b718f4966e858bd3cc553ffe28f7cab5d853d79fe053eca3f4ef",
       "context": "The time head's prediction for one pair.",
       "translation": "时间预测头对一个帧对的预测。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.predict_pair#1",
@@ -3972,7 +4050,9 @@
       "source_sha256": "02c8458a20509e293f98786494be145f6a84d28c148061aa309b5ec84efab1ea",
       "context": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
       "translation": "打乱帧 ``t+1`` 的标签，并检验模型能否找到它们。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.scramble_test#1",
@@ -4028,7 +4108,9 @@
       "source_sha256": "dabbb956d7e6def28d35d8facf8ac2b0237b11db1aba677e58ba32c08debe766",
       "context": "What the time head must predict for one pair of labelled frames.",
       "translation": "时间预测头对一对带标签帧必须预测的内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#1",
@@ -4094,7 +4176,9 @@
       "source_sha256": "327bcea9ebc2740e3b79e5dc3315642596a496b76f4ae4153237bd51f3486590",
       "context": "Masked loss for one batch.",
       "translation": "一个批次的掩膜损失。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.timeflows_loss#1",
@@ -4230,7 +4314,9 @@
       "source_sha256": "e0244d2fa2d3905a7b33993282b5e32f918073efb26182e3b3af931aa20dd9f8",
       "context": "Audit several label stacks and compare their frame intervals.",
       "translation": "审查多个标签堆栈并比较它们的帧间隔。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_datasets#1",
@@ -4328,7 +4414,9 @@
       "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
       "context": "A distinct name for each stack path, as short as it can be.",
       "translation": "为每个堆栈路径生成一个互不相同且尽可能短的名称。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.dataset_names#1",
@@ -4360,7 +4448,9 @@
       "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
       "context": "Per-frame displacement of every label that survives a frame.",
       "translation": "每个在帧之间存续的标签的逐帧位移。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#1",
@@ -4394,7 +4484,9 @@
       "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
       "context": "Find divisions and say which labelling convention they follow.",
       "translation": "查找分裂事件，并说明它们遵循哪种标签约定。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.division_events#1",
@@ -4426,7 +4518,9 @@
       "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
       "context": "Render a QC table as aligned text.",
       "translation": "将 QC 表渲染为对齐的文本。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.format_qc_table#1",
@@ -4458,7 +4552,9 @@
       "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
       "context": "Reduce frame timing to an interval and a verdict about its constancy.",
       "translation": "将帧计时归纳为一个间隔以及关于其是否恒定的判定。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.frame_interval_summary#1",
@@ -4498,7 +4594,9 @@
       "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
       "context": "Measure every labelled object in every frame.",
       "translation": "测量每一帧中的每个带标签对象。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.label_frames#2",
@@ -4514,7 +4612,9 @@
       "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
       "context": "Summarise where each label lives in the movie.",
       "translation": "汇总每个标签在影像序列中出现的位置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.label_spans#2",
@@ -4530,7 +4630,9 @@
       "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
       "context": "Read a label stack from a file or a folder of frames.",
       "translation": "从文件或帧文件夹中读取标签堆栈。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.load_label_stack#1",
@@ -4562,7 +4664,9 @@
       "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
       "context": "Run the QC over one or more label stacks and print the table.",
       "translation": "对一个或多个标签堆栈运行 QC 并打印表格。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.main#1",
@@ -4656,7 +4760,9 @@
       "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
       "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
       "translation": "``'numpy 1.26.4 -> 2.2.6'`` 或 ``'cuml-cu12 26.8.0 (new)'``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#0",
@@ -4664,7 +4770,9 @@
       "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
       "context": "The repository's releases, newest first, or ``[]``.",
       "translation": "仓库的发布版本，最新的在前；或 ``[]``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#1",
@@ -4714,7 +4822,9 @@
       "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
       "context": "Launch the updated Qt application after the old event loop has stopped.",
       "translation": "在旧的事件循环停止后启动更新后的 Qt 应用程序。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.launch_updated_app#1",
@@ -4738,7 +4848,9 @@
       "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
       "context": "Where the fetched release list is remembered between launches.",
       "translation": "已获取的发布列表在多次启动之间的保存位置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.run_pip_upgrade#2",
@@ -4759,7 +4871,7 @@
       "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
       "context": "allow prerelease packages.",
@@ -4767,7 +4879,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
       "context": "explicit version selected by the update check.",

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Language"
 msgstr "Idioma"
 
-msgid "Welcome to spaCR"
-msgstr "Bem-vindo ao spaCR"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR documentation"
+msgstr "Documentação do spaCR"
 
 msgid "spaCR Logo"
 msgstr "Logotipo do spaCR"
@@ -209,6 +210,10 @@ msgstr "Aprender o spaCR"
 
 msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
 msgstr "Comece pela instalação, continue com Início e as visões gerais dos pipelines e, depois, siga a apresentação do módulo adequado à sua tarefa na `biblioteca de tutoriais interativos <tutorials/>`_. Cada lição lista suas vozes de narração e legendas disponíveis. Novas lições em inglês podem aparecer enquanto suas traduções estão sendo preparadas. Abra a biblioteca pela interface gráfica em **Ajuda → Tutorial**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From a terminal, ``spacr-tutorial`` lists the lessons by number, title and screen and then opens the library in your web browser. ``spacr-tutorial mask`` opens one lesson, named by number, slug or screen; ``--list`` prints the lessons and opens nothing, and ``--print-url`` prints the address instead of opening a browser. A name that matches no lesson exits with code 2 and suggests close matches."
+msgstr "Em um terminal, ``spacr-tutorial`` lista as lições por número, título e tela e depois abre a biblioteca no seu navegador. ``spacr-tutorial mask`` abre uma lição, indicada por número, slug ou tela; ``--list`` imprime as lições e não abre nada, e ``--print-url`` imprime o endereço em vez de abrir um navegador. Um nome que não corresponde a nenhuma lição encerra com o código 2 e sugere correspondências próximas."
 
 msgid "Contents"
 msgstr "Conteúdo"

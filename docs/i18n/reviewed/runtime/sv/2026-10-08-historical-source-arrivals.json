@@ -90,7 +90,7 @@
       "source": "Annotations changed during save; reopen the field.",
       "source_sha256": "3aa49f3a9d8abdad068596e95a0b9a233b728f2cf36b1fe19351365abcd0955a",
       "table": "ui",
-      "translation": "Anteckningar ändras under spara; öppna fältet igen."
+      "translation": "Annoteringar ändras under spara; öppna fältet igen."
     },
     {
       "key": "Annotations changed on disk; reopen the field or choose a new CSV.",
@@ -104,7 +104,7 @@
       "source": "Annotations changed while they were being read.",
       "source_sha256": "75ec49404720d2f7b0982e350e9799f0ac2dc5b63365fd9d5708551edd68de74",
       "table": "ui",
-      "translation": "Anteckningarna förändrades när de lästes."
+      "translation": "Annoteringarna förändrades när de lästes."
     },
     {
       "key": "Annotations must be saved as a CSV file.",
@@ -146,14 +146,14 @@
       "source": "Choose an annotation CSV separate from the tracker and image source.",
       "source_sha256": "9b8520ff80dab51f5fca8efef6a214f005614ead9cb30cbd3703f19d13572fa4",
       "table": "ui",
-      "translation": "Välj en anteckning CSV skild från spåraren och bildkällan."
+      "translation": "Välj en annotering CSV skild från spåraren och bildkällan."
     },
     {
       "key": "Choose annotations CSV",
       "source": "Choose annotations CSV",
       "source_sha256": "97cbcb97e7bf1ec30f0f8cc9057aac748095c2be06fb313261374d5c51172ec1",
       "table": "ui",
-      "translation": "Välj anteckningar CSV"
+      "translation": "Välj annoteringar CSV"
     },
     {
       "key": "Choose both a tracks CSV and image sequence.",
@@ -195,7 +195,7 @@
       "source": "Could not save annotations: {reason}",
       "source_sha256": "77a6c0ad70dec5945874931737f568a64520e00a2ca889c39ccbdaf084be1379",
       "table": "ui",
-      "translation": "Kunde inte spara kommentarer: {reason}"
+      "translation": "Kunde inte spara annoteringar: {reason}"
     },
     {
       "key": "Could not show frame: {reason}",
@@ -223,7 +223,7 @@
       "source": "Event annotations…",
       "source_sha256": "69b74560f510742117c8dca1d7a4079eefdb0752c9e34ef376ce1cd5362fff42",
       "table": "ui",
-      "translation": "Händelseanteckningar..."
+      "translation": "Händelseannoteringar..."
     },
     {
       "key": "Event is staged; save to publish the table.",
@@ -251,14 +251,14 @@
       "source": "Existing annotations for this field have no object identity.",
       "source_sha256": "a055d0e43ebf9859e82e370109e2330c23e0b6910fb67f475f9b5f86461e0a23",
       "table": "ui",
-      "translation": "Befintliga anteckningar för detta fält har ingen objektidentitet."
+      "translation": "Befintliga annoteringar för detta fält har ingen objektidentitet."
     },
     {
       "key": "Existing annotations for this field need an object column before editing.",
       "source": "Existing annotations for this field need an object column before editing.",
       "source_sha256": "4b67d6904d11fe810d34d4e07d34e0bf6f6d56e400d4d2cb230b3a89e113bcd7",
       "table": "ui",
-      "translation": "Befintliga anteckningar för det här fältet behöver en objektkolumn innan redigering."
+      "translation": "Befintliga annoteringar för det här fältet behöver en objektkolumn innan redigering."
     },
     {
       "key": "Existing event labels belong to another tracker CSV.",
@@ -398,7 +398,7 @@
       "source": "Saved annotations to {path}",
       "source_sha256": "fe131da001d22fe70e839255178995f5f6103fc2d59173e77f81e4d72160fefc",
       "table": "ui",
-      "translation": "Sparade kommentarer till {path}"
+      "translation": "Sparade annoteringar till {path}"
     },
     {
       "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field, or eight when an optional ensemble model is selected in Object detection.",
@@ -419,21 +419,21 @@
       "source": "The existing annotation table has an invalid event name.",
       "source_sha256": "5ebef8f50e8d850441a346558e4c1b9455b1dec15b0a7f7ccf19873400a54b29",
       "table": "ui",
-      "translation": "Den befintliga notationstabellen har ett ogiltigt händelsenamn."
+      "translation": "Den befintliga annoteringstabellen har ett ogiltigt händelsenamn."
     },
     {
       "key": "The existing annotation table has incomplete event rows.",
       "source": "The existing annotation table has incomplete event rows.",
       "source_sha256": "1edf80282f82d6257394c2a78ea0d492528ec2d53458c4209521103577ece92d",
       "table": "ui",
-      "translation": "Den befintliga notationstabellen har ofullständiga händelserader."
+      "translation": "Den befintliga annoteringstabellen har ofullständiga händelserader."
     },
     {
       "key": "The existing annotation table labels one track frame more than once.",
       "source": "The existing annotation table labels one track frame more than once.",
       "source_sha256": "793dc7cb425ff73baf26322473e9c4ecfed09d15ad819b3712cc9b01b0d27621",
       "table": "ui",
-      "translation": "Den befintliga notationstabellen anger en spårram mer än en gång."
+      "translation": "Den befintliga annoteringstabellen anger en spårram mer än en gång."
     },
     {
       "key": "The existing annotation table lacks field, track_id, frame or event.",

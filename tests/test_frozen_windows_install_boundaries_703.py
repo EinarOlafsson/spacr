@@ -105,3 +105,45 @@ def test_known_old_manifest_does_not_authorize_removing_unknown_empty_directory(
     assert list((backup / "_internal" / user_directory.name).iterdir()) == []
     assert (backup / "spacr.exe").read_text() == "1.5.1.4"
     assert (backup / "spacr-payload.json").read_bytes() == original_manifest
+
+
+@pytest.mark.parametrize("startup", ["ready", "failed", "uncertain"])
+def test_old_manifest_payload_survives_until_actual_desktop_acknowledgment(tmp_path, startup):
+    source = _payload(tmp_path / "source", "1.5.1.5")
+    installed = _payload(tmp_path / "installed", "1.5.1.4")
+    sentinel = installed / "results.csv"
+    sentinel.write_bytes(b"user data")
+    events = []
+
+    def prepared():
+        assert (installed / "spacr.exe").read_text() == "1.5.1.4"
+        stages = list(tmp_path.glob(".spacr-frozen-install-*/new/spacr.exe"))
+        assert len(stages) == 1
+        assert stages[0].read_text() == "1.5.1.5"
+        events.append("prepared")
+
+    def activated():
+        assert (installed / "spacr.exe").read_text() == "1.5.1.5"
+        backups = list(tmp_path.glob(".spacr-frozen-install-*/previous/spacr.exe"))
+        assert len(backups) == 1 and backups[0].read_text() == "1.5.1.4"
+        events.append("activated")
+        if startup == "failed":
+            raise RuntimeError("desktop child stopped after startup failure")
+        if startup == "uncertain":
+            raise cleanup._UpdateActivationUnconfirmed("desktop outcome unknown")
+
+    if startup == "ready":
+        result = cleanup._install_frozen_windows(source, installed, "1.5.1.5", run=_identity,
+            before_activate=prepared, after_activate=activated, preserve_previous=True)
+        assert (Path(result["previous_runtime"]) / "spacr.exe").read_text() == "1.5.1.4"
+    else:
+        with pytest.raises(RuntimeError):
+            cleanup._install_frozen_windows(source, installed, "1.5.1.5", run=_identity,
+                before_activate=prepared, after_activate=activated, preserve_previous=True)
+    assert events == ["prepared", "activated"]
+    assert sentinel.read_bytes() == b"user data"
+    assert (installed / "spacr.exe").read_text() == ("1.5.1.4" if startup == "failed" else "1.5.1.5")
+    if startup == "uncertain":
+        assert (tmp_path / ".installed.spacr-install-lock").is_dir()
+        backups = list(tmp_path.glob(".spacr-frozen-install-*/previous/spacr.exe"))
+        assert len(backups) == 1 and backups[0].read_text() == "1.5.1.4"

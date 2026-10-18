@@ -1,0 +1,237 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "The lineage graph to copy and update.",
+      "label": "spacr.qt.mask_engine.assign_lineage_label#1",
+      "source": "The lineage graph to copy and update.",
+      "source_sha256": "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+      "translation": "Släktgrafen som ska kopieras och uppdateras."
+    },
+    {
+      "context": "The source image path for this frame.",
+      "label": "spacr.qt.mask_engine.assign_lineage_label#2",
+      "source": "The source image path for this frame.",
+      "source_sha256": "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+      "translation": "Sökvägen till källbilden för denna bildruta."
+    },
+    {
+      "context": "The local uint32 pixel ID, or zero to remove ``old_label``.",
+      "label": "spacr.qt.mask_engine.assign_lineage_label#3",
+      "source": "The local uint32 pixel ID, or zero to remove ``old_label``.",
+      "source_sha256": "937d2cf00d28dcc630de1aa11bafd98a22e516b717b3fda8abf4246d4ceaf4f3",
+      "translation": "Det lokala pixel-ID:t av typen uint32, eller noll för att ta bort ``old_label``."
+    },
+    {
+      "context": "The current two-dimensional integer label mask.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#1",
+      "source": "The current two-dimensional integer label mask.",
+      "source_sha256": "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
+      "translation": "Den aktuella tvådimensionella masken med heltalsetiketter."
+    },
+    {
+      "context": "The hovered pixel column.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#2",
+      "source": "The hovered pixel column.",
+      "source_sha256": "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
+      "translation": "Kolumnen för pixeln under muspekaren."
+    },
+    {
+      "context": "The hovered pixel row.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#3",
+      "source": "The hovered pixel row.",
+      "source_sha256": "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
+      "translation": "Raden för pixeln under muspekaren."
+    },
+    {
+      "context": "The lineage graph to copy and update.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#4",
+      "source": "The lineage graph to copy and update.",
+      "source_sha256": "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+      "translation": "Släktgrafen som ska kopieras och uppdateras."
+    },
+    {
+      "context": "The source image path for this frame.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#5",
+      "source": "The source image path for this frame.",
+      "source_sha256": "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+      "translation": "Sökvägen till källbilden för denna bildruta."
+    },
+    {
+      "context": "The persistent UUID of the segment to assign.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#6",
+      "source": "The persistent UUID of the segment to assign.",
+      "source_sha256": "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb",
+      "translation": "Det beständiga UUID:t för segmentet som ska tilldelas."
+    },
+    {
+      "context": "The lineage graph to copy and update.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#1",
+      "source": "The lineage graph to copy and update.",
+      "source_sha256": "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+      "translation": "Släktgrafen som ska kopieras och uppdateras."
+    },
+    {
+      "context": "The persistent UUID of the undivided parent segment.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#2",
+      "source": "The persistent UUID of the undivided parent segment.",
+      "source_sha256": "c91ba3a876ab63c03d9f2e49d1b8969afbe80090146dec0739256d47aaef5c6c",
+      "translation": "Det beständiga UUID:t för föräldrasegmentet som ännu inte har delats."
+    },
+    {
+      "context": "The source image path where the division is recorded.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#3",
+      "source": "The source image path where the division is recorded.",
+      "source_sha256": "2c237d9c58929a014b4a9be8b33eb798674885fb5e8d1766ebcb3648ec94f262",
+      "translation": "Sökvägen till källbilden där delningen registreras."
+    },
+    {
+      "context": "Two nonempty display names in daughter order.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#4",
+      "source": "Two nonempty display names in daughter order.",
+      "source_sha256": "264b1bb6f1eed724ab34ea6338ea6b4fe77575fa03400dfa13e7c4776b9fb9dd",
+      "translation": "Två icke-tomma visningsnamn i dottercellernas ordning."
+    },
+    {
+      "context": "Two distinct nonzero uint32 preferred pixel IDs in daughter order.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#5",
+      "source": "Two distinct nonzero uint32 preferred pixel IDs in daughter order.",
+      "source_sha256": "ddf544ea1aa76ea4064fa9584e30880f33f49b19c152034cf4ae9509f6a167d6",
+      "translation": "Två olika önskade pixel-ID:n av typen uint32 som inte är noll, i dottercellernas ordning."
+    },
+    {
+      "context": "The source image folder used to locate the matching mask.",
+      "label": "spacr.qt.mask_engine.load_mask_lineage#1",
+      "source": "The source image folder used to locate the matching mask.",
+      "source_sha256": "3ede1db2384063965b61f1f8fd1f584cdab8cd497d6abd7141e0e327aa857671",
+      "translation": "Källbildsmappen som används för att hitta den motsvarande masken."
+    },
+    {
+      "context": "The source image filename whose mask lineage is read.",
+      "label": "spacr.qt.mask_engine.load_mask_lineage#2",
+      "source": "The source image filename whose mask lineage is read.",
+      "source_sha256": "6941cf2d6f5464b5454a7ff504b997f616aa0bec84a8df73dc2e2768111aca88",
+      "translation": "Filnamnet för källbilden vars masksläktskap läses."
+    },
+    {
+      "context": "The source image folder used to locate the matching mask.",
+      "label": "spacr.qt.mask_engine.load_mask_metadata#1",
+      "source": "The source image folder used to locate the matching mask.",
+      "source_sha256": "3ede1db2384063965b61f1f8fd1f584cdab8cd497d6abd7141e0e327aa857671",
+      "translation": "Källbildsmappen som används för att hitta den motsvarande masken."
+    },
+    {
+      "context": "The source image filename whose mask metadata is read.",
+      "label": "spacr.qt.mask_engine.load_mask_metadata#2",
+      "source": "The source image filename whose mask metadata is read.",
+      "source_sha256": "3cacc4e3d24a262def69b89a5c0d06b5de1394c2ce5e4445e546275f91a0d2e3",
+      "translation": "Filnamnet för källbilden vars maskmetadata läses."
+    },
+    {
+      "context": "The active lineage graph, or ``None`` for an empty graph.",
+      "label": "spacr.qt.mask_engine.merge_lineage_states#1",
+      "source": "The active lineage graph, or ``None`` for an empty graph.",
+      "source_sha256": "bbec830f97d0903cc9586f19ce335912843180549a84b5dfcabf000ecbf602cf",
+      "translation": "Den aktiva släktgrafen, eller ``None`` för en tom graf."
+    },
+    {
+      "context": "The incoming snapshot, or ``None`` for an empty graph.",
+      "label": "spacr.qt.mask_engine.merge_lineage_states#2",
+      "source": "The incoming snapshot, or ``None`` for an empty graph.",
+      "source_sha256": "ae249ed42683eafeaeb4d2680b3f559d464307b7809a163be3d5232d26792bb8",
+      "translation": "Den inkommande ögonblicksbilden, eller ``None`` för en tom graf."
+    },
+    {
+      "context": "The lineage graph to extend, or ``None`` for an empty graph.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#1",
+      "source": "The lineage graph to extend, or ``None`` for an empty graph.",
+      "source_sha256": "f3e217cf39ce98290ba059db345fb5ae703cc4a4f7d27c3ff6badad3db2e56a9",
+      "translation": "Släktgrafen som ska utökas, eller ``None`` för en tom graf."
+    },
+    {
+      "context": "The nonempty display name for the new founder.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#2",
+      "source": "The nonempty display name for the new founder.",
+      "source_sha256": "7ad744aa23c3e0df861d892e73253419ac42382a59939726de7beb3e9dbbbab5",
+      "translation": "Det icke-tomma visningsnamnet för den nya grundarcellen."
+    },
+    {
+      "context": "The preferred nonzero uint32 pixel ID, without assigning pixels.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#3",
+      "source": "The preferred nonzero uint32 pixel ID, without assigning pixels.",
+      "source_sha256": "1795ec4f88fac53b3001e5be94659efcdb4669721f6736f471ad872646af9edf",
+      "translation": "Det önskade pixel-ID:t av typen uint32 som inte är noll, utan att tilldela pixlar."
+    },
+    {
+      "context": "The source image path where the founder is introduced.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#4",
+      "source": "The source image path where the founder is introduced.",
+      "source_sha256": "cd944d74194bbf47a720fa42e1135aa097f86af4117847ccd3ec0aacc7db8e92",
+      "translation": "Sökvägen till källbilden där grundarcellen introduceras."
+    },
+    {
+      "context": "The integer label mask whose observed IDs are already in use.",
+      "label": "spacr.qt.mask_engine.next_label#2",
+      "source": "The integer label mask whose observed IDs are already in use.",
+      "source_sha256": "aeaef0471d4c3a3dfe715c4f9a53804c43ba03ff98fca72146b8b222b03f3db9",
+      "translation": "Heltalsetikettmasken vars observerade ID:n redan används."
+    },
+    {
+      "context": "The lineage graph to copy and update.",
+      "label": "spacr.qt.mask_engine.prune_lineage_frame#1",
+      "source": "The lineage graph to copy and update.",
+      "source_sha256": "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+      "translation": "Släktgrafen som ska kopieras och uppdateras."
+    },
+    {
+      "context": "The source image path for this frame.",
+      "label": "spacr.qt.mask_engine.prune_lineage_frame#2",
+      "source": "The source image path for this frame.",
+      "source_sha256": "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
+      "translation": "Sökvägen till källbilden för denna bildruta."
+    },
+    {
+      "context": "The current label mask used to identify surviving pixel IDs.",
+      "label": "spacr.qt.mask_engine.prune_lineage_frame#3",
+      "source": "The current label mask used to identify surviving pixel IDs.",
+      "source_sha256": "5ac75687de1fa57b7dd5b36b990b087c37ef2aba00a126b4744c8637d6ce3e93",
+      "translation": "Den aktuella etikettmasken som används för att identifiera kvarvarande pixel-ID:n."
+    },
+    {
+      "context": "The lineage graph to copy and update.",
+      "label": "spacr.qt.mask_engine.rename_lineage_cell#1",
+      "source": "The lineage graph to copy and update.",
+      "source_sha256": "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
+      "translation": "Släktgrafen som ska kopieras och uppdateras."
+    },
+    {
+      "context": "The persistent UUID of the segment to rename.",
+      "label": "spacr.qt.mask_engine.rename_lineage_cell#2",
+      "source": "The persistent UUID of the segment to rename.",
+      "source_sha256": "22e60bfff27d3667eb22f5ffce09017ff4a78e6886735c7baca3e4b6a5944175",
+      "translation": "Det beständiga UUID:t för segmentet som ska byta namn."
+    },
+    {
+      "context": "The new nonempty display name.",
+      "label": "spacr.qt.mask_engine.rename_lineage_cell#3",
+      "source": "The new nonempty display name.",
+      "source_sha256": "a22266e03bb3c4b496d4da2ae842a8da4258bef02ef9278be64502f030b819c7",
+      "translation": "Det nya icke-tomma visningsnamnet."
+    },
+    {
+      "context": "The undo or redo snapshot to restore, or ``None`` for an empty graph.",
+      "label": "spacr.qt.mask_engine.restore_lineage_state#1",
+      "source": "The undo or redo snapshot to restore, or ``None`` for an empty graph.",
+      "source_sha256": "50dbe4bbad29015344dc8f4842520b2fd4edf942d57640081f2f45e009220e31",
+      "translation": "Ögonblicksbilden för ångra eller gör om som ska återställas, eller ``None`` för en tom graf."
+    },
+    {
+      "context": "The current graph, or ``None``, used to preserve revision ordering.",
+      "label": "spacr.qt.mask_engine.restore_lineage_state#2",
+      "source": "The current graph, or ``None``, used to preserve revision ordering.",
+      "source_sha256": "daf1c0ae106baf0e2b8ce96a0a278d2330818fc8d4c7340652e2db4f586b251f",
+      "translation": "Den aktuella grafen, eller ``None``, som används för att bevara revisionsordningen."
+    }
+  ],
+  "schema": 1
+}

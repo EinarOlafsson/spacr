@@ -17,21 +17,21 @@
     },
     {
       "context": "spatial storage-axis order, a permutation of XYZ.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#10",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#11",
       "source": "spatial storage-axis order, a permutation of XYZ.",
       "source_sha256": "26759ba634e6f78afd40e4e217075ee2599ba3e440b6a6158f0d77ee82c0710e",
       "translation": "rumslig lagringsaxelordning, en permutation av XYZ."
     },
     {
       "context": "three positive finite distances in storage order.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#11",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#12",
       "source": "three positive finite distances in storage order.",
       "source_sha256": "f059cb94a71f1a899e0b4151a5ad84c86cece6fb7786731e8798fa367525a3d0",
       "translation": "tre positiva ändliga avstånd i lagringsordning."
     },
     {
       "context": "the common distance unit.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#12",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#13",
       "source": "the common distance unit.",
       "source_sha256": "1430e9b40ff1bbd07fcfc63de38089726693aea59b952a9cc2699759a966550b",
       "translation": "den gemensamma avståndsenheten."
@@ -73,21 +73,21 @@
     },
     {
       "context": "Validate one spatial image and own its mutable label array.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#7",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#8",
       "source": "Validate one spatial image and own its mutable label array.",
       "source_sha256": "6a00c04dd619f24beda91fb0f5cb640ea45009c16b9d9ecffafa7d46b91d55f5",
       "translation": "Validera en rumslig bild och ta ägarskap över dess föränderliga etikettarray."
     },
     {
       "context": "finite real numeric source intensities.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#8",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#9",
       "source": "finite real numeric source intensities.",
       "source_sha256": "0b4037594367d1d8f2a05353be9bf8f44f1181bd8ee083880193299f6bd134e5",
       "translation": "ändliga reella numeriska källintensiteter."
     },
     {
       "context": "nonnegative integer object labels matching the image.",
-      "label": "spacr.qt.mask_engine.VolumeMaskSession#9",
+      "label": "spacr.qt.mask_engine.VolumeMaskSession#10",
       "source": "nonnegative integer object labels matching the image.",
       "source_sha256": "40b190d760c03568cb680953c9875e7c995c6a671be2663a957318475df38cba",
       "translation": "icke-negativa heltalsetiketter för objekt som matchar bilden."

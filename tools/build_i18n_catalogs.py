@@ -297,6 +297,7 @@ _IDENTITY_TEXT = {
     "Leishmania spp.", "NCBI Virus", "TriTrypDB", "Trypanosoma spp.", "ViralZone",
     "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
     "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc",
+    "Ctrl+Shift+D", "Ctrl+Shift+N", "Ctrl+[ / Ctrl+]",
     # 2026-10-12: N673 shortcut rows name keys only.
     "Page Up / Page Down", "Shift+E / Shift+S / Shift+D", "Shift+X / Shift+Y / Shift+Z",
     # N673 View mode name, kept in English like the other protected 3D terms.
@@ -305,6 +306,8 @@ _IDENTITY_TEXT = {
     "MinIP",
     # 2026-10-16: N673 True 3D Render backend name (the graphics API), a product name.
     "OpenGL",
+    # 2026-10-16: N673 wgpu Render backend names (graphics APIs), product names.
+    "Vulkan", "Metal", "Direct3D 12",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
@@ -1065,6 +1068,16 @@ _IMAGE_TILE_SOURCE = (
     r"mosaics?|overlaps?|registration|channels?|arrays?|crops?|PNG|TIFF|OME|"
     r"ND2|coordinates?|offsets?|seams?|composit(?:e|ing))\b)"
 )
+# A STAIN IS A DYE in spaCR: a nuclear stain, a differential staining, a
+# virtual-staining model.  Machine output took the smudge sense ("jeden
+# Fleck", "por mancha", "chaque tache").  Sources that also name blobs,
+# specks or spots are excluded, because Fleck/mancha/tache is the right word
+# for those and one block can hold both senses.
+_DYE_STAIN_SOURCE = (
+    r"(?is)\A(?=.*\b(?:counter)?stain(?:s|ed|ing)?\b)"
+    r"(?!.*\b(?:blobs?|blobby|specks?|speckles?|spots?|smudges?|dirt|dust|"
+    r"debris|puncta)\b)"
+)
 _SCIENTIFIC_PLATE_SOURCE = (
     r"(?is)\A(?=.*\bplates?\b)"
     r"(?=.*\b(?:wells?|microplates?|assays?|96|384|1536|imaging|sequencing|"
@@ -1514,8 +1527,12 @@ _UI_SCREEN_SOURCE = (
     r"displays?|screen renders?|screen restores?|screen writes?|screen reads?|"
     r"screen chooses?|screen receives?|screen returns?)\b))"
     r"(?!.*\b(?:real|simulated|pooled|CRISPR|widefield)\b.{0,40}\bscreens?\b)"
-    r"(?!.*\bscreens?\s+(?:features?|hits?|wells?|data|scores?|"
-    r"phenotypes?|regression|classification)\b)"
+    r"(?!.*\bscreens?(?:['’]s)?\s+(?:features?|hits?|wells?|data|scores?|"
+    r"phenotypes?|regression|classification|plates?|ids?|merged)\b)"
+    # A genetic screen named by its experiment: a plate within one screen,
+    # an example screen's files, a guide in the screen, re-running it.
+    r"(?!.*\b(?:within\s+(?:one|a|each)\s+screens?|example[- ]screens?|"
+    r"guides?\s+in\s+the\s+screens?|guide-to-well|re-?(?:running|executing)\s+a\s+screens?)\b)"
 )
 
 _SCIENTIFIC_SCREEN_SOURCE = (
@@ -1720,6 +1737,17 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "pt": r"\b(?:aument\w*|elev\w*|re-elev\w*)\b",
         "es": r"\b(?:elev\w*|aument\w*)\b",
     },
+    "stain": {
+        "de": r"Fleck",
+        "es": r"\bmanchas?\b",
+        "fr": r"\btaches?\b",
+        "pt": r"\bmanchas?\b",
+        "sv": r"fläck",
+        "is": r"\bblett\w*",
+        "zh_CN": r"(?:污渍|污点|污染物|斑点|斑渍)",
+        "ko": r"얼룩",
+        "hi": r"(?:दाग|धब्ब)",
+    },
     "window-raise": {
         "fr": r"\b(?:soulev\w*|élev\w*)\b",
         "hi": r"(?:(?:इसे|उसे|स्क्रीन|विंडो).{0,25}उठा|उठा.{0,25}(?:फोकस|ध्यान))",
@@ -1729,6 +1757,339 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "pt": r"\b(?:aument\w*|elev\w*)\b",
     },
 }
+
+# A TERMINOLOGY GLOSSARY, ONE LOCALE AT A TIME (item 678, 2026-10-17).
+#
+# Each row is (label, English-source pattern, wrong target pattern): the
+# source pattern names a spaCR domain sense, and the target pattern names a
+# rendering that is wrong in every block carrying that sense -- German
+# "Etikett" for an object label, Hindi "युग" for a training epoch, Korean
+# "씨앗" for a random seed, Spanish "hachas" for matplotlib axes.  The rows
+# came from a source-by-source review of the runtime and API catalogs; when
+# they were added, every committed row and reviewed record matched none of
+# them.  A candidate that matches is rejected like any other false friend,
+# so the wrong sense cannot come back from a later machine translation.
+_REVIEWED_TERM_GATES: Mapping[str, tuple[tuple[str, str, str], ...]] = {
+    'sv': (
+        ('plaque-wrong-sense',
+         '\\bplaques?\\b',
+         'plakett|tandsten|tandbeläggning'),
+        ('gate-wrong-sense',
+         '^(?!.*\\b(ports?|gateway|ported|airport)\\b).*\\bgat(e|es|ed|ing)\\b',
+         '\\b[Pp]ort(ar|arna|en|ens)?\\b'),
+        ('seed-wrong-sense',
+         '\\bseed(s|ed|ing)?\\b',
+         'utsäd'),
+        ('tile-wrong-sense',
+         '\\btil(e|es|ed|ing)\\b',
+         'kakel|kakl|klinker'),
+        ('plot-wrong-sense',
+         '\\bplot(s|ted|ting)?\\b',
+         '\\b[Tt]omt(en|ens|er|erna)\\b|\\b[Tt]omt[a-zåäö]{3,}|\\b[Tt]omtera'),
+        ('screen-wrong-sense',
+         '\\bscreeners?\\b',
+         'skärmare'),
+        ('confluence-wrong-sense',
+         '\\bconfluen(t|ce|cy)\\b',
+         'sammanflät'),
+        ('model-weights-wrong-sense',
+         '\\btorch\\b',
+         '\\b[Ff]ackl'),
+        ('well-wrong-sense',
+         '\\bwell[- ]level\\b',
+         '\\b[Vv]äl[- ]?nivå'),
+        ('feature-wrong-sense',
+         '^(?!.*\\bfunctions?\\b).*\\bfeature[- ](columns?|tables?|matrix|matrices|importances?|names?|space|maps?|vectors?)\\b',
+         '[Ff]unktions(kolumn|tabell|matris|vikt|namn|utrymme|rymd|kart|vektor)'),
+        ('objective-wrong-sense',
+         '\\b(dirty|different|microscope) objectives?\\b|\\bobjectives?,? (and|or) (days|microscopes)|vignetting in the objective',
+         '\\bmål(et)?\\b'),
+        ('annotation-wrong-sense',
+         '^(?!.*\\b(comments?|notes?|notation)\\b).*\\bannotation[- ]columns?\\b',
+         '[Kk]ommentar|[Aa]nteckning|(?<![Aa]n)[Nn]otation'),
+    ),
+    'de': (
+        ('stain-wrong-sense',
+         '^(?![\\s\\S]*\\b(blobs?|specks?|speckles?|spots?|puncta|punctate)\\b)[\\s\\S]*\\b(stain|stains|stained|staining|counterstain\\w*)\\b',
+         '[Ff]leck'),
+        ('tile-wrong-sense',
+         '\\btiles?\\b',
+         '[Ff]liese'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '[Aa]rbeiter(?!\\w*thread)|[Aa]rbeitnehmer'),
+        ('backbone-wrong-sense',
+         '\\bbackbones?\\b',
+         '[Rr]ückgrat'),
+        ('training-wrong-sense',
+         '\\btrain\\b',
+         '\\bZug ?[/-]|\\bZugkurve|Zug und (Test|Validierung)'),
+        ('hallucination-wrong-sense',
+         '^(?![\\s\\S]*\\b(president|parliament|european|commission|regulation)\\b)',
+         'Der Präsident\\.|Fraktion der Europäischen|Verordnung \\(EWG\\)|Europäischen Gemeinschaften|Vertrag über die Europäische Union|Tagesordnung folgt'),
+    ),
+    'es': (
+        ('tile-wrong-sense',
+         '\\btil(e|es|ed|ing)\\b',
+         '\\b(azulej(o|os|a)|baldosas?)\\b'),
+        ('weights-wrong-sense',
+         '\\bweights?\\b',
+         '\\bpesas\\b'),
+        ('training-wrong-sense',
+         '\\btrain[/-](test|val|validation)\\b',
+         '\\btren\\b'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         '(?<!condición de )(?<!condiciones de )\\bcarreras?\\b'),
+        ('plate-wrong-sense',
+         '\\bplates?\\b',
+         '\\bplatos?\\b'),
+        ('mask-wrong-sense',
+         '\\bmasks?\\b',
+         '\\b(mascarillas?|mascas?)\\b'),
+        ('crop-wrong-sense',
+         '\\bcrop(s|ped|ping)?\\b',
+         '\\bcosech\\w*'),
+    ),
+    'zh_CN': (
+        ('dye-wrong-sense',
+         '\\bdyes?\\b',
+         '污渍|污点|污染物'),
+        ('channel-wrong-sense',
+         '(?s)^(?!.*\\b(?:slack|teams|chat|discord|webhook|release|conda|television|tv|broadcast\\w*|radio|youtube)\\b).*\\bchannels?\\b',
+         '频道|渠道'),
+        ('epoch-wrong-sense',
+         '\\bepochs?\\b',
+         '时代'),
+        ('training-wrong-sense',
+         '\\b(model|classifier|network|cellpose|torch)\\s+training\\b|\\btraining\\s+(data|set|epochs?|loss|run|images?)\\b',
+         '培训'),
+        ('vacuole-wrong-sense',
+         '\\bvacuol\\w*',
+         '真空'),
+        ('weights-wrong-sense',
+         '\\b(model|pretrained|pre-trained|checkpoint|network|trained)\\s+weights\\b',
+         '重量|体重'),
+        ('host-wrong-sense',
+         '\\bhost[- ]cells?\\b',
+         '主持|主人|托管细胞'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(us|i)\\b',
+         '原子核'),
+        ('colony-wrong-sense',
+         '\\bcolon(y|ies)\\b',
+         '殖民'),
+        ('plaque-wrong-sense',
+         '\\bplaques?\\b',
+         '牙菌斑|牌匾'),
+        ('parasite-wrong-sense',
+         '\\bparasites?\\b',
+         '寄生素'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         '跑步'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '(?<!管理)员工|工人'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         '田野|田地'),
+        ('confluence-wrong-sense',
+         '\\bconfluen\\w*',
+         '混合性'),
+    ),
+    'pt': (
+        ('stain-wrong-sense',
+         '\\b(counter)?stain(s|ed|ing)?\\b',
+         '\\b[Mm]anch(a|as|ado|ada|ados|adas|ar)\\b'),
+        ('vacuole-wrong-sense',
+         '\\bvacuoles?\\b',
+         '\\b[Vv](ácuos?|acúos?)\\b'),
+        ('objective-wrong-sense',
+         'objective magnification|microscope objective|objective NA\\b|(dirty|different|acquisition) objective\\b|vignetting in the objective',
+         '\\bobjetivos?\\b|\\bmicroscópio objetivo\\b'),
+        ('crop-wrong-sense',
+         '\\bcrops?\\b',
+         '\\b([Ss]afras?|[Pp]lantaç(ão|ões)|[Cc]olheitas?)\\b'),
+        ('feature-wrong-sense',
+         '\\bfeature[- ](matrix|matrices|importances?|columns?|tables?|space|selection|extraction|names?|vectors?|maps?)\\b',
+         '\\b([Ii]mportâncias?|[Mm]atriz|[Mm]atrizes|[Cc]olunas?|[Tt]abelas?|[Ee]spaço|[Ss]eleção|[Ee]xtração|[Nn]omes?|[Vv]etores?|[Mm]apas?)( de importância)? d[eo]s? (recursos?|funcionalidades?)\\b'),
+        ('cell-wrong-sense',
+         '^(?!.*\\b(stack|stacks|stacked|pile)\\b)(?=.*\\bcells?\\b)',
+         '\\b[Pp]ilhas?\\b|\\b[Bb]aterias?\\b'),
+        ('host-wrong-sense',
+         '\\bhost cells?\\b',
+         '\\bcélulas? anfitriãs?\\b'),
+    ),
+    'hi': (
+        ('epoch-wrong-sense',
+         '\\bepochs?\\b',
+         'युग(?!्म)'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         'मैदान'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         'दौ(?:ड़|ड़)'),
+        ('mask-wrong-sense',
+         '\\bmasks?\\b',
+         'मुखौट|नकाब'),
+        ('gate-wrong-sense',
+         '\\bgates?\\b',
+         'दरवाज़?|फाटक'),
+        ('parasite-wrong-sense',
+         '\\bparasites?\\b',
+         'कीटनाशक'),
+        ('colony-wrong-sense',
+         '\\bcolon(y|ies)\\b',
+         'कलीसिया|उपनिवेश'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(us|i)\\b',
+         '(?<![ऀ-ॿ])कोर(?![ऀ-ॿ])'),
+        ('vacuole-wrong-sense',
+         '\\bvacuoles?\\b',
+         'वॉकवॉल|वॉलपेपर'),
+        ('plaque-wrong-sense',
+         '\\bplaque assay\\b',
+         'प्लेट मूल्यांकन|प्लेट परख'),
+    ),
+    'ko': (
+        ('worker-wrong-sense',
+         '(?is)^(?!.*\\b(labou?rers?|staff|employees?)\\b).*\\bworkers?\\b',
+         '노동자|근로자|일꾼'),
+        ('seed-wrong-sense',
+         '(?is)^(?!.*\\b(plants?|sow|sowing|grains?)\\b).*\\b(seeds?|random seed)\\b',
+         '씨앗|씨발'),
+        ('weights-wrong-sense',
+         '(?is)^(?!.*\\b(font|body|molecular)\\b).*\\bweights\\b',
+         '무게(?!\\s?중심)|체중'),
+        ('epoch-wrong-sense',
+         '(?is)^(?!.*\\b(era|eras|century|historic\\w*)\\b).*\\bepochs?\\b',
+         '시대|신기원'),
+        ('pathogen-wrong-sense',
+         '(?is)^(?!.*(bacteri|hospital)).*\\bpathogens?\\b',
+         '병원균|병원(?![가-힣])'),
+        ('vacuole-wrong-sense',
+         '(?is)^(?!.*vacuum).*\\bvacuoles?\\b',
+         '진공'),
+        ('colony-wrong-sense',
+         '(?is)^(?!.*coloni[sz]|.*colonial).*\\bcolon(y|ies)\\b',
+         '식민'),
+        ('stain-wrong-sense',
+         '(?is)^(?!.*(speckle|smudge|blob|brick|soil|scar|stainless)).*\\bstain(s|ed|ing)?\\b',
+         '벽돌|흙|흉터|스톤|얼룩|벽난로'),
+        ('mask-wrong-sense',
+         '(?is)^(?!.*\\b(face|mosque)\\b).*\\bmasks?\\b',
+         '모스크|가면'),
+        ('annotation-wrong-sense',
+         '(?is)^(?!.*\\b(audio|voice|recordings?|narration)\\b).*\\bannotat(e|es|ed|ing|ion|ions|or|ors)\\b',
+         '녹음'),
+        ('embedding-wrong-sense',
+         '(?is)^(?!.*insert).*\\bembeddings?\\b',
+         '삽입'),
+        ('well-wrong-sense',
+         '(?is)^(?!.*\\b(pots?|baskets?|bins?)\\b).*\\bwells\\b',
+         '냄비|바구니|우물'),
+        ('crop-wrong-sense',
+         '(?is)^(?!.*\\b(plants?|harvest\\w*|agricultur\\w*)\\b).*\\bcrops?\\b',
+         '농작물|작물|식물|재배|수확'),
+        ('tile-wrong-sense',
+         '(?is)^(?!.*brick).*\\btiles?\\b',
+         '벽돌|(?<![가-힣])기와'),
+        ('plate-wrong-sense',
+         '(?is)^(?!.*(microb|bacteri|microorganism)).*\\bplates?\\b',
+         '실험[실소]\\s?미생물|미생물\\s?플레이트'),
+        ('gate-wrong-sense',
+         '(?is)^(?!.*\\b(borders?|country|countries|nation\\w*)\\b).*\\bgates?\\b',
+         '국경'),
+        ('field-wrong-sense',
+         '(?is)^(?!.*\\b(farm\\w*|agricultur\\w*)\\b).*\\bfields?\\b',
+         '(?<![가-힣])밭'),
+        ('inference-wrong-sense',
+         '(?is)^(?!.*conclu).*\\binference\\b',
+         '결론'),
+    ),
+    'is': (
+        ('cell-wrong-sense',
+         '^(?!.*(?:table cell|grid|spreadsheet|click|notebook|QTable|header|confusion|heatmap)).*\\bcells?\\b',
+         '\\bcel(?:i|ið|la|ler|lerum)\\b'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(?:us|i)\\b',
+         '\\bkjól\\w*'),
+        ('crop-wrong-sense',
+         '\\bcrops?\\b',
+         '\\bútgreidd\\w*|\\bgróðurs?\\b'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '\\bstarfsm\\w*'),
+        ('host-wrong-sense',
+         '\\bhosts?\\b',
+         '\\bveitingastað\\w*|\\bherberg\\w*'),
+        ('gate-wrong-sense',
+         '\\bgat(?:e|es|ing)\\b',
+         '\\bsæling\\w*|\\bgrænsi\\w*'),
+        ('epoch-wrong-sense',
+         '^(?!.*unix).*\\bepochs?\\b',
+         '\\bæra\\b'),
+        ('invasion-wrong-sense',
+         '\\binvasion\\b',
+         '\\binnflytj\\w*'),
+        ('pathogen-wrong-sense',
+         '\\bpathogens?\\b',
+         '\\bpat[oó]g[eé]n\\w*'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         '\\bfólkið\\b|\\bleikir\\b'),
+        ('stain-wrong-sense',
+         '\\bstain(?:s|ed|ing)?\\b',
+         '\\bskugg\\w*'),
+    ),
+    'fr': (
+        ('well-wrong-sense',
+         '\\bwells\\b',
+         '\\b[Bb]iens\\b'),
+        ('well-wrong-sense',
+         '\\b(control|per|each|every|one|two|which|the same) wells?\\b',
+         '\\b(par|chaque|un|le même) bien\\b|\\b[Bb]iens? de contrôle\\b'),
+        ('training-wrong-sense',
+         '^(?![\\s\\S]*\\bform)[\\s\\S]*\\b(train|training|trained|retrain\\w*)\\b',
+         '\\b[Ff]ormations?\\b'),
+        ('worker-wrong-sense',
+         '^(?![\\s\\S]*\\b(labou?r\\w*|employees?|staff)\\b)[\\s\\S]*\\bworkers?\\b',
+         '\\b([Tt]ravailleu\\w*|[Oo]uvri(?:er|ers|ère|ères))\\b'),
+        ('feature-wrong-sense',
+         '\\bfeatures? (importance|matrix|matrices|columns?|names?|tables?|selection|space|vectors?|extraction|maps?|families|family|dictionary|set)\\b',
+         '\\b[Ff]onctionnalités?\\b'),
+        ('vacuole-wrong-sense',
+         '\\b(per-vacuole|parasites-per-vacuole)\\b',
+         '\\bpar vide\\b'),
+        ('plate-wrong-sense',
+         '\\bplates?\\b',
+         '\\b[Aa]ssiettes?\\b'),
+        ('tile-wrong-sense',
+         '\\btiles?\\b',
+         '\\b[Cc]arrel\\w*'),
+        ('gate-wrong-sense',
+         '\\bgates?\\b',
+         '\\b[Pp]ortails?\\b'),
+        ('seed-wrong-sense',
+         '\\bseeds?\\b',
+         '\\b[Ss]emences?\\b'),
+        ('channel-wrong-sense',
+         '\\bchannels?\\b',
+         "\\b[Cc]haînes? (vidéo|de données d'image d'intensité)\\b|\\b[Cc]haîne \\{index\\}"),
+        ('mask-wrong-sense',
+         '\\bcached masks?\\b',
+         '\\bmasques? caches?\\b'),
+        ('crop-wrong-sense',
+         '\\b(crop|crops|cropping|cropped)\\b',
+         '\\b(récoltes?|avant la culture)\\b'),
+    ),
+}
+
+
+
+
 
 _SCIENTIFIC_WELL_BAD_TARGET = {
     "fr": r"\bbien\b",
@@ -1978,6 +2339,7 @@ def _semantic_false_friends(
         (_IMAGE_TILE_SOURCE, "tile", "image-tile-as-roof-or-floor-tile"),
         (_SCIENTIFIC_PLATE_SOURCE, "plate", "scientific-plate-as-dish"),
         (_IMAGE_CROP_SOURCE, "crop", "image-crop-as-agriculture"),
+        (_DYE_STAIN_SOURCE, "stain", "dye-stain-as-smudge"),
         (_COMPUTE_RUN_SOURCE, "run", "compute-run-as-race"),
         (_COMPUTE_THREAD_SOURCE, "thread", "thread-corruption"),
     )
@@ -1985,6 +2347,14 @@ def _semantic_false_friends(
         if (
             re.search(source_pattern, source_text, re.I)
             and _target_has(family, language, target_text)
+        ):
+            failures.append(label)
+    for label, source_pattern, bad_pattern in _REVIEWED_TERM_GATES.get(
+        language, (),
+    ):
+        if (
+            re.search(source_pattern, source_text, re.I)
+            and re.search(bad_pattern, target_text, re.I)
         ):
             failures.append(label)
 
@@ -3729,7 +4099,7 @@ def _looks_translatable(text: str) -> bool:
         return False
     if re.fullmatch(r"\{[A-Za-z_][A-Za-z0-9_]*\}", source):
         return False
-    if re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
+    if source not in {"TOOLS", "IO"} and re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
         return False
     # Stylesheets, regexes and serialized records are not presentation prose.
     if any(marker in source for marker in (
@@ -4226,6 +4596,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "object.py")
     paths.add(ROOT / "spacr" / "remote_execution.py")
     paths.add(ROOT / "spacr" / "install_cleanup.py")
+    paths.add(ROOT / "spacr" / "doctor.py")
+    paths.add(ROOT / "spacr" / "updater.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
     paths.add(ROOT / "spacr" / "utils.py")
     paths.add(ROOT / "spacr" / "attribution.py")
@@ -4293,6 +4665,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_measurement_channel_index",
                              "_wound_calibration",
                              "measure_from_field_table",
+                             "_volume_measure_spacing", "_volume_measure_input",
+                             "_write_volume_measurements", "measure_volume_rows",
                          }]
         if path == source_root / "channel_sorting.py":
             tree.body = [node for node in tree.body
@@ -4670,6 +5044,11 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
                       for title, _keys in sections)
+    # Item 678 (2026-10-17): the shared category titles in spacr.settings are
+    # settings-panel captions too. Without an exact entry they fell back to a
+    # word-by-word composite ("Modell Evaluation"), so catalogue them here.
+    from spacr.settings import categories as _shared_categories
+    ui_sources.update(str(title) for title in _shared_categories)
     # Backend prose lives outside spacr/qt and reaches the install dialog
     # and model card through registry fields, not literal widget arguments.
     from spacr._segmentation_backends import _SPECS as backend_specs

@@ -76,7 +76,7 @@ def test_actual_export_captures_the_selected_catalogue_key(qtbot, monkeypatch, t
     screen._on_export_settings()
     values = load_settings_file(str(destination))
     record = values['model_metadata']['settings']['plaque_model']
-    assert record['key'] == values['plaque_model'] == 'toxoplasma_plaque_v4'
+    assert record['key'] == values['plaque_model'] == 'toxoplasma_plaque_v5'
     assert record['version_status'] == 'unspecified'
 
 

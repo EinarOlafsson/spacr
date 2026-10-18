@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -41,8 +41,9 @@ msgstr "Det sista resultatet är svagt övervakade belägg, inte en streckkod up
 msgid "Explain CV Model"
 msgstr "Förklara CV-modell"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "Modulen öppnas från huvudraden i **Klassificering** i stället för från en egen ruta, bredvid **Klassificerarutvärdering**: båda frågar vad en tränad klassificerare faktiskt gjorde."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "Modulen öppnas från huvudraden i **Klassificering** i stället för från en egen ruta, bredvid **Klassificerarutvärdering**: båda analyserar en befintlig tränad klassificerare och dess sparade prediktioner."
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "Välj den exakta ``measurements.db`` och en befintlig CSV-fil med CV-prediktioner per objekt. Modulen kör aldrig om den ursprungliga klassificeraren och byter aldrig ut den i tysthet. Den kopplar prediktionerna ett-till-ett till uppmätta objekt och utesluter identifierare, prediktions- och klasskolumner, poäng, annoteringar och användarens uteslutningar ur surrogatmodellens egenskapsmatris."

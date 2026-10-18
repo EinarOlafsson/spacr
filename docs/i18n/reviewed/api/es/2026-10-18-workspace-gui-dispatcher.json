@@ -1,0 +1,27 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The processing-session journal asks from the background execution unit that ran the workflow, so the registry is given a dispatcher that reads every section on the main GUI execution path and hands the worker plain data; a panel that was never built has no state to save.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.register_workspace#2",
+      "source": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The run journal asks from the worker thread that ran the pipeline, so the registry is given a dispatcher that reads every section on the GUI thread and hands the worker plain data; a panel that was never built has no state to save.",
+      "source_sha256": "b08e3ad921582cd0cadb1a95ea4330d9f244c77e8a64c01d8287d0b4fb3f634e",
+      "translation": "El objeto invocable lee el atributo con :meth:`_if_built`, por lo que solicitar una sección nunca construye un panel cuya creación se ha aplazado. El diario de ejecución solicita desde el hilo de trabajo que ejecutó la secuencia de procesamiento, por lo que el registro recibe un despachador que lee cada sección en el hilo de la GUI y entrega datos simples al hilo de trabajo; un panel que nunca se ha construido no tiene estado que guardar."
+    },
+    {
+      "context": "The main GUI execution path dispatcher goes with them; the next application view to register installs it again.",
+      "label": "spacr.workspace.clear_providers#1",
+      "source": "The GUI-thread dispatcher goes with them; the next screen to register installs it again.",
+      "source_sha256": "72103a2cf4f14f194854ae4515457d271bcb1bf3bdfe5175679f3b6f520f500f",
+      "translation": "También se elimina el despachador del hilo de la GUI; la siguiente vista de la aplicación que se registre lo instala de nuevo."
+    },
+    {
+      "context": "The providers are widgets in the GUI, and a processing-session journal saves from the background execution unit that ran the workflow. So when the GUI has installed a dispatcher (``_STATE_DISPATCHER``), every provider is read through it, on the main GUI execution path, and only the plain JSON-compatible copies come back. A dispatcher that cannot answer costs the sections, never the processing session.",
+      "label": "spacr.workspace.section_states#3",
+      "source": "The providers are widgets in the GUI, and a run journal saves from the worker thread that ran the pipeline. So when the GUI has installed a dispatcher (``_STATE_DISPATCHER``), every provider is read through it, on the GUI thread, and only the plain JSON-compatible copies come back. A dispatcher that cannot answer costs the sections, never the run.",
+      "source_sha256": "7e60dc0c6f9ca2924bda2a367d55adf8838803968441bd8812d271f96774a9f4",
+      "translation": "Los proveedores son widgets de la GUI, y el diario de una ejecución guarda desde el hilo de trabajo que ejecutó la secuencia de procesamiento. Por tanto, cuando la GUI ha instalado un despachador (``_STATE_DISPATCHER``), cada proveedor se lee a través de él, en el hilo de la GUI, y solo se devuelven copias simples compatibles con JSON. Si el despachador no puede responder, se pierden las secciones, nunca la ejecución."
+    }
+  ],
+  "schema": 1
+}

@@ -195,7 +195,7 @@
       "source_sha256": "a5e83868f0d3a264bffa3fc1203c33bfde620d677a6b6b0c9e5a93c3943e40b4",
       "source": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
       "context": "widen what counts as a feature to unrecognised columns — but an unrecognised column is then *skipped* rather than repaired, so this only ever converts fewer columns. It reaches ``DERIVED_MODEL_FEATURES`` as well: with it set, a text or all-NULL ``recruitment`` stays ``object`` and is then silently dropped by :func:`model_feature_columns` instead of being read as numbers.",
-      "translation": "utvidga vad som räknas som en funktion till okända kolumner — men en okänd kolumn är då *överhoppad* snarare än repareras, så detta bara någonsin omvandlar färre Det når ``DERIVED_MODEL_FEATURES`` också: med det inställt, en text eller enbart NULL ``recruitment`` förblir ``object`` och sedan tyst tappas av :func:`model_feature_columns` i stället för att läsas som siffror."
+      "translation": "utvidga vad som räknas som en egenskap till okända kolumner — men en okänd kolumn är då *överhoppad* snarare än repareras, så detta bara någonsin omvandlar färre Det når ``DERIVED_MODEL_FEATURES`` också: med det inställt, en text eller enbart NULL ``recruitment`` förblir ``object`` och sedan tyst tappas av :func:`model_feature_columns` i stället för att läsas som siffror."
     },
     {
       "label": "spacr.schema.object_id#2",
@@ -291,7 +291,10 @@
       "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
       "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
       "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
-      "translation": "Förbinder per-objekt CNN förutsägelser (``score_column``) med morfologi + intensitetsmätningar från :func:`spacr.measure.measure_crop`, utökar cross-compartment funktionsförhållanden (till exempel ``nucleus_cell_area``), kör sedan slumpmässig skogsfunktionsvikt, permutationsvikt och (valfritt) SHAP på de översta funktionerna. Den grupperar också betydelse per fack och per bilddatakanal så att du kan svara på frågan ”tittar min maskininlärningsbaserade klassificeringsmodell på patogenen eller på cellen?”."
+      "translation": "Förbinder per-objekt CNN förutsägelser (``score_column``) med morfologi + intensitetsmätningar från :func:`spacr.measure.measure_crop`, utökar cross-compartment funktionsförhållanden (till exempel ``nucleus_cell_area``), kör sedan slumpmässig skogsfunktionsvikt, permutationsvikt och (valfritt) SHAP på de översta funktionerna. Den grupperar också betydelse per fack och per bilddatakanal så att du kan svara på frågan ”tittar min maskininlärningsbaserade klassificeringsmodell på patogenen eller på cellen?”.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.submodules.interpret_vision_model#4",
@@ -305,7 +308,7 @@
       "source_sha256": "f7f3b5283fb4f5e741a6a6c85bb5752f17b7eeba9648b1e67352a524c59d5948",
       "source": "``channels`` — intensity channels included in the feature space (e.g. ``[0,1,2,3]``).",
       "context": "``channels`` — intensity image data channels included in the feature space (e.g. ``[0,1,2,3]``).",
-      "translation": "``channels`` — datakanaler för intensitetsbilder som ingår i funktionsutrymmet (till exempel ``[0,1,2,3]``)."
+      "translation": "``channels`` — datakanaler för intensitetsbilder som ingår i egenskapsutrymmet (till exempel ``[0,1,2,3]``)."
     },
     {
       "label": "spacr.timelapse.automated_motility_assay#0",

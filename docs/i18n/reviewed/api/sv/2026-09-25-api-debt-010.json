@@ -358,7 +358,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "Det starkare av det som spelas och tomgångsandningen, så att ett tyst parti aldrig tar bilden under det som tystnad skulle ha ritat. Det är regeln som gör \"den går på tomgång vackert i tystnad\" och \"den reagerar på musiken\" till samma kodväg."
+      "translation": "Det starkare av det som spelas och tomgångsandningen, så att ett tyst parti aldrig tar bilden under det som tystnad skulle ha ritat. Det är regeln som gör \"den går på tomgång vackert i tystnad\" och \"den reagerar på musiken\" till samma kodväg.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -2911,7 +2914,7 @@
     },
     {
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",

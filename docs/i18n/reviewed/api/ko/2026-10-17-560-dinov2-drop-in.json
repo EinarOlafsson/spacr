@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "Read the plate once it is on disk, or say why it is not.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched#0",
+      "source": "Read the plate once it is on disk, or say why it is not.",
+      "source_sha256": "7eb15a20ed8e8267f5a2945b37054cb0f2eebb746bb6df80bb73e95948f6ee18",
+      "translation": "플레이트가 디스크에 있으면 읽고, 없으면 그 이유를 알립니다."
+    },
+    {
+      "context": "Select the CPU DINO choice and attach the annotations.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished#0",
+      "source": "Select the CPU DINO choice and attach the annotations.",
+      "source_sha256": "b0bbfa8e4135deb52f82573c36253f02a3800f16e729acc1a256e93138a99dd9",
+      "translation": "CPU용 DINO 선택 항목을 고르고 어노테이션을 첨부합니다."
+    },
+    {
+      "context": "Plan, read and label the annotated extracted image regions.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work#0",
+      "source": "Plan, read and label the annotated crops.",
+      "source_sha256": "df9d8f8da8793192a70dbb0013ca7ad6dd609df191d89d8359dfa79b62aba582",
+      "translation": "어노테이션이 달린 크롭을 계획하고 읽고 레이블을 붙입니다."
+    }
+  ]
+}

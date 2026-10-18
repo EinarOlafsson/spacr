@@ -57,6 +57,7 @@ xcrun clang -Wall -Wextra -Werror -O2 -fobjc-arc -arch arm64 -arch x86_64 \
 lipo "$APP/Contents/MacOS/install-spacr-gui" -verify_arch arm64 x86_64
 mkdir -p "$APP/Contents/Resources/installer-i18n"
 cp packaging/i18n/*.json "$APP/Contents/Resources/installer-i18n/"
+printf '%s\n' '{"native_uninstall_schema":1}' > "$APP/Contents/Resources/uninstall-capabilities.json"
 
 
 cat > "$APP/Contents/Info.plist" <<EOF

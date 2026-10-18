@@ -26,7 +26,9 @@
       "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
       "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
       "translation": "सामान्य प्रतिस्थापन प्रक्रिया नए इंस्टॉलर को डाउनलोड करके चलाती है, जो इंस्टॉलेशन तैयार करता है; फिर वास्तविक इंटरप्रेटर और आयात किए गए अनुप्रयोग का सत्यापन होता है, अन्य प्रतियाँ हटाई जाती हैं और अनुप्रयोग शुरू किया जाता है। इंस्टॉलेशन या सत्यापन विफल होने पर पिछली कार्यशील प्रति नहीं हटाई जाती। अन्य प्रतियों को हटाने में विफलता दर्ज की जाती है, लेकिन अनुप्रयोग दोबारा शुरू नहीं होता।",
-      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     }
   ]
 }

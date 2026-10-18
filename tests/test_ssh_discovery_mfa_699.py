@@ -605,3 +605,127 @@ def test_discovery_never_runs_ssh_or_any_local_command(tmp_path, monkeypatch):
     assert 'user' not in rows[0]
     for function in (remote._discover_ssh_settings, remote._ssh_config_directives, remote._ssh_lookup, remote._ssh_resolve):
         assert '-G' not in inspect.getsource(function)
+
+
+@pytest.mark.parametrize('field', ['ssh_interactive', 'ssh_keychain'])
+def test_login_switches_must_be_real_booleans(field):
+    profile = remote.ExecutionProfile('p', 'ssh', host='alias', workdir='/w', **{field: 'yes'})
+    with pytest.raises(remote.RemoteExecutionError, match='must be a boolean'):
+        profile.validate()
+
+
+def test_blank_and_comment_lines_in_a_config_are_skipped(tmp_path):
+    config = tmp_path / 'config'
+    config.write_text('# cluster logins\n\nHost gl\n\n   # the login node\n HostName greatlakes.example\n')
+    assert remote._ssh_config_directives([config]) == [(None, 'top'), ('host', ['gl']), ('hostname', ['greatlakes.example'])]
+
+
+def test_an_unknown_internal_marker_leaves_the_host_scope_unchanged():
+    directives = [(None, 'top'), ('host', ['gl']), (None, 'not-a-marker'), ('user', ['alice'])]
+    assert remote._ssh_lookup('gl', directives)['user'] == 'alice'
+    assert 'user' not in remote._ssh_lookup('other', directives)
+
+
+def test_a_windows_profile_folder_that_is_the_home_folder_is_read_once(tmp_path):
+    ssh = tmp_path / '.ssh'
+    ssh.mkdir()
+    (ssh / 'config').write_text('Host gl\n HostName greatlakes.example\n')
+    (ssh / 'known_hosts').write_text('gl ssh-ed25519 PUBLIC\n')
+    rows = remote._discover_ssh_settings(home=tmp_path, environ={'USERPROFILE': str(tmp_path)},
+                                         system_config=tmp_path / 'none')
+    assert [row['alias'] for row in rows] == ['gl']
+
+
+def test_an_oversized_known_hosts_file_is_refused(tmp_path):
+    ssh = tmp_path / '.ssh'
+    ssh.mkdir()
+    with open(ssh / 'known_hosts', 'wb') as handle:
+        handle.truncate(4 * 1024 * 1024 + 1)
+    with pytest.raises(remote.RemoteExecutionError, match='too large'):
+        remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')
+
+
+def test_known_hosts_keep_only_valid_ports_and_plain_host_names(tmp_path):
+    ssh = tmp_path / '.ssh'
+    ssh.mkdir()
+    (ssh / 'known_hosts').write_text('[far.example]:99999 ssh-ed25519 PUBLIC\n'
+                                     'bad$host,[odd.example]:22x ssh-ed25519 PUBLIC\n')
+    rows = {row['alias']: row for row in remote._discover_ssh_settings(
+        home=tmp_path, environ={}, system_config=tmp_path / 'none')}
+    assert set(rows) == {'far.example', 'odd.example'}
+    assert rows['far.example']['port'] == '22'
+    assert rows['odd.example']['port'] == '22'
+
+
+def test_an_unknown_keychain_action_touches_nothing(monkeypatch):
+    keyring = FakeKeyring()
+    monkeypatch.setitem(sys.modules, 'keyring', keyring)
+    assert remote._keychain_password('rename', 'ada@gl:22', 'secret') is None
+    assert keyring.calls == []
+
+
+def test_the_keychain_account_names_user_host_and_port_only(monkeypatch):
+    monkeypatch.setattr(remote, '_ssh_config_directives', lambda paths: [])
+    account = remote._keychain_account('ada@gl', {'hostname': 'greatlakes.example', 'port': '2222'})
+    assert account == 'ada@greatlakes.example:2222'
+
+
+def test_rejected_and_silent_keys_fall_through_to_the_server_challenge(ssh_fake, monkeypatch):
+    state = ssh_fake
+    state.publickeys = ['rejected-key', 'silent-key']
+    offered = []
+    fake = sys.modules['paramiko']
+
+    def auth_publickey(self, username, key):
+        offered.append(key)
+        if key == 'rejected-key':
+            raise AuthenticationException()
+        return []
+
+    monkeypatch.setattr(fake.Transport, 'auth_publickey', auth_publickey)
+    state.pool.run(state.target, 'hostname')
+    assert offered == ['rejected-key', 'silent-key']
+    assert len(state.prompts) == 2
+    assert len(state.channels) == 1
+
+
+def test_a_server_without_challenge_or_password_login_is_denied(ssh_fake, monkeypatch):
+    state = ssh_fake
+    state.password_only = True
+    monkeypatch.setattr(BadAuthenticationType, 'allowed_types', ['publickey'])
+    with pytest.raises(remote.RemoteExecutionError, match='denied'):
+        state.pool.run(state.target, 'hostname')
+    assert not state.prompts and not state.channels
+    assert all(not transport.active for transport in state.transports)
+
+
+def test_a_failed_final_hop_closes_every_jump_host_it_opened(ssh_fake, monkeypatch):
+    state = ssh_fake
+    state.target['options']['proxyjump'] = 'bastion'
+    fake = sys.modules['paramiko']
+    monkeypatch.setattr(fake.HostKeys, 'check', lambda self, host, key: host != 'fake-host')
+    with pytest.raises(remote.RemoteExecutionError, match='host key'):
+        state.pool.run(state.target, 'hostname')
+    assert len(state.transports) == 2
+    assert all(not transport.active for transport in state.transports)
+    assert not state.channels
+
+
+def test_a_quiet_command_is_polled_without_spinning(ssh_fake, monkeypatch):
+    import time
+    state = ssh_fake
+    naps = []
+
+    class Slow(Channel):
+        def __init__(self):
+            super().__init__(b'')
+            self.polls = 0
+
+        def exit_status_ready(self):
+            self.polls += 1
+            return self.polls > 2
+
+    state.channel_factory = Slow
+    monkeypatch.setattr(time, 'sleep', naps.append)
+    assert state.pool.run(state.target, 'sleep 1') == remote.CommandResult(0, '', '')
+    assert naps == [0.01, 0.01]

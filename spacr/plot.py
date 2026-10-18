@@ -33,6 +33,7 @@ from matplotlib_venn import venn2
 from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
+from .multiple_testing import _posthoc_dunn
 
 from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
                             figure_style, _group_colours, hide_unused,
@@ -7630,7 +7631,7 @@ class spacrGraph:
 
             p_adjust_method = choose_p_adjust_method(num_groups=len(long_data[self.grouping_column].unique()),num_data_points=len(long_data) // len(long_data[self.grouping_column].unique()))
 
-            dunn_result = sp.posthoc_dunn(
+            dunn_result = _posthoc_dunn(
                 long_data, 
                 val_col=self.data_column[0], 
                 group_col=self.grouping_column, 

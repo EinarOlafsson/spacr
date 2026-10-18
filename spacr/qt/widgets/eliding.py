@@ -104,7 +104,7 @@ class ElidingLabel(QLabel):
         return QSize(max(base.width(), self.required_width()), base.height())
 
     def minimumSizeHint(self) -> QSize:        # noqa: N802
-        """Allow shrinking to a few characters so the parent can cap us."""
+        """Allow shrinking to a few characters so the parent layout can limit the width."""
         base = super().minimumSizeHint()
         fm = QFontMetrics(self.font())
         m = self.contentsMargins()
@@ -113,7 +113,7 @@ class ElidingLabel(QLabel):
                      base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width.
+        """Re-elide whenever the layout assigns a different width.
 
         :param event: the resize event, passed to the base class; the text is
             then re-fitted to the label's new width.
@@ -220,7 +220,7 @@ class ElidingPushButton(QPushButton):
         return QSize(min(base.width(), chrome + floor), base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width.
+        """Re-elide whenever the layout assigns a different width.
 
         :param event: the resize event, passed to the base class; the label is
             then re-fitted to the button's new width.

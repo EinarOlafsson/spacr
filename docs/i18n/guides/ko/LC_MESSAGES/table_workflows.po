@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "그래프와 게이트에 사용할 측정 테이블 결합"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**\\ 를 열어 측정값을 탐색합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**\\ 이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`\\ 를 참조하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Home에서 **Graph Builder** 또는 **Gate Editor**\\ 를 열어 측정값을 플롯하거나 게이팅합니다. 두 화면 모두 테이블 선택기 바로 옆에 **테이블 병합**\\ 이 있습니다. 같은 병합 정의를 사용하면 어느 화면에서든 같은 측정값이 생성됩니다. 전체 작업 흐름은 :doc:`workflows`\\ 를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"
@@ -254,9 +255,9 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "조건 레이블 지정 전에 원본 파일명 복구"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
-msgstr "이미지가 Yokogawa 형식으로 바뀌었다면 **원본 파일명 병합…** 안의 **테이블 병합**\\ 을 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, 이전 형식의 ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 변경된 이미지 이름에서 처리 조건 이름을 추론하지 않습니다."
+msgstr "이미지가 Yokogawa 형식으로 이름이 바뀌었다면 **테이블 병합** 안의 **원본 파일명 병합…**\\ 을 사용하여 변환 시 기록된 이름을 복구합니다. ``conversion_map.csv``, ``rename_log.csv``, ``channel_sorting_manifest.csv``, 또는 ``conversion_map`` 테이블이 있는 SQLite 데이터베이스를 선택합니다. 측정 데이터베이스 옆이나 상위 폴더에서 알려진 매핑을 찾으면 파일 선택기가 그 근처에서 열립니다. 매핑에는 기록된 원본-출력 관계가 있어야 합니다. 이 작업은 이름이 바뀐 이미지에서 처리 조건 이름을 추론하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."

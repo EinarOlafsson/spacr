@@ -6,7 +6,9 @@
       "label": "spacr.utils.calculate_iou#0",
       "source": "Return the intersection-over-union of two binary masks after zero-padding to a common shape.",
       "source_sha256": "686f903561865b0a7fbda0d9297fb0a6bf5d8d58d59a0bed26a01eb52a325ea3",
-      "translation": "Skila skurðpunkti-deilingu tveggja tvíkosta grímna eftir núllfyllingu í sameiginlega stærð."
+      "translation": "Skila skurðpunkti-deilingu tveggja tvíkosta grímna eftir núllfyllingu í sameiginlega stærð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a microplate sample position name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not* accepted — pass the microplate sample position name.",
@@ -177,7 +179,9 @@
       "label": "spacr.sp_stats.perform_posthoc_tests#0",
       "source": "Run pairwise post-hoc tests across groups with p-value adjustment.",
       "source_sha256": "475d99a0ec28725e5ca02168ecd39c86fe307ba3ffea9c669d45c7b95a74a016",
-      "translation": "Keyrðu pörun eftir-færsluprófa milli hópa með p-gildisleiðréttingu."
+      "translation": "Keyrðu pörun eftir-færsluprófa milli hópa með p-gildisleiðréttingu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The five rules are the ones in the SQLite file-format spec, in order: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, otherwise NUMERIC. Knowing the affinity is what lets :func:`coerce_for_column` refuse a value SQLite would otherwise store with the wrong type.",

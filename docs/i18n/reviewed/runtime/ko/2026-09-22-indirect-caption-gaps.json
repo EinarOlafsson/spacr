@@ -84,20 +84,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "파일"
-    },
-    {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "하늘에 마지막으로 남은 색입니다. 차분한 금빛 위의 장밋빛과 마젠타, 그리고 어두워지기 직전 지평선이 띠는 자두빛입니다."
-    },
-    {
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
-      "table": "ui",
-      "translation": "수면 아래의 바다색과 민트색, 그리고 따뜻한 색이 모두 흡수되고 마지막으로 남는 청록색입니다."
     }
   ],
   "retired_records": [
@@ -110,6 +96,22 @@
         "table": "ui",
         "translation": "공명"
       }
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "하늘에 마지막으로 남은 색입니다. 차분한 금빛 위의 장밋빛과 마젠타, 그리고 어두워지기 직전 지평선이 띠는 자두빛입니다.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "table": "ui",
+      "translation": "수면 아래의 바다색과 민트색, 그리고 따뜻한 색이 모두 흡수되고 마지막으로 남는 청록색입니다.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review of source-bound missing indirect captions; no native-speaker sign-off",

@@ -80,7 +80,9 @@
       "source_sha256": "28bc5d05fd74fc3dad11ce51d34d7e84c700ab71fa0f984d91ea26462b2fdfc7",
       "source": "Run pairwise chi-square (or Fisher's exact) tests across group pairs.",
       "context": "Run pairwise chi-square (or Fisher's exact) tests across group pairs.",
-      "translation": "Keyra kí-kvaðratpróf parað milli allra hópapara, eða nákvæmt próf Fishers þegar við á."
+      "translation": "Keyra kí-kvaðratpróf parað milli allra hópapara, eða nákvæmt próf Fishers þegar við á.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#1",
@@ -144,7 +146,9 @@
       "source_sha256": "e29e74ac52a53aabea3a30d3ce3f77114f204f056c5a4f6dba34a4c63c65b02c",
       "source": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
       "context": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
-      "translation": "Takmarka Beta-dreifni hverrar keyrslu svo umbeðið meðaltal og dreifni séu framkvæmanleg."
+      "translation": "Takmarka Beta-dreifni hverrar keyrslu svo umbeðið meðaltal og dreifni séu framkvæmanleg.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.power_simulate.drop_low_cell_wells#2",

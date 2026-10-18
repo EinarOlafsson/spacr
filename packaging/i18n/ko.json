@@ -76,5 +76,12 @@
   "gui_cancelled": "설치를 취소했습니다. 다시 시도하기 전에 로그를 확인하세요.",
   "gui_failed": "설치 또는 실행에 실패했습니다. 로그를 확인하고 이 창에서 다시 시도하세요.",
   "gui_stopping": "설치를 중지하고 이전 런타임을 복원하는 중…",
-  "nsis_uninstall_failed": "spaCR를 안전하게 제거하지 못했습니다. 위의 세부 정보를 확인하세요. 데이터는 보존되었습니다."
+  "nsis_uninstall_failed": "spaCR를 안전하게 제거하지 못했습니다. 위의 세부 정보를 확인하세요. 데이터는 보존되었습니다.",
+  "help_without_wgpu": "wgpu 없이 설치합니다. 이 경우 3D 보기는 OpenGL 또는 CPU를 사용합니다.",
+  "without_wgpu": "wgpu 없이 설치 (3D에 OpenGL/CPU 사용)",
+  "without_wgpu_description": "wgpu(Vulkan, Metal, Direct3D 12)를 설치하지 않습니다. 그러면 spaCR은 3D 보기를 OpenGL로, OpenGL을 사용할 수 없으면 CPU로 그립니다. 이 컴퓨터에서 wgpu에 문제가 있는 경우가 아니면 선택하지 마십시오.",
+  "wgpu_plan": "wgpu 3D 렌더링",
+  "wgpu_plan_install": "설치",
+  "wgpu_plan_skip": "건너뜀 (3D는 OpenGL, 없으면 CPU 사용)",
+  "wgpu_glibc_too_old": "wgpu에는 glibc 2.28 이상이 필요합니다(이 시스템: %s). wgpu 없이 설치하므로 3D는 OpenGL 또는 CPU를 사용합니다."
 }

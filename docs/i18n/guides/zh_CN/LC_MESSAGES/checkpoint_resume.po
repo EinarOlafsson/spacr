@@ -66,9 +66,9 @@ msgstr "中断的归一化存档"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "掩膜模块还会在分割前检查归一化后的 ``masks/*.npz`` 存档。它检查 ZIP 成员范围、可读的数值型 ``data.npy`` 头、与形状和 dtype 相符的声明像素字节数，以及每个批次视野对应一个文件名。这种结构检查不会展开每个像素数组，也不会执行完整的像素 CRC 扫描。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "损坏的存档会被移到一旁，命名为 ``<name>.damaged``。如果禁用了预处理，运行会停止并说明如何恢复。同样的隔离机制仍会阻止之后的运行悄然遗漏这些视野。通过有效的同名替换文件，或通过覆盖 ``stack/`` 中每个现有视野的可读存档，即可解除隔离。旧版的对象型文件名数组无法证明这种覆盖。启用预处理后，可根据可用的源数据重建可恢复的视野；有效存档和被隔离的证据都会保留。"
+msgstr "损坏的存档会被移到一旁，命名为 ``<name>.damaged``。如果禁用了预处理，运行会停止并说明如何恢复。同样的隔离机制仍会阻止之后的运行悄然遗漏这些视野。通过有效的同名替换文件，或通过覆盖 ``stack/`` 中每个现有视野的可读存档，即可解除隔离。以对象型数组存储文件名的存档无法证明这种覆盖。启用预处理后，可根据可用的源数据重建可恢复的视野；有效存档和被隔离的证据都会保留。"
 
 msgid "Safety rules"
 msgstr "安全规则"

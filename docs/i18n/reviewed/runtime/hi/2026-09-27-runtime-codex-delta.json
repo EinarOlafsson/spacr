@@ -990,13 +990,6 @@
       "translation": "उन अधिकांश स्थितियों में उपयुक्त जहाँ Otsu उपयुक्त है; यह पारंपरिक Ridler-Calvard पुनरावृत्ति है: स्तर वहाँ स्थिर होता है जहाँ वह अपने दोनों ओर के दो औसतों का औसत हो। Otsu गलत लगे तो उचित दूसरी जाँच है।"
     },
     {
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "table": "ui",
-      "translation": "जब विस्तृत लॉगिंग चालू है (मॉड्यूल टैब), DEBUG हमेशा लॉग फ़ाइलों में लिखा जाता है, इसलिए यह स्विच चालू रहता है। स्वयं चुनने के लिए विस्तृत लॉगिंग बंद करें। ऐसा करने पर उपयोग करने के लिए आपकी पसंद सहेजी रहती है।"
-    },
-    {
       "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
@@ -1174,6 +1167,14 @@
       "table": "ui",
       "translation": "4PL अपने मध्यबिंदु के चारों ओर सममित होता है। वास्तविक असममिति होती है, और 4PL उसे खिसके हुए EC50 में समाहित कर लेता है; 5PL एक अतिरिक्त पैरामीटर से उसे फ़िट करता है, एक अतिरिक्त सांद्रता माँगता है और बताता है कि उस पैरामीटर का जोड़ना उचित था या नहीं।",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "table": "ui",
+      "translation": "जब विस्तृत लॉगिंग चालू है (मॉड्यूल टैब), DEBUG हमेशा लॉग फ़ाइलों में लिखा जाता है, इसलिए यह स्विच चालू रहता है। स्वयं चुनने के लिए विस्तृत लॉगिंग बंद करें। ऐसा करने पर उपयोग करने के लिए आपकी पसंद सहेजी रहती है।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

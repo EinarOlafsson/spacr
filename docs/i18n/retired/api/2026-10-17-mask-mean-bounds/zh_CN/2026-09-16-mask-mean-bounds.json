@@ -1,0 +1,84 @@
+{
+  "language": "zh_CN",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Source-bound semantic translations for all 14 changed translatable feature 418 blocks in seven public API docstrings, plus material errors in reused paragraphs within those same docstrings. The changed literal-only role-setting example requires no translation. Existing valid reviewed translations are retained.",
+    "limitations": "AI-assisted semantic review against the current English docstrings and their exact translation contexts; not native-speaker human review or approval. Catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "translation": "加载 ``cpsam`` 预训练模型；如果 ``<object_type>_model_name``（或 ``pathogen_model``）指定了用户训练的检查点，则加载该检查点。遍历每个已预先分批的 ``.npz`` 文件，对 2-D 掩膜执行基于周长的合并以及面积和边界过滤，并可选择根据对象在其自身通道原始图像中的绝对平均强度过滤对象。随后可选择跟踪延时成像中的对象，为每张图像保存 ``.npy`` 掩膜，并将各对象类型的数量记录到本次运行的 SQLite 数据库中。无论声明的时间轴位于何处，时间堆栈归档都必须为每个时间点提供一个文件名；每个原始图像文件名对应该时间点的 ``(Z, Y, X, C)`` 体积数据，或其 ``(Y, X, C)`` 图像（用于平面 ``TYX`` 序列）。",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#1",
+      "source": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
+      "source_sha256": "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+      "context": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
+      "translation": ":func:`role_setting` 的逆操作，也是重命名后缀只需修改六行而非 3,522 行的原因。每个角色名称都是不含下划线的单个词，因此按第一个下划线分割即可将角色与后缀分开，无需扫描 702 个细胞器槽位。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#2",
+      "source": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "source_sha256": "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+      "context": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "translation": "这并不是 :func:`role_setting` 的验证逻辑：它接受 ``ALL_ROLES`` 中的任意角色，包括 ``cytoplasm``。后者是派生的，而非通过分割得到的，并且仍声明了 ``cytoplasm_min_size``。如果此处只允许需要分割的角色，就会在不作提示的情况下跳过它。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#3",
+      "source": "A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A key with no underscore has no role, so it can never match a suffix rule.",
+      "source_sha256": "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+      "context": "A bare structured-data name is not a role structured-data name, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A structured-data name with no underscore has no role, so it can never match a suffix rule.",
+      "translation": "不带角色前缀的键不是角色键，这一区别很重要：``FT``、``CP_prob``、``Signal_to_noise`` 和 ``flow_threshold`` 在独立的应用模型/测试模型子模块中，本身都是当前有效的设置。不含下划线的键没有角色，因此永远不会匹配后缀规则。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#0",
+      "source": "What ``key`` is called TODAY, following renames to the end.",
+      "source_sha256": "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+      "context": "What ``key`` is called TODAY, following renames to the end.",
+      "translation": "沿重命名链追溯至末尾，确定 ``key`` 当前使用的名称。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#1",
+      "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
+      "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+      "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
+      "translation": "三个调用方共用一个名称解析器：运行时的设置归并、doctor 诊断工具的消息，以及 Qt 面板的加载。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#2",
+      "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+      "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "translation": "此前，三个调用方以不同方式确定设置名称。运行时只查询重命名表，doctor 诊断工具只查询已弃用设置表，而只有 Qt 面板知道细胞器后缀规则。因此，同一个生成的细胞器键可能被面板迁移，却同时被运行逻辑忽略，也没有得到诊断工具的提示。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#4",
+      "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
+      "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+      "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
+      "translation": "仅在重命名链的终点检查设置是否仍然有效。若检查每一步，就会拒绝有效链中的中间名称，因为中间名称按定义已不再是当前有效名称。如果旧键本身仍然有效，则拒绝重命名，这样才能防止后缀规则弃用仍在工作的设置；七个 ``_size`` 键仍然有效，必须保持不变。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    }
+  ]
+}

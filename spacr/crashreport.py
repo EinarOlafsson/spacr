@@ -1732,10 +1732,7 @@ def _looks_like_a_path(value: str) -> bool:
 
 def _path_marker(value: str) -> str:
     """``<path: exists=yes|no>`` for a path, without the path itself."""
-    try:
-        exists = os.path.exists(os.path.expanduser(value))
-    except (OSError, ValueError):
-        exists = False
+    exists = os.path.exists(os.path.expanduser(value))
     return f"<path: exists={'yes' if exists else 'no'}>"
 
 
@@ -2728,9 +2725,9 @@ _SAVED_LOCK = threading.Lock()
 def _normalized_problems(message: Any) -> List[str]:
     """A user error's problem list as the relay's signature reads it.
 
-    The ``- `` lines of the message, lower case, with placeholders, paths
-    and numbers taken out and sorted, so the same problems in another order
-    or on another plate give the same signature.
+    The lines beginning with a hyphen and a space, lower case, with
+    placeholders, paths and numbers taken out and sorted, so the same
+    problems in another order or on another plate give the same signature.
     """
     out: List[str] = []
     for line in str(message or "").splitlines():

@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -295,9 +295,9 @@ msgstr "para um modo de diário solicitado inseguro ou não suportado, ou quando
 msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
 msgstr "Coloca ``path`` em WAL quando o sistema de arquivos permite. Nunca lança exceções."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "This addresses issue #15 (\"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a read -- before writing. So each worker alternates read, write, read, write against one file."
-msgstr "POR QUE ISTO EXISTE (issue #15, “measurements sometimes hangs”). Medição executa um processo de trabalho por campo, e cada anexação passa por ``DataFrame.to_sql`` do pandas, que faz uma sondagem ``has_table`` -- uma LEITURA -- antes de gravar. Assim, cada processo de trabalho alterna leitura, gravação, leitura, gravação em um mesmo arquivo."
+msgstr "Isto resolve a issue #15 (“measurements sometimes hangs”). Medição executa um processo de trabalho por campo, e cada anexação passa por ``DataFrame.to_sql`` do pandas, que faz uma sondagem ``has_table`` -- uma leitura -- antes de gravar. Assim, cada processo de trabalho alterna leitura, gravação, leitura, gravação em um mesmo arquivo."
 
 msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
 msgstr "Com o diário de reversão distribuído, essa combinação deixa o gravador sem vez. Um leitor mantém SHARED durante toda a sua instrução, e um gravador não pode fazer COMMIT até que todos os bloqueios SHARED desapareçam; com processos de trabalho suficientes, quase sempre há alguém lendo, e o processo que confirma esgota seu tempo limite de ocupação e lança “database is locked” -- geralmente visível no ``has_table`` do processo seguinte, que é a instrução no rastreamento de quem relatou o problema."
@@ -308,24 +308,24 @@ msgstr "Medido exatamente nesta configuração, um commit tentado enquanto um le
 msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
 msgstr "journal_mode=delete    o gravador esperou 1.037 s journal_mode=wal       o gravador esperou 0.002 s"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "WAL readers do not block a writer, which removes the starvation. WAL does not make two writers concurrent -- SQLite still serialises those -- so this fixes only readers blocking a writer, which is the case in the traceback."
-msgstr "Os leitores WAL não bloqueiam em nada um gravador, o que elimina o problema. Isso NÃO torna dois GRAVADORES concorrentes -- o SQLite continua a serializá-los --, então isto corrige a metade “o leitor bloqueia o gravador”, que é onde está o rastreamento."
+msgstr "Os leitores WAL não bloqueiam um gravador, o que elimina a inanição. O WAL não torna dois gravadores concorrentes -- o SQLite continua a serializá-los --, então isto corrige apenas o bloqueio de um gravador por leitores, que é o caso do rastreamento."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The reverse direction is not a problem: in rollback-journal mode a writer holding RESERVED does not block readers; only its brief EXCLUSIVE commit does."
-msgstr "(A primeira versão desta nota tinha a direção invertida, afirmando que as leituras eram bloqueadas pelas gravações. O teste escrito para comprová-lo mediu 0,000 s e a refutou: no modo de diário de reversão, um gravador que mantém RESERVED não bloqueia os leitores; apenas seu breve commit EXCLUSIVE o faz.)"
+msgstr "A direção inversa não é um problema: no modo de diário de reversão, um gravador que mantém RESERVED não bloqueia os leitores; apenas seu breve commit EXCLUSIVE o faz."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Called once when a database is opened for a run rather than per write: the journal mode is stored in the database file and persists, so setting it per connection has no further effect."
-msgstr "Chamada uma vez quando um banco de dados é aberto para uma execução, e não a cada gravação: o modo é uma propriedade do ARQUIVO e persiste, então pagá-lo a cada conexão não traria nada."
+msgstr "Chamada uma vez quando um banco de dados é aberto para uma execução, e não a cada gravação: o modo de diário é armazenado no arquivo do banco de dados e persiste, então defini-lo a cada conexão não tem nenhum efeito adicional."
 
 msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
 msgstr "o banco de dados a alterar. Um arquivo que ainda não existe é criado pela conexão, o que não é problema -- o modo persiste."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "the journal mode in force afterwards, or ``None`` when :func:`wal_is_safe_here` is ``False`` (nothing is changed) or the database could not be opened or queried."
-msgstr "o modo de diário em vigor depois, ou ``None`` quando o banco de dados não pôde ser aberto de forma alguma."
+msgstr "o modo de diário em vigor depois, ou ``None`` quando :func:`wal_is_safe_here` é ``False`` (nada é alterado) ou o banco de dados não pôde ser aberto nem consultado."
 
 msgid "Best-effort filesystem type for ``path``, or None when unknowable."
 msgstr "Tipo de sistema de arquivos de ``path`` na medida do possível, ou None quando não é possível saber."
@@ -418,17 +418,17 @@ msgstr "quando o bloqueio dura mais que o orçamento de repetições."
 msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
 msgstr "quando é solicitado aninhamento dentro de uma transação ativa fora de um pacote gerenciado pelo escritor. As transações de funções auxiliares enfileiradas usam pontos de salvamento dentro desse pacote."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Return whether ``path`` is on a filesystem where WAL is known to work."
-msgstr "``path`` está em um sistema de arquivos no qual se sabe que o WAL se comporta corretamente?"
+msgstr "Retorna se ``path`` está em um sistema de arquivos no qual se sabe que o WAL funciona."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``True`` only when the filesystem type is identified and listed in ``WAL_SAFE_FILESYSTEMS``. Anything else -- a network type, an unrecognised type, or a path whose type :func:`filesystem_type` cannot determine (it returns ``None``) -- is ``False``."
-msgstr "``True`` somente para um sistema de arquivos local IDENTIFICADO POSITIVAMENTE. Todo o resto -- um tipo de rede, um tipo não reconhecido ou uma plataforma em que :func:`filesystem_type` não consegue determinar (ele lê ``/proc/mounts``, então macOS e Windows sempre respondem ``None``) -- é ``False``."
+msgstr "``True`` somente quando o tipo de sistema de arquivos é identificado e listado em ``WAL_SAFE_FILESYSTEMS``. Todo o resto -- um tipo de rede, um tipo não reconhecido ou um caminho cujo tipo :func:`filesystem_type` não consegue determinar (ele retorna ``None``) -- é ``False``."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The default is ``False`` because the two errors differ in cost: a wrong ``False`` leaves the rollback journal and its lock contention in place, while a wrong ``True`` puts WAL shared memory on storage that cannot support it, which can corrupt the database."
-msgstr "Essa assimetria é proposital. O custo de um ``False`` errado é a contenção de bloqueios que este projeto já suporta; o custo de um ``True`` errado é memória compartilhada WAL em um armazenamento que não a suporta, ou seja, um banco de dados corrompido."
+msgstr "O padrão é ``False`` porque os dois erros têm custos diferentes: um ``False`` errado mantém o diário de reversão e sua contenção de bloqueios, enquanto um ``True`` errado coloca memória compartilhada WAL em um armazenamento que não a suporta, o que pode corromper o banco de dados."
 
 msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
 msgstr "o arquivo de banco de dados (ou sua pasta) cujo sistema de arquivos é consultado com :func:`filesystem_type`."

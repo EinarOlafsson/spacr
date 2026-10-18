@@ -258,7 +258,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Consistent device and weight precision for ``CellposeModel`` inference.",
       "source_sha256": "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
-      "translation": "``CellposeModel`` 추론을 위한 일관된 장치 및 가중치 정밀도입니다."
+      "translation": "``CellposeModel`` 추론을 위한 일관된 장치 및 가중치 정밀도입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
@@ -486,7 +488,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read a checkpoint's decoder contract, preserving historical untagged models.",
       "source_sha256": "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
-      "translation": "체크포인트의 디코더 계약을 읽으며, 태그가 없는 과거 모델을 보존합니다."
+      "translation": "체크포인트의 디코더 계약을 읽으며, 태그가 없는 과거 모델을 보존합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "artifact mapping returned by ``load_model_artifact``.",
@@ -518,7 +522,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Select decoding before training loaders are built for a resumed model.",
       "source_sha256": "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
-      "translation": "재개된 모델의 학습 로더를 만들기 전에 디코딩 방식을 선택합니다."
+      "translation": "재개된 모델의 학습 로더를 만들기 전에 디코딩 방식을 선택합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "trusted checkpoint path, or None for a new training processing session.",
@@ -542,7 +548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Find the decoding record through loaders, subsets and combined datasets.",
       "source_sha256": "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
-      "translation": "로더, 하위 집합 및 결합된 데이터셋을 거쳐 디코딩 기록을 찾습니다."
+      "translation": "로더, 하위 집합 및 결합된 데이터셋을 거쳐 디코딩 기록을 찾습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
@@ -582,7 +590,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a path or archive stream using the model's recorded policy.",
       "source_sha256": "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
-      "translation": "모델에 기록된 정책을 사용해 경로 또는 아카이브 스트림을 디코딩합니다."
+      "translation": "모델에 기록된 정책을 사용해 경로 또는 아카이브 스트림을 디코딩합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image path or seekable binary stream, as accepted by PIL.",
@@ -630,7 +640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Record actual loader decoding and reject checkpoint or validation conflicts.",
       "source_sha256": "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
-      "translation": "실제 로더 디코딩을 기록하고 체크포인트 또는 검증 데이터와의 충돌을 거부합니다."
+      "translation": "실제 로더 디코딩을 기록하고 체크포인트 또는 검증 데이터와의 충돌을 거부합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "training loader or dataset whose decoding is inspected.",
@@ -686,7 +698,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Accept only implemented crop decoding policies; never guess a new one.",
       "source_sha256": "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
-      "translation": "구현된 추출 이미지 영역 디코딩 정책만 받아들이며, 새 정책을 절대 추측하지 않습니다."
+      "translation": "구현된 추출 이미지 영역 디코딩 정책만 받아들이며, 새 정책을 절대 추측하지 않습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``declared_uint8_v1`` or ``stored_pil_v1``.",
@@ -898,7 +912,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one plate folder the three plate example sets unpack into.",
       "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
-      "translation": "세 가지 플레이트 예제 세트가 압축 해제되는 하나의 마이크로플레이트 폴더입니다."
+      "translation": "세 가지 플레이트 예제 세트가 압축 해제되는 하나의 마이크로플레이트 폴더입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
@@ -1120,7 +1136,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What a query matched, before any pixel was read.",
       "source_sha256": "5bce440c131c6cfb6be8836af2fce1b93c6120fa6b53ac7183ebf5cdea46a379",
-      "translation": "픽셀을 하나도 읽기 전에 쿼리가 일치시킨 내용입니다."
+      "translation": "픽셀을 하나도 읽기 전에 쿼리가 일치시킨 내용입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`CropQuery` this answers.",
@@ -1202,7 +1220,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the limit kept crops out of this plan.",
       "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
-      "translation": "한도 때문에 이 계획에서 제외된 추출 이미지 영역이 있는지 여부입니다."
+      "translation": "한도 때문에 이 계획에서 제외된 추출 이미지 영역이 있는지 여부입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
@@ -1220,7 +1240,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many crops this plan will load.",
       "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
-      "translation": "이 계획이 로드할 추출 이미지 영역의 수입니다."
+      "translation": "이 계획이 로드할 추출 이미지 영역의 수입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One line a status bar can show the moment planning returns.",
@@ -1246,7 +1268,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many selected rows could not be turned into a crop at all.",
       "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
-      "translation": "선택된 행 중 추출 이미지 영역으로 전혀 변환할 수 없었던 행의 수입니다."
+      "translation": "선택된 행 중 추출 이미지 영역으로 전혀 변환할 수 없었던 행의 수입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
@@ -1262,7 +1286,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the query matched nothing at all.",
       "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
-      "translation": "쿼리가 아무것도 일치시키지 못했는지 여부입니다."
+      "translation": "쿼리가 아무것도 일치시키지 못했는지 여부입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(start, stop)`` for each page, covering every row exactly once.",
@@ -1270,7 +1296,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``(start, stop)`` for each page, covering every row exactly once.",
       "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
-      "translation": "각 페이지의 ``(start, stop)`` 이며, 모든 행을 정확히 한 번씩 포함합니다."
+      "translation": "각 페이지의 ``(start, stop)`` 이며, 모든 행을 정확히 한 번씩 포함합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "extracted image regions per page; ``0`` takes the query's own.",
@@ -1286,7 +1314,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Which crops to load, and how much of the answer to take.",
       "source_sha256": "e780d9c102021b621038eaa6301ce0e76a26e93711cde02a74c57426b4316917",
-      "translation": "로드할 추출 이미지 영역과 답 중 얼마만큼을 가져올지 정합니다."
+      "translation": "로드할 추출 이미지 영역과 답 중 얼마만큼을 가져올지 정합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
@@ -1358,7 +1388,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One line naming everything this query asked for.",
       "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
-      "translation": "이 쿼리가 요청한 모든 것을 명시하는 한 줄입니다."
+      "translation": "이 쿼리가 요청한 모든 것을 명시하는 한 줄입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
@@ -1374,7 +1406,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Centre a crop in a ``height`` x ``width`` frame, padding or trimming.",
       "source_sha256": "116da44772294181c3518db148bfcf3cb39788dc5de2118c3b8ea46ec9209673",
-      "translation": "추출 이미지 영역을 ``height`` x ``width`` 프레임의 중앙에 놓고 패딩하거나 잘라 냅니다."
+      "translation": "추출 이미지 영역을 ``height`` x ``width`` 프레임의 중앙에 놓고 패딩하거나 잘라 냅니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling an extracted image region changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a microscope field of view, so two extracted image regions of the same object arrive the same way whichever route cut them.",
@@ -1416,7 +1450,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read every crop in ``plan``, a page at a time.",
       "source_sha256": "5a96d2756f9e2cf1b136e576245a4674ca38cd6b9a5b818f706d40e195cc3f30",
-      "translation": "``plan`` 의 모든 추출 이미지 영역을 한 페이지씩 읽습니다."
+      "translation": "``plan`` 의 모든 추출 이미지 영역을 한 페이지씩 읽습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so an application view passes a signal emit and a flag and the same function drives a script or a test.",
@@ -1480,7 +1516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read one page of ``plan``'s crops.",
       "source_sha256": "c731df150ea03eff5ec4076ec311175d4584efa68b21d8aa19d0ccc9430cf33b",
-      "translation": "``plan`` 의 추출 이미지 영역 한 페이지를 읽습니다."
+      "translation": "``plan`` 의 추출 이미지 영역 한 페이지를 읽습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "first row of the page.",
@@ -1606,7 +1644,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a ``measurements.db``, reading no pixels.",
       "source_sha256": "e708900911e0f41204e959544c6f2d3c53d108a547b0b1fa0834a92904162492",
-      "translation": "``measurements.db`` 에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다."
+      "translation": "``measurements.db`` 에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per extracted image region.",
@@ -1646,7 +1686,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
       "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
-      "translation": "``*.png`` 폴더에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다."
+      "translation": "``*.png`` 폴더에서 픽셀을 읽지 않고 추출 이미지 영역을 선택합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
@@ -1670,7 +1712,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every plate the crop table names, sorted.",
       "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
-      "translation": "추출 이미지 영역 테이블에 명시된 모든 마이크로플레이트를 정렬한 목록입니다."
+      "translation": "추출 이미지 영역 테이블에 명시된 모든 마이크로플레이트를 정렬한 목록입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
@@ -1782,7 +1826,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a PIL crop without clipping its high-bit-depth intensities.",
       "source_sha256": "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
-      "translation": "높은 비트 심도의 강도를 잘라 내지 않고 PIL 추출 이미지 영역을 디코딩합니다."
+      "translation": "높은 비트 심도의 강도를 잘라 내지 않고 PIL 추출 이미지 영역을 디코딩합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "open PIL image; owned and closed by the caller.",
@@ -1846,7 +1892,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Silence the per-crop announcements on the CALLING THREAD only.",
       "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
-      "translation": "추출 이미지 영역별 알림을 호출한 실행 경로에서만 끕니다."
+      "translation": "추출 이미지 영역별 알림을 호출한 실행 경로에서만 끕니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
@@ -1926,7 +1974,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Turn the per-crop path printing on or off, for the whole process.",
       "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
-      "translation": "추출 이미지 영역별 경로 출력을 프로세스 전체에 대해 켜거나 끕니다."
+      "translation": "추출 이미지 영역별 경로 출력을 프로세스 전체에 대해 켜거나 끕니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A curation session is a work list with a memory, not one field.",
@@ -2012,7 +2062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "where this queue's resume record is read and written:",
       "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
-      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다:"
+      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다:",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
@@ -2028,7 +2080,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What is left to do in a curation session.",
       "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
-      "translation": "큐레이션 세션에서 남은 작업입니다."
+      "translation": "큐레이션 세션에서 남은 작업입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the work list as :attr:`CurationQueue.notices` for the editor to show.",
@@ -2046,7 +2100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the external curation tool keeps one of a queue's files.",
       "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
-      "translation": "외부 큐레이션 도구가 대기열 파일 중 하나를 보관하는 위치입니다."
+      "translation": "외부 큐레이션 도구가 대기열 파일 중 하나를 보관하는 위치입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the work list folder.",
@@ -2088,7 +2144,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the queue's scores file, when there is one.",
       "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
-      "translation": "대기열의 점수 파일이 있으면 읽습니다."
+      "translation": "대기열의 점수 파일이 있으면 읽습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
@@ -2116,7 +2174,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's probabilities are read from, if anywhere.",
       "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
-      "translation": "이 대기열의 확률을 읽어 오는 위치이며, 없을 수도 있습니다."
+      "translation": "이 대기열의 확률을 읽어 오는 위치이며, 없을 수도 있습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
@@ -2140,7 +2200,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's resume record is read from and written to.",
       "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
-      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다."
+      "translation": "이 대기열의 재개 기록을 읽고 쓰는 위치입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
@@ -2408,7 +2470,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``'complete'``, ``'partial'`` or ``'empty'``.",
       "source_sha256": "97a637dfda4282ecc8318efc67521803d529716c3752e39393c24e5c3e62b3a0",
-      "translation": "``'complete'``, ``'partial'`` 또는 ``'empty'`` 입니다."
+      "translation": "``'complete'``, ``'partial'`` 또는 ``'empty'`` 입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Not to be confused with :mod:`spacr.example_data`, which fetches the Regression example screen's count and score CSVs from a GitHub release. That is a different set of files, a different host and a different transport. This module is about the ``.tar`` archives of imaging data: the Mask demo laboratory microplate, the Measure example, the Annotate/Classify example, the Replication and Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.",
@@ -2462,7 +2526,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the set called ``key`` unpacks: its folder beside the plate.",
       "source_sha256": "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
-      "translation": "``key`` 라는 세트가 압축 해제되는 위치이며, 마이크로플레이트 옆의 자체 폴더입니다."
+      "translation": "``key`` 라는 세트가 압축 해제되는 위치이며, 마이크로플레이트 옆의 자체 폴더입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an :data:`EXAMPLE_SETS` key.",
@@ -2770,7 +2836,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze measured projects and save a unified, source-separated report.",
       "source_sha256": "a2099ebcd38a976a383e1b382fd01b3e3c3092e6cbddec8d5a00faaa54ac29e7",
-      "translation": "측정된 프로젝트를 분석하고 출처별로 구분된 통합 보고서를 저장합니다."
+      "translation": "측정된 프로젝트를 분석하고 출처별로 구분된 통합 보고서를 저장합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "hp_* settings from :func:`default_settings`; src accepts a project, measurements.db, or a list of either. Each canonical DB path is a distinct source identity, even when laboratory microplate/microscope field of view IDs repeat.",
@@ -2794,7 +2862,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Apply Host–Pathogen defaults; replication requires explicit count inputs.",
       "source_sha256": "d222fb7632cd9acf10ab7cb2aaa49fdf67d3d678033abbe1f0ac985a33d88f4d",
-      "translation": "숙주–병원체 기본값을 적용합니다. 복제 분석에는 명시적인 개수 입력이 필요합니다."
+      "translation": "숙주–병원체 기본값을 적용합니다. 복제 분석에는 명시적인 개수 입력이 필요합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional overrides, copied without modifying the caller.",
@@ -2818,7 +2888,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Join per-vacuole signals to host references and retain every host cell.",
       "source_sha256": "32cb6713565e9bf1ba73d05f5716173c6fe3fedd5299ff8de1152fa3d8ac82a9",
-      "translation": "액포별 신호를 숙주 참조와 결합하고 모든 숙주 세포를 유지합니다."
+      "translation": "액포별 신호를 숙주 참조와 결합하고 모든 숙주 세포를 유지합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one row per host, including uninfected cells.",
@@ -2890,7 +2962,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Link each child label only when one vacuole covers most of its pixels.",
       "source_sha256": "8343d901c669a34b850e650f8f0f9f16ee47f050d2c5ad8433cdd1dc4d84e18b",
-      "translation": "하나의 액포가 픽셀 대부분을 덮을 때만 각 자식 레이블을 연결합니다."
+      "translation": "하나의 액포가 픽셀 대부분을 덮을 때만 각 자식 레이블을 연결합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "integer parasite/object mask, zero background.",
@@ -2930,7 +3004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Create a ready-to-run synthetic project, preserving existing user files.",
       "source_sha256": "a2672e0cbbe6ffad531adadf664ac89b04d1e260e20ee11a92d402a28575d32c",
-      "translation": "기존 사용자 파일을 보존하면서 바로 실행할 수 있는 합성 프로젝트를 만듭니다."
+      "translation": "기존 사용자 파일을 보존하면서 바로 실행할 수 있는 합성 프로젝트를 만듭니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "new/empty project directory or this complete cached sample.",
@@ -2986,7 +3062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the private cache directory for the synthetic example.",
       "source_sha256": "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088",
-      "translation": "합성 예제의 비공개 캐시 디렉터리를 반환합니다."
+      "translation": "합성 예제의 비공개 캐시 디렉터리를 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Recognize a complete generated project without replacing user modifications.",
@@ -2994,7 +3072,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Recognize a complete generated project without replacing user modifications.",
       "source_sha256": "f4ebbbd2adf97b3493e0b6750a728d35335947d676a6c8b17c2a67cdf4c76138",
-      "translation": "사용자 수정 사항을 교체하지 않고 완전히 생성된 프로젝트를 인식합니다."
+      "translation": "사용자 수정 사항을 교체하지 않고 완전히 생성된 프로젝트를 인식합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "candidate synthetic project directory.",
@@ -3018,7 +3098,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the sample from the command line without requiring Qt or network.",
       "source_sha256": "44e902da78d8eb5deee1c63b0c0eca743dd39b339652a9729c50a112f6091708",
-      "translation": "Qt 나 네트워크 없이 명령줄에서 샘플을 빌드합니다."
+      "translation": "Qt 나 네트워크 없이 명령줄에서 샘플을 빌드합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional argument list; None reads the process arguments.",
@@ -3050,7 +3132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze one measured field without modifying source or result files.",
       "source_sha256": "06c02f18687c9930962966640ebc2f21205e62e3397b5eeca60b46626f4dca1d",
-      "translation": "원본 파일이나 결과 파일을 수정하지 않고 측정된 현미경 시야 하나를 분석합니다."
+      "translation": "원본 파일이나 결과 파일을 수정하지 않고 측정된 현미경 시야 하나를 분석합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "current Host–Pathogen settings, shared with the full run.",
@@ -3106,7 +3190,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "List at most ``limit`` measured fields, in stable source/identity order.",
       "source_sha256": "1e5a9fdec3e4e81602a488c0278ae4d9849efaea47c3163df20169496de733a4",
-      "translation": "측정된 현미경 시야를 최대 ``limit`` 개까지, 안정적인 출처/식별 순서로 나열합니다."
+      "translation": "측정된 현미경 시야를 최대 ``limit`` 개까지, 안정적인 출처/식별 순서로 나열합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Host–Pathogen settings; src is a project, database or list.",
@@ -3346,7 +3432,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure focus, saturation and nonfinite pixels on unnormalized channels.",
       "source_sha256": "8b4f02a62739041fd0a29a104650ce647ec37bcbb0100d940b887b256467ab9a",
-      "translation": "정규화되지 않은 채널에서 초점, 포화 및 유한하지 않은 픽셀을 측정합니다."
+      "translation": "정규화되지 않은 채널에서 초점, 포화 및 유한하지 않은 픽셀을 측정합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "YX, YXC or leading-dimensions plus YXC array.",
@@ -3394,7 +3482,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Refuse exclusions that would leave previously measured fields in reports.",
       "source_sha256": "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
-      "translation": "이전에 측정된 현미경 시야가 보고서에 남게 되는 제외를 거부합니다."
+      "translation": "이전에 측정된 현미경 시야가 보고서에 남게 되는 제외를 거부합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Existing results are never deleted. Re-screening an analyzed project needs a fresh project if excluded fields already have measurement rows.",
@@ -3442,7 +3532,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the active saved exclusion policy for downstream field consumers.",
       "source_sha256": "ccd64f9690eb862b0890839b0f8a5b3f463a9f2f5c54f577d3f528fb1abf1b04",
-      "translation": "하위 현미경 시야 소비자를 위해 활성 상태로 저장된 제외 정책을 읽습니다."
+      "translation": "하위 현미경 시야 소비자를 위해 활성 상태로 저장된 제외 정책을 읽습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder whose qc/image_quality.json is authoritative.",
@@ -3474,7 +3566,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Remove policy-excluded fields without substituting empty label images.",
       "source_sha256": "d7c65a291d6a8acfcfb08f1ac33c015823ba7b139b024a3be9b794f564326fbe",
-      "translation": "빈 레이블 이미지로 대체하지 않고 정책에 의해 제외된 현미경 시야를 제거합니다."
+      "translation": "빈 레이블 이미지로 대체하지 않고 정책에 의해 제외된 현미경 시야를 제거합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "normalized image batch with its original microscope field of view axis.",
@@ -3514,7 +3608,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Validate a saved per-channel policy without inspecting any image.",
       "source_sha256": "c33816246556f8f881be3790683d92f017369949e2083c793f0b297e398ce131",
-      "translation": "이미지를 검사하지 않고 저장된 채널별 정책을 검증합니다."
+      "translation": "이미지를 검사하지 않고 저장된 채널별 정책을 검증합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mask settings containing image_qc_* options.",
@@ -3546,7 +3642,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Save a field/channel report and return fields explicitly excluded by policy.",
       "source_sha256": "2e6582f8ea5837914fb9845e7f9a0a71ab5d4aeee7d2cdda88b045c01fa2c5a0",
-      "translation": "현미경 시야/채널 보고서를 저장하고 정책에 의해 명시적으로 제외된 현미경 시야를 반환합니다."
+      "translation": "현미경 시야/채널 보고서를 저장하고 정책에 의해 명시적으로 제외된 현미경 시야를 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder; reports go to qc/image_quality.json and .csv.",
@@ -3748,7 +3846,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One way the same fields were written, and how Import reads it back.",
       "source_sha256": "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
-      "translation": "같은 현미경 시야들이 기록된 한 가지 방식과, Import 가 이를 다시 읽는 방법입니다."
+      "translation": "같은 현미경 시야들이 기록된 한 가지 방식과, Import 가 이를 다시 읽는 방법입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder under ``variants/`` and the chooser's route key.",
@@ -3820,7 +3920,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The paragraph the chooser shows on hover.",
       "source_sha256": "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641",
-      "translation": "마우스를 올렸을 때 선택기가 보여 주는 단락입니다."
+      "translation": "마우스를 올렸을 때 선택기가 보여 주는 단락입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the unpacked set lives.",
@@ -3828,7 +3930,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the unpacked set lives.",
       "source_sha256": "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
-      "translation": "압축 해제된 세트가 있는 위치입니다."
+      "translation": "압축 해제된 세트가 있는 위치입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the shared example plate the archive unpacks into; :func:`spacr.example_archives.example_plate_folder` when omitted.",
@@ -3852,7 +3956,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The variant called ``key``.",
       "source_sha256": "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
-      "translation": "``key`` 라는 변형입니다."
+      "translation": "``key`` 라는 변형입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a key from :data:`IMPORT_VARIANTS`.",
@@ -3876,7 +3982,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether a complete copy of the set -- or of one variant -- is here.",
       "source_sha256": "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
-      "translation": "세트 전체 또는 변형 하나의 완전한 사본이 여기에 있는지 여부입니다."
+      "translation": "세트 전체 또는 변형 하나의 완전한 사본이 여기에 있는지 여부입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the unpacked ``import_example`` folder.",
@@ -3910,7 +4018,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every row of the set's ``manifest.csv``.",
       "source_sha256": "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
-      "translation": "세트의 ``manifest.csv`` 의 모든 행입니다."
+      "translation": "세트의 ``manifest.csv`` 의 모든 행입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the rows, or ``[]`` when there is no readable manifest.",
@@ -3926,7 +4036,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the chooser fills in for one variant.",
       "source_sha256": "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
-      "translation": "선택기가 변형 하나에 대해 채우는 값입니다."
+      "translation": "선택기가 변형 하나에 대해 채우는 값입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the variant.",
@@ -3950,7 +4062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write the infection report beside the database it came from.",
       "source_sha256": "b2e80c6e268ddb318470ae7a1fdac362421ad203ba9605d25984101a0bdb8cdd",
-      "translation": "감염 보고서를 원본 데이터베이스 옆에 기록합니다."
+      "translation": "감염 보고서를 원본 데이터베이스 옆에 기록합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A measure run emits the report, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
@@ -4018,7 +4132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Average probabilities or vote across selected image orientations.",
       "source_sha256": "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
-      "translation": "선택된 이미지 방향들에 걸쳐 확률을 평균하거나 투표합니다."
+      "translation": "선택된 이미지 방향들에 걸쳐 확률을 평균하거나 투표합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "evaluation-mode callable returning binary or multiclass logits.",
@@ -4066,7 +4182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return distinct right-angle rotations/reflections, with identity first.",
       "source_sha256": "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
-      "translation": "항등 변환을 첫 번째로 하여, 서로 다른 직각 회전/반사를 반환합니다."
+      "translation": "항등 변환을 첫 번째로 하여, 서로 다른 직각 회전/반사를 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping containing the optional tta_* switches.",
@@ -4340,7 +4458,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One row of the FEATURES table: one field, and the files that make it.",
       "source_sha256": "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
-      "translation": "FEATURES 테이블의 한 행입니다. 현미경 시야 하나와 그것을 구성하는 파일들입니다."
+      "translation": "FEATURES 테이블의 한 행입니다. 현미경 시야 하나와 그것을 구성하는 파일들입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A row becomes exactly one ``merged/<stem>.npy``, so it is also one field in the measurements database.",
@@ -4396,7 +4516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``plate_well_field`` name this row is written and measured as.",
       "source_sha256": "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
-      "translation": "이 행이 기록되고 측정될 때 사용하는 ``plate_well_field`` 이름입니다."
+      "translation": "이 행이 기록되고 측정될 때 사용하는 ``plate_well_field`` 이름입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the plate name the whole table carries.",
@@ -4420,7 +4542,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Rows are fields, columns are channels and mask types.",
       "source_sha256": "bebdf9806bbffab3f1d3d341aa9ce60377bae00865ffc8d5e5dc003a2db03a23",
-      "translation": "행은 현미경 시야이고, 열은 채널과 마스크 유형입니다."
+      "translation": "행은 현미경 시야이고, 열은 채널과 마스크 유형입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the thing the FEATURES window edits and the only input :func:`measure_from_field_table` needs. It is deliberately Qt-free: the window drives it, and the tests drive it without a window.",
@@ -4478,7 +4602,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the table is complete enough to measure.",
       "source_sha256": "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286",
-      "translation": "테이블이 측정할 수 있을 만큼 완전한지 여부입니다."
+      "translation": "테이블이 측정할 수 있을 만큼 완전한지 여부입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``role -> plane index`` on the merged array this table would write.",
@@ -4486,7 +4612,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``role -> plane index`` on the merged array this table would write.",
       "source_sha256": "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
-      "translation": "이 테이블이 기록할 병합 배열의 ``role -> plane index`` 입니다."
+      "translation": "이 테이블이 기록할 병합 배열의 ``role -> plane index`` 입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The masks follow the image data channels with no gap, which is the only layout :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes the indices from the image data channel count and the order and refuses a manifest that disagrees.",
@@ -4502,7 +4630,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The mask columns in merged-plane order, duplicates removed.",
       "source_sha256": "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6",
-      "translation": "병합 평면 순서로 정렬하고 중복을 제거한 마스크 열입니다."
+      "translation": "병합 평면 순서로 정렬하고 중복을 제거한 마스크 열입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything that would stop this table being measured, as sentences.",
@@ -4510,7 +4640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Everything that would stop this table being measured, as sentences.",
       "source_sha256": "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
-      "translation": "이 테이블의 측정을 막는 모든 요인을 문장으로 나타낸 것입니다."
+      "translation": "이 테이블의 측정을 막는 모든 요인을 문장으로 나타낸 것입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Empty means :func:`measure_from_field_table` will run. The window shows these live, so a user never presses a Run button that is going to refuse.",
@@ -4526,7 +4658,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What one regex did to one set of dropped files.",
       "source_sha256": "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
-      "translation": "하나의 정규식이 드롭된 파일 집합 하나에 수행한 결과입니다."
+      "translation": "하나의 정규식이 드롭된 파일 집합 하나에 수행한 결과입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table the files were assigned into.",
@@ -4560,7 +4694,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Sort dropped files into rows and channel/mask columns with one regex.",
       "source_sha256": "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
-      "translation": "하나의 정규식으로 드롭된 파일을 행과 채널/마스크 열에 분류합니다."
+      "translation": "하나의 정규식으로 드롭된 파일을 행과 채널/마스크 열에 분류합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
@@ -4678,7 +4814,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where a run of ``table`` would write, given the destination it was handed.",
       "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
-      "translation": "전달받은 대상 위치를 고려할 때 ``table`` 의 처리 세션이 기록할 위치입니다."
+      "translation": "전달받은 대상 위치를 고려할 때 ``table`` 의 처리 세션이 기록할 위치입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
@@ -4720,7 +4858,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The measure_crop settings this table decides, over the ones it does not.",
       "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
-      "translation": "이 테이블이 결정하는 measure_crop 설정을, 결정하지 않는 설정 위에 덮어쓴 것입니다."
+      "translation": "이 테이블이 결정하는 measure_crop 설정을, 결정하지 않는 설정 위에 덮어쓴 것입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything the table can answer is answered from the table: the image data channel list, the mask image layer of every object it supplies, the extracted image region modes that are possible, the PNG image data channels, and ``src``. Every other structured-data name is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
@@ -4776,7 +4916,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Resolve what a user typed in a mask column to a spaCR object role.",
       "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
-      "translation": "사용자가 마스크 열에 입력한 내용을 spaCR 객체 역할로 해석합니다."
+      "translation": "사용자가 마스크 열에 입력한 내용을 spaCR 객체 역할로 해석합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on application view -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
@@ -4816,7 +4958,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
       "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
-      "translation": "직접 고른 이미지와 마스크의 테이블을 측정합니다. FEATURES 진입점입니다."
+      "translation": "직접 고른 이미지와 마스크의 테이블을 측정합니다. FEATURES 진입점입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",

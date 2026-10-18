@@ -54,6 +54,33 @@ def default_system_prompt() -> str:
     )
 
 
+def tool_approval_note(provider_name: str) -> str:
+    """Tell the assistant how tool approval works in spaCR's console (GitHub #147).
+
+    The vendor CLIs run non-interactively, so they cannot show their own
+    approval prompt. For Claude Code spaCR asks the user itself after the
+    reply and resumes the session when the user allows the call; the other
+    CLIs have no such route, so the assistant hands the command over instead.
+
+    :param provider_name: the provider's short id, such as ``"claude"``.
+    :returns: the paragraph to append to the system prompt.
+    """
+    if provider_name == "claude":
+        return (
+            "Tool approval: you run non-interactively inside spaCR. When a "
+            "tool call is blocked pending approval, spaCR shows the user an "
+            "approval dialog after your reply and, if they allow it, resumes "
+            "this conversation with that exact call allowed. So name the "
+            "command you need and why in one sentence and end your reply; do "
+            "not ask the user to approve a prompt in the chat.")
+    return (
+        "Tool approval: you run non-interactively inside spaCR and no "
+        "approval prompt can be shown. If a command is blocked or needs "
+        "permission, do not ask the user to approve a prompt; give them the "
+        "exact command to run in their own terminal and ask them to paste "
+        "the output back.")
+
+
 def error_explainer_prompt() -> str:
     """Return the system prompt that turns a traceback into a numbered fix list."""
     return (

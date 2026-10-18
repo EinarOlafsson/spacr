@@ -130,7 +130,9 @@
       "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
       "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
       "translation": "Un paquete de aplicación macOS congelado ubicado en una ruta donde el usuario puede escribir utiliza su adaptador verificado de sustitución mediante DMG y conserva el paquete anterior completo. Un paquete Debian con marcador de protocolo utiliza autorización gráfica de administrador y un programa auxiliar propiedad de root situado fuera de la instalación. Tanto el paquete de sustitución como el de reversión requieren sumas de comprobación publicadas; la verificación del paquete y del entorno de ejecución sin privilegios precede al reinicio. Las familias de aplicaciones congeladas no compatibles devuelven un error antes de eliminar cualquier elemento; no tienen habilitada ninguna alternativa mediante el instalador en línea.",
-      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim."
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",

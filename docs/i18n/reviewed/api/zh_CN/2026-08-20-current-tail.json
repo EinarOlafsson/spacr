@@ -32,7 +32,9 @@
       "source_sha256": "1cfb4e2a7792ae2bdcc9a6478eae3bf923d7bdb123888fa7cac81c5ca8007d32",
       "source": "Give every cell exactly one guide, with the counts sequencing implies.",
       "context": "Give every cell exactly one guide, with the counts sequencing implies.",
-      "translation": "为每个细胞提供准确的指导，并包含测序所暗示的计数。"
+      "translation": "为每个细胞提供准确的指导，并包含测序所暗示的计数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.hits.build_hit_list#4",

@@ -47,7 +47,9 @@
       "label": "spacr.hits.benjamini_hochberg#0",
       "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
       "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
-      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda."
+      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
@@ -61,7 +63,9 @@
       "label": "spacr.timelapse.automated_motility_assay#0",
       "source": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.",
       "source_sha256": "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
-      "translation": "Heildstætt vinnuflæði með sameinuðum npy-skrám fyrir hreyfanleika frumna og sýkla og QC-gæðaeftirlit sýkingar."
+      "translation": "Heildstætt vinnuflæði með sameinuðum npy-skrám fyrir hreyfanleika frumna og sýkla og QC-gæðaeftirlit sýkingar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Legacy end-to-end helper retained for API callers and tests.",
@@ -75,7 +79,9 @@
       "label": "spacr.torch_artifacts.load_model_artifact#0",
       "source": "Load current artifacts and legacy full-module/state-dict checkpoints.",
       "source_sha256": "443dc3d96e5c8c4f2602c91cde6046a1518e192620f6b5192a8e3cb970ffae0c",
-      "translation": "Hlaða núverandi líkangripum og eldri stöðupunktum sem geyma heila einingu eða lyklagildavörpun ástands."
+      "translation": "Hlaða núverandi líkangripum og eldri stöðupunktum sem geyma heila einingu eða lyklagildavörpun ástands.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Point-in-polygon uses the vectorised even–odd ray-casting rule. A row whose x or y is missing is **outside every gate**. Its state is not \"unknown\", and it is not silently kept. An object with no measurement is not inside the region. Letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
@@ -96,7 +102,9 @@
       "label": "spacr.sim.run_simulation#0",
       "source": "Run one end-to-end pooled-screen simulation and return every intermediate table.",
       "source_sha256": "1b1ccb8efa965920dd4ca57f9986ab3eb259f0e58e08ef6e5401aed65ebbd4f6",
-      "translation": "Keyra eina heildstæða hermun á sameinaðri líffræðilegri skimunartilraun og skila öllum millitöflum."
+      "translation": "Keyra eina heildstæða hermun á sameinaðri líffræðilegri skimunartilraun og skila öllum millitöflum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The align / batch / convert / report / plate_view screens never open a modal dialog; their ``_set_status`` documentation refers to the earlier hang in this screen. Here, however, \"Clear mask\" requires a yes-or-no response. Therefore this screen opens the dialog only when a person can answer it.",

@@ -174,6 +174,14 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("M",            "Live magnifier",         "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("Ctrl+[",       "Decrease selected label", "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+]",       "Increase selected label", "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Shift+N", "Add a cell in Time mode", "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Shift+D", "Add daughter cells in Time mode", "Make Masks",
+                 "the Make Masks screen"),
     ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Ctrl+S",       "Save the mask",          "Make Masks",
@@ -486,6 +494,8 @@ def _screen_label(label: str) -> str:
     """Translate scoped action captions from their canonical English source."""
     from .i18n import tr
     captions = {
+        'Decrease selected label': tr('Decrease selected label'),
+        'Increase selected label': tr('Increase selected label'),
         'Move focus up': tr('Move focus up'),
         'Move focus down': tr('Move focus down'),
         'Move focus left': tr('Move focus left'),

@@ -54,6 +54,17 @@ _N696_ASSIGNMENT_ARRIVALS = {
         '``None`` is the magnification default, drawn greyed (item 696).'
     ),
 }
+_N673_WGPU_ASSIGNMENTS = frozenset({
+    'spacr.doctor.WGPU_MACHINES',
+    'spacr.doctor.WGPU_MIN_PYTHON',
+    'spacr.install_profile.NO_WGPU_OVERRIDE',
+    'spacr.install_profile.NO_WGPU_OVERRIDE_NAME',
+    'spacr.layers.GPU_RENDER_OFF_ENV',
+    'spacr.layers.WGPU_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKEND_API',
+    'spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS',
+})
 _LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
                          "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
@@ -307,8 +318,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
         _N696_ASSIGNMENT_ARRIVALS
     )
+    wgpu_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(wgpu_arrivals) == 20
+    assert wgpu_arrivals.keys() & assignments == _N673_WGPU_ASSIGNMENTS
+    assert {key: docs[key] for key in _N673_WGPU_ASSIGNMENTS} == {
+        key: wgpu_arrivals[key] for key in _N673_WGPU_ASSIGNMENTS}
     assignments = (assignments - spatial_arrivals.keys()
-                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys())
+                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys()
+                   - _N673_WGPU_ASSIGNMENTS)
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
@@ -1443,7 +1461,6 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # and the nested _parse_svg_path.num, _svg_arc.ang and _svg_arc.pt; and
     # SetupSlides.provider_status. Nothing added.
     expected = 13_190
-    import json
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
     assert len(worker_arrivals) == 8
@@ -1620,6 +1637,83 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
     assert not n673g_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673w_arrivals) == 20
+    assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
+    assert not n673w_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
+    demo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_embedding_demo_api_arrivals_2026-10-16.json").read_text())
+    assert set(demo_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished",
+    }
+    assert {key: docs[key] for key in demo_arrivals} == demo_arrivals
+    assert not demo_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **demo_arrivals}
+    measure_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text())
+    assert set(measure_arrivals) == {
+        "spacr.measure._write_volume_measurements.write",
+        "spacr.measure.measure_volume_rows",
+        "spacr.measure.measure_volume_rows.report",
+        "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure",
+        "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog",
+        *("spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog." + name
+          for name in ("accept", "add_channel", "add_row", "remove_row", "requests")),
+    }
+    assert {key: docs[key] for key in measure_arrivals} == measure_arrivals
+    assert not measure_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **measure_arrivals}
+    # 2026-10-17: Item 706: the Object detection 3D switch's volume Cellpose call and whole-volume label replacement; one named contract.
+    detect3d_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "706_object_detection_3d_api_arrivals_2026-10-17.json").read_text())
+    assert set(detect3d_arrivals) == {
+        "spacr.qt.mask_engine.VolumeMaskSession.replace_labels",
+        "spacr.qt.screens.make_masks.cellpose_detect_volume",
+    }
+    assert {key: docs[key] for key in detect3d_arrivals} == detect3d_arrivals
+    assert not detect3d_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **detect3d_arrivals}
+    # 2026-10-17: Item 560 DINOv2 drop-in: the annotated cell example's download, read and finish helpers; one named contract.
+    dino_drop_in_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_dinov2_drop_in_api_arrivals_2026-10-17.json").read_text())
+    assert set(dino_drop_in_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished",
+    }
+    assert {key: docs[key] for key in dino_drop_in_arrivals} == dino_drop_in_arrivals
+    assert not dino_drop_in_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dino_drop_in_arrivals}
+    # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
+    n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text())
+    assert len(n703_arrivals) == 17
+    assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
+    assert not n703_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n703_arrivals}
+    lineage_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "708_label_time_api_arrivals_2026-10-16.json").read_text())
+    assert set(lineage_arrivals) == {
+        *("spacr.qt.mask_engine." + name for name in (
+            "assign_lineage_label", "assign_object_label", "assign_tracked_object",
+            "divide_lineage_cell", "load_mask_lineage", "load_mask_metadata",
+            "merge_lineage_states", "new_lineage_cell", "prune_lineage_frame",
+            "rename_lineage_cell", "restore_lineage_state", "validate_lineage")),
+        "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit",
+    }
+    assert {key: docs[key] for key in lineage_arrivals} == lineage_arrivals
+    assert not lineage_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **lineage_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
@@ -1694,6 +1788,27 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **figure_workspace_arrivals}
+    help_changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_arrivals = {**zoo_arrivals, **help_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -2193,12 +2308,28 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
     # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
-    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13).
+    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13);
+    # 46 with the nine wgpu backend constants of item 673 (2026-10-16), which
+    # arrive through their dated contract.
     assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignment_keys
     assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
         _N696_ASSIGNMENT_ARRIVALS
     )
-    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 37
+    wgpu_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    wgpu_assignments = {
+        "spacr.doctor.WGPU_MACHINES", "spacr.doctor.WGPU_MIN_PYTHON",
+        "spacr.install_profile.NO_WGPU_OVERRIDE",
+        "spacr.install_profile.NO_WGPU_OVERRIDE_NAME",
+        "spacr.layers.GPU_RENDER_OFF_ENV", "spacr.layers.WGPU_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKEND_API",
+        "spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS",
+    }
+    assert wgpu_assignments == assignment_keys & wgpu_arrivals.keys()
+    assert {key: docs[key] for key in wgpu_assignments} == {
+        key: wgpu_arrivals[key] for key in wgpu_assignments}
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 46
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

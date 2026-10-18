@@ -3769,7 +3769,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "O maior entre o que está tocando e a respiração ociosa, de modo que uma passagem baixa nunca deixa a imagem abaixo do que o silêncio teria desenhado. Essa é a regra que faz de \"fica ocioso lindamente em silêncio\" e \"reage à música\" o mesmo caminho de código."
+      "translation": "O maior entre o que está tocando e a respiração ociosa, de modo que uma passagem baixa nunca deixa a imagem abaixo do que o silêncio teria desenhado. Essa é a regra que faz de \"fica ocioso lindamente em silêncio\" e \"reage à música\" o mesmo caminho de código.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",

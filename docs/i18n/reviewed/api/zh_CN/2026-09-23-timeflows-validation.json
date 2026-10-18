@@ -34,7 +34,9 @@
       "label": "spacr.timeflows_validation.check_pair_holdout#0",
       "source": "Reject validation frames identical to any normalized training input.",
       "source_sha256": "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
-      "translation": "拒绝与任意归一化训练输入完全相同的验证帧。"
+      "translation": "拒绝与任意归一化训练输入完全相同的验证帧。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Both endpoints participate. Channel filling, channel truncation and float32 conversion follow the model's own input adapter. This detects identical inputs across paths or dtypes, not near-duplicates or different frames of the same biological movie; the CLI separately rejects shared movie paths. Return the validation input fingerprints for provenance.",
@@ -76,7 +78,9 @@
       "label": "spacr.timeflows_validation.score_pair#0",
       "source": "Score source objects after excluding explicitly unknown successors.",
       "source_sha256": "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
-      "translation": "排除明确标为后继未知的源对象后，对源对象评分。"
+      "translation": "排除明确标为后继未知的源对象后，对源对象评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared track identities define the true links before target identities are shuffled. An absent target identity means no successor unless the source is in ``unknown_successors``; missing annotations are not detected automatically. An IoU control is added to the supplied prediction arms.",
@@ -132,7 +136,9 @@
       "label": "spacr.timeflows_validation.scramble#0",
       "source": "Relabel target objects without changing their shapes or positions.",
       "source_sha256": "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
-      "translation": "重新标记目标对象，不改变其形状或位置。"
+      "translation": "重新标记目标对象，不改变其形状或位置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "target label array, with zero reserved for background.",
@@ -160,7 +166,9 @@
       "label": "spacr.timeflows_validation.summarise#0",
       "source": "Aggregate object-weighted results with explicit missing-data denominators.",
       "source_sha256": "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
-      "translation": "汇总按对象加权的结果，并明确给出缺失数据情况下的分母。"
+      "translation": "汇总按对象加权的结果，并明确给出缺失数据情况下的分母。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-object records from :func:`score_pair`.",
@@ -181,14 +189,18 @@
       "label": "spacr.timeflows_validation.temporal_assignment_policy#0",
       "source": "Describe the default decoder used by both validation entry points.",
       "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
-      "translation": "描述两个验证入口共用的默认解码器。"
+      "translation": "描述两个验证入口共用的默认解码器。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Score held-out pairs and controls without changing training state.",
       "label": "spacr.timeflows_validation.validate_timeflows#0",
       "source": "Score held-out pairs and controls without changing training state.",
       "source_sha256": "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
-      "translation": "在不改变训练状态的情况下，对留出帧对和对照评分。"
+      "translation": "在不改变训练状态的情况下，对留出帧对和对照评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``pairs`` contain normalized frames and full track-label masks. Call :func:`check_pair_holdout` before training to verify exact input separation. The result includes per-object rows and displacement/density strata for the current model, IoU, zero-motion and oracle controls, plus a copied-frame check. Optional ``initial_head`` is a complete snapshot of the head/up parameters and buffers from training start. It is called ``initial_head`` because a resumed model's initial head is not necessarily untrained.",
@@ -258,7 +270,9 @@
       "label": "spacr.timeflows_model.ctc_pairs#0",
       "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
       "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-      "translation": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。"
+      "translation": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. With ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
@@ -317,7 +331,9 @@
       "label": "spacr.timeflows_model.train_timeflows#0",
       "source": "Train the time head, then the whole network, on track-labelled pairs.",
       "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
-      "translation": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。"
+      "translation": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",

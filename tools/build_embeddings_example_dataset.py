@@ -37,23 +37,28 @@ the app asks for torch and timm. This example does not bundle Python packages.
 
 1. Enable Show alpha features, then open Embeddings.
 2. Click Load synthetic demo. This opens these crops and their aligned
-   labels, selects resnet18 with Project to three (one pass) and a batch
-   size of 8, and selects the CPU for embedding.
+   labels, selects the Foundation model "DINOv2 (Cell-DINO when
+   installed)" with Project to three (one pass) and a batch size of 8, and
+   selects the CPU for embedding. The line under the controls says whether
+   official Cell-DINO or the open DINOv2 ViT-S/14 will run.
 3. Press Embed. The preview should contain 24 rows with finite values.
    The label scorecard reports retrieval performance for the drawn shapes.
 4. To try the classifier workflow, choose Use for, then Classifier, then
    Run. Treat the result as a functional demonstration on this tiny set.
 
 The images and labels are bundled with spaCR and require no data download.
-Pretrained resnet18 weights are separate: the normal model loader may
-download them on first use, then reuse its cache. No Cell-DINO weights are
-included or required. The example does not train a backbone.
+Pretrained DINOv2 weights (about 90 MB) are separate: the normal model
+loader may download them on first use, then reuse its cache. No Cell-DINO
+weights are included or required; Meta grants them by request. The example
+does not train a backbone. For real cells, Load cell example opens the
+example plate's annotated single-cell crops the same way.
 
 Open the files manually
 ----------------------
 In Embeddings, select the crop-folder source, choose the crops/ directory,
 clear any selection filters, set the crop limit to at least 24 and press
-Load crops. Select resnet18 and Project to three (one pass). Open Labels… and select
+Load crops. Select the Foundation model "DINOv2 (Cell-DINO when installed)"
+and Project to three (one pass). Open Labels… and select
 labels.csv, then press Embed. The built-in demo button explicitly uses CPU;
 manual loading follows the application's normal device selection.
 

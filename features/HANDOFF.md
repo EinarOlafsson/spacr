@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-17 CODEX RESUMED (maintainer: "reinstate goal"). Claude's published 703/706/708 implementations and CI repairs are retained; do not repeat their integration. Codex delivered708 lineage-table sorting in3dc11a092a7 and703's ten-language default-branch README guide routes in main42e156b9c15. Claude Home retains its ongoing release CI coordination and Claude WS retains tutorials. Prior Codex trees and results are preserved; the obsolete pre-takeover documentation audit is intentionally stopped.
+> Codex completed706's backend acceptance repair: native StarDist3D volumetric loading/cache and Cellpose3 native/stitch worker transport, with unsupported-model gating. All47 related checks and normal runtime/Help/arrival generation pass; nine translated catalogs include the reviewed diagnostics. Claude's threshold/undo behavior is preserved; release CI and tutorials retain their existing owners.
+> 2026-10-18:706 generated-output closure is complete for nightly publication: normal flow/consumer/Help include z_plan/current stitch readers,9 final link/freshness cases pass and47 behavior checks are retained. Scoped API closure has45 reviewed targets/14 passing contracts; PNG/content and label lifecycle fixes retain18/86 passes, uint32 boundary contracts6 passes. All current upstream througha8cf is preserved. Hosted Tests/release1.5.1.5 remain open; hosting cleanup request stays withdrawn.
+> Codex root + release_path repair43's Compatibility orchestration: queue running push grids like Tests, preserving every job/check and the separate manual lane. Pending pushes can still replace pending pushes; keep ci_gdb_contract's sole observer and Claude Home's release coordination. Full green CI/release remain open.
+
+> 2026-10-17 OWNERSHIP: Codex has stopped working on spaCR (maintainer). Claude Home now owns EVERY open item, including those Codex owned (release CI 43/288, 703, 706, 707 remaining corrections, 560, 655, 675, 686; tutorials 676 with Claude WS). Agents must not wait for Codex.
+
+
+> 2026-10-17 CLAUDE HOME CLAIMS (maintainer goal "finish all items"): (1) the 1.5.1.5 release CI failures (items 43/288; latest tests run failed 19 jobs) and (2) item 706 (3D switch in object detection). Codex: don't edit these until this note is updated. Next in Claude's queue after these: 707 remaining corrections, 703. Codex may take any of those first by writing a claim here.
+
+
+> 2026-10-17 OWNERSHIP NOTICE (maintainer request: "finish return tutorial work"): the TUTORIAL lane (676: recording, audio, translations, publication of every lesson) RETURNS to Claude WS (session repo-42).
+> Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
+> Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
+
+## 2026-10-17 Claude WS — tutorials 08 and 07 published
+08 Measure (HF n676-ws-08-measure-20261017-verified, d4d0b68f5) and 07 Mask (n676-ws-07-mask-20261017-verified, 8df3fa8eb) are re-recorded on current nightly plus the held fixes (bulk settings follow 356; Mask preloads its pipeline after opening). Correction to the currency table: with Show alpha off, current Home adds only Classify and Toxoplasma; 05 restores those two scenes.
+
+## 2026-10-17 Claude WS — fix for the Mask "Load test data" freeze (held)
+Held on branch `ws-load-test-data-freeze` (02e7df960; spacr/qt/app.py plus 1 test) until the 1.5.1.5 hold lifts: rebuild_app_screen now breathes between steps like a module open, so the longest GUI block goes from 0.55 s to 0.15 s offscreen. Home: no action needed; WS records tutorials on it and pushes after "release done".
+
+## 2026-10-17 Claude WS to Home — app freeze blocks tutorial 07 (Mask)
+Mask "Load test data" freezes the GUI thread for 0.37-0.38 s in two takes (gate: app freeze; never accepted), so 07 cannot publish. Stack: load_the_example_images -> _put_the_example_images_in_place -> apply_settings_that_came_with -> apply_settings_dict (app_screen.py 13093) -> rebuild_app_screen (app.py 6519) -> theme eventFilter -> _sheet_one_window (theme.py 4074) -> setStyleSheet (gui_scale.py 373) -> ai_toggle_label changeEvent -> resolve_effective_theme. Request: no full restyle of the screen when example settings are applied. The other 12 clips of 07 pass on nightly 116a34d35. WS goes on with 08 and re-records 07 once this lands.
+
+## 2026-10-17 Claude WS — tutorial lane (676) taken back; integration and currency check
+
+Codex left no handover note, so its state was rebuilt from the Work entries, the n676 completion folders and its worktrees.
+- Integration: branch `ws-tutorials-2026-10-17` (worktree mnt3/claude/spacr-tut17) = Codex `codex/work-07-current-video-20261015` (which already holds all of `work-capture-host`) + 44fc26e58 (lesson 14 navigation contract) + a merge of nightly 116a34d35. App sources and app tests are exactly nightly. The release-candidate checkpoint is the recorded one of the 06 publication. Make Masks driver: Undo/Redo now use Ctrl+Z / Ctrl+Y (707 removed the buttons). Capture policy now sets popup_backdrop=off itself (nightly default is drift). Tutorial tests: 3369 passed on the spacr env, 39 Playwright player tests passed. Held under the release hold (tools/tests only, no app change).
+- Currency of published lessons (published frame vs a fresh offscreen screen of nightly 116a34d35, alpha off):
+
+| Lesson | Published | Current app | Decision |
+|---|---|---|---|
+| 05 Home (Codex 10-15, 30 of 31 clips from 10-13) | Home (12): Core 5, Data 3, Tools 4, no news panel | Home (18): Core 6 (+Classify), Data 6, Tools 5 (+Gate Editor), Organism 1 (Toxoplasma), news panel | needs re-record |
+| 06 API (Codex 10-15, metadata only) | terminal `spacr-run --describe` | same text on nightly | current |
+| 07 Mask (WS 10-13) | sidebar Core 5 (no Classify) | Core 6 | needs re-record (video only; narration, 50 audio tracks and 13 caption reviews kept, as Codex decided) |
+| 08 Measure (WS 10-13) | sidebar Core 5 | Core 6 | needs re-record |
+
+- Codex 07 clips (stages host/d07-*) were recorded on app 890e8db206; app sources moved since then, so with one app base per lesson all 13 scenes are re-recorded on current nightly. Inputs and retained audio of Codex are reused. The 04 installer lesson reuses two 05 Home clips, so it follows 05.
+- Order now: 07, 08, 05 (re-record), 14, 20, 43, 24, 26, then the rest by number, 86/87 last with alpha on.
+
 > 2026-10-16 CLAUDE HOME OUT OF TOKENS. Claude agents still finishing and pushing: Make Masks layout reorg, wgpu backend + default install, 698 Browser+Colab route, installer consent text. HANDED TO CODEX (not started), do AFTER the Make Masks layout commit lands:
 > (C) Make Masks "Measure" 3D section: one button measures the current 3D image (regionprops, channel correlation, object distances etc.), prompts to fill extra channel slots (drag/drop or paste paths), lets the user add rows for new image sets, writes/appends a database in the image folder with spaCR measure's structure.
 > (D) Object detection: a "3D" boolean that puts 3D-capable models and Otsu/other 3D-capable thresholds in 3D mode.

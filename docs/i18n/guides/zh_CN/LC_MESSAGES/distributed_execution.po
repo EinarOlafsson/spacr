@@ -257,8 +257,9 @@ msgstr "非秘密的 SSH 配置覆盖项，例如用户、端口、身份文件�
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "使用经过验证的持久 SSH 会话，并通过图形界面提示进行键盘交互式身份验证，而不是使用外部 OpenSSH 命令。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
-msgstr ""
+msgstr "在操作系统钥匙串中记住登录密码，但从不记住一次性验证码或推送应答；默认关闭。"
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "根据 JSON 兼容数据构造并验证一个配置文件。"

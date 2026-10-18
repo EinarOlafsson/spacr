@@ -632,7 +632,6 @@ HARDWARE_TASKS = (
 #: These render identically on GitHub, PyPI, Sphinx and a plain editor.
 GREEN, PURPLE, RED = "\U0001F7E2", "\U0001F7E3", "\U0001F534"
 
-
 def _cell(accelerated: bool, maturity: str, row_has_a_gpu: bool) -> str:
     """One table cell: the mark, then what it runs on.
 
@@ -685,7 +684,7 @@ def _hardware_table() -> str:
     aligned to the wrong width and the table would not parse. A
     list-table needs no alignment at all.
     """
-    header = ["Hardware"] + [name for name, _prefix in HARDWARE_TASKS]
+    header = ["Hardware"] + [name for name, _prefix in HARDWARE_TASKS] + ["3D"]
     rows = []
     for label, maturity, kwargs in HARDWARE_ROWS:
         answers = _capabilities_for(**kwargs)
@@ -699,9 +698,10 @@ def _hardware_table() -> str:
                     f"no capability row starts with {prefix!r}; the table "
                     "and spacr.accelerator.capabilities() have diverged")
             cells.append(_cell(matched[0], maturity, has_gpu))
+        cells.append(_cell(has_gpu, "beta", has_gpu))
         rows.append([label] + cells)
 
-    lines = [".. list-table::", "   :header-rows: 1", "   :widths: 32 18 18 22",
+    lines = [".. list-table::", "   :header-rows: 1", "   :widths: 30 17 15 23 15",
              ""]
     for row in [header] + rows:
         lines.append(f"   * - {row[0]}")

@@ -258,7 +258,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Consistent device and weight precision for ``CellposeModel`` inference.",
       "source_sha256": "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
-      "translation": "Samræmt tæki og nákvæmni vigta fyrir ályktun með ``CellposeModel``."
+      "translation": "Samræmt tæki og nákvæmni vigta fyrir ályktun með ``CellposeModel``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
@@ -486,7 +488,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read a checkpoint's decoder contract, preserving historical untagged models.",
       "source_sha256": "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
-      "translation": "Lesa afkóðunarsamning vistunarpunkts og varðveita eldri ómerkt líkön."
+      "translation": "Lesa afkóðunarsamning vistunarpunkts og varðveita eldri ómerkt líkön.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "artifact mapping returned by ``load_model_artifact``.",
@@ -518,7 +522,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Select decoding before training loaders are built for a resumed model.",
       "source_sha256": "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
-      "translation": "Velja afkóðun áður en þjálfunarhleðslur eru smíðaðar fyrir líkan sem haldið er áfram með."
+      "translation": "Velja afkóðun áður en þjálfunarhleðslur eru smíðaðar fyrir líkan sem haldið er áfram með.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "trusted checkpoint path, or None for a new training processing session.",
@@ -542,7 +548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Find the decoding record through loaders, subsets and combined datasets.",
       "source_sha256": "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
-      "translation": "Finna afkóðunarfærsluna í gegnum hleðslur, hlutmengi og sameinuð gagnasöfn."
+      "translation": "Finna afkóðunarfærsluna í gegnum hleðslur, hlutmengi og sameinuð gagnasöfn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
@@ -582,7 +590,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a path or archive stream using the model's recorded policy.",
       "source_sha256": "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
-      "translation": "Afkóða slóð eða skjalasafnsstraum með stefnunni sem skráð er í líkaninu."
+      "translation": "Afkóða slóð eða skjalasafnsstraum með stefnunni sem skráð er í líkaninu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image path or seekable binary stream, as accepted by PIL.",
@@ -630,7 +640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Record actual loader decoding and reject checkpoint or validation conflicts.",
       "source_sha256": "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
-      "translation": "Skrá raunverulega afkóðun hleðslunnar og hafna árekstrum við vistunarpunkt eða staðfestingu."
+      "translation": "Skrá raunverulega afkóðun hleðslunnar og hafna árekstrum við vistunarpunkt eða staðfestingu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "training loader or dataset whose decoding is inspected.",
@@ -686,7 +698,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Accept only implemented crop decoding policies; never guess a new one.",
       "source_sha256": "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
-      "translation": "Samþykkja aðeins útfærðar afkóðunarstefnur myndskurða; aldrei giska á nýja."
+      "translation": "Samþykkja aðeins útfærðar afkóðunarstefnur myndskurða; aldrei giska á nýja.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``declared_uint8_v1`` or ``stored_pil_v1``.",
@@ -898,7 +912,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one plate folder the three plate example sets unpack into.",
       "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
-      "translation": "Eina plötumappan sem dæmasöfnin þrjú fyrir plötur eru afþjöppuð í."
+      "translation": "Eina plötumappan sem dæmasöfnin þrjú fyrir plötur eru afþjöppuð í.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
@@ -1120,7 +1136,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What a query matched, before any pixel was read.",
       "source_sha256": "5bce440c131c6cfb6be8836af2fce1b93c6120fa6b53ac7183ebf5cdea46a379",
-      "translation": "Það sem fyrirspurn passaði við, áður en nokkur pixill var lesinn."
+      "translation": "Það sem fyrirspurn passaði við, áður en nokkur pixill var lesinn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`CropQuery` this answers.",
@@ -1202,7 +1220,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the limit kept crops out of this plan.",
       "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
-      "translation": "Hvort hámarkið hélt myndskurðum utan þessarar áætlunar."
+      "translation": "Hvort hámarkið hélt myndskurðum utan þessarar áætlunar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
@@ -1220,7 +1240,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many crops this plan will load.",
       "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
-      "translation": "Hversu marga myndskurði þessi áætlun mun hlaða."
+      "translation": "Hversu marga myndskurði þessi áætlun mun hlaða.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One line a status bar can show the moment planning returns.",
@@ -1246,7 +1268,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many selected rows could not be turned into a crop at all.",
       "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
-      "translation": "Hversu mörgum völdum röðum var alls ekki hægt að breyta í myndskurð."
+      "translation": "Hversu mörgum völdum röðum var alls ekki hægt að breyta í myndskurð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
@@ -1262,7 +1286,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the query matched nothing at all.",
       "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
-      "translation": "Hvort fyrirspurnin passaði alls ekki við neitt."
+      "translation": "Hvort fyrirspurnin passaði alls ekki við neitt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(start, stop)`` for each page, covering every row exactly once.",
@@ -1270,7 +1296,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``(start, stop)`` for each page, covering every row exactly once.",
       "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
-      "translation": "``(start, stop)`` fyrir hverja síðu, sem ná yfir hverja röð nákvæmlega einu sinni."
+      "translation": "``(start, stop)`` fyrir hverja síðu, sem ná yfir hverja röð nákvæmlega einu sinni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "extracted image regions per page; ``0`` takes the query's own.",
@@ -1286,7 +1314,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Which crops to load, and how much of the answer to take.",
       "source_sha256": "e780d9c102021b621038eaa6301ce0e76a26e93711cde02a74c57426b4316917",
-      "translation": "Hvaða myndskurði á að hlaða, og hversu mikið af svarinu á að taka."
+      "translation": "Hvaða myndskurði á að hlaða, og hversu mikið af svarinu á að taka.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
@@ -1358,7 +1388,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One line naming everything this query asked for.",
       "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
-      "translation": "Ein lína sem nefnir allt sem þessi fyrirspurn bað um."
+      "translation": "Ein lína sem nefnir allt sem þessi fyrirspurn bað um.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
@@ -1374,7 +1406,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Centre a crop in a ``height`` x ``width`` frame, padding or trimming.",
       "source_sha256": "116da44772294181c3518db148bfcf3cb39788dc5de2118c3b8ea46ec9209673",
-      "translation": "Miðja myndskurð í ``height`` x ``width`` ramma, með fyllingu eða snyrtingu."
+      "translation": "Miðja myndskurð í ``height`` x ``width`` ramma, með fyllingu eða snyrtingu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling an extracted image region changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a microscope field of view, so two extracted image regions of the same object arrive the same way whichever route cut them.",
@@ -1416,7 +1450,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read every crop in ``plan``, a page at a time.",
       "source_sha256": "5a96d2756f9e2cf1b136e576245a4674ca38cd6b9a5b818f706d40e195cc3f30",
-      "translation": "Lesa alla myndskurði í ``plan``, eina síðu í einu."
+      "translation": "Lesa alla myndskurði í ``plan``, eina síðu í einu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so an application view passes a signal emit and a flag and the same function drives a script or a test.",
@@ -1480,7 +1516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read one page of ``plan``'s crops.",
       "source_sha256": "c731df150ea03eff5ec4076ec311175d4584efa68b21d8aa19d0ccc9430cf33b",
-      "translation": "Lesa eina síðu af myndskurðum ``plan``."
+      "translation": "Lesa eina síðu af myndskurðum ``plan``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "first row of the page.",
@@ -1606,7 +1644,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a ``measurements.db``, reading no pixels.",
       "source_sha256": "e708900911e0f41204e959544c6f2d3c53d108a547b0b1fa0834a92904162492",
-      "translation": "Velja myndskurði úr ``measurements.db`` án þess að lesa pixla."
+      "translation": "Velja myndskurði úr ``measurements.db`` án þess að lesa pixla.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per extracted image region.",
@@ -1646,7 +1686,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
       "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
-      "translation": "Velja myndskurði úr möppu með ``*.png``, án þess að lesa pixla."
+      "translation": "Velja myndskurði úr möppu með ``*.png``, án þess að lesa pixla.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
@@ -1670,7 +1712,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every plate the crop table names, sorted.",
       "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
-      "translation": "Allar plötur sem myndskurðataflan nefnir, raðaðar."
+      "translation": "Allar plötur sem myndskurðataflan nefnir, raðaðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
@@ -1782,7 +1826,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a PIL crop without clipping its high-bit-depth intensities.",
       "source_sha256": "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
-      "translation": "Afkóða PIL-myndskurð án þess að klippa styrkleikagildi með háa bitadýpt."
+      "translation": "Afkóða PIL-myndskurð án þess að klippa styrkleikagildi með háa bitadýpt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "open PIL image; owned and closed by the caller.",
@@ -1846,7 +1892,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Silence the per-crop announcements on the CALLING THREAD only.",
       "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
-      "translation": "Þagga tilkynningar fyrir hvern myndskurð AÐEINS Á ÞRÆÐINUM SEM KALLAR."
+      "translation": "Þagga tilkynningar fyrir hvern myndskurð AÐEINS Á ÞRÆÐINUM SEM KALLAR.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
@@ -1926,7 +1974,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Turn the per-crop path printing on or off, for the whole process.",
       "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
-      "translation": "Kveikja eða slökkva á prentun slóða fyrir hvern myndskurð, fyrir allt ferlið."
+      "translation": "Kveikja eða slökkva á prentun slóða fyrir hvern myndskurð, fyrir allt ferlið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A curation session is a work list with a memory, not one field.",
@@ -2012,7 +2062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "where this queue's resume record is read and written:",
       "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
-      "translation": "hvar framhaldsskrá þessarar biðraðar er lesin og skrifuð:"
+      "translation": "hvar framhaldsskrá þessarar biðraðar er lesin og skrifuð:",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
@@ -2028,7 +2080,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What is left to do in a curation session.",
       "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
-      "translation": "Það sem er eftir að gera í yfirferðarlotu."
+      "translation": "Það sem er eftir að gera í yfirferðarlotu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the work list as :attr:`CurationQueue.notices` for the editor to show.",
@@ -2046,7 +2100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the external curation tool keeps one of a queue's files.",
       "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
-      "translation": "Hvar ytra yfirferðartólið geymir eina af skrám biðraðar."
+      "translation": "Hvar ytra yfirferðartólið geymir eina af skrám biðraðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the work list folder.",
@@ -2088,7 +2144,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the queue's scores file, when there is one.",
       "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
-      "translation": "Lesa stigaskrá biðraðarinnar, þegar hún er til."
+      "translation": "Lesa stigaskrá biðraðarinnar, þegar hún er til.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
@@ -2116,7 +2174,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's probabilities are read from, if anywhere.",
       "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
-      "translation": "Hvaðan líkur þessarar biðraðar eru lesnar, ef einhvers staðar."
+      "translation": "Hvaðan líkur þessarar biðraðar eru lesnar, ef einhvers staðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
@@ -2140,7 +2200,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's resume record is read from and written to.",
       "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
-      "translation": "Hvaðan framhaldsskrá þessarar biðraðar er lesin og hvert hún er skrifuð."
+      "translation": "Hvaðan framhaldsskrá þessarar biðraðar er lesin og hvert hún er skrifuð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
@@ -2408,7 +2470,9 @@
       "review_basis": "MT draft kept after AI review",
       "source": "``'complete'``, ``'partial'`` or ``'empty'``.",
       "source_sha256": "97a637dfda4282ecc8318efc67521803d529716c3752e39393c24e5c3e62b3a0",
-      "translation": "``'complete'``, ``'partial'`` eða ``'empty'``."
+      "translation": "``'complete'``, ``'partial'`` eða ``'empty'``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Not to be confused with :mod:`spacr.example_data`, which fetches the Regression example screen's count and score CSVs from a GitHub release. That is a different set of files, a different host and a different transport. This module is about the ``.tar`` archives of imaging data: the Mask demo laboratory microplate, the Measure example, the Annotate/Classify example, the Replication and Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.",
@@ -2462,7 +2526,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the set called ``key`` unpacks: its folder beside the plate.",
       "source_sha256": "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
-      "translation": "Hvert safnið sem heitir ``key`` er afþjappað: í eigin möppu við hlið plötunnar."
+      "translation": "Hvert safnið sem heitir ``key`` er afþjappað: í eigin möppu við hlið plötunnar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an :data:`EXAMPLE_SETS` key.",
@@ -2770,7 +2836,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze measured projects and save a unified, source-separated report.",
       "source_sha256": "a2099ebcd38a976a383e1b382fd01b3e3c3092e6cbddec8d5a00faaa54ac29e7",
-      "translation": "Greina mæld verkefni og vista sameinaða skýrslu þar sem uppsprettum er haldið aðskildum."
+      "translation": "Greina mæld verkefni og vista sameinaða skýrslu þar sem uppsprettum er haldið aðskildum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "hp_* settings from :func:`default_settings`; src accepts a project, measurements.db, or a list of either. Each canonical DB path is a distinct source identity, even when laboratory microplate/microscope field of view IDs repeat.",
@@ -2794,7 +2862,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Apply Host–Pathogen defaults; replication requires explicit count inputs.",
       "source_sha256": "d222fb7632cd9acf10ab7cb2aaa49fdf67d3d678033abbe1f0ac985a33d88f4d",
-      "translation": "Beita sjálfgefnum gildum Host–Pathogen; fjölgun krefst skýrra talningarinntaka."
+      "translation": "Beita sjálfgefnum gildum Host–Pathogen; fjölgun krefst skýrra talningarinntaka.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional overrides, copied without modifying the caller.",
@@ -2818,7 +2888,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Join per-vacuole signals to host references and retain every host cell.",
       "source_sha256": "32cb6713565e9bf1ba73d05f5716173c6fe3fedd5299ff8de1152fa3d8ac82a9",
-      "translation": "Tengja merki hverrar safabólu við viðmið hýsils og halda hverri hýsilfrumu."
+      "translation": "Tengja merki hverrar safabólu við viðmið hýsils og halda hverri hýsilfrumu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one row per host, including uninfected cells.",
@@ -2890,7 +2962,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Link each child label only when one vacuole covers most of its pixels.",
       "source_sha256": "8343d901c669a34b850e650f8f0f9f16ee47f050d2c5ad8433cdd1dc4d84e18b",
-      "translation": "Tengja hvert barnsmerki aðeins þegar ein safabóla hylur flesta pixla þess."
+      "translation": "Tengja hvert barnsmerki aðeins þegar ein safabóla hylur flesta pixla þess.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "integer parasite/object mask, zero background.",
@@ -2930,7 +3004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Create a ready-to-run synthetic project, preserving existing user files.",
       "source_sha256": "a2672e0cbbe6ffad531adadf664ac89b04d1e260e20ee11a92d402a28575d32c",
-      "translation": "Búa til tilbúið verkefni sem er tilbúið til keyrslu og varðveita fyrirliggjandi notendaskrár."
+      "translation": "Búa til tilbúið verkefni sem er tilbúið til keyrslu og varðveita fyrirliggjandi notendaskrár.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "new/empty project directory or this complete cached sample.",
@@ -2986,7 +3062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the private cache directory for the synthetic example.",
       "source_sha256": "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088",
-      "translation": "Skila einkamöppu skyndiminnis fyrir tilbúna dæmið."
+      "translation": "Skila einkamöppu skyndiminnis fyrir tilbúna dæmið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Recognize a complete generated project without replacing user modifications.",
@@ -2994,7 +3072,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Recognize a complete generated project without replacing user modifications.",
       "source_sha256": "f4ebbbd2adf97b3493e0b6750a728d35335947d676a6c8b17c2a67cdf4c76138",
-      "translation": "Þekkja fullkomið myndað verkefni án þess að skipta út breytingum notandans."
+      "translation": "Þekkja fullkomið myndað verkefni án þess að skipta út breytingum notandans.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "candidate synthetic project directory.",
@@ -3018,7 +3098,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the sample from the command line without requiring Qt or network.",
       "source_sha256": "44e902da78d8eb5deee1c63b0c0eca743dd39b339652a9729c50a112f6091708",
-      "translation": "Byggja sýnið úr skipanalínu án þess að þurfa Qt eða net."
+      "translation": "Byggja sýnið úr skipanalínu án þess að þurfa Qt eða net.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional argument list; None reads the process arguments.",
@@ -3050,7 +3132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze one measured field without modifying source or result files.",
       "source_sha256": "06c02f18687c9930962966640ebc2f21205e62e3397b5eeca60b46626f4dca1d",
-      "translation": "Greina eitt mælt sjónsvið án þess að breyta uppsprettu- eða niðurstöðuskrám."
+      "translation": "Greina eitt mælt sjónsvið án þess að breyta uppsprettu- eða niðurstöðuskrám.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "current Host–Pathogen settings, shared with the full run.",
@@ -3106,7 +3190,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "List at most ``limit`` measured fields, in stable source/identity order.",
       "source_sha256": "1e5a9fdec3e4e81602a488c0278ae4d9849efaea47c3163df20169496de733a4",
-      "translation": "Telja upp í mesta lagi ``limit`` mæld sjónsvið, í stöðugri röð eftir uppsprettu/auðkenni."
+      "translation": "Telja upp í mesta lagi ``limit`` mæld sjónsvið, í stöðugri röð eftir uppsprettu/auðkenni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Host–Pathogen settings; src is a project, database or list.",
@@ -3346,7 +3432,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure focus, saturation and nonfinite pixels on unnormalized channels.",
       "source_sha256": "8b4f02a62739041fd0a29a104650ce647ec37bcbb0100d940b887b256467ab9a",
-      "translation": "Mæla fókus, mettun og óendanlega pixla á óstöðluðum rásum."
+      "translation": "Mæla fókus, mettun og óendanlega pixla á óstöðluðum rásum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "YX, YXC or leading-dimensions plus YXC array.",
@@ -3394,7 +3482,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Refuse exclusions that would leave previously measured fields in reports.",
       "source_sha256": "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
-      "translation": "Hafna útilokunum sem myndu skilja áður mæld sjónsvið eftir í skýrslum."
+      "translation": "Hafna útilokunum sem myndu skilja áður mæld sjónsvið eftir í skýrslum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Existing results are never deleted. Re-screening an analyzed project needs a fresh project if excluded fields already have measurement rows.",
@@ -3442,7 +3532,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the active saved exclusion policy for downstream field consumers.",
       "source_sha256": "ccd64f9690eb862b0890839b0f8a5b3f463a9f2f5c54f577d3f528fb1abf1b04",
-      "translation": "Lesa virku vistuðu útilokunarstefnuna fyrir notendur sjónsviða síðar í ferlinu."
+      "translation": "Lesa virku vistuðu útilokunarstefnuna fyrir notendur sjónsviða síðar í ferlinu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder whose qc/image_quality.json is authoritative.",
@@ -3474,7 +3566,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Remove policy-excluded fields without substituting empty label images.",
       "source_sha256": "d7c65a291d6a8acfcfb08f1ac33c015823ba7b139b024a3be9b794f564326fbe",
-      "translation": "Fjarlægja sjónsvið sem stefnan útilokar án þess að setja tómar merkjamyndir í staðinn."
+      "translation": "Fjarlægja sjónsvið sem stefnan útilokar án þess að setja tómar merkjamyndir í staðinn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "normalized image batch with its original microscope field of view axis.",
@@ -3514,7 +3608,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Validate a saved per-channel policy without inspecting any image.",
       "source_sha256": "c33816246556f8f881be3790683d92f017369949e2083c793f0b297e398ce131",
-      "translation": "Staðfesta vistaða stefnu fyrir hverja rás án þess að skoða nokkra mynd."
+      "translation": "Staðfesta vistaða stefnu fyrir hverja rás án þess að skoða nokkra mynd.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mask settings containing image_qc_* options.",
@@ -3546,7 +3642,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Save a field/channel report and return fields explicitly excluded by policy.",
       "source_sha256": "2e6582f8ea5837914fb9845e7f9a0a71ab5d4aeee7d2cdda88b045c01fa2c5a0",
-      "translation": "Vista skýrslu um sjónsvið/rásir og skila sjónsviðum sem stefnan útilokar sérstaklega."
+      "translation": "Vista skýrslu um sjónsvið/rásir og skila sjónsviðum sem stefnan útilokar sérstaklega.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder; reports go to qc/image_quality.json and .csv.",
@@ -3748,7 +3846,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One way the same fields were written, and how Import reads it back.",
       "source_sha256": "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
-      "translation": "Ein leið sem sömu sjónsviðin voru skrifuð á, og hvernig Import les hana aftur."
+      "translation": "Ein leið sem sömu sjónsviðin voru skrifuð á, og hvernig Import les hana aftur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder under ``variants/`` and the chooser's route key.",
@@ -3820,7 +3920,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The paragraph the chooser shows on hover.",
       "source_sha256": "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641",
-      "translation": "Efnisgreinin sem valglugginn sýnir þegar bendillinn er yfir."
+      "translation": "Efnisgreinin sem valglugginn sýnir þegar bendillinn er yfir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the unpacked set lives.",
@@ -3828,7 +3930,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the unpacked set lives.",
       "source_sha256": "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
-      "translation": "Hvar afþjappaða safnið er geymt."
+      "translation": "Hvar afþjappaða safnið er geymt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the shared example plate the archive unpacks into; :func:`spacr.example_archives.example_plate_folder` when omitted.",
@@ -3852,7 +3956,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The variant called ``key``.",
       "source_sha256": "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
-      "translation": "Afbrigðið sem heitir ``key``."
+      "translation": "Afbrigðið sem heitir ``key``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a key from :data:`IMPORT_VARIANTS`.",
@@ -3876,7 +3982,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether a complete copy of the set -- or of one variant -- is here.",
       "source_sha256": "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
-      "translation": "Hvort fullkomið afrit af safninu -- eða einu afbrigði -- er hér."
+      "translation": "Hvort fullkomið afrit af safninu -- eða einu afbrigði -- er hér.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the unpacked ``import_example`` folder.",
@@ -3910,7 +4018,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every row of the set's ``manifest.csv``.",
       "source_sha256": "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
-      "translation": "Allar raðir í ``manifest.csv`` safnsins."
+      "translation": "Allar raðir í ``manifest.csv`` safnsins.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the rows, or ``[]`` when there is no readable manifest.",
@@ -3926,7 +4036,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the chooser fills in for one variant.",
       "source_sha256": "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
-      "translation": "Það sem valglugginn fyllir út fyrir eitt afbrigði."
+      "translation": "Það sem valglugginn fyllir út fyrir eitt afbrigði.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the variant.",
@@ -3950,7 +4062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write the infection report beside the database it came from.",
       "source_sha256": "b2e80c6e268ddb318470ae7a1fdac362421ad203ba9605d25984101a0bdb8cdd",
-      "translation": "Skrifa sýkingarskýrsluna við hlið gagnagrunnsins sem hún kom úr."
+      "translation": "Skrifa sýkingarskýrsluna við hlið gagnagrunnsins sem hún kom úr.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A measure run emits the report, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
@@ -4018,7 +4132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Average probabilities or vote across selected image orientations.",
       "source_sha256": "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
-      "translation": "Taka meðaltal líkna eða kjósa yfir valdar stefnur myndarinnar."
+      "translation": "Taka meðaltal líkna eða kjósa yfir valdar stefnur myndarinnar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "evaluation-mode callable returning binary or multiclass logits.",
@@ -4066,7 +4182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return distinct right-angle rotations/reflections, with identity first.",
       "source_sha256": "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
-      "translation": "Skila ólíkum rétthyrndum snúningum/speglunum, með hlutleysuna fyrsta."
+      "translation": "Skila ólíkum rétthyrndum snúningum/speglunum, með hlutleysuna fyrsta.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping containing the optional tta_* switches.",
@@ -4340,7 +4458,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One row of the FEATURES table: one field, and the files that make it.",
       "source_sha256": "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
-      "translation": "Ein röð í FEATURES töflunni: eitt sjónsvið, og skrárnar sem mynda það."
+      "translation": "Ein röð í FEATURES töflunni: eitt sjónsvið, og skrárnar sem mynda það.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A row becomes exactly one ``merged/<stem>.npy``, so it is also one field in the measurements database.",
@@ -4396,7 +4516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``plate_well_field`` name this row is written and measured as.",
       "source_sha256": "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
-      "translation": "``plate_well_field`` heitið sem þessi röð er skrifuð og mæld undir."
+      "translation": "``plate_well_field`` heitið sem þessi röð er skrifuð og mæld undir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the plate name the whole table carries.",
@@ -4420,7 +4542,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Rows are fields, columns are channels and mask types.",
       "source_sha256": "bebdf9806bbffab3f1d3d341aa9ce60377bae00865ffc8d5e5dc003a2db03a23",
-      "translation": "Raðir eru sjónsvið, dálkar eru rásir og grímutegundir."
+      "translation": "Raðir eru sjónsvið, dálkar eru rásir og grímutegundir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the thing the FEATURES window edits and the only input :func:`measure_from_field_table` needs. It is deliberately Qt-free: the window drives it, and the tests drive it without a window.",
@@ -4478,7 +4602,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the table is complete enough to measure.",
       "source_sha256": "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286",
-      "translation": "Hvort taflan er nógu fullkomin til að mæla."
+      "translation": "Hvort taflan er nógu fullkomin til að mæla.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``role -> plane index`` on the merged array this table would write.",
@@ -4486,7 +4612,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``role -> plane index`` on the merged array this table would write.",
       "source_sha256": "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
-      "translation": "``role -> plane index`` á sameinaða fylkinu sem þessi tafla myndi skrifa."
+      "translation": "``role -> plane index`` á sameinaða fylkinu sem þessi tafla myndi skrifa.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The masks follow the image data channels with no gap, which is the only layout :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes the indices from the image data channel count and the order and refuses a manifest that disagrees.",
@@ -4502,7 +4630,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The mask columns in merged-plane order, duplicates removed.",
       "source_sha256": "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6",
-      "translation": "Grímudálkarnir í röð sameinaðra laga, tvítekningar fjarlægðar."
+      "translation": "Grímudálkarnir í röð sameinaðra laga, tvítekningar fjarlægðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything that would stop this table being measured, as sentences.",
@@ -4510,7 +4640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Everything that would stop this table being measured, as sentences.",
       "source_sha256": "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
-      "translation": "Allt sem kæmi í veg fyrir að þessi tafla sé mæld, sem setningar."
+      "translation": "Allt sem kæmi í veg fyrir að þessi tafla sé mæld, sem setningar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Empty means :func:`measure_from_field_table` will run. The window shows these live, so a user never presses a Run button that is going to refuse.",
@@ -4526,7 +4658,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What one regex did to one set of dropped files.",
       "source_sha256": "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
-      "translation": "Það sem ein regluleg segð gerði við eitt safn slepptra skráa."
+      "translation": "Það sem ein regluleg segð gerði við eitt safn slepptra skráa.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table the files were assigned into.",
@@ -4560,7 +4694,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Sort dropped files into rows and channel/mask columns with one regex.",
       "source_sha256": "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
-      "translation": "Raða slepptum skrám í raðir og rása-/grímudálka með einni reglulegri segð."
+      "translation": "Raða slepptum skrám í raðir og rása-/grímudálka með einni reglulegri segð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
@@ -4678,7 +4814,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where a run of ``table`` would write, given the destination it was handed.",
       "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
-      "translation": "Hvert keyrsla á ``table`` myndi skrifa, miðað við áfangastaðinn sem henni var réttur."
+      "translation": "Hvert keyrsla á ``table`` myndi skrifa, miðað við áfangastaðinn sem henni var réttur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
@@ -4720,7 +4858,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The measure_crop settings this table decides, over the ones it does not.",
       "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
-      "translation": "measure_crop stillingarnar sem þessi tafla ákveður, ofan á þær sem hún ákveður ekki."
+      "translation": "measure_crop stillingarnar sem þessi tafla ákveður, ofan á þær sem hún ákveður ekki.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything the table can answer is answered from the table: the image data channel list, the mask image layer of every object it supplies, the extracted image region modes that are possible, the PNG image data channels, and ``src``. Every other structured-data name is the user's, taken from ``settings`` and defaulted by :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure module defaults them -- so the FEATURES window and the Measure module disagree about nothing.",
@@ -4776,7 +4916,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Resolve what a user typed in a mask column to a spaCR object role.",
       "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
-      "translation": "Leysa það sem notandi sló inn í grímudálk í hlutverk hlutar í spaCR."
+      "translation": "Leysa það sem notandi sló inn í grímudálk í hlutverk hlutar í spaCR.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Accepts the role's own name, the plural and the common laboratory synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle spelling the settings forms use on application view -- ``Organelle 2`` is ``organelleb``, because the slots are lettered internally and numbered for the reader.",
@@ -4816,7 +4958,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
       "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
-      "translation": "Mæla töflu af handvöldum myndum og grímum. Inngangspunktur FEATURES."
+      "translation": "Mæla töflu af handvöldum myndum og grímum. Inngangspunktur FEATURES.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",

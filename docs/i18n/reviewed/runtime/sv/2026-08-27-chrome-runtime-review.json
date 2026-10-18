@@ -133,7 +133,7 @@
       "key": "spaCR features have different units — px², counts, ratios — so an unscaled PCA finds whichever column has the biggest numbers. Standardising makes the answer independent of the units.",
       "source_sha256": "26fc549cd7e0d97d4516a7db11b30b96e850e9a9d6fa41d8eb4225fa8e22a6d9",
       "source": "spaCR features have different units — px², counts, ratios — so an unscaled PCA finds whichever column has the biggest numbers. Standardising makes the answer independent of the units.",
-      "translation": "spaCR-funktioner har olika enheter — px², antal och kvoter — så en oskalad PCA domineras av kolumnen med de största numeriska värdena. Standardisering gör resultatet oberoende av enheterna."
+      "translation": "spaCR-egenskaper har olika enheter — px², antal och kvoter — så en oskalad PCA domineras av kolumnen med de största numeriska värdena. Standardisering gör resultatet oberoende av enheterna."
     },
     {
       "table": "setting_tooltips",

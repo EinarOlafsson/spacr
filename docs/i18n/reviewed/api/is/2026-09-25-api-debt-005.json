@@ -264,7 +264,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til."
+      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "an all-zero moment.",
@@ -4307,7 +4310,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Audit several label stacks and compare their frame intervals.",
       "source_sha256": "e0244d2fa2d3905a7b33993282b5e32f918073efb26182e3b3af931aa20dd9f8",
-      "translation": "Taka út nokkra merkjastafla og bera saman rammabil þeirra."
+      "translation": "Taka út nokkra merkjastafla og bera saman rammabil þeirra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping of dataset name to label stack.",
@@ -4405,7 +4410,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A distinct name for each stack path, as short as it can be.",
       "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
-      "translation": "Sérstakt heiti fyrir hverja staflaslóð, eins stutt og það getur verið."
+      "translation": "Sérstakt heiti fyrir hverja staflaslóð, eins stutt og það getur verið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
@@ -4437,7 +4444,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Per-frame displacement of every label that survives a frame.",
       "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
-      "translation": "Tilfærsla milli ramma fyrir hvert merki sem lifir af ramma."
+      "translation": "Tilfærsla milli ramma fyrir hvert merki sem lifir af ramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
@@ -4471,7 +4480,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Find divisions and say which labelling convention they follow.",
       "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
-      "translation": "Finna skiptingar og segja hvaða merkingarvenju þær fylgja."
+      "translation": "Finna skiptingar og segja hvaða merkingarvenju þær fylgja.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
@@ -4503,7 +4514,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Render a QC table as aligned text.",
       "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
-      "translation": "Birta QC-töflu sem jafnaðan texta."
+      "translation": "Birta QC-töflu sem jafnaðan texta.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`audit_label_consistency` returns.",
@@ -4535,7 +4548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Reduce frame timing to an interval and a verdict about its constancy.",
       "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
-      "translation": "Draga tímasetningu ramma saman í bil og úrskurð um hvort það sé stöðugt."
+      "translation": "Draga tímasetningu ramma saman í bil og úrskurð um hvort það sé stöðugt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
@@ -4575,7 +4590,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure every labelled object in every frame.",
       "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
-      "translation": "Mæla hvern merktan hlut í hverjum ramma."
+      "translation": "Mæla hvern merktan hlut í hverjum ramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
@@ -4591,7 +4608,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Summarise where each label lives in the movie.",
       "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
-      "translation": "Draga saman hvar hvert merki er í kvikmyndinni."
+      "translation": "Draga saman hvar hvert merki er í kvikmyndinni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
@@ -4607,7 +4626,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read a label stack from a file or a folder of frames.",
       "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
-      "translation": "Lesa merkjastafla úr skrá eða möppu með römmum."
+      "translation": "Lesa merkjastafla úr skrá eða möppu með römmum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
@@ -4639,7 +4660,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Run the QC over one or more label stacks and print the table.",
       "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
-      "translation": "Keyra QC yfir einn eða fleiri merkjastafla og prenta töfluna."
+      "translation": "Keyra QC yfir einn eða fleiri merkjastafla og prenta töfluna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
@@ -4733,7 +4756,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
       "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
-      "translation": "``'numpy 1.26.4 -> 2.2.6'`` eða ``'cuml-cu12 26.8.0 (new)'``."
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` eða ``'cuml-cu12 26.8.0 (new)'``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The repository's releases, newest first, or ``[]``.",
@@ -4741,7 +4766,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The repository's releases, newest first, or ``[]``.",
       "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
-      "translation": "Útgáfur geymslunnar, nýjasta fyrst, eða ``[]``."
+      "translation": "Útgáfur geymslunnar, nýjasta fyrst, eða ``[]``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
@@ -4791,7 +4818,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Launch the updated Qt application after the old event loop has stopped.",
       "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
-      "translation": "Ræsa uppfærða Qt-forritið eftir að gamla atburðalykkjan hefur stöðvast."
+      "translation": "Ræsa uppfærða Qt-forritið eftir að gamla atburðalykkjan hefur stöðvast.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "process identifier of the detached replacement application.",
@@ -4815,7 +4844,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the fetched release list is remembered between launches.",
       "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
-      "translation": "Hvar sótti útgáfulistinn er geymdur milli ræsinga."
+      "translation": "Hvar sótti útgáfulistinn er geymdur milli ræsinga.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
@@ -4837,7 +4868,7 @@
     },
     {
       "context": "allow prerelease packages.",
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
@@ -4845,7 +4876,7 @@
     },
     {
       "context": "explicit version selected by the update check.",
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",

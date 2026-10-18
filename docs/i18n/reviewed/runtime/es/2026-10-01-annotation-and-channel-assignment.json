@@ -89,13 +89,6 @@
       "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
       "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
       "translation": "Asigne los canales de intensidad guardados a una calibración de campo plano del proveedor. El ejemplo 0:2,1:1 asigna los canales de intensidad 0 y 1 a los canales de calibración 2 y 1, respectivamente. La numeración de los canales de intensidad empieza en 0. La numeración de los canales de calibración o de las capas de imagen empieza en 1. Incluya todos los canales de intensidad que se van a corregir. Un valor vacío conserva el orden original de los canales. Con un valor vacío, una única capa de imagen de calibración se aplica a todos los canales. Seleccione primero un archivo de calibración del proveedor. Un modelo de iluminación guardado tiene prioridad. El valor predeterminado está vacío."
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará antes de que comience la actualización. Se volverá a abrir automáticamente cuando la actualización se complete correctamente."
     }
   ],
   "retired_records": [

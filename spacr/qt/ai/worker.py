@@ -57,7 +57,7 @@ class StreamWorker(QObject):
 
         Setting a Python flag alone isn't enough — the worker is
         blocked in a `for line in proc.stdout` iteration until the
-        subprocess writes or closes. We terminate the subprocess
+        subprocess writes or closes. This method terminates the subprocess
         directly via `provider.cancel_stream()`; the reader then
         exits with an empty read and run() completes cleanly.
         """

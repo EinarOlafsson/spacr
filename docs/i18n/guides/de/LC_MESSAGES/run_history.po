@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -65,6 +65,10 @@ msgstr "**Einstellungen → Speicher** legt die Grenzen fest, die beim Bereinige
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "Die Cache-Tabelle listet die Caches für spaCR-Modelle, Cellpose, Hugging Face, Torch, Backend-Umgebungen und Neuigkeiten auf. **Messen** ermittelt ihre Größe, **Leeren…** leert nach einer Rückfrage den ausgewählten Cache, und **Verschieben…** verschiebt ihn nach ``<folder>/spacr-<cache>`` auf einem anderen Laufwerk. Der neue Ort wird in ``~/.spacr/cache_locations.json`` festgehalten und bei jedem Start verwendet; ein Cache, dessen Variable (zum Beispiel ``HF_HOME``) außerhalb von spaCR gesetzt ist, wird nicht verschoben. Leeren und Verschieben warten, bis keine Ausführung läuft."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."
+msgstr "Der spaCR-Modell-Zwischenspeicher verwendet ``SPACR_MODEL_CACHE``. Ist die Variable nicht gesetzt oder leer, verwenden Modelle den Ordner ``models`` im spaCR-Basisverzeichnis, das ``_spacr_home()`` zurückgibt (normalerweise ``~/.spacr/models``). Eine explizite Überschreibung über die Umgebungsvariable hat Vorrang. Wird dieser Zwischenspeicher über **Speicher → Verschieben…** verschoben, wird sein neuer Speicherort in ``cache_locations.json`` gespeichert und beim Start erneut angewendet. Neu geöffnete Model-Zoo-Bildschirme und Plaque-Vorschauen verwenden diesen Speicherort. Die Modellauswahl folgt der Verschiebung, wenn ihr gespeicherter Ordner dem alten Zwischenspeicher entsprach; ein separat gewählter eigener Modellordner bleibt erhalten."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."

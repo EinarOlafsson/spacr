@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 til 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Prófunarþekja á Codecov
 
@@ -114,15 +114,21 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: Notaðu **Hlaða prófunargögnum…** í Import, Make Masks, Annotate eða á greiningarskjá
-    til að sækja sýnigögn. Notaðu ``spacr-download`` í skipanalínu.
 - h2: Hardware aðstoð
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
+  details:
+  - 'Auto: True 3D í Make Masks reynir tiltæka bakenda í þessari röð: Linux: Vulkan → OpenGL
+    → CPU; Windows: Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan → OpenGL →
+    CPU. Vulkan, Metal og Direct3D 12 nota wgpu. Ef GPU-bakendi er ekki tiltækur eða bregst
+    er næsti reyndur; teiknun á CPU er áfram tiltæk.'
+  - wgpu er sjálfgefið sett upp með Python 3.10 eða nýrra á Windows (x64, ARM64), macOS (Intel,
+    Apple silicon) og Linux (x86-64, ARM64, glibc 2.28 eða nýrra). Python 3.9, aðrir örgjörvar,
+    Linux með eldra glibc og uppsetningar án wgpu nota OpenGL og síðan CPU. Fjólubláu 3D-reitirnir
+    tákna útfærðan GPU-stuðning sem bíður samþykktar á raunverulegum skjá.
+  - Keyrsla á CPU er studd og getur verið hægari. Í einni mælingu á Intel iMac (Core i5-10500,
+    AMD Radeon Pro 5300 4 GB) tók Cellpose-SAM 444.5 s á CPU og 3.2 s með Metal fyrir eina
+    256×256 mynd, með torch 2.2.2, Python 3.12.11 og macOS 26.5.2. Þetta er sögulegt dæmi,
+    ekki hraðaloforð. GPU-hröðun krefst nothæfs bakenda og samhæfra safna. Sjá `skráða vélbúnaðarmælingu
     <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Setja upp spaCR
 - p: 'Veldu uppsetningarleið:'
@@ -137,7 +143,7 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker-leiðbeiningarnar <docs/source/installer_guide.rst#container-images>`_
+- p: '`Docker-leiðbeiningarnar (nightly, á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.'
 - h3: Skjáborðsforrit
 - p: Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
@@ -149,8 +155,9 @@ blocks:
   lang: bash
 - p: Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir
     það, velja **System Settings → Privacy & Security → Open Anyway**.
-- p: Sjá `uppsetningarleiðbeiningarnar <docs/source/installer_guide.rst>`_ fyrir
-    leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu.
+- p: Leiðbeiningar um uppsetningu, uppfærslu, enduruppsetningu, fjarlægingu, notkun
+    án nettengingar og bilanagreiningu eru í `nýjustu uppsetningarleiðbeiningunum
+    á nightly (á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
     Í `kerfiskröfunum <docs/source/system_requirements.rst>`_ eru ráðleggingar um
     vinnustöðvar og netþjóna og töflur um GPU-samhæfi.
 - h3: Uppsetning frá PyPI
@@ -174,7 +181,8 @@ blocks:
     spacr-run --list
   lang: bash
 - p: Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]``
-    og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <docs/source/installer_guide.rst>`_
+    og ``spacr[czi,nd2,lif]``. Sjá `uppsetningarleiðbeiningarnar (nightly, á ensku)
+    <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
     fyrir fullkomna útgáfur og Python-version samskipti tól.
 - h3: Uppsetning með conda-forge
 - p: 'Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins

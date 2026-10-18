@@ -2,9 +2,9 @@
 3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
 ================================================================================
 
-Status:    OPEN 2026-10-10 — implemented and published with nine-language captions and API pages; only the maintainer's hands-on desktop check is left
+Status:    BLOCKED ON MAINTAINER — wgpu implementation and automated checks complete; real-display backend and dragging-FPS acceptance remains
 Requested: 2026-10-08
-Owner:     Home/root CPU mask editing lane; workstation API/docs/translations/tutorials
+Owner:     accessibility_implementation + accessibility_acceptance; root publication; maintainer real-display acceptance
 Depends:   N672 validated gate anchor and surface editing logic
 
 WHAT THE STATE IS
@@ -211,3 +211,9 @@ README requirements, all10 languages: only a “3D” column in the existing har
 Publish nightly, then copy only README.rst, docs/i18n/readme, docs/readme_images, docs/readme_assets, docs/models and docs/readme_text outputs to main as explicitly requested; preserve main history and its separate-table revert.
 Website: existing GPU table gets only a3D column across9 languages; no separate table; check_i18n.mjs and node --test tools/ must pass. Coordinate N688 badge generation and N703 Preferences/installer ownership.
 Real-display acceptance remains with the maintainer: each available backend and dragging FPS; no Home GPU execution or offscreen claim of visual acceptance.
+
+2026-10-16 — Transferred wgpu implementation9770fcc09db is integrated as ebfb558238f with707; renderer/installer cohort172pass/8GPUskip and opt-out cohort14pass; Home used no GPU.
+2026-10-16 — Supported Python3.10+ processors get wgpu by default; unsupported hosts/opt-out use OpenGL/CPU. Noarch conda retains its documented wgpu-py constraint and explicit installation path.
+2026-10-16 — All10 README sources/outputs have only a3D hardware column; backend exclusions/order and CPU measurement text are on the clicked pages. Website changes and hosted language checks passed in N686.
+2026-10-16 — Normal nine-language API build/audit passed13564symbols; all16 focused API/runtime/arrival contracts pass, with494 independently reviewed repairs adopted normally and Help/runtime results retained.
+2026-10-16 — BLOCKED ON MAINTAINER: check picking and dragging FPS on Linux Vulkan/OpenGL/CPU, Windows Vulkan/Direct3D12/OpenGL/CPU, macOS Metal/OpenGL/CPU, plus opt-out installer/doctor behavior.

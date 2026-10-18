@@ -157,11 +157,15 @@ def providers() -> "Dict[str, Callable[[], Any]]":
 def clear_providers() -> None:
     """Remove all providers and restore the built-in defaults.
 
+    The GUI-thread dispatcher goes with them; the next screen to register
+    installs it again.
+
     This resets process state during application shutdown and test teardown.
     """
-    global _DEFAULT_MODE, _DEFAULT_LIMIT_MB
+    global _DEFAULT_MODE, _DEFAULT_LIMIT_MB, _STATE_DISPATCHER
     with _LOCK:
         _PROVIDERS.clear()
+        _STATE_DISPATCHER = None
         _DEFAULT_MODE = DEFAULT_MODE
         _DEFAULT_LIMIT_MB = float(DEFAULT_COPY_LIMIT_MB)
 
@@ -184,6 +188,9 @@ def _state_of(source: Any) -> Optional[Dict[str, Any]]:
     return None
 
 
+_STATE_DISPATCHER: Optional[Callable[[Callable[[], Any]], Any]] = None
+
+
 def section_states(
     contributors: Mapping[str, Any],
 ) -> Tuple[Dict[str, Any], List[Dict[str, str]]]:
@@ -194,7 +201,29 @@ def section_states(
     :returns: ``(sections, problems)``. A provider that raises or returns no
         usable state is omitted and described in ``problems``; other sections
         are still collected.
+
+    The providers are widgets in the GUI, and a run journal saves from the
+    worker thread that ran the pipeline. So when the GUI has installed a
+    dispatcher (``_STATE_DISPATCHER``), every provider is read through it,
+    on the GUI thread, and only the plain JSON-compatible copies come back.
+    A dispatcher that cannot answer costs the sections, never the run.
     """
+    dispatch = _STATE_DISPATCHER
+    if dispatch is None:
+        return _section_states_here(contributors)
+    try:
+        return dispatch(lambda: _section_states_here(contributors))
+    except Exception as exc:                          # noqa: BLE001
+        LOG.warning("workspace sections could not be read: %s", exc)
+        return {}, [{"section": name,
+                     "why": f"{type(exc).__name__}: {exc}"}
+                    for name in sorted(contributors)]
+
+
+def _section_states_here(
+    contributors: Mapping[str, Any],
+) -> Tuple[Dict[str, Any], List[Dict[str, str]]]:
+    """Read each provider on the calling thread; see :func:`section_states`."""
     sections: Dict[str, Any] = {}
     problems: List[Dict[str, str]] = []
     for name in sorted(contributors):

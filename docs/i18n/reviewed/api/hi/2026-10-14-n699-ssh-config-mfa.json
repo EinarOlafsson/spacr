@@ -24,7 +24,7 @@
       "source": "Check the remote hostname before querying Slurm on the worker thread.",
       "source_sha256": "6cebc4368fe1992f42f43f148a47c4fcd476fea6f4c06b5843590a528a38165c",
       "context": "Check the remote hostname before querying Slurm on the background execution unit.",
-      "translation": "कार्यकर्ता थ्रेड पर Slurm से पूछने से पहले दूरस्थ होस्ट नाम जाँचें।",
+      "translation": "वर्कर थ्रेड पर Slurm से पूछने से पहले दूरस्थ होस्ट नाम जाँचें।",
       "review_basis": "AI technical review (Codex), exact current source. Preserves non-secret metadata, forbidden password/OTP persistence, verified persistent transport, GUI keyboard-interactive prompts and hostname-before-Slurm worker ordering. No human/native-speaker signoff."
     }
   ]

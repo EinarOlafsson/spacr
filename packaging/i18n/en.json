@@ -76,5 +76,12 @@
   "gui_cancelled": "Installation cancelled. Review the log before retrying.",
   "gui_failed": "Installation or launch failed. Review the log and retry in this window.",
   "gui_stopping": "Stopping installation and restoring the previous runtime…",
-  "nsis_uninstall_failed": "spaCR could not safely finish uninstalling. See the details above; your data has been kept."
+  "nsis_uninstall_failed": "spaCR could not safely finish uninstalling. See the details above; your data has been kept.",
+  "help_without_wgpu": "Install without wgpu; 3D views then use OpenGL or the CPU.",
+  "without_wgpu": "Install without wgpu (use OpenGL/CPU for 3D)",
+  "without_wgpu_description": "Leaves out wgpu (Vulkan, Metal, Direct3D 12). spaCR then draws 3D views with OpenGL, or with the CPU when OpenGL is unavailable. Leave this unticked unless wgpu causes problems on this computer.",
+  "wgpu_plan": "wgpu 3D rendering",
+  "wgpu_plan_install": "install",
+  "wgpu_plan_skip": "skip (3D uses OpenGL, else the CPU)",
+  "wgpu_glibc_too_old": "wgpu needs glibc 2.28 or newer (this system has %s); installing without wgpu, so 3D will use OpenGL or the CPU."
 }

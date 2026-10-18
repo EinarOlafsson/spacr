@@ -601,6 +601,18 @@
           "speech_text": "Annotate では物体の切り抜き画像を確認し、見直したラベルを例に記録できます。"
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。"
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes はシーケンスデータを読み、ガイドやバーコードを数えて識別します。",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder は測定表からグラフを作ります。列やグループ分けを設定できます。"
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。"
         },
         {
           "visual": "06_mask_host",

@@ -46,13 +46,6 @@
     },
     {
       "table": "ui",
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "translation": "水面之下：海绿色、薄荷绿，以及暖色光全被吸收后最后留下的蓝绿色。",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9"
-    },
-    {
-      "table": "ui",
       "key": "Uninstall",
       "source": "Uninstall",
       "translation": "卸载",
@@ -165,13 +158,6 @@
     },
     {
       "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "translation": "启用详细日志时（“模块”选项卡），DEBUG 始终写入日志文件，因此此开关保持开启。关闭详细日志后即可自行选择；您原先的选择会保留，届时恢复。",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2"
-    },
-    {
-      "table": "ui",
       "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "translation": "写出此表描述的合并数组，再使用 Measure 模块本身进行测量。生成的输出文件夹和测量数据库与一次 Measure 运行的输出相同。",
@@ -263,6 +249,22 @@
         "translation": "新对象与掩膜中已有对象重叠时的处理方式。“裁剪”仅保留尚未标记的像素，因此已有对象不会失去任何像素。“跳过”会舍弃任何与已有对象接触的新对象。“替换”允许新对象占据它覆盖的全部像素。在“鼠标下的区域”模式中，框内会显示应用规则后的结果：单击将添加的部分以实心显示，将移除的部分以虚影显示。",
         "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
       }
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "translation": "水面之下：海绿色、薄荷绿，以及暖色光全被吸收后最后留下的蓝绿色。",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "translation": "启用详细日志时（“模块”选项卡），DEBUG 始终写入日志文件，因此此开关保持开启。关闭详细日志后即可自行选择；您原先的选择会保留，届时恢复。",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

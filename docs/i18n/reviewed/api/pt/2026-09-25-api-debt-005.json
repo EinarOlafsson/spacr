@@ -144,7 +144,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Não zeros: uma placa em repouso ainda tem uma placa, e o fundo precisa repousar lindamente em vez de se apagar. O mecanismo lê isto como \"respire devagar no seu próprio relógio\", que é para o que serve :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`."
+      "translation": "Não zeros: uma placa em repouso ainda tem uma placa, e o fundo precisa repousar lindamente em vez de se apagar. O mecanismo lê isto como \"respire devagar no seu próprio relógio\", que é para o que serve :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "the folder that was measured; it stands for the whole filesystem it lives on.",

@@ -812,7 +812,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "validate the ids as exact primary IDs first (uint16-compatible, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
       "source_sha256": "3f6405ab7f5ecb1b8bc0ceed13a7a2ff4c0950edcca5e752efb54e7d6d68c2d9",
-      "translation": "पहले id को सटीक प्राथमिक ID के रूप में सत्यापित करता है (uint16-संगत, :func:`canonical_labels` के ज़रिए)। दोनों ही स्थितियों में हर id बना रहता है। डिफ़ॉल्ट रूप से एकल फ़ोरग्राउंड मान वाला मास्क -- ब्रश से रंगा बाइनरी मास्क, जिसमें कोई id नहीं होता -- पहले संयोजकता के आधार पर क्रमांकित किया जाता है, जैसे :func:`canonical_labels` करता है।"
+      "translation": "पहले id को सटीक प्राथमिक ID के रूप में सत्यापित करता है (uint16-संगत, :func:`canonical_labels` के ज़रिए)। दोनों ही स्थितियों में हर id बना रहता है। डिफ़ॉल्ट रूप से एकल फ़ोरग्राउंड मान वाला मास्क -- ब्रश से रंगा बाइनरी मास्क, जिसमें कोई id नहीं होता -- पहले संयोजकता के आधार पर क्रमांकित किया जाता है, जैसे :func:`canonical_labels` करता है।",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "Close the holes inside each object, keeping every id it already had.",

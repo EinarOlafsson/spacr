@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "DEN FÖRSTA VIKNINGEN SKAPAR SIDREMSAN I ETT EGET VARV. När den skapas flyttas hela skärmens innehåll till remsan, och Qt formaterar om varje widget i ett innehåll som flyttas; detta och sidans inträde i remsan var en enda frysning. En paus mellan dem låter fönstret svara."
+    }
+  ]
+}

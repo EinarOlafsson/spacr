@@ -46,6 +46,9 @@ cp -a dist/spacr/. "$stage/opt/spacr/"
 cat > "$stage/opt/spacr/update-protocol.json" <<'PROTOCOL'
 {"schema": 1, "adapter": "linux-deb-v1"}
 PROTOCOL
+cat > "$stage/opt/spacr/uninstall-protocol.json" <<'PROTOCOL'
+{"schema": 1, "adapter": "linux-deb-uninstall-v1"}
+PROTOCOL
 cat > "$stage/usr/bin/spacr" <<'LAUNCHER'
 #!/bin/sh
 exec /opt/spacr/spacr "$@"

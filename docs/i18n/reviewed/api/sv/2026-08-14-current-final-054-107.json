@@ -350,7 +350,7 @@
       "source_sha256": "aa8d9f4db150d0760a7cdbed1669ef33baaa8c647968353849d4899ff7aa2513",
       "source": "table to preselect (e.g. ``png_list`` for annotations).",
       "context": "table to preselect (e.g. ``png_list`` for annotations).",
-      "translation": "tabell som ska förinställas (till exempel ``png_list`` för anteckningar)."
+      "translation": "tabell som ska förinställas (till exempel ``png_list`` för annoteringar)."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_stdout#0",

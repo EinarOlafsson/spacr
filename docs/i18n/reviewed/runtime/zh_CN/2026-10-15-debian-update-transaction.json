@@ -259,13 +259,6 @@
       "source": "only the installed Debian helper may prepare privileged replacement",
       "source_sha256": "08bea987fcf96d92d755f584d77c1dd6dd1d288698032c5d73bdca7ce6adcb9e",
       "translation": "只有已安装的 Debian 辅助程序可以准备特权替换"
-    },
-    {
-      "table": "ui",
-      "key": "spaCR will close before updating its Debian package. A graphical administrator authorization window will open. The previous package will be retained for rollback. Your data and caches will be kept.",
-      "source": "spaCR will close before updating its Debian package. A graphical administrator authorization window will open. The previous package will be retained for rollback. Your data and caches will be kept.",
-      "source_sha256": "d2525609d20da56b4271adca750a416385cb0a3b0af9eff8806a48eddfaedf2d",
-      "translation": "spaCR 将在更新其 Debian 软件包之前关闭。将打开图形化管理员授权窗口。先前的软件包将保留，以便回滚。您的数据和缓存将保留。"
     }
   ]
 }

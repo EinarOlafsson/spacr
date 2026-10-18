@@ -6,7 +6,9 @@
       "label": "spacr.api.run_mask#0",
       "source": "Run Mask from a typed configuration or an existing settings mapping.",
       "source_sha256": "2ea24f9555ba993c500cd0acb5305008ff72bf71342ee773c913935545e267bf",
-      "translation": "Keyra Mask frá vélinni stillingu eða núverandi stillingavörpun."
+      "translation": "Keyra Mask frá vélinni stillingu eða núverandi stillingavörpun.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``cell_count`` as the count data recorded it, or ``None``. Kept beside ``n_objects`` rather than instead of it, because when they disagree the montage has to say so.",
@@ -165,7 +167,9 @@
       "label": "spacr.gene_tile.toxodb_url#0",
       "source": "The ToxoDB gene record page for a full accession. Never fetched.",
       "source_sha256": "50c526737e43ba66feedf1d54b43299083fa779c221ee4d7ff6f8cf28c323b1f",
-      "translation": "ToxoDB genaskráningarsíðan fyrir fulla aðild. Aldrei sótt."
+      "translation": "ToxoDB genaskráningarsíðan fyrir fulla aðild. Aldrei sótt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The participation ratio of the correlation matrix's eigenvalues, ``(sum lambda)^2 / sum lambda^2`` -- 785 for 785 orthogonal columns, and 1 for 785 copies of one column. The same statistic the sweep uses to count a guide's effective microplate sample positions, applied to the other axis.",
@@ -209,7 +213,9 @@
       "label": "spacr.ml.fit_quality_note#0",
       "source": "Return a one-line goodness-of-fit summary for a fitted GLM.",
       "source_sha256": "cdf4dfc0525ee86279535aa942fa571f53dd102dddb03504a4211e1043c566f1",
-      "translation": "Skilaðu einni línu yfirliti yfir hæfileika fyrir innréttaðan GLM."
+      "translation": "Skilaðu einni línu yfirliti yfir hæfileika fyrir innréttaðan GLM.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "McFadden's pseudo-R-squared compares log-likelihoods, and it is the appropriate summary for a GLM with a discrete response. A Gaussian identity-link fit instead reports ordinary R-squared because its likelihood is a density and the McFadden ratio is not interpretable on the usual zero-to-one scale.",
@@ -237,7 +243,9 @@
       "label": "spacr.picture_settings.to_crop_settings#0",
       "source": "The subset of a picture-settings dict the crop layer understands.",
       "source_sha256": "4ba3880ce3b47e217b0ce4670445bcdc33a5b60745313236e980158f160f8eae",
-      "translation": "Hlutmengi lykilgildis myndstillinga sem kortleggur útdregna myndsvæðislagið skilur."
+      "translation": "Hlutmengi lykilgildis myndstillinga sem kortleggur útdregna myndsvæðislagið skilur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The roll-up structured-data names are the load-bearing detail. They are the identity columns PLUS ``screenID`` PLUS ``source_database`` PLUS the child's anchor column. Leave ``screenID`` out and two application views that legitimately share ``plate1`` (which :func:`~spacr.multi_database.describe_merge` deliberately permits) collapse into one parent -- reintroducing, one layer up, exactly the pooling ``multi_database`` exists to prevent.",
@@ -700,7 +708,9 @@
       "label": "spacr.regression_backends.resolve_backend_name#0",
       "source": "The canonical backend name for whatever a panel or a CSV posted.",
       "source_sha256": "5d9040f0eba89efb00f3c227550f5da0559ba4508bd398b1f500b06c5d669e6b",
-      "translation": "Kanóníska bakendaheitið fyrir hvað sem spjaldið eða CSV birtir."
+      "translation": "Kanóníska bakendaheitið fyrir hvað sem spjaldið eða CSV birtir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The worst one, not the commonest and not an average. Nineteen panels passing and one saying the design is rank deficient is a run whose coefficients are one of infinitely many solutions, and a summary that reports \"95% passed\" is a summary that hides exactly the panel the suite was run for.",

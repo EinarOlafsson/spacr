@@ -177,6 +177,8 @@ WIDGET_LABELS = {
     "EmbeddingsFoundationLabel": ("Foundation model",),
     "EmbeddingsFoundationPicker": ("None (use the backbone)",),
     "EmbeddingsDemoButton": ("Load synthetic demo",),
+    "EmbeddingsCellExampleButton": ("Load cell example",),
+    "EmbeddingsDinoInUseLabel": ("In use: open DINOv2", "In use: official Cell-DINO"),
     "EmbeddingsWellMilButton": ("Learn from well labels",),
     "EmbeddingsDinoPretrainButton": ("Pretrain on these crops",),
     "CellposeWorkbenchVirtualStain": ("Virtual staining",),

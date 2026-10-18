@@ -1,0 +1,16 @@
+{"home_full":["/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/home-capture/production/05_home/keyframes/01_module.png",[0,0,3840,2160]],
+ "cellpose_masks_fig":["20_cellpose_masks/23_output",[1850,100,1750,620]],
+ "train_cellpose_fig":["19_train_cellpose/23_output",[1860,110,1750,620]],
+ "model_compare":["21_model_compare/07_metrics",[346,150,3478,1900]],
+ "model_zoo":["22_model_zoo/07_benchmark",[346,150,3478,1900]],
+ "motility_preview":["18_motility/19_preview_result",[346,150,3478,1100]],
+ "report_figs":["29_report/12_report_figures",[1100,0,1700,1200]],
+ "import_mapping":["36_import/07_edit_mapping",[346,184,3478,1640]],
+ "converter":["35_converter/07_result",[346,349,3478,1576]],
+ "plate_grid":["33_plate_viewer/06_mean_result",[346,349,3478,1630]],
+ "agreement":["23_agreement/07_confusion",[346,150,3478,1900]],
+ "annotate_active":["09_annotate/21_active_learning",[346,156,3478,1906]],
+ "measure_objcrops":["08_measure/22_object_crops",[1034,433,1776,1245]],
+ "mask_organelle":["07_mask/15_organelle_overlay",[2250,230,1590,1480]],
+ "activation_ui":["16_activation/23_output",[346,150,3478,1900]]
+}

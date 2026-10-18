@@ -66,7 +66,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "conservar los ID primarios/secundarios exactos sin interpretar las máscaras de un solo valor como binarias ni separar piezas desconectadas. El modo explícito valida etiquetas enteras 2-D no negativas y rechaza los ID superiores a 65535 antes de escribir; nunca los renumera en silencio.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",
@@ -3133,7 +3135,7 @@
       "source": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
       "source_sha256": "2ad7264118207421846698d6c669ed6fb4ec064bd4b919abcac727f6f5c10818",
       "context": "cells per row; converted to ``int`` and clamped to :data:`MONTAGE_COLUMNS_RANGE`, and an unparseable value stores :data:`DEFAULT_MONTAGE_COLUMNS`.",
-      "translation": "celdas por fila; se convierte a ``int`` y se limita a :data:`MONTAGE_COLUMNS_RANGE`, y un valor no interpretable guarda :data:`DEFAULT_MONTAGE_COLUMNS`.",
+      "translation": "células por fila; se convierte a ``int`` y se limita a :data:`MONTAGE_COLUMNS_RANGE`, y un valor no interpretable guarda :data:`DEFAULT_MONTAGE_COLUMNS`.",
       "review_basis": "MT draft edited in AI review"
     },
     {
@@ -3806,7 +3808,10 @@
       "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
       "context": "Settings templates — named bundles you can reuse and share.",
       "translation": "Plantillas de ajustes — paquetes con nombre que puede reutilizar y compartir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.recipes#1",
@@ -4694,7 +4699,10 @@
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
       "context": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "translation": "No ceros: una placa en reposo sigue teniendo una placa, y el fondo tiene que quedar en reposo con belleza en lugar de apagarse. El motor lo interpreta como \"respira despacio con tu propio reloj\", que es para lo que sirve :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.resonance.silence#2",

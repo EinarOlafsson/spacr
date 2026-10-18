@@ -360,7 +360,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "A carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "translation": "A carga útil é como um valor volta do worker: um valor retornado seria engolido pelo executor.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

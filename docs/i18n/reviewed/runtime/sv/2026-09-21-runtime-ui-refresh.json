@@ -44,13 +44,6 @@
       "translation": "En egen WAV-fil att spela som bakgrundsmusik i stället för spaCR:s. Lämna tomt för spaCR:s egen musik. Ingenting laddas upp eller kopieras: filen läses där den ligger, och även bakgrunden Resonance rör sig till denna musik."
     },
     {
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
-      "table": "ui",
-      "translation": "En klar natt: indigo, violett, isblått och den bleka blåvioletta nyans som himlen behåller långt efter solnedgången."
-    },
-    {
       "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395",
@@ -79,32 +72,11 @@
       "translation": "Ett lågmält, loopat musikstycke i ljuduppsättningens tonart: syntmattor, ett plockat arpeggio med punkterat åttondelseko, mjuk subbas samt en diskret bastrumma på varje fjärdedel och en shaker som kommer och går i arrangemanget. Musiken är separat från övriga ljud, så du kan ha ljudåterkoppling utan musik. Den är avstängd på nivåerna Laptop och Extra Performance."
     },
     {
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "table": "ui",
-      "translation": "Ett stigande arpeggio som landar på tonartens grundton när en modulkörning lyckas, så att du märker det även när spaCR ligger i ett annat fönster."
-    },
-    {
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "table": "ui",
-      "translation": "En kort, lågmäld plockton i ljuduppsättningens tonart när du trycker på en knapp, omkopplare, flik, lista eller skjutreglage. Bekräftar att tryckningen registrerades, mer som en känsla än ett tydligt ljud."
-    },
-    {
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
       "table": "ui",
       "translation": "En långsammare fallande tonföljd när en körning avbryts med ett fel, så att en lyckad och en misslyckad körning aldrig låter likadant. En körning som du stoppar själv är tyst."
-    },
-    {
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
-      "table": "ui",
-      "translation": "En sol nära horisonten och det material som ljuset passerar genom: guld, bärnstensgult, blekt guld och mossgrönt."
     },
     {
       "key": "Add a model",
@@ -119,13 +91,6 @@
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
       "table": "ui",
       "translation": "Lägg till fält"
-    },
-    {
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "table": "ui",
-      "translation": "Lägger till spaCR:s DEBUG-meddelanden i loggfilerna i ~/.spacr/logs. Det låter också cellpose rapportera vilken modell som lästes in och registrerar vilka knappar du tryckte på. Denna information gör en felrapport användbar.\n\nAtt starta spaCR och öppna dess skärmar tog inte längre tid med detta på. Mätningen gjordes på en arbetsstation genom att öppna varje modul med funktionen på respektive av. Home var redo efter cirka 4 sekunder från kallstart i båda fallen. Den långsammaste modulen öppnades efter cirka 7 sekunder i båda fallen. Tiden för analyskörningar mättes inte.\n\nKonsolen visar fortfarande bara de nivåer du väljer för den på fliken Loggning. Denna omkopplare spårar inte varje funktionsanrop. Den spåraren är ett separat utvecklarverktyg och aktiveras inte här."
     },
     {
       "key": "Add…",
@@ -1087,13 +1052,6 @@
       "translation": "Filerna"
     },
     {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "Himlens sista färger: rosa och magenta över dämpat guld, med den plommonlila nyans som horisonten får strax före mörkret."
-    },
-    {
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781",
@@ -1204,13 +1162,6 @@
       "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777",
       "table": "ui",
       "translation": "Prova varje namnkonvention på källmappen och rangordna dem efter hur många filnamn de kan tolka. Detta visar bara ett resultat; inställningen ändras inte automatiskt."
-    },
-    {
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
-      "table": "ui",
-      "translation": "Under ytan: havsgrönt, mintgrönt och den blågröna färg som återstår när alla varma färger har absorberats."
     },
     {
       "key": "Uninstall",
@@ -1330,13 +1281,6 @@
       "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
       "table": "ui",
       "translation": "Vilka modellvikter som segmenterar detta bildfält och det levande förstoringsglasets ruta i Cellpose-läge. Listan innehåller den Cellpose-version som är installerad på datorn och alla Cellpose-modeller i Model Zoo. En modell därifrån som inte har laddats ner är inaktiverad. Om du väljer den laddas den ner och aktiveras."
-    },
-    {
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "table": "ui",
-      "translation": "När utförlig loggning är på under fliken Moduler skrivs DEBUG alltid till loggfilerna, så denna inställning förblir på. Stäng av utförlig loggning för att kunna välja själv. Ditt eget val sparas tills dess."
     },
     {
       "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
@@ -1903,6 +1847,70 @@
       "table": "ui",
       "translation": "Visa eller dölj inställningarna som en grupp: pensel, trollstav, visning, autofilter, objektoperationer, Otsu, objektdetektering och det levande förstoringsglaset. Bildytan tar över bredden som frigörs.",
       "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "table": "ui",
+      "translation": "En klar natt: indigo, violett, isblått och den bleka blåvioletta nyans som himlen behåller långt efter solnedgången.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "table": "ui",
+      "translation": "Ett stigande arpeggio som landar på tonartens grundton när en modulkörning lyckas, så att du märker det även när spaCR ligger i ett annat fönster.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "table": "ui",
+      "translation": "En kort, lågmäld plockton i ljuduppsättningens tonart när du trycker på en knapp, omkopplare, flik, lista eller skjutreglage. Bekräftar att tryckningen registrerades, mer som en känsla än ett tydligt ljud.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "table": "ui",
+      "translation": "En sol nära horisonten och det material som ljuset passerar genom: guld, bärnstensgult, blekt guld och mossgrönt.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "table": "ui",
+      "translation": "Lägger till spaCR:s DEBUG-meddelanden i loggfilerna i ~/.spacr/logs. Det låter också cellpose rapportera vilken modell som lästes in och registrerar vilka knappar du tryckte på. Denna information gör en felrapport användbar.\n\nAtt starta spaCR och öppna dess skärmar tog inte längre tid med detta på. Mätningen gjordes på en arbetsstation genom att öppna varje modul med funktionen på respektive av. Home var redo efter cirka 4 sekunder från kallstart i båda fallen. Den långsammaste modulen öppnades efter cirka 7 sekunder i båda fallen. Tiden för analyskörningar mättes inte.\n\nKonsolen visar fortfarande bara de nivåer du väljer för den på fliken Loggning. Denna omkopplare spårar inte varje funktionsanrop. Den spåraren är ett separat utvecklarverktyg och aktiveras inte här.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "Himlens sista färger: rosa och magenta över dämpat guld, med den plommonlila nyans som horisonten får strax före mörkret.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "table": "ui",
+      "translation": "Under ytan: havsgrönt, mintgrönt och den blågröna färg som återstår när alla varma färger har absorberats.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "table": "ui",
+      "translation": "När utförlig loggning är på under fliken Moduler skrivs DEBUG alltid till loggfilerna, så denna inställning förblir på. Stäng av utförlig loggning för att kunna välja själv. Ditt eget val sparas tills dess.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

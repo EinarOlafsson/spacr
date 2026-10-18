@@ -318,7 +318,10 @@
       "source_sha256": "39de9db9f25ed972138e8e16dff096a6f2820f7dca88be6655984f453c88fe35",
       "source": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
       "context": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
-      "translation": "Om en kolumn bara har ett annoterat värde (till exempel bara '1:or'), lägger vi till en '<column>_random'-klass med oannoterade rader för den kolumnen (samma storlek som positiva tal)."
+      "translation": "Om en kolumn bara har ett annoterat värde (till exempel bara '1:or'), lägger vi till en '<column>_random'-klass med oannoterade rader för den kolumnen (samma storlek som positiva tal).",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.io.save_object_mask#2",

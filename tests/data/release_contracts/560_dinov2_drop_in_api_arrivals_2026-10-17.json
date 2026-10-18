@@ -1,0 +1,5 @@
+{
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched": "Read the plate once it is on disk, or say why it is not.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished": "Select the CPU DINO choice and attach the annotations.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work": "Plan, read and label the annotated crops."
+}

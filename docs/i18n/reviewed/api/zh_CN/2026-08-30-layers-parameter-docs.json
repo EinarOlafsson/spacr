@@ -244,7 +244,9 @@
       "label": "spacr.layers.ImageLayer.channel_is_visible#0",
       "source": "Whether one channel participates in rendering.",
       "source_sha256": "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
-      "translation": "一个通道是否参与渲染。"
+      "translation": "一个通道是否参与渲染。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Zero-based channel index accepted by normal sequence indexing.",
@@ -258,7 +260,9 @@
       "label": "spacr.layers.ImageLayer.set_channel_visible#0",
       "source": "Set whether one channel participates in rendering.",
       "source_sha256": "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
-      "translation": "设置一个通道是否参与渲染。"
+      "translation": "设置一个通道是否参与渲染。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Zero-based channel index accepted by normal sequence indexing.",
@@ -384,7 +388,9 @@
       "label": "spacr.layers.LayerStack.add_image#0",
       "source": "Construct and append an image layer.",
       "source_sha256": "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
-      "translation": "构造并追加一个图像图层。"
+      "translation": "构造并追加一个图像图层。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Array-like intensity data passed to :class:`ImageLayer`.",
@@ -398,7 +404,9 @@
       "label": "spacr.layers.LayerStack.add_labels#0",
       "source": "Construct and append a labels layer.",
       "source_sha256": "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
-      "translation": "构造并追加一个标签图层。"
+      "translation": "构造并追加一个标签图层。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
@@ -552,7 +560,9 @@
       "label": "spacr.layers.LayerStack.to_bottom#0",
       "source": "Move one layer to the back of the stack.",
       "source_sha256": "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
-      "translation": "将一个图层移到图层栈的后端。"
+      "translation": "将一个图层移到图层栈的后端。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Layer object, unique layer name or integer stack index to move.",
@@ -566,7 +576,9 @@
       "label": "spacr.layers.LayerStack.to_top#0",
       "source": "Move one layer to the front of the stack.",
       "source_sha256": "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
-      "translation": "将一个图层移到图层栈的前端。"
+      "translation": "将一个图层移到图层栈的前端。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Layer object, unique layer name or integer stack index to move.",
@@ -713,7 +725,9 @@
       "label": "spacr.layers.ShapesLayer.add_ellipse#0",
       "source": "Append an axis-aligned ellipse inside an opposite-corner box.",
       "source_sha256": "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
-      "translation": "在由两个对角定义的框内追加一个轴对齐椭圆。"
+      "translation": "在由两个对角定义的框内追加一个轴对齐椭圆。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "First bounding-box corner in data coordinates, one value per axis.",
@@ -734,7 +748,9 @@
       "label": "spacr.layers.ShapesLayer.add_path#0",
       "source": "Append an open path.",
       "source_sha256": "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
-      "translation": "追加一条开放路径。"
+      "translation": "追加一条开放路径。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least two rows.",
@@ -748,7 +764,9 @@
       "label": "spacr.layers.ShapesLayer.add_polygon#0",
       "source": "Append a closed polygon.",
       "source_sha256": "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
-      "translation": "追加一个闭合多边形。"
+      "translation": "追加一个闭合多边形。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least three rows.",
@@ -762,7 +780,9 @@
       "label": "spacr.layers.ShapesLayer.add_rectangle#0",
       "source": "Append an axis-aligned rectangle from opposite corners.",
       "source_sha256": "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
-      "translation": "根据两个对角追加一个轴对齐矩形。"
+      "translation": "根据两个对角追加一个轴对齐矩形。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "First corner in data coordinates, one value per axis.",
@@ -825,7 +845,9 @@
       "label": "spacr.layers.Spacing.has_axis#0",
       "source": "Whether this spacing contains ``axis``.",
       "source_sha256": "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
-      "translation": "此间距是否包含 ``axis``。"
+      "translation": "此间距是否包含 ``axis``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Axis name to test after coercion to a string.",

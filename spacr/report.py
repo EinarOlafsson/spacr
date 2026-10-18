@@ -71,7 +71,7 @@ The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages`
 — a monospace transcription of the same content plus one page per embedded
 figure. spaCR has no HTML-to-PDF engine among its dependencies and this
 module refuses to add one, so the PDF is a faithful *summary*, not a
-rendering of the HTML. Send the HTML when you can.
+rendering of the HTML. The HTML file is the complete report.
 """
 from __future__ import annotations
 

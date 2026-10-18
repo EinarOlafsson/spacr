@@ -1,0 +1,147 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Validate the destination inside its writer transaction before changing it.",
+      "label": "spacr.measure._write_volume_measurements.write#0",
+      "source": "Validate the destination inside its writer transaction before changing it.",
+      "source_sha256": "89e4f8237bc773681a5a868663ef0ff1df617da97e1d4cc19fdd968fc40c3a44",
+      "translation": "在写入事务内验证目标，然后再对其进行更改。"
+    },
+    {
+      "context": "Measure current or saved 3D image sets into their image-folder databases.",
+      "label": "spacr.measure.measure_volume_rows#0",
+      "source": "Measure current or saved 3D image sets into their image-folder databases.",
+      "source_sha256": "d091d99711ba02dd2c67a91df30a5479ff28d2c0e45e8cc2d8abe05102c039b8",
+      "translation": "测量当前或已保存的 3D 图像集，并将结果写入相应图像文件夹的数据库。"
+    },
+    {
+      "context": "key-value mappings with ``source_path``, optional ``mask_path`` and extra ``channel_paths``. The current image supplies a ``snapshot`` containing immutable image data channels, copied labels, axes, spacing and unit, so unsaved edits are measured without changing their saved mask.",
+      "label": "spacr.measure.measure_volume_rows#1",
+      "source": "dictionaries with ``source_path``, optional ``mask_path`` and extra ``channel_paths``. The current image supplies a ``snapshot`` containing immutable channels, copied labels, axes, spacing and unit, so unsaved edits are measured without changing their saved mask.",
+      "source_sha256": "87b5db553f3c354a5ddc364302bee2fea94c390622a953b0f1d40e9315024d1c",
+      "translation": "包含 ``source_path``、可选的 ``mask_path`` 以及附加 ``channel_paths`` 的字典。当前图像提供一个 ``snapshot``，其中包含不可变通道、复制的标签、轴、间距和单位，因此可以测量未保存的编辑，而不改变已保存的掩膜。"
+    },
+    {
+      "context": "canonical object role, such as ``cell`` or ``nucleus``.",
+      "label": "spacr.measure.measure_volume_rows#2",
+      "source": "canonical object role, such as ``cell`` or ``nucleus``.",
+      "source_sha256": "549f5e865a39f3f51fa9116db71147fe1ab2422d963d59abc5753471e6e9edf0",
+      "translation": "规范对象角色，例如 ``cell`` 或 ``nucleus``。"
+    },
+    {
+      "context": "optional worker-safe callback receiving translated text.",
+      "label": "spacr.measure.measure_volume_rows#3",
+      "source": "optional worker-safe callback receiving translated text.",
+      "source_sha256": "8523fa45a603f3fb2ee33fa04134e0de5711ff3dbd22529ba95493b2d00e31f1",
+      "translation": "可选回调，可安全地由工作线程调用，并接收翻译后的文本。"
+    },
+    {
+      "context": "database paths, image count and object count. All rows are measured before any write; each destination commits atomically.",
+      "label": "spacr.measure.measure_volume_rows#4",
+      "source": "database paths, image count and object count. All rows are measured before any write; each destination commits atomically.",
+      "source_sha256": "50923ed68c19d77d9af835955c8b565ba581c8c116a920ec869035aeedea2cb2",
+      "translation": "数据库路径、图像数量和对象数量。在任何写入之前先测量所有行；每个目标分别以原子方式提交。"
+    },
+    {
+      "context": "Stored morphology, intensity, correlation and spatial feature names follow Measure. Pixel coordinates stay explicitly pixel coordinates; physical metadata are converted to micrometres. Repeating an image set replaces only this entry point's earlier rows. Other microscope fields of view and tables are retained.",
+      "label": "spacr.measure.measure_volume_rows#5",
+      "source": "Stored morphology, intensity, correlation and spatial feature names follow Measure. Pixel coordinates stay explicitly pixel coordinates; physical metadata are converted to micrometres. Repeating an image set replaces only this entry point's earlier rows. Other fields and tables are retained.",
+      "source_sha256": "807e3342b85c1e627fea2edd36221f89def8e572b46bee51ea9506902acdb3da",
+      "translation": "存储的形态、强度、相关性和空间特征名称遵循 Measure 的命名。像素坐标仍明确表示为像素坐标；物理元数据转换为微米。重复测量某个图像集仅替换此入口点此前写入的行。其他图像视野和表均保留。"
+    },
+    {
+      "context": "Keep a closed progress display from changing a database result.",
+      "label": "spacr.measure.measure_volume_rows.report#0",
+      "source": "Keep a closed progress display from changing a database result.",
+      "source_sha256": "30e9bd5fa19c20a10ea228ce38c495b899363503eae3fec71b6af176ae51f51d",
+      "translation": "防止已关闭的进度显示影响数据库结果。"
+    },
+    {
+      "context": "Measure the captured image sets and report committed database paths.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure#0",
+      "source": "Measure the captured image sets and report committed database paths.",
+      "source_sha256": "64e73ac3bdd6c0620a4f39c9ce49436dea9d0c4eedfa1a3bc872a9e7aa09d350",
+      "translation": "测量已捕获的图像集，并报告已完成提交的数据库路径。"
+    },
+    {
+      "context": "Choose extra image data channels and image sets for the current edited 3D mask.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#0",
+      "source": "Choose extra channels and image sets for the current edited 3D mask.",
+      "source_sha256": "231b9621e7a6d45ddca90f926f6a72b25c6385ee7b20ce575d47870a4dce4b0c",
+      "translation": "为当前编辑的 3D 掩膜选择附加通道和图像集。"
+    },
+    {
+      "context": "path of the current 3D image, fixed in the first row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#1",
+      "source": "path of the current 3D image, fixed in the first row.",
+      "source_sha256": "f3eb7cfebc2418f8059311ac8c2e1c1a7655cca2d2b371c1f9ef577c43340398",
+      "translation": "当前 3D 图像的路径，固定在第一行。"
+    },
+    {
+      "context": "optional Qt parent widget.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#2",
+      "source": "optional Qt parent widget.",
+      "source_sha256": "bcc80647aea791f8266cefcfa42ffa341223a8b35caf135b8a8289e51f386689",
+      "translation": "可选的 Qt 父控件。"
+    },
+    {
+      "context": "optional voxel distances displayed in axis order.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#3",
+      "source": "optional voxel distances displayed in axis order.",
+      "source_sha256": "14b99d20250f0a391efc0b85b2f482855a133c0f7a99d7300624711c28ec63ea",
+      "translation": "可选的体素间距，按轴顺序显示。"
+    },
+    {
+      "context": "spatial axis order used to label the displayed spacing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#4",
+      "source": "spatial axis order used to label the displayed spacing.",
+      "source_sha256": "82cc530fe7cc899a497ef9314711fb2a3d74e98cb026bff40b673360227e264e",
+      "translation": "用于标注所显示间距的空间轴顺序。"
+    },
+    {
+      "context": "unit displayed beside the voxel spacing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#5",
+      "source": "unit displayed beside the voxel spacing.",
+      "source_sha256": "143b4938af954fc05fadcecc98ea92fa2326f98b76244b479ac3cfddab14a2ee",
+      "translation": "显示在体素间距旁的单位。"
+    },
+    {
+      "context": "Accept only valid image-set requests; display validation errors without closing.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.accept#0",
+      "source": "Accept only valid image-set requests; display validation errors without closing.",
+      "source_sha256": "ca3c8239b63aa998f427bd7b5b6ca9694c7c1c40ab9d5d83ff8e2be8f20a3074",
+      "translation": "仅接受有效的图像集请求；显示验证错误而不关闭对话框。"
+    },
+    {
+      "context": "Add an optional image data channel slot to every image set.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_channel#0",
+      "source": "Add an optional channel slot to every image set.",
+      "source_sha256": "671ec9242b48a260c064c6edd56dbd00ba48e8c8d6cb9442a6e8960f50472e42",
+      "translation": "为每个图像集添加一个可选通道位置。"
+    },
+    {
+      "context": "Append an independently measured image set.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.add_row#0",
+      "source": "Append an independently measured image set.",
+      "source_sha256": "d91adf3c3ccbbb47b09359fa2539cc2af50090005ba2ab0c89e3163ce1999c6e",
+      "translation": "追加一个单独测量的图像集。"
+    },
+    {
+      "context": "Remove the selected extra image set, preserving the current image row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.remove_row#0",
+      "source": "Remove the selected extra image set, preserving the current image row.",
+      "source_sha256": "cce69342abf901fadf4499bd5f21586b773036c148553223c020f03f2c82fa57",
+      "translation": "移除选中的额外图像集，并保留当前图像所在的行。"
+    },
+    {
+      "context": "Validate local paths and preserve each row's channel ordering.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog.requests#0",
+      "source": "Validate local paths and preserve each row's channel ordering.",
+      "source_sha256": "69218ea7be6ad4f5c153d14ba3aae2bdb019bca5f19684f7d20cd89d8955abe5",
+      "translation": "验证本地路径，并保留各行的通道顺序。"
+    }
+  ],
+  "review_kind": "Codex AI draft and independent paired-agent technical review; no human or native-speaker signoff",
+  "schema": 1
+}

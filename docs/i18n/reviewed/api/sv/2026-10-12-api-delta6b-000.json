@@ -761,7 +761,7 @@
       "source": "A CAM is a weighted sum of one convolutional layer's feature maps. A pure transformer has no such layer, and hooking its patch embedding produces a picture that is not a CAM of anything. Rather than return that picture, the CAM adapters raise this and name the model so the caller can switch to :func:`attention_rollout` or to a gradient / perturbation method, which work on any architecture.",
       "source_sha256": "9aa7de5658e63947053142756b1094915e06095279fbcf657db46b371c8ecf71",
       "context": "A CAM is a weighted sum of one convolutional layer's feature maps. A pure transformer has no such layer, and hooking its patch embedding produces a picture that is not a CAM of anything. Rather than return that picture, the CAM adapters raise this and name the model so the caller can switch to :func:`attention_rollout` or to a gradient / perturbation method, which work on any architecture.",
-      "translation": "Ett CAM är en viktad summa av funktionskartorna i ett enda konvolutionslager. En ren transformer saknar ett sådant lager, och att haka i dess patch-inbäddning ger en bild som inte är ett CAM av någonting. I stället för att returnera den bilden utlöser CAM-adaptrarna det här felet och nämner modellen, så att anroparen kan byta till :func:`attention_rollout` eller till en gradient- eller perturbationsmetod, som fungerar med vilken arkitektur som helst.",
+      "translation": "Ett CAM är en viktad summa av egenskapskartorna i ett enda konvolutionslager. En ren transformer saknar ett sådant lager, och att haka i dess patch-inbäddning ger en bild som inte är ett CAM av någonting. I stället för att returnera den bilden utlöser CAM-adaptrarna det här felet och nämner modellen, så att anroparen kan byta till :func:`attention_rollout` eller till en gradient- eller perturbationsmetod, som fungerar med vilken arkitektur som helst.",
       "review_basis": "written from the English"
     },
     {
@@ -889,7 +889,7 @@
       "source": "A CAM needs a convolutional feature map. A pure transformer has none, so this is the substitute: the per-layer attention matrices are averaged over heads, mixed with the identity to account for the residual stream, row- normalised and multiplied together, giving how much each input token contributes to the class token.",
       "source_sha256": "3d8255bddec87c5c2109b2479d66874d89192f5e44935486b9906fc6f8b54c7c",
       "context": "A CAM needs a convolutional feature map. A pure transformer has none, so this is the substitute: the per-layer attention matrices are averaged over heads, mixed with the identity to account for the residual stream, row- normalised and multiplied together, giving how much each input token contributes to the class token.",
-      "translation": "Ett CAM behöver en konvolutionell funktionskarta. En ren transformer har ingen, så detta är ersättningen: uppmärksamhetsmatriserna för varje lager medelvärdesbildas över huvudena, blandas med identiteten för att ta hänsyn till residualflödet, radnormaliseras och multipliceras med varandra, vilket ger hur mycket varje indatatoken bidrar till klasstoken.",
+      "translation": "Ett CAM behöver en konvolutionell egenskapskarta. En ren transformer har ingen, så detta är ersättningen: uppmärksamhetsmatriserna för varje lager medelvärdesbildas över huvudena, blandas med identiteten för att ta hänsyn till residualflödet, radnormaliseras och multipliceras med varandra, vilket ger hur mycket varje indatatoken bidrar till klasstoken.",
       "review_basis": "written from the English"
     },
     {
@@ -1081,7 +1081,7 @@
       "source": "when a CAM is asked of a model with no convolutional feature map, or rollout of a model with no attention.",
       "source_sha256": "d6ab09488a9794199a7519e60dbc3d7b116a026b839e7197989e4b24dab27a4e",
       "context": "when a CAM is asked of a model with no convolutional feature map, or rollout of a model with no attention.",
-      "translation": "när ett CAM begärs för en modell utan konvolutionell funktionskarta, eller rollout för en modell utan uppmärksamhet.",
+      "translation": "när ett CAM begärs för en modell utan konvolutionell egenskapskarta, eller rollout för en modell utan uppmärksamhet.",
       "review_basis": "written from the English"
     },
     {

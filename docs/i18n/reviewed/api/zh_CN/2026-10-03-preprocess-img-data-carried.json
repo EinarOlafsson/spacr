@@ -47,7 +47,7 @@
       "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff.",
       "source": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — channel selection.",
       "source_sha256": "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
-      "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` 频道选择。"
+      "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` 通道选择。"
     },
     {
       "context": "``normalize``, ``lower_percentile``, ``save_dtype``.",

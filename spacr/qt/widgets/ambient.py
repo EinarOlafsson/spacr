@@ -366,13 +366,11 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "pastel": PaletteSpec(
         "Pastel",
         ("#A8D8EA", "#FFB5E8", "#B5EAD7", "#FFDAC1"),
-        "Pale and low contrast, for when the backdrop should be barely "
-        "there."),
+        "Pale, low-contrast colours for a faint backdrop."),
     "mono": PaletteSpec(
         "Monochrome",
         ("#A3A3A3", "#CFCFCF", "#707070"),
-        "Greys only — motion without colour, for when colour is a "
-        "distraction."),
+        "Greys only: the backdrop moves without colour."),
     "okabe": PaletteSpec(
         "Colour-blind safe",
         ("#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442"),
@@ -382,9 +380,9 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "borealis": PaletteSpec(
         "Aurora borealis",
         ("#7CFC9E", "#FF3C5A", "#5B6BFF", "#D9FFA8"),
-        "The real thing's emission lines: atomic oxygen at 557.7 nm (the "
-        "dominant green), atomic oxygen at 630.0 nm (the red that only "
-        "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
+        "Auroral emission lines: atomic oxygen at 557.7 nm (the dominant "
+        "green), atomic oxygen at 630.0 nm (the red that appears only at "
+        "high altitude), ionised nitrogen at 427.8 nm (the blue-violet "
         "lower fringe), and the pale yellow-green where the green and the "
         "red overlap."),
     "rainbow": PaletteSpec(
@@ -396,29 +394,25 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "fluor": PaletteSpec(
         "Fluorescence",
         ("#3AA0FF", "#3DFF6E", "#FF5A3C", "#FFD24A"),
-        "The standard filter set as the eyepiece sees it: DAPI at 461 nm "
+        "Emission colours of a standard filter set: DAPI at 461 nm "
         "(blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and "
         "the yellow where green and red overlap."),
     "midnight": PaletteSpec(
         "Midnight",
         ("#7185F4", "#B775F0", "#5EC8F8", "#C9CFFF"),
-        "A clear night: indigo, violet, ice blue and the pale periwinkle "
-        "a sky keeps long after the sun has gone."),
+        "Indigo, violet, ice blue and pale periwinkle."),
     "dusk": PaletteSpec(
         "Dusk",
         ("#EE779F", "#E87DDA", "#F6B98A", "#8C5BC7"),
-        "The last colour in the sky — rose and magenta over dusty gold, "
-        "with the plum the horizon goes just before dark."),
+        "Rose, magenta, dusty gold and plum."),
     "lowsun": PaletteSpec(
         "Low sun",
         ("#F6D46F", "#F2A65A", "#E2D583", "#A8C46A"),
-        "A sun close to the horizon and the matter it shines through: "
-        "gold, amber, pale gold and moss."),
+        "Gold, amber, pale gold and moss green."),
     "deepwater": PaletteSpec(
         "Deep water",
         ("#3CD296", "#7EE7BD", "#2AA5C4", "#17A08A"),
-        "Under the surface: sea green, mint, and the teal that is the last "
-        "colour left when everything warm has been absorbed."),
+        "Sea green, mint and teal."),
 }
 
 _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
@@ -819,14 +813,14 @@ DEFAULT_DRIFT_DIRECTION = "up"
 _DRIFT_DIRECTION_LABELS = {
     "up": "Up",
     "down": "Down",
-    "random": "Every which way",
+    "random": "Random",
 }
 
 _DRIFT_DIRECTION_NOTES = {
-    "up": "Everything rises, the way the shipped starfield always did.",
-    "down": "Everything falls, like snow.",
-    "random": ("Each speck goes its own way and wanders as it goes — "
-               "Brownian motion rather than one shared current."),
+    "up": "All specks move upward, as in the original starfield.",
+    "down": "All specks move downward.",
+    "random": ("Each speck moves in its own random direction (Brownian "
+               "motion) instead of one shared direction."),
 }
 
 
@@ -5031,10 +5025,10 @@ class ResonanceEngine(_BufferedEngine):
     def energy(self) -> float:
         """How hard the plate is being driven, 0 to 1.
 
-        The louder of what is playing and the idle breath, so a quiet
-        passage never takes the picture below what silence would have
-        drawn. That is the rule that makes "it idles beautifully in
-        silence" and "it reacts to the music" the same code path.
+        The larger of the current drive level and the idle oscillation, so a
+        quiet passage never drives the picture below what silence would
+        have drawn. Idle animation and the response to audio therefore
+        use the same code path.
         """
         idle = RESONANCE_IDLE + RESONANCE_IDLE_SWELL * math.sin(
             2.0 * math.pi * self.time / RESONANCE_IDLE_PERIOD)

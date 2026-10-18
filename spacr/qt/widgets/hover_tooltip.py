@@ -76,8 +76,9 @@ text-only popup with no **Animation** word to click.
 
 The popup is ONE surface. Its two layout containers paint nothing, so the
 rounded grey frame is the only fill and the page-opacity preference moves it
-as a single layer — see :meth:`HoverTooltip._apply_theme` for the black slab
-that taught us.
+as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers
+transparent, because a container with its own fill drew a dark rectangle
+inside the frame.
 
 Only one tooltip ever appears. The screens that anchor this popup also leave
 a native Qt tooltip on the same label (``refresh_api_tooltips`` re-applies it
@@ -434,7 +435,7 @@ class HoverTooltip(QFrame):
     def __init__(self):
         """Build the process-wide hover popup.
 
-        A tool-tip window with our own painting: shown without activating, so it
+        A tool-tip window with custom painting: shown without activating, so it
         never takes focus from what the pointer is over.
         """
         super().__init__(

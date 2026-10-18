@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 से 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Codecov परीक्षण कवरेज
 
@@ -116,17 +116,24 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: उदाहरण डेटा डाउनलोड करने के लिए Import, Make Masks, Annotate या किसी असे स्क्रीन
-    में **टेस्ट डेटा लोड करें…** का उपयोग करें। टर्मिनल से ``spacr-download`` का
-    उपयोग करें।
 - h2: हार्डवेयर समर्थन
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+  details:
+  - 'Auto: Make Masks का True 3D उपलब्ध बैकएंड इस क्रम में आज़माता है: Linux: Vulkan → OpenGL
+    → CPU; Windows: Vulkan → Direct3D 12 → OpenGL → CPU; macOS: Metal → Vulkan → OpenGL →
+    CPU। Vulkan, Metal और Direct3D 12, wgpu का उपयोग करते हैं। GPU बैकएंड उपलब्ध न होने या
+    विफल होने पर अगला बैकएंड आज़माया जाता है; CPU रेंडरिंग उपलब्ध रहती है।'
+  - Windows (x64, ARM64), macOS (Intel, Apple silicon) और Linux (x86-64, ARM64, glibc 2.28
+    या बाद का संस्करण) पर Python 3.10 या बाद के संस्करण के साथ wgpu डिफ़ॉल्ट रूप से इंस्टॉल
+    होता है। Python 3.9, अन्य प्रोसेसर, पुराने glibc वाले Linux और wgpu के बिना इंस्टॉलेशन
+    पहले OpenGL, फिर CPU का उपयोग करते हैं। बैंगनी 3D सेल लागू किए गए GPU समर्थन को दर्शाते
+    हैं, जिसकी वास्तविक डिस्प्ले पर स्वीकृति जाँच बाकी है।
+  - CPU पर निष्पादन समर्थित है और धीमा हो सकता है। Intel iMac (Core i5-10500, AMD Radeon Pro
+    5300 4 GB) पर एक माप में torch 2.2.2, Python 3.12.11 और macOS 26.5.2 के साथ एक 256×256
+    चित्र के लिए Cellpose-SAM ने CPU पर 444.5 s और Metal पर 3.2 s लिए। यह एक पुराना उदाहरण
+    है, गति की गारंटी नहीं। GPU त्वरण के लिए उपयोग योग्य बैकएंड और संगत लाइब्रेरी आवश्यक हैं।
+    `दर्ज किया गया हार्डवेयर माप <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_
+    देखें।
 - h2: spaCR इंस्टॉल करें
 - p: 'इंस्टॉलेशन का तरीका चुनें:'
 - list:
@@ -140,8 +147,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker गाइड <docs/source/installer_guide.rst#container-images>`_ में GPU सेटअप,
-    डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'
+- p: '`Docker गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    में GPU सेटअप, डेटा माउंट और पाइपलाइन कमांड बताए गए हैं।'
 - h3: डेस्कटॉप एप्लिकेशन
 - p: इंस्टॉलर अपने स्वयं के Python को जोड़ते हैं. कॉन्डा की आवश्यकता नहीं है.
 - generated: installer-links
@@ -153,10 +160,11 @@ blocks:
 - p: macOS पर, ``.pkg`` खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper
     इसे ब्लॉक करता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से
     खोलें** का चयन करें.
-- p: अपडेट, अनइंस्टॉल, ऑफ़लाइन उपयोग और समस्या निवारण के निर्देशों के लिए `इंस्टॉलेशन
-    गाइड <docs/source/installer_guide.rst>`_ देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों
-    तथा GPU संगतता तालिकाओं के लिए `सिस्टम आवश्यकताएँ <docs/source/system_requirements.rst>`_
-    देखें।
+- p: इंस्टॉलेशन, अपडेट, दोबारा इंस्टॉल करने, अनइंस्टॉल करने, ऑफ़लाइन उपयोग और समस्या
+    निवारण के निर्देशों के लिए `nightly शाखा की वर्तमान इंस्टॉलेशन गाइड (अंग्रेज़ी
+    में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    देखें। वर्कस्टेशन और सर्वर संबंधी सुझावों तथा GPU संगतता तालिकाओं के लिए `सिस्टम
+    आवश्यकताएँ <docs/source/system_requirements.rst>`_ देखें।
 - h3: PyPI से इंस्टॉलेशन
 - p: 'PyPI रिलीज़ के लिए, Conda वातावरण के भीतर pip से spaCR इंस्टॉल करें। Python
     3.12 में वैकल्पिक वैज्ञानिक पैकेजों की सबसे व्यापक उपलब्धता है:'
@@ -180,7 +188,7 @@ blocks:
   lang: bash
 - p: वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए ``spacr[zarr]``,
     ``spacr[omero]``,``spacr[napari]`` और ``spacr[czi,nd2,lif]``. पूर्ण अतिरिक्त
-    और Python संस्करण संगतता तालिका में `स्थापना गाइड <docs/source/installer_guide.rst>`_
+    और Python संस्करण संगतता तालिका में `स्थापना गाइड (nightly, अंग्रेज़ी में) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
     देखें.
 - h3: conda-forge से इंस्टॉलेशन
 - p: 'आधिकारिक conda-forge पैकेज सक्रिय वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ

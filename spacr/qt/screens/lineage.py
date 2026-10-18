@@ -480,7 +480,7 @@ class LineageScreen(LinkedView, QWidget):
             return None
 
     def on_linked_selection_changed(self, selection) -> None:
-        """Reveal and highlight what another view selected, when we hold it.
+        """Reveal and highlight what another view selected, if the tree contains it.
 
         :param selection: the shared selection published by another view;
             its ``keys`` are matched against the tree's object keys, and

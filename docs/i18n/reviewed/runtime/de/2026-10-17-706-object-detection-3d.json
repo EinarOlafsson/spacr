@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Item 706: the Object detection 3D switch, its greyed 2D-only rows, the Cellpose 3D stitch threshold and the volume detection status lines. Otsu, Cellpose, StarDist, do_3D, IoU and Ctrl+Z are identity text; placeholders kept exactly.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "3D is on: the method is now Otsu, because the one chosen works on 2D fields only.",
+      "source": "3D is on: the method is now Otsu, because the one chosen works on 2D fields only.",
+      "source_sha256": "1bf62eea74185ca8ab497331ddde42bcde38cfb20165bcaec21592ce3c2949da",
+      "translation": "3D ist an: Die Methode ist jetzt Otsu, weil die gewählte nur mit 2D-Feldern arbeitet."
+    },
+    {
+      "table": "ui",
+      "key": "3D stitch threshold",
+      "source": "3D stitch threshold",
+      "source_sha256": "708013b3aa89ed28f7c7d3949970213890ac1d00713afa447f2387cb0d3b9040",
+      "translation": "3D-Stitch-Schwelle"
+    },
+    {
+      "table": "ui",
+      "key": "Detect objects in the whole volume. Otsu and the threshold methods cut the volume at one level and label objects connected in 3D; Cellpose runs in 3D, or stitches its slices with a 3D stitch threshold above 0. Methods that work on 2D fields only are greyed while this is on.",
+      "source": "Detect objects in the whole volume. Otsu and the threshold methods cut the volume at one level and label objects connected in 3D; Cellpose runs in 3D, or stitches its slices with a 3D stitch threshold above 0. Methods that work on 2D fields only are greyed while this is on.",
+      "source_sha256": "918e9b45735b8b720bc6b5a37444cf3339fe40cea9a048bca829824ff94d4c71",
+      "translation": "Objekte im ganzen Volumen erkennen. Otsu und die Schwellenwertmethoden schneiden das Volumen auf einer Stufe und kennzeichnen in 3D verbundene Objekte; Cellpose läuft in 3D oder verbindet seine Schichten mit einer 3D-Stitch-Schwelle über 0. Methoden, die nur mit 2D-Feldern arbeiten, sind ausgegraut, solange dies an ist."
+    },
+    {
+      "table": "ui",
+      "key": "Detection result discarded because the volume or its mask changed. Run detection again.",
+      "source": "Detection result discarded because the volume or its mask changed. Run detection again.",
+      "source_sha256": "7387d8530ee0471a227bf7712188a853eedd0392add65dc84332524b179a98e7",
+      "translation": "Erkennungsergebnis verworfen, weil sich das Volumen oder seine Maske geändert hat. Erkennung erneut ausführen."
+    },
+    {
+      "table": "ui",
+      "key": "Open a 3D image to detect objects in the whole volume.",
+      "source": "Open a 3D image to detect objects in the whole volume.",
+      "source_sha256": "4e762b77f828da4bdc57667c5d9708a16164c15a0fd632adfaf09668106ab930",
+      "translation": "Öffnen Sie ein 3D-Bild, um Objekte im ganzen Volumen zu erkennen."
+    },
+    {
+      "table": "ui",
+      "key": "Read only while 3D is on. 0 runs Cellpose in full 3D (do_3D), which segments the volume from all three views and uses the voxel size. Above 0, each slice is segmented in 2D and objects overlapping by at least this IoU in neighbouring slices are joined into one object.",
+      "source": "Read only while 3D is on. 0 runs Cellpose in full 3D (do_3D), which segments the volume from all three views and uses the voxel size. Above 0, each slice is segmented in 2D and objects overlapping by at least this IoU in neighbouring slices are joined into one object.",
+      "source_sha256": "f128c75451a26a9c6e380a1f5ea1ec483e2f961b9b3f8e911699227cf6cf4d9e",
+      "translation": "Wird nur gelesen, solange 3D an ist. 0 führt Cellpose vollständig in 3D aus (do_3D), das das Volumen aus allen drei Ansichten segmentiert und die Voxelgröße verwendet. Über 0 wird jede Schicht in 2D segmentiert, und Objekte, die sich in benachbarten Schichten mindestens um diese IoU überlappen, werden zu einem Objekt verbunden."
+    },
+    {
+      "table": "ui",
+      "key": "The detected labels do not match the volume.",
+      "source": "The detected labels do not match the volume.",
+      "source_sha256": "500f10f5f97664cb35089301e885f6291d1234637e69b8b680fbbaf6205c39b3",
+      "translation": "Die erkannten Labels passen nicht zum Volumen."
+    },
+    {
+      "table": "ui",
+      "key": "The model returned labels shaped {got} for a volume shaped {want}.",
+      "source": "The model returned labels shaped {got} for a volume shaped {want}.",
+      "source_sha256": "86f1d534bbc05673739590ed08b0b1ebbb95ec3280c0d34d4b0b55096a9150ac",
+      "translation": "Das Modell lieferte Labels der Form {got} für ein Volumen der Form {want}."
+    },
+    {
+      "table": "ui",
+      "key": "{method} found no objects in the volume — the mask is unchanged.",
+      "source": "{method} found no objects in the volume — the mask is unchanged.",
+      "source_sha256": "21699fbf1d5540c89464b43d2921557163cf64cf868122051322029c927bce7c",
+      "translation": "{method} hat im Volumen keine Objekte gefunden — die Maske ist unverändert."
+    },
+    {
+      "table": "ui",
+      "key": "{method} found {n} object(s) in 3D — {combine}d into the volume mask. Ctrl+Z undoes it.",
+      "source": "{method} found {n} object(s) in 3D — {combine}d into the volume mask. Ctrl+Z undoes it.",
+      "source_sha256": "cbf6727501300c79bea95a19e6afd927be6c14e7e869fe47aac909507b26789f",
+      "translation": "{method} hat {n} Objekt(e) in 3D gefunden — in die Volumenmaske übernommen ({combine}). Strg+Z macht es rückgängig."
+    },
+    {
+      "table": "ui",
+      "key": "{method} running on the whole volume…",
+      "source": "{method} running on the whole volume…",
+      "source_sha256": "6ba8c64b63c1509716e406e94e59c64497de4398b5810ba35d617520745b8e47",
+      "translation": "{method} läuft auf dem ganzen Volumen…"
+    },
+    {
+      "table": "ui",
+      "key": "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+      "source": "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+      "source_sha256": "38cb8693eb8231130319f89a0dd471653784e579cc396560b1a948805415feae",
+      "translation": "{model} segmentiert nur 2D-Felder. Wählen Sie ein Cellpose- oder StarDist-3D-Modell oder schalten Sie 3D aus."
+    },
+    {
+      "table": "ui",
+      "key": "{name} segments 2D fields only, so it is unavailable while 3D is on.",
+      "source": "{name} segments 2D fields only, so it is unavailable while 3D is on.",
+      "source_sha256": "db45d1ac63cd346a7665bb316d4e392a518cd95c1e088fdff0d52c10c22b19f5",
+      "translation": "{name} segmentiert nur 2D-Felder und ist daher nicht verfügbar, solange 3D an ist."
+    },
+    {
+      "table": "ui",
+      "key": "{name} works on 2D fields only, so it is unavailable while 3D is on.",
+      "source": "{name} works on 2D fields only, so it is unavailable while 3D is on.",
+      "source_sha256": "d6dbfd7cbd1a778404338a379d6e622dc9dbabdedcd1568b33db20babfa94914",
+      "translation": "{name} arbeitet nur mit 2D-Feldern und ist daher nicht verfügbar, solange 3D an ist."
+    }
+  ]
+}

@@ -1,1 +1,1 @@
-[Docker-guiden](<../../source/installer_guide.rst#container-images>) beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena.
+[Docker-guiden (nightly, engelska)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>) beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena.

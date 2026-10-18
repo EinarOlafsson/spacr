@@ -537,6 +537,17 @@
           ]
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify træner en model på gennemgåede etiketter og scorer andre objekter ud fra udsnitsbilleder eller målte egenskaber.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes læser sekvensdata for at tælle og identificere guider eller stregkoder.",
           "hold_after": 0.7,
@@ -633,6 +644,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Rækken Organism indeholder Toxoplasma. Den åbner en organismevejledning, en interaktiv tegning og de tilgængelige Toxoplasma-analyser. Den særskilte Toxoplasma-vejledning gennemgår siden.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {

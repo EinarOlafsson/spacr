@@ -55,7 +55,7 @@ def test_frozen_windows_plan_uses_the_outside_helper_and_native_handshake(runtim
 
 
 def plan_for(runtime):
-    name = 'spaCR-1.5.1.5-setup.exe'
+    name = 'spaCR-1.5.1.5-update.exe'
     target = runtime.helper / name
     return {'schema': 1, 'adapter': 'windows-frozen-nsis-v1', 'version': '1.5.1.5',
             'records': [cleanup.asdict(runtime.record)], 'pid': 1234, 'ticked': [],
@@ -99,6 +99,8 @@ def update(runtime, monkeypatch, tmp_path):
     expected = hashlib.sha256(installer_bytes).hexdigest()
     monkeypatch.setattr(cleanup, '_published_digest', lambda _url: expected)
     actions = []
+    monkeypatch.setattr(cleanup, '_desktop_process_identity', lambda _pid: (cleanup.os.getuid(), str(runtime.executable)))
+    monkeypatch.setattr(cleanup, '_wait_for_exit', lambda _pid, **_kwargs: 'approved-exit' in actions)
     handshake = cleanup._WindowsPipHandshake(plan)
     real_ready = cleanup._WindowsPipHandshake.ready
 
@@ -120,20 +122,37 @@ def update(runtime, monkeypatch, tmp_path):
         actions.append('approved-exit')
         return True
 
-    def install(installer, destination):
+    def install(installer, destination, *, phase_channel, desktop_pid):
         assert Path(installer).read_bytes() == installer_bytes
         assert Path(destination) == runtime.root
-        assert handshake._read('approved.json')['state'] == 'approved'
-        actions.append('install')
-        cleanup._install_frozen_windows(incoming, destination, '1.5.1.5', run=identity)
+        assert handshake.status() is None
+        actions.append('stage')
+        with cleanup._UpdatePhaseClient(phase_channel, desktop_pid, str(runtime.executable)) as channel:
+            def prepared():
+                assert cleanup._frozen_windows_previous_version(runtime.root) == '1.5.1.4'
+                cleanup._native_update_ready(channel, '1.5.1.5', desktop_pid)
+            def activated():
+                actions.append('install')
+                if getattr(runtime, 'corrupt_before_launch', False):
+                    runtime.executable.write_bytes(b'corrupt activated executable')
+                cleanup._native_update_activated(channel, '1.5.1.5')
+            cleanup._install_frozen_windows(incoming, destination, '1.5.1.5', run=identity,
+                before_activate=prepared, after_activate=activated, preserve_previous=True)
         return 0, 'modeled NSIS completed'
 
     def spawn(argv, env, cwd):
         assert argv == [str(runtime.executable)]
-        assert env is None and cwd == str(runtime.helper)
+        assert env["PYINSTALLER_RESET_ENVIRONMENT"] == "1" and cwd == str(runtime.helper)
         assert cleanup._frozen_windows_previous_version(runtime.root) == '1.5.1.5'
+        folder, binding = json.loads(env["SPACR_UPDATE_LAUNCH"])
+        channel = cleanup._UpdateLaunchHandshake(folder, binding)
+        assert channel._read("launch-request.json")["details"] == {
+            "version": "1.5.1.5", "executable": argv[0], "root": str(runtime.root), "frozen": True}
+        channel._write("launch-result.json", "ready", details={
+            "version": "1.5.1.5", "executable": argv[0], "pid": 100,
+            "module": str(runtime.internal / "spacr/__init__.py")})
         actions.append('relaunch')
-        return 100
+        return types.SimpleNamespace(pid=100, poll=lambda: None)
 
     return types.SimpleNamespace(plan=plan, incoming=incoming, expected=expected,
         download=download, install=install, wait=wait, spawn=spawn,
@@ -149,12 +168,52 @@ def run_update(update, **kwargs):
 
 def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(update):
     assert run_update(update) == ('1.5.1.5', 'modeled NSIS completed')
-    assert update.actions == ['download', 'approved-exit', 'install', 'relaunch']
+    assert update.actions == ['download', 'stage', 'approved-exit', 'install', 'relaunch']
     assert (update.runtime.root / 'user-data/keep.csv').read_bytes() == b'unchanged user data'
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
     results = list(update.runtime.helper.glob('windows-update-result-*.json'))
     assert len(results) == 1
-    assert json.loads(results[0].read_text())['state'] == 'relaunch-requested'
+    assert json.loads(results[0].read_text())['state'] == 'desktop-ready'
+
+
+@pytest.mark.parametrize("failure", ["old-version", "exited", "never-ready", "cannot-stop"])
+def test_unconfirmed_windows_desktop_retains_recovery_and_cannot_report_success(update, monkeypatch, failure):
+    stopped = []
+
+    def spawn(argv, env, cwd):
+        process = update.spawn(argv, env, cwd)
+        folder, binding = json.loads(env["SPACR_UPDATE_LAUNCH"])
+        channel = cleanup._UpdateLaunchHandshake(folder, binding)
+        message = channel._read("launch-result.json")
+        if failure == "old-version":
+            message["details"]["version"] = "1.5.1.4"
+            channel._write("launch-result.json", "ready", details=message["details"])
+        elif failure == "exited":
+            process.poll = lambda: 9
+        else:
+            channel._write("launch-result.json", "starting", details=message["details"])
+            monkeypatch.setattr(cleanup.time, "time", lambda: channel.expires + 1)
+
+        def stop():
+            if failure == "cannot-stop":
+                raise OSError("modeled child handle cannot be stopped")
+            stopped.append(True)
+            process.poll = lambda: -15
+
+        process.terminate = stop
+        process.wait = lambda timeout: -15
+        return process
+
+    with pytest.raises(RuntimeError):
+        run_update(update, spawn=spawn)
+    assert bool(stopped) is (failure in {"old-version", "never-ready"})
+    assert not list(update.runtime.helper.glob("windows-update-result-*.json"))
+    journals = list((update.runtime.home / ".spacr/update-locks").glob("*/journal.json"))
+    assert len(journals) == 1
+    journal = json.loads(journals[0].read_text())
+    assert journal["state"] == "desktop-unconfirmed"
+    assert journal["pid"] == (100 if failure == "cannot-stop" else None)
+    assert (update.runtime.root / "user-data/keep.csv").read_bytes() == b"unchanged user data"
 
 
 @pytest.mark.parametrize('expected', [None, '', 'not-a-checksum', 'a' * 64])
@@ -180,13 +239,13 @@ def test_user_cancellation_before_approval_keeps_old_app(update):
 def test_cancelled_uac_never_relaunches_or_changes_old_runtime(update):
     before = snapshot(update.runtime.root)
 
-    def cancel(*_args):
+    def cancel(*_args, **_kwargs):
         raise OSError(1223, 'modeled UAC declined')
 
     with pytest.raises(OSError) as error:
         run_update(update, install=cancel)
     assert error.value.errno == 1223
-    assert update.actions == ['download', 'approved-exit']
+    assert update.actions == ['download']
     assert snapshot(update.runtime.root) == before
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
 
@@ -194,28 +253,31 @@ def test_cancelled_uac_never_relaunches_or_changes_old_runtime(update):
 def test_failed_nsis_transaction_restores_old_bytes_and_never_relaunches(update):
     before = snapshot(update.runtime.root)
 
-    def failed(installer, root):
+    def failed(installer, root, *, phase_channel, desktop_pid):
         def refuse_new(argv):
             if Path(argv[0]).parent == Path(root):
                 return 1, 'modeled actual activated import failure'
             return identity(argv)
-        with pytest.raises(ValueError):
-            cleanup._install_frozen_windows(update.incoming, root, '1.5.1.5', run=refuse_new)
+        with cleanup._UpdatePhaseClient(phase_channel, desktop_pid, str(update.runtime.executable)) as channel:
+            with pytest.raises(ValueError):
+                cleanup._install_frozen_windows(update.incoming, root, '1.5.1.5', run=refuse_new,
+                    before_activate=lambda: cleanup._native_update_ready(channel, '1.5.1.5', desktop_pid),
+                    preserve_previous=True)
         return 1, 'NSIS transaction failed'
 
-    with pytest.raises(RuntimeError, match='installer_exit_1'):
+    with pytest.raises(RuntimeError):
         run_update(update, install=failed)
     assert snapshot(update.runtime.root) == before
     assert 'relaunch' not in update.actions
     locks = list((update.runtime.home / '.spacr/update-locks').iterdir())
     assert len(locks) == 1
-    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'installer-failed'
+    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'desktop-unconfirmed'
 
 
 def test_live_installer_timeout_retains_lock_stage_and_journal(update):
     before = snapshot(update.runtime.root)
 
-    def timeout(*_args):
+    def timeout(*_args, **_kwargs):
         raise TimeoutError('modeled installer still running')
 
     with pytest.raises(TimeoutError):
@@ -248,18 +310,17 @@ def test_changed_destination_or_staged_installer_refused_after_approved_exit(upd
         return True
 
     with pytest.raises((ValueError, FileNotFoundError)):
-        run_update(update, wait=mutate, install=lambda *_: pytest.fail('must not elevate'))
+        run_update(update, wait=mutate)
     assert 'install' not in update.actions and 'relaunch' not in update.actions
 
 
 @pytest.mark.parametrize('change', ['version', 'runtime', 'receipt'])
 def test_wrong_installed_runtime_or_receipt_is_not_relaunched(update, change):
-    def wrong(installer, root):
+    def wrong(installer, root, **kwargs):
         if change == 'version':
             return 0, 'dishonest installer exit'
-        update.install(installer, root)
-        if change == 'runtime':
-            (Path(root) / 'spacr.exe').write_bytes(b'corrupt activated executable')
+        update.runtime.corrupt_before_launch = change == 'runtime'
+        update.install(installer, root, **kwargs)
         return 0, ''
 
     def wrong_identity(argv):
@@ -270,7 +331,7 @@ def test_wrong_installed_runtime_or_receipt_is_not_relaunched(update, change):
         path.write_text(json.dumps(result))
         return code, output
 
-    with pytest.raises((ValueError, OSError)):
+    with pytest.raises((ValueError, OSError, RuntimeError)):
         run_update(update, install=wrong, run=wrong_identity if change == 'receipt' else identity)
     assert 'relaunch' not in update.actions
 
@@ -327,7 +388,7 @@ def test_configured_data_inside_payload_refuses_before_staging_or_after_approval
             update.runtime.machine.environ[variable] = str(location)
             return True
     with pytest.raises(ValueError, match='user_data_overlap'):
-        run_update(update, wait=wait, install=lambda *_: pytest.fail('must not elevate'))
+        run_update(update, wait=wait)
     assert snapshot(update.runtime.root) == before
     assert 'install' not in update.actions and 'relaunch' not in update.actions
     if not late:
@@ -399,7 +460,7 @@ def test_native_installer_pin_denies_write_delete_and_keeps_descriptor_live(upda
         os.fstat(opened[0])
 
 
-def test_lost_approval_or_expired_lease_never_calls_native_installer(update, monkeypatch):
+def test_lost_approval_or_expired_lease_never_activates_staged_runtime(update, monkeypatch):
     original_wait = cleanup._WindowsPipHandshake.wait_for_shutdown
 
     def wait_then_cancel(channel, waiter=None):
@@ -408,7 +469,7 @@ def test_lost_approval_or_expired_lease_never_calls_native_installer(update, mon
 
     monkeypatch.setattr(cleanup._WindowsPipHandshake, 'wait_for_shutdown', wait_then_cancel)
     with pytest.raises(RuntimeError, match='cancelled'):
-        run_update(update, install=lambda *_: pytest.fail('must not elevate'))
+        run_update(update)
     assert 'install' not in update.actions and 'relaunch' not in update.actions
 
 
@@ -417,7 +478,7 @@ def test_cancellation_during_final_journal_publish_never_elevates(update, monkey
 
     def journal(directory, plan, state, **details):
         original(directory, plan, state, **details)
-        if state == 'installing':
+        if state == 'preparing':
             update.handshake.cancel()
 
     monkeypatch.setattr(cleanup, '_windows_frozen_update_journal', journal)

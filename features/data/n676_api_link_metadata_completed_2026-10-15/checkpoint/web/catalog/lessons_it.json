@@ -601,6 +601,18 @@
           "speech_text": "Annotate permette di esaminare i ritagli degli oggetti e registrare etichette verificate per gli esempi."
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify addestra un modello sulle etichette verificate e assegna punteggi ad altri oggetti usando immagini ritagliate o caratteristiche misurate.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify addestra un modello sulle etichette verificate e assegna punteggi ad altri oggetti usando immagini ritagliate o caratteristiche misurate."
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes legge dati di sequenziamento per contare e identificare guide o codici a barre.",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder crea grafici dalle tabelle di misure con colonne e raggruppamenti configurabili."
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente."
         },
         {
           "visual": "06_mask_host",

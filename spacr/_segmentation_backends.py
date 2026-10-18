@@ -3708,9 +3708,12 @@ class _RemoteBackend:
         """Segment each image of a batch in the backend's worker.
 
         :param x: a 2-D image, or a list of ``(H, W)`` / ``(H, W, C)``
-            images. For a custom StarDist3D model, ``do_3D=True`` accepts
-            one ``(Z, Y, X)`` or ``(Z, Y, X, C)`` volume, or a list of
-            volumes, with explicit ``z_axis`` and positive ``anisotropy``.
+            images. Cellpose 3 and custom StarDist3D models accept one
+            volume or a list of volumes with ``do_3D=True``, explicit
+            ``z_axis`` and positive ``anisotropy``. Cellpose 3 also accepts
+            volumes with ``do_3D=False`` and a positive ``stitch_threshold``.
+            A scalar volume has three axes and ``channel_axis=None``;
+            four-axis input requires a distinct explicit channel axis.
         :param normalize: a bool, or Cellpose 3's normalization dict such
             as ``{"normalize": True, "percentile": [1, 99]}``.
         :param augment: Cellpose 3's test-time augmentation; sent only when
@@ -3719,11 +3722,19 @@ class _RemoteBackend:
         :param cellpose_only: other Cellpose arguments, accepted so the call
             site is the same as Cellpose's.
         :returns: ``(masks, flows, None)`` with one entry per image. A single
-            StarDist3D volume returns one label array and one flows entry,
+            supported volume returns one label array and one flows entry,
             preserving the spatial axis order of that volume.
         :raises _BackendError: with the backend's own message.
         """
-        volume = self.name == _STARDIST and bool(cellpose_only.get("do_3D"))
+        volume = bool(cellpose_only.get("do_3D"))
+        stitch = (float(cellpose_only.get("stitch_threshold") or 0)
+                  if self.name == _CELLPOSE3 else 0)
+        if self.name == _CELLPOSE3 and (not np.isfinite(stitch) or not 0 <= stitch <= 1):
+            raise ValueError("The 3D stitch threshold must be finite and between 0 and 1.")
+        stitching = self.name == _CELLPOSE3 and stitch > 0
+        volume = volume or stitching
+        if volume and self.name not in (_STARDIST, _CELLPOSE3):
+            raise ValueError("The selected model does not support native 3D detection.")
         single_volume = volume and isinstance(x, np.ndarray)
         images = [x] if single_volume else _eval_images(x)
         params = {"channel_axis": channel_axis, "normalize": normalize,
@@ -3734,7 +3745,12 @@ class _RemoteBackend:
         if volume:
             params.update({key: cellpose_only.get(key) for key in
                            ("do_3D", "z_axis", "anisotropy")})
-        params = {k: _plain(v) for k, v in params.items() if v is not None}
+            if self.name == _CELLPOSE3:
+                params["do_3D"] = bool(cellpose_only.get("do_3D"))
+                if "stitch_threshold" in cellpose_only:
+                    params["stitch_threshold"] = cellpose_only["stitch_threshold"]
+        params = {k: _plain(v) for k, v in params.items()
+                  if v is not None or (volume and k == "channel_axis")}
         worker = self._worker_for(self.name, self.env)
         scratch = tempfile.mkdtemp(prefix="spacr-backend-")
         try:
@@ -3935,7 +3951,7 @@ def _as_label_image(labels):
     ``skimage.segmentation.relabel_sequential`` does -- because the Cellpose
     3 environment has no scikit-image.
 
-    :param labels: 2-D integer label image, background 0.
+    :param labels: integer label image or volume, background 0.
     :returns: relabelled array.
     """
     arr = np.asarray(labels)
@@ -4194,7 +4210,7 @@ class _Cellpose3Adapter:
     def eval(self, x, channel_axis=-1, diameter=None, normalize=True,
              flow_threshold=0.4, cellprob_threshold=0.0, min_size=15,
              resample=True, batch_size=None, **other):
-        """Segment each image; a second channel is the nucleus channel.
+        """Segment each image or volume; a second channel is the nucleus channel.
 
         A diameter of 0 or None lets a named model's size model estimate it,
         and leaves a checkpoint at the diameter it was trained at.
@@ -4219,9 +4235,14 @@ class _Cellpose3Adapter:
 
         :param batch_size: forwarded to Cellpose 3, which has its own
             default of 8, so the user's value has to be passed on.
-        :param other: anything else the call site passes. What this
-            Cellpose cannot take is recorded in :attr:`ignored` and
-            reported by name, rather than disappearing.
+        :param other: anything else the call site passes. A native volume
+            requires ``do_3D=True``, explicit ``z_axis`` and positive finite
+            ``anisotropy``. A positive ``stitch_threshold`` instead joins
+            2-D predictions across the volume with ``do_3D=False``. Scalar
+            volumes require ``channel_axis=None``; multichannel volumes
+            require a distinct explicit channel axis. Missing volume
+            arguments are refused rather than dropped. Other settings
+            this Cellpose cannot take are recorded in :attr:`ignored`.
         :returns: ``(masks, flows, None)``; each flows entry is Cellpose's
             ``[RGB flow, dP, cell probability, None]``.
         """
@@ -4233,13 +4254,45 @@ class _Cellpose3Adapter:
                 "percentile normalization")
         extra = {"batch_size": batch_size} if batch_size else {}
         extra.update({k: v for k, v in other.items() if v is not None})
+        native = bool(other.get("do_3D"))
+        stitch = float(other.get("stitch_threshold") or 0)
+        if not np.isfinite(stitch) or not 0 <= stitch <= 1:
+            raise ValueError("The 3D stitch threshold must be finite and between 0 and 1.")
+        volume = native or stitch > 0
         extra = self._accepted(extra)
+        if volume:
+            required = {"do_3D", "z_axis", "anisotropy"} if native else {
+                "do_3D", "z_axis", "stitch_threshold"}
+            if not required <= set(extra):
+                if native:
+                    raise ValueError("The installed Cellpose 3 cannot accept native 3D axis and spacing settings")
+                raise ValueError("The installed Cellpose 3 cannot accept 3D stitching settings")
+            anisotropy = float(extra.get("anisotropy", 1))
+            if not np.isfinite(anisotropy) or anisotropy <= 0:
+                raise ValueError("3D model anisotropy must be positive and finite.")
         masks, flows = [], []
         self.estimated_diameters = []
         for image in x:
             image = np.asarray(image)
             channels, axis = [0, 0], None
-            if image.ndim == 3:
+            if volume:
+                axis = channel_axis
+                z_axis = extra["z_axis"]
+                if (image.ndim not in (3, 4) or not image.size
+                        or not isinstance(z_axis, (int, np.integer))
+                        or not -image.ndim <= z_axis < image.ndim
+                        or image.shape[z_axis] < 2
+                        or (image.ndim == 3 and axis is not None)
+                        or (image.ndim == 4 and (
+                            not isinstance(axis, (int, np.integer))
+                            or not -image.ndim <= axis < image.ndim
+                            or axis % image.ndim == z_axis % image.ndim))):
+                    raise ValueError("Cellpose 3 needs explicit distinct spatial and channel axes for a volume")
+                if not np.isfinite(image).all():
+                    raise ValueError("Cellpose 3 needs finite volume intensities")
+                if axis is not None and image.shape[axis] >= 2:
+                    channels = [1, 2]
+            elif image.ndim == 3:
                 axis = -1 if channel_axis is None else channel_axis
                 if image.shape[axis] >= 2:
                     channels = [1, 2]
@@ -4260,7 +4313,16 @@ class _Cellpose3Adapter:
                 self.estimated_diameters.append(
                     float(np.mean(np.asarray(output[3], dtype=float))))
             parts = list(output[1])[:3]
-            masks.append(_as_label_image(output[0]))
+            labels = np.asarray(output[0])
+            if volume:
+                shape = tuple(size for index, size in enumerate(image.shape)
+                              if axis is None or index != axis % image.ndim)
+                if labels.shape != shape:
+                    raise ValueError("The detected labels do not match the volume.")
+                if (labels.dtype.kind not in "ui" or labels.min(initial=0) < 0
+                        or int(labels.max(initial=0)) > np.iinfo(np.int64).max):
+                    raise ValueError("Cellpose 3 returned invalid integer labels for a volume")
+            masks.append(_as_label_image(labels))
             flows.append(parts + [None] * (4 - len(parts)))
         return masks, flows, None
 

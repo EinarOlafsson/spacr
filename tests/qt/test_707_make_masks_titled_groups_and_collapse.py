@@ -5,16 +5,19 @@ of the image, IO bottom left and NAVIGATION bottom right; Keep and Save mask
 carry menus; the title, the top bar and the bottom bar fold behind the same
 collapse arrow as the settings and stay folded; vvvv export is one
 Preferences -> Plugins switch; the brush starts at 1 px; the field's index
-and name are painted on the image; and the collapse arrow is 75 percent of
+and name stay together below the image pixels; and the collapse arrow is 75 percent of
 its former size, centred on its handle.
 """
 from __future__ import annotations
+
+import os
+from pathlib import Path
 
 import imageio.v2 as imageio
 import numpy as np
 import pytest
 from PySide6.QtCore import QPoint, QRect, QRectF, Qt
-from PySide6.QtWidgets import QPushButton
+from PySide6.QtWidgets import QPushButton, QTabBar, QToolButton
 
 from spacr.qt.screens.make_masks import (
     DEFAULT_BRUSH_RADIUS,
@@ -99,7 +102,7 @@ def test_groups_are_titled_and_placed_around_the_image(screen, qtbot):
 def test_every_button_is_in_its_group_once(screen):
     expected = {
         screen._tools_group: ["Brush", "Erase", "Erase object", "Wand", "Draw",
-                              "Box", "Divide / Merge", "Zoom", "Recrop",
+                              "Box", "Edit Label", "Divide / Merge", "Zoom", "Recrop",
                               "Magnifier"],
         screen._annotation_group: ["Keep", "Skip", "Discard"],
         screen._io_group: ["Open File / Folder…", "Measure…",
@@ -131,14 +134,77 @@ def test_removed_and_renamed_controls(screen):
     assert screen._act_undo.text() == "Undo" and screen._act_redo.text() == "Redo"
 
 
-def test_reset_zoom_and_ruler_sit_right_of_the_image_counter(screen):
-    tally = screen._tally_layout
-    order = [tally.itemAt(i).widget() for i in range(tally.count())
-             if tally.itemAt(i).widget() is not None]
-    assert order[-2:] == [screen._btn_reset_zoom, screen._btn_ruler]
-    assert order.index(screen._tally_index) < order.index(screen._btn_reset_zoom)
-    assert _where(screen, screen._btn_reset_zoom).x() > _where(
-        screen, screen._tally_total).x()
+@pytest.mark.parametrize("size", [(1366, 768), (1920, 1080)])
+@pytest.mark.parametrize("language", ["en", "fr"])
+def test_tabs_controls_and_footer_have_separate_visible_geometry(
+        qtbot, qt_theme_applied, folder, monkeypatch, size, language):
+    monkeypatch.setenv("SPACR_LANGUAGE", language)
+    from spacr.qt.i18n import tr
+
+    screen = _screen(qtbot, folder)
+    screen.resize(*size)
+    monkeypatch.setattr(screen, "_confirm", lambda *args: True)
+    screen._btn_label_time.click()
+    assert screen._btn_label_time.isChecked()
+    tabs = screen._view_tabs
+    for index, caption in enumerate(("Mask", "Cell probability", "Flows")):
+        tabs.setTabText(index, tr(caption))
+    screen._mask_stage.view_picker.show()
+    qtbot.waitUntil(lambda: (screen.width(), screen.height()) == size)
+    qtbot.wait(30)
+    bar = tabs.tabBar()
+    tab_top = _where(screen, bar).y() + bar.tabRect(0).top()
+    canvas_rect = QRect(_where(screen, screen._canvas), screen._canvas.size())
+    for index in range(tabs.count()):
+        for side in (QTabBar.LeftSide, QTabBar.RightSide):
+            assert bar.tabButton(index, side) is None
+    for button in (screen._btn_reset_zoom, screen._btn_ruler):
+        rect = QRect(_where(screen, button), button.size())
+        assert abs(rect.top() - tab_top) <= 1
+        assert rect.height() >= button.sizeHint().height()
+        assert rect.width() >= button.sizeHint().width()
+        assert screen.rect().contains(rect)
+        assert not rect.intersects(canvas_rect)
+        assert button.visibleRegion().boundingRect() == button.rect()
+    footer = screen._image_footer
+    footer_rect = QRect(_where(screen, footer), footer.size())
+    assert footer_rect.top() > canvas_rect.bottom()
+    assert footer_rect.bottom() < _where(screen, screen._io_group).y()
+    assert footer_rect.left() - _where(screen, screen._image_container).x() < 20
+    assert not screen._status_label.isVisible()
+    label_controls = (screen._label_tool_button, screen._label_time_tool_button,
+                      screen._btn_label_time,
+                      *screen._label_tool_group.findChildren(QToolButton))
+    row = screen._tool_row_layout
+    assert row.indexOf(screen._label_tool_button) < row.indexOf(screen._label_tool_group)
+    cluster = screen._label_tool_group.layout()
+    assert cluster.itemAt(cluster.count() - 1).widget() is screen._btn_label_time
+    for button in label_controls:
+        assert button.isEnabled()
+        assert _where(screen, button).x() < _where(screen, screen._btn_label_time).x() \
+            or button is screen._btn_label_time or button is screen._label_tool_button
+    for button in (screen._btn_recrop, screen._btn_magnifier,
+                   screen._btn_test_data, *label_controls):
+        assert button.visibleRegion().boundingRect() == button.rect(), {
+            "button": button.text(),
+            "top": (screen._tool_row.height(),
+                    screen._tool_row.heightForWidth(screen._tool_row.width())),
+            "image_minimum": screen._body_stack.minimumSizeHint().toTuple(),
+            "bottom": (screen._bottom_bar.height(),
+                       screen._bottom_bar.heightForWidth(screen._bottom_bar.width())),
+            "panes": screen._image_container.sizes(),
+        }
+    for index in (screen._tab_flow, screen._tab_prob, 0):
+        tabs.setCurrentIndex(index)
+        assert tabs.currentIndex() == index
+        assert footer.isVisible()
+    screenshots = os.environ.get("SPACR_TEST_SCREENSHOTS")
+    if screenshots:
+        path = Path(screenshots) / f"make-masks-{language}-{size[0]}x{size[1]}.png"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        assert screen.grab().save(str(path))
+    screen._magnifier.close()
+    screen.close_folded()
 
 
 def test_object_operations_hold_the_moved_actions(screen):
@@ -179,10 +245,10 @@ def test_save_menu_has_the_boolean_and_upload(screen, monkeypatch):
 
 def test_measure_button_is_an_extension_point(screen):
     menu = screen._measure_menu
-    assert [a.objectName() for a in menu.actions()] == ["MakeMasksMeasure2D"]
+    assert [a.objectName() for a in menu.actions()] == ["MakeMasksMeasure2D", "MakeMasksMeasure3D"]
     hits = []
-    action = screen._add_measure_section("3D section…", lambda: hits.append(1),
-                                        object_name="MakeMasksMeasure3D")
+    action = screen._add_measure_section("Another section…", lambda: hits.append(1),
+                                        object_name="MakeMasksMeasureOther")
     assert menu.actions()[-1] is action
     action.trigger()
     assert hits == [1]
@@ -201,11 +267,26 @@ def test_brush_defaults_to_one_pixel(screen):
     assert screen._brush_size_label.text() == "1 px"
 
 
-def test_canvas_overlay_puts_the_index_first(screen):
-    assert screen._canvas.field_label == "1 / 3 · field_0.tif"
+def test_image_footer_keeps_the_index_and_filename_together(screen, monkeypatch, qtbot):
+    assert screen._tally_index.text() == "1"
+    assert screen._tally_total.text() == "/3"
+    assert screen._tally_filename.full_text() == "field_0.tif"
     screen._on_next()
-    assert screen._canvas.field_label == "2 / 3 · field_1.tif"
-    assert screen._canvas.field_label_rect() is not None
+    assert screen._tally_index.text() == "2"
+    assert screen._tally_filename.full_text() == "field_1.tif"
+    assert not hasattr(screen._canvas, "field_label")
+    assert screen._image_footer.isAncestorOf(screen._tally_index)
+    assert screen._image_footer.isAncestorOf(screen._tally_filename)
+    screen._tally_filename.setMaximumWidth(40)
+    qtbot.waitUntil(lambda: screen._tally_filename.is_elided())
+    assert screen._tally_filename.toolTip() == "field_1.tif"
+    monkeypatch.setattr(screen, "_blind_label", lambda path: "B")
+    screen._sync_queue_tally()
+    assert screen._tally_filename.full_text() == "B"
+    assert screen._tally_filename.toolTip() == ""
+    screen._image_files = []
+    screen._sync_queue_tally()
+    assert screen._tally_filename.full_text() == ""
 
 
 @pytest.mark.parametrize("name,key", [

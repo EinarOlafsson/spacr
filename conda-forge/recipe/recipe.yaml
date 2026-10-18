@@ -98,6 +98,17 @@ requirements:
     # the Q-Q, the p-histogram, the control panel and the guide-agreement
     # plot; without this, opening any module raises out of the screen factory.
     - pyqtgraph >=0.13.3,<1
+  run_constraints:
+    # wgpu (conda-forge: wgpu-py) draws the True 3D view through Vulkan,
+    # Metal or Direct3D 12. setup.py installs it by default with markers
+    # (Python 3.10+, x86_64/AMD64/aarch64/arm64). This recipe is
+    # `noarch: python` and cannot carry a marker -- the reasoning applied to
+    # numba and win10toast above -- and a hard run dependency would make
+    # spaCR uninstallable on Python 3.9 and on platforms without a wgpu-py
+    # build. So it is bounded here, not required: `conda install -c
+    # conda-forge wgpu-py` adds it, and without it the view draws with
+    # OpenGL (VisPy) or the CPU.
+    - wgpu-py >=0.25,<0.33
 
 tests:
   - python:

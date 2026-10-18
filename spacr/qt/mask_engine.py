@@ -80,6 +80,497 @@ from ..curation import LOG_SUFFIX, CurationLog
 from ..curation_queue import SEG_SUFFIX
 from ..tiff_io import write_tiff
 
+MAX_MASK_LABEL = 2**32 - 1
+LINEAGE_SCHEMA = "spacr.lineage/v1"
+
+
+def validate_lineage(state: Optional[dict] = None) -> dict:
+    """Copy and validate a versioned lineage graph without recursive traversal."""
+    from uuid import UUID, NAMESPACE_URL, uuid5
+    from .i18n import tr
+
+    if state is None:
+        return {"schema": LINEAGE_SCHEMA, "cells": {}, "frames": {},
+                "frame_revisions": {}, "deleted_cells": {}, "frame_ids": {}}
+    try:
+        result = json.loads(json.dumps(state, allow_nan=False))
+        if result["schema"] != LINEAGE_SCHEMA:
+            raise ValueError("schema")
+        cells, frames = result["cells"], result["frames"]
+        if not isinstance(cells, dict) or not isinstance(frames, dict):
+            raise ValueError("graph")
+        frame_ids = result.setdefault("frame_ids", {})
+        if not isinstance(frame_ids, dict):
+            raise ValueError("frame identities")
+        paths = set(frames)
+        for cell in cells.values():
+            paths.update(cell.get(field) for field in ("born_frame", "division_frame")
+                         if cell.get(field) is not None)
+        for path in paths:
+            if not isinstance(path, str) or not path:
+                raise ValueError("frame path")
+            frame_ids.setdefault(path, str(uuid5(NAMESPACE_URL, "spacr-frame:" + path)))
+        for path, identity in frame_ids.items():
+            if not isinstance(path, str) or not path or str(UUID(identity)) != identity:
+                raise ValueError("frame identity")
+        revisions = result.setdefault("frame_revisions", {})
+        deleted = result.setdefault("deleted_cells", {})
+        if not isinstance(revisions, dict):
+            raise ValueError("revisions")
+        if not isinstance(deleted, dict):
+            raise ValueError("deleted cells")
+        for identity, revision in deleted.items():
+            if str(UUID(identity)) != identity or not isinstance(revision, int) \
+                    or isinstance(revision, bool) or revision < 0:
+                raise ValueError("deleted cell revision")
+        for key, cell in cells.items():
+            if str(UUID(key)) != key or not isinstance(cell, dict):
+                raise ValueError("UUID")
+            if not isinstance(cell.get("name"), str) or not cell["name"].strip():
+                raise ValueError("name")
+            parent = cell.get("parent_uuid")
+            if parent is not None and (parent not in cells or parent == key):
+                raise ValueError("parent")
+            if parent is not None and key not in cells[parent].get("children", []):
+                raise ValueError("parent division")
+            children = cell.get("children", [])
+            if not isinstance(children, list) or (children and len(children) != 2) \
+                    or len(set(children)) != len(children):
+                raise ValueError("children")
+            for child in children:
+                if child not in cells or cells[child].get("parent_uuid") != key:
+                    raise ValueError("daughter")
+            if bool(children) != bool(cell.get("division_frame")):
+                raise ValueError("division")
+            for field in ("born_frame", "division_frame"):
+                expected = frame_ids.get(cell.get(field))
+                cell.setdefault(field + "_id", expected)
+                if cell[field + "_id"] != expected:
+                    raise ValueError("ancestry frame identity")
+            label = cell.get("label", 1)
+            if isinstance(label, bool) or not isinstance(label, int) \
+                    or not 1 <= label <= MAX_MASK_LABEL:
+                raise ValueError("label")
+            revision = cell.get("revision", 0)
+            if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
+                raise ValueError("revision")
+            if key in deleted and deleted[key] >= revision:
+                raise ValueError("deleted cell")
+        checked = set()
+        for key in cells:
+            pending = set()
+            cursor = key
+            while cursor is not None and cursor not in checked:
+                if cursor in pending:
+                    raise ValueError("cycle")
+                pending.add(cursor)
+                cursor = cells[cursor].get("parent_uuid")
+            checked.update(pending)
+        for frame, mapping in frames.items():
+            if not isinstance(frame, str) or not frame or not isinstance(mapping, dict):
+                raise ValueError("frame mapping")
+            if len(set(mapping.values())) != len(mapping):
+                raise ValueError("duplicate identity")
+            for label, identity in mapping.items():
+                if str(int(label)) != label or not 1 <= int(label) <= MAX_MASK_LABEL \
+                        or identity not in cells:
+                    raise ValueError("frame label")
+            revision = revisions.get(frame, 0)
+            if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
+                raise ValueError("frame revision")
+        return result
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
+        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}",
+                            reason=str(error))) from error
+
+
+def _next_lineage_revision(state: dict) -> int:
+    """Advance beyond persisted edits even if the current machine clock is earlier."""
+    from time import time_ns
+
+    revisions = [cell.get("revision", 0) for cell in state["cells"].values()]
+    revisions.extend(state.get("deleted_cells", {}).values())
+    revisions.extend(state.get("frame_revisions", {}).values())
+    return max(time_ns(), max(revisions, default=0) + 1)
+
+
+def assign_lineage_label(state: dict, frame: str, label: int,
+                         cell_uuid: Optional[str] = None,
+                         old_label: Optional[int] = None) -> dict:
+    """Map an observed frame label to a persistent segment, or remove a mapping.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param label: The local uint32 pixel ID, or zero to remove ``old_label``.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    stamp = _next_lineage_revision(result)
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 0 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+    frame = os.path.abspath(os.fspath(frame))
+    mapping = result["frames"].setdefault(frame, {})
+    if label:
+        if cell_uuid not in result["cells"]:
+            raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
+        occupied = mapping.get(str(int(label)))
+        if occupied is not None and occupied != cell_uuid:
+            raise ValueError(tr("This frame label already belongs to another lineage cell."))
+    if old_label is not None:
+        mapping.pop(str(int(old_label)), None)
+    if label:
+        mapping = {key: value for key, value in mapping.items() if value != cell_uuid}
+        mapping[str(int(label))] = cell_uuid
+        result["frames"][frame] = mapping
+        result["cells"][cell_uuid]["label"] = int(label)
+        result["cells"][cell_uuid]["revision"] = stamp
+    result["frame_revisions"][frame] = stamp
+    return validate_lineage(result)
+
+
+def new_lineage_cell(state: Optional[dict], name: str, label: int,
+                     frame: str) -> Tuple[dict, str]:
+    """Create an unplaced founder without claiming any existing mask pixels.
+
+    :param state: The lineage graph to extend, or ``None`` for an empty graph.
+    :param name: The nonempty display name for the new founder.
+    :param label: The preferred nonzero uint32 pixel ID, without assigning pixels.
+    :param frame: The source image path where the founder is introduced.
+    """
+    from uuid import uuid4
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if not isinstance(name, str) or not name.strip() \
+            or isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 1 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("A lineage cell needs a name and a nonzero uint32 label."))
+    stamp = _next_lineage_revision(result)
+    identity = str(uuid4())
+    result["cells"][identity] = {
+        "name": name.strip(), "parent_uuid": None, "born_frame": os.path.abspath(frame),
+        "division_frame": None, "children": [], "label": int(label), "revision": stamp}
+    return validate_lineage(result), identity
+
+
+def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
+                          frame: str, cell_uuid: str,
+                          preferred_label: Optional[int] = None):
+    """Track a hovered object using a free local ID without stealing another track.
+
+    :param mask: The current two-dimensional integer label mask.
+    :param x: The hovered pixel column.
+    :param y: The hovered pixel row.
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param cell_uuid: The persistent UUID of the segment to assign.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if cell_uuid not in result["cells"]:
+        raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
+    if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+           for value in (x, y)):
+        raise ValueError(tr("Object coordinates must be integer pixels."))
+    labels = canonical_labels(mask, preserve_ids=True)
+    if not (0 <= y < labels.shape[0] and 0 <= x < labels.shape[1]):
+        return labels, result, 0, 0
+    original = int(labels[y, x])
+    if not original:
+        return labels, result, 0, 0
+    frame = os.path.abspath(frame)
+    mapping = result["frames"].get(frame, {})
+    assigned = mapping.get(str(original))
+    if assigned is not None and assigned != cell_uuid:
+        raise ValueError(tr("This object already belongs to another lineage cell."))
+    if any(identity == cell_uuid and int(local) != original and np.any(labels == int(local))
+           for local, identity in mapping.items()):
+        raise ValueError(tr("The selected lineage cell already labels another object in this frame."))
+    target = result["cells"][cell_uuid]["label"] if preferred_label is None else preferred_label
+    if isinstance(target, (bool, np.bool_)) or not isinstance(target, Integral) \
+            or not 1 <= int(target) <= MAX_MASK_LABEL:
+        raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
+    target = int(target)
+    if target != original and (np.any(labels == target) or str(target) in mapping):
+        target = original
+    if target == original and assigned == cell_uuid:
+        return labels, result, original, original
+    labels, _ = assign_object_label(labels, x, y, target)
+    result = assign_lineage_label(result, frame, target, cell_uuid, old_label=original)
+    return labels, result, original, target
+
+
+def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
+    """Rename a segment while retaining its identity and parent links.
+
+    :param state: The lineage graph to copy and update.
+    :param cell_uuid: The persistent UUID of the segment to rename.
+    :param name: The new nonempty display name.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if cell_uuid not in result["cells"] or not isinstance(name, str) or not name.strip():
+        raise ValueError(tr("Choose a lineage cell and enter a nonempty name."))
+    result["cells"][cell_uuid]["name"] = name.strip()
+    result["cells"][cell_uuid]["revision"] = _next_lineage_revision(result)
+    return result
+
+
+def divide_lineage_cell(state: dict, parent_uuid: str, frame: str,
+                        daughter_names, labels) -> Tuple[dict, Tuple[str, str]]:
+    """End a segment and create two distinct daughter segments at one frame.
+
+    :param state: The lineage graph to copy and update.
+    :param parent_uuid: The persistent UUID of the undivided parent segment.
+    :param frame: The source image path where the division is recorded.
+    :param daughter_names: Two nonempty display names in daughter order.
+    :param labels: Two distinct nonzero uint32 preferred pixel IDs in daughter order.
+    """
+    from uuid import uuid4
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if parent_uuid not in result["cells"] or result["cells"][parent_uuid].get("children"):
+        raise ValueError(tr("Choose a lineage cell that has not already divided."))
+    if len(daughter_names) != 2 or len(labels) != 2 or labels[0] == labels[1]:
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+    if any(not isinstance(name, str) or not name.strip() for name in daughter_names) \
+            or any(isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral)
+                   or not 1 <= int(label) <= MAX_MASK_LABEL for label in labels):
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+    frame = os.path.abspath(frame)
+    parent = result["cells"][parent_uuid]
+    children = (str(uuid4()), str(uuid4()))
+    stamp = _next_lineage_revision(result)
+    parent.update(division_frame=frame, children=list(children), revision=stamp)
+    parent.pop("division_frame_id", None)
+    result["frames"][frame] = {
+        key: value for key, value in result["frames"].get(frame, {}).items()
+        if value != parent_uuid}
+    for child, name, label in zip(children, daughter_names, labels):
+        result["cells"][child] = {
+            "name": name.strip(), "parent_uuid": parent_uuid, "born_frame": frame,
+            "division_frame": None, "children": [], "label": int(label), "revision": stamp}
+    result["frame_revisions"][frame] = stamp
+    return validate_lineage(result), children
+
+
+def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
+                          frame: Optional[str] = None) -> dict:
+    """Merge embedded snapshots, preserving newer edits and immutable ancestry.
+
+    :param active: The active lineage graph, or ``None`` for an empty graph.
+    :param incoming: The incoming snapshot, or ``None`` for an empty graph.
+    """
+    from .i18n import tr
+
+    result, source = validate_lineage(active), validate_lineage(incoming)
+    current = os.path.abspath(frame) if frame is not None else None
+    known = {identity: path for path, identity in result["frame_ids"].items()}
+    active_paths, source_paths = {}, {}
+    for path, identity in source["frame_ids"].items():
+        if identity in known:
+            if path == current:
+                active_paths[known[identity]] = path
+            else:
+                source_paths[path] = known[identity]
+        elif path in result["frame_ids"] and result["frame_ids"][path] != identity:
+            raise ValueError(tr("Embedded lineage snapshots disagree about a frame's identity."))
+    result = _remap_lineage_frames(result, active_paths)
+    source = _remap_lineage_frames(source, source_paths)
+    result["frame_ids"].update(source["frame_ids"])
+    for identity, revision in source["deleted_cells"].items():
+        result["deleted_cells"][identity] = max(
+            revision, result["deleted_cells"].get(identity, 0))
+    for identity, cell in source["cells"].items():
+        old = result["cells"].get(identity)
+        if old is None:
+            result["cells"][identity] = cell
+            continue
+        if any(old.get(key) != cell.get(key) for key in ("parent_uuid", "born_frame_id")) \
+                or (old.get("revision", 0) == cell.get("revision", 0)
+                    and (old["children"] != cell["children"]
+                         or old["division_frame_id"] != cell["division_frame_id"])):
+            raise ValueError(tr("Embedded lineage snapshots disagree about a cell's ancestry."))
+        newer = cell if cell.get("revision", 0) > old.get("revision", 0) else old
+        result["cells"][identity] = dict(newer)
+    for identity, revision in result["deleted_cells"].items():
+        if identity in result["cells"] and revision >= result["cells"][identity].get("revision", 0):
+            del result["cells"][identity]
+    for name, mapping in source["frames"].items():
+        if name not in result["frames"] or ((current is None or name == current)
+                and source["frame_revisions"].get(name, 0)
+                > result["frame_revisions"].get(name, 0)):
+            result["frames"][name] = mapping
+            result["frame_revisions"][name] = source["frame_revisions"].get(name, 0)
+    for mapping in result["frames"].values():
+        for label, identity in list(mapping.items()):
+            if identity not in result["cells"] and identity in result["deleted_cells"]:
+                del mapping[label]
+    return validate_lineage(result)
+
+
+def restore_lineage_state(restored: Optional[dict], current: Optional[dict]) -> dict:
+    """Make undo or redo an explicit newer edit that survives older TIFF snapshots.
+
+    :param restored: The undo or redo snapshot to restore, or ``None`` for an empty graph.
+    :param current: The current graph, or ``None``, used to preserve revision ordering.
+    """
+    result, previous = validate_lineage(restored), validate_lineage(current)
+    stamp = max(_next_lineage_revision(result), _next_lineage_revision(previous))
+    result["frame_ids"].update(previous["frame_ids"])
+    for identity, revision in previous["deleted_cells"].items():
+        result["deleted_cells"][identity] = max(
+            revision, result["deleted_cells"].get(identity, 0))
+    for identity in previous["cells"].keys() - result["cells"].keys():
+        result["deleted_cells"][identity] = stamp
+    for identity, cell in result["cells"].items():
+        if cell != previous["cells"].get(identity):
+            cell["revision"] = stamp
+    for frame in result["frames"].keys() | previous["frames"].keys():
+        if result["frames"].get(frame) != previous["frames"].get(frame):
+            result["frames"].setdefault(frame, {})
+            result["frame_revisions"][frame] = stamp
+    return validate_lineage(result)
+
+
+def prune_lineage_frame(state: dict, frame: str, mask: np.ndarray) -> dict:
+    """Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param mask: The current label mask used to identify surviving pixel IDs.
+    """
+    result = validate_lineage(state)
+    frame = os.path.abspath(frame)
+    present = set(map(str, np.unique(np.asarray(mask)[np.asarray(mask) > 0])))
+    previous = result["frames"].get(frame)
+    mapping = {key: value for key, value in (previous or {}).items() if key in present}
+    result["frames"][frame] = mapping
+    if mapping != previous:
+        result["frame_revisions"][frame] = _next_lineage_revision(result)
+    return validate_lineage(result)
+
+
+def _remap_lineage_frames(state: dict, paths: dict) -> dict:
+    """Change descriptive frame paths while retaining embedded frame identities."""
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    frames, revisions, identities = {}, {}, {}
+    for path, identity in result["frame_ids"].items():
+        target = paths.get(path, path)
+        if target in identities and identities[target] != identity:
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+        identities[target] = identity
+    for frame, mapping in result["frames"].items():
+        target = paths.get(frame, frame)
+        if target in frames and frames[target] != mapping:
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+        frames[target] = mapping
+        revisions[target] = result["frame_revisions"].get(frame, 0)
+    result.update(frames=frames, frame_revisions=revisions, frame_ids=identities)
+    for cell in result["cells"].values():
+        for field in ("born_frame", "division_frame"):
+            cell[field] = paths.get(cell.get(field), cell.get(field))
+    return validate_lineage(result)
+
+
+def _relocate_lineage_frame(state: dict, original: str, current: str) -> dict:
+    """Rebind moved Windows or POSIX frame aliases without reading their old paths."""
+    import ntpath
+    import posixpath
+
+    result = validate_lineage(state)
+    original_path = original.replace("\\", "/")
+    old_folder = posixpath.dirname(original_path)
+    windows = bool(ntpath.splitdrive(original)[0])
+    compare = str.casefold if windows else str
+    paths = {}
+    for path in result["frame_ids"]:
+        portable = path.replace("\\", "/")
+        if compare(portable) == compare(original_path):
+            paths[path] = current
+        elif compare(posixpath.dirname(portable)) == compare(old_folder):
+            paths[path] = os.path.join(os.path.dirname(current), posixpath.basename(portable))
+    return _remap_lineage_frames(result, paths)
+
+
+def load_mask_metadata(folder: str, filename: str,
+                        masks_dir: Optional[str] = None) -> dict:
+    """Read identity semantics and lineage from the mask itself, without a sidecar.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask metadata is read.
+    """
+    import tifffile
+    from .i18n import tr
+
+    path = mask_save_path(folder, filename, masks_dir)
+    if not os.path.isfile(path) and not is_seg_bundle(filename):
+        stem = os.path.splitext(filename)[0]
+        candidates = [os.path.join(masks_folder(folder, masks_dir), filename),
+                      os.path.join(masks_folder(folder, masks_dir), stem + ".tiff")]
+        path = next((candidate for candidate in candidates if os.path.isfile(candidate)), path)
+    if not os.path.isfile(path):
+        return {}
+    if is_seg_bundle(filename):
+        metadata = read_seg_bundle(path).get("spacr_mask", {})
+    else:
+        with open(path, "rb") as source:
+            byte_order = source.read(2)
+        if not path.lower().endswith((".tif", ".tiff")) and byte_order not in (
+                b"II", b"MM", b"EP"):
+            return {}
+        with tifffile.TiffFile(path) as handle:
+            description = handle.pages[0].description or ""
+        try:
+            metadata = json.loads(description).get("spacr_mask", {})
+        except (ValueError, AttributeError) as error:
+            if "spacr_mask" in description:
+                raise ValueError(tr("The embedded mask metadata cannot be read.")) from error
+            return {}
+    if not isinstance(metadata, dict) or (metadata and metadata.get("schema") != "spacr.mask/v1"):
+        raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+    if metadata.get("lineage") is not None:
+        metadata["lineage"] = validate_lineage(metadata["lineage"])
+        original = metadata.get("frame")
+        current = os.path.abspath(os.path.join(folder, filename))
+        if metadata.get("frame_id") is not None and metadata["frame_id"] \
+                != metadata["lineage"]["frame_ids"].get(original):
+            raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+        if isinstance(original, str) and original != current:
+            metadata["lineage"] = _relocate_lineage_frame(metadata["lineage"], original, current)
+        metadata["frame"] = current
+        metadata["frame_id"] = metadata["lineage"]["frame_ids"].get(current)
+    return metadata
+
+
+def load_mask_lineage(folder: str, filename: str,
+                       masks_dir: Optional[str] = None) -> dict:
+    """Read an independent lineage graph from a TIFF mask or return an empty graph.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask lineage is read.
+    """
+    return validate_lineage(load_mask_metadata(folder, filename, masks_dir).get("lineage"))
+
+
+def _label_boxes(labels: np.ndarray) -> dict:
+    """Index observed labels without allocating by the largest numeric identity."""
+    if not labels.size:
+        return {}
+    if int(labels.max()) <= 65535:
+        return {index + 1: box for index, box in enumerate(_ndimage().find_objects(labels))
+                if box is not None}
+    values, inverse = np.unique(labels, return_inverse=True)
+    dense = inverse.reshape(labels.shape) + 1
+    boxes = _ndimage().find_objects(dense)
+    return {int(value): box for value, box in zip(values, boxes) if value and box is not None}
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn",
               ".dm3", ".dm4", ".mrc", ".rec")
@@ -852,10 +1343,10 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
     :param shape: the 2-D shape of the image they label.
     :param mask_path: where they came from, for the messages.
     :param filename: the field's name, for the shape-mismatch message.
-    :returns: the labels as uint8 or uint16, whichever holds the largest id.
+    :returns: unsigned labels wide enough for every ID, retaining existing uint32 storage.
     :raises ValueError: for a mask that is not 2-D, does not match the
-        image, holds non-integer or negative labels, or needs more than 16
-        bits.
+        image, holds non-integer or negative labels, or needs more than 32
+        bits in uint32 storage.
     """
     if mask.ndim == 3 and mask.shape[-1] == 1:
         mask = np.squeeze(mask, axis=-1)
@@ -876,12 +1367,20 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
             raise ValueError(
                 f"Mask must contain non-negative integer labels: {mask_path}"
             )
+    if np.issubdtype(mask.dtype, np.signedinteger) and np.any(mask < 0):
+        from .i18n import tr
+
+        raise ValueError(tr(
+            "Mask must contain non-negative integer labels: {path}", path=mask_path))
     maximum = int(mask.max()) if mask.size else 0
-    if maximum > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"Mask label {maximum} exceeds uint16 capacity: {mask_path}"
-        )
-    return mask.astype(np.uint8 if maximum <= 255 else np.uint16)
+    if maximum > MAX_MASK_LABEL:
+        from .i18n import tr
+
+        raise ValueError(tr("Mask label {label} exceeds uint32 capacity: {path}",
+                            label=maximum, path=mask_path))
+    dtype = np.uint32 if maximum > 65535 or mask.dtype == np.uint32 else (
+        np.uint8 if maximum <= 255 else np.uint16)
+    return mask.astype(dtype)
 
 
 def load_image_and_mask(folder: str, filename: str,
@@ -891,7 +1390,7 @@ def load_image_and_mask(folder: str, filename: str,
 
     - Multi-channel images are collapsed to grayscale via BT.601 weights.
     - Missing masks are created as zeros of the image shape.
-    - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
+    - Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.
     - A mask saved by :func:`save_mask` is found even when the source image
       had a non-TIFF extension. Its canonical TIFF takes precedence over
       an older mask under the source image's extension.
@@ -1098,6 +1597,10 @@ def save_seg_bundle(path: str, mask: np.ndarray, *, preserve_ids: bool = False) 
     """
     payload = read_seg_bundle(path)
     labels = canonical_labels(mask, preserve_ids=preserve_ids)
+    if int(labels.max(initial=0)) > 65535:
+        from .i18n import tr
+
+        raise ValueError(tr("Save 32-bit manual identities as TIFF masks, not Cellpose bundles."))
     payload["masks"] = labels
     outlines = payload.get("outlines")
     if outlines is not None and np.shape(outlines) == labels.shape:
@@ -1279,10 +1782,10 @@ def _vvvv_object_table(labels: np.ndarray, image: Optional[np.ndarray] = None,
     if ids:
         areas = ndimage.sum_labels(np.ones(labels.shape), labels, ids)
         centres = ndimage.center_of_mass(np.ones(labels.shape), labels, ids)
-        slices = ndimage.find_objects(labels.astype(np.int64))
+        slices = _label_boxes(labels)
         means = [ndimage.mean(plane, labels, ids) for _name, plane in channels]
         for row, label in enumerate(ids):
-            box = slices[label - 1]
+            box = slices[label]
             table["label"].append(label)
             table["centroid_x"].append(float(centres[row][1]) + 0.5)
             table["centroid_y"].append(float(centres[row][0]) + 0.5)
@@ -2116,7 +2619,7 @@ def record_curation(folder: str, image_path: str, mask_path: str,
 
 
 def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
-    """Return ``mask`` as uint16 labels, keeping every id it already had.
+    """Return validated labels, retaining explicit uint32 identities.
 
     The old behaviour here was ``label(mask > 0)``, which renumbers the
     connected components 1..N on every save. That throws away the identity
@@ -2147,16 +2650,22 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
         Use for primary/secondary relationships: a lone cell 900 remains 900,
         and separated pieces with the same primary ID remain one label.
         Requires a nonempty 2-D nonnegative integer array, not a boolean mask.
-    :returns: the labels as ``uint16``.
-    :raises ValueError: when an id does not fit in ``uint16``, or exact-ID
-        mode receives invalid labels. Oversized IDs are never truncated.
+    :returns: uint16 labels for ordinary segmentation, or uint32 for explicit
+        identities requiring that width. Existing uint32 masks retain their
+        exact IDs even without the explicit flag.
+    :raises ValueError: when ordinary segmentation exceeds uint16 capacity,
+        exact IDs exceed uint32 capacity, or exact-ID mode receives invalid
+        labels. Oversized IDs are never truncated.
     """
     m = np.asarray(mask)
-    if preserve_ids:
+    if preserve_ids or m.dtype == np.uint32:
         m = _primary_label_image(m, "Mask")
-        if int(m.max()) > np.iinfo(np.uint16).max:
-            raise ValueError("Exact mask IDs must fit in uint16; labels were not renumbered.")
-        return m.astype(np.uint16, copy=True)
+        if int(m.max()) > MAX_MASK_LABEL:
+            from .i18n import tr
+
+            raise ValueError(tr("Exact mask IDs must fit in uint16 or uint32; labels were not renumbered."))
+        dtype = np.uint32 if int(m.max()) > 65535 or m.dtype == np.uint32 else np.uint16
+        return m.astype(dtype, copy=True)
     boxes = None
     top = int(m.max()) if m.size and np.issubdtype(m.dtype, np.integer) \
         else None
@@ -2209,7 +2718,8 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
 
 def save_mask(folder: str, filename: str, mask: np.ndarray,
               log: Optional[CurationLog] = None,
-              masks_dir: Optional[str] = None, *, preserve_ids: bool = False) -> str:
+              masks_dir: Optional[str] = None, *, preserve_ids: bool = False,
+              lineage: Optional[dict] = None) -> str:
     """Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.
 
     Object ids are preserved -- see :func:`canonical_labels` for what that
@@ -2238,19 +2748,57 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
     :param preserve_ids: retain exact primary/secondary IDs without interpreting
         single-valued masks as binary or splitting disconnected pieces. The
         explicit mode validates nonnegative 2-D integer labels and refuses
-        IDs above 65535 before writing; it never silently renumbers them.
+        IDs above 4294967295 before writing; it never silently renumbers them.
+    :param lineage: versioned UUID graph and per-frame pixel mappings to embed
+        in the TIFF. Even an empty graph requests uint32 storage. Existing
+        embedded lineage and exact-ID semantics survive ordinary later saves.
     :returns: the path written. The TIFF carries the source image's pixel
         size (:func:`pixel_size_nm`) as its resolution, in pixels per
         centimetre, when the source records one.
     """
     save_path = mask_save_path(folder, filename, masks_dir)
+    metadata = load_mask_metadata(folder, filename, masks_dir)
+    if lineage is None:
+        lineage = metadata.get("lineage")
+    preserve_ids = bool(preserve_ids or metadata.get("preserve_ids")
+                        or lineage is not None or np.asarray(mask).dtype == np.uint32)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
+    if lineage is not None:
+        from .i18n import tr
+
+        if is_seg_bundle(filename):
+            raise ValueError(tr("Time labels require TIFF masks with embedded lineage."))
+        frame = os.path.abspath(os.path.join(folder, filename))
+        lineage = prune_lineage_frame(lineage, frame, labels)
+        labels = labels.astype(np.uint32, copy=False)
+        metadata["lineage"] = lineage
+        metadata["frame"] = frame
+        metadata["frame_id"] = lineage["frame_ids"][frame]
+    metadata.update(schema="spacr.mask/v1", preserve_ids=preserve_ids)
     if is_seg_bundle(filename):
-        save_seg_bundle(save_path, mask, preserve_ids=preserve_ids)
+        save_seg_bundle(save_path, labels, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         size = pixel_size_nm(os.path.join(folder, filename))
-        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids),
-                   **_resolution_for(size))
+        resolution = _resolution_for(size)
+        description_metadata = resolution.pop("metadata", {})
+        description_metadata.update(shape=labels.shape, spacr_mask=metadata)
+        description = json.dumps(description_metadata, ensure_ascii=True, allow_nan=False)
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=".spacr-mask-", suffix=".tif", dir=os.path.dirname(save_path))
+        os.close(descriptor)
+        try:
+            write_tiff(temporary, labels, metadata=None, description=description,
+                       bigtiff=labels.nbytes + len(description) >= 2**32 - 2**25,
+                       **resolution)
+            with open(temporary, "rb") as handle:
+                os.fsync(handle.fileno())
+            if os.path.isfile(save_path):
+                os.chmod(temporary, stat.S_IMODE(os.stat(save_path).st_mode))
+            os.replace(temporary, save_path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
@@ -2625,11 +3173,13 @@ def _overlay_mask_fast(image: np.ndarray, mask: np.ndarray, alpha):
     mask = np.asarray(mask)
     if (image.ndim != 2 or image.dtype not in (np.uint8, np.uint16)
             or mask.shape != image.shape
-            or mask.dtype not in (np.uint8, np.uint16, np.int8, np.int16, np.int32)):
+            or mask.dtype not in (np.uint8, np.uint16, np.uint32, np.int8, np.int16, np.int32)):
         return None
     if mask.dtype.kind == "i" and mask.size and int(mask.min()) < 0:
         return None
     max_label = int(np.max(mask)) if mask.size else 0
+    if max_label > 65535:
+        return None
     flat = np.ascontiguousarray(mask).reshape(-1)
     inside = np.flatnonzero(flat)
     rng = np.random.default_rng(0)
@@ -2664,6 +3214,21 @@ def _overlay_mask_fast(image: np.ndarray, mask: np.ndarray, alpha):
     return out
 
 
+def _label_colors(values: np.ndarray) -> np.ndarray:
+    """Give each original ID a stable color with a bounded legacy lookup table."""
+    values = np.asarray(values, dtype=np.uint64)
+    flat = values.reshape(-1)
+    hashed = flat[:, None] * np.array([2654435761, 2246822519, 3266489917], dtype=np.uint64)
+    colors = (30 + ((hashed ^ (hashed >> 16)) % 225)).astype(np.uint8)
+    small = flat <= 65535
+    if small.any():
+        legacy = np.random.default_rng(0).integers(
+            30, 255, size=(int(flat[small].max()) + 1, 3), dtype=np.uint8)
+        colors[small] = legacy[flat[small]]
+    colors[flat == 0] = 0
+    return colors.reshape(values.shape + (3,))
+
+
 def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.ndarray:
     """Blend a colorized label mask onto a grayscale image, uint8 RGB.
 
@@ -2677,13 +3242,17 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.
         return fast
     if image.ndim == 2:
         image = np.stack((image,) * 3, axis=-1)
-    m = mask.astype(np.int32)
+    m = mask.astype(np.int64)
     max_label = int(np.max(m)) if m.size else 0
-    rng = np.random.default_rng(0)
-    colors = rng.integers(30, 255, size=(max_label + 1, 3), dtype=np.uint8)
-    if max_label >= 0:
+    if max_label > 65535:
+        values, inverse = np.unique(m, return_inverse=True)
+        colors = _label_colors(values)
+        colored = colors[inverse].reshape(m.shape + (3,))
+    else:
+        rng = np.random.default_rng(0)
+        colors = rng.integers(30, 255, size=(max_label + 1, 3), dtype=np.uint8)
         colors[0] = [0, 0, 0]
-    colored = colors[m]
+        colored = colors[m]
     image_8bit = (image.astype(np.float32) / 256.0).clip(0, 255).astype(np.uint8)
     combined = np.where(
         m[..., None] > 0,
@@ -2758,18 +3327,35 @@ def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
 DIVIDE_CUT_WIDTH = 1.5
 
 
+def _available_labels(mask: np.ndarray):
+    """Yield unused uint32 IDs above the maximum, wrapping only at capacity."""
+    from .i18n import tr
+
+    used = set(map(int, np.unique(mask))) - {0}
+    largest = max(used, default=0)
+    if largest > MAX_MASK_LABEL or min(used, default=0) < 0:
+        raise ValueError(tr("Mask IDs must be non-negative uint32 integers."))
+    candidate = largest + 1 if largest < MAX_MASK_LABEL else 1
+    while len(used) < MAX_MASK_LABEL:
+        while candidate in used:
+            candidate = candidate + 1 if candidate < MAX_MASK_LABEL else 1
+        used.add(candidate)
+        yield candidate
+        candidate = candidate + 1 if candidate < MAX_MASK_LABEL else 1
+    raise ValueError(tr("No unused 32-bit label remains."))
+
+
 def next_label(mask: np.ndarray) -> int:
-    """The id to give the next object drawn on ``mask``: one past its top.
+    """Prefer the next highest ID, using an unused local ID at uint32 capacity.
 
-    Above the maximum rather than the lowest free id, because ids are what
-    the ledger, the measurements and the crops name objects by. Handing a
-    new object the id of one that was deleted makes two different cells
-    share a name across a session, and nothing downstream can tell them
-    apart afterwards.
+    Persistent lineage uses independent UUIDs, so a free local pixel ID can
+    be reused without merging cell identities. Allocation visits observed
+    labels only and never constructs a table of every possible uint32 ID.
 
-    :param mask: label mask; an empty array gives 1.
+    :param mask: The integer label mask whose observed IDs are already in use.
     """
-    return (int(mask.max()) if mask.size else 0) + 1
+    largest = int(mask.max()) if mask.size else 0
+    return largest + 1 if largest < MAX_MASK_LABEL else next(_available_labels(mask))
 
 
 def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
@@ -2780,12 +3366,14 @@ def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
     to 0 and the new object would vanish into the background.
     """
     top = int(out.max()) if out.size else 0
-    if top > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"mask needs label {top}, past what a uint16 mask can hold.")
+    if top > MAX_MASK_LABEL or (out.size and int(out.min()) < 0):
+        from .i18n import tr
+
+        raise ValueError(tr("Mask label {label} is outside unsigned uint32 capacity.", label=top))
     if np.issubdtype(like.dtype, np.integer) and top <= np.iinfo(like.dtype).max:
         return out.astype(like.dtype)
-    return out.astype(np.uint8 if top <= 255 else np.uint16)
+    return out.astype(np.uint8 if top <= 255 else (
+        np.uint16 if top <= 65535 else np.uint32))
 
 
 def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
@@ -2892,7 +3480,7 @@ def divide_object(mask: np.ndarray, p0, p1,
     if not crossed:
         return mask.copy(), []
     out = mask.astype(np.int64, copy=True)
-    free_id = next_label(mask)
+    free_ids = _available_labels(mask)
     splits = []
     for source in crossed:
         body = out == source
@@ -2907,9 +3495,9 @@ def divide_object(mask: np.ndarray, p0, p1,
         for piece in range(1, count + 1):
             if piece == keeps:
                 continue
+            free_id = next(free_ids)
             out[pieces == piece] = free_id
             splits.append((source, free_id))
-            free_id += 1
     if not splits:
         return mask.copy(), []
     return _fit_label_width(out, mask), splits
@@ -2948,7 +3536,7 @@ def _divide_or_cut(mask: np.ndarray, p0, p1,
     if not crossed:
         return mask.copy(), [], []
     out = mask.astype(np.int64, copy=True)
-    free_id = next_label(mask)
+    free_ids = _available_labels(mask)
     splits, cut = [], []
     for source in crossed:
         rows, cols = np.nonzero(mask == source)
@@ -2971,9 +3559,9 @@ def _divide_or_cut(mask: np.ndarray, p0, p1,
         for piece in range(1, count + 1):
             if piece == keeps:
                 continue
+            free_id = next(free_ids)
             part[pieces == piece] = free_id
             splits.append((source, free_id))
-            free_id += 1
     if not splits and not cut:
         return mask.copy(), [], []
     return _fit_label_width(out, mask), splits, cut
@@ -3017,7 +3605,7 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
 
     :param mask: label image to fill.
     :param preserve_ids: validate the ids as exact primary IDs first
-        (uint16-compatible, via :func:`canonical_labels`). Either way every
+        (unsigned labels, via :func:`canonical_labels`). Either way every
         id is kept. By default a mask with a single foreground value -- a
         brush-painted binary mask, which carries no ids -- is numbered by
         connectivity first, as :func:`canonical_labels` numbers it.
@@ -3033,6 +3621,49 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
         if int(np.min(m, where=m > 0, initial=top)) == top:
             labels = canonical_labels(m)
     return _fit_label_width(fill_label_holes(labels), m)
+
+
+def assign_object_label(mask: np.ndarray, x: int, y: int,
+                        label: int) -> Tuple[np.ndarray, int]:
+    """Assign one explicit uint32 identity without joining different objects.
+
+    All pixels bearing the clicked object's existing ID move together,
+    including disconnected pieces deliberately sharing that identity. Zero
+    removes that object. A nonzero target already belonging to another
+    object is refused before any pixel changes.
+
+    :param mask: nonempty 2-D nonnegative integer labels; never modified.
+    :param x: integer column; outside the field changes nothing.
+    :param y: integer row; outside the field changes nothing.
+    :param label: integer in 0 through 4294967295, with zero reserved for background.
+    :returns: an unsigned label copy and the original ID under the pointer, or zero
+        for background or an outside position. The same ID is a no-op.
+    :raises ValueError: for invalid labels, coordinates, or an occupied ID.
+    """
+    from .i18n import tr
+
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 0 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+    if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+           for value in (x, y)):
+        raise ValueError(tr("Object coordinates must be integer pixels."))
+    labels = canonical_labels(mask, preserve_ids=True)
+    if int(label) > 65535:
+        labels = labels.astype(np.uint32, copy=False)
+    height, width = labels.shape
+    if not (0 <= int(y) < height and 0 <= int(x) < width):
+        return labels, 0
+    original = int(labels[int(y), int(x)])
+    target = int(label)
+    if not original or original == target:
+        return labels, original
+    if target and np.any(labels == target):
+        raise ValueError(tr(
+            "Label {label} already belongs to another object in this frame.",
+            label=target))
+    labels[labels == original] = target
+    return labels, original
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
@@ -3160,10 +3791,8 @@ def shrink_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:
     if steps <= 0 or not out.size:
         return out
     ndimage = _ndimage()
-    boxes = ndimage.find_objects(out.astype(np.int64, copy=False))
-    for value, box in enumerate(boxes, start=1):
-        if box is None:
-            continue
+    boxes = _label_boxes(out)
+    for value, box in boxes.items():
         window = out[box]
         inside = window == value
         core = tuple(slice(steps, steps + n) for n in inside.shape)
@@ -3293,14 +3922,14 @@ def split_object_at(mask: np.ndarray, x: int, y: int, *,
     areas = {piece: int(np.count_nonzero(pieces == piece)) for piece in found}
     keeps = max(found, key=lambda piece: (areas[piece], -piece))
     out = mask.astype(np.int64, copy=True)
-    free_id = next_label(mask)
+    free_ids = _available_labels(mask)
     new_ids: List[int] = []
     for piece in found:
         if piece == keeps:
             continue
+        free_id = next(free_ids)
         out[y0:y1, x0:x1][pieces == piece] = free_id
         new_ids.append(free_id)
-        free_id += 1
     return _fit_label_width(out, mask), new_ids
 
 
@@ -3704,9 +4333,16 @@ def filter_removals(labels: np.ndarray, filters, intensity=None, *,
     names = list(dict.fromkeys([entry["property"] for entry in active] + extra))
     from skimage.measure import regionprops_table
 
+    observed = None
+    if int(lab.max()) > 65535:
+        observed, inverse = np.unique(lab, return_inverse=True)
+        compact = inverse.reshape(lab.shape) + 1
+        compact[lab == 0] = 0
+    else:
+        compact = lab if np.issubdtype(lab.dtype, np.integer) else lab.astype(np.int32)
     try:
         table = regionprops_table(
-            lab if np.issubdtype(lab.dtype, np.integer) else lab.astype(np.int32),
+            compact,
             intensity_image=grey, properties=["label"] + names)
     except NotImplementedError as error:
         raise ValueError(
@@ -3717,7 +4353,9 @@ def filter_removals(labels: np.ndarray, filters, intensity=None, *,
             if not np.all(np.isfinite(np.asarray(table[name], dtype=float))):
                 raise ValueError(
                     "Intensity filtering requires finite object mean intensities")
-    ids = np.asarray(table["label"]).astype(np.int64)
+    ids = np.asarray(table["label"], dtype=np.int64)
+    if observed is not None:
+        ids = observed[ids - 1]
     columns = {name: np.asarray(table[name], dtype=float) for name in names}
     failures: Dict[int, List[FailedBound]] = {}
     for index, entry in enumerate(rules):
@@ -3772,7 +4410,7 @@ def apply_filters(mask: np.ndarray, image, filters, *,
         grey = np.asarray(image, dtype=np.float32)
         if grey.ndim == 3 and np.ndim(mask) == 2:
             grey = grey.mean(axis=2)
-    labels = canonical_labels(mask, preserve_ids=preserve_ids).astype(np.int32)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     extra = tuple(report or ()) + (("intensity_mean",) if grey is not None else ())
     removals = filter_removals(labels, filters, grey, report=extra)
     if not removals:
@@ -3922,9 +4560,7 @@ class ObjectLookup:
         if grey.ndim == 3:
             grey = grey.mean(axis=2)
         self._grey = grey
-        has_objects = bool(self.labels.size) and bool(self.labels.max())
-        self._boxes = (_ndimage().find_objects(self.labels)
-                       if has_objects else [])
+        self._boxes = _label_boxes(self.labels)
         self._measured: dict = {}
 
     def measure(self, label: int) -> Optional[Tuple[int, float]]:
@@ -3936,10 +4572,9 @@ class ObjectLookup:
         label = int(label)
         if label in self._measured:
             return self._measured[label]
-        if not 1 <= label <= len(self._boxes) \
-                or self._boxes[label - 1] is None:
+        if label not in self._boxes:
             return None
-        box = self._boxes[label - 1]
+        box = self._boxes[label]
         inside = self.labels[box] == label
         found = (int(np.count_nonzero(inside)),
                  float(np.mean(self._grey[box][inside])))
@@ -3965,24 +4600,33 @@ class ObjectLookup:
         return PixelReadout(x, y, intensity, label, *measured)
 
 
+def _full_connectivity(ndim: int) -> np.ndarray:
+    """The structuring element joining every face, edge and corner neighbour.
+
+    :param ndim: 2 for a field (8-connected), 3 for a volume (26-connected).
+    :returns: :data:`_EIGHT` for a field, ``ones((3,) * ndim)`` otherwise.
+    """
+    return _EIGHT if int(ndim) == 2 else np.ones((3,) * int(ndim), dtype=np.uint8)
+
+
 def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
     """Label every separated foreground region as its own object.
 
     :param binary: array whose truthy pixels are foreground. Regions touching
-        diagonally are connected under the editor's eight-neighbour rule.
-    :param min_area: regions smaller than this are dropped rather than
-        labelled, so a detection does not hand back a field of single-pixel
-        speckles for the user to delete by hand.
+        diagonally are connected under the editor's eight-neighbour rule; in
+        a volume, voxels sharing a face, edge or corner are 26-connected.
+    :param min_area: regions smaller than this (pixels, or voxels in a
+        volume) are dropped rather than labelled, so a detection does not
+        hand back a field of single-pixel speckles to delete by hand.
     """
-    components, count = _ndimage().label(np.asarray(binary, dtype=bool), structure=_EIGHT)
-    out = np.zeros(components.shape, dtype=np.int32)
-    next_id = 1
-    for old in range(1, count + 1):
-        region = components == old
-        if int(region.sum()) >= int(min_area):
-            out[region] = next_id
-            next_id += 1
-    return out
+    foreground = np.asarray(binary, dtype=bool)
+    components, _count = _ndimage().label(foreground, structure=_full_connectivity(foreground.ndim))
+    sizes = np.bincount(components.ravel(), minlength=1)
+    keep = sizes >= int(min_area)
+    keep[0] = False
+    lookup = np.zeros(sizes.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[components]
 
 
 def otsu_instances(image: np.ndarray, *, bright: bool = True,
@@ -4446,15 +5090,23 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
     else:
         base = int(old.max()) if old.size else 0
         out = old.astype(np.int64, copy=True)
-        added = np.where(incoming > 0, incoming + base, 0)
+        if base + int(incoming.max(initial=0)) > MAX_MASK_LABEL:
+            added = np.zeros_like(incoming)
+            free_ids = _available_labels(old)
+            for value in np.unique(incoming[incoming > 0]):
+                added[incoming == value] = next(free_ids)
+        else:
+            added = np.where(incoming > 0, incoming + base, 0)
         free = out == 0
         out[free] = added[free]
     top = int(out.max()) if out.size else 0
-    if top > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"combined mask needs label {top}, past uint16; "
-            "raise the minimum area so the detection makes fewer objects.")
-    return out.astype(np.uint8 if top <= 255 else np.uint16)
+    if top > MAX_MASK_LABEL:
+        from .i18n import tr
+
+        raise ValueError(tr("Combined mask needs label {label}, past uint32; "
+                            "raise the minimum area so the detection makes fewer objects.", label=top))
+    return out.astype(np.uint32 if top > 65535 or old.dtype == np.uint32 else (
+        np.uint8 if top <= 255 else np.uint16))
 
 
 #: The rules a live-magnifier commit knows for an object that lands on one
@@ -4584,7 +5236,7 @@ def _split_touching_objects(binary: np.ndarray, min_area: int = 0) -> np.ndarray
         return empty
     distance = ndimage.gaussian_filter(
         ndimage.distance_transform_edt(mask), 1.0)
-    components, count = ndimage.label(mask, structure=_EIGHT)
+    components, count = ndimage.label(mask, structure=_full_connectivity(mask.ndim))
     spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
     peaks = peak_local_max(distance, min_distance=spacing, labels=components,
                            exclude_border=False)
@@ -5057,13 +5709,13 @@ def fill_label_holes(labels: np.ndarray) -> np.ndarray:
         return out
     if not np.issubdtype(out.dtype, np.integer):
         raise ValueError("fill_label_holes needs an integer label image.")
-    boxes = ndimage.find_objects(out)
+    boxes = _label_boxes(out)
     order = sorted(
-        (index for index, box in enumerate(boxes) if box is not None),
+        boxes,
         key=lambda index: int(np.prod([s.stop - s.start for s in boxes[index]])))
     for index in order:
         box = boxes[index]
-        value = index + 1
+        value = index
         window = out[box]
         own = window == value
         holes = ndimage.binary_fill_holes(own) & ~own & (window == 0)
@@ -5252,7 +5904,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         applied is not added.
     :param preserve_ids: paste the supplied IDs, not newly allocated IDs.
         Same-ID pixels do not conflict under Clip or Skip. Disconnected
-        pieces retain their shared identity. Exact-ID masks must fit uint16.
+        pieces retain their shared identity. Exact-ID masks must fit uint32.
     :param replace_whole: under ``replace``, remove each overlapping old
         object in full before pasting. Same-ID pixels remain when preserving
         IDs. Under ``merge``, fuse overlapping objects into their smallest
@@ -5294,7 +5946,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
     window = out[y0:y1, x0:x1]
     if overlap == "merge":
         added = []
-        new_id = next_label(mask)
+        free_ids = _available_labels(mask)
         for value in values:
             body = kept == value
             touching = np.unique(window[body])
@@ -5304,9 +5956,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
                 if touching.size > 1:
                     out[np.isin(out, touching[1:])] = target
             else:
-                target = value if preserve_ids else new_id
-                if not preserve_ids:
-                    new_id += 1
+                target = value if preserve_ids else next(free_ids)
             window[body] = target
             added.append(target)
         added = list(dict.fromkeys(int(out[y0:y1, x0:x1][kept == value][0])
@@ -5323,15 +5973,10 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         body = kept > 0
         window[body] = kept[body]
         return _fit_label_width(out, mask), values
-    new_id = next_label(mask)
-    added: List[int] = []
-    renumber = np.zeros(int(kept.max()) + 1, dtype=np.int64)
-    for value in values:
-        renumber[value] = new_id
-        added.append(new_id)
-        new_id += 1
+    free_ids = _available_labels(mask)
+    added = [next(free_ids) for value in values]
     body = kept > 0
-    window[body] = renumber[kept[body]]
+    window[body] = np.asarray(added, dtype=np.int64)[np.searchsorted(values, kept[body])]
     return _fit_label_width(out, mask), added
 
 
@@ -5403,7 +6048,7 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
     :param min_area: an object left smaller than this by the rule does not
         survive. 0 and 1 both mean "at least one pixel".
     :param preserve_ids: retain disconnected pieces sharing an ID; ``occupied``
-        must exclude existing same-ID pixels. Validate labels as uint16 IDs.
+        must exclude existing same-ID pixels. Validate labels as uint32 IDs.
     :returns: a copy of ``labels`` with everything the rule takes away set
         to 0. The surviving objects keep the ids they came in with.
     :raises ValueError: for an unknown ``overlap`` rule.
@@ -5907,6 +6552,26 @@ class VolumeMaskSession:
                 occupied.add(candidate)
         view[...] = edited
         return self._commit(output)
+
+    def replace_labels(self, labels):
+        """Make ``labels`` the whole volume's mask as one undo step.
+
+        :param labels: nonnegative integer labels of exactly the volume's
+            shape, such as a whole-volume detection.
+        :returns: number of changed voxels.
+        :raises ValueError: for another shape, or an identifier the mask's
+            dtype cannot hold; the volume is left unchanged.
+        """
+        from .i18n import tr
+
+        incoming = np.asarray(labels)
+        if (incoming.shape != self.mask.shape or incoming.dtype.kind not in 'uib'
+                or (incoming.size and int(incoming.min()) < 0)):
+            raise ValueError(tr('The detected labels do not match the volume.'))
+        top = int(incoming.max()) if incoming.size else 0
+        if top > min(65535, np.iinfo(self.mask.dtype).max):
+            raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+        return self._commit(np.ascontiguousarray(incoming, dtype=self.mask.dtype))
 
     def delete_label(self, label):
         """Remove one object from every section as a single undo step.

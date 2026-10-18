@@ -2234,6 +2234,88 @@ def _widen_worker_stack(thread: "QThread") -> None:
         pass
 
 
+_GUI_CALL_TIMEOUT_S = 10.0
+
+_GUI_CALLS = []
+
+
+class _GuiThreadCalls(QObject):
+    """Runs a callable handed to it from any thread on the thread it lives on.
+
+    Made on the GUI thread by :func:`_install_the_workspace_dispatcher`;
+    :func:`_call_on_the_gui_thread` posts work to it through a queued signal.
+    """
+
+    _asked = Signal(object)
+
+    def __init__(self) -> None:
+        """Connect the queued delivery to :meth:`_answer`."""
+        super().__init__()
+        self._asked.connect(self._answer, Qt.QueuedConnection)
+
+    def _answer(self, job) -> None:
+        """Run one posted job; the job reports its own outcome."""
+        job()
+
+
+def _call_on_the_gui_thread(fn, timeout_s: Optional[float] = None):
+    """Return ``fn()``, computed on the GUI thread.
+
+    On the GUI thread, or with no application or relay, ``fn`` runs in
+    place. From another thread it is posted to the GUI thread and this
+    waits at most ``timeout_s`` (default :data:`_GUI_CALL_TIMEOUT_S`): a
+    GUI thread that is itself waiting on the caller then costs a
+    ``TimeoutError`` rather than a deadlock.
+
+    :raises TimeoutError: when the GUI thread does not answer in time.
+    """
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance()
+    relay = _GUI_CALLS[0] if _GUI_CALLS else None
+    if (app is None or relay is None
+            or QThread.currentThread() is app.thread()):
+        return fn()
+    box = {}
+    done = threading.Event()
+    try:
+        relay._asked.emit(functools.partial(_run_the_posted, fn, box, done))
+    except RuntimeError:
+        return fn()
+    wait = _GUI_CALL_TIMEOUT_S if timeout_s is None else float(timeout_s)
+    if not done.wait(wait):
+        raise TimeoutError("the interface did not answer in time")
+    if "error" in box:
+        raise box["error"]
+    return box.get("value")
+
+
+def _run_the_posted(fn, box, done) -> None:
+    """Run ``fn`` on the GUI thread, record its outcome in ``box``, signal."""
+    try:
+        box["value"] = fn()
+    except BaseException as error:                       # noqa: BLE001
+        box["error"] = error
+    finally:
+        done.set()
+
+
+def _install_the_workspace_dispatcher() -> bool:
+    """Read workspace sections on the GUI thread, whoever saves them.
+
+    Call on the GUI thread. Idempotent; returns whether this call installed
+    it.
+    """
+    from spacr import workspace
+
+    if not _GUI_CALLS:
+        _GUI_CALLS.append(_GuiThreadCalls())
+    if workspace._STATE_DISPATCHER is _call_on_the_gui_thread:
+        return False
+    workspace._STATE_DISPATCHER = _call_on_the_gui_thread
+    return True
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],

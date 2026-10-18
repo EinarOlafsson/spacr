@@ -30,7 +30,10 @@
       "label": "spacr.ml.interpret_vision_model#1",
       "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
       "source_sha256": "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
-      "translation": "Sameinar mælingar fyrir hvern hlut úr valinni mæligagnageymslu við CSV með spáðum skorum, keyrir hvaða samsetningu sem er af RF-eiginleikavægi, umröðunarvægi og SHAP yfir helstu eiginleikana og safnar síðan SHAP-framlögum saman í ratsjárrit eftir hólfi og rás, svo að sjá megi hvaða svæði (fruma / kjarni / sýkill / umfrymi) og hvaða flúrljómunarrás stýrir líkaninu."
+      "translation": "Sameinar mælingar fyrir hvern hlut úr valinni mæligagnageymslu við CSV með spáðum skorum, keyrir hvaða samsetningu sem er af RF-eiginleikavægi, umröðunarvægi og SHAP yfir helstu eiginleikana og safnar síðan SHAP-framlögum saman í ratsjárrit eftir hólfi og rás, svo að sjá megi hvaða svæði (fruma / kjarni / sýkill / umfrymi) og hvaða flúrljómunarrás stýrir líkaninu.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",

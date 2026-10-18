@@ -39,13 +39,6 @@
     },
     {
       "table": "ui",
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "translation": "맑은 밤: 남색, 보라색, 얼음빛 파란색, 해가 진 뒤에도 오랫동안 하늘에 남아 있는 옅은 청보라색입니다.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
-    },
-    {
-      "table": "ui",
       "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
       "translation": "크롭 테이블 자체의 열에 적용할 SQL 조건입니다. 데이터베이스를 읽기 전용으로 열기 때문에 여기에 입력한 내용으로는 데이터베이스를 변경할 수 없습니다.",
@@ -74,31 +67,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "translation": "모듈 실행이 성공적으로 끝나면 위로 올라가는 아르페지오가 조성의 으뜸음으로 해결됩니다. spaCR가 다른 창에 있을 때 완료를 알 수 있습니다.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "translation": "버튼, 스위치, 탭, 목록 또는 슬라이더를 누를 때 사운드 세트와 같은 조성의 짧고 조용한 뜯는 소리가 납니다. 뚜렷하게 들리기보다는 은은하게 느껴지는 소리로 입력이 등록되었음을 알려 줍니다.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
-    },
-    {
-      "table": "ui",
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "translation": "오류로 실행이 중단되면 더 느리게 내려가는 선율이 울려 성공과 실패를 소리로 구분할 수 있습니다. 사용자가 직접 중단한 실행에서는 소리가 나지 않습니다.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
-    },
-    {
-      "table": "ui",
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "translation": "지평선 가까이 있는 태양과 그 빛이 통과하는 물질: 금색, 호박색, 옅은 금색, 이끼색입니다.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
     },
     {
       "table": "ui",
@@ -113,13 +85,6 @@
       "source": "Add field",
       "translation": "필드 추가",
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "translation": "~/.spacr/logs 경로의 로그 파일에 spaCR의 DEBUG 메시지를 추가합니다. 또한 cellpose가 어떤 모델을 불러왔는지 보고하도록 하고, 누른 버튼도 기록합니다. 이러한 기록이 있어야 버그 보고서를 유용하게 분석할 수 있습니다.\n\n이 설정을 켜도 spaCR 시작과 화면 열기에 더 오래 걸리지 않았습니다. 한 워크스테이션에서 모든 모듈을 이 설정을 켠 상태와 끈 상태로 각각 열어 측정했습니다. 콜드 스타트 후 Home이 준비되기까지 두 경우 모두 약 4초가 걸렸고, 가장 느린 모듈도 두 경우 모두 약 7초에 열렸습니다. 파이프라인 실행 시간은 측정하지 않았습니다.\n\nConsole에는 여전히 Logging 탭에서 켠 수준의 메시지만 표시됩니다. 이 스위치는 모든 함수 호출을 추적하지 않습니다. 해당 추적기는 별도의 개발자 도구이며, 여기서 켜지는 설정이 아닙니다.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
     },
     {
       "table": "ui",
@@ -149,6 +114,46 @@
       "translation": "4PL은 중점을 기준으로 대칭입니다. 실제로 비대칭이 있으면 4PL은 EC50을 이동시켜 이를 반영합니다. 5PL은 매개변수 하나를 추가하여 비대칭을 적합하고, 농도 조건도 하나 더 필요하며, 추가한 매개변수가 그만큼의 가치가 있었는지 보여 줍니다.",
       "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
       "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "맑은 밤: 남색, 보라색, 얼음빛 파란색, 해가 진 뒤에도 오랫동안 하늘에 남아 있는 옅은 청보라색입니다.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "모듈 실행이 성공적으로 끝나면 위로 올라가는 아르페지오가 조성의 으뜸음으로 해결됩니다. spaCR가 다른 창에 있을 때 완료를 알 수 있습니다.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "버튼, 스위치, 탭, 목록 또는 슬라이더를 누를 때 사운드 세트와 같은 조성의 짧고 조용한 뜯는 소리가 납니다. 뚜렷하게 들리기보다는 은은하게 느껴지는 소리로 입력이 등록되었음을 알려 줍니다.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "지평선 가까이 있는 태양과 그 빛이 통과하는 물질: 금색, 호박색, 옅은 금색, 이끼색입니다.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "~/.spacr/logs 경로의 로그 파일에 spaCR의 DEBUG 메시지를 추가합니다. 또한 cellpose가 어떤 모델을 불러왔는지 보고하도록 하고, 누른 버튼도 기록합니다. 이러한 기록이 있어야 버그 보고서를 유용하게 분석할 수 있습니다.\n\n이 설정을 켜도 spaCR 시작과 화면 열기에 더 오래 걸리지 않았습니다. 한 워크스테이션에서 모든 모듈을 이 설정을 켠 상태와 끈 상태로 각각 열어 측정했습니다. 콜드 스타트 후 Home이 준비되기까지 두 경우 모두 약 4초가 걸렸고, 가장 느린 모듈도 두 경우 모두 약 7초에 열렸습니다. 파이프라인 실행 시간은 측정하지 않았습니다.\n\nConsole에는 여전히 Logging 탭에서 켠 수준의 메시지만 표시됩니다. 이 스위치는 모든 함수 호출을 추적하지 않습니다. 해당 추적기는 별도의 개발자 도구이며, 여기서 켜지는 설정이 아닙니다.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

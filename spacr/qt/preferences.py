@@ -158,9 +158,13 @@ Values:
 from __future__ import annotations
 
 import contextlib
+import functools
+import itertools
 import logging
 import os
+import sys
 import threading
+import time
 
 from PySide6.QtCore import QSettings, Qt
 
@@ -756,10 +760,216 @@ def in_safe_mode() -> bool:
     return _SAFE_MODE
 
 
+#: This thread's open preference store, kept between reads. Opening a
+#: ``QSettings`` takes Qt's process-wide settings lock and checks the file on
+#: disk, and the backdrop tick, the dock's paint and every theme lookup read a
+#: preference: on a busy machine those openings were the late frames. One
+#: store per thread, because a ``QSettings`` is reentrant, not thread-safe.
+_STORE = threading.local()
+
+#: ``(format, scope) -> folder`` as last passed to ``QSettings.setPath``, and
+#: how many times one of them has changed. A kept store is reopened after a
+#: move, since the same arguments would now open a different file.
+_STORE_FOLDERS = {}
+_STORE_MOVES = [0]
+
+
+def _count_store_moves() -> None:
+    """Make ``QSettings.setPath`` count the moves a kept store must follow.
+
+    Idempotent. A call that names the folder already in place is not a move,
+    so portable mode, which repeats it on every open, keeps its store.
+    """
+    original = QSettings.setPath
+    if getattr(original, "_spacr_counts_moves", False):
+        return
+
+    def set_path(fmt, scope, path):
+        """Forward to Qt, counting a change of folder as a move."""
+        key = (fmt, scope)
+        if _STORE_FOLDERS.get(key) != str(path):
+            _STORE_FOLDERS[key] = str(path)
+            _STORE_MOVES[0] += 1
+        return original(fmt, scope, path)
+
+    set_path._spacr_counts_moves = True
+    QSettings.setPath = staticmethod(set_path)
+
+
+_count_store_moves()
+
+
+def _store_file_state(store):
+    """``(inode, size, mtime)`` of the file behind ``store``, or ``None``.
+
+    ``None`` means the store cannot be watched this way -- the Windows
+    registry, or the macOS preferences daemon, whose plist is not written
+    when another process changes a value -- so it is opened afresh for every
+    read, as it always was. A file not yet written answers ``()``.
+    """
+    try:
+        if (sys.platform in ("win32", "darwin")
+                and store.format() != QSettings.IniFormat):
+            return None
+        stat = os.stat(store.fileName())
+    except FileNotFoundError:
+        return ()
+    except Exception:                                        # noqa: BLE001
+        return None
+    return (stat.st_ino, stat.st_size, stat.st_mtime_ns)
+
+
+#: How often, in seconds, a thread's kept store looks at its file for a
+#: write from another process. A stat is a system call, and the backdrop
+#: and every theme lookup read a preference on each frame: under a busy
+#: worker holding the interpreter that was a 0.37 s stall in a paint. A
+#: value written in this process is seen at once whatever this says.
+_STORE_WATCH_SECONDS = 1.0
+
+#: The clock the watch above is timed by, replaceable in tests.
+_store_clock = time.monotonic
+
+#: Given a new value whenever any ``QSettings`` in this process writes, and
+#: whenever a kept store is opened or reloaded. :func:`_remembered` getters
+#: answer from memory only while it is unchanged. Each value comes from
+#: one counter, so two threads writing at once cannot share one.
+_STORE_GENERATIONS = itertools.count(1)
+_STORE_GENERATION = [0]
+
+#: ``getter name -> (context, value)`` for :func:`_remembered` getters.
+_REMEMBERED = {}
+
+
+def _count_store_writes() -> None:
+    """Make every ``QSettings`` write in this process bump the generation.
+
+    Idempotent. Every store on one file in this process shares Qt's copy,
+    so a write through any of them, here or in another module, changes
+    what a remembered getter would answer.
+    """
+    for name in ("setValue", "remove", "clear"):
+        original = getattr(QSettings, name)
+        if getattr(original, "_spacr_counts_writes", False):
+            continue
+
+        def write(self, *args, _original=original):
+            """Forward to Qt, then forget what was remembered."""
+            try:
+                return _original(self, *args)
+            finally:
+                _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+
+        write._spacr_counts_writes = True
+        setattr(QSettings, name, write)
+
+
+_count_store_writes()
+
+
+def _real_store() -> QSettings:
+    """This thread's preference store, reread when another process wrote it.
+
+    Every ``QSettings`` on one file in this process shares Qt's copy of it,
+    so a value set through any of them is already visible here. A write from
+    another process changes the file; that is checked at most once every
+    :data:`_STORE_WATCH_SECONDS` per thread and reloaded with ``sync``,
+    which is what opening a new store would do.
+    """
+    args = _store_args(_ORG, _APP)
+    store = getattr(_STORE, "store", None)
+    if (store is None or _STORE.args != args
+            or _STORE.moves != _STORE_MOVES[0]
+            or type(store) is not QSettings):
+        store = QSettings(*args)
+        state = _store_file_state(store)
+        if state is None:
+            _STORE.store = None
+            return store
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+        _STORE.store, _STORE.args = store, args
+        _STORE.moves, _STORE.state = _STORE_MOVES[0], state
+        _STORE.checked = _store_clock()
+        return store
+    now = _store_clock()
+    if now - _STORE.checked < _STORE_WATCH_SECONDS:
+        return store
+    _STORE.checked = now
+    state = _store_file_state(store)
+    if state is None:
+        _STORE.store = None
+        return QSettings(*args)
+    if state != _STORE.state:
+        store.sync()
+        _STORE.state = _store_file_state(store)
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+    return store
+
+
+def _watch_store() -> None:
+    """Let this thread's store look for another process's write when due.
+
+    Costs one clock read between looks. A store that cannot be watched is
+    treated as changed at each look, so what is remembered from it is at
+    most :data:`_STORE_WATCH_SECONDS` old.
+    """
+    now = _store_clock()
+    if now - getattr(_STORE, "checked", float("-inf")) < _STORE_WATCH_SECONDS:
+        return
+    _real_store()
+    if getattr(_STORE, "store", None) is None:
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+        _STORE.checked = now
+
+
+def _store_context() -> tuple:
+    """Everything besides the stored values that a remembered answer used."""
+    try:
+        from .theme import spaceout_enabled
+        spaceout = spaceout_enabled()
+    except Exception:
+        spaceout = None
+    environ = os.environ
+    return (_STORE_GENERATION[0], _STORE_MOVES[0], _SAFE_MODE, _ORG, _APP,
+            QSettings, _real_store, spaceout,
+            environ.get("SPACR_PORTABLE"), environ.get("SPACR_LAUNCHER_DIR"),
+            environ.get("SPACR_HOME"))
+
+
+def _remembered(fn):
+    """Answer the getter ``fn`` from memory while no preference changes.
+
+    For the getters a paint or a backdrop tick calls. Any write in this
+    process forgets the answer at once; a write from another process is
+    seen by the next look :func:`_watch_store` makes. While
+    :func:`_settings` is replaced, by :func:`_one_store` or a test, every
+    call reads the store as before.
+    """
+    name = fn.__name__
+
+    @functools.wraps(fn)
+    def read():
+        """Remembered value of the wrapped getter."""
+        if _settings is not _SETTINGS:
+            return fn()
+        _watch_store()
+        context = _store_context()
+        hit = _REMEMBERED.get(name)
+        if hit is not None and hit[0] == context:
+            return hit[1]
+        value = fn()
+        _REMEMBERED[name] = (context, value)
+        return value
+
+    return read
+
+
 def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
-    real = QSettings(*_store_args(_ORG, _APP))
+    real = _real_store()
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
+
+
+_SETTINGS = _settings
 
 
 def _in_one_store(fn):
@@ -814,6 +1024,7 @@ def _one_store():
 
 
 
+@_remembered
 def get_language() -> str:
     """Return the persisted UI language code, falling back to English."""
     from .i18n import DEFAULT_LANGUAGE, normalize_language
@@ -1302,8 +1513,8 @@ def set_figure_dynamic(enabled: bool) -> None:
 def get_volume_view() -> dict:
     """The Make Masks True 3D view's saved render settings.
 
-    :returns: a dict that may hold ``backend`` (``auto``, ``opengl`` or
-        ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
+    :returns: a dict that may hold ``backend`` (``auto``, ``vulkan``,
+        ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
         mask surfaces' finish); a key never chosen is absent. The caller
         checks the values, so a store written by a later version still
         opens.
@@ -1641,7 +1852,7 @@ def set_figure_colors_auto() -> None:
 
     The explicit way out. A user who has been frozen — by the old dialog or
     by their own click — otherwise has no route back to automatic at all,
-    and a preference you can only ever set is a trap.
+    because nothing else clears the explicit setting.
     """
     set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
     set_figure_line_colour(AUTO_FIGURE_COLOR)
@@ -1720,6 +1931,7 @@ def _follow_system_was_chosen(store) -> bool:
                     False)
 
 
+@_remembered
 def get_theme() -> str:
     """Return the saved application theme, or the default when invalid.
 
@@ -2072,6 +2284,12 @@ def get_ambient_enabled() -> bool:
 
     if os.environ.get("SPACR_NO_BACKDROP"):
         return False
+    return _stored_ambient_enabled()
+
+
+@_remembered
+def _stored_ambient_enabled() -> bool:
+    """The stored half of :func:`get_ambient_enabled`, kept in memory."""
     if _raw_ambient_animation() == _no_animation_key():
         return False
     return _as_bool(_settings().value(_ambient_enabled_key(),
@@ -4578,6 +4796,7 @@ def _set_layout_decision(record: dict) -> None:
         return
 
 
+@_remembered
 def get_font_scale() -> float:
     """Return the saved UI font scale, clamped to supported bounds."""
     try:
@@ -5069,6 +5288,7 @@ def set_dock_mode(mode: str) -> None:
 DEFAULT_PANE_OPACITY_PCT = 60
 
 
+@_remembered
 def get_pane_opacity() -> float:
     """The user's requested page-panel opacity, 0.0-1.0.
 
@@ -5272,6 +5492,7 @@ def set_high_contrast(on: bool) -> str:
     return get_theme_choice()
 
 
+@_remembered
 def get_reduce_motion() -> bool:
     """Whether Reduce motion holds every animated backdrop still.
 
@@ -8225,7 +8446,7 @@ PREFERENCE_TIPS = {
     "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
     "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
     "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.",
-    "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+    "Variable speed": "Vary the travel speed over time instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
     "Animation speed": "Background-animation speed.",
     "Animation size": "Size of background shapes.",
@@ -9362,8 +9583,8 @@ class PreferencesDialog:
         _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
-            "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do."))
+            "verbose logging off to set it yourself; your previous choice "
+            "is then restored."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -10302,8 +10523,8 @@ class PreferencesDialog:
         verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
-            "records which buttons you pressed. That trail is what makes a "
-            "bug report worth reading.\n\n"
+            "records which buttons you pressed. These records show the "
+            "steps that led to a problem in a bug report.\n\n"
             "Starting spaCR and opening its screens took no longer with "
             "this on. This was measured on one "
             "workstation by opening every module, once with this on and "
@@ -11057,13 +11278,11 @@ class PreferencesDialog:
             fractal_quality.setCurrentIndex(
                 max(0, fractal_quality.findData(_fractal_values["quality"])))
             fractal_quality.setToolTip(tr(
-                "A level is a set of numbers, not an adjective: choosing "
-                "one fills in supersampling, render scale, the iteration "
-                "budget and the scale below. Every one of them stays a "
-                "field you can then change — a level is a starting point, "
-                "not a lock.\n\n"
-                "Auto asks the machine instead, per backend, so it keeps "
-                "following the hardware rather than freezing an answer."))
+                "Each level sets supersampling, render scale, the iteration "
+                "budget and the scale below. Each of these remains a field "
+                "that can be changed after a level is chosen.\n\n"
+                "Auto chooses the values for each backend from the hardware "
+                "every time, instead of storing fixed values."))
             fractal.addRow(tr("Quality"), fractal_quality)
 
             def _tenths(name, value, low=None, high=None):
@@ -11137,10 +11356,11 @@ class PreferencesDialog:
                 "Straight down descends to one point on the boundary and "
                 "stays pointed at it — the steadiest picture, and what the "
                 "published settings use.\n\n"
-                "Search as it goes looks for somewhere more interesting "
-                "every so often and moves the camera onto it. It finds more "
-                "variety, and moving the camera is visible: the Steering "
-                "control below sets how much.\n\n"
+                "Search as it goes periodically scores several directions "
+                "around the centre by the set boundary they contain and "
+                "moves the camera toward the highest score. The camera "
+                "movement is visible; the Steering control below sets how "
+                "far each move reaches.\n\n"
                 "Tour the interesting places measures the view as it "
                 "descends and glides toward the part with the most colours "
                 "in it, never toward a single-colour patch. The camera "
@@ -11155,9 +11375,9 @@ class PreferencesDialog:
             fractal_steering.setRange(0.0, 1.0)
             fractal_steering.setSingleStep(0.05)
             fractal_steering.setToolTip(tr(
-                "How much the view wanders while it descends. 0 goes "
-                "straight down; 1 keeps looking for somewhere more "
-                "interesting.\n\n"
+                "How far the camera moves off a straight descent. 0 goes "
+                "straight down; 1 makes the largest moves toward set "
+                "boundary structure.\n\n"
                 "It sets how far each move reaches, how often one happens "
                 "and how long it takes, together — a move never takes more "
                 "than half the gap before the next, at any setting, so it "
@@ -11403,6 +11623,25 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        uninstall_button = QPushButton(tr("Uninstall…"))
+        uninstall_button.setObjectName("UninstallSpacrButton")
+        uninstall_button.setToolTip(tr(
+            "Remove the current spaCR version or all detected versions. Review the exact paths and choose which spaCR data to keep."))
+        style_as_danger(uninstall_button)
+
+        def _open_spacr_uninstall():
+            """Leave Preferences before opening the application uninstall preview."""
+            from PySide6.QtCore import QTimer
+
+            from .install_consent import _open_uninstall
+
+            window = parent.window() if parent is not None else None
+            dlg.reject()
+            QTimer.singleShot(0, lambda: _open_uninstall(window))
+
+        uninstall_button.clicked.connect(_open_spacr_uninstall)
+        performance.addRow(tr("Uninstall"), uninstall_button)
+
         notifications_page = None
         if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
             notifications_page = _NotificationsPage(
@@ -11416,7 +11655,7 @@ class PreferencesDialog:
             plugins_form = _page("Plugins", "PreferencesTabPlugins")
             if show_vvvv:
                 export_vvvv_check = QCheckBox(tr("Export to vvvv"))
-                export_vvvv_check.setObjectName(_EXPORT_VVVV_ALPHA_WIDGET)
+                export_vvvv_check.setObjectName("PreferencesExportVvvv")
                 export_vvvv_check.setChecked(_get_export_vvvv())
                 export_vvvv_check.setToolTip(tr(
                     "Also write every saved mask in Make Masks, and every "

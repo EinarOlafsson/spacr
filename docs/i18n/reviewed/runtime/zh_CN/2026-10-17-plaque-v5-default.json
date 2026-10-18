@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Plaque v5 becomes the default plaque model (maintainer's choice 2026-10-17): the plaque_model setting tooltip and the 'bundled' note name toxoplasma_plaque_v5; toxoplasma_plaque_v3 stays the better choice on Gel Doc wells. Preserve every model key, cpsam_v2, Gel Doc, Cellpose 3 and dates. Superseded records are archived in archive/2026-10-17-plaque-v5-default.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v5' is the cpsam_v2 round-7 model; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells; 'toxoplasma_plaque_v4', the default until 2026-10-17, and 'toxoplasma_plaque_v2' are earlier defaults), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v5'.",
+      "source_sha256": "05776e85b73623c1421bd91b7d1cdc0cb6dc0745c9a7c3995baf6ff9af3526f9",
+      "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v5' 为基于 cpsam_v2 的第 7 轮模型；'toxoplasma_plaque_v3' 在 Gel Doc 孔上得分更高；'toxoplasma_plaque_v4'（2026-10-17 之前的默认值）和 'toxoplasma_plaque_v2' 为更早的默认值）；文件系统路径用于选择自定义检查点；'bundled' 是需要 Cellpose 3 的 Cellpose 3 检查点。更改此项会改变空斑计数，因此已记录的运行应保留其值。默认值为 'toxoplasma_plaque_v5'。"
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v5 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v5 is the current model.",
+      "source_sha256": "30a0489ba9ff6104c77cdfeca5d5c6c59bc4b9ce253022670bfd7ab3923ae063",
+      "translation": "'bundled' 是历史上随包提供的蚀斑模型。保留它是为了能够重现旧的运行；在文献图像上它会漏掉约三分之一的蚀斑。toxoplasma_plaque_v5 是当前模型。"
+    }
+  ]
+}

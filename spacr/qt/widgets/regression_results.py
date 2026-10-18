@@ -621,6 +621,9 @@ def backend_of(path) -> Optional[str]:
     return None
 
 
+_HELD_CONSTRUCTIONS: list = []
+
+
 class RegressionResultsPanel(QWidget):
     """Volcano, table and diagnostics for one finished regression."""
 
@@ -660,6 +663,36 @@ class RegressionResultsPanel(QWidget):
             larger external view; selection and redraw behavior are unchanged.
         """
         super().__init__(parent)
+        steps = self._construct(external_volcano)
+        held = _HELD_CONSTRUCTIONS[-1] if _HELD_CONSTRUCTIONS else None
+        if held is not None and not held:
+            held.append(steps)
+            return
+        for _step in steps:
+            pass
+
+    @classmethod
+    def _constructed_in_steps(cls, parent=None,
+                              external_volcano: bool = False):
+        """Build a panel one part per step, as a generator returning it.
+
+        The same construction :meth:`__init__` runs in one go, paused
+        between its larger parts so a caller stepping a deferred build can
+        give the event loop back. A reader must not use the panel before
+        the generator has finished.
+        """
+        held = []
+        _HELD_CONSTRUCTIONS.append(held)
+        try:
+            panel = cls(parent, external_volcano=external_volcano)
+        finally:
+            _HELD_CONSTRUCTIONS.remove(held)
+        for _step in (held[0] if held else ()):
+            yield
+        return panel
+
+    def _construct(self, external_volcano):
+        """Build the panel's widgets, pausing between its larger parts."""
         from .fast_plots import (ControlSeparation, EffectDistribution,
                                  EffectRankPlot, GuideAgreementPlot,
                                  InfluencePlot, PValueHistogram, QQPlot,
@@ -755,6 +788,7 @@ class RegressionResultsPanel(QWidget):
 
         self.volcano = VolcanoPlot()
         self.table = ResultsTable()
+        self.table.fill_in_steps = True
         self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -781,6 +815,7 @@ class RegressionResultsPanel(QWidget):
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
+        yield
         self.effect_rank = EffectRankPlot()
         self.effect_distribution = EffectDistribution()
         self.tabs.addTab(self.effect_rank, "Effect rank")
@@ -796,6 +831,7 @@ class RegressionResultsPanel(QWidget):
             "them is. σ is a MAD, which the outliers a screen is looking for "
             "do not inflate.")
 
+        yield
         self.p_values = PValueHistogram()
         self.qq = QQPlot()
         self.controls = ControlSeparation()
@@ -803,6 +839,7 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
 
+        yield
         from PySide6.QtGui import QFontDatabase
         from .folding_summary import FoldingSummaryView
 
@@ -810,6 +847,7 @@ class RegressionResultsPanel(QWidget):
         self._summary.setPlainText(
             "Run a regression to see its summary.")
 
+        yield
         self.residuals = ResidualPlot()
         self.scale_location = ScaleLocationPlot()
         self.influence = InfluencePlot()
@@ -849,8 +887,10 @@ class RegressionResultsPanel(QWidget):
             "Leverage against standardised residual. Which wells are moving "
             "the coefficients on their own.")
 
+        yield
         self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
+        self.support.fill_in_steps = True
         from .collapsible_splitter import CollapsibleSplitter
         agreement_split = CollapsibleSplitter(
             Qt.Vertical, persist_key="regression::guide_support")
@@ -909,6 +949,7 @@ class RegressionResultsPanel(QWidget):
         self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
+        yield
         from ..job_runner import JobRunner
 
         self._loading = False
@@ -1962,6 +2003,11 @@ class RegressionResultsPanel(QWidget):
 
         :param frame: the coefficient DataFrame; ``None`` or an empty frame is
             reported in the status line and returns ``False``.
+
+        A run whose plot state is remembered is drawn once, by the restore
+        of that state, rather than drawn and then drawn again. A state first
+        recorded while this call draws -- a workspace save reading the panel
+        mid-draw -- holds what is being drawn and is not restored over it.
         """
         import pandas as pd
 
@@ -2067,14 +2113,18 @@ class RegressionResultsPanel(QWidget):
         self._offer_thresholds()
         self._offer_compartments()
 
-        self.refresh_views()
+        restoring = isinstance(
+            self._plot_states.get(self._plot_state_key(source)), dict)
+        if not restoring:
+            self.refresh_views()
         self._mark_the_level_on_the_plots()
         note = self.both_levels_note()
         if note:
             self.say(f"{self._status} {note}")
         if self._colour_by_note:
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
-        self._restore_plot_state(source)
+        if restoring:
+            self._restore_plot_state(source)
         self.loaded.emit(source or "")
         return True
 

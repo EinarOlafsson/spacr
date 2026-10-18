@@ -1,0 +1,1210 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "(bool) Percentile-normalise the image for display + segmentation.",
+      "source": "(bool) Percentile-normalise the image for display + segmentation.",
+      "source_sha256": "e2166e5bef5f3cc5406c6f6095e88061093c23115a82f662e82722cb09b93512",
+      "table": "ui",
+      "translation": "(bool) 百分比正常化图像显示 + 分割。"
+    },
+    {
+      "key": "(bool) Percentile-stretch each frame for display + segmentation.",
+      "source": "(bool) Percentile-stretch each frame for display + segmentation.",
+      "source_sha256": "54b8ff0229df1e1244bfde88e836e9978d0a3836377fc804bf0b5b9c493b2052",
+      "table": "ui",
+      "translation": "(bool) 每个框架为显示 + 分割。"
+    },
+    {
+      "key": "(float) Cellpose cell-probability threshold — lower keeps more (dimmer) objects.",
+      "source": "(float) Cellpose cell-probability threshold — lower keeps more (dimmer) objects.",
+      "source_sha256": "fc94a17ddec92bc095f7c758af42b07f3a126efd94a8c233fabe8d58ae5b565d",
+      "table": "ui",
+      "translation": "(浮动) Cellpose 细胞概率阈值 - 较低保持更多(大)对象。"
+    },
+    {
+      "key": "(float) Cellpose cell-probability threshold.",
+      "source": "(float) Cellpose cell-probability threshold.",
+      "source_sha256": "ed806c7089e172a990b5d41a09c1a5565803365e7fe31f35680b90dd0784336d",
+      "table": "ui",
+      "translation": "(浮) Cellpose 细胞概率阈值。"
+    },
+    {
+      "key": "(int) How many fields to segment with each model.",
+      "source": "(int) How many fields to segment with each model.",
+      "source_sha256": "4f02f327e512371a88ca460fb8967103e407defb5aa20738ee7636e720f45c15",
+      "table": "ui",
+      "translation": "(int) 每个模型分割多少个字段。"
+    },
+    {
+      "key": "(int) How many fields to segment with the selected model.",
+      "source": "(int) How many fields to segment with the selected model.",
+      "source_sha256": "e19fd714368b4b892452469ee76dfcd35330837d5a51794ac67aa8ec398231e8",
+      "table": "ui",
+      "translation": "(int) 与所选模型分割多少个字段。"
+    },
+    {
+      "key": "(int) The channel registration is measured on. Every channel then shares that one solution — aligning channels independently would shear the composite.",
+      "source": "(int) The channel registration is measured on. Every channel then shares that one solution — aligning channels independently would shear the composite.",
+      "source_sha256": "5fea0ba3177f486f444c52cbaa863dbbd99ec847ee593f1b7abf1237d2ad1eae",
+      "table": "ui",
+      "translation": "每个通道,然后分享一个解决方案 - 连接通道独立会显示组合。"
+    },
+    {
+      "key": "(str) The 'Robust' range clips colours to the 2nd–98th percentile so one extreme well cannot flatten the plate.",
+      "source": "(str) The 'Robust' range clips colours to the 2nd–98th percentile so one extreme well cannot flatten the plate.",
+      "source_sha256": "cbaad4a970fa76f612c9c5253fb71db26dab9efe5512d48a399e2432f17a38ab",
+      "table": "ui",
+      "translation": "(str) 'Robust' 范围的剪辑颜色到 2 至 98 个百分点,所以一个极端的孔不能平滑板。"
+    },
+    {
+      "key": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source_sha256": "0c8542d1bc2ed1ab6058dfadaa20928a9d41d89e745986a1637351921179f7a2",
+      "table": "ui",
+      "translation": "<b>适用于下一轮</b><br><span style='color:gray;'>这些人决定什么被拖,所以他们需要拖它的运行。</span>"
+    },
+    {
+      "key": "A measurements.db, or a CSV of per-well values",
+      "source": "A measurements.db, or a CSV of per-well values",
+      "source_sha256": "cef6b9e5d04af096a7c66c9ddda504eb3aa435f27cf3e7c4d399a2e45556220a",
+      "table": "ui",
+      "translation": "一个 measurements.db，或每孔数值的 CSV"
+    },
+    {
+      "key": "Any encoder timm can resolve. The model-zoo entry records which one, with the checksum of its weights: two runs' dimension 17 are the same number and not the same thing unless the backbone, the weights and the channel policy all match.",
+      "source": "Any encoder timm can resolve. The model-zoo entry records which one, with the checksum of its weights: two runs' dimension 17 are the same number and not the same thing unless the backbone, the weights and the channel policy all match.",
+      "source_sha256": "db7407333704d3a9cb17860e3690b980ae3d0d6da5802eb4d285da63ee9a1db4",
+      "table": "ui",
+      "translation": "模型动物园输入记录,其中一个,与其权重的检查总数:两轮的尺寸17是相同的数字,而不是相同的东西,除非背部,权重和通道政策都匹配。"
+    },
+    {
+      "key": "At least one multi-objective UMAP weight must be positive.",
+      "source": "At least one multi-objective UMAP weight must be positive.",
+      "source_sha256": "9e89a8f62368d2bedb22de6e1ef34df83ac604bb1cae1f9f1f6fcfb267acd3d9",
+      "table": "ui",
+      "translation": "至少一个多目标 UMAP 权重必须是积极的。"
+    },
+    {
+      "key": "Attribution settings for a trained image model: method, target layer, overlay rendering and inference normalization. These settings determine which image regions are reported as contributing to a classification.",
+      "source": "Attribution settings for a trained image model: method, target layer, overlay rendering and inference normalization. These settings determine which image regions are reported as contributing to a classification.",
+      "source_sha256": "30c2f855778228babd0ca451ff622db34e4e560ac816fc2adff576898560f3cd",
+      "table": "ui",
+      "translation": "训练图像模型的分配设置:方法、目标层、超层 rendering 和 inference normalization. 这些设置确定图像区域被报告为有助于分类。"
+    },
+    {
+      "key": "Available memory could not be measured, so the worker count is limited to {workers}.",
+      "source": "Available memory could not be measured, so the worker count is limited to {workers}.",
+      "source_sha256": "1a89f683f7cc725b8f2b95781676a0a14646b7022924fe3b822dd69bf6fcbc6e",
+      "table": "ui",
+      "translation": "可用的记忆体无法测量,因此工作进程数量限于 {workers}。"
+    },
+    {
+      "key": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "source": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "source_sha256": "2aa7a1c1214a28bac6e996b7a3930bf45d8e2003b67aa4c217b1d976060f75b8",
+      "table": "ui",
+      "translation": "Binomial GLM 与一个分裂的 probit 链接,权重为 var_weights 波尔的细胞数量. 它与 logit 仅在链接中有所不同:定位的概率是几乎相同的,并在不同的规模上,并且不是 log-odds。"
+    },
+    {
+      "key": "Blue channel drawn as magenta, for tritanopia.",
+      "source": "Blue channel drawn as magenta, for tritanopia.",
+      "source_sha256": "60e0e8f91a13efe10aa5682b667dda440128b85557919001050f3f1d3e36ebb5",
+      "table": "ui",
+      "translation": "蓝色通道被绘制为磁铁,用于三角形。"
+    },
+    {
+      "key": "Builds a containment tree from the cell_id links written during measurement. Selecting a node highlights the corresponding object in other open views; selecting it with its contents also highlights all descendants. Child objects whose cell_id does not identify a measured cell are listed separately as potential segmentation or linking discrepancies.",
+      "source": "Builds a containment tree from the cell_id links written during measurement. Selecting a node highlights the corresponding object in other open views; selecting it with its contents also highlights all descendants. Child objects whose cell_id does not identify a measured cell are listed separately as potential segmentation or linking discrepancies.",
+      "source_sha256": "70f323f0a5347a87e67ec58db03b81f3724715793fc625785bee3edf2abf2b74",
+      "table": "ui",
+      "translation": "从测量过程中写的 cell_id 链接中构建一个容器树. 选择一个节点在其他开放视图中突出相应的对象; 选择它与其内容也突出所有后代. cell_id 不识别测量细胞的儿童对象分别列为潜在的分割或连接差异。"
+    },
+    {
+      "key": "Channel {index}: {name}",
+      "source": "Channel {index}: {name}",
+      "source_sha256": "1f9f5dd9fe5b38416c255e6c9b7b292fba6c8a476eec4cdc84915b2314c6451c",
+      "table": "ui",
+      "translation": "通道 {index}: {name}"
+    },
+    {
+      "key": "Channels drawn as cyan / magenta / yellow (publication style, not a colour-blind mode).",
+      "source": "Channels drawn as cyan / magenta / yellow (publication style, not a colour-blind mode).",
+      "source_sha256": "98ca0f6dea12e84a6f536cce5fbc78b4005f16aaa602566aa535dc33ba2a313b",
+      "table": "ui",
+      "translation": "通道被绘制为西安 / 马根塔 / 黄色(出版风格,而不是颜色盲目的模式)。"
+    },
+    {
+      "key": "Channels drawn in {mode} primaries.",
+      "source": "Channels drawn in {mode} primaries.",
+      "source_sha256": "0370c2ab459bf688c325f9db00101bed9f92cd0145d480a70de28ff7ddd6e884",
+      "table": "ui",
+      "translation": "通道在 {mode} 初级中绘制。"
+    },
+    {
+      "key": "Channels:",
+      "source": "Channels:",
+      "source_sha256": "4674d931576eb729963c6f83479f994b0dada8b9673d4dd2014ac40c3bef1a04",
+      "table": "ui",
+      "translation": "通道:"
+    },
+    {
+      "key": "Check the plaque diameter and thresholds on one sampled field before running the assay.",
+      "source": "Check the plaque diameter and thresholds on one sampled field before running the assay.",
+      "source_sha256": "e9fb9372ba6f62e479693a8515775fc197af482fc505adcc48d0c1523aa4e402",
+      "table": "ui",
+      "translation": "在运行测试之前,在一个样本字段上检查板的直径和阈值。"
+    },
+    {
+      "key": "Choose a well column to preview its mapping",
+      "source": "Choose a well column to preview its mapping",
+      "source_sha256": "219f281fa732593c4b34d66ec8f6cb6f33dfa4af79a17a053a968139c1b30f63",
+      "table": "ui",
+      "translation": "选择一个孔列以预览其映射"
+    },
+    {
+      "key": "Classify attached and invaded parasites from two-colour differential staining. Estimate the intensity threshold per field and flag fields that lack two distinguishable populations.",
+      "source": "Classify attached and invaded parasites from two-colour differential staining. Estimate the intensity threshold per field and flag fields that lack two distinguishable populations.",
+      "source_sha256": "9593aee3b68ea2b6cb2eac5727d7143bd19f64d65e427200ea04c528a1b24595",
+      "table": "ui",
+      "translation": "根据双色差异染色将寄生虫分类为附着或已入侵。按视野估计强度阈值，并标记缺少两个可区分群体的视野。"
+    },
+    {
+      "key": "Clear all channels",
+      "source": "Clear all channels",
+      "source_sha256": "4089b2d2f571b9268135ee0574a91525b82f0873c3da2521b0b9f1f3efd7fd53",
+      "table": "ui",
+      "translation": "清除所有通道"
+    },
+    {
+      "key": "Click to show the volumetric settings — the ones that mean nothing until a field has a z axis: which axis it is, how the stack is segmented or projected, and the voxel geometry that says how far apart two planes really are. Hiding them keeps their values: they still reach the run and the settings file.",
+      "source": "Click to show the volumetric settings — the ones that mean nothing until a field has a z axis: which axis it is, how the stack is segmented or projected, and the voxel geometry that says how far apart two planes really are. Hiding them keeps their values: they still reach the run and the settings file.",
+      "source_sha256": "66bc0c79e06d0b53c785b1a08108689bfd196d8079f4afb1fc10395b6ca9416c",
+      "table": "ui",
+      "translation": "点击显示容量设置 - 那些没有意义的,直到一个字段有一个 z 轴:它是哪个轴,如何分割或项目,和语音地质说两个飞机实际上是多远。"
+    },
+    {
+      "key": "Compares two runs from the same project. The report groups changed settings by their settings-panel category, compares object, well, and field counts per plate, and identifies hits that were added, removed, or re-ranked. Incompatible runs are not compared unless the compatibility warning is overridden.",
+      "source": "Compares two runs from the same project. The report groups changed settings by their settings-panel category, compares object, well, and field counts per plate, and identifies hits that were added, removed, or re-ranked. Incompatible runs are not compared unless the compatibility warning is overridden.",
+      "source_sha256": "4ee31577aa4d9dd58e9c6366957483241357ca30e415fc58f8a9db85f397d436",
+      "table": "ui",
+      "translation": "报告组根据设置面板类别改变设置,比较对象、孔和字段计算,并识别已添加、删除或重新排序的进球。"
+    },
+    {
+      "key": "Composite (channels 1–3)",
+      "source": "Composite (channels 1–3)",
+      "source_sha256": "257a441da5590bb6312d38239e38946d138d4d17a3fe17834d79a9fc9fb432c6",
+      "table": "ui",
+      "translation": "合成(通道1～3)"
+    },
+    {
+      "key": "Continue from the atomic field checkpoint in the destination. Every TIFF in a completed field is validated before it is skipped; missing or corrupt fields are converted again. API: spacr.convert.convert(..., resume=True).",
+      "source": "Continue from the atomic field checkpoint in the destination. Every TIFF in a completed field is validated before it is skipped; missing or corrupt fields are converted again. API: spacr.convert.convert(..., resume=True).",
+      "source_sha256": "484dce413ac34ddd60c0b6c43406fede64645df9590786b7468b3de710ab3dc2",
+      "table": "ui",
+      "translation": "从原子视野检查点继续到目的地. 完成视野的每 TIFF 都会在被转移之前被证实; 缺失或腐败的视野会重新转换. API: spacr.convert.convert(..., resume=True)。"
+    },
+    {
+      "key": "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.",
+      "source": "Core sequence from microscopy images through segmentation, measurements, annotations, classification, barcode mapping and regression.",
+      "source_sha256": "adcec89474bc8060305e5204fe5e73607dfd18dee3464590cbbc165c11fb5236",
+      "table": "ui",
+      "translation": "从微观图像的核心序列,通过分割,测量,标记,分类,条码地图和回归。"
+    },
+    {
+      "key": "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
+      "source": "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
+      "source_sha256": "603e88530ce0b9d35f8feb7e4b274057214a9df63a25cf43685dfcba5d1faec4",
+      "table": "ui",
+      "translation": "计算每个液泡中的寄生虫,并将其转化为复制率:内分泌物将一个液泡1 -> 2 -> 4 -> 8倍,因此每液泡的计算分布为回归,而不是中间。"
+    },
+    {
+      "key": "Cross-fit grouping, independent morphology features and probability threshold for hit-like candidates; these are not genotype calls.",
+      "source": "Cross-fit grouping, independent morphology features and probability threshold for hit-like candidates; these are not genotype calls.",
+      "source_sha256": "5a863322788a8a5fac817ba26d6a39ce184f5ba57aea952cf585261c53397c1b",
+      "table": "ui",
+      "translation": "跨性别组合,独立的形状特征和可能的阈值为类似于打击的候选人;这些不是基因型呼叫。"
+    },
+    {
+      "key": "Displays image channels, label masks, points, and regions of interest in a shared coordinate system. Configure each layer's colour map, opacity, blending, visibility, and order. Object selection is synchronized with other open views.",
+      "source": "Displays image channels, label masks, points, and regions of interest in a shared coordinate system. Configure each layer's colour map, opacity, blending, visibility, and order. Object selection is synchronized with other open views.",
+      "source_sha256": "f5e23f3253d3c4429e26bd97bf8393804c9619413c4fa002f3f4df21e6589dfc",
+      "table": "ui",
+      "translation": "显示图像通道,标签掩膜,点, 在共享坐标系统中设置各层的颜色地图、不透明度、混合、可见性, 对象选择与其他开放视野同步。"
+    },
+    {
+      "key": "Download about 370 MB of example data for Measure: sixteen fields across four wells, already segmented, so Measure can be run without generating masks first. Cached afterwards, so pressing it again is instant.",
+      "source": "Download about 370 MB of example data for Measure: sixteen fields across four wells, already segmented, so Measure can be run without generating masks first. Cached afterwards, so pressing it again is instant.",
+      "source_sha256": "d0adfd96a1b29ff97d06db407c279403500082364ebcb9578bbeabd816c48c0b",
+      "table": "ui",
+      "translation": "下载大约370MB的示例数据为测量:在四个孔中有十六个字段,已经分割,所以测量可以运行,而不会首先产生掩膜。"
+    },
+    {
+      "key": "Download every read. The four runs are about 20 GB in total.",
+      "source": "Download every read. The four runs are about 20 GB in total.",
+      "source_sha256": "81159f0e33cd8ab0643297722e7cb692a710a701ceed6b3ea2ed72551ae752bf",
+      "table": "ui",
+      "translation": "下载每个阅读. 四次运行是大约20GB的总量。"
+    },
+    {
+      "key": "Drag a box round one object and that region of the image and the mask becomes a field of its own, queued straight after this one. Objects the box cuts through are dropped. The field you cut them from is moved into recropped_originals/ when you move on, not deleted.",
+      "source": "Drag a box round one object and that region of the image and the mask becomes a field of its own, queued straight after this one. Objects the box cuts through are dropped. The field you cut them from is moved into recropped_originals/ when you move on, not deleted.",
+      "source_sha256": "3e7cfffcb4127bb3906248d4445ddb8e65f0dbccdd83ea4a08fa910769dd3f17",
+      "table": "ui",
+      "translation": "拖一个盒子围绕一个对象,这个图像和掩膜的区域变成一个自己的视野,直后的这个。 对象盒子切断通过被抛弃. 你切断它们的视野被移动到 recropped_originals/ 当你移动时,不被删除。"
+    },
+    {
+      "key": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source_sha256": "515397653a26413dbf2b840eade02d45e1e375e395558a9d92d83dbbb86a3b7c",
+      "table": "ui",
+      "translation": "编码对每种染色单独运行，并在列名中注明该染色。投影将它们混合为三个通道，速度更快。"
+    },
+    {
+      "key": "Evaluate a completed barcode-mapping run using read depth per well, low-depth wells, unmapped reads, barcode collisions, positional effects and library coverage. Given the intended number of gRNAs per well, estimate and report the abundance threshold and its sensitivity.",
+      "source": "Evaluate a completed barcode-mapping run using read depth per well, low-depth wells, unmapped reads, barcode collisions, positional effects and library coverage. Given the intended number of gRNAs per well, estimate and report the abundance threshold and its sensitivity.",
+      "source_sha256": "7069a71dfec22176a80faa4d980221e0dbc1c00009e57f7629f19c0b41efc0d6",
+      "table": "ui",
+      "translation": "评估完成的条形码地图运行,使用阅读深度,低深度孔,未地图的读书,条形代码碰撞,位置效应和图书馆覆盖。 考虑到预定的数字 gRNAs 每个孔,估计并报告丰富的阈值和其敏感性。"
+    },
+    {
+      "key": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source_sha256": "42b733c3005b127a7624623cd7df45230f7ef52ceeb55a3a1ddfab6dabecdc16",
+      "table": "ui",
+      "translation": "可用的方法包括基于中间绝对偏差, Tukey 轴, 坚固的最小可调度决定距离 Mahalanobis 与一个确定的假积极阈值 结果添加为列;输入行保持。"
+    },
+    {
+      "key": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its bytes check out against a published checksum, and what it does to three of your fields.",
+      "source": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its bytes check out against a published checksum, and what it does to three of your fields.",
+      "source_sha256": "37af2d5fc946b607a7165fc044fa8ba61d5dc44e4c83e73640d8d87bb8916115",
+      "table": "ui",
+      "translation": "每个 Cellpose 和分类检查点,这个机器可以达到,它是什么训练,它的比特检查对一个发表的检查,以及它在三个你的视野。"
+    },
+    {
+      "key": "Everything that produces the nucleus mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Usually the easiest object to get right, so a good sanity check on the channel assignment.",
+      "source": "Everything that produces the nucleus mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Usually the easiest object to get right, so a good sanity check on the channel assignment.",
+      "source_sha256": "a326487cba568f08e67f10e6f48a8a52bc17bbf157c399956dd9a7029a9273da",
+      "table": "ui",
+      "translation": "产生细胞核掩膜的一切:模型和预期的直径,边界,背景移除,以及尺寸,强度和边界过滤器随后应用。"
+    },
+    {
+      "key": "Explore measurements using visualization, tabulation, gating and feature-analysis tools.",
+      "source": "Explore measurements using visualization, tabulation, gating and feature-analysis tools.",
+      "source_sha256": "ee3c59a68a8de6b0e8a1f282c6655de92b2ee1d16159f3792973ab826b3f6e6b",
+      "table": "ui",
+      "translation": "探索测量,使用视觉化、图表、开关和特征分析工具。"
+    },
+    {
+      "key": "Field fade",
+      "source": "Field fade",
+      "source_sha256": "8a81221177eeb45408d2fd7576a900f03f17a6778f7eee81636e57f2267e7473",
+      "table": "ui",
+      "translation": "字段淡化"
+    },
+    {
+      "key": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source": "Field of view — the (plate, well, field) group previewed. Each group is one time series. Lists a random sample of the plate, not all of it.",
+      "source_sha256": "4de9ac3d299071918426f6987b0c655c16e30e58c7242eb7f33aee7aae041dc7",
+      "table": "ui",
+      "translation": "视野 - 预见的(板,孔,字段)组. 每个组是一次序列. 列出一个随机样本的板,而不是所有的。"
+    },
+    {
+      "key": "Filter the columns — a channel, a shape, anything",
+      "source": "Filter the columns — a channel, a shape, anything",
+      "source_sha256": "18cdfa856793430cd5878d20a374813da0e34d8ea514bf86e0c0060f2170dbd7",
+      "table": "ui",
+      "translation": "过滤列 - 一个通道,一个形状,任何东西"
+    },
+    {
+      "key": "Fold this run's figures away.",
+      "source": "Fold this run's figures away.",
+      "source_sha256": "8159fcc89433fa7b969f242e26507bcc8b945fb3e80e7e9d9b817e3562ce0987",
+      "table": "ui",
+      "translation": "把这次运行的数字填满了。"
+    },
+    {
+      "key": "Go to the screen this run belongs to.",
+      "source": "Go to the screen this run belongs to.",
+      "source_sha256": "5e4a8f9bcb4de29f96b0afbf41efae85dadc20bc7257ba4855f60b4e8f10edfc",
+      "table": "ui",
+      "translation": "走到筛选上,这次运行属于。"
+    },
+    {
+      "key": "How close two objects must be to count as neighbours. While scaling is on this is in SCALED units, which is what makes one value work across measurements whose ranges differ by orders of magnitude — cell_area runs to thousands and eccentricity to one, and unscaled DBSCAN on that pair clusters on area alone.",
+      "source": "How close two objects must be to count as neighbours. While scaling is on this is in SCALED units, which is what makes one value work across measurements whose ranges differ by orders of magnitude — cell_area runs to thousands and eccentricity to one, and unscaled DBSCAN on that pair clusters on area alone.",
+      "source_sha256": "9abba22d6eb15fc6e71ae9a4f057c0bc8cad52ffb9c8d1ee602314bcc58dec23",
+      "table": "ui",
+      "translation": "两个对象应该是多么接近,以为是邻居. 虽然规模在这里是在 SCALED 单位,这是什么使一个值在测量之间工作,其范围因大小的顺序不同 - cell_area 运行到千,并且 excentricity 到一个,并不分割 DBSCAN 在那对夫妇集团在领域上单独。"
+    },
+    {
+      "key": "How grouped parasites become a replication state: the largest vacuole accepted, the warning for biologically implausible counts, and whether wells with cells but no parasites are seeded as zeros. Leaving those wells out silently inflates the mean.",
+      "source": "How grouped parasites become a replication state: the largest vacuole accepted, the warning for biologically implausible counts, and whether wells with cells but no parasites are seeded as zeros. Leaving those wells out silently inflates the mean.",
+      "source_sha256": "3692a6353fe23d09dca3699f6dc41f839785b6b15ae7c2024b5dfd57f9272bfd",
+      "table": "ui",
+      "translation": "如何组合寄生虫成为复制状态:最大的漏洞被接受,警告的生物无可否认的计算,以及是否有细胞,但没有寄生虫被种植为零。"
+    },
+    {
+      "key": "How individual parasites are grouped into vacuoles — an existing vacuole identifier, or a spatial link whose distance scales with parasite size — and whether a host cell is required. The whole replication readout rests on this grouping.",
+      "source": "How individual parasites are grouped into vacuoles — an existing vacuole identifier, or a spatial link whose distance scales with parasite size — and whether a host cell is required. The whole replication readout rests on this grouping.",
+      "source_sha256": "7861ef1c9f90dec5dd7e4f990d27bbcc4bd31baee843dfd956d8e533db0bb5ab",
+      "table": "ui",
+      "translation": "如何将个人寄生虫集成到液泡中 - 一个现有液泡识别器,或一个空间链接,其距离规模与寄生虫大小 - 以及是否需要一个宿主细胞。"
+    },
+    {
+      "key": "How long something spaCR is holding — a merged frame, a loaded image, a model's weights — may sit unused before it is dropped. Zero drops it as soon as nothing needs it, which costs time when you go back to it.\n\nThis does NOT unload a library: a Python C extension cannot be unloaded, and nothing here pretends otherwise. What it governs is what spaCR chose to keep.\n\nSuggested:\n{levels}",
+      "source": "How long something spaCR is holding — a merged frame, a loaded image, a model's weights — may sit unused before it is dropped. Zero drops it as soon as nothing needs it, which costs time when you go back to it.\n\nThis does NOT unload a library: a Python C extension cannot be unloaded, and nothing here pretends otherwise. What it governs is what spaCR chose to keep.\n\nSuggested:\n{levels}",
+      "source_sha256": "8df0b57c5d809494f48d84d76fa30461367195d211a0cbe4d1f2fa062080b683",
+      "table": "ui",
+      "translation": "spaCR 持有多少时间 - 合成框架,加载图像,模型的权重 - 可能在它被放下之前停留不使用。 零一旦不需要它,这花费时间,当你回到它。 此不下载图书馆: Python C 扩展不能下载,这里没有什么假设是不同的。 它控制的是什么 spaCR 选择保持。 建议: {levels}"
+    },
+    {
+      "key": "How much the assay prints as it runs. Turn it up while you are still deciding on a threshold and need to see which wells the controls were drawn from.",
+      "source": "How much the assay prints as it runs. Turn it up while you are still deciding on a threshold and need to see which wells the controls were drawn from.",
+      "source_sha256": "749c2a9f75553376df5f38a105688ca31458b6db9803d2cd5d26cd91cd1e5d6c",
+      "table": "ui",
+      "translation": "按一下它,而你仍然决定一个阈值,需要看到哪个管道的控制被拉出来。"
+    },
+    {
+      "key": "How object outlines are found: 'otsu' (fast threshold) or 'cellpose' (a small Cellpose model — cleaner, slower).",
+      "source": "How object outlines are found: 'otsu' (fast threshold) or 'cellpose' (a small Cellpose model — cleaner, slower).",
+      "source_sha256": "ed8a62d29c42cba6d154badac9fd8d1418427f6a3e554e4909ad1ab1a231039a",
+      "table": "ui",
+      "translation": "如何找到对象输出: 'otsu' (快速阈值) 或 'cellpose' (小型 Cellpose 模型 - 更清洁,更慢)。"
+    },
+    {
+      "key": "How parasites are assigned to vacuoles and counted into replication states, including the warning raised when a vacuole holds a biologically implausible, non-power-of-two number of parasites.",
+      "source": "How parasites are assigned to vacuoles and counted into replication states, including the warning raised when a vacuole holds a biologically implausible, non-power-of-two number of parasites.",
+      "source_sha256": "feab6c8e91f46d1d03364ee2f827b7487f995e4370154b6e1f9406b2351de9f8",
+      "table": "ui",
+      "translation": "如何寄生虫被分配给液泡,并计算为复制状态,包括当一个液泡持有生物不可侵犯的,非强大的两种数量的细菌时发出的警告。"
+    },
+    {
+      "key": "How should false positives and false negatives be weighted?",
+      "source": "How should false positives and false negatives be weighted?",
+      "source_sha256": "a0a03999db97e54e76484ceec8cf52e2e057544a46f00ee0ac82bc5cc52bfd06",
+      "table": "ui",
+      "translation": "假积极和假负应该如何权重?"
+    },
+    {
+      "key": "How the cell mask is found — model, expected diameter, probability and flow thresholds. What is done to the channel first, and which of the masks it produces are kept, are under Advanced settings, where the same choices for the other objects sit beside them. Open it when cells are missed, merged into their neighbours, or split in two.",
+      "source": "How the cell mask is found — model, expected diameter, probability and flow thresholds. What is done to the channel first, and which of the masks it produces are kept, are under Advanced settings, where the same choices for the other objects sit beside them. Open it when cells are missed, merged into their neighbours, or split in two.",
+      "source_sha256": "d5a79c01e35c45d3533c41acbb30da1f3383bbca94c028749aad5ae95ac0eed3",
+      "table": "ui",
+      "translation": "如何找到细胞掩膜 — 模型,预期的直径,概率和流量阈值。, 它所产生的掩膜是哪个保留的,在先进的设置下,在那里相同的选择的其他物品坐在他们旁边,打开它,当细胞失踪,合并到他们的邻居,或分成两个。"
+    },
+    {
+      "key": "How the cells are drawn: channels, size, normalisation, outlines. The same settings the annotation application offers, under the same names. What the chosen mode cannot use is greyed with the reason rather than hidden.",
+      "source": "How the cells are drawn: channels, size, normalisation, outlines. The same settings the annotation application offers, under the same names. What the chosen mode cannot use is greyed with the reason rather than hidden.",
+      "source_sha256": "cd9ab60435c415f23266993dd240f44c2c796b816fccc4d54d18fe8c25030e68",
+      "table": "ui",
+      "translation": "细胞是如何绘制的:通道,尺寸,标准化,图表. 同样的设置,标记应用程序提供,在相同的名称下. 所选择的模式不能使用的是灰色与原因而不是隐藏。"
+    },
+    {
+      "key": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source_sha256": "49be6c6def4e8a5f31be0e87e289c2cf565bbb1597888dc1ee4cfd8a5bba3a18",
+      "table": "ui",
+      "translation": "如何选择分离两种人口的切割,以及方法之间的分歧是多么的宽容,在运行之前说。"
+    },
+    {
+      "key": "How the model is fitted — epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source": "How the model is fitted — epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source_sha256": "094bd4eb523d004a747f659ce856391a38cd92029e7b658d93ac939850cd1108",
+      "table": "ui",
+      "translation": "模型是如何配置的 - 轮次,学习率,时间表,以及什么损失. 打开它,当训练不稳定,停滞,或忽略较小的班级。"
+    },
+    {
+      "key": "How the model is fitted: epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source": "How the model is fitted: epochs, learning rate, schedule, and which loss. Open it when training is unstable, stalls, or ignores the smaller class.",
+      "source_sha256": "217cd69395bd01d3b6f41cfd26c1ce47dc5272981f76b6a0ad429791b5aa7d13",
+      "table": "ui",
+      "translation": "模型是如何配置的:轮次,学习率,时间表,以及什么损失?当训练不稳定时,打开它,停止或忽略较小的班级。"
+    },
+    {
+      "key": "How the uneven lighting field is estimated and removed — the family of surface fitted, the estimator behind it, its flexibility, and the dark reference subtracted first. Too flexible a surface absorbs real biological signal along with the shading.",
+      "source": "How the uneven lighting field is estimated and removed — the family of surface fitted, the estimator behind it, its flexibility, and the dark reference subtracted first. Too flexible a surface absorbs real biological signal along with the shading.",
+      "source_sha256": "adfd2db3dd6dc1bc614fe647a63a7b15acdb64167d2b4121203ac42028415557",
+      "table": "ui",
+      "translation": "如何估计和移除不平等的照明场 - 配置的表面家族,其背后的估计器,其灵活性,以及黑暗的参考提取首先。"
+    },
+    {
+      "key": "Leave out a guide present in more than this share of the wells. Highly prevalent guides can have much greater precision than rare guides and may be associated with many measurements. Use the 'hits vs representation' view to choose a threshold from this screen rather than assuming prevalence is harmless.",
+      "source": "Leave out a guide present in more than this share of the wells. Highly prevalent guides can have much greater precision than rare guides and may be associated with many measurements. Use the 'hits vs representation' view to choose a threshold from this screen rather than assuming prevalence is harmless.",
+      "source_sha256": "06051fd5f3a85064f095a0623424c064811dd81dddff1264f6a8d57db72af8a9",
+      "table": "ui",
+      "translation": "放出一个引导 RNA在这个部分以上的孔. 高流行的引导 RNA可能比罕见的引导 RNA更准确,并可能与许多测量相关联. 使用 'hits vs representation' 视图从这个筛选中选择一个阈值而不是假设流行的无害。"
+    },
+    {
+      "key": "Line style used for significance or effect-size thresholds.",
+      "source": "Line style used for significance or effect-size thresholds.",
+      "source_sha256": "4e6197c48b3dc3f332c4a556943314839e2b92e618b5abbc0a5eee2a95b43f70",
+      "table": "ui",
+      "translation": "线路风格用于意义或效果尺寸的阈值。"
+    },
+    {
+      "key": "Load a table and press Scan. Everything printed here — the counts, the thresholds and the caveats — comes from spacr.qt.widgets.outlier_model, which is also the headless entry point.",
+      "source": "Load a table and press Scan. Everything printed here — the counts, the thresholds and the caveats — comes from spacr.qt.widgets.outlier_model, which is also the headless entry point.",
+      "source_sha256": "f3b49fbbb63a201bcc29330e667f1eba5938ee1714ed638208b8778d43375df0",
+      "table": "ui",
+      "translation": "加载一张桌子并按下扫描,这里所打印的一切 - 数字、阈值和字符串 - 来自 spacr.qt.widgets.outlier_model ,这也是无图形界面输入点。"
+    },
+    {
+      "key": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "table": "ui",
+      "translation": "加载表或使用合并表创建一个工作组,有验证的键和集成。 在实际特征/协调列上设置边界或多角门控,然后将保存的门控应用到兼容的对象。 使用 Annotate 将显示的门控写入一个字符列; 查看所选择的对象,并选择二进制或多级标签。"
+    },
+    {
+      "key": "Look something up or administer work that already exists: run history, the pipeline graph, the database browser, reports and the job runners.",
+      "source": "Look something up or administer work that already exists: run history, the pipeline graph, the database browser, reports and the job runners.",
+      "source_sha256": "9cf91b710ed95b495ca9e881198f04a1499b707fd81b0433587568c79655ef5e",
+      "table": "ui",
+      "translation": "查看或管理已经存在的工作:运行历史,流程图表,数据库浏览器,报告和工作运行器。"
+    },
+    {
+      "key": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source_sha256": "1242ae3f3c6163a4581e04a77f9e92a499e179dfa900c13a5274759994423def",
+      "table": "ui",
+      "translation": "MAD 和 IQR 同时测试一个特征. Mahalanobis 测试这些特征,并且是唯一能够看到一个组合错误,而每个列本身看起来正常。"
+    },
+    {
+      "key": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field, or eight with the optional ensemble model.",
+      "source": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field, or eight with the optional ensemble model.",
+      "source_sha256": "b42d3ba8183fe4966cac79bb9abb025386d0b5ea94f94281a0b9e3caae1febd1",
+      "table": "ui",
+      "translation": "地图,其中这个字段的分割不那么确定,或者排序开放的字段与最不确定的第一。 相同的菜单与底线的不确定按钮; 四个检测运行每个字段,或八个与选项集模型。"
+    },
+    {
+      "key": "Mapping segmentation uncertainty: {passes} detection runs…",
+      "source": "Mapping segmentation uncertainty: {passes} detection runs…",
+      "source_sha256": "c767999ff7d47c95f7aecf58773e2fa1d4b0cde4808a5ed1e5e139315c7430db",
+      "table": "ui",
+      "translation": "地图分割不确定性: {passes} 检测运行..."
+    },
+    {
+      "key": "Masks were not kept for this run, so there is nothing to draw.",
+      "source": "Masks were not kept for this run, so there is nothing to draw.",
+      "source_sha256": "cb059d911018d225d1550de7499786e68b7c594a67f10b90630d53b20dabd5c8",
+      "table": "ui",
+      "translation": "掩膜没有被保留到这次运行,所以没有什么可以绘制的。"
+    },
+    {
+      "key": "Measure the objects OUTSIDE the ROI instead — 'exclude this debris' rather than 'measure this colony'.",
+      "source": "Measure the objects OUTSIDE the ROI instead — 'exclude this debris' rather than 'measure this colony'.",
+      "source_sha256": "9654ba290136b32a583896424e63e4db97fea49600b9555d5b2c904e78943a0b",
+      "table": "ui",
+      "translation": "测量对象 外 ROI 相反,“排除这个废物”而不是“测量这个菌落”。"
+    },
+    {
+      "key": "No (plate, well, field) group has two or more time points — a motility preview needs a time series.",
+      "source": "No (plate, well, field) group has two or more time points — a motility preview needs a time series.",
+      "source_sha256": "d15437d2795525e91501cccb159c1d19176938c9efc0432f3c80778684c8ca97",
+      "table": "ui",
+      "translation": "没有任何（板、孔、视野）组具有两个或更多时间点——运动性预览需要时间序列。"
+    },
+    {
+      "key": "No cached masks for these segmentation settings — hit Run preview.",
+      "source": "No cached masks for these segmentation settings — hit Run preview.",
+      "source_sha256": "74592c97622898fc0da924b530a4829719b5b69c9cf019d1f20e97fbdbdb958f",
+      "table": "ui",
+      "translation": "对于这些分割设置没有隐藏的掩膜 - 击中运行预览。"
+    },
+    {
+      "key": "Normalize each field",
+      "source": "Normalize each field",
+      "source_sha256": "64437dacdd1f597d2c90c1ee9fabba62e154ad111ffdfbc362c40503ba728b47",
+      "table": "ui",
+      "translation": "正常化每个视野"
+    },
+    {
+      "key": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source_sha256": "a65699a4abcda5196fd246735fbf84337f611a4a7eaffeb6cba3ed04a75529a7",
+      "table": "ui",
+      "translation": "搜索阅读了一个有限的样本,所以它花费几秒钟而不是运行。"
+    },
+    {
+      "key": "Nothing to draw for this field.",
+      "source": "Nothing to draw for this field.",
+      "source_sha256": "9f6a32401d8eec8ad23c612af3937bc28ff01d2129328ad2829bfb6189e54b82",
+      "table": "ui",
+      "translation": "没有什么可为这个视野绘制的。"
+    },
+    {
+      "key": "Nothing to run — add a job first.",
+      "source": "Nothing to run — add a job first.",
+      "source_sha256": "5ceeebdc32563496f265338c9e3df865adef629196bc6cbb1a592bb34f19706d",
+      "table": "ui",
+      "translation": "没有什么可运行的 - 首先添加一个工作。"
+    },
+    {
+      "key": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source_sha256": "0c826070be36c280add2db58a54a88c197302647296252cd344ec7c0118fb44f",
+      "table": "ui",
+      "translation": "开启：对象比背景更亮，如荧光图像。关闭：改取暗侧，适用于明场或染色图像。"
+    },
+    {
+      "key": "One regression per selected column, queued. Each is a run in the Runs tab; a fit that fails does not stop the others.",
+      "source": "One regression per selected column, queued. Each is a run in the Runs tab; a fit that fails does not stop the others.",
+      "source_sha256": "1b56c3d0b63b181ae7ec71a92e5e8a419eaa819f1fcb33e1481111fef34ed3db",
+      "table": "ui",
+      "translation": "每个选项列均有一次逆转,每个列都是一次运行,一个失败的匹配不会阻止其他人。"
+    },
+    {
+      "key": "Optional: point at a folder or stack of ready-made label images to skip segmentation entirely.",
+      "source": "Optional: point at a folder or stack of ready-made label images to skip segmentation entirely.",
+      "source_sha256": "464df2833e299e882ddbd9fb574ecb70c6b0590c73f3d1faf04c40abbf9a6571",
+      "table": "ui",
+      "translation": "可选:点在一个文件夹或一堆已制作的标签图像,以完全排除分割。"
+    },
+    {
+      "key": "Organelle segmentation",
+      "source": "Organelle segmentation",
+      "source_sha256": "6ae8c26b885eb834af4ad4f1ed9fb35168e260a664f55858362c49c1840863d0",
+      "table": "ui",
+      "translation": "有机分割"
+    },
+    {
+      "key": "Outline each segmented object, coloured by the track it belongs to.",
+      "source": "Outline each segmented object, coloured by the track it belongs to.",
+      "source_sha256": "942e742ecd5de81c2e436137e8bfca4e971015da034f946a7c43813bbe78b521",
+      "table": "ui",
+      "translation": "排列每个分割的对象,根据它所属的轨道染色。"
+    },
+    {
+      "key": "Outputs produced after model evaluation: the metric bundle, calibration curve and bins, output score column, and decision threshold. Calibration compares predicted probabilities with observed frequencies. These settings apply to both classifier families.",
+      "source": "Outputs produced after model evaluation: the metric bundle, calibration curve and bins, output score column, and decision threshold. Calibration compares predicted probabilities with observed frequencies. These settings apply to both classifier families.",
+      "source_sha256": "bc11f9d99ab4f33a52d99695b04b430724e8504b3fccc4cd0713d9e4b0b1b2a9",
+      "table": "ui",
+      "translation": "模型评估后产生的输出:测量组,定位曲线和曲线,输出分数列和决策阈值。 定位与预测的频率进行比较. 这些设置适用于两个分类家庭。"
+    },
+    {
+      "key": "Per channel (one pass per stain)",
+      "source": "Per channel (one pass per stain)",
+      "source_sha256": "1a2bb7239b7ecfd4323d52e6b856394fc9fdc73f0255ac36f1527bbadebf8c11",
+      "table": "ui",
+      "translation": "按通道（每种染色运行一遍）"
+    },
+    {
+      "key": "Percentile-normalize the field before segmenting it, which is what Cellpose expects. Turn it off only for data already normalized upstream, where doing it twice changes the result.",
+      "source": "Percentile-normalize the field before segmenting it, which is what Cellpose expects. Turn it off only for data already normalized upstream, where doing it twice changes the result.",
+      "source_sha256": "2b4bf78da82a90304f13a7e83f66fe5d6d1e0cdb8a6e912f52cb198a2094aa86",
+      "table": "ui",
+      "translation": "百分比正常化字段之前分割它,这就是 Cellpose 所期望的。 只关闭它,因为数据已经正常化上流,在那里做它两次改变结果。"
+    },
+    {
+      "key": "Put the well hierarchy on the rows — what a plate summary is",
+      "source": "Put the well hierarchy on the rows — what a plate summary is",
+      "source_sha256": "cdafcc9b2ee3ea2e5d039cffe75f2af3d20326fa4a8609456c3b82cb336c4df2",
+      "table": "ui",
+      "translation": "把孔序列放在行列上 - 什么是表单摘要"
+    },
+    {
+      "key": "Ranking {count} fields by segmentation uncertainty: {passes} detection runs each…",
+      "source": "Ranking {count} fields by segmentation uncertainty: {passes} detection runs each…",
+      "source_sha256": "6614f7d15423326c7ad34722ab77614ee430a7bfdccf4622fe075606a7d1f2f1",
+      "table": "ui",
+      "translation": "按分割不确定性排序 {count} 字段: {passes} 检测每..."
+    },
+    {
+      "key": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source_sha256": "eafc93df46da79b2779db48f733e586b4353c6aa376b5ead79ba349e456ab4fc",
+      "table": "ui",
+      "translation": "原始阅读从发布的筛选,NCBI BioProject PRJNA1261935. 点击你想要的运行,并设置多少阅读从每个 - 只有这么多是下载。"
+    },
+    {
+      "key": "Record a SHA-256 of every input and output file in the run manifest, so a result can be traced to the exact data and weights that produced it. Costs minutes on a large plate. The manifest is written either way and says which it was, so a run without hashes is never mistaken for one whose hashes matched.",
+      "source": "Record a SHA-256 of every input and output file in the run manifest, so a result can be traced to the exact data and weights that produced it. Costs minutes on a large plate. The manifest is written either way and says which it was, so a run without hashes is never mistaken for one whose hashes matched.",
+      "source_sha256": "a5c821fd1574f535d598ba2b3607dee19c9d27bf0a858d185313af7c729900c8",
+      "table": "ui",
+      "translation": "记录每个输入和输出文件的SHA-256在运行显明中,因此结果可以追踪到产生它的准确数据和权重。 花费几分钟在一个大板上. 显明是写的任何方式,并说它是什么,所以没有黑客的运行永远不会错过一个谁的黑客匹配。"
+    },
+    {
+      "key": "Red channel drawn as yellow, for deuteranopia.",
+      "source": "Red channel drawn as yellow, for deuteranopia.",
+      "source_sha256": "4d0f5e43e24c4678f9e04138fe86454c51da827d8a7701a934fe3da0d7f9e713",
+      "table": "ui",
+      "translation": "红色通道以黄色绘制,用于deuteranopia。"
+    },
+    {
+      "key": "Red channel drawn as yellow, for protanopia.",
+      "source": "Red channel drawn as yellow, for protanopia.",
+      "source_sha256": "3fc4ef02b23f7acbce0fa9ae774e243df6da2cef6dec255a209b40220d61f6e2",
+      "table": "ui",
+      "translation": "红色通道为黄色,为protanopia。"
+    },
+    {
+      "key": "Ref. channel",
+      "source": "Ref. channel",
+      "source_sha256": "22b41007cdff67b41ebd5f71417b1dc35a0d6668c1c1f136c025453e43df9446",
+      "table": "ui",
+      "translation": "广播通道"
+    },
+    {
+      "key": "Resume, failure tolerance, dry runs, worker count and verbosity for the import. Enable strict errors when validating a new external data source.",
+      "source": "Resume, failure tolerance, dry runs, worker count and verbosity for the import. Enable strict errors when validating a new external data source.",
+      "source_sha256": "78139c376f01515b584ff8f2dfdb1fdfe0ab31de9d13a381028704a7c2e72f38",
+      "table": "ui",
+      "translation": "回复、失败宽容、试运行、工作进程计算和进口的言论性 允许在验证新外部数据来源时进行严格的错误。"
+    },
+    {
+      "key": "Run the sweep first — there is nothing to draw yet.",
+      "source": "Run the sweep first — there is nothing to draw yet.",
+      "source_sha256": "f138e03c71060c0dfaed614e50472bba9fd443516be15a41cf69bc9a96bdc9a5",
+      "table": "ui",
+      "translation": "首先运行,现在还没有什么可绘制的。"
+    },
+    {
+      "key": "Search definitions of measured features by name or concept",
+      "source": "Search definitions of measured features by name or concept",
+      "source_sha256": "41b5ea79ee75ae477ad7df25feb1eb8adda19cff090972282669c235bfe8835f",
+      "table": "ui",
+      "translation": "按名称或概念测量特征的搜索定义"
+    },
+    {
+      "key": "Segment cells, nuclei, pathogens and organelles with Cellpose and build the merged image+mask arrays.",
+      "source": "Segment cells, nuclei, pathogens and organelles with Cellpose and build the merged image+mask arrays.",
+      "source_sha256": "9c34da4d0be3b48924324f6c46ae958b2226c9d8932df778e6aa56ab8f154a17",
+      "table": "ui",
+      "translation": "分割细胞、核、病原体和有机细胞与 Cellpose 并构建合并图像+掩膜线。"
+    },
+    {
+      "key": "Segment each frame of a time series and link objects across frames into tracks, then export per-channel movies.",
+      "source": "Segment each frame of a time series and link objects across frames into tracks, then export per-channel movies.",
+      "source_sha256": "25aa88287a7f419ff10a5e648669975e452920ffcd273d2b515438c909fc969c",
+      "table": "ui",
+      "translation": "将每个框架分为一系列时间,并将对象连接到框架的轨道,然后将每个通道的电影出口。"
+    },
+    {
+      "key": "Segment one sampled field with these settings before committing the plate.",
+      "source": "Segment one sampled field with these settings before committing the plate.",
+      "source_sha256": "c136d8e4eeada14f10fffc7dace95f41cf8b3f43bf824f2288ddb879113ac5df",
+      "table": "ui",
+      "translation": "将一个样本的字段与这些设置分割,在交付板之前。"
+    },
+    {
+      "key": "Segmentation (cached — changing these re-segments)",
+      "source": "Segmentation (cached — changing these re-segments)",
+      "source_sha256": "0a901f488df89be40295323ee1c0c0120e6672e13c72b8d780953c068a8333b6",
+      "table": "ui",
+      "translation": "分割(切割 - 改变这些重新分割)"
+    },
+    {
+      "key": "Select a run to inspect it.",
+      "source": "Select a run to inspect it.",
+      "source_sha256": "51ce4260d8683499eaeea0030a232ca4a4613ee2f94dc9fc6eecf85568919b09",
+      "table": "ui",
+      "translation": "选择一次运行来检查它。"
+    },
+    {
+      "key": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source_sha256": "faec1c4949561d757882e8260ba3ad6b8fdcac053c9ab604f8442e4ea2e93ead",
+      "table": "ui",
+      "translation": "选择定义对象类的列,然后按类分区分数并排序连续特征。 默认 AUC 测量仪是基于排序和测量单位独立的。 结果描述了所选择的统计数据的限制,旗帜特征,其类主要在分布上不同,并使用转换测试来估计在特征组中偶然预期的最佳分区。"
+    },
+    {
+      "key": "Show or hide the interactive Cellpose segmentation preview above the console.",
+      "source": "Show or hide the interactive Cellpose segmentation preview above the console.",
+      "source_sha256": "497cc9a67cf764eaf8e58b051f796949facdceb4fe13de48af1e17da47e9afed",
+      "table": "ui",
+      "translation": "显示或隐藏在控制台顶部的互动 Cellpose 分割预览。"
+    },
+    {
+      "key": "Show the next object's channel. Cycles cell, nucleus, both.",
+      "source": "Show the next object's channel. Cycles cell, nucleus, both.",
+      "source_sha256": "17c71a7765740cbd9341b4bdcab50a475a1332566cf78accb6d3f6dfaaacb2a9",
+      "table": "ui",
+      "translation": "显示下一个对象的通道. 细胞,核,两者。"
+    },
+    {
+      "key": "Show the previous object's channel. Cycles cell, nucleus, both.",
+      "source": "Show the previous object's channel. Cycles cell, nucleus, both.",
+      "source_sha256": "dab2cfeb886d33229c18767704edf303682d50ad983a58ba2c5f11339638e811",
+      "table": "ui",
+      "translation": "显示前对象的通道. 细胞,核,两者。"
+    },
+    {
+      "key": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source_sha256": "cf23410719a1ba3f6c9648f6011d07374cc85c45837ade1879f47af360da42c9",
+      "table": "ui",
+      "translation": "显示这次运行的自己的火山旁边的负载运行,每个回应自己的旋转和点击。"
+    },
+    {
+      "key": "Test on 3 fields",
+      "source": "Test on 3 fields",
+      "source_sha256": "1c4341b8537897f0f7c45827f7a1b6166be356989e3aba625a336f45995970f5",
+      "table": "ui",
+      "translation": "在 3 个视野上测试"
+    },
+    {
+      "key": "Test on fields",
+      "source": "Test on fields",
+      "source_sha256": "4ce8dd5697ca60dfbb5d15e84a8ee5c5ec5553fdc698d5a77624c37894002d84",
+      "table": "ui",
+      "translation": "在视野上测试"
+    },
+    {
+      "key": "The column saying what each well is. Leave empty when the table is already only the control.",
+      "source": "The column saying what each well is. Leave empty when the table is already only the control.",
+      "source_sha256": "23235f73976577fc4ba189162646318839e6c1276722fb24b13fd80f04e39619",
+      "table": "ui",
+      "translation": "列说什么是孔,当桌子已经只是控制时,放空。"
+    },
+    {
+      "key": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source_sha256": "270bbdb006ea0e8a1f1cd07e30a520a14e6fbce9c03e3c57dc27e09cdba829e3",
+      "table": "ui",
+      "translation": "诊断数字一次运行随之而动 — 多少例子字段,在什么尺寸,与什么颜色地图和正常化。"
+    },
+    {
+      "key": "The expected plaque diameter, and whether previously written masks are reused instead of segmenting again. Plaques are far larger than cells, so the default cell-sized expectation is almost never right here.",
+      "source": "The expected plaque diameter, and whether previously written masks are reused instead of segmenting again. Plaques are far larger than cells, so the default cell-sized expectation is almost never right here.",
+      "source_sha256": "fac84ac33c930593610295ce3e60acf1765a2b897e0a4f095a3a1bc8b9686d9d",
+      "table": "ui",
+      "translation": "预期的板块直径,以及以前写的掩膜是否被重复使用而不是重新分割。板块远大于细胞,因此默认的细胞大小的预期几乎永远不会在这里正确。"
+    },
+    {
+      "key": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source_sha256": "192f6125bd9f55bfaab747bebc6a5dafa6d109972ca4cbca438333fb21cf1031",
+      "table": "ui",
+      "translation": "基于特征的分类:哪个模型,以及哪个测量特征,可以看到. 属性准备和属性重要性是一个标题,因为它们回答一个问题。"
+    },
+    {
+      "key": "The first-run questions, with the explanation of each -- language, theme, how it runs, the assistant, and what may leave this machine.",
+      "source": "The first-run questions, with the explanation of each -- language, theme, how it runs, the assistant, and what may leave this machine.",
+      "source_sha256": "7ae4513fab9b849711ae9b4884b250514444ec28c4027ee3f0dfc66139f13f0f",
+      "table": "ui",
+      "translation": "第一次运行的问题,每一个问题的解释 - 语言,主题,它是如何运行的,助理,以及什么可以离开这个机器。"
+    },
+    {
+      "key": "The measurement source, which tracked object the assay is about, and which channels carry the cell, nucleus and pathogen signal. The rest of the assay is only as good as this mapping.",
+      "source": "The measurement source, which tracked object the assay is about, and which channels carry the cell, nucleus and pathogen signal. The rest of the assay is only as good as this mapping.",
+      "source_sha256": "caf97e568600fec930b86c72b6e8e58d102835b46b831b54749edf82025bcd11",
+      "table": "ui",
+      "translation": "测量来源,跟踪对象的测试是关于的,以及哪些通道携带细胞,核和病原体信号。"
+    },
+    {
+      "key": "The measurements database, the parasite table inside it, and the compartment the parasites were measured in. The assay scores existing measurements — it does not segment anything itself.",
+      "source": "The measurements database, the parasite table inside it, and the compartment the parasites were measured in. The assay scores existing measurements — it does not segment anything itself.",
+      "source_sha256": "8ec0137cdff16a7c8a92d9ff04187bd3cdd42c6c565354b588b38fc1630f28d6",
+      "table": "ui",
+      "translation": "测量数据库,寄生虫的表在它里面,并在细胞中测量寄生虫的分区。"
+    },
+    {
+      "key": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source_sha256": "0d0f0759c15a304adb7121b464f14f18ccf67004e98a7c857dfbf4fd42ba20d9",
+      "table": "ui",
+      "translation": "金属数据,分数和计算表的回归运行。 所有三个必须同意孔和 gRNA 命名 — 不一致是空白结果的常见原因。"
+    },
+    {
+      "key": "The older area-bin approximation of replication state, kept so historical analyses still reproduce. New runs should use the direct parasite-per-vacuole counts instead.",
+      "source": "The older area-bin approximation of replication state, kept so historical analyses still reproduce. New runs should use the direct parasite-per-vacuole counts instead.",
+      "source_sha256": "863ff716a054a5afabfaae2bebd3f30387381fa53162024064c3665714828419",
+      "table": "ui",
+      "translation": "旧区域接近复制状态,保持历史分析仍在复制。新运行应该使用直接寄生虫每液泡计算。"
+    },
+    {
+      "key": "The per-object images written next to the measurements — crop mode and size, which mask each crop is centred on, how far it is dilated, and which channels are baked in. Annotate and the CV classifier read these later, so set them before generating a training set.",
+      "source": "The per-object images written next to the measurements — crop mode and size, which mask each crop is centred on, how far it is dilated, and which channels are baked in. Annotate and the CV classifier read these later, so set them before generating a training set.",
+      "source_sha256": "f483fab6f7f3a72afcc7acdb89d771678d223039d20e3a6a6e132cd127233bb9",
+      "table": "ui",
+      "translation": "每对象图像写在测量旁边 - 图像裁剪模式和大小,每个图像裁剪的掩膜是专注于什么,它是多远扩展,以及哪些通道被包装。"
+    },
+    {
+      "key": "The six choices you need to segment an organelle: which channel it is in, what KIND of organelle it is, how big it is, and the size and border filters. Setting the type fills in the detection parameters for you and says on the console what it picked — the rest are under Organelle advanced, still editable, if you want to change any of them.",
+      "source": "The six choices you need to segment an organelle: which channel it is in, what KIND of organelle it is, how big it is, and the size and border filters. Setting the type fills in the detection parameters for you and says on the console what it picked — the rest are under Organelle advanced, still editable, if you want to change any of them.",
+      "source_sha256": "89be396a806e3feb4e6b050db9dff0bed969823f2dd29c8cd6a1c8b0022ce750",
+      "table": "ui",
+      "translation": "你需要分割一个organelle:它在哪个通道,它是什么KIND的organelle,它是多大,和尺寸和边界过滤器。 设置类型填写在检测参数为你,并告诉控制台它选择了什么 - 剩下的在Organelle先进,仍然可编辑,如果你想更改任何一个。"
+    },
+    {
+      "key": "The tabular model and the feature table it learns from — which estimator, how much of the data is held back, and the pruning that decides which measured features survive. Open it when the model overfits, or when thousands of correlated features are drowning the few that matter.",
+      "source": "The tabular model and the feature table it learns from — which estimator, how much of the data is held back, and the pruning that decides which measured features survive. Open it when the model overfits, or when thousands of correlated features are drowning the few that matter.",
+      "source_sha256": "6a369cc51060d62fb1fadfa449de692f28837ec7d8eea7e2aa45f1419af7a2c5",
+      "table": "ui",
+      "translation": "图表模型和它所学到的特征表 - 哪个估计器,数据的数量被保留了多少,以及决定哪些测量特征生存的插图。"
+    },
+    {
+      "key": "The trained model, the dataset it is applied to, and the input channels, object type and image size it expects. These have to match how the model was trained or the maps mean nothing.",
+      "source": "The trained model, the dataset it is applied to, and the input channels, object type and image size it expects. These have to match how the model was trained or the maps mean nothing.",
+      "source_sha256": "d7293f8089203a6f92a1e2d942980e5cb1a2f7906ce5edba9167cb4e8af6d110",
+      "table": "ui",
+      "translation": "训练的模型,它所应用的数据集,以及输入通道,对象类型和图像大小它期望。"
+    },
+    {
+      "key": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source_sha256": "1351f56714768824e190ab99739acf09743eaf8bea27f9638fc7b78f5cdcfb79",
+      "table": "ui",
+      "translation": "双色入侵读数：哪些通道承载外部染色和总染色，外部信号如何测量，其阈值如何选择并进行合理性检查，以及哪些对象才算作寄生虫。读取寄生虫的表位于“测量”下。"
+    },
+    {
+      "key": "The unsupervised alternative: how many clusters, how the pathogen channel is weighted, and the minimum separation and silhouette a split has to reach before it is trusted. Use it when there are no labels to train on.",
+      "source": "The unsupervised alternative: how many clusters, how the pathogen channel is weighted, and the minimum separation and silhouette a split has to reach before it is trusted. Use it when there are no labels to train on.",
+      "source_sha256": "bafd5863a8334a54b70fe56c18aeedffdc85aaa9e2dddb74b3c0951f6eccd13a",
+      "table": "ui",
+      "translation": "未经监督的替代方案:有多少集群,如何权重病原通道,以及分裂必须在信任之前达到最小的分离和图形。"
+    },
+    {
+      "key": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
+      "source": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
+      "source_sha256": "51a5733a1f8b35ae6f4d835ac77c81803f182cc82c311fa49ea10d065910d93c",
+      "table": "ui",
+      "translation": "接口的权重是引入的. spaCR 船 Open Sans 并使用它到处,所以应用程序看起来相同的任何字体机器有. 光线更薄,适合一个大高分辨率显示器; 常规更容易在一个小或低分辨度一个上阅读。"
+    },
+    {
+      "key": "The window an object must fall inside to be outlined in this colour. Area is the object's size in pixels; intensity is its mean brightness in that colour, 0–255.\n\nLEAVE A FIELD EMPTY for no bound on that side. An empty field is how half a filter is turned off, and it is not the same as a zero.",
+      "source": "The window an object must fall inside to be outlined in this colour. Area is the object's size in pixels; intensity is its mean brightness in that colour, 0–255.\n\nLEAVE A FIELD EMPTY for no bound on that side. An empty field is how half a filter is turned off, and it is not the same as a zero.",
+      "source_sha256": "ad52e5a3afa501512105410909055d7f1e21679126d6c00caecd5e08f8552f0c",
+      "table": "ui",
+      "translation": "一个对象的窗口必须落在里面,以便在这个颜色中被描述。 区域是对象的大小在像素; 强度是它的平均亮度在那个颜色, 0–255. LEAVE A FIELD EMPTY for no bound on that side. 一个空的字段是如何半个过滤器被打开,并且它不等于零。"
+    },
+    {
+      "key": "This choice adjusts the significance threshold and, when recall is prioritized, the multiple-testing correction. The appropriate balance depends on the screen objective and the cost of downstream validation.",
+      "source": "This choice adjusts the significance threshold and, when recall is prioritized, the multiple-testing correction. The appropriate balance depends on the screen objective and the cost of downstream validation.",
+      "source_sha256": "76ed74c433eeba23d0b26fb2becf84c254e2c4ae74fcbae029963abb20ef0163",
+      "table": "ui",
+      "translation": "此选项调整了意义阈值,并在重复时优先考虑了多次测试纠正,适当的平衡取决于筛选目标和下流验证的成本。"
+    },
+    {
+      "key": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source_sha256": "125644e12d69b18ebc69dd8afe50f53b8547a6f5b2d41aafc91876fc4bb2f1f8",
+      "table": "ui",
+      "translation": "这次运行仍在继续,所以它还没有显示的结果,当它完成时,它成为负载的运行。"
+    },
+    {
+      "key": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "source": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "source_sha256": "a51dc627fa198511c47bd0fef31399262aef4c10214ded284a553cce38f59252",
+      "table": "ui",
+      "translation": "此运行没有节省工作空间 - 它运行了 'Saved runs carry: Nothing' 或在 spaCR 记录之前。 偏好 ▸ 性能 ▸ 保存运行携带。"
+    },
+    {
+      "key": "Threshold colour",
+      "source": "Threshold colour",
+      "source_sha256": "6d1e6feeecf9cfac6777b11b519046a2eaf8b073f3e59f2ace02672e523a8eff",
+      "table": "ui",
+      "translation": "阈值颜色"
+    },
+    {
+      "key": "Threshold line colour",
+      "source": "Threshold line colour",
+      "source_sha256": "0b21154dfa7d9ccecc690dc40ee1dd9a9e5dd90d9f88e45a53a8ecdb80817db9",
+      "table": "ui",
+      "translation": "阈值线颜色"
+    },
+    {
+      "key": "Threshold line style",
+      "source": "Threshold line style",
+      "source_sha256": "fea107a2c53c9da472d28b593c1b07c45e820055686c3014d67c0fd48ea6a29c",
+      "table": "ui",
+      "translation": "阈值线风格"
+    },
+    {
+      "key": "Threshold line width",
+      "source": "Threshold line width",
+      "source_sha256": "fd1be1c6bc7fd5a4ab301a29be0b5b934b3c4d4be2965a5aef24d324cc44f00e",
+      "table": "ui",
+      "translation": "阈值线宽度"
+    },
+    {
+      "key": "Threshold style",
+      "source": "Threshold style",
+      "source_sha256": "e8aceb3331838a157d68a41d465f89c07c10fe92569f35b6ccb25a4bdbf7f7e7",
+      "table": "ui",
+      "translation": "阈值风格"
+    },
+    {
+      "key": "Threshold width",
+      "source": "Threshold width",
+      "source_sha256": "e5f931845514cf8148650cfb53574f091c257771287f4cb2f7512d726f34e654",
+      "table": "ui",
+      "translation": "阈值宽度"
+    },
+    {
+      "key": "Threshold — drag across a histogram to cut one column",
+      "source": "Threshold — drag across a histogram to cut one column",
+      "source_sha256": "0d5b08f98d22c5a33a24160fb4a2feea550359621256d1b79972b4301cbbab33",
+      "table": "ui",
+      "translation": "阈值 - 拖过一个 histogram 切断一个列"
+    },
+    {
+      "key": "Threshold-line colour.",
+      "source": "Threshold-line colour.",
+      "source_sha256": "f8b0bdfd8049fcf525c6110a421e0ab5d62d4960d9c1e4f5ff257a69b9f2b310",
+      "table": "ui",
+      "translation": "阈值线颜色。"
+    },
+    {
+      "key": "Threshold-line width in points.",
+      "source": "Threshold-line width in points.",
+      "source_sha256": "ef064d01bcb87a08c1a0360f62bfb0e6aab8025a27c9265ec4798f0c35dbcd28",
+      "table": "ui",
+      "translation": "阈值线在点的宽度。"
+    },
+    {
+      "key": "Tick at least one run to overlay.",
+      "source": "Tick at least one run to overlay.",
+      "source_sha256": "02ea532521ecf046e6b0e504e540dabcd08c112dbfd1af748f55784279aea63e",
+      "table": "ui",
+      "translation": "至少有一次运行,以便超越。"
+    },
+    {
+      "key": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source_sha256": "97cf969f689e9ba99ed0369716794a08ed39c1955d8a75b2aa91d3770f43ac70",
+      "table": "ui",
+      "translation": "训练一个经典的ML分类(XGBoost,随机森林, ...)在对象特征,并分数每个孔。"
+    },
+    {
+      "key": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source_sha256": "21524206136786a201bb4280bcc0c03e30a375c03043be0bf7cff591659d9b86",
+      "table": "ui",
+      "translation": "在当前的笔记、图像或测量特征上训练一个模型,并将其应用到整个数据集中。"
+    },
+    {
+      "key": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source_sha256": "3accedaaa6eba57451341e733be0fe594e762a6d90d51aed4285fee2e3b00cc3",
+      "table": "ui",
+      "translation": "使用当前标签作为类标签的测量特征进行 XGBoost 模型,然后将其应用到整个数据集的分数。"
+    },
+    {
+      "key": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source_sha256": "3248e705bb66fd4e2ffacbf0751c3e3fa1eb7bd7315726e623ac82053d9f72a4",
+      "table": "ui",
+      "translation": "在一个接口中从图像裁剪或测量特征中训练分类,从表单 meta 数据或笔记中定义类,然后选择一个 PyTorch 图像模型或一个 gradient-boost 特征模型。"
+    },
+    {
+      "key": "Turning a map into numbers: channel correlation and the Manders thresholds used to ask how much of the attribution sits on a given structure.",
+      "source": "Turning a map into numbers: channel correlation and the Manders thresholds used to ask how much of the attribution sits on a given structure.",
+      "source_sha256": "cc65fdef853cb50be905102c9813482641f831b633d360b46dcd59ac06637d9d",
+      "table": "ui",
+      "translation": "将地图转化为数字:通道的相互关系和Manders的阈值被用来询问在一个特定的结构上有多少分配。"
+    },
+    {
+      "key": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source_sha256": "f0557c2106ed7c4665929b2ad11b7c20e5c230cadc4ae7e699b5a123b2559966",
+      "table": "ui",
+      "translation": "自行输入 WHERE 谓词，例如 cell_area > 1000 AND well LIKE 'A%'"
+    },
+    {
+      "key": "What counts as a hit: the multiple-testing correction applied across the tested family, the level it targets, and the control-based effect-size threshold. With hundreds of guides an uncorrected P value is not evidence, so this is the section to get right.",
+      "source": "What counts as a hit: the multiple-testing correction applied across the tested family, the level it targets, and the control-based effect-size threshold. With hundreds of guides an uncorrected P value is not evidence, so this is the section to get right.",
+      "source_sha256": "88b11aaad1db45002d5b0dd33394a255182a6439578b8e296a7c51b95d634658",
+      "table": "ui",
+      "translation": "什么计算为一个成功:多测试纠正应用在测试的家庭,它目标的水平,控制基于效果尺寸的阈值。"
+    },
+    {
+      "key": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source_sha256": "9178300c7387f4899103c7fd5a73ee8a7613c4c9b5bb635931cb6ff92a8787bf",
+      "table": "ui",
+      "translation": "什么定义一个班级. 首先选择训练基础 - 甲数据(称为积极和负控制的孔),标记(一个列编写的 Annotate 模块),或测量(限制在测量特征)。 控制的其他两个基础使用是灰色的,不隐藏:他们保持他们的值。"
+    },
+    {
+      "key": "What is done to each object's own channel before anything is segmented — the background floor below which pixels are zeroed, the signal-to-noise ratio that sets where the contrast stretch tops out, and, for organelles, rolling-ball flattening and CLAHE. The objects do not all offer the same steps, and each sub-heading shows exactly the ones its object has.",
+      "source": "What is done to each object's own channel before anything is segmented — the background floor below which pixels are zeroed, the signal-to-noise ratio that sets where the contrast stretch tops out, and, for organelles, rolling-ball flattening and CLAHE. The objects do not all offer the same steps, and each sub-heading shows exactly the ones its object has.",
+      "source_sha256": "c7cf4ba434016e5fc5f6d0042edac9f2645eabb562c5a94d14fac34b36f117b5",
+      "table": "ui",
+      "translation": "每个对象的自己的通道,在任何东西都被分裂之前,做什么 - 底部的底部,其中像素是零的,信号到声音的比率,决定了对比伸展的位置,并且,对于器官,旋转球浮动和CLAHE. 对象并不是所有提供相同的步骤,每个子标表显示正确的对象有。"
+    },
+    {
+      "key": "What the training run begins from — a pretrained model fine-tuned on your data, or randomly initialised weights — and the name the result is saved under. Fine-tuning needs far fewer labelled images than starting from scratch.",
+      "source": "What the training run begins from — a pretrained model fine-tuned on your data, or randomly initialised weights — and the name the result is saved under. Fine-tuning needs far fewer labelled images than starting from scratch.",
+      "source_sha256": "43008a362700b9b758d4df2c4bb1158bacffaeaeb1645945eea5926bb4531b6a",
+      "table": "ui",
+      "translation": "训练从什么开始 - 一个预先训练的模型精心调整你的数据,或随机启动的权重 - 并保存结果的名称。"
+    },
+    {
+      "key": "Whether the masks are written, how many images are handed to the GPU at once, and how much the run prints. Reduce the batch size when the GPU runs out of memory.",
+      "source": "Whether the masks are written, how many images are handed to the GPU at once, and how much the run prints. Reduce the batch size when the GPU runs out of memory.",
+      "source_sha256": "3e1820245fb68eb80cd66806b2f0ac4bd2c05557d8bc5e606f0d93041b1193e5",
+      "table": "ui",
+      "translation": "不管掩膜是写的,多少图像交给了 GPU 一瞬间,以及运行打印多少。 减少包装大小当 GPU 走出记忆。"
+    },
+    {
+      "key": "Which channels carry the signals the assay compares, the statistic each object is summarised by, and whether background is subtracted first. Swapping two channels here inverts the result without producing an error.",
+      "source": "Which channels carry the signals the assay compares, the statistic each object is summarised by, and whether background is subtracted first. Swapping two channels here inverts the result without producing an error.",
+      "source_sha256": "254049fa2ffbde2d781431096506a1006daba97ddcbe9a48073d2b35650cdf4e",
+      "table": "ui",
+      "translation": "哪个通道携带信号的估计比较,每个对象的统计数据是总结的,以及背景是否首先被中断。"
+    },
+    {
+      "key": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source_sha256": "a29efb37c00f66d85e02548d322eb6867b328f025e2fb5a1e95a1a9571196842",
+      "table": "ui",
+      "translation": "哪一家族的因子被拖动?在两层上调整的运行,其中有两种。"
+    },
+    {
+      "key": "Which objects are measured and which features are computed for them — intensity, morphology, texture, radial distribution and colocalisation. Switch families off to keep the table narrow and the run short; switch them on when an analysis needs a column that is not there.",
+      "source": "Which objects are measured and which features are computed for them — intensity, morphology, texture, radial distribution and colocalisation. Switch families off to keep the table narrow and the run short; switch them on when an analysis needs a column that is not there.",
+      "source_sha256": "7bf87258a29bd87f10ce23c4f422c544b603ec9b2161bd76cb0aaa19720171aa",
+      "table": "ui",
+      "translation": "哪些对象被测量,哪些特征被计算为它们 - 强度,形状,结构,辐射分布和可口化. 切换家庭保持桌面紧缩和运行短; 切断它们当分析需要一个不存在的列时。"
+    },
+    {
+      "key": "Which of the segmented objects the source view is showing.",
+      "source": "Which of the segmented objects the source view is showing.",
+      "source_sha256": "d64574b84a5bc9ecda3ed762962a031047703a1f00310560427866294dd2c3ee",
+      "table": "ui",
+      "translation": "哪个分割对象源视图显示?"
+    },
+    {
+      "key": "Which source channel is drawn in each colour slot. This is a VIEW setting and changes nothing on disk and nothing measured — it does not say how the file was written, which is the row above. Use it when a project authored before the crop-format fix should be seen in the colours it was authored for: B G R restores that picture without marking the folder as a format it is not.",
+      "source": "Which source channel is drawn in each colour slot. This is a VIEW setting and changes nothing on disk and nothing measured — it does not say how the file was written, which is the row above. Use it when a project authored before the crop-format fix should be seen in the colours it was authored for: B G R restores that picture without marking the folder as a format it is not.",
+      "source_sha256": "c5beb03beef23d57aad23de64e5570b9bb9a3663bba64dc7a35187129ce4d62e",
+      "table": "ui",
+      "translation": "哪个源通道在每个颜色插槽中被绘制. 这是一个视图设置,并且不会改变磁盘上的任何东西,并且没有测量 - 它并不说明文件是如何写的,这是上面的行。 使用它,当一个项目编写之前的图像裁剪格式修复应该在它被编写的颜色中看到: B G R 恢复了这个图像,而没有标记文件夹作为格式它不是。"
+    },
+    {
+      "key": "Which weights do the segmenting — a packaged model, or a checkpoint of your own — and the object size they should expect. Nothing is trained here; this is the picker, and the expected size matters more than the choice of weights.",
+      "source": "Which weights do the segmenting — a packaged model, or a checkpoint of your own — and the object size they should expect. Nothing is trained here; this is the picker, and the expected size matters more than the choice of weights.",
+      "source_sha256": "e79a1c3b0d0ecbd7cf19dfbc4cb362712917bb352794770820bf3d2468142575",
+      "table": "ui",
+      "translation": "哪些权重是分割 - 一个包装模型,或一个检查点的自己的 - 和对象的尺寸他们应该期望. 这里没有训练; 这是峰值,而预期的尺寸比选择权重更重要。"
+    },
+    {
+      "key": "Which wells anchor the threshold, and how many objects a well or a plate must contribute before its number is believed. Raise the minimums when sparse wells produce implausibly extreme rates.",
+      "source": "Which wells anchor the threshold, and how many objects a well or a plate must contribute before its number is believed. Raise the minimums when sparse wells produce implausibly extreme rates.",
+      "source_sha256": "e599615de0b35a74c39c4ecb7e44d49ccb22e0eda6a7056dec53bd53c6158c39",
+      "table": "ui",
+      "translation": "哪个孔的阈值,以及一个孔或微孔板需要多少对象,在它的数量被认为之前,增加最低限度,当破碎的孔产生无可争议的极端率。"
+    },
+    {
+      "key": "Which wells hold which cell line, strain and treatment, and which channel the recruitment is measured on. Filled in once per plate design.",
+      "source": "Which wells hold which cell line, strain and treatment, and which channel the recruitment is measured on. Filled in once per plate design.",
+      "source_sha256": "93fc2f9075401733d7a4298445fb728b41dfb90dd35080af7d8a9583f4405bf3",
+      "table": "ui",
+      "translation": "哪个孔里有哪个细胞线、管道和处理,以及招聘的哪个通道被测量。"
+    },
+    {
+      "key": "With one facet channel in use, lay the levels out this many panels wide instead of in one long strip. Ignored when both facet channels are in use.",
+      "source": "With one facet channel in use, lay the levels out this many panels wide instead of in one long strip. Ignored when both facet channels are in use.",
+      "source_sha256": "87ee4935ca2ebf0f40191fca92cbfe71cb0b78c473b7df5162fbbaca4855c57f",
+      "table": "ui",
+      "translation": "使用一个面部通道,将这个多面板的层面放出宽而不是一个长条线。"
+    },
+    {
+      "key": "Write the whole table with the flag columns added, the flagged rows on their own, and the per-well summary",
+      "source": "Write the whole table with the flag columns added, the flagged rows on their own, and the per-well summary",
+      "source_sha256": "62deef44db41e3adf674b8eb469bd749c620dd1b263fa5520fd28b9cddbb66ec",
+      "table": "ui",
+      "translation": "写下整个表与旗帜列添加,旗帜列自,并为孔总结"
+    },
+    {
+      "key": "blank = safe numeric morphology features",
+      "source": "blank = safe numeric morphology features",
+      "source_sha256": "05caedaa177ca135b8c888708f02f9b6b0400597e8e2bc0fc11cd2297148192a",
+      "table": "ui",
+      "translation": "白色 = 安全的数字形态特征"
+    },
+    {
+      "key": "diam_mean=17, channels=[2,0]",
+      "source": "diam_mean=17, channels=[2,0]",
+      "source_sha256": "ac25718f79ed99356494ca39ffeb51c0a52df468f30e51d09a4986f1ec0dd173",
+      "table": "ui",
+      "translation": "diam_mean=17 通道=[2,0]"
+    },
+    {
+      "key": "fields",
+      "source": "fields",
+      "source_sha256": "bfe5d697162d90298c67c1933908741be8395838aa230408e04710909c576806",
+      "table": "ui",
+      "translation": "视野"
+    },
+    {
+      "key": "hinge — parametric: a linear boundary between a positive and a negative class: the response is thresholded, so the question is which class a well is in, not by how much",
+      "source": "hinge — parametric: a linear boundary between a positive and a negative class: the response is thresholded, so the question is which class a well is in, not by how much",
+      "source_sha256": "04785b2fc64cde0ec4187517127162df838c77a43690799b62db5d6e36b9cdb8",
+      "table": "ui",
+      "translation": "hinge - 参数:一个积极和负阶级之间的线性边界:答案是边界的,所以问题是哪个阶级一个孔,而不是多少。"
+    },
+    {
+      "key": "threshold",
+      "source": "threshold",
+      "source_sha256": "497e22fe854a24bcfb8aa568e454fa262cdb64a109e01dabf5793b46326144da",
+      "table": "ui",
+      "translation": "阈值"
+    },
+    {
+      "key": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source_sha256": "668a8b5c2a4f01b1a958f240ec245d4a0452861d3ed710d41f4ad99647e2a65c",
+      "table": "ui",
+      "translation": "wls - 参数:细胞数权重较少的平方米:正常的错误,其变量下降为一个,保持更多的细胞"
+    },
+    {
+      "key": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source_sha256": "092d25352ffea48ab0a0c8a942cc40b40eb8c2f548c7250bff60ab25b3f1c1d2",
+      "table": "ui",
+      "translation": "一次运行已经进来,等待它完成,或者停止它,在重新调整之前。"
+    },
+    {
+      "key": "cellpose_all",
+      "source": "Apply the selected segmentation model to every image in the open folder.",
+      "source_sha256": "4594ab490178dfbd8a9cdd816a7e86c2a1d39ff51b4f0acc04e148473ed64252",
+      "table": "module_summaries",
+      "translation": "将所选择的分割模型应用到开放文件夹中的每个图像。"
+    },
+    {
+      "key": "curate",
+      "source": "Correct segmentation masks and tracking assignments manually while recording each edit in the curation log.",
+      "source_sha256": "99e01e1614b3efda1a7cfdcdaa8d41d82e820986e6c5bf329642bf1bc4ba4dbd",
+      "table": "module_summaries",
+      "translation": "正确的分割掩膜和手动跟踪任务,同时记录每个编辑在治疗日志。"
+    },
+    {
+      "key": "embeddings",
+      "source": "Encode every object with a self-supervised model and keep the channel each dimension came from",
+      "source_sha256": "e9aab4cc16b7e011b79226d8682cec7f93c9b0d2d062cd94ff1e6fd2a78e259a",
+      "table": "module_summaries",
+      "translation": "通过一个自我控制的模型编码每个对象,并保持通道的每个维度来自"
+    },
+    {
+      "key": "explain_cv",
+      "source": "Reproduce CV decisions from measured features, then inspect gain, held-out permutation importance and SHAP",
+      "source_sha256": "7ba018a761d7d6e2e38ce7aa94ffecda87f396a9261bb17ce8b77b5f81db2ee3",
+      "table": "module_summaries",
+      "translation": "从测量特征中复制简历决策,然后检查收益、持有转换的重要性和 SHAP"
+    },
+    {
+      "key": "feature_explorer",
+      "source": "Rank measured features by their ability to distinguish classes",
+      "source_sha256": "92efaade420daa7f60338ec78a3ed90a7e160111ef8f20f33cd071a98a386890",
+      "table": "module_summaries",
+      "translation": "排序测量的特征,因为它们能够区分类别"
+    },
+    {
+      "key": "napari_bridge",
+      "source": "Correct a segmentation mask in napari and import the revised labels into spaCR.",
+      "source_sha256": "f5553f90b08e060b0bc6912e5a89c9341b3762a4d4f5f275b278d47619352e70",
+      "table": "module_summaries",
+      "translation": "在 napari 中修复一个分割掩膜,然后将修订的标签输入到 spaCR。"
+    },
+    {
+      "key": "qc_dashboard",
+      "source": "Review stored checks for segmentation, units, leakage, plate effects, and annotation agreement",
+      "source_sha256": "1034a62853f19bab55e0480a536e7c7b59683fcfc85fc7867142b13a4c3b8d19",
+      "table": "module_summaries",
+      "translation": "对分割、单位、泄漏、板效应和登记协议进行审查存储检查"
+    }
+  ],
+  "schema": 1
+}

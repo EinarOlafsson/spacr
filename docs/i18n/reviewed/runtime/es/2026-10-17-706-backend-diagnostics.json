@@ -1,0 +1,62 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "3D model anisotropy must be positive and finite.",
+      "source": "3D model anisotropy must be positive and finite.",
+      "source_sha256": "895aff323cab6fb1f54a40d4f0989a335a2fa7433d83ab2777a73743c74194b8",
+      "table": "ui",
+      "translation": "La anisotropía del modelo 3D debe ser positiva y finita."
+    },
+    {
+      "key": "Cellpose 3 needs explicit distinct spatial and channel axes for a volume",
+      "source": "Cellpose 3 needs explicit distinct spatial and channel axes for a volume",
+      "source_sha256": "496e0f8357b903e1f4730a0b09a7cfa11fdfbaad4f84adc876f2843a0a6753fb",
+      "table": "ui",
+      "translation": "Cellpose 3 necesita ejes espaciales y de canales explícitos y distintos para un volumen"
+    },
+    {
+      "key": "Cellpose 3 needs finite volume intensities",
+      "source": "Cellpose 3 needs finite volume intensities",
+      "source_sha256": "a17de39637163f2673d46ecfc29ed12657cc92aced07f2482855376bf7f0ca83",
+      "table": "ui",
+      "translation": "Cellpose 3 necesita valores de intensidad finitos en el volumen"
+    },
+    {
+      "key": "Cellpose 3 returned invalid integer labels for a volume",
+      "source": "Cellpose 3 returned invalid integer labels for a volume",
+      "source_sha256": "945adb56a149189fcf597acb17649c600458cd50f6226d78cd418b2d9aefd243",
+      "table": "ui",
+      "translation": "Cellpose 3 devolvió etiquetas enteras no válidas para un volumen"
+    },
+    {
+      "key": "The 3D stitch threshold must be finite and between 0 and 1.",
+      "source": "The 3D stitch threshold must be finite and between 0 and 1.",
+      "source_sha256": "66df09c45c9b8659c6ef0b884b5fd0afb388bd72d1167d2596915aa8f3a8aadd",
+      "table": "ui",
+      "translation": "El umbral de unión en 3D debe ser finito y estar entre 0 y 1."
+    },
+    {
+      "key": "The installed Cellpose 3 cannot accept 3D stitching settings",
+      "source": "The installed Cellpose 3 cannot accept 3D stitching settings",
+      "source_sha256": "7a6ba012f73a58e6cd770423ba863a331efd0b1c76974424604de882b771776a",
+      "table": "ui",
+      "translation": "La versión instalada de Cellpose 3 no admite ajustes de unión en 3D"
+    },
+    {
+      "key": "The installed Cellpose 3 cannot accept native 3D axis and spacing settings",
+      "source": "The installed Cellpose 3 cannot accept native 3D axis and spacing settings",
+      "source_sha256": "c83888170502290c1b3c35144da70bc1c37b4049d52d0ff4ebaf24b61772be37",
+      "table": "ui",
+      "translation": "El Cellpose 3 instalado no admite los ajustes nativos de ejes y espaciado 3D"
+    },
+    {
+      "key": "The selected model does not support native 3D detection.",
+      "source": "The selected model does not support native 3D detection.",
+      "source_sha256": "624b7325976a2070109b4378bf6b505d46bdc2ed05a3241f8cf5a58c523433f2",
+      "table": "ui",
+      "translation": "El modelo seleccionado no admite la detección 3D nativa."
+    }
+  ],
+  "schema": 1
+}

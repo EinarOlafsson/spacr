@@ -15,8 +15,9 @@ def offline(isolated, monkeypatch, tmp_path):
     cache = tmp_path / 'native-stock-cache'
     monkeypatch.setenv('SPACR_MODEL_DOWNLOAD', 'off')
     monkeypatch.setattr(utils.cp_models, 'MODEL_DIR', cache)
-    monkeypatch.setattr(utils.cp_models, 'cache_model_path', lambda *args, **kwargs:
-                        pytest.fail('Offline preflight must not call native download/cache helper'))
+    monkeypatch.setattr('cellpose.models.cache_model_path', lambda *args, **kwargs:
+                        pytest.fail('Offline preflight must not call native download/cache helper'),
+                        raising=False)
     monkeypatch.setattr(utils.cp_models, 'CellposeModel', lambda **kwargs:
                         pytest.fail('Uncached offline model reached constructor'))
     return cache

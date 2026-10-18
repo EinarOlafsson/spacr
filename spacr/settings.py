@@ -4710,7 +4710,7 @@ tooltips = {
     "diameter": "(float) - Deprecated expected object diameter in pixels, passed to model.eval(diameter=...) by the mask-finetune tool and check_cellpose_models. Cellpose rescales each image by 30/diameter to match its approximately 30-pixel working size; a value below the true diameter upscales the image, whereas a larger value downscales it. Prefer the per-object diameter settings. Default 30.",
     "filter": "(bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object <object>_min_area, <object>_max_area and <object>_perimeter_fraction settings instead. Default False.",
     "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-    "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3', the default until 2026-10-11, scores higher on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v4'.",
+    "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v5' is the cpsam_v2 round-7 model; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells; 'toxoplasma_plaque_v4', the default until 2026-10-17, and 'toxoplasma_plaque_v2' are earlier defaults), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v5'.",
     "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
     "figure_detector": "(str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
     "figure_imgsz": "(str) - Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
@@ -6806,7 +6806,7 @@ def get_analyze_plaque_settings(settings):
     """
     settings.setdefault('src', 'path')
     settings.setdefault('masks', True)
-    settings.setdefault('plaque_model', 'toxoplasma_plaque_v4')
+    settings.setdefault('plaque_model', 'toxoplasma_plaque_v5')
     settings.setdefault('plaque_mode', 'plaque')
     settings.setdefault('figure_detector', 'toxoplasma_well_detector_v2')
     settings.setdefault('figure_imgsz', '640,1280')
@@ -7527,7 +7527,8 @@ ALPHA_FEATURES = {
     },
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker',
-                    'EmbeddingsDemoButton',
+                    'EmbeddingsDemoButton', 'EmbeddingsCellExampleButton',
+                    'EmbeddingsDinoInUseLabel',
                     'EmbeddingsSubCellChannelsButton',
                     'EmbeddingsSubCellChannelsDialog',
                     'EmbeddingsSubCellMicrotubulesChannel',

@@ -29,6 +29,7 @@ def main() -> int:
     from spacr.qt.install_consent import InstallerConsentDialog
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.synthetic import demo_settings, generate_measure_demo
+    from spacr.qt.terms import TERMS
 
     app = QApplication.instance() or QApplication([])
     screen = AppScreen("measure")
@@ -45,8 +46,17 @@ def main() -> int:
     consent.close()
     consent.deleteLater()
     app.processEvents()
-    if "PUBLIC spaCR GitHub repository" not in consent_text or (
-        "cannot be reliably unpublished" not in consent_text
+    disclosures = (
+        "Anonymised error reports are on by default",
+        "public GitHub issues by spaCR's relay",
+        "with no account needed",
+        "never include paths, names, IP addresses, emails, tokens, logs, images or your content",
+        "Turn reports off in Preferences → AI → AI Error report",
+    )
+    automatic_reports = next(clause for clause in TERMS if clause.startswith("5.6 "))
+    if not all(text in consent_text for text in disclosures) or (
+        "cannot be reliably unpublished" not in automatic_reports
+        or "PUBLIC issue on the GitHub repository EinarOlafsson/spacr" not in automatic_reports
     ):
         raise RuntimeError("fresh-install consent page omitted public-report warning")
 

@@ -1064,7 +1064,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "Um aplicativo congelado de macOS suportado usa uma substituição DMG verificada e mantém seu pacote de aplicativo anterior completo. Esses caminhos de atualização do macOS não executam o procedimento de exclusão padrão. Outras famílias de aplicativos congelados exigem um adaptador de substituição suportado antes que uma atualização possa começar."
+      "translation": "Um aplicativo congelado de macOS suportado usa uma substituição DMG verificada e mantém seu pacote de aplicativo anterior completo. Esses caminhos de atualização do macOS não executam o procedimento de exclusão padrão. Outras famílias de aplicativos congelados exigem um adaptador de substituição suportado antes que uma atualização possa começar.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1098,7 +1100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "Para uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição."
+      "translation": "Para uma instalação online de macOS suportada, usa o ``uv`` incluído existente e o Python privado para atualizar o spaCR no mesmo ambiente. Preserva o diretório do ambiente, os arquivos de inicialização, o lançador do aplicativo e os pacotes instalados que não precisam de atualização. Reinicia somente depois de verificar que a versão instalada é pelo menos ``version`` e mais nova que a versão anterior, quando essa versão anterior é conhecida. Uma atualização ou verificação de versão com falha não aciona remoção nem um instalador de substituição.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
@@ -1634,7 +1638,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "A tela Graph Builder — uma tabela, um filtro e um gráfico que você arrasta juntos."
+      "translation": "A tela Graph Builder — uma tabela, um filtro e um gráfico que você arrasta juntos.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",
@@ -2056,6 +2063,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",

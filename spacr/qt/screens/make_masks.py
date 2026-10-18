@@ -114,6 +114,7 @@ tables rather than generating masks.
 from __future__ import annotations
 
 import logging
+import copy
 from .. import _after
 import math
 import os
@@ -130,7 +131,9 @@ from typing import Any, List, NamedTuple, Optional
 
 import numpy as np
 from PySide6.QtCore import (
+    QAbstractTableModel,
     QEvent,
+    QModelIndex,
     QObject,
     QPoint,
     QPointF,
@@ -152,8 +155,10 @@ from PySide6.QtGui import (
     QPen,
     QPixmap,
     QShortcut,
+    QValidator,
 )
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
     QComboBox,
     QDialog,
@@ -165,6 +170,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QInputDialog,
     QLabel,
     QLineEdit,
@@ -181,9 +187,11 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QTabBar,
     QTabWidget,
+    QTableView,
     QToolButton,
     QVBoxLayout,
     QWidget,
+    QWidgetAction,
 )
 
 from ...curation import CurationLog
@@ -203,6 +211,7 @@ from shiboken6 import isValid
 
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.flow import FlowLayout
+from ..widgets.eliding import ElidingLabel
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
 from ..widgets.toggle import Toggle
@@ -341,6 +350,8 @@ MODE_WAND_ERASE = "wand_erase"
 #: it labels the rim and leaves the middle background.
 MODE_DRAW = "draw"
 MODE_BOX = "box"
+MODE_EDIT_LABEL = "edit_label"
+MODE_LABEL_TIME = "label_time"
 #: Drag a line across a merged object and it becomes two, with every other
 #: object's id untouched. The commonest correction a segmentation needs.
 MODE_DIVIDE = "divide"
@@ -368,6 +379,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_WAND_ADD,     "Wand",         "wand_add"),
     (MODE_DRAW,         "Draw",         "draw"),
     (MODE_BOX,          "Box",          "embeddings"),
+    (MODE_EDIT_LABEL,   "Edit Label",   "annotate"),
     (MODE_DIVIDE,       "Divide / Merge", "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
     (MODE_RECROP,       "Recrop",       "recrop"),
@@ -393,7 +405,7 @@ def tool_row_entries() -> List[tuple]:
     entries = list(TOOL_MODES)
     seen = {mode for mode, _label, _icon in entries}
     for name, value in sorted(globals().items()):
-        if not name.startswith("MODE_") or name in ("MODE_NONE", "MODE_WAND_ERASE"):
+        if not name.startswith("MODE_") or name in ("MODE_NONE", "MODE_WAND_ERASE", "MODE_LABEL_TIME"):
             continue
         if not isinstance(value, str) or value in seen:
             continue
@@ -543,6 +555,10 @@ SHORTCUT_HINTS = (
     ("Alt + drag", "Pan; other tools also accept Shift + drag"),
     ("Brush: Shift + drag", "Keep painting the last object across a gap"),
     ("Wheel", "Zoom about the cursor"),
+    ("Label / Time: wheel", "Label the object and visit the previous / next frame"),
+    ("Ctrl+[ / Ctrl+]", "Decrease / increase the selected label"),
+    ("Ctrl+Shift+N", "Add a cell in Time mode"),
+    ("Ctrl+Shift+D", "Add daughter cells in Time mode"),
     ("Right button", "Sweep away the objects it passes"),
     ("Ctrl + left click", "Split the object at its waist"),
     ("Ctrl + right click", "Remove the object under the cursor"),
@@ -596,6 +612,11 @@ QPushButton#MakeMasksSliceWheel:checked {{
     color: {palette['button_accent_ink']};
     background: {palette['accent']};
     border: 1px solid {palette['accent_hi']};
+}}
+QPushButton#MakeMasksLabelTime:checked {{
+    color: {palette['button_accent_ink']};
+    background: {palette['button_accent']};
+    border: 1px solid {palette['button_accent_hi']};
 }}
 """
 
@@ -661,6 +682,7 @@ class _MaskLoadWorker(QThread):
         self.token = token
         self.layout = dict(layout or {})
         self.result = None
+        self.metadata = None
         self.error: Optional[Exception] = None
 
     def run(self) -> None:
@@ -669,6 +691,8 @@ class _MaskLoadWorker(QThread):
             self.result = engine.load_image_and_mask(
                 self.folder, self.filename, **self.layout
             )
+            self.metadata = engine.load_mask_metadata(
+                self.folder, self.filename, **self.layout)
         except Exception as exc:
             self.error = exc
             LOG.exception(
@@ -676,6 +700,183 @@ class _MaskLoadWorker(QThread):
                 self.filename,
                 self.folder,
             )
+
+
+class _MaskLabelValidator(QValidator):
+    """Accept the full uint32 text range without signed QSpinBox limits."""
+
+    def validate(self, text, position):
+        """Accept blank as unfinished and decimal labels up to the uint32 maximum.
+
+        :param text: the typed label.
+        :param position: the cursor position, returned unchanged.
+        :returns: ``(state, text, position)`` as QValidator expects.
+        """
+        if not text:
+            return QValidator.Intermediate, text, position
+        valid = text.isascii() and text.isdecimal() and int(text) <= engine.MAX_MASK_LABEL
+        return (QValidator.Acceptable if valid else QValidator.Invalid), text, position
+
+
+class _LineageMaskHistory(engine.MaskHistory):
+    """Keep embedded lineage and selection in the existing mask undo stack."""
+
+    def __init__(self, owner, capacity=25):
+        """Pair each mask snapshot with a lineage and selection snapshot.
+
+        :param owner: the Make Masks screen whose lineage is tracked.
+        :param capacity: the most undo steps kept.
+        """
+        super().__init__(capacity)
+        self.owner = owner
+        self._lineage_undo = deque(maxlen=self.capacity)
+        self._lineage_redo = deque(maxlen=self.capacity)
+
+    def clear(self):
+        """Forget every mask and lineage snapshot."""
+        super().clear()
+        self._lineage_undo.clear()
+        self._lineage_redo.clear()
+
+    def push(self, mask):
+        """Record a mask edit, pruning lineage cells the edit removed.
+
+        :param mask: the mask after the edit.
+        """
+        if self.owner._lineage is not None:
+            state = engine.prune_lineage_frame(
+                self.owner._lineage, self.owner._lineage_frame(), mask)
+            if state != self.owner._lineage:
+                self.owner._lineage = state
+                self.owner._lineage_dirty = True
+                self.owner._label_time_edited = True
+                self.owner._refresh_lineage_rows()
+        if self.owner._time_label_enabled and not np.array_equal(mask, self.owner._last_saved_mask):
+            self.owner._label_time_edited = True
+        super().push(mask)
+        self._lineage_undo.append((copy.deepcopy(self.owner._lineage),
+                                   self.owner._selected_cell))
+        self._lineage_redo.clear()
+
+    def undo(self):
+        """Step the mask back and restore the lineage that went with it.
+
+        :returns: the earlier mask, or ``None`` with nothing to undo.
+        """
+        result = super().undo()
+        if result is not None:
+            self._lineage_redo.append(self._lineage_undo.pop())
+            self.owner._restore_lineage_snapshot(self._lineage_undo[-1])
+        return result
+
+    def redo(self):
+        """Step the mask forward and restore the lineage that went with it.
+
+        :returns: the later mask, or ``None`` with nothing to redo.
+        """
+        result = super().redo()
+        if result is not None:
+            snapshot = self._lineage_redo.pop()
+            self._lineage_undo.append(snapshot)
+            self.owner._restore_lineage_snapshot(snapshot)
+        return result
+
+
+class _LineageTableModel(QAbstractTableModel):
+    """Expose cell records without allocating a widget or ancestry tree per cell."""
+
+    def __init__(self, owner):
+        """Start empty; :meth:`reset_cells` reads the owner's lineage.
+
+        :param owner: the Make Masks screen holding the lineage.
+        """
+        super().__init__(owner)
+        self.owner = owner
+        self.keys = []
+        self.labels = {}
+
+    def reset_cells(self):
+        """Reload the cell rows and the current frame's labels."""
+        self.beginResetModel()
+        self.keys = list((self.owner._lineage or {}).get("cells", {}))
+        frame = self.owner._lineage_frame()
+        self.labels = {cell: int(label) for label, cell in
+                       (self.owner._lineage or {}).get("frames", {}).get(frame, {}).items()}
+        self.endResetModel()
+
+    def rowCount(self, parent=QModelIndex()):
+        """One row per lineage cell; the table has no children.
+
+        :param parent: the parent index; valid parents have no rows.
+        :returns: the row count.
+        """
+        return 0 if parent.isValid() else len(self.keys)
+
+    def columnCount(self, parent=QModelIndex()):
+        """Name, label, parent and division frame.
+
+        :param parent: the parent index; valid parents have no columns.
+        :returns: the column count.
+        """
+        return 0 if parent.isValid() else 4
+
+    def data(self, index, role=Qt.DisplayRole):
+        """A cell's name, label, parent or division frame; its UUID as tooltip.
+
+        :param index: the table cell.
+        :param role: the Qt item role asked for.
+        :returns: the value, or ``None`` for other roles.
+        """
+        if not index.isValid() or not 0 <= index.row() < len(self.keys):
+            return None
+        uuid = self.keys[index.row()]
+        cells = self.owner._lineage["cells"]
+        cell = cells[uuid]
+        if role == Qt.ToolTipRole:
+            return uuid
+        if role in (Qt.DisplayRole, Qt.EditRole):
+            parent = cells.get(cell.get("parent_uuid"), {})
+            return (cell["name"], self.labels.get(uuid, cell.get("label", "")),
+                    parent.get("name", ""),
+                    os.path.basename(cell.get("division_frame") or ""))[index.column()]
+        return None
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """Translated column headings.
+
+        :param section: the column number.
+        :param orientation: only horizontal headings are named.
+        :param role: only the display role is answered.
+        :returns: the heading, or ``None``.
+        """
+        from ..i18n import tr
+
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return (tr("Name"), tr("Label"), tr("Parent"), tr("Division frame"))[section]
+        return None
+
+    def flags(self, index):
+        """Let the name column be edited while time labelling is on.
+
+        :param index: the table cell.
+        :returns: the item flags.
+        """
+        flags = super().flags(index)
+        if index.isValid() and index.column() == 0 and self.owner._time_label_enabled:
+            flags |= Qt.ItemIsEditable
+        return flags
+
+    def setData(self, index, value, role=Qt.EditRole):
+        """Rename a cell through the screen, which validates the name.
+
+        :param index: the edited cell; only the name column is editable.
+        :param value: the new name.
+        :param role: only the edit role renames.
+        :returns: whether the rename was accepted.
+        """
+        if role != Qt.EditRole or not index.isValid() or index.column() != 0:
+            return False
+        return self.owner._rename_lineage_cell(self.keys[index.row()], str(value))
 
 
 #: Subfolders a dropped folder may hold that are not images to consolidate:
@@ -941,6 +1142,22 @@ class _ImageContainer(CollapsibleSplitter):
             self.rebalance(refit=True)
 
 
+class _ImageViewTabBar(QTabBar):
+    """Reserve the full height of the separate controls beside the tabs."""
+
+    def __init__(self, controls: QWidget):
+        """Size the header from the controls' current font and style."""
+        super().__init__()
+        self._controls = controls
+
+    def tabSizeHint(self, index: int) -> QSize:
+        """Keep the image below every button, including the pane border."""
+        size = super().tabSizeHint(index)
+        size.setHeight(max(size.height(),
+                           self._controls.sizeHint().height() + 1))
+        return size
+
+
 class _SplitMenuButton(QPushButton):
     """A push button that also opens a menu from an arrow on its right.
 
@@ -1020,7 +1237,7 @@ class _SplitMenuButton(QPushButton):
         painter.end()
 
 
-class _StatusLabel(QLabel):
+class _StatusLabel(ElidingLabel):
     """The corner readout: one short line here, every line in the console.
 
     Item 507. About a hundred places in this screen set the corner's text,
@@ -1039,9 +1256,10 @@ class _StatusLabel(QLabel):
 
     def __init__(self, text: str = "", parent=None):
         """Start with ``text``, which is not reported."""
-        super().__init__(parent)
         self._full = ""
         self._quiet = False
+        self._summary = ""
+        super().__init__(parent=parent)
         self._show(text)
 
     def text(self) -> str:
@@ -1068,17 +1286,32 @@ class _StatusLabel(QLabel):
         finally:
             self._quiet = False
 
+    def set_summary(self, text: str) -> None:
+        """Report the loaded field identity without repeating the footer."""
+        owner_ref = getattr(self, "_blind_owner", None)
+        owner = owner_ref() if owner_ref is not None else None
+        self._summary = owner._blind_text(text) if owner is not None else text
+        self.setText(text)
+
+    def resizeEvent(self, event) -> None:
+        """Keep the complete blind-safe message available after elision."""
+        super().resizeEvent(event)
+        self.setToolTip(self._full if QLabel.text(self) != self._full else "")
+
     def _show(self, text: str) -> None:
         """Put the first line, shortened, on screen; the rest in the tooltip."""
         self._full = text
-        lines = text.strip().splitlines()
+        visible = (text[len(self._summary):] if self._summary
+                   and text.startswith(self._summary) else text)
+        lines = visible.strip().splitlines()
         line = lines[0] if lines else ""
         if len(line) > self.LIMIT:
             line = line[:self.LIMIT - 1].rstrip() + "…"
         elif len(lines) > 1:
             line = line.rstrip() + " …"
         super().setText(line)
-        self.setToolTip(text if line != text else "")
+        self.setVisible(bool(line))
+        self.setToolTip(text if QLabel.text(self) != text else "")
 
 
 class _MasksConsole(QWidget):
@@ -1526,6 +1759,8 @@ class _MaskCanvas(QLabel):
     lookup_ready = Signal(object)
     boxes_changed = Signal()
     box_selected = Signal(int)
+    label_requested = Signal(int, int, object)
+    label_time_step = Signal(int, object, object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -1548,6 +1783,10 @@ class _MaskCanvas(QLabel):
         self.image: Optional[np.ndarray] = None
         self.mask: Optional[np.ndarray] = None
         self.mode: str = MODE_NONE
+        self.selected_label = 1
+        self.prepare_label_assignment = None
+        self.label_time_busy = False
+        self._label_positions = None
         self.boxes: List[tuple] = []
         self.box_class_id = 0
         self.selected_box = None
@@ -1556,9 +1795,6 @@ class _MaskCanvas(QLabel):
         self._box_drag = None
         self._box_preview = None
         self.brush_radius: int = DEFAULT_BRUSH_RADIUS
-        #: The field's place in the queue and its name, painted on the
-        #: image (``"12 / 240 · name.tif"``); "" paints nothing.
-        self.field_label: str = ""
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
         #: Draw the photographic complement of the image. A VIEW
@@ -2070,6 +2306,7 @@ class _MaskCanvas(QLabel):
         (:meth:`_recompose_changed`).
         """
         self._lookup_dirty = True
+        self._label_positions = None
         self._schedule_readout()
         kept, self._composed = self._composed, None
         if self.image is None or self.mask is None:
@@ -2345,6 +2582,13 @@ class _MaskCanvas(QLabel):
         if self.mask is None:
             return super().wheelEvent(event)
         notches = event.angleDelta().y()
+        if self.mode == MODE_LABEL_TIME and notches:
+            point = self._canvas_to_image(event.position().x(), event.position().y())
+            steps = max(1, abs(int(notches)) // 120)
+            self.label_time_step.emit(-steps if notches > 0 else steps,
+                                      point, self.selected_label)
+            event.accept()
+            return
         if (self.magnifier is not None and self.magnifier.enabled
                 and event.modifiers() & Qt.ShiftModifier):
             notches = notches or event.angleDelta().x()
@@ -2467,17 +2711,68 @@ class _MaskCanvas(QLabel):
         """
         super().paintEvent(event)
         self._paint_boxes()
+        self._paint_label_ids()
         self._paint_recrop_boxes()
         self._paint_magnifier()
         self._paint_prompter()
         self._paint_drag()
         self._paint_crosshair()
         self._paint_readout()
-        self._paint_field_label()
         if self.ruler.start is not None:
             painter = QPainter(self)
             self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
             painter.end()
+
+    def _paint_label_ids(self) -> None:
+        """Show the stored identity of every visible object in label modes."""
+        if (self.mode not in (MODE_EDIT_LABEL, MODE_LABEL_TIME)
+                or self.mask is None or self.mask.ndim != 2):
+            return
+        if self._label_positions is None:
+            labels, first = np.unique(self.mask, return_index=True)
+            width = self.mask.shape[1]
+            self._label_positions = [
+                (int(label), int(index % width), int(index // width))
+                for label, index in zip(labels, first) if label]
+        painter = QPainter(self)
+        palette = active_palette()
+        for label, x, y in self._label_positions:
+            point = self._image_to_canvas(x + 0.5, y + 0.5)
+            if point is None:
+                continue
+            text = str(label)
+            bounds = painter.fontMetrics().boundingRect(text).adjusted(-2, -2, 2, 2)
+            bounds.moveTopLeft(point + QPoint(2, 2))
+            painter.fillRect(bounds, QColor(palette["surface"]))
+            painter.setPen(QColor(palette["fg"]))
+            painter.drawText(bounds, Qt.AlignCenter, text)
+        painter.end()
+
+    def assign_label_at(self, point, label: int) -> bool:
+        """Commit one collision-checked identity change through stroke history."""
+        if point is None or self.mask is None:
+            return True
+        try:
+            if self.prepare_label_assignment is not None:
+                changed, previous, assigned, commit = self.prepare_label_assignment(point, label)
+            else:
+                changed, previous = engine.assign_object_label(
+                    self.mask, point[0], point[1], label)
+                assigned, commit = label, None
+        except ValueError as error:
+            self.status.emit(str(error))
+            return False
+        if previous == 0 or (previous == assigned and commit is None):
+            return True
+        self._emit_stroke_start()
+        self.mask = changed
+        self.manual_ids = True
+        if commit is not None:
+            commit()
+        self.refresh()
+        self._emit_stroke_end(kind="assign_label", target=int(assigned),
+                              previous_label=int(previous))
+        return True
 
     def _paint_crosshair(self) -> None:
         """Draw the 3-D crosshair through :attr:`crosshair`, when there is one."""
@@ -2910,65 +3205,6 @@ class _MaskCanvas(QLabel):
                      bounds.width() + 2 * SPACING["sm"],
                      bounds.height() + 2 * SPACING["xs"])
 
-    def set_field_label(self, text: str) -> None:
-        """Show ``text`` on the image as the field's index and name.
-
-        :param text: ``"index / total · name"``, or "" for nothing.
-        """
-        text = str(text or "")
-        if text != self.field_label:
-            self.field_label = text
-            self.update()
-
-    def field_label_rect(self) -> Optional[QRect]:
-        """Where the field label is painted: the image's bottom-left corner.
-
-        The readout has the top-left corner, so the two never overlap.
-
-        :returns: the box in widget coordinates, or ``None`` when there is
-            nothing to show.
-        """
-        text = self.field_label
-        rendered = self.pixmap()
-        if not text or rendered is None or rendered.isNull():
-            return None
-        shown = logical_size(rendered)
-        left = max(0, (self.width() - shown.width()) // 2)
-        top = max(0, (self.height() - shown.height()) // 2)
-        bottom = min(self.height(), top + shown.height())
-        margin = SPACING["xs"]
-        metrics = self.fontMetrics()
-        bounds = metrics.boundingRect(QRect(0, 0, 10_000, 10_000),
-                                      int(Qt.AlignLeft | Qt.AlignTop), text)
-        height = bounds.height() + 2 * SPACING["xs"]
-        return QRect(left + margin, bottom - margin - height,
-                     bounds.width() + 2 * SPACING["sm"], height)
-
-    def _paint_field_label(self) -> None:
-        """Paint the field's index and name on the image, over everything.
-
-        On the same translucent plate as the readout, so it reads over a
-        bright field and a dark one alike.
-        """
-        rect = self.field_label_rect()
-        if rect is None:
-            return
-        palette = active_palette()
-        plate = QColor(palette["bg"])
-        plate.setAlpha(215)
-        painter = QPainter(self)
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(plate)
-            painter.drawRoundedRect(QRectF(rect), 4, 4)
-            painter.setPen(QPen(QColor(palette["fg"])))
-            painter.drawText(
-                rect.adjusted(SPACING["sm"], SPACING["xs"], 0, 0),
-                int(Qt.AlignLeft | Qt.AlignTop), self.field_label)
-        finally:
-            painter.end()
-
     def _paint_readout(self) -> None:
         """Paint the readout in the image's top-left corner, over everything.
 
@@ -3268,6 +3504,25 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return super().mousePressEvent(event)
+
+        if self.label_time_busy:
+            self._swallowed.add(event.button())
+            event.accept()
+            return
+
+        if (self.mode in (MODE_EDIT_LABEL, MODE_LABEL_TIME)
+                and event.button() == Qt.LeftButton
+                and event.modifiers() == Qt.NoModifier):
+            point = self._canvas_to_image(event.position().x(), event.position().y())
+            self._swallowed.add(event.button())
+            if point is not None:
+                x, y = point
+                if self.mode == MODE_LABEL_TIME:
+                    self.assign_label_at(point, self.selected_label)
+                elif int(self.mask[y, x]):
+                    self.label_requested.emit(x, y, int(self.mask[y, x]))
+            event.accept()
+            return
 
         if self.mode == MODE_BOX:
             self._box_press(event)
@@ -3680,6 +3935,13 @@ class _MaskCanvas(QLabel):
         away from it must not turn into a magnifier stroke or a sweep.
         """
         if self.mask is None:
+            return
+        if self.label_time_busy:
+            return
+        if self.mode == MODE_LABEL_TIME and event.buttons() == Qt.NoButton:
+            point = self._canvas_to_image(event.position().x(), event.position().y())
+            self.assign_label_at(point, self.selected_label)
+            self.update_readout(event.position())
             return
         if self.mode == MODE_BOX:
             self._box_move(event)
@@ -4782,12 +5044,11 @@ class _MagnifierResult(NamedTuple):
     overlay: Optional[np.ndarray]
     count: int = 0
     ghost: Optional[np.ndarray] = None
-    #: A whole-image result's ``scipy.ndimage.find_objects`` of ``labels``:
-    #: every object's bounding box, from one pass on the worker. What the
-    #: Overlap rule's promise for one object is computed over, since the
-    #: rule's answer for an object depends on all of it and not on the
-    #: part the box shows. See :func:`_object_window`.
-    extents: Optional[tuple] = None
+    extents: Optional[tuple | dict] = None
+    """Whole-object bounds for overlap decisions, indexed by ID minus one
+    for ordinary labels or keyed by observed IDs for sparse uint32 labels.
+    See :func:`_object_window`.
+    """
 
     def nbytes(self) -> int:
         """What this result holds in memory: its labels and its pictures."""
@@ -4938,7 +5199,7 @@ def _state_ready(backend: str) -> bool:
         return False
 
 
-def _backend_model(name: str):
+def _backend_model(name: str, *, volume: bool = False):
     """The backend model a magnifier mode names, built once.
 
     Built by :func:`spacr._segmentation_backends._load_backend`, the same
@@ -4954,23 +5215,31 @@ def _backend_model(name: str):
     without one -- a stand-in, or a backend that lives in spaCR's own
     environment -- was never on disk to lose.
 
+    :param volume: keep a separate volumetric model and supply the native
+        StarDist3D loading plan when required.
     :raises ImportError: naming the Model Zoo, when the backend is missing.
     """
     with _CELLPOSE_LOCK:
         from ... import _segmentation_backends
 
         backend, _colon, model_name = str(name).partition(":")
-        model = _BACKEND_MODELS.get(name)
-        env = _BACKEND_MODEL_ENVS.get(name)
+        key = (name, "volume") if volume else name
+        model = _BACKEND_MODELS.get(key)
+        env = _BACKEND_MODEL_ENVS.get(key)
         if model is not None and env and not os.path.isdir(env):
-            _BACKEND_MODELS.pop(name, None)
-            _BACKEND_MODEL_ENVS.pop(name, None)
+            _BACKEND_MODELS.pop(key, None)
+            _BACKEND_MODEL_ENVS.pop(key, None)
             model = None
         if model is None:
+            options = {}
+            if volume and backend == _segmentation_backends._STARDIST:
+                from ...zstack import ZStackSpec
+
+                options["z_plan"] = ZStackSpec(mode="volumetric")
             model = _segmentation_backends._load_backend(
-                backend, model_name=model_name or None)
-            _BACKEND_MODELS[name] = model
-            _BACKEND_MODEL_ENVS[name] = _model_env(backend)
+                backend, model_name=model_name or None, **options)
+            _BACKEND_MODELS[key] = model
+            _BACKEND_MODEL_ENVS[key] = _model_env(backend)
         return model
 
 
@@ -5595,10 +5864,20 @@ def _blend_labels(out: np.ndarray, labels: np.ndarray) -> np.ndarray:
     count = int(np.count_nonzero(labels))
     if not count:
         return out
-    rng = np.random.default_rng(0)
-    colours = rng.integers(30, 255, size=(int(labels.max()) + 1, 3),
-                           dtype=np.uint8)
-    colours[0] = [0, 0, 0]
+    if int(labels.max()) > 65535:
+        values, inverse = np.unique(labels, return_inverse=True)
+        colours = engine._label_colors(values)
+        if values[0] == 0:
+            colours[0] = 0
+            labels = inverse.reshape(labels.shape)
+        else:
+            colours = np.vstack((np.zeros((1, 3), dtype=np.uint8), colours))
+            labels = inverse.reshape(labels.shape) + 1
+    else:
+        rng = np.random.default_rng(0)
+        colours = rng.integers(30, 255, size=(int(labels.max()) + 1, 3),
+                               dtype=np.uint8)
+        colours[0] = [0, 0, 0]
     paint = _rgb32(colours)
     if count * 4 >= labels.size:
         colour = paint[labels]
@@ -5720,17 +5999,20 @@ def _object_count(labels: np.ndarray) -> int:
     return int(np.count_nonzero(np.unique(np.asarray(labels))))
 
 
-def _object_extents(labels: np.ndarray) -> tuple:
+def _object_extents(labels: np.ndarray) -> tuple | dict:
     """Every object's bounding box in ``labels``, in one pass.
 
     ``scipy.ndimage.find_objects``: entry ``id - 1`` is ``(rows, cols)`` as
-    slices, or None for an id with no pixels.
+    slices, or None for an id with no pixels. Sparse uint32 labels use a
+    dictionary keyed by observed identity rather than a maximum-sized tuple.
     """
     from scipy import ndimage
 
     lab = np.asarray(labels)
     if not lab.size or int(lab.max()) <= 0:
         return ()
+    if int(lab.max()) > 65535:
+        return engine._label_boxes(lab)
     return tuple(ndimage.find_objects(lab.astype(np.int32, copy=False)))
 
 
@@ -5745,8 +6027,8 @@ def _object_window(result: _MagnifierResult, label: int) -> Optional[tuple]:
     """
     label = int(label)
     extents = result.extents
-    if extents is not None and 0 < label <= len(extents):
-        found = extents[label - 1]
+    if isinstance(extents, dict) or (extents is not None and 0 < label <= len(extents)):
+        found = extents.get(label) if isinstance(extents, dict) else extents[label - 1]
         if found is None:
             return None
         rows, cols = found
@@ -5861,6 +6143,132 @@ def _detect_cellpose_snapshot(request, models):
         output = detect(image, models[name], **request['parameters'])
     labels = detect_chain.finish(output[0], request['chain'], intensity=image)
     return (labels,) + tuple(output[1:])
+
+
+#: The detection methods that run on a whole volume while the 3D switch is
+#: on: Otsu and every named threshold, cut on the volume and labelled
+#: 26-connected, and Cellpose through ``do_3D`` or slice stitching.
+_DETECT_3D_MODES = frozenset(("otsu", "cellpose", *cpu_modes.THRESHOLD_LABELS))
+
+
+def _model_supports_volume(model_name) -> bool:
+    """Whether the Object detection model ``model_name`` segments a volume.
+
+    Cellpose models run with ``do_3D`` or stitching and StarDist through its
+    3D models; Cellpose-DINO, InstanSeg and Omnipose segment 2-D fields only.
+
+    :param model_name: a value of the Model box.
+    """
+    from ..._segmentation_backends import (
+        _STARDIST, _prefixed_backend, _prefixed_choice, _stardist_model_ndim,
+    )
+
+    name = str(model_name or "")
+    if name.startswith("cellpose_dino:"):
+        return False
+    backend = _prefixed_backend(name)
+    if backend == _STARDIST:
+        try:
+            return _stardist_model_ndim(_prefixed_choice(backend, name)) == 3
+        except (OSError, TypeError, ValueError):
+            return False
+    return backend is None
+
+
+def cellpose_detect_volume(volume: np.ndarray, model, *, diameter: int = 0,
+                           normalize: bool = True,
+                           flow_threshold: float = FLOW_THRESHOLD,
+                           cellprob_threshold: float = CELLPROB_THRESHOLD,
+                           min_size: int = 0, stitch_threshold: float = 0.0,
+                           anisotropy: float = 1.0) -> np.ndarray:
+    """Segment a ``(Z, Y, X)`` volume with ``model`` in its 3-D mode.
+
+    A stitch threshold of 0 runs ``do_3D``, which segments the volume from
+    its three orthogonal views and honours ``anisotropy``; above 0 each
+    slice is segmented in 2-D and objects overlapping by at least that IoU
+    in neighbouring slices are joined.
+
+    :param volume: one grey volume in ``(Z, Y, X)`` order.
+    :param model: a loaded Cellpose model, or anything with its ``eval``.
+    :param diameter: the expected object diameter in pixels; 0 lets the
+        model estimate it.
+    :param normalize: percentile-normalize the volume before segmenting.
+    :param flow_threshold: the largest flow error an object may have.
+    :param cellprob_threshold: where the cell-probability map is cut.
+    :param min_size: the smallest object kept, in voxels.
+    :param stitch_threshold: 0 for ``do_3D``; otherwise the stitching IoU.
+    :param anisotropy: the Z voxel size over the XY voxel size.
+    :returns: int32 labels of the volume's shape.
+    :raises ValueError: when the model returns labels of another shape.
+    """
+    import inspect
+
+    from ..i18n import tr
+
+    field = np.asarray(volume)
+    stitch = float(stitch_threshold)
+    kwargs = dict(
+        batch_size=1, normalize=bool(normalize), channel_axis=None, z_axis=0,
+        diameter=(int(diameter) or None), flow_threshold=float(flow_threshold),
+        cellprob_threshold=float(cellprob_threshold), min_size=int(min_size),
+        do_3D=stitch <= 0.0, anisotropy=float(anisotropy))
+    if stitch > 0.0:
+        kwargs["stitch_threshold"] = stitch
+    try:
+        params = inspect.signature(model.eval).parameters
+    except (TypeError, ValueError):
+        params = None
+    if params is not None and not any(
+            p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        kwargs = {k: v for k, v in kwargs.items() if k in params}
+    masks = model.eval(field, **kwargs)[0]
+    if isinstance(masks, (list, tuple)):
+        masks = masks[0]
+    labels = np.asarray(masks)
+    if labels.shape != field.shape:
+        raise ValueError(tr("The model returned labels shaped {got} for a volume shaped {want}.",
+                            got=tuple(labels.shape), want=tuple(field.shape)))
+    return labels.astype(np.int32, copy=False)
+
+
+def _detect_volume_snapshot(request, models):
+    """Detect objects in a captured volume without reading any Qt object.
+
+    :param request: ``image`` in storage order with its ``axes``, ``kind``
+        (``threshold`` or ``cellpose``), ``invert``, ``percentiles`` and the
+        method's ``parameters``; ``model`` for Cellpose.
+    :param models: the screen's loaded models, shared with 2-D detection.
+    :returns: the labels, in the volume's storage order.
+    """
+    order = [request['axes'].index(axis) for axis in 'ZYX']
+    image = np.transpose(np.asarray(request['image']), order)
+    if request['invert']:
+        image = engine.invert_normalized(image)
+    if request['percentiles'] is not None:
+        image = engine.normalize_for_detection(image, *request['percentiles'])
+    if request['kind'] == 'threshold':
+        labels = engine._otsu_instances(image, **request['parameters'])
+    else:
+        from ..._segmentation_backends import _STARDIST, _prefixed_backend
+        from ..i18n import tr
+
+        with _CELLPOSE_LOCK:
+            name = request['model']
+            if not _model_supports_volume(name):
+                raise ValueError(tr(
+                    "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+                    model=name))
+            native = _prefixed_backend(name) == _STARDIST
+            key = (name, "volume") if native else name
+            if native:
+                models[key] = _backend_model(name, volume=True)
+            elif key not in models:
+                models[key] = load_cellpose_model(name)
+            parameters = dict(request['parameters'])
+            if native:
+                parameters['stitch_threshold'] = 0.0
+            labels = cellpose_detect_volume(image, models[key], **parameters)
+    return np.transpose(labels, np.argsort(order))
 
 
 def _uncertainty_snapshot(request, models):
@@ -9792,15 +10200,24 @@ class _VolumeSliceHistory:
 #: rather than the drawing plane, in seconds.
 SPIN_CHORD_SECONDS = 1.5
 
-#: The Render backends of the True 3D view, in the order the list offers
-#: them: ``auto`` (the GPU when it works, else the CPU), ``opengl`` (VisPy
-#: gloo on the GPU) and ``cpu`` (NumPy/SciPy). Vulkan, Metal and Direct3D
-#: need wgpu, which spaCR does not ship, so they are never offered.
-VOLUME_BACKENDS = ('auto', 'opengl', 'cpu')
+VOLUME_BACKENDS = ('auto', 'vulkan', 'metal', 'd3d12', 'opengl', 'cpu')
+"""The True 3D render backends, in list order; only supported choices are offered.
+
+``auto`` tries :func:`volume_backend_chain`; Vulkan, Metal and Direct3D 12
+use :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL uses
+:class:`spacr.layers.GLVolumeRenderer`, and CPU uses NumPy/SciPy.
+"""
+
+VOLUME_WGPU_BACKENDS = ('vulkan', 'metal', 'd3d12')
+"""The wgpu backends among :data:`VOLUME_BACKENDS`."""
+
+VOLUME_BACKEND_API = {'vulkan': 'Vulkan', 'metal': 'Metal', 'd3d12': 'Direct3D 12',
+                      'opengl': 'OpenGL'}
+"""The graphics API each GPU backend draws through, as the view names it."""
 
 #: The Render scale (percent of full resolution along each axis) a True 3D
 #: view starts at, by the backend drawing it.
-VOLUME_DEFAULT_SCALE = {'opengl': 100, 'cpu': 50}
+VOLUME_DEFAULT_SCALE = {'vulkan': 100, 'metal': 100, 'd3d12': 100, 'opengl': 100, 'cpu': 50}
 
 #: OpenGL renderers that are software rasterisers: no faster than the CPU
 #: path, so Auto does not choose them (OpenGL still can).
@@ -9947,18 +10364,126 @@ def _volume_view_settings():
     return backend, scale, finish
 
 
+def volume_gpu_refusal():
+    """Why the True 3D view must not draw on the GPU here, or ``''``.
+
+    :func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or
+    ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.
+
+    :returns: a one-line reason naming the variable, or ``''``.
+    """
+    from ...layers import gpu_render_refusal
+
+    return gpu_render_refusal()
+
+
 def volume_render_backends():
     """The Render backends this machine can offer the True 3D view.
 
-    ``auto`` and ``cpu`` always; ``opengl`` when VisPy (a spaCR dependency)
-    is importable. Whether a GL context really works is only known when the
-    first frame is drawn; :class:`_GLVolumeContext` finds out, and Auto
-    falls back to the CPU with a one-line note if it does not.
+    ``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu
+    is installed and finds an adapter of that kind
+    (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time
+    and never before); ``opengl`` when VisPy (a spaCR dependency) is
+    importable. With the GPU turned off (:func:`volume_gpu_refusal`) only
+    ``auto`` and ``cpu``. Whether a backend really draws is only known when
+    the first frame is drawn; :meth:`_VolumeStage._active_backend` finds
+    out, and Auto falls back along :func:`volume_backend_chain`.
 
     :returns: backend keys from :data:`VOLUME_BACKENDS`, in list order.
     """
+    from ...layers import wgpu_adapters
+
+    if volume_gpu_refusal():
+        return ('auto', 'cpu')
+    found = {info['backend'] for info in wgpu_adapters()}
     return tuple(key for key in VOLUME_BACKENDS
-                 if key != 'opengl' or find_spec('vispy') is not None)
+                 if (key not in VOLUME_WGPU_BACKENDS or key in found)
+                 and (key != 'opengl' or find_spec('vispy') is not None))
+
+
+def volume_backend_chain(choice, offered=None, platform=None):
+    """The GPU backends a choice tries, in order, before the CPU.
+
+    Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on
+    Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other
+    GPU choice is tried alone; ``cpu`` tries none.
+
+    :param choice: a key of :data:`VOLUME_BACKENDS`.
+    :param offered: the backends offered; defaults to
+        :func:`volume_render_backends`.
+    :param platform: ``sys.platform``; defaults to this computer's.
+    :returns: GPU backend keys, best first.
+    """
+    offered = volume_render_backends() if offered is None else tuple(offered)
+    if choice == 'cpu':
+        return ()
+    if choice != 'auto':
+        return (choice,) if choice in offered else ()
+    platform = sys.platform if platform is None else platform
+    if platform == 'darwin':
+        order = ('metal', 'vulkan', 'opengl')
+    elif platform.startswith('win'):
+        order = ('vulkan', 'd3d12', 'opengl')
+    else:
+        order = ('vulkan', 'opengl')
+    return tuple(key for key in order if key in offered)
+
+
+class _WGPUVolumeContext:
+    """A wgpu device the True 3D view's GPU renderer draws with.
+
+    Vulkan, Metal or Direct3D 12 (:class:`spacr.layers.WGPUVolumeRenderer`),
+    made the first time a frame is drawn on that backend and kept for the
+    screen's life. Nothing is shown in a window of its own: each frame is
+    drawn offscreen, read back and put under the same matplotlib axes the
+    anchors are drawn on, as :class:`_GLVolumeContext` does.
+
+    :param backend: a key of :data:`VOLUME_WGPU_BACKENDS`.
+    :param allow_software: whether a software rasteriser (an adapter of
+        type ``CPU``, such as lavapipe or WARP) is accepted.
+    :raises RuntimeError: with a one-line reason when no usable device can
+        be made.
+    """
+
+    def __init__(self, backend, allow_software=True):
+        """Ask wgpu for a device and test-draw a frame."""
+        from ...layers import ImageLayer, VolumeRays, WGPUVolumeRenderer, wgpu_adapter
+
+        if find_spec('wgpu') is None:
+            raise RuntimeError('wgpu is not installed')
+        self.backend = backend
+        self.renderer = WGPUVolumeRenderer(wgpu_adapter(backend, allow_software=allow_software))
+        self.limits = self.renderer.limits()
+        probe = ImageLayer(np.arange(8, dtype=np.float32).reshape(2, 2, 2), name='probe',
+                           contrast_limits=[(0.0, 7.0)])
+        rgb, _picked = self.renderer.render(
+            [probe], VolumeRays(origin=(0.0, 0.0, 0.0), across=(0.0, 0.0, 1.0),
+                                down=(0.0, 1.0, 0.0), depth=(1.0, 0.0, 0.0), shape=(2, 2, 2)))
+        if rgb.shape != (2, 2, 3) or not rgb.any():
+            self.renderer.close()
+            raise RuntimeError(f'the {VOLUME_BACKEND_API[backend]} test frame came back empty')
+
+    def name(self):
+        """The GPU's own name, as its driver gives it."""
+        return self.limits['renderer']
+
+    def render(self, request):
+        """Draw one request on the GPU.
+
+        :returns: ``(rgb, picked)`` as :func:`_render_volume_view` returns.
+        """
+        x0, x1, y0, y1 = request.rect
+        size = (max(1, int(round(y1 - y0))), max(1, int(round(x1 - x0))))
+        return self.renderer.render(
+            _strided_layers(request), request.rays, highlight=request.highlight,
+            voxel_size=request.voxel_size or None, lens=request.lens, size=size)
+
+    def close(self):
+        """Free the GPU's volumes, buffers and device."""
+        try:
+            self.renderer.close()
+        except Exception:
+            LOG.debug('the True 3D wgpu renderer could not be freed', exc_info=True)
 
 
 class _GLVolumeContext:
@@ -9976,6 +10501,8 @@ class _GLVolumeContext:
     :raises RuntimeError: with a one-line reason when no usable context can
         be made.
     """
+
+    backend = 'opengl'
 
     def __init__(self, allow_software=True):
         """Make the context current once, check it and test-draw a frame."""
@@ -10099,6 +10626,7 @@ class _VolumeStage(QWidget):
         self._spin_armed = 0.0
         self._gl = None
         self._gl_tried = False
+        self._gpu_refused = set()
         self._backend_note = ''
         self._backend_choice, self._scale, self._finish = _volume_view_settings()
         self._backend_box = self._scale_slider = self._scale_value = None
@@ -10350,8 +10878,7 @@ class _VolumeStage(QWidget):
         self._show_count()
         self._meshes = {}
         self._version += 1
-        if self._layers is not None:
-            list(self._layers)[-1].data = session.mask
+        list(self._layers)[-1].data = session.mask
         self.show_slices(reset)
         if self.view == 'true3d':
             self._show_true3d()
@@ -10786,7 +11313,8 @@ class _VolumeStage(QWidget):
                 (self._grid_toggle, tr('Draw the axes, ticks and grid around the volume. '
                                        'They zoom and move with the data.')),
                 (self._backend_box, tr('What draws the 3D view. Auto uses the graphics card '
-                                       '(OpenGL) when it works and the CPU otherwise.')),
+                                       'through Vulkan, Metal or Direct3D 12 when it can, '
+                                       'then OpenGL, then the CPU.')),
                 (self._scale_slider, tr('How much of the full resolution the 3D view is drawn '
                                         'at, along each axis. Turning the view draws coarser '
                                         'and sharpens to this when it stops.'))):
@@ -10802,41 +11330,93 @@ class _VolumeStage(QWidget):
         """The Render backend list's captions, by backend key."""
         from ..i18n import tr
 
-        return {'auto': tr('Auto'), 'opengl': tr('OpenGL'), 'cpu': tr('CPU (software)')}
+        return {'auto': tr('Auto'), 'vulkan': tr('Vulkan'), 'metal': tr('Metal'),
+                'd3d12': tr('Direct3D 12'), 'opengl': tr('OpenGL'),
+                'cpu': tr('CPU (software)')}
 
     def _render_percent(self):
         """The Render scale in use: the saved one, or the backend's default."""
         if self._scale is not None:
             return int(self._scale)
-        return VOLUME_DEFAULT_SCALE[self._active_backend()]
+        return VOLUME_DEFAULT_SCALE.get(self._active_backend(), 100)
 
     def _active_backend(self):
-        """``opengl`` when the GPU draws the 3-D view, else ``cpu``.
+        """The backend drawing the 3-D view: a GPU one, or ``cpu``.
 
-        The GL context is made the first time it is asked for; when that
-        fails the view is drawn on the CPU, with a one-line note.
+        The GPU context is made the first time it is asked for, trying each
+        backend of :func:`volume_backend_chain` in turn; when one fails the
+        next is tried and, when none is left, the view is drawn on the CPU.
+        Each fallback is said in one line.
         """
         if self._backend_choice == 'cpu':
             return 'cpu'
         if self._gl is None and not self._gl_tried:
             self._gl_tried = True
+            self._open_gpu()
+        return self._gl.backend if self._gl is not None else 'cpu'
+
+    def _open_gpu(self, failed=None):
+        """Make the first GPU context of the chosen chain that works.
+
+        :param failed: ``(backend, exception)`` of a backend that already
+            failed this time, for the note.
+        """
+        from ..i18n import tr
+
+        refusal = volume_gpu_refusal()
+        if refusal:
+            self._backend_note = tr('GPU rendering is turned off ({reason}); drawing on the '
+                                    'CPU.', reason=refusal)
+            LOG.info('True 3D view: %s', self._backend_note)
+            return
+        allow_software = self._backend_choice != 'auto'
+        for key in volume_backend_chain(self._backend_choice):
+            if key in self._gpu_refused:
+                continue
             try:
-                self._gl = _GLVolumeContext(allow_software=self._backend_choice == 'opengl')
+                if key == 'opengl':
+                    self._gl = _GLVolumeContext(allow_software=allow_software)
+                else:
+                    self._gl = _WGPUVolumeContext(key, allow_software=allow_software)
             except Exception as exc:
-                self._gpu_failed(exc)
-        return 'opengl' if self._gl is not None else 'cpu'
+                self._gpu_refused.add(key)
+                failed = failed or (key, exc)
+                continue
+            if failed is not None:
+                self._backend_note = tr(
+                    '{backend} is unavailable ({reason}); drawing with {fallback} instead.',
+                    backend=VOLUME_BACKEND_API[failed[0]], reason=self._reason(failed[1]),
+                    fallback=VOLUME_BACKEND_API[key])
+                LOG.warning('True 3D view: %s', self._backend_note)
+                self._say(self._backend_note)
+            return
+        if failed is not None:
+            self._gpu_failed(failed[1])
+
+    @staticmethod
+    def _reason(exc):
+        """An exception's first line, or its type's name."""
+        text = str(exc).strip()
+        return text.splitlines()[0] if text else type(exc).__name__
 
     def _gpu_failed(self, exc):
-        """Draw on the CPU from now on, and say why in one line."""
+        """Leave the GPU backend that failed: Auto goes on to the next one in
+        :func:`volume_backend_chain`, any other choice to the CPU, and
+        either says why in one line."""
         from ..i18n import tr
 
         broken, self._gl = self._gl, None
         self._gl_tried = True
         if broken is not None:
+            self._gpu_refused.add(broken.backend)
             broken.close()
-        reason = str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+            if self._backend_choice == 'auto':
+                self._open_gpu(failed=(broken.backend, exc))
+                if self._gl is not None:
+                    self._sync_scale_slider()
+                return
         self._backend_note = tr('GPU rendering is unavailable ({reason}); drawing on the CPU.',
-                                reason=reason)
+                                reason=self._reason(exc))
         LOG.warning('True 3D view: %s', self._backend_note)
         self._say(self._backend_note)
         self._sync_scale_slider()
@@ -10861,6 +11441,10 @@ class _VolumeStage(QWidget):
         self._backend_choice = key
         set_volume_view(backend=key)
         self._backend_note = ''
+        self._gpu_refused = set()
+        if self._gl is not None and key not in ('auto', 'cpu', self._gl.backend):
+            self._gl.close()
+            self._gl = None
         if key != 'cpu' and self._gl is None:
             self._gl_tried = False
         self._active_backend()
@@ -11292,7 +11876,7 @@ class _VolumeStage(QWidget):
             return None
         near, far = float(screen[:, 2].min()), float(screen[:, 2].max())
         backend = self._active_backend()
-        gpu = backend == 'opengl'
+        gpu = backend != 'cpu'
         scale = render_scale(self._render_percent(), session.image.size,
                              dragging=quality == 'interactive', gpu=gpu)
         steps = volume_steps(session.image.shape, scale.max_voxels)
@@ -11355,7 +11939,7 @@ class _VolumeStage(QWidget):
         request = self._render_request(quality)
         if request is None:
             return False
-        if request.backend == 'opengl':
+        if request.backend != 'cpu':
             try:
                 result = self._gl.render(request)
             except Exception as exc:
@@ -11409,13 +11993,14 @@ class _VolumeStage(QWidget):
                                              backend=request.backend, scale=request.scale)
         reduction = max(request.steps)
         percent = request.scale.percent
-        if request.backend == 'opengl' and self._gl is not None:
+        if request.backend != 'cpu' and self._gl is not None:
             name = self._gl.name()
-            text = (tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from every '
-                       'voxel.', name=name, percent=percent) if reduction == 1 else
-                    tr('Drawn on the GPU (OpenGL, {name}) at {percent}% scale, from 1 voxel '
-                       'in {n} along the most reduced axis.', name=name, percent=percent,
-                       n=reduction))
+            api = VOLUME_BACKEND_API.get(request.backend, request.backend)
+            text = (tr('Drawn on the GPU ({api}, {name}) at {percent}% scale, from every '
+                       'voxel.', api=api, name=name, percent=percent) if reduction == 1 else
+                    tr('Drawn on the GPU ({api}, {name}) at {percent}% scale, from 1 voxel '
+                       'in {n} along the most reduced axis.', api=api, name=name,
+                       percent=percent, n=reduction))
         else:
             text = (tr('Drawn on the CPU at {percent}% scale, from every voxel.',
                        percent=percent) if reduction == 1 else
@@ -11961,6 +12546,7 @@ class MakeMasksScreen(QWidget):
     _detection_delivered = Signal(object)
     _comparison_delivered = Signal(object)
     _uncertainty_delivered = Signal(object)
+    _volume_measure_delivered = Signal(object)
 
     _hide_judged = False
 
@@ -12000,7 +12586,13 @@ class MakeMasksScreen(QWidget):
         #: folder being opened.
         self._session_notice: str = ""
         self._current_index: int = 0
-        self._history = engine.MaskHistory(capacity=25)
+        self._lineage = None
+        self._lineage_scanned = None
+        self._selected_cell = None
+        self._lineage_dirty = False
+        self._lineage_format = False
+        self._time_label_enabled = False
+        self._history = _LineageMaskHistory(self)
         self._box_history = engine.MaskHistory(capacity=25)
         self._box_classes = ['object']
         self._box_field = None
@@ -12020,7 +12612,11 @@ class MakeMasksScreen(QWidget):
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
         self._loading = False
+        self._label_time_queue = deque()
+        self._label_time_pending = None
+        self._label_time_edited = False
         self._detection_worker = None
+        self._volume_detection_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
         self._uncertainty_worker = None
@@ -12032,6 +12628,9 @@ class MakeMasksScreen(QWidget):
         self._comparison_request = None
         self._comparison_serial = 0
         self._comparison_delivered.connect(self._take_comparison)
+        self._volume_measure_worker = None
+        self._volume_measure_running = False
+        self._volume_measure_delivered.connect(self._take_volume_measurement)
         #: Folded module key -> the module's own screen, built the first time
         #: its button is pressed and kept afterwards so a second press finds
         #: the paths, models and results the first one left.
@@ -12132,7 +12731,8 @@ class MakeMasksScreen(QWidget):
         self._close_levels()
         self._mask_stage.open(session)
         self._history = _VolumeSliceHistory(self._mask_stage)
-        if self._canvas.mode in (MODE_NONE, MODE_BOX, MODE_RECROP):
+        self._btn_label_time.setChecked(False)
+        if self._canvas.mode in (MODE_NONE, MODE_BOX, MODE_RECROP, MODE_EDIT_LABEL, MODE_LABEL_TIME):
             self._set_mode(MODE_BRUSH)
         self._view_tabs.setCurrentIndex(0)
         self._body_stack.setCurrentWidget(self._image_page)
@@ -12147,7 +12747,8 @@ class MakeMasksScreen(QWidget):
         """Give the Mask view back to 2-D fields, closing any open volume."""
         if self._mask_stage.session is not None:
             self._mask_stage.leave()
-            self._history = engine.MaskHistory(capacity=25)
+            self._history = _LineageMaskHistory(self)
+            self._sync_detect_3d()
 
     def _volume_leave_ok(self) -> bool:
         """Whether the open volume may be left: unedited, saved or discarded.
@@ -12315,19 +12916,18 @@ class MakeMasksScreen(QWidget):
     def _build_ui(self):
         """Lay out the title, the editor and the four button groups.
 
-        THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE (the
-        maintainer's layout, 2026-10-16): TOOLS at its top left and
-        ANNOTATION (Keep, Skip, Discard) at its top right, IO (Open File /
-        Folder, Measure, Load test data, ROIs) at its bottom left and
-        NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
+        THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE: TOOLS at its
+        top left and ANNOTATION (Keep, Skip, Discard) at its top right,
+        IO (Open File / Folder, Measure, Load test data, ROIs) at its bottom
+        left and NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
         and bottom bars are EDGE panes of one vertical
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         around the views, and the title with its row of folded modules is an
         EDGE pane above the editor, so each one hides behind the same
         collapse arrow that hides the settings and stays hidden across
-        restarts. The status line under the image never widens the pane,
-        since a long status would otherwise push the splitter and resize the
-        canvas mid-edit.
+        restarts. The image footer keeps the editable index and filename
+        outside the pixels; transient notices sit beside them and are
+        copied in full to the console.
         """
         from .. import screens as _screens_package
         from ..i18n import tr
@@ -12397,6 +12997,9 @@ class MakeMasksScreen(QWidget):
         self._canvas.box_selected.connect(self._on_box_selected)
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
         self._canvas.recrop_requested.connect(self._on_recrop_requested)
+        self._canvas.label_requested.connect(self._edit_label_at)
+        self._canvas.label_time_step.connect(self._queue_label_time_step)
+        self._canvas.prepare_label_assignment = self._prepare_label_assignment
         self._magnifier = _LiveMagnifier(
             self._canvas, self, load_model=self._cellpose_model,
             context=self._magnifier_context)
@@ -12484,14 +13087,15 @@ class MakeMasksScreen(QWidget):
         self._chrome_splitter.add_pane(editor, "Editor", stretch=1)
         outer.addWidget(self._chrome_splitter, 1)
 
-        self._status_label = _StatusLabel("Ready.")
+        self._status_label = _StatusLabel("Ready.", self)
         self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
         self._status_label.setSizePolicy(QSizePolicy.Ignored,
                                          QSizePolicy.Preferred)
         self._status_label.setMinimumWidth(0)
-        self._image_nav_row.addWidget(self._status_label, 1)
+        self._tally_layout.addWidget(self._status_label, 1)
+        self._status_label.hide()
 
     @staticmethod
     def _titled_group(title: str, object_name: str, wrap: bool = False,
@@ -12750,32 +13354,6 @@ class MakeMasksScreen(QWidget):
         ops.addWidget(self._virtual_stain)
         _apply_alpha_widgets(self._settings_scroll.widget())
 
-    def _nav_button_group(self, separated: bool = False):
-        """A widget holding a row of navigation buttons that never wraps apart.
-
-        The navigation strip wraps widget by widget, so buttons that must stay
-        on one line are put in one of these and the group is added instead.
-        With ``separated`` the group opens with a gap and a vertical line.
-
-        :param separated: lead the group with a visible gap and separator.
-        :returns: ``(widget, layout)``; add the buttons to ``layout``.
-        """
-        from PySide6.QtWidgets import QFrame
-
-        group = QWidget()
-        row = QHBoxLayout(group)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["sm"])
-        if separated:
-            row.addSpacing(SPACING["lg"])
-            line = QFrame(group)
-            line.setObjectName("NavGroupSeparator")
-            line.setFrameShape(QFrame.Shape.VLine)
-            line.setFrameShadow(QFrame.Shadow.Sunken)
-            row.addWidget(line)
-            row.addSpacing(SPACING["lg"])
-        return group, row
-
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.
 
@@ -12886,28 +13464,38 @@ class MakeMasksScreen(QWidget):
         fold belongs; it becomes a window only if this screen has no body
         to make pages out of.
 
+        THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it
+        moves this screen's whole body onto the strip, and Qt restyles every
+        widget of a body it moves; that and the page joining the strip were
+        one freeze. A breath between them lets the window answer.
+
         :param key: one of :data:`FOLD_ORDER`.
         :returns: the module's panel, or ``None`` for a key this screen does
             not fold. Pressing the same button again raises the page that is
             already there rather than building a second one.
         """
-        from .map_barcodes import show_as_page, show_as_window
+        from .. import screens as screens_package
+        from .map_barcodes import host_pages, show_as_page, show_as_window
 
         host = FOLD_HOSTS.get(key, key)
-        screen = self.folded_screen(host)
-        if screen is None:
-            return None
-        title = fold_description(host)[0]
-        panel = self._fold_dialogs.get(host)
-        if panel is None:
-            panel = FoldedModulePanel(
-                host, screen, title, parent=self,
-                actions=self._fold_actions(host))
-            self._fold_dialogs[host] = panel
-        self.seed_folded(key)
-        if show_as_page(panel, self, title) is None:
-            panel.add_close_button()
-            show_as_window(panel, self, title)
+        with screens_package._breathing_while_a_page_is_built():
+            screen = self.folded_screen(host)
+            if screen is None:
+                return None
+            screens_package._breathe_while_a_window_opens()
+            title = fold_description(host)[0]
+            panel = self._fold_dialogs.get(host)
+            if panel is None:
+                panel = FoldedModulePanel(
+                    host, screen, title, actions=self._fold_actions(host))
+                self._fold_dialogs[host] = panel
+            self.seed_folded(key)
+            if getattr(self, "_fold_pages", None) is None:
+                host_pages(self)
+                screens_package._breathe_while_a_window_opens(force=True)
+            if show_as_page(panel, self, title) is None:
+                panel.add_close_button()
+                show_as_window(panel, self, title)
         panel.show()
         panel.raise_()
         return panel
@@ -14413,6 +15001,11 @@ class MakeMasksScreen(QWidget):
         if self._histogram_worker is not None:
             self._histogram_worker.close(timeout=0)
             self._histogram_worker = None
+        if self._volume_detection_worker is not None:
+            self._volume_detection_worker.close(timeout=0)
+            self._volume_detection_worker = None
+            self._detection_request = None
+            self._btn_cellpose.setEnabled(True)
         if self._detection_worker is not None:
             self._detection_worker.close(timeout=0)
             self._detection_worker = None
@@ -14428,7 +15021,7 @@ class MakeMasksScreen(QWidget):
         :func:`tool_row_entries`, so a tool added to :data:`TOOL_MODES` -- or
         a ``MODE_*`` constant added with no table entry at all -- appears here
         without its author editing this method. Ruler sits with Reset zoom
-        beside the image counter instead (:meth:`_build_queue_tally`).
+        beside the view tabs instead (:meth:`_build_view_tabs`).
         Actions that are not modes come in through :meth:`add_toolbar_action`
         and land at the end of TOOLS. The tools wrap onto a second line when
         the image is narrower than they are; ANNOTATION keeps its place.
@@ -14478,6 +15071,9 @@ class MakeMasksScreen(QWidget):
 
         self._mode_buttons: dict[str, QPushButton] = {}
         for mode, label, icon_key in tool_row_entries():
+            if mode == MODE_EDIT_LABEL:
+                self._mode_buttons[mode] = self._build_label_tool(row)
+                continue
             btn = QPushButton(tr(label))
             if mode == MODE_BRUSH:
                 btn.setToolTip(tr(
@@ -14514,13 +15110,13 @@ class MakeMasksScreen(QWidget):
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
         self._btn_ruler = self._mode_buttons[MODE_RULER]
         self._btn_ruler.setObjectName("MakeMasksRulerTool")
-        self._btn_ruler.setMinimumHeight(0)
         self._btn_ruler.setToolTip(tr(
             "Drag a line to measure its length in image pixels. "
             "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
 
         self._btn_reset_zoom = QPushButton(tr("Reset zoom"))
         self._btn_reset_zoom.setObjectName("MakeMasksResetZoom")
+        self._btn_reset_zoom.setMinimumHeight(32)
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
         self._btn_reset_zoom.setCursor(Qt.PointingHandCursor)
         self._btn_reset_zoom.setEnabled(False)
@@ -14703,9 +15299,7 @@ class MakeMasksScreen(QWidget):
         self._tool_row.setVisible(
             self._body_stack.currentWidget() is self._image_page)
         self._body_stack.updateGeometry()
-        container = getattr(self, "_image_container", None)
-        if container is not None:
-            container.queue_refit()
+        self._image_container.queue_refit()
 
     def settings_shown(self) -> bool:
         """Whether the settings group is on screen."""
@@ -15284,6 +15878,504 @@ class MakeMasksScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not store the folded categories", exc_info=True)
 
+    def _build_label_tool(self, row):
+        """Offer direct identity editing and a CPU-only time-label mode."""
+        from ..i18n import tr
+
+        direct = QPushButton(tr("Edit Label"), self)
+        direct.setObjectName("MakeMasksEditLabel")
+        direct.setCheckable(True)
+        direct.setMinimumHeight(32)
+        direct.setToolTip(tr(
+            "Show object IDs and click to change one. Enable Time to trace cells "
+            "through frames; 0 removes an object."))
+        direct.clicked.connect(lambda: self._set_mode(MODE_EDIT_LABEL))
+        row.addWidget(direct)
+        group = QWidget(self)
+        group.setObjectName("MakeMasksLabelTool")
+        layout = QHBoxLayout(group)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        tracking = QWidget(group)
+        tracking.setObjectName("MakeMasksLabelTrackingControls")
+        tracking_layout = QHBoxLayout(tracking)
+        tracking_layout.setContentsMargins(0, 0, 0, 0)
+        tracking_layout.setSpacing(0)
+        layout.addWidget(tracking)
+        less = QToolButton(tracking)
+        less.setText("−")
+        less.setObjectName("MakeMasksLabelDecrease")
+        less.setToolTip(tr("Decrease selected label (Ctrl+[)"))
+        less.clicked.connect(lambda: self._step_selected_label(-1))
+        tracking_layout.addWidget(less)
+        button = _SplitMenuButton(tr("Edit Label / Time"), tracking)
+        button.setObjectName("MakeMasksEditLabelTime")
+        button.setCheckable(True)
+        button.setMinimumHeight(32)
+        button.setToolTip(tr("Select a cell, then hover and scroll to trace it. Names are editable; "
+                             "pixel labels remain numeric."))
+        button.clicked.connect(lambda: self._set_mode(MODE_LABEL_TIME))
+        tracking_layout.addWidget(button)
+        more = QToolButton(tracking)
+        more.setText("+")
+        more.setObjectName("MakeMasksLabelIncrease")
+        more.setToolTip(tr("Increase selected label (Ctrl+])"))
+        more.clicked.connect(lambda: self._step_selected_label(1))
+        tracking_layout.addWidget(more)
+        self._btn_label_time = QPushButton(tr("Time"), group)
+        self._btn_label_time.setObjectName("MakeMasksLabelTime")
+        self._btn_label_time.setCheckable(True)
+        self._btn_label_time.setToolTip(tr(
+            "Enable time labelling and cell divisions with lineage embedded in 32-bit TIFF masks."))
+        self._btn_label_time.toggled.connect(self._toggle_label_time)
+        layout.addWidget(self._btn_label_time)
+        menu = QMenu(button)
+        menu.setObjectName("MakeMasksEditLabelMenu")
+        value_row = QWidget(menu)
+        values = QHBoxLayout(value_row)
+        self._label_value = QLineEdit("1", value_row)
+        self._label_value.setObjectName("MakeMasksSelectedLabel")
+        self._label_value.setValidator(_MaskLabelValidator(self._label_value))
+        self._label_value.setMaxLength(10)
+        self._label_value.setMaximumWidth(150)
+        self._label_value.setAccessibleName(tr("Selected object label"))
+        self._label_value.textChanged.connect(self._selected_label_changed)
+        self._label_value.editingFinished.connect(lambda: self._label_value.setText(
+            str(self._canvas.selected_label)))
+        values.addWidget(self._label_value)
+        values.addWidget(QLabel(tr("Label"), value_row))
+        action = QWidgetAction(menu)
+        action.setDefaultWidget(value_row)
+        menu.addAction(action)
+        self._build_lineage_menu(menu)
+        button.set_split_menu(menu)
+        self._label_tool_group = group
+        self._label_tracking_controls = tracking
+        self._label_tool_button = direct
+        self._label_time_tool_button = button
+        self._mode_buttons[MODE_LABEL_TIME] = button
+        row.addWidget(group)
+        return direct
+
+    def _step_selected_label(self, step):
+        """Move the editable identity within the unsigned 32-bit label range."""
+        self._label_value.setText(str(min(engine.MAX_MASK_LABEL,
+            max(0, self._canvas.selected_label + int(step)))))
+
+    def _selected_label_changed(self, text):
+        """Keep the last valid integer while its text field is being edited."""
+        if text and text.isdecimal() and int(text) <= engine.MAX_MASK_LABEL:
+            self._canvas.selected_label = int(text)
+
+    def _toggle_label_time(self, enabled):
+        """Confirm the TIFF storage contract before enabling time-only controls."""
+        from ..i18n import tr
+
+        if enabled and (self._mask_stage.session is not None or self._loading):
+            blocked = self._btn_label_time.blockSignals(True)
+            self._btn_label_time.setChecked(False)
+            self._btn_label_time.blockSignals(blocked)
+            if self._mask_stage.session is not None:
+                self._status_label.setText(tr(
+                    "Time uses a queue of 2D frames and is unavailable for 3D volumes."))
+            return
+        if enabled and not self._time_label_enabled:
+            if not self._confirm(tr("Enable Time?"), tr(
+                    "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. "
+                    "Names and ancestry are stored inside the TIFF; existing files change only "
+                    "when saved. Hover assigns the selected label, and the wheel saves edits "
+                    "before moving to each adjacent frame. Enable Time?")):
+                blocked = self._btn_label_time.blockSignals(True)
+                self._btn_label_time.setChecked(False)
+                self._btn_label_time.blockSignals(blocked)
+                return
+        self._time_label_enabled = bool(enabled)
+        if enabled:
+            if self._folder and self._lineage_scanned != self._folder:
+                merged = self._merge_sequence_lineage(
+                    self._lineage, self._folder,
+                    self._image_files[self._current_index] if self._image_files else None)
+                if merged is not None and merged != self._lineage:
+                    self._lineage = merged
+                    self._lineage_dirty = True
+                    self._refresh_lineage_rows()
+            self._set_mode(MODE_LABEL_TIME)
+        else:
+            self._cancel_label_time_navigation()
+            if self._canvas.mode == MODE_LABEL_TIME:
+                self._set_mode(MODE_EDIT_LABEL)
+        self._sync_button_states()
+
+    def _build_lineage_menu(self, menu):
+        """Show a virtual cell table and compact name/division controls."""
+        from ..i18n import tr
+        from ..widgets.sortable_table import install_sorting
+
+        controls = QWidget(menu)
+        controls.setObjectName("MakeMasksLineageControls")
+        layout = QVBoxLayout(controls)
+        name_row = QHBoxLayout()
+        self._label_name = QLineEdit("1", controls)
+        self._label_name.setObjectName("MakeMasksCellName")
+        self._label_name.setAccessibleName(tr("Cell name"))
+        self._label_name.editingFinished.connect(lambda: self._rename_lineage_cell(
+            self._selected_cell, self._label_name.text()) if self._selected_cell else None)
+        name_row.addWidget(self._label_name)
+        name_row.addWidget(QLabel(tr("Name"), controls))
+        layout.addLayout(name_row)
+        actions = QHBoxLayout()
+        add = QPushButton(tr("+ Cell"), controls)
+        add.setObjectName("MakeMasksAddCell")
+        add.setToolTip(tr("Add and select a cell (Ctrl+Shift+N)."))
+        add.clicked.connect(self._add_lineage_cell)
+        actions.addWidget(add)
+        daughters = QPushButton(tr("+ Daughter cells"), controls)
+        daughters.setObjectName("MakeMasksAddDaughters")
+        daughters.setToolTip(tr("Record a division of the selected cell (Ctrl+Shift+D)."))
+        daughters.clicked.connect(self._divide_lineage_cell)
+        actions.addWidget(daughters)
+        layout.addLayout(actions)
+        self._lineage_table = QTableView(controls)
+        self._lineage_table.setObjectName("MakeMasksLineageCells")
+        self._lineage_model = _LineageTableModel(self)
+        self._lineage_table.setModel(self._lineage_model)
+        install_sorting(self._lineage_table)
+        self._lineage_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._lineage_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._lineage_table.verticalHeader().hide()
+        self._lineage_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self._lineage_table.setMinimumWidth(460)
+        self._lineage_table.setFixedHeight(220)
+        self._lineage_table.selectionModel().currentRowChanged.connect(
+            lambda current, _previous: self._select_lineage_cell(current))
+        layout.addWidget(self._lineage_table)
+        hint = QLabel(tr("Select a cell, then hover and scroll to trace it. Names are editable; "
+                         "pixel labels remain numeric."), controls)
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        self._lineage_controls = controls
+        controls.setEnabled(False)
+        action = QWidgetAction(menu)
+        action.setDefaultWidget(controls)
+        menu.addAction(action)
+
+    def _lineage_frame(self):
+        """Identify a frame consistently across folders with repeated basenames."""
+        if not self._image_files:
+            return ""
+        return os.path.abspath(os.path.join(self._folder,
+                                            self._image_files[self._current_index]))
+
+    def _refresh_lineage_rows(self):
+        """Refresh cell values while retaining the selected persistent identity."""
+        self._lineage_model.reset_cells()
+        cells = (self._lineage or {}).get("cells", {})
+        if self._selected_cell in cells:
+            row = self._lineage_model.keys.index(self._selected_cell)
+            index = self._lineage_table.model().mapFromSource(
+                self._lineage_model.index(row, 0))
+            self._lineage_table.selectRow(index.row())
+            self._select_lineage_cell(index)
+
+    def _select_lineage_cell(self, index):
+        """Choose a persistent cell segment for subsequent hover assignments."""
+        if index.model() is self._lineage_table.model():
+            index = self._lineage_table.model().mapToSource(index)
+        if not index.isValid() or not 0 <= index.row() < len(self._lineage_model.keys):
+            return
+        self._selected_cell = self._lineage_model.keys[index.row()]
+        cell = self._lineage["cells"][self._selected_cell]
+        self._label_name.setText(cell["name"])
+        self._label_value.setText(str(self._lineage_model.labels.get(
+            self._selected_cell, cell["label"])))
+
+    def _restore_lineage_snapshot(self, snapshot):
+        """Restore metadata together with the mask selected by Undo or Redo."""
+        changed = self._lineage != snapshot[0]
+        restored, self._selected_cell = copy.deepcopy(snapshot)
+        self._lineage = (engine.restore_lineage_state(restored, self._lineage)
+                         if changed else restored)
+        if changed:
+            self._lineage_dirty = True
+            self._label_time_edited = True
+        self._refresh_lineage_rows()
+
+    def _commit_lineage_change(self, state, selected):
+        """Commit one metadata edit as one normal mask undo step."""
+        self._lineage, self._selected_cell = state, selected
+        self._lineage_dirty = True
+        self._label_time_edited = True
+        self._canvas.manual_ids = True
+        self._history.push(self._canvas.mask)
+        self._refresh_lineage_rows()
+        self._refresh_history_buttons()
+
+    def _rename_lineage_cell(self, uuid, name):
+        """Change a display name without changing pixel IDs or ancestry."""
+        if not self._time_label_enabled or self._loading or not uuid:
+            return False
+        if self._lineage["cells"][uuid]["name"] == name:
+            return True
+        try:
+            state = engine.rename_lineage_cell(self._lineage, uuid, name)
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return False
+        self._commit_lineage_change(state, uuid)
+        return True
+
+    def _free_lineage_label(self, preferred=1, excluded=()):
+        """Find a free pixel identity without allocating an array up to its value."""
+        used = set(map(int, np.unique(self._canvas.mask))) | set(excluded)
+        state = self._lineage or {}
+        frame = self._lineage_frame()
+        used.update(map(int, state.get("frames", {}).get(frame, {})))
+        used.update(int(cell["label"]) for cell in state.get("cells", {}).values()
+                    if cell.get("born_frame") == frame and not cell.get("children"))
+        value = max(1, int(preferred))
+        while value in used and value <= engine.MAX_MASK_LABEL:
+            value += 1
+        if value > engine.MAX_MASK_LABEL:
+            value = 1
+            while value in used and value <= engine.MAX_MASK_LABEL:
+                value += 1
+            if value > engine.MAX_MASK_LABEL:
+                from ..i18n import tr
+                raise ValueError(tr("No unused 32-bit label remains."))
+        return value
+
+    def _add_lineage_cell(self):
+        """Add an unplaced named cell ready for tracing in this frame."""
+        if not self._time_label_enabled or self._loading or self._canvas.mask is None:
+            return
+        try:
+            label = self._free_lineage_label(self._canvas.selected_label)
+            name = self._label_name.text().strip() if self._selected_cell is None else str(label)
+            state, uuid = engine.new_lineage_cell(
+                self._lineage, name or str(label), label, self._lineage_frame())
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return
+        self._commit_lineage_change(state, uuid)
+
+    def _divide_lineage_cell(self):
+        """Record two new daughter segments at the current frame."""
+        from ..i18n import tr
+
+        if (not self._time_label_enabled or self._loading
+                or self._selected_cell is None or self._canvas.mask is None):
+            return
+        parent = self._selected_cell
+        token = self._load_token
+        cell = self._lineage["cells"][parent]
+        try:
+            first = self._canvas.selected_label or cell["label"]
+            second = self._free_lineage_label(first + 1, (first,))
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return
+        dialog = QDialog(self)
+        dialog.setObjectName("MakeMasksDivisionDialog")
+        dialog.setWindowTitle(tr("Daughter cells"))
+        form = QFormLayout(dialog)
+        names, labels = [], []
+        for caption, name, label in ((tr("First daughter"), cell["name"], first),
+                                      (tr("Second daughter"), self._daughter_name(cell["name"]), second)):
+            row = QWidget(dialog)
+            fields = QHBoxLayout(row)
+            name_field, label_field = QLineEdit(name, row), QLineEdit(str(label), row)
+            label_field.setValidator(_MaskLabelValidator(label_field))
+            name_field.setAccessibleName(tr("Name"))
+            label_field.setAccessibleName(tr("Label"))
+            fields.addWidget(name_field)
+            fields.addWidget(label_field)
+            form.addRow(caption, row)
+            names.append(name_field)
+            labels.append(label_field)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        if (dialog.exec() != QDialog.Accepted or self._loading
+                or token != self._load_token or not self._time_label_enabled):
+            return
+        try:
+            state, children = engine.divide_lineage_cell(
+                self._lineage, parent, self._lineage_frame(),
+                [field.text() for field in names], [int(field.text()) for field in labels])
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return
+        self._commit_lineage_change(state, children[0])
+
+    def _daughter_name(self, parent_name):
+        """Propose a new editable branch name using an unbounded alphabetic suffix."""
+        used = {cell["name"] for cell in (self._lineage or {}).get("cells", {}).values()}
+        number = 1
+        while True:
+            value, suffix = number, ""
+            while value:
+                value, digit = divmod(value - 1, 26)
+                suffix = chr(ord("a") + digit) + suffix
+            candidate = parent_name + suffix
+            if candidate not in used:
+                return candidate
+            number += 1
+
+    def _prepare_label_assignment(self, point, label):
+        """Validate graph changes before any pixels or history are modified."""
+        state, selected = self._lineage, self._selected_cell
+        frame = self._lineage_frame()
+        mapping = (state or {}).get("frames", {}).get(frame, {})
+        x, y = point
+        if not 0 <= y < self._canvas.mask.shape[0] or not 0 <= x < self._canvas.mask.shape[1]:
+            return self._canvas.mask, 0, label, None
+        previous = int(self._canvas.mask[y, x])
+        if not previous:
+            return self._canvas.mask, 0, label, None
+        assigned = label
+        if self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME and label:
+            if selected is None:
+                selected = mapping.get(str(previous))
+                if selected is None:
+                    reserved = label if str(label) not in mapping else self._free_lineage_label()
+                    state, selected = engine.new_lineage_cell(
+                        state, self._label_name.text().strip() or str(label), reserved, frame)
+            changed, state, previous, assigned = engine.assign_tracked_object(
+                self._canvas.mask, x, y, state, frame, selected, preferred_label=label)
+        else:
+            changed, previous = engine.assign_object_label(self._canvas.mask, x, y, label)
+            if state is not None and str(previous) in mapping and previous != label:
+                state = engine.assign_lineage_label(
+                    state, frame, label, mapping.get(str(previous)), old_label=previous)
+        if state == self._lineage:
+            return changed, previous, assigned, None
+
+        def commit():
+            """Install validated lineage and refresh cell controls after the mask update."""
+            self._lineage, self._selected_cell = state, selected
+            self._lineage_dirty = True
+            self._label_time_edited = True
+            self._refresh_lineage_rows()
+            if label == 0:
+                self._label_value.setText("0")
+
+        return changed, previous, assigned, commit
+
+    def _edit_label_at(self, x, y, previous):
+        """Ask for an explicit identity before changing an object."""
+        from ..i18n import tr
+
+        if self._loading or self._canvas.mode != MODE_EDIT_LABEL:
+            return
+        token, mask = self._load_token, self._canvas.mask
+        value, accepted = QInputDialog.getText(
+            self, tr("Edit Label"), tr("Label (0 removes the object)"),
+            text=str(previous))
+        if (accepted and not self._loading and self._load_token == token
+                and self._canvas.mask is mask and self._canvas.mode == MODE_EDIT_LABEL):
+            if not value.strip().isdecimal():
+                self._status_label.setText(tr("Enter a non-negative whole-number label."))
+                return
+            self._canvas.assign_label_at((x, y), int(value))
+
+    def _queue_label_time_step(self, steps, point, label):
+        """Retain every wheel step with the identity and image point it used."""
+        if (self._canvas.mode != MODE_LABEL_TIME
+                or self._mask_stage.session is not None
+                or (self._loading and self._label_time_pending is None)):
+            return
+        step = -1 if int(steps) < 0 else 1
+        self._label_time_queue.extend(
+            (step, point, int(label)) for _ in range(abs(int(steps))))
+        self._drain_label_time_queue()
+
+    def _save_label_time_if_needed(self):
+        """Keep traced pixels before leaving their frame or closing the screen."""
+        if not self._label_time_edited and not self._lineage_dirty:
+            return True
+        if self._loading:
+            return False
+        mask = self._canvas.mask
+        saved = self._last_saved_mask
+        if (not self._lineage_dirty and mask is not None and saved is not None
+                and np.array_equal(mask, saved)):
+            self._label_time_edited = False
+            return True
+        if self._save_mask() is None:
+            return False
+        self._label_time_edited = False
+        return True
+
+    def _cancel_label_time_navigation(self):
+        """Discard future wheel steps without discarding current edits."""
+        self._label_time_queue.clear()
+        if self._label_time_pending is not None:
+            self._load_token += 1
+        self._label_time_pending = None
+        self._canvas.label_time_busy = False
+
+    def _drain_label_time_queue(self):
+        """Label and save one frame, then decode exactly its adjacent frame."""
+        from ..i18n import tr
+
+        if (self._loading or self._label_time_pending is not None
+                or not self._label_time_queue
+                or self._canvas.mode != MODE_LABEL_TIME):
+            return
+        step, point, label = self._label_time_queue.popleft()
+        if not self._canvas.assign_label_at(point, label):
+            self._label_time_queue.clear()
+            return
+        target = self._current_index + step
+        if not self._save_label_time_if_needed() or not self._save_boxes_if_needed():
+            self._label_time_queue.clear()
+            return
+        if not 0 <= target < len(self._image_files):
+            QTimer.singleShot(0, self._drain_label_time_queue)
+            return
+        folder = self._field_folders[target] if self._field_folders else self._folder
+        filename = self._image_files[target]
+        if engine._is_volume_file(os.path.join(folder, filename)):
+            self._label_time_queue.clear()
+            self._status_label.setText(tr("Time labelling requires a queue of 2D frames."))
+            return
+        self._load_token += 1
+        token = self._load_token
+        self._label_time_pending = {
+            "token": token, "index": target, "folder": folder,
+            "filename": filename, "point": point, "label": label}
+        self._canvas.label_time_busy = True
+        self._start_background_load(folder, filename, token)
+
+    def _take_label_time_frame(self, worker, pending):
+        """Commit a decoded adjacent frame only while its wheel request is current."""
+        from ..i18n import tr
+
+        self._label_time_pending = None
+        self._canvas.label_time_busy = False
+        state = None
+        if worker.error is None and worker.result is not None:
+            try:
+                state = self._lineage_for_loaded_frame(
+                    worker.metadata, pending["folder"], pending["filename"])
+            except ValueError as error:
+                worker.error = error
+        if worker.error is not None or worker.result is None:
+            self._label_time_queue.clear()
+            self._status_label.setText(tr(
+                "The next frame could not be loaded; current edits are kept. {error}").format(
+                    error=str(worker.error or tr("No image was returned."))))
+            return
+        self._current_index = pending["index"]
+        self._folder = pending["folder"]
+        self._apply_loaded_pair(worker.filename, worker.token, *worker.result,
+                                metadata=worker.metadata, lineage_state=state)
+        if not self._canvas.assign_label_at(pending["point"], pending["label"]):
+            self._label_time_queue.clear()
+        self._sync_queue_tally()
+        QTimer.singleShot(0, self._drain_label_time_queue)
+
     def _install_shortcuts(self):
         """Bind the keys that move through fields and undo edits.
 
@@ -15309,6 +16401,10 @@ class MakeMasksScreen(QWidget):
         _bind_screen_key(self, "Make Masks", "Ctrl+Z", self._on_undo)
         _bind_screen_key(self, "Make Masks", "Ctrl+Y", self._on_redo)
         _bind_screen_key(self, "Make Masks", "Ctrl+Shift+Z", self._on_redo)
+        _bind_screen_key(self, "Make Masks", "Ctrl+[", lambda: self._step_selected_label(-1))
+        _bind_screen_key(self, "Make Masks", "Ctrl+]", lambda: self._step_selected_label(1))
+        _bind_screen_key(self, "Make Masks", "Ctrl+Shift+N", self._add_lineage_cell)
+        _bind_screen_key(self, "Make Masks", "Ctrl+Shift+D", self._divide_lineage_cell)
         stage = self._mask_stage
         _bind_screen_key(self, "Make Masks", "PgUp", lambda: stage.step_slice(-1))
         _bind_screen_key(self, "Make Masks", "PgDown", lambda: stage.step_slice(1))
@@ -15359,6 +16455,16 @@ class MakeMasksScreen(QWidget):
 
         if mode == MODE_WAND_ERASE:
             mode = MODE_WAND_ADD
+        if mode == MODE_LABEL_TIME and not self._time_label_enabled:
+            return
+        if mode in (MODE_EDIT_LABEL, MODE_LABEL_TIME) and self._mask_stage.session is not None:
+            return
+        if mode != MODE_LABEL_TIME:
+            self._cancel_label_time_navigation()
+        if mode in (MODE_EDIT_LABEL, MODE_LABEL_TIME) and self._canvas.mask is not None:
+            self._canvas.manual_ids = True
+            self._manual_id_history[self._manual_mask_key(self._canvas.mask)] = True
+            self._canvas._lookup_dirty = True
         if mode in (MODE_BOX, MODE_RECROP) and self._mask_stage.session is not None:
             return
         if mode == MODE_BOX and self._canvas.image is None:
@@ -15380,9 +16486,9 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setText(tr("Save boxes") if mode == MODE_BOX else tr("Save mask"))
         self._refresh_history_buttons()
         self._canvas.ruler.set_active(mode == MODE_RULER)
-        if mode in (MODE_RULER, MODE_BOX, MODE_DIVIDE):
+        if mode in (MODE_RULER, MODE_BOX, MODE_DIVIDE, MODE_EDIT_LABEL, MODE_LABEL_TIME):
             self._btn_magnifier.setChecked(False)
-        if mode in (MODE_BOX, MODE_DIVIDE):
+        if mode in (MODE_BOX, MODE_DIVIDE, MODE_EDIT_LABEL, MODE_LABEL_TIME):
             self._btn_prompt.setChecked(False)
         row = getattr(self, '_shortcut_rows', {}).get('Right button')
         if row is not None:
@@ -15405,6 +16511,7 @@ class MakeMasksScreen(QWidget):
                 shortcut[1].setText(text)
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
+        self._canvas.update()
 
     def _on_brush_size_changed(self, v: int):
         """Resize the brush.
@@ -15701,6 +16808,8 @@ class MakeMasksScreen(QWidget):
         data, and a history that can be quietly tidied is not evidence of
         anything.
         """
+        if self._canvas.label_time_busy:
+            return
         if self._canvas.mode == MODE_BOX:
             self._restore_box_history(self._box_history.undo())
             return
@@ -15709,13 +16818,19 @@ class MakeMasksScreen(QWidget):
             return
         changed = self._diff(self._canvas.mask, prev)
         self._canvas.mask = prev
+        if self._canvas.mode == MODE_LABEL_TIME:
+            self._label_time_edited = True
         self._canvas.manual_ids = self._manual_id_history.get(self._manual_mask_key(prev), False)
+        if self._lineage is not None or self._lineage_format:
+            self._canvas.manual_ids = True
         self._canvas.refresh()
         self._record("undo", None, changed)
         self._refresh_history_buttons()
 
     def _on_redo(self):
         """Restore the most recently undone edit, recorded as a ``redo``."""
+        if self._canvas.label_time_busy:
+            return
         if self._canvas.mode == MODE_BOX:
             self._restore_box_history(self._box_history.redo())
             return
@@ -15724,7 +16839,11 @@ class MakeMasksScreen(QWidget):
             return
         changed = self._diff(self._canvas.mask, nxt)
         self._canvas.mask = nxt
+        if self._canvas.mode == MODE_LABEL_TIME:
+            self._label_time_edited = True
         self._canvas.manual_ids = self._manual_id_history.get(self._manual_mask_key(nxt), False)
+        if self._lineage is not None or self._lineage_format:
+            self._canvas.manual_ids = True
         self._canvas.refresh()
         self._record("redo", None, changed)
         self._refresh_history_buttons()
@@ -16359,6 +17478,217 @@ class MakeMasksScreen(QWidget):
             min_area=int(self._min_area.value()), algorithm=algorithm,
             local_k=float(self._otsu_local_k.value()), **settings), None)
 
+    def _detect_3d_on(self) -> bool:
+        """Whether detection runs on the whole open volume (the 3D switch)."""
+        toggle = getattr(self, "_detect_3d", None)
+        stage = getattr(self, "_mask_stage", None)
+        return bool(toggle is not None and toggle.isChecked() and toggle.isEnabled()
+                    and stage is not None and stage.session is not None)
+
+    def _gate_3d_rows(self, box, key: str, on: bool, supported, reason: str) -> None:
+        """Grey the rows of ``box`` that cannot run in 3D, or restore them.
+
+        :param box: the Method or Model box.
+        :param key: which of :attr:`_detect_3d_gated` remembers its rows.
+        :param on: gate (True) or restore (False).
+        :param supported: ``value -> bool``, whether a row runs in 3D.
+        :param reason: the tooltip a gated row shows, with ``{name}``.
+        """
+        gated = self._detect_3d_gated.setdefault(key, {})
+        model = box.model()
+        if not on:
+            for value, tip in gated.items():
+                index = box.findData(value)
+                item = model.item(index) if index >= 0 else None
+                if item is not None:
+                    item.setEnabled(True)
+                    box.setItemData(index, tip, Qt.ToolTipRole)
+            gated.clear()
+            return
+        for index in range(box.count()):
+            value = box.itemData(index)
+            item = model.item(index)
+            if (item is None or value in gated or not item.isEnabled()
+                    or supported(value)):
+                continue
+            gated[value] = box.itemData(index, Qt.ToolTipRole)
+            item.setEnabled(False)
+            box.setItemData(index, reason.format(name=box.itemText(index)),
+                            Qt.ToolTipRole)
+
+    def _sync_detect_3d(self) -> None:
+        """Offer the 3D switch while a volume is open; grey what is 2D only.
+
+        With the switch on, every Method row except Otsu, the named
+        thresholds and Cellpose, and every Model row of a backend that
+        segments 2-D fields only, is disabled with a tooltip saying why;
+        a 2-D-only method chosen when it is turned on gives way to Otsu.
+        Without a volume the switch is off and disabled.
+        """
+        from ..i18n import tr
+
+        toggle = getattr(self, "_detect_3d", None)
+        if toggle is None or getattr(self, "_cp_model", None) is None:
+            return
+        stage = getattr(self, "_mask_stage", None)
+        volume = stage is not None and stage.session is not None
+        if not volume and toggle.isChecked():
+            blocked = toggle.blockSignals(True)
+            toggle.setChecked(False)
+            toggle.blockSignals(blocked)
+        toggle.setEnabled(volume)
+        toggle.setToolTip(tr(
+            "Detect objects in the whole volume. Otsu and the threshold "
+            "methods cut the volume at one level and label objects connected "
+            "in 3D; Cellpose runs in 3D, or stitches its slices with a 3D "
+            "stitch threshold above 0. Methods that work on 2D fields only "
+            "are greyed while this is on.") if volume else tr(
+            "Open a 3D image to detect objects in the whole volume."))
+        on = self._detect_3d_on()
+        self._gate_3d_rows(
+            self._mag_mode, "mode", on, lambda mode: mode in _DETECT_3D_MODES,
+            tr("{name} works on 2D fields only, so it is unavailable while 3D is on."))
+        self._gate_3d_rows(
+            self._cp_model, "model", on, _model_supports_volume,
+            tr("{name} segments 2D fields only, so it is unavailable while 3D is on."))
+        stitch = getattr(self, "_cp_stitch", None)
+        if stitch is not None:
+            from ..._segmentation_backends import _STARDIST, _prefixed_backend
+
+            stitch.setEnabled(on and _prefixed_backend(
+                self._cp_model.currentData()) != _STARDIST)
+        if on and self._mag_mode.currentData() not in _DETECT_3D_MODES:
+            self._mag_mode.setCurrentIndex(self._mag_mode.findData("otsu"))
+            self._status_label.setText(tr(
+                "3D is on: the method is now Otsu, because the one chosen works on 2D fields only."))
+        self._sync_otsu_controls()
+
+    def _start_volume_detection(self, kind: str) -> bool:
+        """Detect in the open volume off the GUI thread.
+
+        :param kind: ``threshold`` for the method chosen under Object
+            detection (a model mode falls back to Otsu, as in 2-D), or
+            ``cellpose`` for the Model box's model in its 3-D mode.
+        :returns: whether a run started.
+        """
+        from ..i18n import tr
+
+        stage = self._mask_stage
+        session = stage.session
+        if self._detection_request is not None or stage.busy:
+            self._status_label.setText(tr("Wait for the current 3D operation to finish."))
+            return False
+        model = None
+        if kind == "threshold":
+            method = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+            if method not in _DETECT_3D_MODES or method == "cellpose":
+                method = "otsu"
+            settings = self._otsu_settings()
+            settings["local"] = False
+            if method == cpu_modes.MULTIOTSU:
+                settings["classes"] = max(3, int(settings["classes"]))
+            elif method in cpu_modes.THRESHOLD_LABELS:
+                settings.update(classes=2, foreground_class=1)
+            parameters = dict(
+                bright=bool(self._otsu_bright.isChecked()),
+                min_area=int(self._min_area.value()),
+                algorithm=cpu_modes.engine_algorithm(
+                    method if method in cpu_modes.THRESHOLD_LABELS else "otsu"),
+                local_k=float(self._otsu_local_k.value()), **settings)
+            label = _magnifier_mode_label(method)
+        else:
+            method = "cellpose"
+            model = self._cp_model.currentData() or "cpsam"
+            if not _model_supports_volume(model):
+                self._status_label.setText(tr(
+                    "{model} segments 2D fields only. Choose a Cellpose or StarDist 3D model, or turn 3D off.",
+                    model=model))
+                return False
+            x, y, z = session.xyz_spacing
+            parameters = dict(
+                diameter=int(self._cp_diameter.value()),
+                normalize=bool(self._cp_normalize.isChecked()),
+                flow_threshold=float(self._cp_flow.value()),
+                cellprob_threshold=float(self._cp_cellprob.value()),
+                min_size=self._detect_min_area(),
+                stitch_threshold=float(self._cp_stitch.value()),
+                anisotropy=float(z) / float((x + y) / 2.0))
+            label = model
+        request = dict(
+            volume=True, kind=kind, image=session.image, axes=session.axes,
+            session=session, mask=session.mask.copy(), model=model,
+            parameters=parameters, invert=bool(self._cp_invert.isChecked()),
+            percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+            if self._canvas.detect_on_normalized else None,
+            mode=self._combine_mode.currentData(), method=method, label=label)
+        self._detection_request = request
+        self._btn_cellpose.setEnabled(False)
+        self._btn_otsu.setEnabled(False)
+        self._status_label.setText(tr("{method} running on the whole volume…", method=label))
+        if self._volume_detection_worker is None:
+            self._volume_detection_worker = _NewestRequestWorker(
+                partial(_detect_volume_snapshot, models=self._cp_loaded),
+                self._detection_done, name="spacr-volume-detection")
+        self._volume_detection_worker.submit(request)
+        return True
+
+    def _take_volume_detection(self, request, labels, error) -> None:
+        """Fold a finished volume detection into the volume mask as one undo step."""
+        from ..i18n import tr
+
+        self._btn_otsu.setEnabled(True)
+        stage = self._mask_stage
+        session = stage.session
+        if session is not request["session"] or not np.array_equal(request["mask"], session.mask):
+            self._status_label.setText(tr(
+                "Detection result discarded because the volume or its mask changed. Run detection again."))
+            return
+        if error is not None:
+            self._status_label.setText(tr("Object detection failed"))
+            details = str(error)
+            messages = {
+                "The 3D stitch threshold must be finite and between 0 and 1.": tr(
+                    "The 3D stitch threshold must be finite and between 0 and 1."),
+                "The installed Cellpose 3 cannot accept 3D stitching settings": tr(
+                    "The installed Cellpose 3 cannot accept 3D stitching settings"),
+                "Cellpose 3 needs finite volume intensities": tr(
+                    "Cellpose 3 needs finite volume intensities"),
+                "The selected model does not support native 3D detection.": tr(
+                    "The selected model does not support native 3D detection."),
+                "The installed Cellpose 3 cannot accept native 3D axis and spacing settings": tr(
+                    "The installed Cellpose 3 cannot accept native 3D axis and spacing settings"),
+                "3D model anisotropy must be positive and finite.": tr(
+                    "3D model anisotropy must be positive and finite."),
+                "Cellpose 3 needs explicit distinct spatial and channel axes for a volume": tr(
+                    "Cellpose 3 needs explicit distinct spatial and channel axes for a volume"),
+                "Cellpose 3 returned invalid integer labels for a volume": tr(
+                    "Cellpose 3 returned invalid integer labels for a volume"),
+                "The detected labels do not match the volume.": tr(
+                    "The detected labels do not match the volume."),
+            }
+            for source, translated in messages.items():
+                details = details.replace(source, translated)
+            self._warn(tr("Object detection failed"), details)
+            return
+        found = _object_count(labels)
+        if not found:
+            self._status_label.setText(tr(
+                "{method} found no objects in the volume — the mask is unchanged.",
+                method=request["label"]))
+            return
+        try:
+            changed = session.replace_labels(
+                engine.combine_masks(session.mask, labels, request["mode"]))
+        except ValueError as exc:
+            self._warn(tr("Object detection failed"), str(exc))
+            return
+        if changed:
+            stage.dirty = True
+        stage.refresh()
+        self._status_label.setText(tr(
+            "{method} found {n} object(s) in 3D — {combine}d into the volume mask. Ctrl+Z undoes it.",
+            method=request["label"], n=found, combine=request["mode"]))
+
     def _on_detect_otsu(self):
         """Detect on the whole image and fold the result in per replace/merge.
 
@@ -16376,6 +17706,9 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if self._detect_3d_on():
+            self._start_volume_detection("threshold")
+            return
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
@@ -16550,30 +17883,44 @@ class MakeMasksScreen(QWidget):
 
         Both tabs stay ENABLED before Cellpose has run, unlike the
         standalone tool's, because a disabled tab cannot be opened to
-        read the one sentence that explains why it is empty.
+        read the one sentence that explains why it is empty. The picture
+        panes can shrink vertically so wrapped button bars keep their
+        full height on a laptop screen.
         """
         tabs = QTabWidget()
         tabs.setObjectName("MakeMasksViewTabs")
+        controls = QWidget()
+        controls.setObjectName("MakeMasksViewControls")
+        controls_row = QHBoxLayout(controls)
+        controls_row.setContentsMargins(SPACING["sm"], 0, 0, 0)
+        controls_row.setSpacing(SPACING["xs"])
+        controls_row.addWidget(self._btn_reset_zoom, 0, Qt.AlignTop)
+        controls_row.addWidget(self._btn_ruler, 0, Qt.AlignTop)
+        tabs.setTabBar(_ImageViewTabBar(controls))
         self._mask_stage = _VolumeStage(self._canvas, self)
         tabs.addTab(self._mask_stage, "Mask")
         tabs.setCornerWidget(self._mask_stage.view_picker, Qt.TopLeftCorner)
         self._prob_pane = _FlowPane()
         self._flow_pane = _FlowPane()
+        for pane in (self._canvas, self._prob_pane, self._flow_pane):
+            pane.setMinimumHeight(1)
         self._tab_prob = tabs.addTab(self._prob_pane, "Cell probability")
         self._tab_flow = tabs.addTab(self._flow_pane, "Flows")
-        tabs.tabBar().setTabButton(self._tab_flow, QTabBar.RightSide,
-                                   self._build_queue_tally())
+        tabs.setCornerWidget(controls, Qt.TopRightCorner)
+        tabs.setStyleSheet(
+            "QTabWidget#MakeMasksViewTabs::right-corner {"
+            " subcontrol-position: top right; }")
+        self._view_controls = controls
         self._view_tabs = tabs
         return tabs
 
     def _build_queue_tally(self) -> QWidget:
-        """The editable ``index / total`` beside the Flows tab (item 685).
+        """The editable ``index / total`` and filename below the image.
 
         Typing a 1-based position and pressing Enter opens that image. A
         number outside the queue, or text that is not a number, puts the
         current position back and leaves the image on screen as it was.
-        Reset zoom and the Ruler sit directly right of it, at the top left
-        of the image.
+        The footer stays outside the pixels and above the IO buttons.
         """
         from ..i18n import tr
 
@@ -16595,8 +17942,11 @@ class MakeMasksScreen(QWidget):
         row.addWidget(self._tally_index)
         row.addWidget(self._tally_total)
         row.addSpacing(SPACING["sm"])
-        row.addWidget(self._btn_reset_zoom)
-        row.addWidget(self._btn_ruler)
+        self._tally_filename = ElidingLabel()
+        self._tally_filename.setObjectName("MakeMasksQueueFilename")
+        self._tally_filename.setSizePolicy(QSizePolicy.Ignored,
+                                           QSizePolicy.Preferred)
+        row.addWidget(self._tally_filename, 1)
         self._tally_layout = row
         return tally
 
@@ -16691,28 +18041,18 @@ class MakeMasksScreen(QWidget):
         index_edit.setText(str(current))
         index_edit.setEnabled(total > 0)
         self._tally_total.setText(f"/{total}")
-        self._canvas.set_field_label(self._field_overlay_text(current, total))
+        files = self._image_files or []
+        name = ""
+        if files:
+            index = min(max(self._current_index, 0), len(files) - 1)
+            folder = (self._field_folders[index] if self._field_folders
+                      else self._folder or "")
+            name = self._blind_label(os.path.join(folder, files[index]))
+        self._tally_filename.setToolTip("")
+        self._tally_filename.setText(name)
         first = getattr(self, "_btn_first_unreviewed", None)
         if first is not None:
             first.setEnabled(total > 0 and not getattr(self, "_loading", False))
-
-    def _field_overlay_text(self, current: int, total: int) -> str:
-        """The text painted on the image: index first, then the name.
-
-        ``"12 / 240 · name.tif"``; a blinded session shows the field's code
-        instead of its name.
-
-        :param current: the 1-based position shown in the counter, 0 for none.
-        :param total: the queue's length as the counter shows it.
-        :returns: the text, or "" when no field is open.
-        """
-        files = self._image_files or []
-        if not files or not total:
-            return ""
-        index = min(max(self._current_index, 0), len(files) - 1)
-        name = self._blind_label(os.path.join(self._folder or "",
-                                              files[index]))
-        return f"{current} / {total} · {name}"
 
     def _on_tally_entered(self) -> bool:
         """Open the image whose 1-based position was typed in the tally.
@@ -16975,7 +18315,15 @@ class MakeMasksScreen(QWidget):
                        fold_key=MAKE_MASKS_TOP_BAR_FOLD_KEY,
                        hint="Hides the tools and the Keep, Skip and "
                             "Discard buttons above the image.")
-        image.add_pane(self._body_stack, "Image", stretch=1, extent=600)
+        image_body = QWidget()
+        image_body.setObjectName("MakeMasksImageBody")
+        image_layout = QVBoxLayout(image_body)
+        image_layout.setContentsMargins(0, 0, 0, 0)
+        image_layout.setSpacing(SPACING["xs"])
+        image_layout.addWidget(self._body_stack, 1)
+        self._image_footer = self._build_queue_tally()
+        image_layout.addWidget(self._image_footer)
+        image.add_pane(image_body, "Image", stretch=1, extent=600)
         image.add_pane(self._bottom_bar, "Bottom bar", mode=EDGE, stretch=0,
                        fold_key=MAKE_MASKS_BOTTOM_BAR_FOLD_KEY,
                        hint="Hides the IO and navigation buttons below the "
@@ -16988,10 +18336,6 @@ class MakeMasksScreen(QWidget):
         views_col.setContentsMargins(0, 0, 0, 0)
         views_col.setSpacing(SPACING["sm"])
         views_col.addWidget(image, 1)
-        self._image_nav_row = QHBoxLayout()
-        self._image_nav_row.setContentsMargins(0, 0, 0, 0)
-        self._image_nav_row.setSpacing(SPACING["sm"])
-        views_col.addLayout(self._image_nav_row)
         pane.add_pane(views, "Views", stretch=1, extent=900)
         pane.add_pane(column, "Shortcuts", mode=EDGE, stretch=0,
                       extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
@@ -17112,6 +18456,7 @@ class MakeMasksScreen(QWidget):
         settings are toggled away.
         """
         from ...settings import cellpose_model_choices
+        from ..i18n import tr
 
         #: Loaded models, by the name that was asked for. Loading cpsam
         #: costs seconds and hundreds of megabytes, and a segmentation
@@ -17192,11 +18537,25 @@ class MakeMasksScreen(QWidget):
         self._cp_diameter.setSingleStep(5)
         self._cp_diameter.setValue(0)
         self._cp_diameter.setToolTip(
-            "Expected object diameter in pixels; 0 lets Cellpose work it "
-            "out. It is the one pre-SAM sizing setting Cellpose 4 still "
-            "honours — it rescales the image by 30/diameter — so it is the "
-            "control to reach for when objects come out split or fused.")
+            "Expected object diameter in pixels; 0 lets Cellpose estimate "
+            "it. It is the only pre-SAM sizing setting that Cellpose 4 still "
+            "uses, and it rescales the image by 30/diameter. Adjust it when "
+            "objects are split or fused.")
         form.addRow("Diameter (px)", self._cp_diameter)
+
+        self._cp_stitch = QDoubleSpinBox()
+        self._cp_stitch.setObjectName("MakeMasksCellposeStitch")
+        self._cp_stitch.setDecimals(2)
+        self._cp_stitch.setRange(0.0, 1.0)
+        self._cp_stitch.setSingleStep(0.05)
+        self._cp_stitch.setValue(0.0)
+        self._cp_stitch.setToolTip(tr(
+            "Read only while 3D is on. 0 runs Cellpose in full 3D (do_3D), "
+            "which segments the volume from all three views and uses the "
+            "voxel size. Above 0, each slice is segmented in 2D and objects "
+            "overlapping by at least this IoU in neighbouring slices are "
+            "joined into one object."))
+        form.addRow(tr("3D stitch threshold"), self._cp_stitch)
 
         card.body_layout.addLayout(form)
 
@@ -17739,6 +19098,14 @@ class MakeMasksScreen(QWidget):
         form.addRow("Method", self._mag_mode)
         card.body_layout.addLayout(form)
 
+        self._detect_3d = Toggle(tr("3D"))
+        self._detect_3d.setObjectName("MakeMasksDetect3D")
+        self._detect_3d.setEnabled(False)
+        self._detect_3d.setToolTip(tr("Open a 3D image to detect objects in the whole volume."))
+        self._detect_3d.toggled.connect(lambda _on: self._sync_detect_3d())
+        self._detect_3d_gated = {}
+        card.body_layout.addWidget(self._detect_3d)
+
         self._method_note = QLabel()
         self._method_note.setWordWrap(True)
         card.body_layout.addWidget(self._method_note)
@@ -17821,14 +19188,11 @@ class MakeMasksScreen(QWidget):
         that saved it still restores and runs it; it only cannot be chosen.
         """
         index = self._mag_mode.findData("mitonet")
-        if index < 0:
-            return
         hidden = not _mitonet_visible()
         self._mag_mode.view().setRowHidden(index, hidden)
         item = self._mag_mode.model().item(index)
-        if item is not None:
-            item.setEnabled(not hidden)
-            item.setSelectable(not hidden)
+        item.setEnabled(not hidden)
+        item.setSelectable(not hidden)
 
     @staticmethod
     def _mode_family(mode: str) -> str:
@@ -18796,21 +20160,20 @@ class MakeMasksScreen(QWidget):
         mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
         multi = mode == cpu_modes.MULTIOTSU
         plain = mode == "otsu"
+        three_d = self._detect_3d_on()
         window_family = mode in ("sauvola", "niblack")
         if multi and int(self._otsu_classes.value()) < 3:
             self._otsu_classes.setValue(3)
         self._otsu_local_k.setEnabled(window_family)
-        self._otsu_local.setEnabled(plain)
+        self._otsu_local.setEnabled(plain and not three_d)
         self._otsu_local_k_label.setVisible(window_family)
         self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked()) and plain
+        local = bool(self._otsu_local.isChecked()) and plain and not three_d
         bands = (plain or multi) and not local
         self._otsu_classes.setEnabled(bands)
         self._otsu_foreground.setEnabled(bands and classes > 2)
         self._otsu_foreground.setRange(0, max(1, classes - 1))
-        if classes > 2 and self._otsu_foreground.value() > classes - 1:
-            self._otsu_foreground.setValue(classes - 1)
         self._otsu_window.setEnabled(local or window_family)
         self._otsu_bright.setEnabled(not bands or classes == 2)
 
@@ -18831,7 +20194,8 @@ class MakeMasksScreen(QWidget):
         their values for a later return to Otsu or Multi-Otsu.
         """
         mode = canonical_magnifier_mode(self._magnifier.mode)
-        local = bool(self._otsu_local.isChecked()) and mode == "otsu"
+        local = (bool(self._otsu_local.isChecked()) and mode == "otsu"
+                 and not self._detect_3d_on())
         bands = mode in ("otsu", cpu_modes.MULTIOTSU) and not local
         return {
             "correction": float(self._otsu_correction.value()),
@@ -18957,6 +20321,7 @@ class MakeMasksScreen(QWidget):
             combo.setCurrentIndex(back)
             return
         self._cp_last_model = index
+        self._sync_detect_3d()
 
     def _on_model_activated(self, index: int) -> None:
         """A person chose a Model row: download it if it is not here yet."""
@@ -19224,6 +20589,9 @@ class MakeMasksScreen(QWidget):
 
         if self._detection_request is not None:
             return
+        if self._detect_3d_on():
+            self._start_volume_detection("cellpose")
+            return
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(tr("Open a folder before running Object detection."))
             return
@@ -19271,6 +20639,9 @@ class MakeMasksScreen(QWidget):
             return
         self._detection_request = None
         self._btn_cellpose.setEnabled(True)
+        if request.get('volume'):
+            self._take_volume_detection(request, result, error)
+            return
         if (request['token'] != self._load_token
                 or request['image_reference'] is not self._canvas.image
                 or not np.array_equal(request['image'], self._canvas.image, equal_nan=True)
@@ -19647,9 +21018,8 @@ class MakeMasksScreen(QWidget):
                 hidden = _prefixed_alpha_hidden(backend, model)
                 combo.view().setRowHidden(index, hidden)
                 item = combo.model().item(index)
-                if item is not None:
-                    item.setEnabled(not hidden)
-                    item.setSelectable(not hidden)
+                item.setEnabled(not hidden)
+                item.setSelectable(not hidden)
         gate = getattr(self, "_gate_mitonet_mode", None)
         if callable(gate):
             gate()
@@ -20419,9 +21789,9 @@ class MakeMasksScreen(QWidget):
     def _build_organize_button(self) -> QPushButton:
         """The "Measure…" button in IO (it was "Organize for Measure…").
 
-        A split button: pressing it opens the 2D section, the "Organize for
-        Measure" popup that puts images and masks into the layout Measure
-        reads. Its arrow opens :attr:`_measure_menu`, one entry per section.
+        A split button: pressing it measures the open 3D image or opens the
+        2D "Organize for Measure" popup. Its arrow opens
+        :attr:`_measure_menu`, one entry per section.
         :meth:`_add_measure_section` is the extension point a further section
         (a 3D one) is added through.
         """
@@ -20431,11 +21801,8 @@ class MakeMasksScreen(QWidget):
         button.setObjectName("MakeMasksOrganizeButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setToolTip(tr(
-            "Put images and their masks into the layout Measure reads: one "
-            "popup with the source folder, Mask generation's regex options "
-            "and a table with a column per channel and per mask, which takes "
-            "dropped files and folders. Apply moves them into Yokogawa-named "
-            "channel folders and merges them into merged/."))
+            "Measure the current 3D image and its edited labels, or organize "
+            "2D images and masks for Measure. Use the arrow to choose a section."))
         button.clicked.connect(lambda _checked=False: self._on_organize())
         menu = QMenu(button)
         menu.setObjectName("MakeMasksMeasureMenu")
@@ -20445,8 +21812,20 @@ class MakeMasksScreen(QWidget):
         self._btn_organize = button
         self._add_measure_section(
             tr("Organize images and masks for Measure (2D)…"),
-            lambda: self._on_organize(), object_name="MakeMasksMeasure2D",
-            tooltip=button.toolTip())
+            lambda: self._open_organize(
+                self._folder if self._folder and not self._field_folders else "",
+                masks_dir=self._masks_dir), object_name="MakeMasksMeasure2D",
+            tooltip=tr(
+                "Put images and their masks into the layout Measure reads: one "
+                "popup with the source folder, Mask generation's regex options "
+                "and a table with a column per channel and per mask, which takes "
+                "dropped files and folders. Apply moves them into Yokogawa-named "
+                "channel folders and merges them into merged/."))
+        self._act_measure_volume = self._add_measure_section(
+            tr("Measure current 3D image…"), self._on_measure_volume,
+            object_name="MakeMasksMeasure3D", tooltip=tr(
+                "Measure current edited 3D labels, add channel files and image sets, "
+                "and save measurements in each image folder."))
         return button
 
     def _add_measure_section(self, label: str, callback, *, tooltip: str = "",
@@ -20602,8 +21981,79 @@ class MakeMasksScreen(QWidget):
 
         :returns: the dialog.
         """
+        if self._mask_stage.session is not None:
+            return self._on_measure_volume()
         folder = self._folder if self._folder and not self._field_folders else ""
         return self._open_organize(folder, masks_dir=self._masks_dir)
+
+    def _on_measure_volume(self):
+        """Configure measurements of the current edited volume and added image sets."""
+        from ..i18n import tr
+        from ..widgets.organize_for_measure import MeasureVolumeDialog
+
+        stage = self._mask_stage
+        if stage.session is None:
+            self._warn(tr("Measure 3D images"), tr("Open a 3D image before measuring."))
+            return None
+        if stage.busy or self._volume_measure_running:
+            self._warn(tr("Busy"), tr("Wait for the current 3D operation to finish."))
+            return None
+        dialog = MeasureVolumeDialog(
+            stage.session.source_path, self, spacing=stage.session.spacing,
+            axes=stage.session.axes, unit=stage.session.unit)
+        self._volume_measure_dialog = dialog
+        if self._run_organize(dialog):
+            self._start_volume_measurement(dialog.requests(), dialog.object_type.currentData())
+        return dialog
+
+    def _start_volume_measurement(self, rows, object_type="cell"):
+        """Snapshot the edited labels and measure image sets off the GUI thread."""
+        from ..i18n import tr
+
+        session = self._mask_stage.session
+        if self._volume_measure_running or self._mask_stage.busy:
+            self._warn(tr("Busy"), tr("Wait for the current 3D operation to finish."))
+            return False
+        if (session is None or not rows
+                or os.path.abspath(rows[0]["source_path"]) != os.path.abspath(session.source_path)):
+            self._warn(tr("Measure 3D images"), tr("The current 3D image changed. Open Measure again."))
+            return False
+        requests = [dict(row) for row in rows]
+        requests[0]["snapshot"] = {
+            "channels": tuple(session.channels), "mask": session.mask.copy(),
+            "axes": session.axes, "spacing": tuple(session.spacing), "unit": session.unit,
+        }
+        post = self._masks_console.post
+
+        def measure(request):
+            """Measure the captured image sets and report committed database paths."""
+            from ...measure import measure_volume_rows
+            return measure_volume_rows(request[0], object_type=request[1], progress=post)
+
+        if self._volume_measure_worker is None:
+            self._volume_measure_worker = _NewestRequestWorker(
+                measure, lambda request, result, error: self._volume_measure_delivered.emit(
+                    (result, error)), name="spacr-volume-measure")
+        self._volume_measure_running = True
+        self._sync_button_states()
+        self._status_label.setText(tr("Measuring {n} 3D image set(s)…", n=len(requests)))
+        self._volume_measure_worker.submit((requests, object_type), pin=True)
+        return True
+
+    def _take_volume_measurement(self, payload):
+        """Report committed databases or the measurement error on the GUI thread."""
+        from ..i18n import tr
+
+        result, error = payload
+        self._volume_measure_running = False
+        self._sync_button_states()
+        if error is not None:
+            self._warn(tr("3D measurement failed"), str(error))
+            return
+        message = tr("Measured {objects} object(s) in {images} 3D image set(s).",
+                     objects=result["objects"], images=result["images"])
+        self._status_label.setText(message)
+        self._masks_console.post(message)
 
     def _open_organize(self, source: str = "", channel_folders=None,
                        masks_dir: Optional[str] = None):
@@ -20883,9 +22333,15 @@ class MakeMasksScreen(QWidget):
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
             return False
-        if not self._volume_leave_ok() or not self._save_boxes_if_needed():
+        if (not self._save_label_time_if_needed() or not self._volume_leave_ok()
+                or not self._save_boxes_if_needed()):
             return False
         self._leave_blind_unopened("another folder was opened")
+        self._lineage = None
+        self._lineage_scanned = None
+        self._selected_cell = None
+        self._lineage_dirty = False
+        self._lineage_format = False
         self._queue = None
         self._session_notice = ""
         self._masks_dir = masks_dir
@@ -20907,6 +22363,7 @@ class MakeMasksScreen(QWidget):
 
     def _load_current(self):
         """Show the current field and whatever mask it already has."""
+        self._cancel_label_time_navigation()
         self._sync_queue_tally()
         if not self._image_files:
             return
@@ -20993,12 +22450,18 @@ class MakeMasksScreen(QWidget):
         self._load_worker = None
         self._loading = False
         if worker.token == self._load_token:
-            if worker.error is not None:
+            label_pending = self._label_time_pending
+            if label_pending is not None and label_pending["token"] == worker.token:
+                self._take_label_time_frame(worker, label_pending)
+            elif worker.error is not None:
                 self._handle_load_failure(worker.error)
             elif worker.result is not None:
-                self._apply_loaded_pair(
-                    worker.filename, worker.token, *worker.result
-                )
+                try:
+                    self._apply_loaded_pair(
+                        worker.filename, worker.token, *worker.result,
+                        metadata=worker.metadata)
+                except ValueError as error:
+                    self._handle_load_failure(error)
         _retire_worker(worker)
         pending, self._pending_load = self._pending_load, None
         if pending is not None:
@@ -21027,6 +22490,16 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if self._volume_measure_running:
+            from ..i18n import tr
+            self._warn(tr("Measurements are running"), tr(
+                "Wait for the 3D measurements to finish writing before closing Make Masks."))
+            event.ignore()
+            return
+        if not self._save_label_time_if_needed():
+            event.ignore()
+            return
+        self._cancel_label_time_navigation()
         if not self._volume_leave_ok() or not self._save_boxes_if_needed():
             event.ignore()
             return
@@ -21054,6 +22527,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.close_wand()
         self._canvas.close_lookup()
         self._cancel_comparison()
+        if self._volume_measure_worker is not None:
+            self._volume_measure_worker.close(timeout=0)
         if self._comparison_worker is not None:
             self._comparison_worker.close(timeout=0)
         self.close_folded()
@@ -21100,10 +22575,48 @@ class MakeMasksScreen(QWidget):
         try:
             image, mask = engine.load_image_and_mask(
                 folder, filename, **self._layout_kwargs())
+            metadata = engine.load_mask_metadata(folder, filename, **self._layout_kwargs())
+            self._apply_loaded_pair(filename, token, image, mask, metadata=metadata)
         except Exception as exc:
             self._handle_load_failure(exc)
             return
-        self._apply_loaded_pair(filename, token, image, mask)
+
+    def _lineage_for_loaded_frame(self, metadata, folder, filename):
+        """Merge valid embedded snapshots before replacing the visible frame."""
+        incoming = (metadata or {}).get("lineage")
+        if self._lineage is None and incoming is None:
+            return None
+        state = engine.merge_lineage_states(self._lineage, incoming,
+            frame=os.path.abspath(os.path.join(folder, filename)))
+        if self._lineage_scanned != folder:
+            state = self._merge_sequence_lineage(state, folder, filename)
+        return state
+
+    def _merge_sequence_lineage(self, state, folder, skip=None):
+        """Merge the lineage embedded in every queued mask of ``folder`` once.
+
+        A division or name saved in a later frame is then known as soon as
+        the sequence is reopened at any frame, from the TIFFs alone.
+        """
+        from ..i18n import tr
+
+        self._lineage_scanned = folder
+        skipped = 0
+        for name in self._image_files:
+            if name == skip:
+                continue
+            try:
+                incoming = engine.load_mask_metadata(
+                    folder, name, **self._layout_kwargs()).get("lineage")
+                if incoming is not None:
+                    state = engine.merge_lineage_states(
+                        state, incoming, frame=os.path.abspath(os.path.join(folder, name)))
+            except (ValueError, OSError):
+                skipped += 1
+        if skipped:
+            self._status_label.setText(tr(
+                "Lineage in {n} mask file(s) could not be read and was skipped.", n=skipped))
+        return state
 
     def _handle_load_failure(self, error: Exception) -> None:
         """Clear stale canvas state and visibly report an image-load error."""
@@ -21144,6 +22657,9 @@ class MakeMasksScreen(QWidget):
         token: int,
         image: np.ndarray,
         mask: np.ndarray,
+        *,
+        metadata=None,
+        lineage_state=...,
     ) -> None:
         """Install a decoded pair if it still represents the selected field.
 
@@ -21154,6 +22670,16 @@ class MakeMasksScreen(QWidget):
         """
         if token != self._load_token:
             return
+        if metadata is None:
+            metadata = engine.load_mask_metadata(self._folder, filename, **self._layout_kwargs())
+        if lineage_state is ...:
+            lineage_state = self._lineage_for_loaded_frame(metadata, self._folder, filename)
+        self._lineage = lineage_state
+        self._lineage_format = bool(metadata.get("lineage") is not None)
+        self._lineage_dirty = lineage_state != metadata.get("lineage")
+        if self._selected_cell not in (self._lineage or {}).get("cells", {}):
+            self._selected_cell = None
+        self._label_time_edited = False
         self._canvas.preserve_ids = False
         self._paired_source = None
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
@@ -21178,6 +22704,10 @@ class MakeMasksScreen(QWidget):
         key = self._manual_mask_key(mask)
         self._canvas.manual_ids = bool(manual.get('manual_ids')
                                       and manual.get('manual_mask_sha256') == key)
+        if (metadata.get("preserve_ids") or self._lineage is not None
+                or mask.dtype == np.uint32
+                or self._canvas.mode in (MODE_EDIT_LABEL, MODE_LABEL_TIME)):
+            self._canvas.manual_ids = True
         self._manual_id_history = {key: self._canvas.manual_ids}
         self._canvas._lookup = None
         self._canvas._lookup_dirty = True
@@ -21192,7 +22722,7 @@ class MakeMasksScreen(QWidget):
                                           engine.mask_save_path(self._folder, filename, **self._layout_kwargs()))
         if record:
             self._primary_selector.restore_source(record)
-        self._status_label.setText(
+        self._status_label.set_summary(
             f"{self._blind_label(os.path.join(self._folder or '', filename))}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
@@ -21200,6 +22730,7 @@ class MakeMasksScreen(QWidget):
         self._refresh_curation_buttons()
         self._show_session_notice()
         self._magnifier.refresh()
+        self._refresh_lineage_rows()
 
     def _open_ledger(self, filename: str) -> CurationLog:
         """The ledger for one field, ready to be appended to.
@@ -21399,6 +22930,8 @@ class MakeMasksScreen(QWidget):
         """
         loaded = self._loaded_mask
         mask = self._canvas.mask
+        if self._lineage_dirty or (self._time_label_enabled and not self._lineage_format):
+            return False
         if loaded is None or mask is None or not self._loaded_from_save_path:
             return False
         path = engine.mask_save_path(
@@ -21409,6 +22942,8 @@ class MakeMasksScreen(QWidget):
 
     def _save_mask_if_needed(self) -> bool:
         """Save edited mask pixels before navigation when the user opted in."""
+        if not self._save_label_time_if_needed():
+            return False
         if self._mask_stage.session is not None:
             return self._volume_leave_ok()
         if not self._btn_save_on_navigation.isChecked():
@@ -21499,6 +23034,11 @@ class MakeMasksScreen(QWidget):
             return path
         preserve_ids = self._canvas.retain_label_ids()
         try:
+            lineage = (engine.prune_lineage_frame(self._lineage, self._lineage_frame(),
+                                                  self._canvas.mask)
+                       if self._time_label_enabled or self._lineage_format or self._lineage is not None
+                       else None)
+            preserve_ids = bool(preserve_ids or lineage is not None)
             self._validate_secondary_save()
             path = engine.save_mask(
                 self._folder,
@@ -21506,6 +23046,7 @@ class MakeMasksScreen(QWidget):
                 self._canvas.mask,
                 log=self._log,
                 preserve_ids=preserve_ids,
+                lineage=lineage,
                 **self._layout_kwargs(),
             )
         except Exception as e:
@@ -21522,6 +23063,10 @@ class MakeMasksScreen(QWidget):
         self._save_puncta_measurements(path)
         self._export_vvvv_on_save()
         self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+        self._lineage = lineage
+        self._lineage_format = lineage is not None
+        self._lineage_dirty = False
+        self._refresh_lineage_rows()
         return path
 
     def _save_puncta_measurements(self, mask_path):
@@ -21753,6 +23298,8 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mask is None:
             return
         edit = self._canvas.last_edit or {}
+        if self._canvas.mode == MODE_LABEL_TIME:
+            self._label_time_edited = True
         self._record(str(edit.get("kind") or "paint"), edit.get("target"),
                       self._pixels_changed(self._canvas.mask),
                       **dict(edit.get("detail") or {}))
@@ -21781,9 +23328,26 @@ class MakeMasksScreen(QWidget):
         self._btn_export_yolo.setEnabled(editable and self._blind is None
                                         and self._box_load_error is None)
         volume = self._mask_stage.session is not None
+        self._act_measure_volume.setEnabled(
+            editable and volume and not self._volume_measure_running)
+        self._btn_label_time.setEnabled(has_files and not volume
+            and (not self._loading or self._time_label_enabled))
+        if volume:
+            from ..i18n import tr
+            self._btn_label_time.setToolTip(tr(
+                "Time uses a queue of 2D frames and is unavailable for 3D volumes."))
+        else:
+            from ..i18n import tr
+            self._btn_label_time.setToolTip(tr(
+                "Enable time labelling and cell divisions with lineage embedded in 32-bit TIFF masks."))
         self._mode_buttons[MODE_BOX].setEnabled(
             editable and self._box_load_error is None and not volume)
         self._btn_recrop.setEnabled(editable and not volume)
+        self._mode_buttons[MODE_EDIT_LABEL].setEnabled(editable and not volume)
+        self._label_tool_group.setEnabled(has_files and not volume)
+        self._label_tracking_controls.setEnabled(editable and self._time_label_enabled and not volume)
+        self._lineage_controls.setEnabled(editable and self._time_label_enabled and not volume)
+        self._sync_detect_3d()
         self._sync_queue_tally()
 
 

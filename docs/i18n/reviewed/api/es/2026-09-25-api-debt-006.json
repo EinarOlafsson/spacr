@@ -1605,18 +1605,28 @@
     {
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "MT draft edited in AI review",
       "source": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
-      "translation": "Lo que ofrece el cuadro de modelos de placas: modelos de placas del zoo y, después, ``bundled``."
+      "translation": "Lo que ofrece el cuadro de modelos de placas: modelos de placas del zoo y, después, ``bundled``.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "setting values, newest zoo model first.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "MT draft edited in AI review",
       "source": "setting values, newest zoo model first.",
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
-      "translation": "valores de ajuste, con el modelo del zoo más reciente primero."
+      "translation": "valores de ajuste, con el modelo del zoo más reciente primero.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Plaque mode on one image: segment it and count what was found.",
@@ -4749,6 +4759,8 @@
     {
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "review_basis": "MT draft edited in AI review",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",

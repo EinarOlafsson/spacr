@@ -222,12 +222,18 @@ def main() -> int:
         "canvas": screen._canvas,
     })
 
-    screen._on_undo()
+    screen._canvas.setFocus()
+    window._edit_menu_about_to_show()
+    window._act_edit_undo.trigger()
+    edit_menu = window._edit_menu
+    edit_menu.popup(window.menuBar().mapToGlobal(
+        window.menuBar().actionGeometry(edit_menu.menuAction()).bottomLeft()))
     capture.save("11_history", {
-        "history": [screen._btn_undo, screen._btn_redo],
+        "history": edit_menu,
         "canvas": screen._canvas,
-    })
-    screen._on_redo()
+    }, overlays=(edit_menu,))
+    edit_menu.hide()
+    window._act_edit_redo.trigger()
 
     screen._canvas.reset_zoom()
     screen._canvas.mask = original.copy()

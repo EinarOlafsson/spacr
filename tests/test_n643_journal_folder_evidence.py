@@ -200,3 +200,23 @@ def test_native_bootstrap_with_populated_unknown_contents_is_preserved(root, chi
     (nested / 'private-notebook.txt').write_bytes(b'private notes')
     old(folder)
     assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
+
+
+def test_a_bootstrap_folder_holding_a_symlink_is_preserved(root, tmp_path):
+    folder = journal._new_run_dir('mask')
+    outside = tmp_path / 'outside-settings.json'
+    outside.write_text('{}')
+    (folder / 'settings.json').symlink_to(outside)
+    old(folder)
+    assert journal._journal_prune_evidence(folder) is False
+    assert journal._prune_plan('run_folders', 30, 0)['delete'] == []
+    assert outside.exists()
+
+
+def test_a_run_name_that_is_a_file_or_an_impossible_date_is_not_evidence(root):
+    as_file = root / '2026-01-02_030405_0123abcd__mask'
+    as_file.write_text('not a folder')
+    assert journal._journal_prune_evidence(as_file) is False
+    impossible = root / '2026-13-45_030405_0123abcd__mask'
+    impossible.mkdir()
+    assert journal._journal_prune_evidence(impossible) is False

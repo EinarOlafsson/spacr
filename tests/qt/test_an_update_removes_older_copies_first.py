@@ -1,14 +1,4 @@
-"""The in-app update finds old copies, shows them, deletes them, then installs.
-
-Features item 416. Help -> Check for updates used to upgrade only the
-environment spaCR was running from, so an older desktop install elsewhere --
-or the desktop install being run -- was never removed. The handlers in
-``MainWindow`` now run the sequence explicitly: find old spaCR files, delete
-them, install the new version. The logic lives in ``spacr.install_cleanup``;
-these tests pin only the order the window drives it in, and use a stand-in
-window, fake records and a fake remover, so nothing on this computer is found
-or deleted.
-"""
+"""Updates prepare a verified replacement before asking to restart the GUI."""
 from __future__ import annotations
 
 import ast
@@ -33,6 +23,11 @@ class _Messages:
         monkeypatch.setattr(updater, "editable_install_location", lambda: None)
         self.warnings = []
         self.informations = []
+        self.restart_confirmation = qt_app.MainWindow._confirm_update_restart
+        monkeypatch.setattr(qt_app.MainWindow, "_confirm_update_restart",
+                            lambda window, message: qt_app.QMessageBox.information(
+                                window, "Updates", message,
+                                qt_app.QMessageBox.Ok | qt_app.QMessageBox.Cancel))
         monkeypatch.setattr(
             qt_app.QMessageBox, "warning",
             staticmethod(lambda _p, title, text, *a, **k:
@@ -88,6 +83,7 @@ class _Window:
 
 @pytest.fixture(params=["macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"])
 def frozen_window(qtbot, monkeypatch, tmp_path, request):
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr-profile"))
     from types import SimpleNamespace
     from PySide6.QtWidgets import QMainWindow
     from spacr.qt import bridge
@@ -107,8 +103,7 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
                 app_key="mask", _settings_model=SimpleNamespace(collect=lambda: {"src": "/private-images"})))
 
         def _confirm_old_installs(self, records):
-            assert request.param == "macos-frozen-v1", "online upgrades must not offer deletion"
-            return ()
+            pytest.fail("Updates must not prompt to remove installations")
 
         def _release_update_workers(self):
             assert (work / "approved.json").exists() or self._frozen_update_handshake is None
@@ -147,8 +142,7 @@ def frozen_window(qtbot, monkeypatch, tmp_path, request):
     qtbot.addWidget(window)
     window.show()
     window._on_old_installs_found([record])
-    if windows:
-        qtbot.waitUntil(lambda: getattr(window, "_frozen_update_handshake", None) is not None)
+    qtbot.waitUntil(lambda: getattr(window, "_frozen_update_handshake", None) is not None)
     handshake = window._frozen_update_handshake
     yield SimpleNamespace(window=window, handshake=handshake, plan=plan,
                           work=work, events=events, messages=messages)
@@ -189,6 +183,59 @@ def test_unknown_authenticated_readiness_keeps_the_window_alive(frozen_window):
     with pytest.raises(RuntimeError, match="cancelled"):
         state.handshake.wait_for_shutdown(
             lambda pid: pytest.fail("unknown readiness authorized shutdown"))
+
+
+def test_background_preparation_can_be_cancelled_without_closing_spacr(frozen_window, qtbot):
+    from PySide6.QtCore import Qt
+
+    state = frozen_window
+    progress = state.window._update_progress
+    assert progress.isVisible()
+    button, = progress.findChildren(QPushButton)
+    qtbot.mouseClick(button, Qt.LeftButton)
+    assert state.window.isVisible() and not state.window._closing
+    assert state.window._frozen_update_handshake is None
+    assert (state.work / "cancelled.json").exists()
+    assert not (state.work / "approved.json").exists()
+    assert state.events == []
+
+
+@pytest.mark.parametrize("frozen_window", ["macos-online-uv-v1"], indirect=True)
+@pytest.mark.parametrize("decision", [True, False, "error", "screen-veto"])
+def test_uninstall_approval_occurs_only_after_screen_vetoes(frozen_window, qtbot, decision):
+    state = frozen_window
+    calls = []
+
+    def approve():
+        calls.append("approval")
+        if decision == "error":
+            raise RuntimeError("uninstall helper refused approval")
+        return decision is True
+
+    state.window._approve_uninstall_close = approve
+    if decision == "screen-veto":
+        class Veto(QWidget):
+            def closeEvent(self, event):
+                event.ignore()
+        screen = Veto()
+        qtbot.addWidget(screen)
+        state.window._screens = {"mask": screen}
+    closed = state.window.close()
+    assert closed is (decision is True)
+    assert calls == ([] if decision == "screen-veto" else ["approval"])
+    assert ("quit" in state.events) is (decision is True)
+    if decision is not True:
+        assert state.window.isVisible() and not state.window._closing
+    if decision == "error":
+        assert state.messages.warnings[-1][0] == "Uninstall stopped"
+
+
+def test_an_uninstall_coordinator_blocks_starting_an_update(monkeypatch):
+    window = _Window()
+    window._uninstall_coordinator = object()
+    window._start_update_worker = lambda *args: pytest.fail("Update must wait for uninstall")
+    qt_app.MainWindow._check_for_updates(window)
+    assert not window.workers
 
 
 def test_frozen_readiness_cancel_rejects_a_late_ready_message(frozen_window, monkeypatch):
@@ -250,22 +297,10 @@ def test_frozen_accepted_close_approves_after_vetoes_before_teardown(frozen_wind
     state = frozen_window
     state.handshake.ready()
     def accept(parent, title, message, buttons):
-        if state.plan["adapter"] == "macos-online-uv-v1":
-            assert "reinstall spaCR in its current environment" in message
-            assert "reopen automatically" in message
-            assert "remove" not in message
-        elif state.plan["adapter"] == "windows-frozen-nsis-v1":
-            assert "updating its Windows application" in message
-            assert "administrator authorization window may open" in message
-            assert "previous application will be retained for rollback" in message
-            assert "data and caches will be kept" in message
-            assert "reopen after the update succeeds" in message
-            assert "remove the older copies" not in message
-        elif state.plan["adapter"] == "linux-deb-v1":
-            assert "graphical administrator authorization" in message
-            assert "previous package will be retained for rollback" in message
-            assert "data and caches will be kept" in message
-            assert "remove the older copies" not in message
+        assert "1.5.1.1 is ready" in message
+        assert "Restart to use the update" in message
+        assert "data and caches will be kept" in message
+        assert "remove" not in message
         return qt_app.QMessageBox.Ok
 
     monkeypatch.setattr(qt_app.QMessageBox, "information", accept)
@@ -294,16 +329,16 @@ def test_update_confirmation_accepts_a_real_button_click(frozen_window, qtbot, m
     state = frozen_window
     state.handshake.ready()
 
-    def accept(parent, title, message, buttons):
-        box = QMessageBox(QMessageBox.Information, title, message, buttons, parent)
-        qtbot.addWidget(box)
-        box.show()
+    def accept(box):
+        box.open()
         qtbot.waitUntil(box.isVisible)
-        box.grab().save(str(state.work / "confirmation.png"))
+        assert box.button(QMessageBox.Ok).text() == "Restart"
         qtbot.mouseClick(box.button(QMessageBox.Ok), Qt.LeftButton)
         return box.result()
 
-    monkeypatch.setattr(qt_app.QMessageBox, "information", accept)
+    monkeypatch.setattr(qt_app.MainWindow, "_confirm_update_restart",
+                        state.messages.restart_confirmation)
+    monkeypatch.setattr(QMessageBox, "exec", accept)
     state.window._poll_frozen_update()
     assert (state.work / "approved.json").exists()
     assert not state.window.isVisible()
@@ -350,7 +385,7 @@ def test_unidentified_active_environment_never_deletes_or_installs(monkeypatch, 
                         {"command": None, "error": "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."})
     records = [_record(tmp_path, "installer", "old")] if old_copies else []
     window._on_old_installs_found(records)
-    assert window.events == [] and window.workers == [] and not window.closed
+    assert window.events == [] and window.workers == ["prepare"] and not window.closed
     assert "package manager" in messages.warnings[-1][1]
 
 
@@ -365,21 +400,24 @@ def test_pip_environment_handoff_keeps_every_other_copy(monkeypatch, tmp_path):
     other = _record(tmp_path, "installer", "other")
     window._on_old_installs_found([here, other])
     assert calls == [([here, other], "9.9.9", ())]
-    assert window.events == [] and window.workers == []
+    assert window.events == [] and window.workers == ["prepare"]
     assert not window.closed and messages.warnings
 
 
-def test_cancelling_an_installer_retirement_list_starts_no_helper(monkeypatch, tmp_path):
+def test_an_update_does_not_offer_an_installer_retirement_list(monkeypatch, tmp_path):
     _Messages(monkeypatch)
     window = _Window(ticked=None)
     _fake_remover(window, monkeypatch)
+    prepared = []
     monkeypatch.setattr(install_cleanup, "start_update_helper", lambda *args, **kwargs:
-                        pytest.fail("Cancelled cleanup cannot prepare a helper"))
+                        prepared.append(kwargs) or {"command": None, "error": "not supported"})
     window._on_old_installs_found([_record(tmp_path, "installer", "active", running=True)])
-    assert window.events == ["shown"] and window.workers == []
+    assert window.events == [] and window.workers == ["prepare"]
+    assert prepared == [{"ticked": ()}]
+    assert not window.closed
 
 
-def test_a_running_desktop_copy_hands_deleting_and_installing_to_a_helper(
+def test_an_unverified_legacy_helper_cannot_close_the_running_desktop(
         monkeypatch, tmp_path):
     messages = _Messages(monkeypatch)
     window = _Window()
@@ -394,9 +432,9 @@ def test_a_running_desktop_copy_hands_deleting_and_installing_to_a_helper(
     window._on_old_installs_found([running])
 
     assert handed == [([running], "9.9.9", ())]
-    assert window.workers == [] and "install" not in window.events
-    assert window.closed
-    assert "will close" in messages.informations[0][1]
+    assert window.workers == ["prepare"] and "install" not in window.events
+    assert not window.closed
+    assert "cannot stage a verified update" in messages.warnings[0][1]
 
 
 def test_no_helper_means_the_window_stays_open_and_says_why(monkeypatch, tmp_path):
@@ -459,8 +497,7 @@ DIALOG_CAPTIONS = (
     "Environments you made. Tick one to uninstall spaCR from it; the "
     "environment itself is kept.",
     "Remove and update",
-    "spaCR will close, remove the older copies, install {version} and start "
-    "again.",
+    "This installation cannot stage a verified update. Nothing was changed.",
     "The update stopped before installing, because an older copy of spaCR "
     "could not be removed:",
     "Upgrade unavailable: {error}",
@@ -573,10 +610,10 @@ def test_the_update_messages_translate_spacr_reasons_and_leave_others_as_they_ca
     window._on_old_installs_found([running])
     window._on_old_installs_found([running])
 
-    assert messages.warnings[-1][1] == _marked(
+    assert messages.warnings[-2][1] == _marked(
         DIALOG_CAPTIONS[6].format(error=_marked(REASONS[-1])))
-    assert messages.informations == [
-        (_title, _marked(DIALOG_CAPTIONS[4].format(version="9.9.9")))]
+    assert messages.warnings[-1][1] == _marked(DIALOG_CAPTIONS[4])
+    assert messages.informations == []
 
 
 @pytest.mark.parametrize("frozen_window", ["pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"], indirect=True)

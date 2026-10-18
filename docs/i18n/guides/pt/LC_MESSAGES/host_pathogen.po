@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Host–Pathogen Analysis"
 msgstr "Análise hospedeiro–patógeno"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
-msgstr "Em **Início → Ensaios → Toxoplasma**, abra **Análise hospedeiro–patógeno**. Este módulo combina o recrutamento de marcadores no nível do vacúolo com resumos por hospedeiro e por poço. Para o recrutamento em vacúolos isoladamente, use o :doc:`Ensaio de recrutamento <recruitment>`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
+msgstr "Em **Início → Organismo → Toxoplasma**, abra **Análise hospedeiro–patógeno**. Este módulo combina o recrutamento de marcadores no nível do vacúolo com resumos por hospedeiro e por poço. Para o recrutamento em vacúolos isoladamente, use o :doc:`Ensaio de recrutamento <recruitment>`."
 
 msgid "Try the real microscopy test data"
 msgstr "Experimentar os dados reais de microscopia de teste"
 
-msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
-msgstr "Abra **Início → Ensaios → Toxoplasma → Análise hospedeiro–patógeno** e selecione **Carregar dados de teste...**. O download tem aproximadamente 114 MB."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "Abra **Início → Organismo → Toxoplasma → Análise hospedeiro–patógeno** e selecione **Carregar dados de teste...**. O download tem aproximadamente 114 MB."
 
 msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
 msgstr "Ative **Ao vivo** ao lado dos controles de ação inferiores e selecione **Executar visualização**. Escolha qualquer um dos dois campos medidos e selecione vacúolos na imagem ou na tabela para inspecionar seus vínculos com o hospedeiro e suas razões de marcadores."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -108,6 +108,54 @@ msgstr "CPU 频率数值只是 x86 的粗略采购目标，而不是要求；GHz
 
 msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
 msgstr "请使用 64 位操作系统和 Python 环境。桌面安装程序面向 Windows 10/11 x86-64、Linux x86-64 以及 Intel/Apple 芯片的 macOS；它们标明的最低操作系统版本并不保证较新的 GPU 框架也支持同一操作系统。Python 3.12 是使用最广泛 spaCR 附加组件的实际起点。spaCR 声明支持的 Python 范围为 3.9–3.14（不含 3.14.1），但可选软件包和各硬件后端会缩小这一范围。当前 Apple MPS 的要求包括 macOS 14 或更高版本；请以您安装的具体 PyTorch 版本的要求为准。`Apple 的 PyTorch 要求 <https://developer.apple.com/metal/pytorch/>`_ 描述了当前 Apple 芯片的原生路线。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python 3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the :ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists who gets it and how to install without it."
+msgstr "安装了 wgpu 时，**True 3D** 视图通过 wgpu（Vulkan、Metal 或 Direct3D 12）绘制，否则通过 OpenGL 或 CPU 绘制。wgpu 需要 x86-64 或 ARM64 上的 Python 3.10 或更新版本，在 Linux 上还需要 glibc 2.28 或更新版本；:ref:`安装指南的 3D 渲染部分 <wgpu-3d-rendering>` 列出了哪些安装会获得 wgpu，以及如何在不安装它的情况下进行安装。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D rendering, in the order Auto tries"
+msgstr "3D 渲染，按 Auto 尝试的顺序"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Platform"
+msgstr "平台"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "True 3D view"
+msgstr "True 3D 视图"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Linux (x86-64, ARM64; glibc 2.28 or newer)"
+msgstr "Linux（x86-64、ARM64；glibc 2.28 或更新版本）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan (wgpu), OpenGL, CPU"
+msgstr "Vulkan（wgpu）、OpenGL、CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Windows (x64, ARM64)"
+msgstr "Windows（x64、ARM64）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan, Direct3D 12 (wgpu), OpenGL, CPU"
+msgstr "Vulkan、Direct3D 12（wgpu）、OpenGL、CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "macOS (Intel, Apple silicon)"
+msgstr "macOS（Intel、Apple silicon）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Metal, Vulkan when available (wgpu), OpenGL, CPU"
+msgstr "Metal、可用时的 Vulkan（wgpu）、OpenGL、CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Without wgpu: Python 3.9, other processors, Linux glibc older than 2.28, or an install made without wgpu"
+msgstr "不含 wgpu：Python 3.9、其他处理器、glibc 早于 2.28 的 Linux，或安装时未包含 wgpu"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "OpenGL, CPU"
+msgstr "OpenGL、CPU"
 
 msgid "GPU support by chip and framework"
 msgstr "按芯片和框架划分的 GPU 支持"
@@ -327,6 +375,18 @@ msgstr "配合 CUDA 和 CuPy 的 RAPIDS/cuML"
 
 msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
 msgstr "需显式启用；不可用或需要确定性行为时回退到 CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks True 3D view"
+msgstr "Make Masks 的 True 3D 视图"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "wgpu (Vulkan, Metal or Direct3D 12) where installed, then OpenGL through VisPy"
+msgstr "安装了 wgpu 时使用 wgpu（Vulkan、Metal 或 Direct3D 12），其次为通过 VisPy 的 OpenGL"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "CPU drawing when neither is available; Python 3.9 and installs without wgpu start at OpenGL"
+msgstr "两者都不可用时使用 CPU 绘制；Python 3.9 和不含 wgpu 的安装从 OpenGL 开始"
 
 msgid "Measurement tables, image I/O and many classical statistics"
 msgstr "测量表、图像 I/O 和许多经典统计"

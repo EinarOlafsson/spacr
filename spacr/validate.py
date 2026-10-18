@@ -904,6 +904,12 @@ def _type_name(expected: Any) -> str:
     return getattr(expected, "__name__", str(expected))
 
 
+def _a_type_name(expected: Any) -> str:
+    """:func:`_type_name` after the article it takes, "an int" or "a float"."""
+    name = _type_name(expected)
+    return f"{'an' if name[:1].lower() in 'aeiou' else 'a'} {name}"
+
+
 _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
     "src": (str, list),
     "normalize": (bool, list),
@@ -1003,7 +1009,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
             problems.append(Problem(
                 WARNING, key,
                 f"{key}={value} is a bool but is declared as {_type_name(expected)}.",
-                f"Set {key} to a {_type_name(expected)} value."))
+                f"Set {key} to {_a_type_name(expected)} value."))
             continue
         if isinstance(value, int) and not isinstance(value, bool) and float in types and int not in types:
             continue
@@ -1016,7 +1022,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
                 ERROR, key,
                 f"{key}={value!r} is a {type(value).__name__}, but "
                 f"{_type_name(expected)} is expected.",
-                f"Set {key} to a {_type_name(expected)}.{hint}"))
+                f"Set {key} to {_a_type_name(expected)}.{hint}"))
     return problems
 
 

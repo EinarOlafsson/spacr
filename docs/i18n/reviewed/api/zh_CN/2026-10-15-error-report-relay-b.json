@@ -390,6 +390,8 @@
     },
     {
       "label": "spacr.crashreport.question_key#5",
+      "retired": "2026-10-16",
+      "retired_reason": "This identical source has a different reviewed target elsewhere; 2026-10-16-api-source-consistency.json reuses the retained target from 2026-10-15-n700-provider-utilities.json. Historical translation retained.",
       "source": "the key, or ``\"\"`` when the answer must not be saved.",
       "source_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
       "context": "the key, or ``\"\"`` when the answer must not be saved.",

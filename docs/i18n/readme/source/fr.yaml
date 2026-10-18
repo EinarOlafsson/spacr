@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 à 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Couverture de tests Codecov
 
@@ -119,17 +119,24 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: Utilisez **Charger les données de test…** dans Import, Make Masks, Annotate
-    ou un écran d’essai pour télécharger des données d’exemple. Dans un terminal,
-    utilisez ``spacr-download``.
 - h2: Support matériel
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+  details:
+  - 'Auto: True 3D dans Make Masks essaie les backends disponibles dans cet ordre : Linux
+    : Vulkan → OpenGL → CPU ; Windows : Vulkan → Direct3D 12 → OpenGL → CPU ; macOS : Metal
+    → Vulkan → OpenGL → CPU. Vulkan, Metal et Direct3D 12 utilisent wgpu. Si un backend GPU
+    échoue ou est indisponible, le suivant est essayé ; le rendu sur CPU reste disponible.'
+  - wgpu est installé par défaut avec Python 3.10 ou ultérieur sous Windows (x64, ARM64),
+    macOS (Intel, Apple silicon) et Linux (x86-64, ARM64, glibc 2.28 ou ultérieure). Python
+    3.9, les autres processeurs, Linux avec une ancienne glibc et les installations sans wgpu
+    utilisent OpenGL, puis le CPU. Les cellules 3D violettes indiquent un support GPU implémenté,
+    en attente de validation sur un véritable écran.
+  - L’exécution sur CPU est prise en charge et peut être plus lente. Lors d’une mesure sur
+    un Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM a pris 444.5 s sur
+    CPU et 3.2 s avec Metal pour une image de 256×256, avec torch 2.2.2, Python 3.12.11 et
+    macOS 26.5.2. Il s’agit d’un exemple historique, pas d’une garantie de vitesse. L’accélération
+    GPU nécessite un backend utilisable et des bibliothèques compatibles. Consultez la `mesure
+    matérielle enregistrée <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
 - h2: Installer spaCR
 - p: 'Choisissez une méthode d’installation :'
 - list:
@@ -144,8 +151,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: Le `guide Docker <docs/source/installer_guide.rst#container-images>`_ décrit
-    la configuration du GPU, le montage des données et les commandes des pipelines.
+- p: Le `guide Docker (nightly, en anglais) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    décrit la configuration du GPU, le montage des données et les commandes des pipelines.
 - h3: Application de bureau
 - p: Les installateurs regroupent leur propre Python. Conda n'est pas nécessaire.
 - generated: installer-links
@@ -157,10 +164,11 @@ blocks:
 - p: Sur macOS, ouvrez le ``.pkg``. La bêta actuelle n'est pas notariée; si Gatekeeper
     le bloque, choisissez **Paramètres du système → Confidentialité et sécurité →
     Ouvrez de toute façon**.
-- p: Consultez le `guide d’installation <docs/source/installer_guide.rst>`_ pour
-    les instructions de mise à jour, de désinstallation, d’utilisation hors ligne
-    et de dépannage, et la `configuration requise <docs/source/system_requirements.rst>`_
-    pour les recommandations concernant les stations de travail et les serveurs ainsi
+- p: Pour les instructions d’installation, de mise à jour, de réinstallation, de
+    désinstallation, d’utilisation hors ligne et de dépannage, consultez le `guide
+    d’installation actuel de nightly (en anglais) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_.
+    Consultez la `configuration requise <docs/source/system_requirements.rst>`_ pour
+    les recommandations concernant les stations de travail et les serveurs ainsi
     que les tableaux de compatibilité GPU.
 - h3: Installation depuis PyPI
 - p: 'Pour la version publiée sur PyPI, installez spaCR avec pip dans un environnement
@@ -187,8 +195,8 @@ blocks:
   lang: bash
 - p: Les intégrations optionnelles sont installées séparément, par exemple ``spacr[zarr]``,
     ``spacr[omero]``,``spacr[napari]`` et ``spacr[czi,nd2,lif]``. Voir le `guide
-    d'installation <docs/source/installer_guide.rst>`_ pour les extras complets et
-    la table de compatibilité Python-version.
+    d'installation (nightly, en anglais) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_
+    pour les extras complets et la table de compatibilité Python-version.
 - h3: Installation avec conda-forge
 - p: 'Le paquet conda-forge officiel installe spaCR et les dépendances de son application
     de bureau dans l’environnement actif :'

@@ -89,13 +89,6 @@
       "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
       "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
       "translation": "Associez les canaux d’intensité enregistrés à l’étalonnage en champ plat du fournisseur. L’exemple 0:2,1:1 associe les canaux d’intensité 0 et 1 aux canaux d’étalonnage 2 et 1, respectivement. La numérotation des canaux d’intensité commence à 0. La numérotation des canaux d’étalonnage ou des couches d’image commence à 1. Indiquez chaque canal d’intensité à corriger. Une valeur vide conserve l’ordre initial des canaux. Lorsque la valeur est vide, une seule couche d’image d’étalonnage est appliquée à tous les canaux. Sélectionnez d’abord un fichier d’étalonnage du fournisseur. Un modèle d’illumination enregistré est prioritaire. La valeur par défaut est vide."
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "Cette opération réinstallera spaCR dans son environnement actuel. spaCR se fermera avant le début de la mise à jour. Il se rouvrira automatiquement une fois la mise à jour réussie."
     }
   ],
   "retired_records": [

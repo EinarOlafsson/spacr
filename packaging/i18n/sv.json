@@ -76,5 +76,12 @@
   "gui_cancelled": "Installationen avbröts. Läs loggen innan du försöker igen.",
   "gui_failed": "Installation eller start misslyckades. Läs loggen och försök igen i det här fönstret.",
   "gui_stopping": "Stoppar installationen och återställer den tidigare körmiljön…",
-  "nsis_uninstall_failed": "spaCR kunde inte slutföra avinstallationen säkert. Se informationen ovan; dina data har behållits."
+  "nsis_uninstall_failed": "spaCR kunde inte slutföra avinstallationen säkert. Se informationen ovan; dina data har behållits.",
+  "help_without_wgpu": "Installera utan wgpu; 3D-vyer använder då OpenGL eller processorn.",
+  "without_wgpu": "Installera utan wgpu (använd OpenGL/CPU för 3D)",
+  "without_wgpu_description": "Utelämnar wgpu (Vulkan, Metal, Direct3D 12). spaCR ritar då 3D-vyer med OpenGL, eller med processorn när OpenGL inte är tillgängligt. Lämna rutan omarkerad om inte wgpu orsakar problem på den här datorn.",
+  "wgpu_plan": "wgpu 3D-rendering",
+  "wgpu_plan_install": "installera",
+  "wgpu_plan_skip": "hoppa över (3D använder OpenGL, annars processorn)",
+  "wgpu_glibc_too_old": "wgpu kräver glibc 2.28 eller senare (systemet har %s); installerar utan wgpu, så 3D använder OpenGL eller processorn."
 }

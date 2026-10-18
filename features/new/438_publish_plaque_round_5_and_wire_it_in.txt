@@ -240,3 +240,8 @@ Plaque common subset unseen by v1 to v4 (n = 114), F1 at IoU 0.5: plaque_v1 0.40
 Without the v3-seeded Gel Doc truth (n = 81) no model differs from v4. The
 263-field set seen counts are v1 54, v2 178, v3 137, v4 0; GRA8 Plate1 (hold-out
 of v3) is the same physical plate as ReimagedPlate1 (training data of v4).
+
+2026-10-17: plaque v5 (toxoplasma_plaque_v5, round 7, cpsam_v2 on the curated 2026-10-15 set) trained to 100 epochs; the final epoch ships by the maintainer's rule (epoch 40 led validation F1 only).
+2026-10-17: 153 test fields, object F1 v5 0.816, v4 0.725, v3 0.741, stock 0.227; 81 fields unseen by v3/v4: 0.803, 0.661, 0.684, 0.451. Card, binding and zoo entry added.
+2026-10-17: maintainer made v5 the default (v3 recommended for Gel Doc wells, v4 selectable); 9-locale reviewed captions updated.
+2026-10-17: REMAINING: HF upload of einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 (main), then push; v4's HF card pages still say default; web models.json needs regenerating.

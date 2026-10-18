@@ -1,0 +1,377 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. The software job list's own result is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.",
+      "label": "spacr.batch#3",
+      "source": "A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. The queue's own result is a :class:`spacr.errors.RunLedger`, stamped next to the queue file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.",
+      "source_sha256": "40982e18d410f917f63b70599d5af9016b6faad2ad2313517c5b7fafe3f875c4",
+      "translation": "排队的作业**就是**一次 ``spacr-run`` 调用。这里不重新实现模块分派或设置加载：:mod:`spacr.cli` 负责模块注册表、设置加载器、``--set`` 类型转换和退出码约定（0 表示正常，1 表示模块抛出异常，2 表示参数或设置有误），本模块负责驱动它。队列自身的结果是一个 :class:`spacr.errors.RunLedger`，其状态记录写在队列文件旁；系统还会读取每个作业的 :func:`spacr.errors.read_run_status` 状态记录，因此，即使某作业退出码为 0，但悄悄跳过了 40 个视野，也会被报告为*部分完成*，而非成功。"
+    },
+    {
+      "context": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the image data channel -- or, when the user assigned image data channels, the tokens that only follow the image data channel are set aside -- and the rest must identify a set that holds exactly one image per image data channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first and returned when it passes; :func:`spacr.regex_infer.propose` is tried last. Of the other candidates that pass, the one with the fewest image data channels is returned, the earliest on a tie, because a regex that reads each name as its own image data channel in a single set also passes the check.",
+      "label": "spacr.channel_sorting.infer_regex#1",
+      "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first and returned when it passes; :func:`spacr.regex_infer.propose` is tried last. Of the other candidates that pass, the one with the fewest channels is returned, the earliest on a tie, because a regex that reads each name as its own channel in a single set also passes the check.",
+      "source_sha256": "7c8d5a8fef3d3ce512fceb059461f764e1ee4136b9ebf7c5ca35a1c73c93e373",
+      "translation": "将名称拆分成标记（在 ``_ - . space`` 处分隔；若无法分隔，则按连续数字和字母拆分）；找出发生变化的标记；尝试用其中一个表示通道——如果用户已分配通道，则先排除只随通道变化的标记——其余标记必须能够标识每个通道恰好含一张图像的图像组。返回前，每个候选方案都会通过 :func:`check_sets` 检查。先尝试 spaCR 自带的 Yokogawa 模式，通过后便返回；最后才尝试 :func:`spacr.regex_infer.propose`。对于其他通过检查的候选方案，返回通道数最少的一个，数量相同时返回最早的一个，因为把每个名称都解释成同一组中独立通道的正则表达式也能通过检查。"
+    },
+    {
+      "context": "Design constraint: this module must be usable *before* committing to a segmentation run, which means it may not cost what a segmentation run costs. It therefore imports **no torch and no cellpose**, which ``tests/test_diameter_estimator.py`` checks. It reuses :mod:`spacr.validate` for filename-metadata parsing, which is the other deliberately dependency-light module in the package (``spacr.utils``, where ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and cellpose at module scope and so cannot be touched from here). The regexes in ``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the image data channel ordering used below mirrors ``spacr.io._rename_and_organize_image_files``, which concatenates one image layer per distinct ``chanID`` in sorted order — so image data channel index *i* is the *i*-th sorted ``chanID``, exactly as ``cell_channel`` and friends mean it.",
+      "label": "spacr.diameter#3",
+      "source": "Design constraint: this module must be usable *before* committing to a segmentation run, which means it may not cost what a segmentation run costs. It therefore imports **no torch and no cellpose**, which ``tests/test_diameter_estimator.py`` checks. It reuses :mod:`spacr.validate` for filename-metadata parsing, which is the other deliberately dependency-light module in the package (``spacr.utils``, where ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and cellpose at module scope and so cannot be touched from here). The regexes in ``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the channel ordering used below mirrors ``spacr.io._rename_and_organize_image_files``, which concatenates one plane per distinct ``chanID`` in sorted order — so channel index *i* is the *i*-th sorted ``chanID``, exactly as ``cell_channel`` and friends mean it.",
+      "source_sha256": "559c45ebe219581597cd036a707daf7e12f3a920999cc26ffaee00ac660ec57a",
+      "translation": "设计约束：本模块必须能在决定执行分割*之前*使用，因此其成本不能与一次分割相当。所以它**既不导入 torch，也不导入 cellpose**，这一点由 ``tests/test_diameter_estimator.py`` 检查。它复用 :mod:`spacr.validate` 解析文件名元数据；这是包中另一个刻意保持轻量依赖的模块（``spacr.utils`` 包含 ``_get_regex`` 和 ``_extract_filename_metadata``，但它在模块层级导入 torch 和 cellpose，因此这里不能使用它）。``spacr.validate.METADATA_REGEXES`` 中的正则表达式与 ``spacr.utils._get_regex`` 对应，下文的通道顺序则与 ``spacr.io._rename_and_organize_image_files`` 一致：后者按排序后的不同 ``chanID`` 各拼接一个图像平面。因此，通道索引 *i* 就是排序后的第 *i* 个 ``chanID``，与 ``cell_channel`` 等设置的含义完全一致。"
+    },
+    {
+      "context": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without removing the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu returns a threshold even for pure noise, and the resulting size looks valid. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is too small) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Sizes are equivalent diameters, ``2 * sqrt(area / pi)``. 4. **Drop specks, then take the median.** A textured or punctate stain (a mitochondrial cell stain, a parasite marker) thresholds into a few whole objects plus hundreds of 4-10 px specks, and a plain median counts every speck as an object: on spaCR's own test laboratory microplate that put the cell at 8 px and the pathogen at 11 px against 175 px and 32 px in the curated masks, while the nucleus, whose stain is solid, came out right at 91 px. So the typical object is first located by the stained area it carries (the area-weighted median, which specks cannot move because they hold almost no area), everything narrower than :data:`SPECK_FRACTION` of it is dropped, and the characteristic size is the median of what remains. Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the stained area or more are a second population, not specks, and stay. 5. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "label": "spacr.diameter#6",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without removing the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu returns a threshold even for pure noise, and the resulting size looks valid. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is too small) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Sizes are equivalent diameters, ``2 * sqrt(area / pi)``. 4. **Drop specks, then take the median.** A textured or punctate stain (a mitochondrial cell stain, a parasite marker) thresholds into a few whole objects plus hundreds of 4-10 px specks, and a plain median counts every speck as an object: on spaCR's own test plate that put the cell at 8 px and the pathogen at 11 px against 175 px and 32 px in the curated masks, while the nucleus, whose stain is solid, came out right at 91 px. So the typical object is first located by the stained area it carries (the area-weighted median, which specks cannot move because they hold almost no area), everything narrower than :data:`SPECK_FRACTION` of it is dropped, and the characteristic size is the median of what remains. Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the stained area or more are a second population, not specks, and stay. 5. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "source_sha256": "51f4ebe9eb6882e0ade44a2e6f64d7337264771bbd8369168a21fecf032ff2f0",
+      "translation": "1. **平坦化。** 用 1 px 的高斯滤波降噪，再减去一个经过强平滑的副本（sigma = max(32, min(H, W) / 4)），去除照明梯度。刻意将 sigma 设得远大于任何合理的对象，使平坦化消除渐晕而不移除对象；相反的取舍（较小的滚球）会缩小待测对象。2. **排除噪声。** 将平坦化平面的结构幅度（p99 - p30）与*像素级*噪声尺度比较；后者在原始平面上以 ``1.4826 * MAD(img - gaussian(img, 1))`` 测得。纯噪声平面的得分低于 1，含有真实对象的平面得分则为数十。低于 ``min_snr`` 时舍弃该视野，而不做阈值分割，因为 Otsu 即使对纯噪声也会给出阈值，使所得尺寸看起来有效。3. **阈值分割与标记。** 执行 Otsu、填孔、标记，移除接触图像边界的连通分量（它们被截断，尺寸偏小）以及不合理的分量（等效直径低于 ``min_object_diameter``，或面积超过视野的 ``max_object_fraction``）。尺寸以等效直径 ``2 * sqrt(area / pi)`` 表示。4. **先移除小斑点，再取中位数。** 纹理状或点状染色（如线粒体细胞染色或寄生虫标记）经阈值分割后会形成少数完整对象和数百个 4-10 px 的小斑点；普通中位数把每个斑点都算作对象：在 spaCR 自身的测试微孔板上，这使细胞和病原体尺寸分别变为 8 px 和 11 px，而人工整理的掩膜中分别为 175 px 和 32 px；实心染色的细胞核则正确得到 91 px。因此，先按对象承载的染色面积定位典型对象（面积加权中位数不会被几乎不占面积的小斑点改变），移除所有直径小于其 :data:`SPECK_FRACTION` 的对象，再将剩余对象的中位数作为特征尺寸。如果小分量合计占染色面积的 :data:`SPECK_MAX_AREA_SHARE` 或更多，它们就是第二个群体，而不是斑点，应当保留。5. **用距离变换交叉检查。** 第 3 步有一种主要失效模式：汇合的单层融合成一个连通分量，该分量接触边界而被移除，随后估计值由残留碎屑计算而来，悄然产生**偏低**的结果。因此，还要计算未填孔前景的欧氏距离变换，以局部极大值作为每个对象的种子（分两遍：粗略遍确定精细遍的抑制半径），再对 ``-EDT`` 应用分水岭，将融合前景拆回对象，并以同样方式测量等效直径。"
+    },
+    {
+      "context": "An artifact whose status *cannot be read* reads as **not** complete. That is the one case where the two answers differ in consequence: an unstamped file is silent, whereas a locked or truncated one is positive evidence that something was interrupted, and answering \"complete\" there would report a killed run as finished.",
+      "label": "spacr.errors.run_is_complete#2",
+      "source": "An artifact whose status *cannot be read* reads as **not** complete. That is the one case where the two answers differ in consequence: an unstamped file is silent, whereas a locked or truncated one is positive evidence that something was interrupted, and answering \"complete\" there would report a killed run as finished.",
+      "source_sha256": "2d783ccb74fc985b9383ab3003d7b73a11e40fc9a6ac51156afd92e8559a645d",
+      "translation": "状态*无法读取*的产物视为**未**完成。这是两种判断会产生不同后果的唯一情况：没有状态记录的文件本身不提供信息，而被锁定或截断的文件则明确表明某项操作遭到中断；此时回答 \"complete\"（已完成）会把被终止的运行报告为完成。"
+    },
+    {
+      "context": "1. **A guessed mapping applied without review.** Their ``Area`` in µm² written into spaCR's ``cell_area`` in px² is a number that is wrong by a factor of a few hundred and looks completely plausible. So :func:`infer_column_map` only ever *proposes*; the proposal is a file the user edits (:func:`save_column_map` / :func:`load_column_map`); and :func:`run_import` applies what was agreed, nothing else. 2. **Units.** spaCR's intensities are raw uncalibrated counts, and its geometry is px²/px for a 2-D run — but a 3-D run measures volumes, in µm³ when it was given voxel_size_z_um/voxel_size_xy_um, under the same column names; the row's ``measurement_units`` says which, and :mod:`spacr.feature_dict` resolves it per table. A foreign table in µm needs a scale factor unless the target rows are µm too, and every mapping therefore carries ``unit_in`` / ``unit_out``. When a conversion is declared but the pixel size is unknown, the value is **not** multiplied by 1.0 and pretended to be pixels: the column is redirected to the ``foreign_`` prefix, recorded with its own unit and ``calibrated = 0``, and named in the plan and the summary. 3. **Columns that could not be mapped.** They are listed by name in the plan, in :meth:`ImportResult.summary`, and in the ``foreign_columns`` table — and they are still *imported*, under the ``foreign_`` prefix. No column is dropped silently. 4. **Name collisions.** A foreign column called ``cell_area`` that means something else would corrupt every downstream analysis with no error at all. Targets are checked against :func:`spacr.feature_dict.parse_column` and against spaCR's reserved identifier columns; a collision is a :class:`Conflict` that either refuses the import (``on_conflict='refuse'``, the default) or renames the column (``on_conflict='rename'``) — never an overwrite. 5. **A destination that is already somebody's project.** The same argument one level up: a *table* collision. See below.",
+      "label": "spacr.foreign#7",
+      "source": "1. **A guessed mapping applied without review.** Their ``Area`` in µm² written into spaCR's ``cell_area`` in px² is a number that is wrong by a factor of a few hundred and looks completely plausible. So :func:`infer_column_map` only ever *proposes*; the proposal is a file the user edits (:func:`save_column_map` / :func:`load_column_map`); and :func:`run_import` applies what was agreed, nothing else. 2. **Units.** spaCR's intensities are raw uncalibrated counts, and its geometry is px²/px for a 2-D run — but a 3-D run measures volumes, in µm³ when it was given voxel_size_z_um/voxel_size_xy_um, under the same column names; the row's ``measurement_units`` says which, and :mod:`spacr.feature_dict` resolves it per table. A foreign table in µm needs a scale factor unless the target rows are µm too, and every mapping therefore carries ``unit_in`` / ``unit_out``. When a conversion is declared but the pixel size is unknown, the value is **not** multiplied by 1.0 and pretended to be pixels: the column is redirected to the ``foreign_`` prefix, recorded with its own unit and ``calibrated = 0``, and named in the plan and the summary. 3. **Columns that could not be mapped.** They are listed by name in the plan, in :meth:`ImportResult.summary`, and in the ``foreign_columns`` table — and they are still *imported*, under the ``foreign_`` prefix. No column is dropped silently. 4. **Name collisions.** A foreign column called ``cell_area`` that means something else would corrupt every downstream analysis with no error at all. Targets are checked against :func:`spacr.feature_dict.parse_column` and against spaCR's reserved key columns; a collision is a :class:`Conflict` that either refuses the import (``on_conflict='refuse'``, the default) or renames the column (``on_conflict='rename'``) — never an overwrite. 5. **A destination that is already somebody's project.** The same argument one level up: a *table* collision. See below.",
+      "source_sha256": "ee1e67c6dd04c9220be87c0e479946d364ed316e16309e49ae335c9610f9d255",
+      "translation": "1. **未经审核就应用猜测的映射。** 将外部以 µm² 为单位的 ``Area`` 写入 spaCR 以 px² 为单位的 ``cell_area``，数值可能相差数百倍，却看起来完全合理。因此，:func:`infer_column_map` 只会*提出建议*；建议保存为用户可编辑的文件（:func:`save_column_map` / :func:`load_column_map`），:func:`run_import` 只应用已同意的映射。2. **单位。** spaCR 的强度是未经校准的原始计数，2-D 运行的几何量单位是 px²/px；但 3-D 运行测量体积，在提供 voxel_size_z_um/voxel_size_xy_um 时以 µm³ 表示，列名仍然相同。每行的 ``measurement_units`` 指明具体单位，:mod:`spacr.feature_dict` 按表解析。除非目标行也使用 µm，外部以 µm 为单位的表就需要缩放系数，因此每个映射都包含 ``unit_in`` / ``unit_out``。如果声明了转换但像素尺寸未知，**不会**将数值乘以 1.0 后假装它是像素单位：该列改用 ``foreign_`` 前缀，保留其自身单位并记录 ``calibrated = 0``，同时在计划和摘要中列明。3. **无法映射的列。** 这些列会在计划、:meth:`ImportResult.summary` 和 ``foreign_columns`` 表中按名称列出，而且仍然会以 ``foreign_`` 前缀*导入*。任何列都不会被悄然丢弃。4. **名称冲突。** 如果外部名为 ``cell_area`` 的列实际含义不同，就会在不报错的情况下破坏所有后续分析。目标列会对照 :func:`spacr.feature_dict.parse_column` 和 spaCR 保留的键列进行检查；冲突以 :class:`Conflict` 表示，处理方式是拒绝导入（默认 ``on_conflict='refuse'``）或重命名该列（``on_conflict='rename'``），绝不覆盖。5. **目标位置已经属于他人的项目。** 同样的问题上升一层就是*表*冲突。见下文。"
+    },
+    {
+      "context": "It also *un-claims* the table: the ``foreign_columns`` rows for ``<object>`` are deleted and ``foreign_import.canonical_table_written`` is set to 0, so nothing in the database goes on saying the importer owns a table whose rows it no longer has. Without that, the claim would outlive the rows.",
+      "label": "spacr.foreign.release_canonical_copy#3",
+      "source": "It also *un-claims* the table: the ``foreign_columns`` rows for ``<object>`` are deleted and ``foreign_import.canonical_table_written`` is set to 0, so nothing in the database goes on saying the importer owns a table whose rows it no longer has. Without that, the claim would outlive the rows.",
+      "source_sha256": "a6b48297b24d86a39198484a2db3ea4cf3bf667cf904ad3aa50081a8d9b6a770",
+      "translation": "它还会*撤销对表的归属声明*：删除 ``foreign_columns`` 中对应 ``<object>`` 的行，并将 ``foreign_import.canonical_table_written`` 设为 0，使数据库不再声称导入器拥有一张已不含其数据行的表。否则，数据行消失后，这项声明仍会存在。"
+    },
+    {
+      "context": "*Why not BaSiC.* BaSiC's low-rank + sparse decomposition is the better estimator when you have hundreds of microscope fields of view and a genuine dark-microscope field of view to recover, but it is an iterative optimisation with its own convergence failure modes, and its dark-microscope field of view term is only identifiable because of those extra assumptions. From a single acquisition, ``dark`` and ``flat`` are not separately identifiable at all: multiplying ``flat`` by a constant and absorbing it into the per-microscope field of view brightness leaves every observation unchanged. Estimating a dark-microscope field of view anyway -- for instance from the per-pixel minimum across microscope fields of view, which is the usual shortcut -- returns *dark plus the dimmest background*, and subtracting it removes real signal. ``dark`` is therefore not estimated: it is 0 unless you supply the camera offset you measured from a dark frame, via ``illumination_dark``.",
+      "label": "spacr.illumination#11",
+      "source": "*Why not BaSiC.* BaSiC's low-rank + sparse decomposition is the better estimator when you have hundreds of fields and a genuine dark-field to recover, but it is an iterative optimisation with its own convergence failure modes, and its dark-field term is only identifiable because of those extra assumptions. From a single acquisition, ``dark`` and ``flat`` are not separately identifiable at all: multiplying ``flat`` by a constant and absorbing it into the per-field brightness leaves every observation unchanged. Estimating a dark-field anyway -- for instance from the per-pixel minimum across fields, which is the usual shortcut -- returns *dark plus the dimmest background*, and subtracting it removes real signal. ``dark`` is therefore not estimated: it is 0 unless you supply the camera offset you measured from a dark frame, via ``illumination_dark``.",
+      "source_sha256": "975e806f4dc9dbf5c56ad3753ad03c7ae11bd5cec350306922b321e02d82a7fc",
+      "translation": "*为何不用 BaSiC。* 当有数百个视野并确实需要恢复暗场时，BaSiC 的低秩加稀疏分解是更好的估计方法，但它是迭代优化，有自身的收敛失效模式，而且其暗场项只有在这些额外假设下才可辨识。仅凭一次采集，``dark`` 和 ``flat`` 根本无法分别辨识：将 ``flat`` 乘以常数，再把该常数吸收到每个视野的亮度中，所有观测值仍保持不变。强行估计暗场——例如采用常见捷径，取各视野逐像素的最小值——得到的是*暗场加最暗背景*，减去它会移除真实信号。因此不估计 ``dark``：除非通过 ``illumination_dark`` 提供从暗帧测得的相机偏置，否则它为 0。"
+    },
+    {
+      "context": "The caller owns the OpenGL context and makes it current around every call; this class creates nothing until the first :meth:`render`. A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it; a frame frees the textures it did not use. A mask edited in place must therefore be handed over as a new array. Hold no GPU object until the first frame.",
+      "label": "spacr.layers.GLVolumeRenderer#2",
+      "source": "The caller owns the OpenGL context and makes it current around every call; this class creates nothing until the first :meth:`render`. A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it; a frame frees the textures it did not use. A mask edited in place must therefore be handed over as a new array. Hold no GPU object until the first frame.",
+      "source_sha256": "77ef4aac7fc210f6da499eee934aed45ce437caf2adf66d8152edc10f36dc8b7",
+      "translation": "调用方拥有 OpenGL 上下文，并在每次调用期间使其保持为当前上下文；此类直到首次 :meth:`render` 才创建资源。体数据只上传一次，并按其内存标识缓存，只要每一帧仍绘制它便一直保留；每一帧会释放未使用的纹理。因此，原地编辑后的掩膜必须作为新数组传入。在第一帧之前不持有任何 GPU 对象。"
+    },
+    {
+      "context": "A surface point of base colour ``c`` with unit normal ``n`` is drawn as ``c * (ambient + diffuse * max(n.l, 0)) + specular * max(n.h, 0) ** shininess * mix(white, c, tint)``, where ``l`` points at the light and ``h`` halfway between the light and the viewer. The GPU and the CPU renderers use the same numbers.",
+      "label": "spacr.layers.SurfaceFinish#1",
+      "source": "A surface point of base colour ``c`` with unit normal ``n`` is drawn as ``c * (ambient + diffuse * max(n.l, 0)) + specular * max(n.h, 0) ** shininess * mix(white, c, tint)``, where ``l`` points at the light and ``h`` halfway between the light and the viewer. The GPU and the CPU renderers use the same numbers.",
+      "source_sha256": "dfe9f9e9e8b012c7603a440ce20a06259dfe301fbfa0941c70b5cd2252abdd62",
+      "translation": "基色为 ``c``、单位法向量为 ``n`` 的表面点按 ``c * (ambient + diffuse * max(n.l, 0)) + specular * max(n.h, 0) ** shininess * mix(white, c, tint)`` 绘制，其中 ``l`` 指向光源，``h`` 指向光源与观察者方向的中间方向。GPU 和 CPU 渲染器使用相同的数值。"
+    },
+    {
+      "context": "the :class:`SurfaceLight`.",
+      "label": "spacr.layers.SurfaceLight.for_rays#3",
+      "source": "the :class:`SurfaceLight`.",
+      "source_sha256": "6fe37e02e1b70b4c52f8ad3f5e7c3633de3e0927bbcd965e8e804384fdd06083",
+      "translation": "该 :class:`SurfaceLight` 对象。"
+    },
+    {
+      "context": "Inside the cube the volume is drawn ``zoom`` times larger about the cube's centre; outside it, everything is dimmed to ``dim`` of its brightness. Positions are array indices, as for :class:`VolumeRays`.",
+      "label": "spacr.layers.VolumeLens#1",
+      "source": "Inside the cube the volume is drawn ``zoom`` times larger about the cube's centre; outside it, everything is dimmed to ``dim`` of its brightness. Positions are array indices, as for :class:`VolumeRays`.",
+      "source_sha256": "9f4befed15e1baa51ebfa9c81d5e2619a86704082a95fa53cc8a0c92b7db022f",
+      "translation": "立方体内部的体数据以立方体中心为基准放大 ``zoom`` 倍；外部的所有内容则暗化至原亮度的 ``dim``。位置使用数组索引，与 :class:`VolumeRays` 相同。"
+    },
+    {
+      "context": "Positions are continuous array indices of the volume being drawn (voxel ``i`` is centred on index ``i``). The sample ``k`` of the ray through output row ``r`` and column ``c`` lies at ``origin + c * across + r * down + k * depth``; sample 0 is nearest the viewer.",
+      "label": "spacr.layers.VolumeRays#1",
+      "source": "Positions are continuous array indices of the volume being drawn (voxel ``i`` is centred on index ``i``). The sample ``k`` of the ray through output row ``r`` and column ``c`` lies at ``origin + c * across + r * down + k * depth``; sample 0 is nearest the viewer.",
+      "source_sha256": "592e14bba309821be9714e5ac7b0b59af5aacce2623dcd6a3ad06f2d9a62dc09",
+      "translation": "位置是待绘制体数据的连续数组索引（体素 ``i`` 的中心位于索引 ``i``）。光线的第 ``k`` 个采样点（该光线穿过输出第 ``r`` 行、第 ``c`` 列）位于 ``origin + c * across + r * down + k * depth``；采样点 0 最靠近观察者。"
+    },
+    {
+      "context": "the :class:`RenderScale`.",
+      "label": "spacr.layers.render_scale#7",
+      "source": "the :class:`RenderScale`.",
+      "source_sha256": "b07030ac3402713cc29820479d96510f10b46f7533499abe9cfbc1526d0d407d",
+      "translation": "该 :class:`RenderScale` 对象。"
+    },
+    {
+      "context": "Image layers are added together, each through its colormap, between its contrast limits, times its opacity; each is drawn by the :data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]`` (``mip`` when absent). Labels layers are then laid over them in stack order, each object in its :func:`label_color`, by the :data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's opacity. A surface is lit by the :data:`SURFACE_FINISHES` entry in ``layer.metadata[\"finish\"]`` (``matte`` when absent), with normals from the mask itself (:func:`surface_normals`). Hidden layers draw nothing. Every layer must have the volume's shape; image layers draw their first image data channel. :class:`GLVolumeRenderer` draws the same picture on the GPU.",
+      "label": "spacr.layers.render_volume#1",
+      "source": "Image layers are added together, each through its colormap, between its contrast limits, times its opacity; each is drawn by the :data:`VOLUME_RENDERINGS` mode in ``layer.metadata[\"rendering\"]`` (``mip`` when absent). Labels layers are then laid over them in stack order, each object in its :func:`label_color`, by the :data:`LABEL_RENDERINGS` mode (``surface`` when absent) and the layer's opacity. A surface is lit by the :data:`SURFACE_FINISHES` entry in ``layer.metadata[\"finish\"]`` (``matte`` when absent), with normals from the mask itself (:func:`surface_normals`). Hidden layers draw nothing. Every layer must have the volume's shape; image layers draw their first channel. :class:`GLVolumeRenderer` draws the same picture on the GPU.",
+      "source_sha256": "80cb8ab05b970eddde86ba4c43dc3ab59f86eccb27f0d4d887265578fab461ba",
+      "translation": "图像图层相加合成，每层按其色图、对比度上下限和不透明度绘制；采用 :data:`VOLUME_RENDERINGS` 绘制模式，模式存于 ``layer.metadata[\"rendering\"]``（缺省为 ``mip``）。随后按堆叠顺序叠加标签图层，每个对象使用其 :func:`label_color`，并采用 :data:`LABEL_RENDERINGS` 模式（缺省为 ``surface``）和图层不透明度。表面采用 :data:`SURFACE_FINISHES` 条目进行光照，该条目存于 ``layer.metadata[\"finish\"]``（缺省为 ``matte``），法向量来自掩膜本身（:func:`surface_normals`）。隐藏图层不绘制任何内容。每个图层的形状必须与体数据相同；图像图层绘制其第一个通道。:class:`GLVolumeRenderer` 在 GPU 上绘制相同的画面。"
+    },
+    {
+      "context": "the :class:`SurfaceFinish`.",
+      "label": "spacr.layers.shade_surface#4",
+      "source": "the :class:`SurfaceFinish`.",
+      "source_sha256": "11617beb06aeb8c733060311605e2484256e2b7017a46ee1aa9c19d615c3261a",
+      "translation": "该 :class:`SurfaceFinish` 对象。"
+    },
+    {
+      "context": "the :class:`SurfaceFinish`.",
+      "label": "spacr.layers.surface_finish#2",
+      "source": "the :class:`SurfaceFinish`.",
+      "source_sha256": "11617beb06aeb8c733060311605e2484256e2b7017a46ee1aa9c19d615c3261a",
+      "translation": "该 :class:`SurfaceFinish` 对象。"
+    },
+    {
+      "context": "The longest strided axis is halved in resolution first, so a thin stack (40 sections of 1,000 x 1,000) keeps its depth while its width is reduced.",
+      "label": "spacr.layers.volume_steps#1",
+      "source": "The longest strided axis is halved in resolution first, so a thin stack (40 sections of 1,000 x 1,000) keeps its depth while its width is reduced.",
+      "source_sha256": "d08468004eebf00c942d2034e4f66b6e7e85226593e1a2e9b18a850a3c74182c",
+      "translation": "先将按步长采样后最长轴的分辨率减半，因此较薄的堆栈（40 层、每层 1,000 x 1,000）在宽度缩小时仍保留深度。"
+    },
+    {
+      "context": "What it needs: a ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity image data channels and the label masks for one microscope field of view, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is not measured, rather than measured as empty.",
+      "label": "spacr.measure#2",
+      "source": "What it needs: a ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the label masks for one field, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is not measured, rather than measured as empty.",
+      "source_sha256": "5ee8a9d0da90e757fa36794a7c64c4754c1db218fd34ad7e1d55ec04622d0c6f",
+      "translation": "所需输入是 ``merged/`` 文件夹，由 :func:`spacr.core.preprocess_generate_masks` 写出：同一视野的强度通道与标签掩膜共同保存为 ``.npy``。按对象指定待测掩膜，包括 ``cell_mask_dim``、``nucleus_mask_dim``、``pathogen_mask_dim`` 和细胞器槽位。没有指定掩膜维度的对象不会被测量，而不是被当作空对象测量。"
+    },
+    {
+      "context": "Whether ``table`` keeps cells it contributed no rows for.",
+      "label": "spacr.merge_tables.MergePolicy.how_for#0",
+      "source": "Whether ``table`` keeps cells it contributed no rows for.",
+      "source_sha256": "ddc3637acd243e8bca4f95b164489f1bb6de703f116ec6be684d99ea0cf49743",
+      "translation": "``table`` 是否保留在该表中没有对应行的细胞。"
+    },
+    {
+      "context": "child object table whose join mode is requested.",
+      "label": "spacr.merge_tables.MergePolicy.how_for#1",
+      "source": "child object table whose join mode is requested.",
+      "source_sha256": "ea56b1d31bf2af091c861ca8ecf6336553c988e13d3702b2b7231a52b016e08e",
+      "translation": "要查询连接方式的子对象表。"
+    },
+    {
+      "context": "A cell has exactly one cytoplasm and may have multiple nuclei, pathogens, or organelles. The many-per-cell tables are rolled up to one row per cell first (see :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to a cell the roll-up found nothing for:",
+      "label": "spacr.merge_tables.MergePolicy.how_for#2",
+      "source": "A cell has exactly one cytoplasm and may have multiple nuclei, pathogens, or organelles. The many-per-cell tables are rolled up to one row per cell first (see :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to a cell the roll-up found nothing for:",
+      "source_sha256": "01cbd99bde5671a55ac2f87b3e3b1ee149051d4ef0d1cd4f37a0e7a3d82de323",
+      "translation": "每个细胞恰有一个细胞质，并且可能有多个细胞核、病原体或细胞器。首先将每个细胞对应多行的表汇总为每个细胞一行（参见 :func:`roll_up`）；对于汇总后没有匹配记录的细胞，由 ``consolidate_on_cell`` 决定如何处理："
+    },
+    {
+      "context": "consolidate_on_cell=True   the analysis is about cells that have the child, so the join is inner consolidate_on_cell=False  keep the cell and leave the child's columns NA",
+      "label": "spacr.merge_tables.MergePolicy.how_for#3",
+      "source": "consolidate_on_cell=True   the analysis is about cells that have the child, so the join is inner consolidate_on_cell=False  keep the cell and leave the child's columns NA",
+      "source_sha256": "b4240b0c9e95f139a27fc615dd98d6b28c94289747b6b34935a123174aa13ce8",
+      "translation": "当 consolidate_on_cell=True 时，分析针对具有子对象的细胞，因此采用内连接；当 consolidate_on_cell=False 时，保留细胞，并将子对象的列设为 NA。"
+    },
+    {
+      "context": "Pathogen and organelle tables follow ``keep_uninfected`` so the default retains uninfected control cells. Set it to ``False`` to restrict the merged table to infected cells.",
+      "label": "spacr.merge_tables.MergePolicy.how_for#4",
+      "source": "Pathogen and organelle tables follow ``keep_uninfected`` so the default retains uninfected control cells. Set it to ``False`` to restrict the merged table to infected cells.",
+      "source_sha256": "3d6293a2b18c136b3c4be53a4fcf3a8ad5b8435d1ce7ff02fbca71294025d5f5",
+      "translation": "病原体表和细胞器表遵循 ``keep_uninfected`` 设置，因此默认保留未感染的对照细胞。将其设置为 ``False`` 可将合并表限制为仅包含已感染的细胞。"
+    },
+    {
+      "context": "A one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW` declares, because there is no consolidation to decide about.",
+      "label": "spacr.merge_tables.MergePolicy.how_for#5",
+      "source": "A one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW` declares, because there is no consolidation to decide about.",
+      "source_sha256": "19459686cf933c3ebc4be75242e6500e324aff9b5216dc9bb90e1c642708f181",
+      "translation": "对于每个细胞仅有一行的表，保留 :data:`object_roles.JOIN_HOW` 指定的连接方式，因为无需决定汇总行为。"
+    },
+    {
+      "context": "The matched-stock export: the measurement, the stock model's value on the same fields and their difference, with the evaluation set and its counts. Values are copied from the entries, never recomputed. A model with no measurement still gets one row, whose ``state`` says so.",
+      "label": "spacr.model_zoo.scorecard_export_rows#1",
+      "source": "The matched-stock export: the measurement, the stock model's value on the same fields and their difference, with the evaluation set and its counts. Values are copied from the entries, never recomputed. A model with no measurement still gets one row, whose ``state`` says so.",
+      "source_sha256": "24254aec6c6fd82295bd076df1b0ddffedeccdc77db0eb1d79bcd9587893e3b7",
+      "translation": "与标准模型配对的导出：包括测量值、标准模型在相同视野上的值及两者之差，以及评估集和计数。数值直接从条目复制，绝不重新计算。没有测量结果的模型仍会得到一行，并由 ``state`` 说明这一情况。"
+    },
+    {
+      "context": "key-value mappings with the keys ``key``, ``name``, ``state``, ``metric``, ``this_model``, ``stock``, ``difference``, ``baseline``, ``evaluation_set``, ``evaluation_version``, ``n_fields``, ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.",
+      "label": "spacr.model_zoo.scorecard_export_rows#3",
+      "source": "dicts with the keys ``key``, ``name``, ``state``, ``metric``, ``this_model``, ``stock``, ``difference``, ``baseline``, ``evaluation_set``, ``evaluation_version``, ``n_fields``, ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.",
+      "source_sha256": "b95f00d5cd3e23c422e9e50bb764f7f845afcb1ce2dd294658c0a53eb92737e7",
+      "translation": "包含键 ``key``、``name``、``state``、``metric``、``this_model``、``stock``、``difference``、``baseline``、``evaluation_set``、``evaluation_version``、``n_fields``、``n_objects``、``boundary_tolerance_px`` 和 ``sha256`` 的字典。"
+    },
+    {
+      "context": "``\"reviewed\"`` a trusted builtin card: six matched-stock measurements on the curated hold-out set, bound to the exact published checkpoint. ``\"held_out\"`` structured measurements on a named hold-out set, not yet a reviewed card. ``\"recorded\"`` numbers recorded with the model when it was published, kept as written; no reviewed held-out comparison yet. ``\"not_evaluated\"`` no measurement at all.",
+      "label": "spacr.model_zoo.scorecard_state#1",
+      "source": "``\"reviewed\"`` a trusted builtin card: six matched-stock measurements on the curated hold-out set, bound to the exact published checkpoint. ``\"held_out\"`` structured measurements on a named hold-out set, not yet a reviewed card. ``\"recorded\"`` numbers recorded with the model when it was published, kept as written; no reviewed held-out comparison yet. ``\"not_evaluated\"`` no measurement at all.",
+      "source_sha256": "06a9f0808325b4abf5de41fd639738850b36784fc7c0e12e956a00ad323ccf88",
+      "translation": "``\"reviewed\"`` 表示可信的内置评分卡：在经整理的留出集上进行六项与标准模型配对的测量，并绑定到确切发布的检查点。``\"held_out\"`` 表示在具名留出集上的结构化测量，尚未成为经过审核的评分卡。``\"recorded\"`` 表示模型发布时记录的数值，按原样保留；尚无经审核的留出集比较。``\"not_evaluated\"`` 表示完全没有测量结果。"
+    },
+    {
+      "context": "**1. The Spacing is built from the SPACE axes only.** A 5-d ngff image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the image data channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the unit check in ``layers.py`` and is then drawn at the wrong scale. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "label": "spacr.ome_zarr#10",
+      "source": "**1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the unit check in ``layers.py`` and is then drawn at the wrong scale. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "source_sha256": "084741801bb6e7ad098e2ad69281f0c1d9b39594d2e4628d83f2d1fd8a4c41f9",
+      "translation": "**1. Spacing 仅由空间轴构建。** 5-D NGFF 图像的轴为 ``(t, c, z, y, x)``：时间轴以秒为单位，通道轴没有单位，z/y/x 则以微米为单位。若用一个 ``Spacing`` 覆盖五个轴，就必须用一个字符串回答“单位是什么”，无论回答什么，都会对其中三个轴出错：若堆栈的间距声称单位为 ``\"um\"``，但某个轴实际按秒递增，它仍能通过 ``layers.py`` 中的单位检查，随后却会按错误比例绘制。因此，:attr:`OmeZarrImage.spacing` 只覆盖 z/y/x，t 和 c 则作为 :class:`Axis` 记录，通过 :attr:`OmeZarrImage.other_axes`、:attr:`OmeZarrImage.time_axis` 和 :attr:`OmeZarrImage.channel_axis` 一并报告。没有信息丢失；读取器不会把秒和微米当成同一类数值。"
+    },
+    {
+      "context": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which hides the annotations worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful structured-data names are the ones that survive: ``priority`` structured-data names first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "label": "spacr.omero.measurement_pairs#2",
+      "source": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which hides the annotations worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful keys are the ones that survive: ``priority`` keys first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "source_sha256": "954c6432ef7f8bcb04e3f15c725e45b2f9c824b8f30925e55d75db2419597081",
+      "translation": "**为何设置上限。** spaCR 对象表有 300-600 列。含有 400 个条目的 MapAnnotation 在 OMERO.web 的 300 px 面板内会显示为 400 行滚动表格，反而掩盖值得展示的注释。因此，注释是一份*摘要*，最多包含 ``max_pairs`` 项（:data:`MAX_MAP_PAIRS` 默认为 50），并按顺序确保有用的键优先保留：先按给定顺序列出 ``priority`` 键，再使用数据行自身的顺序。发生裁剪时，最后一对为 :data:`TRUNCATION_KEY`，说明丢弃了多少项，并指出完整表格是附在 :data:`NS_FILE` 下的 CSV。完整表格绝不会*仅仅*存在于注释中。"
+    },
+    {
+      "context": "`ops_stitch` solves where every microscope image field sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for one channel, and every later phase would read through it. This module composes the same well window by window instead, which is what segmentation wants anyway: segment once, on the composite, a window at a time.",
+      "label": "spacr.ops_compose#1",
+      "source": "`ops_stitch` solves where every tile sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for one channel, and every later phase would read through it. This module composes the same well window by window instead, which is what segmentation wants anyway: segment once, on the composite, a window at a time.",
+      "source_sha256": "2ad58aa0e9f7cc2b2580e159ab7fe962ed89ce3391b5627bff80558a515a8ba8",
+      "translation": "`ops_stitch` 求解每个图块的位置，并刻意不保存像素：A1 孔为 26,855 x 26,865，单个通道以 uint16 表示就占 1.4 GB，每个后续阶段都要读取这些数据。本模块改为逐窗口合成同一孔的图像，这也正是分割所需的方式：在合成图像上逐窗口分割，每个窗口只分割一次。"
+    },
+    {
+      "context": "**The regression backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES` spans statsmodels results (``OLS``, ``WLS``, ``RLM``, four GLM families, ``QuantReg``, ``MixedLM``, ``BetaModel``), scikit-learn estimators (``Lasso``, ``Ridge``, ``ElasticNet``, ``LinearSVC``) and the horseshoe fitter. :func:`predict` is the one call that works on all of them, and :func:`response_scale` names what came back — because a GLM-binomial returns a probability, a Poisson GLM returns a rate, and ``LinearSVC.predict`` returns a class label, which would draw a step function and look like a finding. The hinge backend is profiled through ``decision_function`` for exactly that reason, and the scale says so.",
+      "label": "spacr.profiler#3",
+      "source": "**The regression backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES` spans statsmodels results (``OLS``, ``WLS``, ``RLM``, four GLM families, ``QuantReg``, ``MixedLM``, ``BetaModel``), scikit-learn estimators (``Lasso``, ``Ridge``, ``ElasticNet``, ``LinearSVC``) and the horseshoe fitter. :func:`predict` is the one call that works on all of them, and :func:`response_scale` names what came back — because a GLM-binomial returns a probability, a Poisson GLM returns a rate, and ``LinearSVC.predict`` returns a CLASS LABEL, which would draw a step function and look like a finding. The hinge backend is profiled through ``decision_function`` for exactly that reason, and the scale says so.",
+      "source_sha256": "e4b47d407de1ebeb3ac1e5014cb8f4ac75248b0ea493707fb89073e7c0d3ee9d",
+      "translation": "**不同回归后端的预测方式不同。** :data:`spacr.ml.REGRESSION_TYPES` 涵盖 statsmodels 结果（``OLS``、``WLS``、``RLM``、四个 GLM 分布族、``QuantReg``、``MixedLM``、``BetaModel``）、scikit-learn 估计器（``Lasso``、``Ridge``、``ElasticNet``、``LinearSVC``）和马蹄先验拟合器。:func:`predict` 是适用于所有后端的统一调用，:func:`response_scale` 指明返回值的尺度：二项 GLM 返回概率，Poisson GLM 返回率，而 ``LinearSVC.predict`` 返回类别标签，画出来会是阶梯函数，看起来却可能像一项发现。因此，hinge 后端使用 ``decision_function`` 进行剖面分析，并在尺度中明确说明。"
+    },
+    {
+      "context": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation image data channel is trained by CAREamics, in its own environment, on a sample of the processing session's own raw microscope fields of view -- no clean images are needed -- or read from ``n2v_model``. Each microscope field of view's selected image data channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "label": "spacr.psf_pipeline#4",
+      "source": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "source_sha256": "2d3e6ae3aceb68314cd999fda4ea1b6ffff4775e81f972e7cdf66225b384e6ac",
+      "translation": "自监督降噪在处理链之前进行。启用 ``n2v_denoise`` 时，CAREamics 在其独立环境中，使用本次运行自身的部分原始视野，为每个分割通道训练一个 Noise2Void（N2V2）模型，无需干净图像；也可以从 ``n2v_model`` 读取模型。每个视野中选定的通道在照明校正之后、PSF 和处理链之前降噪，此时噪声仍在像素间相互独立，符合 Noise2Void 的假设。检查点哈希和训练记录加入同一份溯源记录。"
+    },
+    {
+      "context": "The application's ``aboutToQuit`` drain and the interpreter's exit hook both end here. ``aboutToQuit`` only fires when an event loop quits, so a process that builds windows and then simply ends (a script, a test subprocess, a capture run that returns early) never sees it, and the QThreads its widgets started are destroyed during interpreter teardown while they still run. Qt treats that as fatal. Whatever cannot stop in the budget is parked, never terminated.",
+      "label": "spacr.qt.bridge.retire_live_work#1",
+      "source": "The application's ``aboutToQuit`` drain and the interpreter's exit hook both end here. ``aboutToQuit`` only fires when an event loop quits, so a process that builds windows and then simply ends (a script, a test subprocess, a capture run that returns early) never sees it, and the QThreads its widgets started are destroyed during interpreter teardown while they still run. Qt treats that as fatal. Whatever cannot stop in the budget is parked, never terminated.",
+      "source_sha256": "ee763032a7f94653ce19783e69b889b50599c467165fc3d3d03d1eac8be75f25",
+      "translation": "应用的 ``aboutToQuit`` 清理流程和解释器退出钩子最终都进入这里。``aboutToQuit`` 只在事件循环退出时触发，因此，创建窗口后直接结束的进程（脚本、测试子进程或提前返回的录制运行）不会收到它；这些窗口部件启动的 QThreads 会在仍然运行时，随解释器拆除而被销毁。Qt 将其视为致命错误。在时间预算内无法停止的工作会被暂存，绝不强制终止。"
+    },
+    {
+      "context": "Mask generation applies the same chain. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "label": "spacr.qt.detect_chain#8",
+      "source": "Mask generation applies the same chain. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` key per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask pipelines and the Mask Live preview apply to every selected segmentation channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate run's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
+      "source_sha256": "afd7b81d49a88adc0599bcfa3cc25797628a3bd444e72f2b047206575df9be9a",
+      "translation": "掩膜生成应用同一处理链。图像步骤——即 ``detect`` 之前的所有步骤——由 :func:`chain_settings` 写成 Mask 设置，用一个 ``enhance_<field>`` 键对应每个 :data:`SETTINGS_FIELDS` 条目，再由 :func:`spacr.psf_pipeline.prepare_chain` 读取。V1、V2 Mask 管线和 Mask Live 预览在照明校正后、归一化前，将其应用于每个选定的分割通道，也就是原先执行 PSF 的阶段。形态学操作和拆分作用于检测器标签，属于 Make Masks 自身；微孔板运行产生的 Cellpose 标签不会被它们重新整形。Mask 设置 ``remove_background``、``background`` 和 ``signal_to_noise`` 是随后由归一化应用的逐通道强度下限，而 :func:`spacr.object._preprocess_batch` 是细胞器批处理自身的滚球和 CLAHE 处理；这两者都不在这里配置。"
+    },
+    {
+      "context": "as for ``QDialog.event``.",
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.event#4",
+      "source": "as for ``QDialog.event``.",
+      "source_sha256": "54e76f099a05432b5a94429d5394b4817fdf1c6c259fdd369b815cc9d1fd35e9",
+      "translation": "与 ``QDialog.event`` 相同。"
+    },
+    {
+      "context": "**Keyset paging, not OFFSET.** Each chunk asks for ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite walk (and throw away) every skipped row, so chunk 500 of a 400 k-row table would cost 500× chunk 1. Only tables with no usable structured-data name (views, composite-primary-structured-data name ``WITHOUT ROWID`` tables) fall back to ``OFFSET``, and those are small by construction.",
+      "label": "spacr.qt.screens.db_browser#5",
+      "source": "**Keyset paging, not OFFSET.** Each chunk asks for ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite walk (and throw away) every skipped row, so chunk 500 of a 400 k-row table would cost 500× chunk 1. Only tables with no usable key (views, composite-primary-key ``WITHOUT ROWID`` tables) fall back to ``OFFSET``, and those are small by construction.",
+      "source_sha256": "2251646dd5aca3526ee0476bda7784c5189d8087d86ec872c31db280663014ac",
+      "translation": "**键集分页，而非 OFFSET。** 每个数据块都请求 ``rowid > <last rowid seen>`` 并使用 ``ORDER BY rowid``。``LIMIT ? OFFSET ?`` 会使 SQLite 遍历并丢弃所有跳过的行，因此，一个 400 k 行表的第 500 块成本会是第 1 块的 500×。只有没有可用键的表（视图、复合主键的 ``WITHOUT ROWID`` 表）才回退到 ``OFFSET``，而这些表按设计都很小。"
+    },
+    {
+      "context": "``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was with worker execution, and this is the same promise.",
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.recompute#3",
+      "source": "``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was threaded, and this is the same promise.",
+      "source_sha256": "051c407828c570211cc5988ded68c8fa1a1fac57ee7a3c805f38f6b93d4ba0a5",
+      "translation": "``threaded=False``（``test_plate_view.py`` 和 ``test_plate_view_linked_filter.py`` 中的所有测试都用此设置构建界面）通过 :meth:`_run_job` 同步执行作业，因此这些调用方仍得到完全相同的原有语义。需要确认网格已经显示的调用方等待 :meth:`active_jobs`，正如 ``render_plate`` 的调用方已经采用的方式：自数据库读取改为在线程中进行以来，``render_plate`` 的返回含义一直是“已开始，而非已完成”，这里遵循同样的约定。"
+    },
+    {
+      "context": "Call ``hook`` at the start of every :meth:`collect`.",
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.add_collect_hook#0",
+      "source": "Call ``hook`` at the start of every :meth:`collect`.",
+      "source_sha256": "de689e6dcb87a086de6d0246c1d2b591671ab1ada38d797c04ce3a718c35cb00",
+      "translation": "调用 ``hook``，时机为每次 :meth:`collect` 开始时。"
+    },
+    {
+      "context": "The entry is a section like the others -- a \"spaCR AI\" heading in spaCR teal (:func:`color_spacr_ai`) over its own block -- written where the console stands now, directly under the error it explains. Its heading carries the working dots, and :meth:`fill_ai_entry` puts the answer in. Whatever is written meanwhile opens its own section below it. allowed only in the main GUI execution path.",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.begin_ai_entry#1",
+      "source": "The entry is a section like the others -- a \"spaCR AI\" heading in spaCR teal (:func:`color_spacr_ai`) over its own block -- written where the console stands now, directly under the error it explains. Its heading carries the working dots, and :meth:`fill_ai_entry` puts the answer in. Whatever is written meanwhile opens its own section below it. GUI thread only.",
+      "source_sha256": "320601fcd146b23f6d8a535197e639883c00bc8c31ed03b4f13e943b394e1479",
+      "translation": "该条目与其他条目一样是一个独立区段：以 spaCR 青绿色（:func:`color_spacr_ai`）显示 \"spaCR AI\" 标题，下方是其自身的内容块。它写在控制台当前位置，紧接着所解释的错误。标题显示表示正在处理的圆点，:meth:`fill_ai_entry` 填入答案。在此期间写入的其他内容会在它下方开启自己的区段。仅限 GUI 线程。"
+    },
+    {
+      "context": "the answer was given before and is reused; the heading then reads \"spaCR AI (saved answer)\", same teal.",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.fill_ai_entry#4",
+      "source": "the answer was given before and is reused; the heading then reads \"spaCR AI (saved answer)\", same teal.",
+      "source_sha256": "9057ca192a2470cfc4356a98fbdce9d8e613cedbe2a037a0d5974bbf7ce9aa1c",
+      "translation": "答案此前已给出并被复用；此时标题显示“spaCR AI（已保存的答案）”，仍使用相同的青绿色。"
+    },
+    {
+      "context": "For spaCR AI (free) the relay is asked, off the main GUI execution path, how much of today's share is left; the request executes on a plain independent execution path that touches no Qt object, and a single-shot timer tied to this panel collects the answer on the main GUI execution path, so a panel closed meanwhile never hears back. A vendor CLI has no usage source, so its line is shown at once and the bar is hidden (:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row.",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.refresh_ai_usage#1",
+      "source": "For spaCR AI (free) the relay is asked, off the GUI thread, how much of today's share is left; the request runs on a plain thread that touches no Qt object, and a single-shot timer tied to this panel collects the answer on the GUI thread, so a panel closed meanwhile never hears back. A vendor CLI has no usage source, so its line is shown at once and the bar is hidden (:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row.",
+      "source_sha256": "e7f733bc058f4449ccef55e1758262b4686f785db432b3eef923a3ad32cb3955",
+      "translation": "对于 spaCR AI（免费），在 GUI 线程之外向中继查询今天剩余的份额；请求在不接触任何 Qt 对象的普通线程中运行，与此面板绑定的单次定时器在 GUI 线程中收集答案，因此期间关闭的面板不会再收到回复。厂商 CLI 没有用量数据源，所以立即显示其文字行并隐藏进度条（:func:`spacr.qt.ai.providers.usage_bar`）。未选择提供方时隐藏整行。"
+    },
+    {
+      "context": "whether a layout was made (``False`` when this size was warmed before).",
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs#2",
+      "source": "whether a layout was made (``False`` when this size was warmed before).",
+      "source_sha256": "2d63c86eb17c9de4e7fa9bf4f0b9ac9dce4c8f76eea25ec0f15506f39bac6fcf",
+      "translation": "是否创建了布局（如果此前已预热过此尺寸，则为 ``False``）。"
+    },
+    {
+      "context": "The walk over dropped paths executes on its own worker. A drop is a path the user chose, and a laboratory microplate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Run inline, the walk would freeze the application without a traceback, because a stalled event loop is not a crash. The runner is marked not user-visible because dropping a folder is not starting a processing session, and it is safe to do so because that runner carries nothing but the walk.",
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbench#5",
+      "source": "The walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Run inline, the walk would freeze the application without a traceback, because a stalled event loop is not a crash. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.",
+      "source_sha256": "62333e0732a029b33edb3b9a6f66990c613160f4454edf10edc320d1b6a9c5b8",
+      "translation": "遍历拖入路径的工作在独立工作单元中运行。拖入的是用户选择的路径，而微孔板数据位于显微镜的共享存储上：一次位于休眠 autofs 挂载点下的 ``os.path.exists`` 在二十秒后仍未返回，而一次遍历会执行数千次此类操作。若同步运行，遍历会使应用冻结且不产生回溯，因为事件循环停滞并不是崩溃。执行器被标记为用户不可见，因为拖入文件夹并不是启动一次运行；这样做是安全的，因为该执行器仅负责遍历。"
+    },
+    {
+      "context": "The move executes on a worker. `quarantine_dir_for` is a `Path.resolve()` realpath walk, and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which may be a sleeping ``autofs`` share. On the main GUI execution path these would freeze the window. See `_move_field`.",
+      "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.toggle_quarantine#1",
+      "source": "The move runs on a worker. `quarantine_dir_for` is a `Path.resolve()` realpath walk, and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which may be a sleeping ``autofs`` share. On the GUI thread these would freeze the window. See `_move_field`.",
+      "source_sha256": "bbdbc359af7c9803f1838aca15b1d295dc8cb987a8f4627c4155a36ab1efbb3a",
+      "translation": "移动操作在工作单元中运行。`quarantine_dir_for` 会执行 `Path.resolve()` 真实路径遍历，之后的重命名还涉及 mkdir、stat、link、经 ``fsync`` 同步的台账写入和 unlink；这些都发生在用户选择的微孔板路径上，它可能是处于休眠状态的 ``autofs`` 共享存储。在 GUI 线程中执行会使窗口冻结。参见 `_move_field`。"
+    },
+    {
+      "context": "Nothing on this tab touches a processing-session folder from the main GUI execution path. On one workstation a single ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- did not return within twenty seconds. Every row here carries a folder the user chose, so walking, stat-ing, reading and deleting those folders (the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu is built) run on a :class:`spacr.qt.job_runner.JobRunner`. The one remaining existence check -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
+      "label": "spacr.qt.widgets.sweep_runs#3",
+      "source": "Nothing on this tab touches a run folder from the GUI thread. On one workstation a single ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- did not return within twenty seconds. Every row here carries a folder the user chose, so walking, stat-ing, reading and deleting those folders (the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu is built) run on a :class:`spacr.qt.job_runner.JobRunner`. The one remaining existence check -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
+      "source_sha256": "4669d4f00cbff819bdb7b277d2f48ffa5ba38406ca289e7e9718acc69be6d08f",
+      "translation": "此选项卡不会在 GUI 线程中访问任何运行文件夹。在一台工作站上，执行一次 ``os.path.exists``，所查路径位于 ``/nas_mnt`` 下，二十秒内仍未返回；它是共享存储处于休眠状态的 ``autofs`` 挂载点。这里每行都关联用户选择的文件夹，因此，遍历、查询文件状态、读取和删除这些文件夹的操作（切换选项卡时读取扫描结果表、删除确认中 ``describe_folder`` 的 ``os.walk``、之后的 ``shutil.rmtree``，以及构建行菜单时的 ``workspace.has_workspace``）都在 :class:`spacr.qt.job_runner.JobRunner` 中运行。唯一剩下的存在性检查——选择器应在哪个文件夹打开——由 :mod:`spacr.qt.path_probe` 的缓存回答。"
+    },
+    {
+      "context": "1. Read the previous processing session's settings out of the ``settings`` table in ``measurements.db`` and throw :class:`ResumeRefused` if anything material differs. **This must happen before** ``spacr.io._save_settings_to_db`` overwrites that table with the current settings — hence the placement of the call in ``measure_crop``. 2. Enumerate the fields in ``merged/`` and *validate* each one: a truncated ``.npy`` from a crash mid-``np.save`` is pending, not done, and is counted as rejected. 3. Ask the database which fields already have rows in **every** table the processing session writes. Fields with rows in only some tables are partial — a process killed between two inserts — and are re-queued. 4. Delete every row belonging to a pending field before it is executed again. This is what stops the resume from doubling rows. 5. Print the plan.",
+      "label": "spacr.resume.plan_measure_resume#3",
+      "source": "1. Read the previous run's settings out of the ``settings`` table in ``measurements.db`` and raise :class:`ResumeRefused` if anything material differs. **This must happen before** ``spacr.io._save_settings_to_db`` overwrites that table with the current settings — hence the placement of the call in ``measure_crop``. 2. Enumerate the fields in ``merged/`` and *validate* each one: a truncated ``.npy`` from a crash mid-``np.save`` is pending, not done, and is counted as rejected. 3. Ask the database which fields already have rows in **every** table the run writes. Fields with rows in only some tables are partial — a process killed between two inserts — and are re-queued. 4. Delete every row belonging to a pending field before it is re-run. This is what stops the resume from doubling rows. 5. Print the plan.",
+      "source_sha256": "796cc29aec3c26ae9dfb743655aae657ca2982d7c06d74e2ab2a036ed8e544e7",
+      "translation": "1. 从 ``settings`` 表（位于 ``measurements.db``）读取上次运行的设置；若有任何实质差异，则抛出 :class:`ResumeRefused`。**此步骤必须先于** ``spacr.io._save_settings_to_db`` 用当前设置覆盖该表，因此调用放在 ``measure_crop`` 中。2. 枚举 ``merged/`` 中的视野，并逐一*验证*：截断的 ``.npy``（在 ``np.save`` 过程中崩溃留下）属于待处理，而非已完成，并计入被拒绝项。3. 查询数据库，找出在本次运行写入的**每个**表中都已有数据行的视野。仅在部分表中有数据行的视野属于部分完成，说明进程在两次插入之间被终止，应重新排队。4. 在重新运行待处理视野之前，删除属于该视野的所有行，以避免恢复运行造成数据行翻倍。5. 打印计划。"
+    },
+    {
+      "context": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-microscope field of view robust statistics, because below ten objects a MAD is not a reliable spread estimate — the same threshold at which diameter.py collapses its confidence two levels. If the *laboratory microplate* median is also below that floor (a low-MOI pathogen channel, say), empty microscope fields of view are demoted to a warning: that is a property of the assay, not of the microscope field of view.",
+      "label": "spacr.seg_qc#12",
+      "source": "``empty / near-empty fields`` Zero objects is a failure. Fewer than ``seg_qc_min_objects`` (10) is a warning and suppresses the per-field robust statistics, because below ten objects a MAD is not a reliable spread estimate — the same threshold at which diameter.py collapses its confidence two levels. If the *plate* median is also below that floor (a low-MOI pathogen channel, say), empty fields are demoted to a warning: that is a property of the assay, not of the field.",
+      "source_sha256": "737fc452f392b156c1138faf7cf60a7024f2dd0ec49f9ea2546d1e8915527b71",
+      "translation": "``empty / near-empty fields``：对象数为零属于失败。少于 ``seg_qc_min_objects``（10）时给出警告，并停用逐视野的稳健统计，因为对象少于十个时，MAD 不是可靠的离散程度估计；这也是 diameter.py 将置信度下调两级的阈值。如果*微孔板*的中位数也低于该下限（例如低 MOI 的病原体通道），空视野会降为警告：这是测定本身的特性，而非单个视野的问题。"
+    },
+    {
+      "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, and a missing structured-data name throws ``KeyError`` only after both input CSVs are read and ``settings/regression.csv`` is written.",
+      "label": "spacr.settings.get_perform_regression_default_settings#2",
+      "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, and a missing key raises ``KeyError`` only after both input CSVs are read and ``settings/regression.csv`` is written.",
+      "source_sha256": "ec26705c5de6024508d4ac1c1d36bd6957f927a7453f96dba7f8497768e09737",
+      "translation": ":func:`spacr.ml.perform_regression` 通过 ``settings[...]`` 读取的每个键都在这里填充。两个分派器（Qt 面板通过 ``qt.screens.settings_model.resolve_default_settings``，``spacr-run regression`` 通过 ``cli.module_defaults``）都用这个函数构建字典；缺失键引发的 ``KeyError`` 只会在两个输入 CSV 均已读取、``settings/regression.csv`` 已写入后出现。"
+    },
+    {
+      "context": "This is the **size-proxy** replication readout, not a parasite count:",
+      "label": "spacr.submodules.analyze_endodyogeny#1",
+      "source": "This is the **size-proxy** replication readout, not a parasite count:",
+      "source_sha256": "bed593b7745d31044560a213fc0138d29b9556a41e0aeaaec098f7de5cd3625e",
+      "translation": "这是以**尺寸为代理指标**的复制读出，并非寄生虫计数："
+    },
+    {
+      "context": "The design follows from this asymmetry. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal image layer off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside image data channel is the single number the assay rests on, so it is derived from the data, reported per microscope field of view in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
+      "label": "spacr.submodules.analyze_invasion#4",
+      "source": "The design follows from this asymmetry. \"Inside\" is defined by an absence, and absence is the unreliable direction. Poor antibody penetration, a focal plane off the parasite's equator, photobleaching, a low-expressing parasite — every one of them removes outside signal from a parasite that is outside, and every one of them therefore *inflates* invasion efficiency. Nothing plausible pushes the error the other way. The threshold on the outside channel is the single number the assay rests on, so it is derived from the data, reported per field in ``fields``, cross-checked against a control-derived cut when one exists, and bracketed by a sensitivity pair that says how much of the answer is the threshold.",
+      "source_sha256": "0edf21398fd28d30a13f07e9625680bc832964c5ecdfabd57144ef4fba7a5645",
+      "translation": "设计源于这种不对称性。\"Inside\"（内部）是通过信号缺失来定义的，而缺失恰恰是不可靠的判断方向。抗体穿透不足、焦平面偏离寄生虫赤道面、光漂白、低表达寄生虫——这些情况都会使实际位于外部的寄生虫失去外部信号，因此都会*夸大*侵入效率。没有合理因素会把误差推向相反方向。外部通道阈值是整个测定依赖的单一数值，因此它从数据中推导，在 ``fields`` 中按视野报告，有对照推导的阈值时与其交叉检查，并用一对敏感性阈值界定结果，以说明答案有多少取决于阈值。"
+    },
+    {
+      "context": "This is the clustering half of the ParaScape-style walk.  It can execute for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "label": "spacr.umap_search.walk_clusters#1",
+      "source": "This is the clustering half of the ParaScape-style walk.  It can run for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "source_sha256": "310bf179b0c8df3da48fd937967afa81d8ee66930286b64f7116b4a4a9c07b6f",
+      "translation": "这是 ParaScape 风格遍历中的聚类部分。它可以在每次 UMAP 试验结果到达时运行，也可以随后对用户选中的表格行运行。重复及超出范围的候选规模会被跳过；如果没有任何规模有意义，则拒绝调用，而不是虚构一个仅含单个簇的胜出结果。聚类失败会向上传播；未定义的轮廓系数则保留为 ``nan``，排名低于所有已测得的分数。"
+    },
+    {
+      "context": "Computing the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead agrees with role order only when the roles are in ascending image data channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw image data channel 1 sits at position 2 -- while the sorted reading gives position 1, which holds the cell image. Cellpose would then segment organelles on the cell image layer without any warning, and downstream counts and intensities would be measured from the wrong masks.",
+      "label": "spacr.utils.dense_mask_channel_positions#2",
+      "source": "Computing the position as ``sorted({nucleus, cell, pathogen, organelle})`` instead agrees with role order only when the roles are in ascending channel order. With ``nucleus_channel=2, cell_channel=0, organelle_channel=1`` the stack is ``[2, 0, 1]`` -- raw channel 1 sits at position 2 -- while the sorted reading gives position 1, which holds the cell image. Cellpose would then segment organelles on the cell plane without any warning, and downstream counts and intensities would be measured from the wrong masks.",
+      "source_sha256": "c5ab58aac64f891f7091fa2d5f8a5cfc600fd2520832af29fbb3c17dd22128dc",
+      "translation": "改用 ``sorted({nucleus, cell, pathogen, organelle})`` 计算位置，只有在各角色按通道升序排列时才与角色顺序一致。对于 ``nucleus_channel=2, cell_channel=0, organelle_channel=1``，堆栈为 ``[2, 0, 1]``：原始通道 1 位于位置 2；而按排序结果读取会得到位置 1，其中存放的是细胞图像。这样 Cellpose 就会在细胞平面上分割细胞器而不发出警告，后续计数和强度也会从错误的掩膜中测得。"
+    }
+  ],
+  "schema": 1
+}

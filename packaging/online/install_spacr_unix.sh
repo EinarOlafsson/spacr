@@ -51,6 +51,10 @@ DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 CONSENT_COLLECTED=0
 SHARE_DIAGNOSTICS=0
 REPORT_ISSUES=0
+# wgpu draws the True 3D view through Vulkan, Metal or Direct3D 12. Without
+# it spaCR draws 3D through OpenGL (VisPy) or the CPU. Off by default.
+WITHOUT_WGPU="${SPACR_WITHOUT_WGPU:-0}"
+WGPU_SKIP_REASON=""
 # An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
 # the private Python, every wheel, Cellpose weights and Mask test data, so
 # nothing is downloaded. Without it the installer is the online one.
@@ -70,6 +74,7 @@ usage() {
     printf '  --no-launch             %s\n' "$(spacr_say help_no_launch)"
     printf '  --gui                   %s\n' "$(spacr_say gui_explanation)"
     printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
+    printf '  --without-wgpu          %s\n' "$(spacr_say help_without_wgpu)"
     printf '  --share-diagnostics     Include redacted logs in report previews.\n'
     printf '  --report-issues         Show the public GitHub report action.\n'
     printf '  --consent-collected     Record that these choices were reviewed.\n'
@@ -134,6 +139,10 @@ while (($#)); do
             ;;
         --share-diagnostics)
             SHARE_DIAGNOSTICS=1
+            shift
+            ;;
+        --without-wgpu)
+            WITHOUT_WGPU=1
             shift
             ;;
         --report-issues)
@@ -225,6 +234,45 @@ if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
         "llvmlite>=0.43,<0.46"
     )
 fi
+# wgpu publishes Linux wheels for glibc 2.28 and newer only; on an older
+# glibc the resolver would pick its source release, which does not build.
+# Such a system installs without wgpu, decided before resolving. An unknown
+# C library (musl, or no getconf/ldd) is not treated as old.
+spacr_glibc_version() {
+    local text=""
+    if [[ -n "${SPACR_GLIBC_VERSION:-}" ]]; then
+        printf '%s\n' "$SPACR_GLIBC_VERSION"
+        return 0
+    fi
+    if command -v getconf >/dev/null 2>&1; then
+        text="$(getconf GNU_LIBC_VERSION 2>/dev/null || true)"
+    fi
+    if [[ ! "$text" =~ [Gg][Ll][Ii][Bb][Cc] ]] && command -v ldd >/dev/null 2>&1; then
+        text="$(ldd --version 2>&1 | head -n 1 || true)"
+        if [[ ! "$text" =~ [Gg][Ll][Ii][Bb][Cc]|GNU ]]; then
+            text=""
+        fi
+    fi
+    if [[ "$text" =~ ([0-9]+)\.([0-9]+)[^0-9]*$ ]]; then
+        printf '%s.%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+    fi
+}
+if [[ "$PLATFORM" == "linux" ]]; then
+    GLIBC_VERSION="$(spacr_glibc_version)"
+    if [[ "$GLIBC_VERSION" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+        glibc_major="${BASH_REMATCH[1]}"
+        glibc_minor="${BASH_REMATCH[2]}"
+        if (( glibc_major < 2 || (glibc_major == 2 && glibc_minor < 28) )); then
+            WITHOUT_WGPU=1
+            WGPU_SKIP_REASON="glibc"
+            spacr_say wgpu_glibc_too_old "$GLIBC_VERSION"
+        fi
+    fi
+fi
+if [[ "$WITHOUT_WGPU" != "0" && "$WITHOUT_WGPU" != "1" ]]; then
+    WITHOUT_WGPU=1
+fi
+
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
     spacr_say invalid_backend "$TORCH_BACKEND" >&2
     exit 2
@@ -300,6 +348,11 @@ printf '  %s:   %s\n' "$(spacr_say install_root)" "$INSTALL_ROOT"
 printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
 printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
+if [[ "$WITHOUT_WGPU" == "1" ]]; then
+    printf '  %s: %s\n' "$(spacr_say wgpu_plan)" "$(spacr_say wgpu_plan_skip)"
+else
+    printf '  %s: %s\n' "$(spacr_say wgpu_plan)" "$(spacr_say wgpu_plan_install)"
+fi
 
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     printf '  Offline bundle: %s\n' "$OFFLINE_BUNDLE"
@@ -335,18 +388,22 @@ spacr_linux_gui_install() {
     fi
     local title choices intro log_folder log fifo backend window completed status
     title="$(spacr_say installer_title)"
+    local wgpu_default=FALSE
+    if [[ "${WITHOUT_WGPU:-0}" == "1" ]]; then wgpu_default=TRUE; fi
     intro="$(spacr_say gui_explanation)"$'\n\n'"$(spacr_say gui_public_reports)"$'\n\n'"$(spacr_say gui_preserve)"
     if ! choices="$(zenity --list --checklist --hide-header --width=760 --height=520 \
         --title="$title" --text="$intro" --ok-label="$(spacr_say gui_install)" \
         --cancel-label="$(spacr_say gui_cancel)" \
         --column="" --column="" --column="" --hide-column=2 --print-column=2 --separator='|' \
         FALSE diagnostics "$(spacr_say gui_share_diagnostics)" \
-        FALSE issues "$(spacr_say gui_report_issues)")"; then
+        FALSE issues "$(spacr_say gui_report_issues)" \
+        "$wgpu_default" without_wgpu "$(spacr_say without_wgpu)")"; then
         return 130
     fi
-    local diagnostics=0 issues=0
+    local diagnostics=0 issues=0 without_wgpu=0
     case "|$choices|" in *'|diagnostics|'*) diagnostics=1 ;; esac
     case "|$choices|" in *'|issues|'*) issues=1 ;; esac
+    case "|$choices|" in *'|without_wgpu|'*) without_wgpu=1 ;; esac
     umask 077
     log_folder="${XDG_CACHE_HOME:-$HOME/.cache}/spacr/installer"
     mkdir -p "$log_folder"
@@ -363,12 +420,13 @@ spacr_linux_gui_install() {
     local argument
     for argument in "$@"; do
         case "$argument" in
-            --gui|--consent-collected|--share-diagnostics|--report-issues) ;;
+            --gui|--consent-collected|--share-diagnostics|--report-issues|--without-wgpu) ;;
             *) child_args+=("$argument") ;;
         esac
     done
     if [[ "$diagnostics" == "1" ]]; then child_options+=(--share-diagnostics); fi
     if [[ "$issues" == "1" ]]; then child_options+=(--report-issues); fi
+    if [[ "$without_wgpu" == "1" ]]; then child_options+=(--without-wgpu); fi
     SPACR_INSTALL_GUI_CHILD=1 SPACR_GUI_LOG="$log" SPACR_GUI_FIFO="$fifo" \
         setsid bash -c 'set -o pipefail; trap "wait; exit 130" TERM INT; bash "$@" 2>&1 | tee "$SPACR_GUI_LOG" > "$SPACR_GUI_FIFO"' \
         spacr-gui "$installer" "${child_args[@]}" "${child_options[@]}" < /dev/null &
@@ -670,17 +728,30 @@ rm -rf "$stage_venv"
 
 stage_python="$stage_venv/bin/python"
 
+# Skipping wgpu at resolve time, not uninstalling it afterwards: an override
+# whose marker never holds removes wgpu from the resolution, so a glibc that
+# would otherwise send uv to the wgpu source release never sees it. Nothing
+# else spaCR needs depends on wgpu or on rendercanvas, which only wgpu pulls.
+override_args=()
+if [[ "$WITHOUT_WGPU" == "1" ]]; then
+    wgpu_overrides="$work_dir/without-wgpu-overrides.txt"
+    printf '%s\n' 'wgpu; sys_platform == "never"' > "$wgpu_overrides"
+    override_args=(--override "$wgpu_overrides")
+fi
+
 spacr_say downloading_dependencies
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     "$UV_BIN" pip install \
         --python "$stage_python" \
         --offline --no-index \
         --find-links "$OFFLINE_BUNDLE/wheels" \
+        ${override_args[@]+"${override_args[@]}"} \
         -r "$OFFLINE_BUNDLE/requirements.txt"
 else
     "$UV_BIN" pip install \
         --python "$stage_python" \
         --torch-backend "$TORCH_BACKEND" \
+        ${override_args[@]+"${override_args[@]}"} \
         "$PACKAGE_SPEC" \
         "${RESOLVER_GUARDS[@]}"
 fi
@@ -703,7 +774,8 @@ fi
     --detected "$DETECTED_ACCELERATOR" \
     --consent-collected "$CONSENT_COLLECTED" \
     --share-diagnostics "$SHARE_DIAGNOSTICS" \
-    --report-issues "$REPORT_ISSUES"
+    --report-issues "$REPORT_ISSUES" \
+    --without-wgpu "$WITHOUT_WGPU"
 
 identity_args=(verify-runtime)
 if [[ "$DEFAULT_SPACR_VERSION" != @*@ ]]; then

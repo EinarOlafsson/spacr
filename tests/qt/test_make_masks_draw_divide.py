@@ -712,16 +712,36 @@ def test_drawing_on_a_brush_painted_mask_widens_it_rather_than_wrapping(
     assert int((widget.mask == 255).sum()) == 64, "the painted object moved"
 
 
-def test_a_mask_at_the_top_of_uint16_refuses_a_new_object():
-    """Past 65535 there is no id left to give, and the mask cannot be saved.
-
-    Refused by name rather than wrapped: label 65536 stored in uint16 is 0,
-    which is background, so the object would be silently lost instead.
-    """
+def test_a_mask_at_the_top_of_uint16_widens_for_a_new_object():
+    """Label 65536 remains a new object rather than wrapping to background."""
     full = np.zeros((16, 16), dtype=np.uint16)
     full[0, 0] = 65535
-    with pytest.raises(ValueError, match="65536"):
-        engine.fill_polygon(full, [(4, 4), (10, 4), (10, 10), (4, 10)])
+    full[0, 1] = 1
+    before = full.copy()
+
+    out, made = engine.fill_polygon(
+        full, [(4, 4), (10, 4), (10, 10), (4, 10)])
+
+    expected = before.astype(np.uint32)
+    expected[4:11, 4:11] = 65536
+    assert made == 65536
+    assert out.dtype == np.uint32
+    np.testing.assert_array_equal(out, expected)
+    np.testing.assert_array_equal(full, before)
+
+
+def test_a_polygon_label_past_uint32_is_refused_without_changing_the_mask():
+    """An explicit unrepresentable ID cannot become background or another ID."""
+    mask = np.zeros((16, 16), dtype=np.uint32)
+    mask[0, 0] = 2**32 - 1
+    mask[0, 1] = 1
+    before = mask.copy()
+
+    with pytest.raises(ValueError, match="4294967296.*uint32 capacity"):
+        engine.fill_polygon(
+            mask, [(4, 4), (10, 4), (10, 10), (4, 10)], label_value=2**32)
+
+    np.testing.assert_array_equal(mask, before)
 
 
 def test_an_outline_entirely_off_the_image_makes_no_object():

@@ -571,6 +571,7 @@ class _Worker:
         self.error = error
         self.result = result
         self.filename = filename
+        self.metadata = None
         self.deleted = 0
 
     def deleteLater(self):
@@ -583,7 +584,7 @@ class TestAStaleBackgroundLoad:
         """The token is what says which field the bytes belong to."""
         applied = []
         screen._apply_loaded_pair = (
-            lambda *args: applied.append(args))
+            lambda *args, **kwargs: applied.append(args))
         screen._handle_load_failure = lambda error: applied.append(error)
         image = np.zeros((IMG_N, IMG_N), np.uint16)
         mask = np.zeros((IMG_N, IMG_N), np.uint8)

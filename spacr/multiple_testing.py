@@ -285,6 +285,93 @@ def storey_qvalue(p_values, *, pi0: float | None = None):
     return out
 
 
+def _holm(p_values, alpha=0.05):
+    """Holm's step-down correction, computed here instead of in statsmodels.
+
+    The result is bit-for-bit what ``statsmodels.stats.multitest.multipletests``
+    returns for ``method='holm'``: the same sort, the same step-down rejection
+    at ``alpha / (n - i)``, the running maximum of ``p * (n - i)`` capped at 1,
+    and the input order restored. statsmodels runs a full ``gc.collect()``
+    inside its Holm branch, which on a pipeline worker walks the GUI's heap
+    with the interpreter lock held; this does not.
+
+    :param p_values: one-dimensional P values; NaNs behave as in statsmodels.
+    :param alpha: family-wise error rate for the rejection call.
+    :returns: ``(reject, p_adjusted)`` in the input order.
+    """
+    pvals = np.asarray(p_values)
+    ntests = len(pvals)
+    order = np.argsort(pvals)
+    pvals = np.take(pvals, order)
+    steps = np.arange(ntests, 0, -1)
+    notreject = pvals > alpha / steps
+    first = np.nonzero(notreject)[0]
+    notreject[(first.min() if first.size else ntests):] = True
+    reject = ~notreject
+    corrected = np.maximum.accumulate(pvals * steps)
+    corrected[corrected > 1] = 1
+    corrected_in_order = np.empty_like(corrected)
+    corrected_in_order[order] = corrected
+    reject_in_order = np.empty_like(reject)
+    reject_in_order[order] = reject
+    return reject_in_order, corrected_in_order
+
+
+def _is_holm(method) -> bool:
+    """Whether ``method`` names Holm's step-down correction."""
+    try:
+        return canonical_method(method) == "holm"
+    except ValueError:
+        return False
+
+
+def _multipletests(p_values, method, alpha=0.05):
+    """``(reject, p_adjusted)`` from statsmodels, with Holm done by :func:`_holm`.
+
+    :param p_values: one-dimensional P values.
+    :param method: a statsmodels method name or a spaCR alias.
+    :param alpha: error rate for the rejection call.
+    :returns: ``(reject, p_adjusted)`` in the input order.
+    """
+    if _is_holm(method):
+        return _holm(p_values, alpha=alpha)
+    from statsmodels.stats.multitest import multipletests
+
+    reject, corrected, _, _ = multipletests(p_values, alpha=alpha,
+                                            method=method)
+    return reject, corrected
+
+
+def _posthoc_dunn(data, val_col, group_col, p_adjust=None):
+    """``scikit_posthocs.posthoc_dunn`` with a Holm adjustment done by :func:`_holm`.
+
+    scikit-posthocs adjusts the upper triangle with statsmodels and mirrors
+    it; for Holm the same is done here on its unadjusted matrix, so the frame
+    is identical without statsmodels' collection.
+
+    :param data: long-format frame.
+    :param val_col: value column.
+    :param group_col: grouping column.
+    :param p_adjust: correction name, or ``None`` for raw P values.
+    :returns: the symmetric P-value frame scikit-posthocs returns.
+    """
+    import pandas as pd
+    import scikit_posthocs as sp
+
+    if not p_adjust or not _is_holm(p_adjust):
+        return sp.posthoc_dunn(data, val_col=val_col, group_col=group_col,
+                               p_adjust=p_adjust)
+    raw = sp.posthoc_dunn(data, val_col=val_col, group_col=group_col,
+                          p_adjust=None)
+    values = raw.to_numpy(dtype=float, copy=True)
+    upper = np.triu_indices(values.shape[0], 1)
+    lower = np.tril_indices(values.shape[0], -1)
+    values[upper] = _holm(values[upper])[1]
+    values[lower] = np.transpose(values)[lower]
+    np.fill_diagonal(values, 1)
+    return pd.DataFrame(values, index=raw.index, columns=raw.columns)
+
+
 def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
     """Return ``(adjusted, rejected)`` for one multiple-testing family.
 
@@ -324,10 +411,8 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
         rejected[finite] = q < alpha
         return adjusted, rejected
 
-    from statsmodels.stats.multitest import multipletests
-
-    call, corrected, _, _ = multipletests(
-        observed, alpha=alpha, method=spec.statsmodels_name
+    call, corrected = _multipletests(
+        observed, spec.statsmodels_name, alpha=alpha
     )
     adjusted[finite] = corrected
     rejected[finite] = call

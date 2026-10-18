@@ -4,13 +4,13 @@ subtitle, and an optional call-to-action button.
 
 Used on screens whose primary content requires the user to first pick
 a source folder / open a database (annotate, make-masks) — instead of
-showing an empty grid or blank canvas we render this centered.
+showing an empty grid or blank canvas, these screens show this panel centered.
 """
 from __future__ import annotations
 
 from typing import Optional, Callable
 
-from PySide6.QtCore import Qt, QSize, Signal
+from PySide6.QtCore import QEvent, Qt, QSize, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QLabel,
@@ -62,6 +62,22 @@ class _WrappedLabel(QLabel):
         """Replace the label text and re-fix the label to its wrapped height."""
         super().setText(text)
         self.setFixedSize(self._wrap_width, self._wrapped_height())
+
+    def event(self, event: QEvent) -> bool:
+        """Remeasure after Qt applies the font or style used to paint the text.
+
+        :param event: the event delivered by Qt.
+        :returns: whether the base label handled the event.
+        """
+        handled = super().event(event)
+        if hasattr(self, "_wrap_width") and event.type() in (
+            QEvent.FontChange, QEvent.ApplicationFontChange,
+            QEvent.StyleChange, QEvent.Polish,
+        ):
+            size = QSize(self._wrap_width, self._wrapped_height())
+            if size != self.size():
+                self.setFixedSize(size)
+        return handled
 
 
 class EmptyState(QWidget):

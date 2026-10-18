@@ -219,3 +219,5 @@ which fail identically on nightly without this change (cellpose3 rows
 unreachable; an order-dependent size check).
 
 VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.
+
+2026-10-17 (maintainer, via Claude WS): a settings file applied in bulk, Load test data included, follows this rule too: channel and organelle-slot switches change visibility in place; only a number_of_organelles change rebuilds the screen. Fix held on ws-load-test-data-freeze until release done.

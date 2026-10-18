@@ -76,5 +76,12 @@
   "gui_cancelled": "已取消安装。重试前请查看日志。",
   "gui_failed": "安装或启动失败。请查看日志并在此窗口中重试。",
   "gui_stopping": "正在停止安装并恢复此前的运行环境…",
-  "nsis_uninstall_failed": "spaCR 无法安全完成卸载。请查看上方详情；您的数据已保留。"
+  "nsis_uninstall_failed": "spaCR 无法安全完成卸载。请查看上方详情；您的数据已保留。",
+  "help_without_wgpu": "不安装 wgpu；3D 视图将使用 OpenGL 或 CPU。",
+  "without_wgpu": "不安装 wgpu（3D 使用 OpenGL/CPU）",
+  "without_wgpu_description": "不安装 wgpu（Vulkan、Metal、Direct3D 12）。spaCR 将使用 OpenGL 绘制 3D 视图；如果 OpenGL 不可用，则使用 CPU。除非 wgpu 在这台计算机上引起问题，否则请保持不勾选。",
+  "wgpu_plan": "wgpu 3D 渲染",
+  "wgpu_plan_install": "安装",
+  "wgpu_plan_skip": "跳过（3D 使用 OpenGL，否则使用 CPU）",
+  "wgpu_glibc_too_old": "wgpu 需要 glibc 2.28 或更高版本（本系统为 %s）；将不安装 wgpu，3D 将使用 OpenGL 或 CPU。"
 }

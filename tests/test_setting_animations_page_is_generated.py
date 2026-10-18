@@ -219,7 +219,7 @@ def test_the_page_describes_the_reveal_the_tooltip_widget_implements(
         ("the committed page", PAGE.read_text(encoding="utf-8")),
         ("the generator's output", fresh.read_text(encoding="utf-8")),
     ):
-        intro = text.split("The diagrams use a shared biological grammar")[0]
+        intro = text.split("All diagrams use the same drawings")[0]
         assert "purple dot" not in text, f"{source} describes a deleted widget"
         assert "**Animation**" in intro, source
         assert "tooltip's footer" in intro, source

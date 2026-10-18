@@ -1,0 +1,308 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "3D image",
+      "source": "3D image",
+      "source_sha256": "2a533ca7c78efb705496ec5a43d5f0dff5db05c27037f35fb0de00a63317346a",
+      "table": "ui",
+      "translation": "3D-bild"
+    },
+    {
+      "key": "3D measurement failed",
+      "source": "3D measurement failed",
+      "source_sha256": "0bd6c92ccd4a1d17ab26573fa713e13a9f72008be25c7928f2707d36ffaf0d03",
+      "table": "ui",
+      "translation": "3D-mätningen misslyckades"
+    },
+    {
+      "key": "3D measurement requires exactly three spatial axes.",
+      "source": "3D measurement requires exactly three spatial axes.",
+      "source_sha256": "7d160ec16895de01dbf57bfa8eeca76a76c412bb424bbe7fda45057405c1fd10",
+      "table": "ui",
+      "translation": "3D-mätning kräver exakt tre rumsliga axlar."
+    },
+    {
+      "key": "A measurement image set supports up to 16 channels within the 256 MiB volume budget.",
+      "source": "A measurement image set supports up to 16 channels within the 256 MiB volume budget.",
+      "source_sha256": "72c3dd161e054693d8b342af6cefd73eb42cbbaee9dc6a477246937fe2b1a793",
+      "table": "ui",
+      "translation": "En bildgrupp för mätning stöder upp till 16 kanaler inom gränsen på 256 MiB för volymdata."
+    },
+    {
+      "key": "Add an image set to measure.",
+      "source": "Add an image set to measure.",
+      "source_sha256": "d98da32fcc7da659d810eca83fe1e74922c3532173b616902cb3dac18413423d",
+      "table": "ui",
+      "translation": "Lägg till en bildgrupp att mäta."
+    },
+    {
+      "key": "Add image set",
+      "source": "Add image set",
+      "source_sha256": "cbc58b9108099f4604d248c55dbda0b0db798ffdbd35959aaa90bed8754d304b",
+      "table": "ui",
+      "translation": "Lägg till bildgrupp"
+    },
+    {
+      "key": "Choose a 3D image for image set {n}.",
+      "source": "Choose a 3D image for image set {n}.",
+      "source_sha256": "534baf9dd95fe3a1f2d364ce4010bd2793affb92177a5859c4cd074b73c390b7",
+      "table": "ui",
+      "translation": "Välj en 3D-bild för bildgrupp {n}."
+    },
+    {
+      "key": "Choose a single 3D label volume for the mask.",
+      "source": "Choose a single 3D label volume for the mask.",
+      "source_sha256": "b35d24c6399a3d3635372be90171228e15cfc5efa2548fca1bef6cef5cb43a6c",
+      "table": "ui",
+      "translation": "Välj en enda 3D-volym med objektetiketter som mask."
+    },
+    {
+      "key": "Choose a supported object type for 3D measurement.",
+      "source": "Choose a supported object type for 3D measurement.",
+      "source_sha256": "f7a75826b1eda82ed99a137d2b42120e57ae9cb1d8cb9f11f63841c42feaca92",
+      "table": "ui",
+      "translation": "Välj en objekttyp som stöds för 3D-mätning."
+    },
+    {
+      "key": "Current edited labels",
+      "source": "Current edited labels",
+      "source_sha256": "322aa715072d72cf45b2e03b1faad50252fa9dda6cc20740bb8d33cc624d458e",
+      "table": "ui",
+      "translation": "Aktuella redigerade etiketter"
+    },
+    {
+      "key": "Current image voxel spacing ({axes}): {spacing} {unit}.",
+      "source": "Current image voxel spacing ({axes}): {spacing} {unit}.",
+      "source_sha256": "a7c9a3338461daa34787a5ac435d59f6659b54a819cc729d91b9eb36cb32d9a8",
+      "table": "ui",
+      "translation": "Aktuell bilds voxelavstånd ({axes}): {spacing} {unit}."
+    },
+    {
+      "key": "Draw or load object labels before measuring {name}.",
+      "source": "Draw or load object labels before measuring {name}.",
+      "source_sha256": "917fa8b54e2ee6ca7e224396d10c25b02a886d7ac2a99d053b421afb8317fd4b",
+      "table": "ui",
+      "translation": "Rita eller läs in objektetiketter innan du mäter {name}."
+    },
+    {
+      "key": "Drop a file or paste its path",
+      "source": "Drop a file or paste its path",
+      "source_sha256": "06b60dbd99ceaa820167780e8e7c21cdd06d2259186b2236bf1afdd713b6d9ba",
+      "table": "ui",
+      "translation": "Släpp en fil eller klistra in dess sökväg"
+    },
+    {
+      "key": "Every channel must contain finite numeric intensities on the same 3D grid as its labels.",
+      "source": "Every channel must contain finite numeric intensities on the same 3D grid as its labels.",
+      "source_sha256": "ad223d0db7cc8fe6a30d25081d6c4ea024306e2dff59503b8010dd781e9c4b29",
+      "table": "ui",
+      "translation": "Varje kanal måste innehålla ändliga numeriska intensiteter på samma 3D-rutnät som dess etiketter."
+    },
+    {
+      "key": "Extra channel {n}",
+      "source": "Extra channel {n}",
+      "source_sha256": "0147bf2d5d4db2c3a254e245987e1aaeda8b58504763f5f18a72f7b3b522e0aa",
+      "table": "ui",
+      "translation": "Extra kanal {n}"
+    },
+    {
+      "key": "File not found: {path}",
+      "source": "File not found: {path}",
+      "source_sha256": "02fadf1052b4a451add6da43a0a1411dc1244189d503a8ca76ff72e575ef86e0",
+      "table": "ui",
+      "translation": "Filen hittades inte: {path}"
+    },
+    {
+      "key": "Fill extra channels from left to right in image set {n}.",
+      "source": "Fill extra channels from left to right in image set {n}.",
+      "source_sha256": "5c8ed545b8c9a8158db5ec079b722f1e6d737fc147f5ac28fae107be7003058d",
+      "table": "ui",
+      "translation": "Fyll i extra kanaler från vänster till höger i bildgrupp {n}."
+    },
+    {
+      "key": "IO",
+      "source": "IO",
+      "source_sha256": "1295b0b84cea614a9331304f55324ef70d6392a177dfdbe9612800fc6148eb9d",
+      "table": "ui",
+      "translation": "IN-/UTDATA"
+    },
+    {
+      "key": "Image set {row}, {column}",
+      "source": "Image set {row}, {column}",
+      "source_sha256": "363aa8ccee804b07f72f4f473ac5a1fb83a8b4d3f152267717717416bb4f69ec",
+      "table": "ui",
+      "translation": "Bildgrupp {row}, {column}"
+    },
+    {
+      "key": "Measure 3D images",
+      "source": "Measure 3D images",
+      "source_sha256": "cb89610e47b4b661b3c1083cd684d36cb9d627842349ab61bcbbfe052ddeb1c8",
+      "table": "ui",
+      "translation": "Mät 3D-bilder"
+    },
+    {
+      "key": "Measure current 3D image…",
+      "source": "Measure current 3D image…",
+      "source_sha256": "0fbe88cfd889bda703ba0aa433b3da41ed420695041e4d558d1e5092f00a3d04",
+      "table": "ui",
+      "translation": "Mät aktuell 3D-bild…"
+    },
+    {
+      "key": "Measure current edited 3D labels, add channel files and image sets, and save measurements in each image folder.",
+      "source": "Measure current edited 3D labels, add channel files and image sets, and save measurements in each image folder.",
+      "source_sha256": "11e0de4701e1338b40784502a82aa9f6191dfd7f416ceb4d262da5b2cc483601",
+      "table": "ui",
+      "translation": "Mät aktuella redigerade 3D-etiketter, lägg till kanalfiler och bildgrupper och spara mätningar i varje bildmapp."
+    },
+    {
+      "key": "Measure the current 3D image and its edited labels, or organize 2D images and masks for Measure. Use the arrow to choose a section.",
+      "source": "Measure the current 3D image and its edited labels, or organize 2D images and masks for Measure. Use the arrow to choose a section.",
+      "source_sha256": "db51a2541b55c17fd4a5e8a64ddd2cef138e8bb1470b405027c1c446df477e99",
+      "table": "ui",
+      "translation": "Mät den aktuella 3D-bilden och dess redigerade etiketter eller ordna 2D-bilder och masker för Measure. Använd pilen för att välja en sektion."
+    },
+    {
+      "key": "Measured {objects} object(s) in {images} 3D image set(s).",
+      "source": "Measured {objects} object(s) in {images} 3D image set(s).",
+      "source_sha256": "f03315868f3e826ff949071ef7133fdeff905da17b5920eb2f48b0d6faadb596",
+      "table": "ui",
+      "translation": "Mätte {objects} objekt i {images} 3D-bildgrupper."
+    },
+    {
+      "key": "Measurements are running",
+      "source": "Measurements are running",
+      "source_sha256": "eab74fcc387ba820a361078fab17d413545bc99ec014ca4a085e3b25a175477a",
+      "table": "ui",
+      "translation": "Mätningar pågår"
+    },
+    {
+      "key": "Measurements saved: {path}",
+      "source": "Measurements saved: {path}",
+      "source_sha256": "9511530fb92e43b5753c273013c174227ae9af3d4c6ae62e2de0259a3dc439a7",
+      "table": "ui",
+      "translation": "Mätningar sparade: {path}"
+    },
+    {
+      "key": "Measuring 3D image set {current} of {total}...",
+      "source": "Measuring 3D image set {current} of {total}...",
+      "source_sha256": "0faf1e972af78e30874e2f8c0fe46520fe5fecd6c629353010dc920b63244ba5",
+      "table": "ui",
+      "translation": "Mäter 3D-bildgrupp {current} av {total}..."
+    },
+    {
+      "key": "Measuring {n} 3D image set(s)…",
+      "source": "Measuring {n} 3D image set(s)…",
+      "source_sha256": "13ccfc4db16c1f8e691b73ee8299204a960e932374f666c196e4420b31076315",
+      "table": "ui",
+      "translation": "Mäter {n} 3D-bildgrupper…"
+    },
+    {
+      "key": "Open a 3D image before measuring.",
+      "source": "Open a 3D image before measuring.",
+      "source_sha256": "770209f82cfc21458880fb9f04403f222675298738cb2bf378618f2ad8a0b6ed",
+      "table": "ui",
+      "translation": "Öppna en 3D-bild innan du mäter."
+    },
+    {
+      "key": "Remove image set",
+      "source": "Remove image set",
+      "source_sha256": "687120a24e7a58ae70e131bdb9b7f201287ae1d45e8f41923c0621b5df9c122d",
+      "table": "ui",
+      "translation": "Ta bort bildgrupp"
+    },
+    {
+      "key": "Saved mask (optional)",
+      "source": "Saved mask (optional)",
+      "source_sha256": "cb33945e71699a024b316d1c046f74b00fc8aa135ef37651f3b854fc60f9da10",
+      "table": "ui",
+      "translation": "Sparad mask (valfritt)"
+    },
+    {
+      "key": "TOOLS",
+      "source": "TOOLS",
+      "source_sha256": "48b484e1202f016bb614a4af2fd53c1283f57be2f25abe8b7775988602d5f97d",
+      "table": "ui",
+      "translation": "VERKTYG"
+    },
+    {
+      "key": "The channel voxel spacing does not match the source image: {path}.",
+      "source": "The channel voxel spacing does not match the source image: {path}.",
+      "source_sha256": "133c4eae869f807b099011d011f132f295d07cde67b787ac5d2e112efeffe562",
+      "table": "ui",
+      "translation": "Kanalens voxelavstånd stämmer inte överens med källbildens: {path}."
+    },
+    {
+      "key": "The current 3D image changed. Open Measure again.",
+      "source": "The current 3D image changed. Open Measure again.",
+      "source_sha256": "6a0513eadb5a1891def4331e1c3fcec0904417f50684afc21ecb67dc5c6f0963",
+      "table": "ui",
+      "translation": "Den aktuella 3D-bilden har ändrats. Öppna Measure igen."
+    },
+    {
+      "key": "The existing object table has no field identity; choose another image folder.",
+      "source": "The existing object table has no field identity; choose another image folder.",
+      "source_sha256": "0be4d7ccf17a44b16a6203e62936872ce111f64d2481ba95812b80ae8baa9dcd",
+      "table": "ui",
+      "translation": "Den befintliga objekttabellen saknar en identifierare för bildfältet; välj en annan bildmapp."
+    },
+    {
+      "key": "The first image uses its current edited labels and all loaded channels. Add matching 3D channel files or more image sets below. Leave the mask field blank to use the image's saved mask. Measurements are written to measurements.db in each image folder; existing measurements for these sets are updated.",
+      "source": "The first image uses its current edited labels and all loaded channels. Add matching 3D channel files or more image sets below. Leave the mask field blank to use the image's saved mask. Measurements are written to measurements.db in each image folder; existing measurements for these sets are updated.",
+      "source_sha256": "96f6e058d6b6524e93349d1c909db504618edf9555e4e665870fc0def63888b4",
+      "table": "ui",
+      "translation": "Den första bilden använder sina aktuella redigerade etiketter och alla inlästa kanaler. Lägg till matchande 3D-kanalfiler eller fler bildgrupper nedan. Lämna maskfältet tomt för att använda bildens sparade mask. Mätningar skrivs till measurements.db i varje bildmapp; befintliga mätningar för dessa bildgrupper uppdateras."
+    },
+    {
+      "key": "The mask voxel spacing does not match the source image: {path}.",
+      "source": "The mask voxel spacing does not match the source image: {path}.",
+      "source_sha256": "15325442044101d9353ddf3a04129ccc76752791660520d495dcdf1694540e67",
+      "table": "ui",
+      "translation": "Maskens voxelavstånd stämmer inte överens med källbildens: {path}."
+    },
+    {
+      "key": "The same image set appears more than once in the measurement rows.",
+      "source": "The same image set appears more than once in the measurement rows.",
+      "source_sha256": "5632cabd8f340e7fe5ba79dc94ead12516090dffb373eb3d9172fae54340521f",
+      "table": "ui",
+      "translation": "Samma bildgrupp förekommer mer än en gång bland mätningsraderna."
+    },
+    {
+      "key": "The volume image does not exist: {path}.",
+      "source": "The volume image does not exist: {path}.",
+      "source_sha256": "947a26849dd9c444e9ecdbc8b0ed232e5401980416509e7c420baa244e25f458",
+      "table": "ui",
+      "translation": "Volymbilden finns inte: {path}."
+    },
+    {
+      "key": "This image identity already belongs to other measurements; existing rows were preserved.",
+      "source": "This image identity already belongs to other measurements; existing rows were preserved.",
+      "source_sha256": "1329a99f5b4f67cb66bdc6316f1f5bb156659bc5d2cb480bb4f9060ade0cb182",
+      "table": "ui",
+      "translation": "Denna bildidentifierare tillhör redan andra mätningar; befintliga rader har bevarats."
+    },
+    {
+      "key": "Unsupported volume measurement unit: {unit}.",
+      "source": "Unsupported volume measurement unit: {unit}.",
+      "source_sha256": "342faee41035f9a6f0cd37feacb3051e3a95f64d77d79b48ec18bf4b7abea8aa",
+      "table": "ui",
+      "translation": "Enheten för volymbildsmätning stöds inte: {unit}."
+    },
+    {
+      "key": "Wait for the 3D measurements to finish writing before closing Make Masks.",
+      "source": "Wait for the 3D measurements to finish writing before closing Make Masks.",
+      "source_sha256": "59a936e53af9522beffeb7ad820ffa92f685d90f6192eafdae76ede3fe1601c6",
+      "table": "ui",
+      "translation": "Vänta tills 3D-mätningarna har skrivits färdigt innan du stänger Make Masks."
+    },
+    {
+      "key": "Wait for the current 3D operation to finish.",
+      "source": "Wait for the current 3D operation to finish.",
+      "source_sha256": "0c175446d007a8679e3631118162bb0d544b7cfa3788aec29911da37d60593ab",
+      "table": "ui",
+      "translation": "Vänta tills den aktuella 3D-åtgärden är klar."
+    }
+  ],
+  "review_kind": "Codex AI draft and independent paired-agent technical review; no human or native-speaker signoff",
+  "schema": 1
+}

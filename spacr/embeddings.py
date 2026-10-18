@@ -395,6 +395,121 @@ def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
     return width, size
 
 
+_OPEN_DINOV2 = "vit_small_patch14_dinov2.lvd142m"
+_CELL_DINO_ENV = "SPACR_CELL_DINO_CHECKPOINT"
+_CELL_DINO_PATCHES = {(4, 16): "cell_dino_hpa_vitl16",
+                      (4, 14): "cell_dino_hpa_vitl14",
+                      (5, 8): "cell_dino_cp_vits8"}
+_CELL_DINO_SEEN: Dict[Tuple[str, int, int], Dict[str, str]] = {}
+
+
+def _cell_dino_folder() -> str:
+    """The folder searched for an official Cell-DINO checkpoint.
+
+    ``$SPACR_CELL_DINO_CHECKPOINT`` naming a file takes precedence; otherwise
+    the first ``*.pth`` or ``*.pt`` file in ``cell_dino`` under spaCR's model
+    cache is used.
+    """
+    from .model_zoo import _model_cache_root
+
+    return str(_model_cache_root() / "cell_dino")
+
+
+def _find_cell_dino(verify: bool = False) -> Dict[str, str]:
+    """Locate an installed official Cell-DINO checkpoint without a network.
+
+    The factory is read from the patch-embedding shape of the plain model
+    state, which is memory-mapped rather than loaded.
+
+    :param verify: also compute the file's SHA-256; cached per path, size
+        and modification time.
+    :returns: ``{}`` when no file is installed; else ``path`` with either
+        ``factory`` (and ``sha256`` when verified) or ``problem``.
+    """
+    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
+    if not chosen:
+        folder = _cell_dino_folder()
+        try:
+            names = sorted(name for name in os.listdir(folder)
+                           if name.lower().endswith((".pth", ".pt")))
+        except OSError:
+            names = []
+        if not names:
+            return {}
+        chosen = os.path.join(folder, names[0])
+    path = os.path.realpath(os.path.expanduser(chosen))
+    try:
+        status = os.stat(path)
+    except OSError:
+        return {"path": path, "problem": "missing"}
+    if not stat.S_ISREG(status.st_mode):
+        return {"path": path, "problem": "unreadable"}
+    key = (path, status.st_size, status.st_mtime_ns)
+    found = _CELL_DINO_SEEN.get(key)
+    if found is None:
+        found = {"path": path}
+        try:
+            import torch
+
+            state = torch.load(path, map_location="cpu", weights_only=True,
+                               mmap=True)
+            shape = tuple(state["patch_embed.proj.weight"].shape)
+            factory = _CELL_DINO_PATCHES.get((shape[1], shape[-1]))
+        except Exception:
+            factory = None
+        if factory:
+            found["factory"] = factory
+        else:
+            found["problem"] = "unreadable"
+        _CELL_DINO_SEEN[key] = found
+    if verify and "factory" in found and "sha256" not in found:
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        found["sha256"] = digest.hexdigest()
+    return dict(found)
+
+
+def _dino_choice(channels: Optional[Sequence[int]], available: int, *,
+                 channel_policy: str = CHANNEL_PROJECT, batch_size: int = 64,
+                 device: Optional[str] = None,
+                 verify: bool = True) -> Tuple[EmbeddingSpec, Dict[str, str]]:
+    """Official Cell-DINO when it is installed and mapped, else open DINOv2.
+
+    :param channels: crop channel per Cell-DINO input plane, in model order.
+    :param available: how many channels the crops have.
+    :returns: the spec to run and what was decided: ``model`` is
+        ``cell_dino`` or ``dinov2``, with ``reason`` (``absent``,
+        ``unmapped`` or ``unreadable``) when Cell-DINO is not used.
+    """
+    found = _find_cell_dino(verify=verify)
+    note = dict(found)
+    factory = found.get("factory")
+    if factory:
+        width = _CELL_DINO_FACTORIES[factory][0]
+        planes = tuple(channels or ())
+        if (len(planes) == width and len(set(planes)) == width and all(
+                isinstance(plane, (int, np.integer))
+                and not isinstance(plane, (bool, np.bool_))
+                and 0 <= plane < available for plane in planes)):
+            spec = EmbeddingSpec(
+                backbone="cell_dino", channel_policy=CHANNEL_PROJECT,
+                channels=tuple(int(plane) for plane in planes),
+                batch_size=batch_size, device=device,
+                cell_dino_factory=factory, checkpoint_path=found["path"],
+                checkpoint_sha256=found.get("sha256"))
+            note.update(model="cell_dino", planes=str(width))
+            return spec, note
+        note.update(reason="unmapped", planes=str(width))
+    else:
+        note["reason"] = "unreadable" if found.get("problem") else "absent"
+    note.update(model="dinov2", backbone=_OPEN_DINOV2,
+                folder=_cell_dino_folder())
+    return EmbeddingSpec(backbone=_OPEN_DINOV2, channel_policy=channel_policy,
+                         batch_size=batch_size, device=device), note
+
+
 def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
     """One channel divided by a FIXED scale and clipped to [0, 1].
 

@@ -37,9 +37,9 @@ msgstr "학습 이미지를 한 폴더에 두고 해당 마스크는 그 하위 
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "각 마스크는 해당 이미지와 높이와 너비가 같아야 합니다. 정수 객체 레이블을 사용합니다. 배경은 0이고, 객체마다 서로 다른 양의 정수를 사용합니다. 마스크 파일 이름은 이미지와 같거나 확장자 앞에 ``_masks`` 를 붙일 수 있습니다(예: ``field_01_masks.tif``). 이미지마다 대응하는 마스크를 하나만 둡니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
-msgstr "학습 전에 마스크 만들기를 사용하여 객체 경계를 검사하고 보정합니다. 검증용 시야는 따로 보관합니다. ``train/images`` 와 ``train/masks`` 가 있는 기존 프로젝트를 소스로 선택하면 그 프로젝트를 재사용할 수 있습니다."
+msgstr "학습 전에 마스크 만들기를 사용하여 객체 경계를 검사하고 보정합니다. 검증용 시야는 따로 보관합니다. ``train/images`` 와 ``train/masks`` 가 있는 프로젝트를 소스로 선택할 수도 있습니다."
 
 msgid "Choose inputs and settings"
 msgstr "입력과 설정 선택"

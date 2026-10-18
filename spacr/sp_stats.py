@@ -74,7 +74,7 @@ import pandas as pd
 from scipy.stats import chi2_contingency, fisher_exact
 import itertools
 import re
-from statsmodels.stats.multitest import multipletests
+from .multiple_testing import _multipletests, _posthoc_dunn
 
 _ENGINE_TEST_NAMES = {
     "Student's t": 'T-test',
@@ -328,7 +328,7 @@ def perform_posthoc_tests(df, grouping_column, data_column, is_normal):
                 })
         else:
             raw_dunn_result = sp.posthoc_dunn(df, val_col=data_column, group_col=grouping_column, p_adjust=None)
-            adjusted_dunn_result = sp.posthoc_dunn(df, val_col=data_column, group_col=grouping_column, p_adjust=p_adjust_method)
+            adjusted_dunn_result = _posthoc_dunn(df, val_col=data_column, group_col=grouping_column, p_adjust=p_adjust_method)
             for i, group_a in enumerate(adjusted_dunn_result.index):
                 for j, group_b in enumerate(adjusted_dunn_result.columns):
                     if i < j:
@@ -430,7 +430,7 @@ def chi_pairwise(raw_counts, verbose=False):
     testable = ~np.isnan(raw)
     corrected_p_values = np.full(raw.shape, np.nan)
     if testable.any():
-        corrected_p_values[testable] = multipletests(
+        corrected_p_values[testable] = _multipletests(
             raw[testable], method=p_adjust_method)[1]
 
     for i, result in enumerate(pairwise_results):

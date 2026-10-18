@@ -102,7 +102,7 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
         :func:`iter_image_files`, hands it here, and keeps draining the same
         generator afterwards.
     :returns: a :class:`FolderTemplate` describing the detected
-        layout, or None if we can't infer one.
+        layout, or None if no layout can be inferred.
     """
     root = Path(root)
     if files is None and not root.is_dir():
@@ -219,7 +219,7 @@ def assign_missing_fields(
     :param have_well: True if the caller already knows well ids from
         elsewhere (folder structure); False to auto-assign A01, A02, …
     :param have_field: True if the caller knows field ids.
-    :param have_channel: True when we can extract channels from the
+    :param have_channel: True when channels can be extracted from the
         filename or the folder — otherwise every file is treated as
         channel 1.
     :returns: list of :class:`NameMapping`, in the same order as

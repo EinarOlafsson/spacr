@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import threading
+import types
 
 import pytest
 from PySide6.QtWidgets import QDialog, QInputDialog, QLabel, QLineEdit
@@ -235,3 +236,196 @@ def test_help_text_names_great_lakes_okta_and_read_only_discovery(qtbot):
     qtbot.addWidget(dialog)
     assert 'Great Lakes' in dialog._ssh_interactive.toolTip() and 'Okta' in dialog._ssh_interactive.toolTip()
     assert 'never runs ssh -G' in dialog._find_ssh_button.toolTip()
+
+
+class _Signal:
+    """Record the slots a connection test wires to its worker."""
+
+    def __init__(self):
+        self.slots = []
+
+    def connect(self, slot):
+        self.slots.append(slot)
+
+
+def _capture_connection_worker(monkeypatch):
+    """Replace ``make_thread`` so the connection check runs on this thread."""
+    started = []
+
+    def fake_make_thread(operation, settings, **kwargs):
+        thread = type('Thread', (), {'finished': _Signal(), 'start': lambda self: None})()
+        worker = type('Worker', (), {'finished': _Signal()})()
+        started.append((operation, thread, worker, kwargs))
+        return thread, worker
+
+    monkeypatch.setattr(ui, 'make_thread', fake_make_thread)
+    return started
+
+
+@pytest.mark.parametrize('backend, failing, stages, error', [
+    ('ssh', None, ['hostname'], ''),
+    ('slurm', None, ['hostname', 'sinfo'], ''),
+    ('slurm', 'hostname', ['hostname'], 'hostname failed: Remote command returned a non-zero exit status.'),
+    ('slurm', 'sinfo', ['hostname', 'sinfo'], 'sinfo failed: Remote command returned a non-zero exit status.'),
+])
+def test_the_connection_check_stops_at_the_first_failed_stage(qtbot, monkeypatch, backend, failing, stages, error):
+    started = _capture_connection_worker(monkeypatch)
+    calls = []
+
+    def run(argv, **kwargs):
+        stage = argv[2].split()[0]
+        calls.append(stage)
+        return CommandResult(1 if stage == failing else 0)
+
+    monkeypatch.setattr(ui, '_run_command', run)
+    profile = ExecutionProfile('p', backend, host='alias', workdir='/shared', ssh_interactive=True)
+    dialog = ui.ExecutionProfileDialog(profile=profile)
+    qtbot.addWidget(dialog)
+    dialog._test_connection()
+    dialog._test_connection()
+    assert len(started) == 1, 'a second click while one check runs starts nothing'
+    assert not dialog._test_ssh.isEnabled()
+    operation, thread, worker, kwargs = started[0]
+    assert kwargs['app_key'] == 'ssh_connection_test' and kwargs['journal'] is False
+    operation({})
+    assert calls == stages
+    assert dialog._connection_error == error
+    for slot in worker.finished.slots:
+        slot(True)
+    for slot in thread.finished.slots:
+        slot()
+    assert dialog._connection_worker is None
+    assert dialog._test_ssh.isEnabled()
+    assert dialog._error.text() == (error or 'SSH connection test passed.')
+    assert dialog._retry_ssh.isHidden() is not bool(error)
+
+
+def test_an_invalid_host_is_reported_before_any_connection_is_tried(qtbot, monkeypatch):
+    started = _capture_connection_worker(monkeypatch)
+    dialog = ui.ExecutionProfileDialog(profile=ExecutionProfile('p', 'ssh', host='alias', workdir='/w'))
+    qtbot.addWidget(dialog)
+    dialog._host.setText('bad host;reboot')
+    dialog._test_connection()
+    assert started == []
+    assert 'unsupported characters' in dialog._error.text()
+
+
+def test_an_imported_alias_needs_a_port_inside_the_valid_range(qtbot):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    dialog._select_ssh(-1)
+    assert dialog._host.text() == '' and dialog._error.text() == ''
+    dialog._ssh_aliases.blockSignals(True)
+    dialog._ssh_aliases.addItem('far', {'alias': 'far', 'hostname': 'far.example', 'port': '70000'})
+    dialog._ssh_aliases.blockSignals(False)
+    dialog._select_ssh(dialog._ssh_aliases.count() - 1)
+    assert dialog._host.text() == ''
+    assert 'between 1 and 65535' in dialog._error.text()
+
+
+def test_a_password_that_cannot_be_named_is_not_forgotten_blindly(qtbot, monkeypatch):
+    deleted = []
+    monkeypatch.setattr(ui, '_keychain_password', lambda action, account: deleted.append(account))
+
+    def unreadable(host, options):
+        raise ui.RemoteExecutionError('SSH configuration cannot be read.')
+
+    monkeypatch.setattr(ui, '_keychain_account', unreadable)
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    dialog._forget_password('greatlakes', {})
+    assert deleted == []
+
+
+def test_an_unanswered_challenge_times_out_and_is_never_shown(qtbot, monkeypatch):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    broker = ui._ensure_ssh_broker()
+
+    waits = []
+
+    class Expired(threading.Event):
+        def wait(self, timeout=None):
+            waits.append(timeout)
+            return False
+
+    monkeypatch.setattr(ui, 'threading', types.SimpleNamespace(Event=Expired, Thread=threading.Thread))
+    shown = []
+    monkeypatch.setattr(QInputDialog, 'exec', lambda self: shown.append(self) or QDialog.Accepted)
+    result = []
+    thread = threading.Thread(target=lambda: result.append(broker._request('SSH', '', [('Code:', True)])))
+    thread.start()
+    thread.join(timeout=5)
+    assert result == [None] and waits == [185]
+    assert broker._pending == []
+    qtbot.wait(50)
+    assert shown == []
+
+
+def test_a_new_instruction_replaces_the_one_still_on_screen(qtbot):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    broker = ui._ensure_ssh_broker()
+    first = {'title': 'Okta', 'instructions': 'Approve the first push', 'prompts': [],
+             'event': threading.Event(), 'answers': None, 'cancelled': False}
+    second = dict(first, instructions='Approve the second push', event=threading.Event())
+    broker._show(first)
+    old = broker._notices[-1]
+    broker._show(second)
+    try:
+        assert old.isHidden()
+        assert [notice.text() for notice in broker._notices] == ['Approve the second push']
+        assert first['answers'] == [] and second['event'].is_set()
+    finally:
+        for notice in broker._notices:
+            notice.close()
+        broker._notices.clear()
+
+
+def test_quitting_cancels_waiting_challenges_and_closes_sessions_off_the_gui_thread(qtbot, monkeypatch):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    broker = ui._ensure_ssh_broker()
+    closed = threading.Event()
+    closers = []
+
+    def close():
+        closers.append(threading.current_thread() is not threading.main_thread())
+        closed.set()
+
+    monkeypatch.setattr(ui._SSH_SESSIONS, 'close', close)
+    waiting = {'title': 'SSH', 'instructions': '', 'prompts': [('Password:', False)],
+               'event': threading.Event(), 'answers': None, 'cancelled': False}
+    broker._pending.append(waiting)
+    try:
+        broker._shutdown()
+        assert waiting['cancelled'] and waiting['event'].is_set()
+        assert closed.wait(5) and closers == [True]
+        broker._pending.remove(waiting)
+        closed.clear()
+        broker._shutdown()
+        assert closed.wait(5)
+    finally:
+        if waiting in broker._pending:
+            broker._pending.remove(waiting)
+    shown = []
+    monkeypatch.setattr(QInputDialog, 'exec', lambda self: shown.append(self) or QDialog.Accepted)
+    broker._show(waiting)
+    assert shown == [] and waiting['answers'] is None
+
+
+def test_a_challenge_that_expires_while_its_notice_opens_gets_no_answers(qtbot, monkeypatch):
+    dialog = ui.ExecutionProfileDialog()
+    qtbot.addWidget(dialog)
+    broker = ui._ensure_ssh_broker()
+    request = {'title': 'Okta', 'instructions': 'Approve the push', 'prompts': [],
+               'event': threading.Event(), 'answers': None, 'cancelled': False}
+    monkeypatch.setattr(ui.QMessageBox, 'show', lambda self: request.__setitem__('cancelled', True))
+    try:
+        broker._show(request)
+        assert request['answers'] is None
+        assert request['event'].is_set()
+    finally:
+        for notice in broker._notices:
+            notice.close()
+        broker._notices.clear()

@@ -247,7 +247,7 @@ def forget(path=None) -> None:
 def prime(path, answer: bool, *, want_dir: bool = False) -> None:
     """Cache a known answer without starting a probe.
 
-    The file dialog has just told us a path exists; asking the filesystem
+    For example, a file dialog has just reported that a path exists; asking the filesystem
     again would be a second stat for a fact already in hand. This clears
     the matching pending marker but does not cancel a queued or running
     probe. Such a probe can later overwrite the primed answer and emit

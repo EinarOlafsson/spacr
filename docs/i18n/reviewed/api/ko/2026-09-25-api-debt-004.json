@@ -508,6 +508,8 @@
     },
     {
       "label": "spacr.qt.install_consent.apply_choices#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the consent answers, read by the keys ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
       "source_sha256": "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19",
       "context": "the consent answers, read by the structured-data names ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
@@ -516,6 +518,8 @@
     },
     {
       "label": "spacr.qt.install_consent.maybe_show_installer_consent#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
       "source_sha256": "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
       "context": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
@@ -1988,7 +1992,9 @@
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
       "context": "the labels as ``uint16``.",
       "translation": "``uint16`` 으로 나타낸 레이블입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_labels#9",
@@ -1996,7 +2002,9 @@
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "translation": "ID 가 ``uint16`` 에 들어가지 않거나, 정확한 ID 모드가 잘못된 레이블을 받았을 때 발생합니다. 너무 큰 ID 는 절대 잘라 내지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_property#0",
@@ -4572,7 +4580,9 @@
       "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
       "context": "Describe object types once, collapsing organelle slots into a regex.",
       "translation": "객체 유형을 한 번씩 설명하며, 소기관 슬롯은 하나의 정규식으로 묶습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.object_type_summary#1",
@@ -4818,7 +4828,9 @@
       "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
       "context": "Fields scored ``'fail'`` in current, readable cards.",
       "translation": "현재 읽을 수 있는 카드에서 ``'fail'`` 로 채점된 현미경 시야입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.QCDigest.n_fields#0",
@@ -4826,7 +4838,9 @@
       "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
       "context": "Fields scored in current, readable cards; stale rows are excluded.",
       "translation": "현재 읽을 수 있는 카드에서 채점된 현미경 시야이며, 오래된 행은 제외됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.Scorecard.verdict#0",
@@ -4834,7 +4848,9 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
       "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` 또는 ``'error'`` 입니다.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.qc_mode#3",

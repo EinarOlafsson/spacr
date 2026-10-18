@@ -15,6 +15,7 @@ param(
     [ValidateSet(0, 1)][int]$ReportIssues = 0,
     [string]$OfflineBundle = $env:SPACR_OFFLINE_BUNDLE,
     [switch]$CheckMask,
+    [switch]$WithoutWgpu,
     [switch]$DryRun
 )
 
@@ -34,6 +35,11 @@ $ResolverGuards = @("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
 
 if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
     $TorchBackend = $env:SPACR_TORCH_BACKEND
+}
+# wgpu draws the True 3D view through Vulkan or Direct3D 12. Without it spaCR
+# draws 3D through OpenGL (VisPy) or the CPU. Off by default.
+if ($env:SPACR_WITHOUT_WGPU -eq "1") {
+    $WithoutWgpu = [switch]$true
 }
 $DetectedAccelerator = "none"
 if (Get-Command "nvidia-smi.exe" -ErrorAction SilentlyContinue) {
@@ -103,6 +109,11 @@ Write-Host "  $(Get-SpacrInstallerMessage 'install_root'):   $InstallRoot"
 Write-Host "  $(Get-SpacrInstallerMessage 'pytorch_backend'): $TorchBackend"
 Write-Host "  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies."
 Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
+if ($WithoutWgpu) {
+    Write-Host "  $(Get-SpacrInstallerMessage 'wgpu_plan'): $(Get-SpacrInstallerMessage 'wgpu_plan_skip')"
+} else {
+    Write-Host "  $(Get-SpacrInstallerMessage 'wgpu_plan'): $(Get-SpacrInstallerMessage 'wgpu_plan_install')"
+}
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
     Write-Host (Get-SpacrInstallerMessage "dry_remove_old")
@@ -239,13 +250,24 @@ try {
     Write-Host (Get-SpacrInstallerMessage "creating_environment") -ForegroundColor Cyan
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
 
+    # Skipping wgpu at resolve time: an override whose marker never holds
+    # removes wgpu (and rendercanvas, which only wgpu pulls) from the
+    # resolution instead of installing and then uninstalling it.
+    $OverrideArgs = @()
+    if ($WithoutWgpu) {
+        $WgpuOverrides = Join-Path $WorkDir "without-wgpu-overrides.txt"
+        [System.IO.File]::WriteAllText($WgpuOverrides,
+            "wgpu; sys_platform == `"never`"`n", [System.Text.UTF8Encoding]::new($false))
+        $OverrideArgs = @("--override", $WgpuOverrides)
+    }
+
     Write-Host (Get-SpacrInstallerMessage "downloading_dependencies") -ForegroundColor Cyan
     if ($OfflineBundle) {
         Invoke-Checked $UvExe pip install --python $StagePython --offline --no-index `
-            --find-links (Join-Path $OfflineBundle "wheels") `
+            --find-links (Join-Path $OfflineBundle "wheels") @OverrideArgs `
             -r (Join-Path $OfflineBundle "requirements.txt")
     } else {
-        Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
+        Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend @OverrideArgs $PackageSpec @ResolverGuards
     }
 
     Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
@@ -279,7 +301,9 @@ try {
         "--share-diagnostics",
         [string]$ShareDiagnostics,
         "--report-issues",
-        [string]$ReportIssues
+        [string]$ReportIssues,
+        "--without-wgpu",
+        $(if ($WithoutWgpu) { "1" } else { "0" })
     )
 
     $IdentityArgs = @("-I", $CleanupModule, "verify-runtime", "--python", $StagePython, "--retiring-prefix", $VenvDir)

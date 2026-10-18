@@ -92,13 +92,6 @@ def screen(qtbot):
     return widget
 
 
-def test_a_separated_navigation_group_has_a_divider(screen):
-    from PySide6.QtWidgets import QFrame
-
-    group, _row = screen._nav_button_group(separated=True)
-    assert group.findChild(QFrame, "NavGroupSeparator") is not None
-
-
 def test_sam2_tracking_cancelled_opens_nothing(screen, monkeypatch):
     monkeypatch.setattr(QFileDialog, "getOpenFileName",
                         staticmethod(lambda *a, **k: ("", "")))

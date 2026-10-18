@@ -94,6 +94,11 @@ def _native_builds(tmp_path):
         recorded = "dist/" + name if platform == "debian" else name
         (root / "acceptance/SHA256SUMS").write_text(hashlib.sha256(payload).hexdigest() + "  " + recorded + "\n")
         (root / "acceptance/build.log").write_text("CI-only build output")
+    updater = f"spaCR-{version}-update.exe"
+    root = source / "legacy-build-windows"
+    (root / "dist" / updater).write_bytes(b"mandatory phase updater")
+    with (root / "acceptance/SHA256SUMS").open("a") as stream:
+        stream.write(hashlib.sha256(b"mandatory phase updater").hexdigest() + "  " + updater + "\n")
     return source, version, commit, names
 
 
@@ -110,7 +115,7 @@ def test_frozen_release_collection_copies_only_verified_updater_payloads(tmp_pat
                              "--version", version, "--source-commit", commit],
                             capture_output=True, text=True, timeout=15)
     assert result.returncode == 0, result.stderr
-    assert {path.name for path in destination.iterdir()} == {*names.values(), "online.run"}
+    assert {path.name for path in destination.iterdir()} == {*names.values(), f"spaCR-{version}-update.exe", "online.run"}
     for platform, name in names.items():
         assert (destination / name).read_bytes() == (source / f"legacy-build-{platform}/dist" / name).read_bytes()
     assert (destination / "online.run").read_bytes() == b"existing online asset"
@@ -226,3 +231,37 @@ def test_windows_native_verifier_keeps_default_and_explicit_commit_refusal(tmp_p
     wrong = subprocess.run(common + ["-SourceCommit", "caller"], env=env,
                            capture_output=True, text=True, timeout=10)
     assert wrong.returncode != 0 and "another commit" in wrong.stderr
+
+
+@pytest.mark.parametrize("fault", ["missing", "corrupt", "unchecksummed"])
+def test_release_cannot_publish_without_verified_mandatory_phase_windows_asset(tmp_path, fault):
+    source, version, commit, names = _native_builds(tmp_path)
+    root = source / "legacy-build-windows"
+    updater = root / "dist" / f"spaCR-{version}-update.exe"
+    if fault == "missing":
+        updater.unlink()
+    elif fault == "corrupt":
+        updater.write_bytes(b"unverified updater")
+    else:
+        checksum = root / "acceptance/SHA256SUMS"
+        checksum.write_text("".join(line for line in checksum.read_text().splitlines(keepends=True)
+                                   if updater.name not in line))
+    destination = tmp_path / "public"
+    with pytest.raises((ValueError, FileNotFoundError)):
+        _release_helper().collect_frozen_installers(source, destination, version, commit)
+    assert not destination.exists()
+
+
+def test_windows_update_asset_requires_phase_flags_and_shares_the_built_payload():
+    source = (ROOT / "packaging/build_windows.ps1").read_text()
+    assert source.count('@("-m", "PyInstaller",') == 1
+    assert "!ifdef SPACR_UPDATE_ONLY" in source
+    assert "/DSPACR_UPDATE_ONLY" in source
+    assert 'spaCR-$Version-update.exe' in source
+    assert '${GetOptions} $R0 "/SPACRUPDATE="' in source
+    assert '${GetOptions} $R0 "/SPACRPID="' in source
+    assert '--phase-channel "$R1" --desktop-pid "$R2"' in source
+    workflow = (ROOT / ".github/workflows/frozen-installers.yml").read_text()
+    assert 'dist/*.exe' in workflow
+    release = (ROOT / ".github/workflows/release.yml").read_text()
+    assert "collect-frozen" in release and "release-assets/*" in release

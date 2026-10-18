@@ -305,3 +305,27 @@ independent target peer are required before publication. No full translated
 HTML, hosted, native-speaker or tutorial acceptance is claimed.
 Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
 data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-17 — Home app runtime English pass (maintainer split: Home owns app text).
+Rewrote 59 runtime strings as factual descriptions: settings-group help, preference,
+sound and fractal tooltips, night-theme and palette notes, drift options, diameter,
+figure text-size and Embeddings intro; nine-locale reviewed records added, 171
+superseded records archived. WS still owns docs, API docstrings and tutorials.
+
+2026-10-17 — Home docs/source prose share (from WS). "Pixels to answers" slogan already absent. Rewrote 17
+paragraphs in features, index, host_pathogen, plaque_assay, installer_guide, model_zoo, model_explanation,
+table_workflows, settings_flow, setting_animations (generator): slogan variant, metaphors, request quote, stale
+Home → Assays path, version-stale tag prose; added missing Edit Label tool; regenerated settings-flow page.
+Nine-locale AI-reviewed guide catalogs, no native signoff. workflows.rst (tutorial-fed) and README unchanged.
+
+2026-10-17 — Home API docstring prose pass. Scanned all 13,609 public API symbols for
+promotional, chatty, metaphorical and first/second-person wording; 51 docstrings (54 blocks)
+rewritten as factual descriptions, with io/power_model contracts checked against the code.
+Nine-locale reviewed records in 2026-10-17-678-api-prose.json; 87 superseded records retired
+and archived. Includes the stale plaque_model_choices entry. Tutorials remain with their lane.
+
+2026-10-17 — Home terminology pass (runtime + API translations, not tutorials). ~16.5k rows
+in nine locales had domain terms in the wrong sense (stain as smudge, well as "bien", epoch
+as era, seed as plant seed, label as Etikett...); fixed in reviewed records, new ones in
+2026-10-17-f678-terminology.json (AI technical review, no native-speaker signoff). Gates
+dye-stain-as-smudge + _REVIEWED_TERM_GATES (99 rules) block regressions. API MT prose still poor.

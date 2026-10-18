@@ -61,7 +61,7 @@ def test_the_nine_reviewed_cards_stay_reviewed():
     reviewed = {zoo._builtin_entry_from_mapping(r).key for r in zoo.BUNDLED_REMOTE_MODELS
                 if zoo.scorecard_state(zoo._builtin_entry_from_mapping(r)) == "reviewed"}
     assert reviewed == {f"toxoplasma_pv_v{i}" for i in range(1, 6)} | {
-        f"toxoplasma_plaque_v{i}" for i in range(1, 5)}
+        f"toxoplasma_plaque_v{i}" for i in range(1, 6)}
 
 
 def test_an_unevaluated_spacr_model_says_so_and_a_stock_model_does_not():
@@ -100,7 +100,7 @@ def test_reviewed_export_rows_equal_the_packaged_card_json():
     names = {"f1": "object_f1", "boundary_f1_2px": "boundary_f1", "precision": "precision",
              "recall": "recall", "aji": "aji", "dice": "dice"}
     paths = sorted((ROOT / "spacr/resources/model_cards").glob("*.json"))
-    assert len(paths) == 9
+    assert len(paths) == 10
     for path in paths:
         card = json.loads(path.read_text(encoding="utf-8"))
         entry = zoo._builtin_entry_from_mapping(_record(card["key"]))

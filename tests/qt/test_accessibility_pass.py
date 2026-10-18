@@ -17,7 +17,12 @@ from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QAccessible
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
+    QHeaderView,
+    QLabel,
+    QMenu,
+    QTabWidget,
     QFormLayout,
     QLineEdit,
     QPlainTextEdit,
@@ -199,3 +204,139 @@ def test_high_contrast_text_clears_the_enhanced_level():
             ratio = theme_mod.contrast_ratio(palette[ink], palette[ground])
             assert ratio >= 7.0, f"{ink} on {ground} is {ratio:.2f}:1"
     assert theme_mod.stylesheet("high_contrast")
+
+
+def _focusable_unnamed(host):
+    """Visible, enabled, focusable controls under ``host`` with no name."""
+    out = []
+    for widget in host.findChildren(QWidget):
+        if isinstance(widget, (QScrollBar, QHeaderView)):
+            continue
+        if not widget.isVisibleTo(host) or widget.focusProxy() is not None:
+            continue
+        interactive = isinstance(widget, i18n._a11y_interactive_types()
+                                 + (QAbstractItemView,))
+        if not interactive and widget.focusPolicy() == Qt.NoFocus:
+            continue
+        if widget.objectName().startswith("qt_") and not interactive:
+            continue
+        if not _accessible_name(widget).strip():
+            out.append(f"{type(widget).__name__}#{widget.objectName() or '?'}"
+                       f" in {type(widget.parentWidget()).__name__}")
+    return out
+
+
+def _tab_walk(host):
+    """Tab round ``host``; return the widgets that held focus against Tab.
+
+    A label with links keeps the focus while Tab steps through its links, and
+    Qt spends one press wrapping from the last control round to the first, so
+    a widget counts as holding focus only past one press per link plus two.
+    """
+    host.activateWindow()
+    focusable = [
+        widget for widget in host.findChildren(QWidget)
+        if widget.isVisibleTo(host) and widget.isEnabled()
+        and widget.focusProxy() is None
+        and (widget.focusPolicy() & Qt.TabFocus) == Qt.TabFocus
+        and not widget.objectName().startswith("qt_")
+    ]
+    assert focusable, "nothing in the host takes focus"
+    focusable[0].setFocus(Qt.TabFocusReason)
+    QApplication.processEvents()
+    stuck, run = set(), 0
+    for _press in range(3 * len(focusable) + 5):
+        before = QApplication.focusWidget()
+        QTest.keyClick(before or host, Qt.Key_Tab)
+        QApplication.processEvents()
+        if QApplication.focusWidget() is before:
+            run += 1
+            links = (before.text().count("<a ")
+                     if isinstance(before, QLabel) else 0)
+            if run > links + 2:
+                stuck.add(f"{type(before).__name__}#{before.objectName()}")
+        else:
+            run = 0
+    return sorted(stuck)
+
+
+@pytest.fixture
+def main_window(qtbot, qt_theme_applied, monkeypatch, tmp_path):
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, "en")
+    monkeypatch.setattr(prefs, "_SAFE_MODE", False)
+    settings = QSettings(str(tmp_path / "spacr-qt.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(prefs, "_settings", lambda: settings)
+    prefs.set_ambient_animation("none")
+    prefs.set_preload_policy("on_demand")
+    prefs._set_restore_session(False)
+    settings.setValue("onboarding/first_run_tour_seen", True)
+    window = MainWindow()
+    qtbot.addWidget(window, before_close_func=_retire_graphics_menus)
+    window.resize(1400, 900)
+    window.show()
+    i18n.retranslate_widget_tree(window)
+    QApplication.processEvents()
+    return window
+
+
+def test_main_window_chrome_controls_are_named(main_window):
+    """Toolbars, dock and sidebar controls and the status bar are named."""
+    assert not _focusable_unnamed(main_window)
+    assert main_window.statusBar() is not None
+
+
+def test_main_window_menus_name_every_action(main_window):
+    """Every reachable menu and every visible action in it has a name."""
+    nameless = []
+    pending = [action.menu() for action in main_window.menuBar().actions()]
+    seen = 0
+    while pending:
+        menu = pending.pop()
+        if menu is None:
+            continue
+        seen += 1
+        if not _accessible_name(menu).strip():
+            nameless.append(f"menu {menu.title()!r}")
+        for action in menu.actions():
+            if action.isSeparator() or not action.isVisible():
+                continue
+            if not action.text().strip():
+                nameless.append(f"action {action.objectName() or '?'}")
+            pending.append(action.menu())
+    assert seen > 3
+    assert not nameless, nameless[:10]
+
+
+def test_main_window_tab_is_never_trapped(main_window):
+    assert _tab_walk(main_window) == []
+
+
+def test_main_window_item_views_are_named(main_window):
+    views = [view for view in main_window.findChildren(QAbstractItemView)
+             if view.isVisibleTo(main_window)
+             and not isinstance(view, QHeaderView)]
+    unnamed = [f"{type(v).__name__}#{v.objectName()}" for v in views
+               if not _accessible_name(v).strip()]
+    assert not unnamed, unnamed
+
+
+def test_every_preferences_tab_names_each_focusable_control_and_frees_tab(
+        main_window):
+    dialog = prefs.PreferencesDialog(main_window)
+    try:
+        dialog.resize(1100, 1000)
+        dialog.show()
+        from spacr.qt.widgets.section import Section
+        for section in dialog.findChildren(Section):
+            section.set_expanded(True)
+        tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+        assert tabs is not None and tabs.count() >= 8
+        for index in range(tabs.count()):
+            tabs.setCurrentIndex(index)
+            i18n.retranslate_widget_tree(dialog)
+            QApplication.processEvents()
+            title = tabs.tabText(index)
+            assert not _focusable_unnamed(dialog), title
+            assert _tab_walk(dialog) == [], title
+    finally:
+        dialog.reject()

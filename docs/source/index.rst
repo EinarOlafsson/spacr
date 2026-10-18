@@ -1,5 +1,5 @@
-Welcome to spaCR
-================
+spaCR documentation
+===================
 
 .. image:: _static/logo_spacr_docs.png
    :align: center

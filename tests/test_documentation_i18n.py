@@ -1582,6 +1582,20 @@ def test_hard_tail_contexts_retain_the_complete_semantic_contract(
     assert all(fragment in matches[0] for fragment in required_fragments)
 
 
+def test_hits_tab_context_preserves_gui_raise_meaning():
+    import build_documentation_i18n as builder
+
+    changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())
+    source = builder.translatable_blocks(changes["added"][
+        "spacr.qt.screens.regression.HitsOpener.press"])[0][1]
+    contextual = builder._api_translation_source(source)
+    assert "the tab is brought to the front when construction is finished" in contextual
+    assert "exception" not in contextual
+    assert "one step per event-loop turn" in contextual
+    assert builder._syntax_preserved(source, contextual)
+
+
 def test_docstring_reflow_preserves_rst_roles_fields_and_inline_code():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 
@@ -3462,6 +3476,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
     assert not n673g_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+    assert len(n673w_arrivals) == 20
+    assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
+    assert not n673w_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
@@ -3502,6 +3523,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     for filename, count in (
         ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
         ("reviewed_api_surface_arrivals_2026-10-15.json", 20),
+        ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
+        ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
+        ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
+        ("560_dinov2_drop_in_api_arrivals_2026-10-17.json", 3),
+        ("703_background_update_and_uninstall_api_arrivals_2026-10-17.json", 17),
+        ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
     ):
@@ -3514,6 +3541,27 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
             | home_ui_arrivals.keys() | volume_arrivals.keys()
         )
         zoo_arrivals = {**zoo_arrivals, **arrivals}
+    help_changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_arrivals = {**zoo_arrivals, **help_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text())
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
@@ -4064,6 +4112,42 @@ def test_semantic_gate_mandatory_negative_controls():
         "Retourne cet écran afin que l’appelant puisse le soulever ou le focaliser.",
         "fr",
     )
+
+
+def test_dye_stain_as_smudge_is_a_hard_failure_in_nine_locales():
+    from build_i18n_catalogs import (
+        _semantic_false_friends,
+        _translation_candidate_valid,
+    )
+
+    source = "Per channel (one pass per stain)"
+    cases = {
+        "de": ("Pro Kanal (ein Durchlauf pro Fleck)", "Pro Kanal (ein Durchlauf pro Färbung)"),
+        "es": ("Por canal (una pasada por mancha)", "Por canal (una pasada por tinción)"),
+        "fr": ("Par canal (une passe par tache)", "Par canal (une passe par coloration)"),
+        "pt": ("Por canal (uma passagem por mancha)", "Por canal (uma passagem por coloração)"),
+        "sv": ("Per kanal (ett pass per fläck)", "Per kanal (ett pass per färgning)"),
+        "is": ("Á rás (ein umferð á hvern blett)", "Á rás (ein umferð á hverja litun)"),
+        "zh_CN": ("按通道(每种斑点一遍)", "按通道(每种染色一遍)"),
+        "ko": ("채널별(얼룩마다 한 번)", "채널별(염색마다 한 번)"),
+        "hi": ("प्रति चैनल (हर दाग के लिए एक पास)", "प्रति चैनल (हर अभिरंजक के लिए एक पास)"),
+    }
+    for language, (bad, good) in cases.items():
+        assert "dye-stain-as-smudge" in _semantic_false_friends(
+            source, bad, language,
+        ), language
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            source, good, language,
+        ), language
+        assert not _translation_candidate_valid(source, bad, language)
+    for blob_source, target, language in (
+        ("DoG blobs", "DoG-Flecken", "de"),
+        ("Stained nuclei appear as bright spots.", "Gefärbte Kerne erscheinen als helle Flecken.", "de"),
+        ("Slowly drifting colour blobs.", "Manchas de color que se desplazan lentamente.", "es"),
+    ):
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            blob_source, target, language,
+        )
 
 
 def test_ko_zh_additional_semantic_families_and_negative_controls():

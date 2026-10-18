@@ -426,7 +426,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "conserver les ID primaires/secondaires exacts, sans interpréter les masques à valeur unique comme binaires ni scinder les morceaux disjoints. Le mode explicite valide des étiquettes entières non négatives 2-D et refuse les ID supérieurs à 65535 avant l’écriture ; il ne les renumérote jamais silencieusement.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",
@@ -4232,7 +4234,10 @@
       "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
       "context": "Settings templates — named bundles you can reuse and share.",
       "translation": "Modèles de réglages — des paquets nommés que l’on peut réutiliser et partager.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.recipes#1",

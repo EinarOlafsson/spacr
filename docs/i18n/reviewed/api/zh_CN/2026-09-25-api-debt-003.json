@@ -28,7 +28,9 @@
       "source_sha256": "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
       "context": "Capture a calibrated kernel only for explicitly processed measurements.",
       "translation": "仅为显式要求处理的测量捕获经过校准的卷积核。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#1",
@@ -60,7 +62,9 @@
       "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
       "context": "Refuse to mix incompatible intensity sources even when resume is off.",
       "translation": "即使未启用继续运行，也拒绝混用不兼容的强度来源。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.validate_measurement_psf_history#1",
@@ -126,7 +130,9 @@
       "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
       "context": "Immutable calibrated processing configuration, safe to pass to workers.",
       "translation": "不可变的、经过校准的处理配置，可以安全地传给工作进程。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#1",
@@ -166,7 +172,9 @@
       "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
       "context": "Process one spatial image with an explicit last image data channel axis.",
       "translation": "处理一幅具有显式末尾通道轴的空间图像。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan.apply#1",
@@ -198,7 +206,9 @@
       "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
       "context": "Return JSON-safe identity of every scientifically relevant setting.",
       "translation": "返回每个与科学结果相关的设置的标识，可安全序列化为 JSON。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#0",
@@ -206,7 +216,9 @@
       "source_sha256": "78bd44a4e983becfd25a2add09d6bb239e3a8bf7971e9b508bf7a65b74ebe9ca",
       "context": "Run ``chain`` over every channel of one YXC microscope field of view, strictly.",
       "translation": "对一个 YXC 视野的每个通道严格地运行 ``chain``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#1",
@@ -246,7 +258,9 @@
       "source_sha256": "d71cf452f30968a7d649d6d66867c5b2ff0fd15e87f6dd7cedb796e3148116f4",
       "context": "Every ``enhance_*`` value the chain cannot run with, as ``(setting, message)``.",
       "translation": "增强链无法运行的每个 ``enhance_*`` 值，以 ``(setting, message)`` 形式给出。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.chain_problems#1",
@@ -278,7 +292,9 @@
       "source_sha256": "7528bfbfe1ca8e9d961f3f2021d235b97679074a2d0963e6321829ee00e7beaf",
       "context": "The enhancement chain a processing session applies, read from its ``enhance_*`` settings.",
       "translation": "本次运行所应用的增强链，从其 ``enhance_*`` 设置中读取。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_chain#1",
@@ -326,7 +342,9 @@
       "source_sha256": "8021585a712bee27b6910717266643dd30d94637ba46fe2a164d6133baa07ed9",
       "context": "Capture and validate an optional PSF before processing starts.",
       "translation": "在处理开始之前捕获并验证可选的 PSF。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_psf#1",
@@ -366,7 +384,9 @@
       "source_sha256": "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
       "context": "Whether these settings ask for a PSF or an enhancement step at all.",
       "translation": "这些设置是否要求 PSF 或任何增强步骤。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#1",
@@ -402,7 +422,9 @@
       "source_sha256": "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
       "context": "Refuse V1 archive reuse after a PSF change or incomplete processing.",
       "translation": "在 PSF 发生变化或处理不完整之后，拒绝复用 V1 归档。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#1",
@@ -3404,6 +3426,8 @@
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",

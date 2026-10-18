@@ -537,6 +537,17 @@
           ]
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify trainiert ein Modell mit geprüften Beschriftungen und bewertet weitere Objekte anhand von Bildausschnitten oder gemessenen Merkmalen.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ]
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes liest Sequenzierungsdaten, um Guides oder Barcodes zu zählen und zu identifizieren.",
           "hold_after": 0.7,
@@ -633,6 +644,17 @@
           ],
           "related_lessons": [
             "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "Die Reihe Organism enthält Toxoplasma. Sie öffnet einen Organismusleitfaden, eine interaktive Zeichnung und die verfügbaren Toxoplasma-Assays. Ein eigener Toxoplasma-Kurs erklärt diese Seite.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
           ]
         },
         {

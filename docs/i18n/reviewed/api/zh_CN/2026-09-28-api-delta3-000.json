@@ -50,7 +50,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What :func:`apply_plan` did.",
       "source_sha256": "90477d55cb26b1a9986a6668ff4e6d077c2a3feb8375cc741acbeb8112d25a6e",
-      "translation": ":func:`apply_plan` 执行的操作。"
+      "translation": ":func:`apply_plan` 执行的操作。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder written.",
@@ -98,7 +100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What :func:`detect_sets` paired.",
       "source_sha256": "c71eef9afa1dc57fae88e6678160741152450c9a3bac0b37729be532386e6356",
-      "translation": ":func:`detect_sets` 配对的结果。"
+      "translation": ":func:`detect_sets` 配对的结果。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{set key: {channel: name}}``, keyed ``((\"set\", \"000001\"),)``.",
@@ -130,7 +134,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One image name read through a regex.",
       "source_sha256": "6f1d9cc0ab2be05fb75ed49260c4eedd624b5535b029e97db6c5ed4defcbe418",
-      "translation": "通过正则表达式读取的一个图像名称。"
+      "translation": "通过正则表达式读取的一个图像名称。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the file name.",
@@ -178,7 +184,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One image to move, with its mask and the mask's ledger.",
       "source_sha256": "2c06b49eee676f7b73d7ba4d3ef99dc71fafb14d90486b08267ff405787e18a5",
-      "translation": "一张待移动的图像，连同其掩膜和掩膜的记录。"
+      "translation": "一张待移动的图像，连同其掩膜和掩膜的记录。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1-based channel.",
@@ -268,7 +276,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where one set goes in the Yokogawa naming.",
       "source_sha256": "1a9aceb126aff211f6f2cd19a3750e03ac924768927d31d41cd754f8c6d1d1e1",
-      "translation": "一个组在 Yokogawa 命名中的去向。"
+      "translation": "一个组在 Yokogawa 命名中的去向。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the plate token, with no underscore.",
@@ -300,7 +310,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether a set of parsed names forms complete, unique sets.",
       "source_sha256": "1df44e54e74ad587726f61da20f83fddab66f9ad4b6ec0aa080d4d93726dddf8",
-      "translation": "一组已解析的名称是否构成完整且唯一的组。"
+      "translation": "一组已解析的名称是否构成完整且唯一的组。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the channels present, sorted.",
@@ -348,7 +360,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "True when every image is in exactly one complete set.",
       "source_sha256": "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7",
-      "translation": "当每张图像恰好属于一个完整的组时为 True。"
+      "translation": "当每张图像恰好属于一个完整的组时为 True。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A few plain lines saying what is and is not right.",
@@ -356,7 +370,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A few plain lines saying what is and is not right.",
       "source_sha256": "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622",
-      "translation": "几行简单说明，指出哪些正确、哪些不正确。"
+      "translation": "几行简单说明，指出哪些正确、哪些不正确。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything :func:`apply_plan` will do, decided before it does any.",
@@ -364,7 +380,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Everything :func:`apply_plan` will do, decided before it does any.",
       "source_sha256": "00b7c899bc315c108addc02e2113ee9be18958bd699e5c6b2bb5eef34dd8f6f0",
-      "translation": ":func:`apply_plan` 将要执行的全部操作，在执行任何操作之前确定。"
+      "translation": ":func:`apply_plan` 将要执行的全部操作，在执行任何操作之前确定。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the image folder.",
@@ -436,7 +454,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many sets the plan holds.",
       "source_sha256": "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874",
-      "translation": "计划包含多少个组。"
+      "translation": "计划包含多少个组。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when there is something to do and nothing stops it.",
@@ -444,7 +464,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "True when there is something to do and nothing stops it.",
       "source_sha256": "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86",
-      "translation": "当有事可做且没有阻碍时为 True。"
+      "translation": "当有事可做且没有阻碍时为 True。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Plain lines saying what applying the plan will do.",
@@ -452,7 +474,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plain lines saying what applying the plan will do.",
       "source_sha256": "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2",
-      "translation": "几行简单说明，指出应用计划会做什么。"
+      "translation": "几行简单说明，指出应用计划会做什么。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "MOVE the images and masks as planned, then merge.",
@@ -518,7 +542,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decide every move, name and check before anything is touched.",
       "source_sha256": "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
-      "translation": "在触动任何内容之前确定每次移动、每个名称和每项检查。"
+      "translation": "在触动任何内容之前确定每次移动、每个名称和每项检查。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{set key: {channel: name}}``, complete sets only.",
@@ -575,7 +601,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``A1``, ``a01`` or ``r01c01`` as ``A01``; None for anything else.",
       "source_sha256": "73f7258541a9b7c9ee26ceb32cc3e4c7b423593684397f119354222427a60783",
-      "translation": "将 ``A1``、``a01`` 或 ``r01c01`` 写为 ``A01``；其他情况为 None。"
+      "translation": "将 ``A1``、``a01`` 或 ``r01c01`` 写为 ``A01``；其他情况为 None。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a microplate sample position token.",
@@ -591,7 +619,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Group parsed names into sets and report every way they fail to fit.",
       "source_sha256": "87a6faab11c3cb5374f04d6132ded08777fe346fbc15364f40cb8d4bd484bca9",
-      "translation": "将已解析的名称分组，并报告它们无法匹配的每一种情况。"
+      "translation": "将已解析的名称分组，并报告它们无法匹配的每一种情况。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the output of :func:`parse_names`.",
@@ -607,7 +637,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Compile ``pattern``, or return the error message.",
       "source_sha256": "8c5ed2493404ad3aa4facb11375b8e12112825aa5c1a36beb41577a5d0b14d35",
-      "translation": "编译 ``pattern``，或返回错误信息。"
+      "translation": "编译 ``pattern``，或返回错误信息。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the regex text.",
@@ -631,7 +663,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Guess which role each masked channel's masks have.",
       "source_sha256": "f244e57c58ef4dcda34d41ce41a522c8254e33adb8dc57bfa93e9e041dc5bd87",
-      "translation": "猜测每个带掩膜通道的掩膜属于哪种角色。"
+      "translation": "猜测每个带掩膜通道的掩膜属于哪种角色。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A channel whose names say ``nuc``/``dapi``/``hoechst`` is ``nucleus``, ``cell``/``cyto`` is ``cell``, ``parasite``/``pathogen`` is ``pathogen``; the rest take the first unused of cell, nucleus, pathogen.",
@@ -663,7 +697,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Pair images across channels by name similarity, order and size.",
       "source_sha256": "1920afd86b004ff6ea2fd6f030b41c48cd8d474dae8b2e5cd5067f3935b64fb6",
-      "translation": "按名称相似度、顺序和尺寸跨通道配对图像。"
+      "translation": "按名称相似度、顺序和尺寸跨通道配对图像。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The image data channel with the most images is the reference. Each other image data channel's images are matched one-to-one to the reference images by the smallest total cost, where the cost is :func:`name_distance` plus a small term for how far apart the two sit in their image data channel's sorted order, and a pair whose images differ in size is not allowed. Names play no other part: each resulting set is keyed by its number alone. A mask whose size is not its image's is reported as a problem.",
@@ -695,7 +731,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read an image's pixel shape from its header, without its pixels.",
       "source_sha256": "52ececac93c1d260398500e120df3c6fd4deb17b213e7daefd7bcac169a1ffa4",
-      "translation": "从文件头读取图像的像素形状，不读取像素本身。"
+      "translation": "从文件头读取图像的像素形状，不读取像素本身。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Singleton axes are dropped, so a ``(1, H, W)`` TIFF and an ``(H, W)`` PNG compare equal.",
@@ -727,7 +765,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Propose a regex that maps every image to a unique, complete set.",
       "source_sha256": "300206768e4e9f0bb5d788194a6c44ad6f6125e5f7373436d30a9706754cf070",
-      "translation": "提议一个能把每张图像映射到唯一且完整的组的正则表达式。"
+      "translation": "提议一个能把每张图像映射到唯一且完整的组的正则表达式。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the image data channel -- or, when the user assigned image data channels, the tokens that only follow the image data channel are set aside -- and the rest must identify a set that holds exactly one image per image data channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST image data channels wins: any name can be read as an image data channel of its own in a single set, which passes and means nothing.",
@@ -771,7 +811,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the image file names directly in ``folder``, naturally sorted.",
       "source_sha256": "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
-      "translation": "返回直接位于 ``folder`` 中的图像文件名，按自然顺序排序。"
+      "translation": "返回直接位于 ``folder`` 中的图像文件名，按自然顺序排序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder; a missing one holds none.",
@@ -787,7 +829,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the path of the saved mask of image ``name``, or None.",
       "source_sha256": "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
-      "translation": "返回图像 ``name`` 已保存掩膜的路径，或 None。"
+      "translation": "返回图像 ``name`` 已保存掩膜的路径，或 None。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
@@ -815,7 +859,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A small preview of a label mask: 255 where any object is, else 0.",
       "source_sha256": "4f351d5edd65ef7e8e492d7c9d2a150e3ff4fbc1afcc73ebd65b65779d2c1ebf",
-      "translation": "标签掩膜的小预览图：有对象处为 255，其余为 0。"
+      "translation": "标签掩膜的小预览图：有对象处为 255，其余为 0。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the mask file.",
@@ -847,7 +893,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where Make Masks keeps the masks of ``folder``'s images.",
       "source_sha256": "8cb00d31f62ff762b71776aa9354cfd89472265e44be819b86754455c0dae44e",
-      "translation": "Make Masks 存放 ``folder`` 中图像掩膜的位置。"
+      "translation": "Make Masks 存放 ``folder`` 中图像掩膜的位置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an explicit masks folder, when not ``<folder>/masks``.",
@@ -863,7 +911,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build ``stack/``, the mask stacks and ``merged/`` from sorted channels.",
       "source_sha256": "876c5666d20a4c091ef3f4d5afb6dfe24b2b1432b5f0f26071ee78f9d3c8feee",
-      "translation": "由已整理的通道构建 ``stack/``、掩膜堆栈和 ``merged/``。"
+      "translation": "由已整理的通道构建 ``stack/``、掩膜堆栈和 ``merged/``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Yokogawa names in ``C01/``, ``C02/``... are read with spaCR's own ``cellvoyager`` pattern and :func:`spacr.utils._extract_filename_metadata`, each microscope field of view's stem is :func:`spacr.io._escaped_field_stem` -- the stem the workflow gives it -- and its image data channels are stacked in image data channel order into ``stack/<stem>.npy``. Each image data channel's masks are copied to ``masks/<role>_mask_stack/<stem>.tif``, and :func:`spacr.io._load_and_concatenate_arrays` writes ``merged/``.",
@@ -895,7 +945,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How different two names are, 0 (same tokens) to 1 (nothing shared).",
       "source_sha256": "690f081719d4745a85dfcb9f139beb93d8438e33a2597ee064faec8bbdc1620f",
-      "translation": "两个名称的差异程度，从 0（片段相同）到 1（毫无共同之处）。"
+      "translation": "两个名称的差异程度，从 0（片段相同）到 1（毫无共同之处）。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a file name.",
@@ -919,7 +971,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Give every set a unique plate, well, field and time.",
       "source_sha256": "766c925c14d11b16e734485815618926e3ad104dcbbf4e9d7e7fb51a6359dbcd",
-      "translation": "为每个组分配唯一的板、孔、视野和时间。"
+      "translation": "为每个组分配唯一的板、孔、视野和时间。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Sets keyed by :func:`detect_sets` get one well each, ``A01`` onward, microscope field of view 1, 384 microplate sample positions to a laboratory microplate. Otherwise the laboratory microplate is ``plateID`` (or ``plate1``); the well is ``wellID`` when every value reads as a well, else microplate sample positions are numbered in natural order; the microscope field of view is ``fieldID`` when it is the only other group and every value is a whole number from 1 to 999, else microscope fields of view are numbered within their well; without a ``wellID`` group the microscope fields of view fill ``A01`` to 999 and then move on to ``A02``. The time is ``timeID`` when every value is a whole number from 1, else numbered; 1 without one.",
@@ -951,7 +1005,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Sort key that orders ``img2`` before ``img10``.",
       "source_sha256": "588ffefa0368d6ed340f041cfa5cef2a0a42933beb2dc05c4c28df05645db61e",
-      "translation": "使 ``img2`` 排在 ``img10`` 之前的排序键。"
+      "translation": "使 ``img2`` 排在 ``img10`` 之前的排序键。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a name.",
@@ -975,7 +1031,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read each name's channel and set through ``pattern``.",
       "source_sha256": "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
-      "translation": "通过 ``pattern`` 读取每个名称的通道和组。"
+      "translation": "通过 ``pattern`` 读取每个名称的通道和组。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The channel of a name the user assigned (``channels``) is that assignment; otherwise it is its ``chanID`` value's position among all ``chanID`` values, naturally sorted, from 1. The set structured-data name is every other named group, in the pattern's order. A name the pattern does not match has no set.",
@@ -1015,7 +1073,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A set key as short text, ``wellID=A01 fieldID=2``.",
       "source_sha256": "3bfed329d65f70c5b33dcbdd8a745ec4a2f200cfc4698d8e46ce888ca96aa044",
-      "translation": "组键的简短文本形式，``wellID=A01 fieldID=2``。"
+      "translation": "组键的简短文本形式，``wellID=A01 fieldID=2``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the set key.",
@@ -1031,7 +1091,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Split ``name`` into stem and extension, keeping ``.ome.tif`` whole.",
       "source_sha256": "249403f564bc3ff84af60bc175dc8e35d35d999523482e0e9201bdad377d9801",
-      "translation": "将 ``name`` 拆分为主文件名和扩展名，并保持 ``.ome.tif`` 完整。"
+      "translation": "将 ``name`` 拆分为主文件名和扩展名，并保持 ``.ome.tif`` 完整。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(stem, extension)``; the extension keeps its dot.",
@@ -1047,7 +1109,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A small 8-bit grey preview of an image, contrast-stretched.",
       "source_sha256": "7b2b0309faa45ba0f7eddef6063af65e9c38edbc18b6fe992ce217d776d2d262",
-      "translation": "图像的 8 位灰度小预览图，经过对比度拉伸。"
+      "translation": "图像的 8 位灰度小预览图，经过对比度拉伸。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
@@ -1055,7 +1119,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
       "source_sha256": "b65ef497225b7f10afd3c2c1b2eed87909f9b23405e118f89b9ba9aa17e88720",
-      "translation": "``parent/name``；若已存在则为 ``name_2``、``name_3``...。"
+      "translation": "``parent/name``；若已存在则为 ``name_2``、``name_3``...。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder to create in.",
@@ -1079,7 +1145,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``index``-th well of a 384-well plate, row by row: 0 is ``A01``.",
       "source_sha256": "e02937db95dc0741552a76a88333f031d00f8ec8252e12ffdd2de117fccc8402",
-      "translation": "384 孔板中按行排列的第 ``index`` 个孔：0 为 ``A01``。"
+      "translation": "384 孔板中按行排列的第 ``index`` 个孔：0 为 ``A01``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "0-based, below :data:`WELLS_PER_PLATE`.",
@@ -1095,7 +1163,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Yokogawa file name of one channel of one set.",
       "source_sha256": "ef301ec27d623573fe7a97095350fe8dcd5618249a35172f61983f6119dbcc10",
-      "translation": "一个组中一个通道的 Yokogawa 文件名。"
+      "translation": "一个组中一个通道的 Yokogawa 文件名。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Built by :func:`spacr.convert.target_name`, so it is the exact form ``spacr.utils._get_regex('cellvoyager', ...)`` parses.",
@@ -1167,7 +1237,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What :func:`consolidate_folder` did.",
       "source_sha256": "7fbd2840be89d34315e4a63ddab52d36eb5310bdb8e70e2401e1e0fe17717729",
-      "translation": ":func:`consolidate_folder` 执行的操作。"
+      "translation": ":func:`consolidate_folder` 执行的操作。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the new folder holding the copies.",
@@ -1223,7 +1295,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Pick the next free name for ``stem`` in ``output``.",
       "source_sha256": "4c4cf8d0cbceed599596995a5b890d61c15c84894262041f226d27686ce8d4ea",
-      "translation": "为 ``stem`` 在 ``output`` 中选择下一个可用名称。"
+      "translation": "为 ``stem`` 在 ``output`` 中选择下一个可用名称。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Collisions are numbered ``_2``, ``_3`` and so on; names are compared case-insensitively so the folder survives a move to Windows or macOS. A name longer than 240 bytes is cut and ends in a 12-character hash of the full stem. Windows' reserved device names are prefixed with ``_``.",
@@ -1295,7 +1369,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Copy every file under ``source`` into one new folder, named by folder path.",
       "source_sha256": "22109e86e59c3e9a38b5ebf5af1fba59e8dda3845e37a4ca862d9c0ad004f67a",
-      "translation": "将 ``source`` 下的每个文件复制到一个新文件夹中，按文件夹路径命名。"
+      "translation": "将 ``source`` 下的每个文件复制到一个新文件夹中，按文件夹路径命名。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each copy is named after the folder path it came from, from ``source``'s own name down, parts joined by ``_``; a file directly in ``source`` is named after ``source``. Several files in one folder are numbered ``_2``, ``_3``..., in sorted file-name order. The originals are never touched.",
@@ -1359,7 +1435,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The script's entry point: consolidate and return an exit status.",
       "source_sha256": "5e5ceaf941a2131e3a7e9404f9588d3ccb77e1777dfc7a64ad02f31f7b25f855",
-      "translation": "脚本的入口：执行整合并返回退出状态。"
+      "translation": "脚本的入口：执行整合并返回退出状态。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the NEW output folder.",
@@ -1383,7 +1461,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the unused ``<parent>/<name>_renamed`` beside ``source``.",
       "source_sha256": "6a1a5d33616dcd76ccfd2c60556f1ba979f9c46939030c598385aa6130610915",
-      "translation": "返回未被使用的 ``<parent>/<name>_renamed``，位于 ``source`` 旁。"
+      "translation": "返回未被使用的 ``<parent>/<name>_renamed``，位于 ``source`` 旁。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the extension of ``path``, keeping a compound one whole.",
@@ -1391,7 +1471,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the extension of ``path``, keeping a compound one whole.",
       "source_sha256": "273c809d1578454e19b5d58cd283dee43a506ab8b0dae00a06af3cef1d1ab79e",
-      "translation": "返回 ``path`` 的扩展名，并保持复合扩展名完整。"
+      "translation": "返回 ``path`` 的扩展名，并保持复合扩展名完整。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a file path.",
@@ -1415,7 +1497,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Command line: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
       "source_sha256": "bfcdbbd918652aad7d3a28306266ae5a7c015a15abc457320bb8999316fb3cb4",
-      "translation": "命令行：``python -m spacr.folder_consolidation SOURCE [OUTPUT]``。"
+      "translation": "命令行：``python -m spacr.folder_consolidation SOURCE [OUTPUT]``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the arguments; default ``sys.argv[1:]``.",
@@ -1431,7 +1515,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Count the files that sit in SUBFOLDERS of ``source``, recursively.",
       "source_sha256": "669feae1b1a6ff61599ca1fcf2adcb3078a574834633970dd0fa78399453ebe1",
-      "translation": "递归统计位于 ``source`` 子文件夹中的文件数。"
+      "translation": "递归统计位于 ``source`` 子文件夹中的文件数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Make Masks asks whether to consolidate only when this is not zero: files directly in ``source`` open as they are.",
@@ -1471,7 +1557,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Replace characters Windows forbids in a filename; keep spaces.",
       "source_sha256": "2d155c52bda8ebab5ac5cd146f41e5d4f68d757fbe5f1f8454171f5fc2e551fc",
-      "translation": "替换 Windows 禁止在文件名中使用的字符；保留空格。"
+      "translation": "替换 Windows 禁止在文件名中使用的字符；保留空格。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one folder name.",
@@ -1495,7 +1583,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return ``parent/name``, or ``name_2``, ``name_3``... when it exists.",
       "source_sha256": "d3ffd10136b4da79605fbcf9d981f989f74a81ce2b58f52c4da84023d5bf5586",
-      "translation": "返回 ``parent/name``；若已存在则返回 ``name_2``、``name_3``...。"
+      "translation": "返回 ``parent/name``；若已存在则返回 ``name_2``、``name_3``...。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder to create the output in.",
@@ -1971,7 +2061,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read one or more tables out of a measurement database.",
       "source_sha256": "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
-      "translation": "从测量数据库中读取一张或多张表。"
+      "translation": "从测量数据库中读取一张或多张表。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
@@ -2003,7 +2095,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write one frame into a database table, with canonical column names.",
       "source_sha256": "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
-      "translation": "将一个数据框写入数据库表，并使用规范列名。"
+      "translation": "将一个数据框写入数据库表，并使用规范列名。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",

@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Item 560 DINOv2 drop-in: the DINO choice, its in-use line and the annotated cell example. Preserve DINOv2, Cell-DINO, ViT-S/14, Meta, the 'infected' column name and all placeholders; {button}, {embed}, {classifier} and {run} are filled with the existing translated control captions. The example cells show the workflow only and are not a scientific comparison.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "DINOv2 (Cell-DINO when installed)",
+      "source": "DINOv2 (Cell-DINO when installed)",
+      "source_sha256": "f6e2fe42eef05afe934e2b21abb8b5806461e170a39c683a9d068bfb24c2be31",
+      "translation": "DINOv2(설치된 경우 Cell-DINO)"
+    },
+    {
+      "table": "ui",
+      "key": "Runs official Cell-DINO when its checkpoint is installed and its planes are mapped; otherwise the open DINOv2 ViT-S/14. The line below the controls says which one is in use.",
+      "source": "Runs official Cell-DINO when its checkpoint is installed and its planes are mapped; otherwise the open DINOv2 ViT-S/14. The line below the controls says which one is in use.",
+      "source_sha256": "aae22baeedb4a6bfba6b871297bcbaccd95339331feb22669e850b2beae78772",
+      "translation": "체크포인트가 설치되어 있고 평면이 매핑되어 있으면 공식 Cell-DINO를 실행하고, 그렇지 않으면 공개 DINOv2 ViT-S/14를 실행합니다. 컨트롤 아래의 줄에 어느 모델이 사용 중인지 표시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "In use: official Cell-DINO ({factory}), checkpoint {name}{digest}.",
+      "source": "In use: official Cell-DINO ({factory}), checkpoint {name}{digest}.",
+      "source_sha256": "c7b7a4461f376686555d10699d622796e49798035df072e15e9d8edadf26ab15",
+      "translation": "사용 중: 공식 Cell-DINO({factory}), 체크포인트 {name}{digest}."
+    },
+    {
+      "table": "ui",
+      "key": "Cell-DINO checkpoint {name} is installed, but its {planes} input planes are not mapped to crop channels. Map them with {button}",
+      "source": "Cell-DINO checkpoint {name} is installed, but its {planes} input planes are not mapped to crop channels. Map them with {button}",
+      "source_sha256": "b12c9895b16e4bf4aedeee05f7f9feee9f55b4c7cf6eb82fa0812c0e85db9ec6",
+      "translation": "Cell-DINO 체크포인트 {name}이(가) 설치되어 있지만 {planes}개 입력 평면이 크롭 채널에 매핑되지 않았습니다. {button}(으)로 매핑하세요"
+    },
+    {
+      "table": "ui",
+      "key": "{path} is not a readable official Cell-DINO model state.",
+      "source": "{path} is not a readable official Cell-DINO model state.",
+      "source_sha256": "583e2b79386cdb27093af507f77de52b3b3bb76df65818bdb340dac3a283acfa",
+      "translation": "{path}은(는) 읽을 수 있는 공식 Cell-DINO 모델 상태가 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "No official Cell-DINO checkpoint is installed. Meta grants access by request; put the file in {folder} to use it.",
+      "source": "No official Cell-DINO checkpoint is installed. Meta grants access by request; put the file in {folder} to use it.",
+      "source_sha256": "f93067f82667fd10eca94d9fd87edb4c6dafdb486e1a2b8eff67854470ff1e3a",
+      "translation": "공식 Cell-DINO 체크포인트가 설치되어 있지 않습니다. Meta는 요청 시 액세스를 허용합니다. 사용하려면 파일을 {folder}에 넣으세요."
+    },
+    {
+      "table": "ui",
+      "key": "In use: open DINOv2 ViT-S/14 (general-image weights).",
+      "source": "In use: open DINOv2 ViT-S/14 (general-image weights).",
+      "source_sha256": "5cba7b2a848bc53f94b983411946d8afd0004fae759aea5fdbaae356284b75e1",
+      "translation": "사용 중: 공개 DINOv2 ViT-S/14(일반 이미지 가중치)."
+    },
+    {
+      "table": "ui",
+      "key": "Load 24 generated shapes with labels. DINOv2 runs on the CPU; pretrained weights download only if not cached.",
+      "source": "Load 24 generated shapes with labels. DINOv2 runs on the CPU; pretrained weights download only if not cached.",
+      "source_sha256": "b0612cd0277f289449e90defc638fc9b46273ac57f2293bf020ed333242a9f96",
+      "translation": "레이블이 있는 생성된 도형 24개를 불러옵니다. DINOv2는 CPU에서 실행되며, 사전 학습 가중치가 캐시에 없을 때만 다운로드합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Load cell example",
+      "source": "Load cell example",
+      "source_sha256": "d7803c866f47486817d9da4e90b2f0e70828e35ee70e7bdb04bad3bd368c3128",
+      "translation": "세포 예제 불러오기"
+    },
+    {
+      "table": "ui",
+      "key": "Load the example plate's annotated single-cell crops with their labels and run DINOv2 on the CPU. The plate downloads once, about 280 MB.",
+      "source": "Load the example plate's annotated single-cell crops with their labels and run DINOv2 on the CPU. The plate downloads once, about 280 MB.",
+      "source_sha256": "f328b92dc375ccfd0fc17b16d5d381c10a384dbd544490e99f86325717071071",
+      "translation": "예제 플레이트의 어노테이션이 달린 단일 세포 크롭을 레이블과 함께 불러오고 CPU에서 DINOv2를 실행합니다. 플레이트는 한 번만 다운로드되며 약 280 MB입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loading the annotated example cells…",
+      "source": "Loading the annotated example cells…",
+      "source_sha256": "ccba3b0feeddde328e66364151a5968596847ccd7280a7211fe76356af16e04e",
+      "translation": "어노테이션이 달린 예제 세포를 불러오는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading the annotated example cells was stopped.",
+      "source": "Loading the annotated example cells was stopped.",
+      "source_sha256": "3f007803a4f2847ac1c020ceee99eeb41a41d11e21968fd4367a1c39c2466f40",
+      "translation": "어노테이션이 달린 예제 세포 불러오기가 중지되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "These example cells carry the plate's own 'infected' annotation (classes 1 and 2). They show the workflow on real crops; so few labels are not a scientific comparison.",
+      "source": "These example cells carry the plate's own 'infected' annotation (classes 1 and 2). They show the workflow on real crops; so few labels are not a scientific comparison.",
+      "source_sha256": "5dfd254d291294ba575dd3fc2659c2a591dc9dbb3d08d551595e3af827918568",
+      "translation": "이 예제 세포에는 플레이트 자체의 'infected' 어노테이션(클래스 1과 2)이 있습니다. 실제 크롭에서 작업 흐름을 보여 주지만, 이렇게 적은 레이블은 과학적 비교가 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loaded {count} annotated example cells and their labels. Press {embed}, then choose {classifier} and {run}. Labels: {path}",
+      "source": "Loaded {count} annotated example cells and their labels. Press {embed}, then choose {classifier} and {run}. Labels: {path}",
+      "source_sha256": "d9f96daadec9ead92f604854905fa1eb4daf137056e9cc01717cbb078a4882dd",
+      "translation": "어노테이션이 달린 예제 세포 {count}개와 레이블을 불러왔습니다. {embed}을(를) 누른 다음 {classifier}와(과) {run}을(를) 선택하세요. 레이블: {path}"
+    }
+  ]
+}

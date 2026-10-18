@@ -1163,3 +1163,105 @@ def test_the_coverage_denominator_describes_the_filtered_population(tmp_path):
     whole_meta = whole.attrs["spacr_annotation_coverage"]
     assert whole_meta["n_rows"] == 20 and whole_meta["n_annotated"] == 12
     assert not [n for n in whole_meta["notes"] if "image_type" in n]
+
+
+# ---------------------------------------------------------------------------
+# Issue #152 — every crop on screen, none of them matched to a feature row
+# ---------------------------------------------------------------------------
+
+def test_a_crop_on_a_pp_plate_finds_its_object_after_the_plate_repair(
+        tmp_path):
+    """The object tables are read with the ``pp`` plate repair; png_list too.
+
+    A plate called ``pplate1`` became ``plate1`` in the merged feature index
+    and stayed ``pplate1`` in ``png_list.prcfo``, so not one crop matched.
+    """
+    project = _make_project(tmp_path, plate="pplate1")
+
+    features = al.round_features(project["db"])
+
+    assert len(features) == 24
+    for crop in project["crops"]:
+        assert features.loc[crop["png_path"], "cell_tag"] == crop["_tag"]
+
+
+def test_a_nucleus_crop_is_matched_to_its_parent_cell(tmp_path):
+    """A child crop stores its own label; the merged row is its cell's.
+
+    ``<field>_<cell>_<nucleus>.png`` gives a ``prcfo`` ending in the nucleus
+    label, which matched no merged row -- or an unrelated cell with the same
+    number.
+    """
+    project = _make_project(tmp_path)
+    con = sqlite3.connect(project["db"])
+    try:
+        con.execute('ALTER TABLE png_list ADD COLUMN "nucleus_id" TEXT')
+        rows = con.execute(
+            "SELECT png_path, prcfo, cell_id FROM png_list").fetchall()
+        for path, prcfo, cell_id in rows:
+            cell = int(cell_id[1:])
+            field = prcfo.rsplit("_", 1)[0]
+            nucleus = cell + 2
+            con.execute(
+                'UPDATE png_list SET prcfo = ?, file_name = ?, cell_id = NULL,'
+                ' nucleus_id = ? WHERE png_path = ?',
+                (f"{field}_o{nucleus}", f"{field}_{cell}_{nucleus}.png",
+                 f"o{nucleus}", path))
+        con.commit()
+    finally:
+        con.close()
+
+    features = al.round_features(project["db"])
+
+    assert len(features) == 24
+    for crop in project["crops"]:
+        assert features.loc[crop["png_path"], "cell_tag"] == crop["_tag"]
+
+
+def test_the_round_reads_the_image_filter_the_way_the_grid_does(tmp_path):
+    """Case-insensitive terms and NOT, as ``parse_image_type`` reads them."""
+    project = _make_project(tmp_path)
+
+    for expression in ("CELL_PNG", "cell_png AND NOT nucleus", "!nucleus"):
+        result = al.retrain_round(project["db"], "annotate",
+                                  image_type=expression, save_model=False,
+                                  write_card=False, round_index=0)
+        assert result.n_labels == 24, expression
+
+
+def test_an_image_filter_that_keeps_no_crop_says_so(project):
+    with pytest.raises(ValueError) as excinfo:
+        al.retrain_round(project["db"], "annotate",
+                         image_type="no_such_folder", save_model=False)
+    message = str(excinfo.value)
+    assert "'no_such_folder' keeps none of the 24 crops" in message
+    assert "Image type filter" in message
+
+
+def test_crops_that_match_no_measured_object_name_both_keys(project):
+    """The message shows a key from each side, so the mismatch is visible."""
+    con = sqlite3.connect(project["db"])
+    try:
+        con.execute("UPDATE png_list SET prcfo = 'other_' || prcfo")
+        con.commit()
+    finally:
+        con.close()
+
+    with pytest.raises(ValueError) as excinfo:
+        al.round_features(project["db"])
+    message = str(excinfo.value)
+    assert "None of the 24 crops in png_list matches" in message
+    assert "'other_plate1_r1_c1_f1_o1'" in message
+    assert "'plate1_r1_c1_f1_o1'" in message
+
+
+def test_an_explicit_matrix_that_shares_no_crop_names_both_keys(project):
+    features = al.round_features(project["db"])
+    features.index = [f"/elsewhere/{i}.png" for i in range(len(features))]
+
+    with pytest.raises(ValueError) as excinfo:
+        al.retrain_round(project["db"], "annotate", features=features,
+                         save_model=False)
+    message = str(excinfo.value)
+    assert "'/crops/cell_png/plate1_r1_c1_f1_o1.png'" in message
+    assert "'/elsewhere/0.png'" in message

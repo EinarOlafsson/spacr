@@ -9,6 +9,7 @@ with the pixel size the source recorded.
 from __future__ import annotations
 
 import builtins
+import json
 import sys
 
 import numpy as np
@@ -316,6 +317,81 @@ def test_saved_mask_of_an_uncalibrated_image_has_no_pixel_size(tmp_path):
     assert engine._resolution_for(-1.0) == {}
     huge = engine._resolution_for(1e8)
     assert huge["metadata"] == {"pixel_size_nm": 1e8}
+
+
+@pytest.mark.parametrize("bigtiff", (False, True))
+def test_calibrated_uint32_lineage_resave_is_exact_and_atomic(
+        tmp_path, monkeypatch, bigtiff):
+    source = tmp_path / "field.tif"
+    size = 0.12345678901234567
+    image = np.arange(24 * 32, dtype=np.uint16).reshape(24, 32)
+    tifffile.imwrite(source, image, bigtiff=bigtiff,
+                     metadata={"pixel_size_nm": size},
+                     resolution=(1e7 / size, 1e7 / size),
+                     resolutionunit="CENTIMETER")
+    source_before = source.read_bytes()
+    with tifffile.TiffFile(source) as tif:
+        assert tif.is_bigtiff is bigtiff
+    frame = str(source.resolve())
+    mask = np.zeros(image.shape, np.uint32)
+    mask[2:6, 3:8] = 2**31 + 9
+    mask[10:13, 15:20] = engine.MAX_MASK_LABEL
+    state, first = engine.new_lineage_cell(None, "first", 2**31 + 9, frame)
+    state = engine.assign_lineage_label(state, frame, 2**31 + 9, first)
+    state, second = engine.new_lineage_cell(state, "second", engine.MAX_MASK_LABEL, frame)
+    state = engine.assign_lineage_label(state, frame, engine.MAX_MASK_LABEL, second)
+    write_tiff = engine.write_tiff
+
+    def write_container(destination, array, **kwargs):
+        assert kwargs["bigtiff"] is False
+        kwargs["bigtiff"] = bigtiff
+        write_tiff(destination, array, **kwargs)
+
+    monkeypatch.setattr(engine, "write_tiff", write_container)
+
+    path = engine.save_mask(str(tmp_path), source.name, mask, lineage=state)
+    metadata = engine.load_mask_metadata(str(tmp_path), source.name)
+    assert metadata["preserve_ids"] is True
+    assert metadata["lineage"]["frames"][frame] == {
+        str(2**31 + 9): first, str(engine.MAX_MASK_LABEL): second}
+    for resave in (False, True):
+        if resave:
+            assert engine.save_mask(str(tmp_path), source.name, mask) == path
+        loaded_image, reopened = engine.load_image_and_mask(str(tmp_path), source.name)
+        np.testing.assert_array_equal(loaded_image, image)
+        np.testing.assert_array_equal(reopened, mask)
+        assert reopened.dtype == np.uint32
+        assert engine.load_mask_metadata(str(tmp_path), source.name) == metadata
+        with tifffile.TiffFile(path) as tif:
+            assert tif.is_bigtiff is bigtiff
+            page = tif.pages[0]
+            description = json.loads(page.description)
+            assert description == tif.shaped_metadata[0]
+            assert description["shape"] == list(mask.shape)
+            assert description["pixel_size_nm"] == size
+            assert description["spacr_mask"] == metadata
+            assert page.tags["ResolutionUnit"].value == 3
+            assert page.tags["YResolution"].value == page.tags["XResolution"].value
+            numerator, denominator = page.tags["XResolution"].value
+        rounded_size = 1e7 * denominator / numerator
+        assert rounded_size != size
+        assert rounded_size == pytest.approx(size, rel=1e-8)
+        assert sio.tiff_pixel_size_nm(path) == size
+        assert source.read_bytes() == source_before
+
+    saved_before = (tmp_path / "masks" / "field.tif").read_bytes()
+
+    def fail_after_open(destination, array, **kwargs):
+        with open(destination, "wb") as handle:
+            handle.write(b"partial TIFF")
+        raise OSError("synthetic calibrated write failure")
+
+    monkeypatch.setattr(engine, "write_tiff", fail_after_open)
+    with pytest.raises(OSError, match="synthetic calibrated"):
+        engine.save_mask(str(tmp_path), source.name, mask)
+    assert (tmp_path / "masks" / "field.tif").read_bytes() == saved_before
+    assert source.read_bytes() == source_before
+    assert not list((tmp_path / "masks").glob(".spacr-mask-*"))
 
 
 def test_contrast_presets_are_complete():

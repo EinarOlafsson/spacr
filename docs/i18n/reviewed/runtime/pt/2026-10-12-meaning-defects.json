@@ -70,7 +70,7 @@
       "source": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
       "source_sha256": "079e363f5542b7f14a980c52313d45a9b9c0b2c6391a43f9eb5dfb369796ca17",
       "table": "ui",
-      "translation": "Coloque um modelo nas etiquetas feitas até agora, marque cada safra com ele, e reclassifique a fila de incertezas — sem sair desta tela. Realizado por bem, Assim, a precisão não é um artefato de rotulagem de um campo de visão. Cada rodada escreve um cartão modelo."
+      "translation": "Ajuste um modelo aos rótulos feitos até agora, pontue cada recorte com ele, e reclassifique a fila de incertezas — sem sair desta tela. Separado por poço; assim, a precisão não é um artefato de rotulagem de um campo de visão. Cada rodada escreve um cartão modelo."
     },
     {
       "key": "Gate files",

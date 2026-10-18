@@ -30,7 +30,7 @@ blocks:
        :target: https://pypi.org/project/spacr/
        :alt: Python 3.9 至 3.14
 
-    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/nightly?logo=codecov&logoColor=white
+    .. |Coverage| image:: https://img.shields.io/codecov/c/github/EinarOlafsson/spacr/main?logo=codecov&logoColor=white
        :target: https://app.codecov.io/github/EinarOlafsson/spacr
        :alt: Codecov 测试覆盖率
 
@@ -108,15 +108,18 @@ blocks:
     python -m pip install spacr
     spacr
   lang: bash
-- p: 在 Import、Make Masks、Annotate 或实验分析界面中使用 **加载测试数据…** 下载示例数据。在终端中使用 ``spacr-download``。
 - h2: 硬件支持
 - generated: hardware
-- p: CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core
-    i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on
-    Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a
-    historical example, not a speed guarantee. GPU acceleration requires a usable backend and
-    compatible libraries. See the `recorded hardware measurement
-    <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.
+  details:
+  - 'Auto: Make Masks 的 True 3D 按以下顺序尝试可用后端：Linux：Vulkan → OpenGL → CPU；Windows：Vulkan → Direct3D
+    12 → OpenGL → CPU；macOS：Metal → Vulkan → OpenGL → CPU。Vulkan、Metal 和 Direct3D 12 使用 wgpu。如果
+    GPU 后端不可用或失败，则尝试下一个后端；CPU 渲染始终可用。'
+  - 在 Windows（x64、ARM64）、macOS（Intel、Apple silicon）和 Linux（x86-64、ARM64、glibc 2.28 或更高版本）上，Python
+    3.10 或更高版本默认安装 wgpu。Python 3.9、其他处理器、使用旧版 glibc 的 Linux，以及未安装 wgpu 的环境会先使用 OpenGL，再回退到
+    CPU。紫色的 3D 单元格表示已实现 GPU 支持，但仍待真实显示器验收。
+  - 支持 CPU 执行，但速度可能较慢。在 Intel iMac（Core i5-10500、AMD Radeon Pro 5300 4 GB）上的一次测量中，使用 torch
+    2.2.2、Python 3.12.11 和 macOS 26.5.2 时，Cellpose-SAM 处理一张 256×256 图像在 CPU 上耗时 444.5 s，在
+    Metal 上耗时 3.2 s。这是历史示例，并非速度保证。GPU 加速需要可用的后端和兼容的库。请参阅`已记录的硬件测量 <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_。
 - h2: 安装 spaCR
 - p: 请选择安装方式：
 - list:
@@ -128,7 +131,8 @@ blocks:
     docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
     docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
   lang: bash
-- p: '`Docker 指南 <docs/source/installer_guide.rst#container-images>`_ 介绍了 GPU 设置、数据挂载和处理流程命令。'
+- p: '`Docker 指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
+    介绍了 GPU 设置、数据挂载和处理流程命令。'
 - h3: 桌面应用程序
 - p: 安装器包装自己的 Python. Conda 不需要。
 - generated: installer-links
@@ -139,7 +143,7 @@ blocks:
   lang: bash
 - p: 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 →
     打开 无论如何**。
-- p: 有关更新、卸载、离线使用和故障排查的说明，请参阅 `安装指南 <docs/source/installer_guide.rst>`_；有关工作站和服务器的配置建议以及
+- p: 有关安装、更新、重新安装、卸载、离线使用和故障排查的说明，请参阅 `nightly 分支上的当前安装指南（英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_。有关工作站和服务器的配置建议以及
     GPU 兼容性表，请参阅 `系统要求 <docs/source/system_requirements.rst>`_。
 - h3: 使用 PyPI 安装
 - p: 如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富：
@@ -159,7 +163,7 @@ blocks:
     spacr-run --list
   lang: bash
 - p: 可选集成单独安装,例如 ``spacr[zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``.
-    查看完整的附件和 Python 版本兼容性表的 `安装导游 <docs/source/installer_guide.rst>`_。
+    查看完整的附件和 Python 版本兼容性表的 `安装指南（nightly，英文） <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst>`_。
 - h3: 使用 conda-forge 安装
 - p: 官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
 - code: |-

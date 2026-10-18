@@ -520,7 +520,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Inte nollor: en platta i vila är fortfarande en platta, och bakgrunden måste gå på tomgång vackert i stället för att slockna. Motorn läser detta som \"andas långsamt i din egen takt\", vilket är vad :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` är till för."
+      "translation": "Inte nollor: en platta i vila är fortfarande en platta, och bakgrunden måste gå på tomgång vackert i stället för att slockna. Motorn läser detta som \"andas långsamt i din egen takt\", vilket är vad :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` är till för.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "an all-zero moment.",
@@ -3179,18 +3182,28 @@
     {
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#0",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
-      "translation": "Vad rutan för plackmodell erbjuder: zoo-samlingens plackmodeller, sedan ``bundled``."
+      "translation": "Vad rutan för plackmodell erbjuder: zoo-samlingens plackmodeller, sedan ``bundled``.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "setting values, newest zoo model first.",
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
+      "retired": true,
+      "retired_reason": "2026-10-17: the Plaque v5 default change (c6f32eee39d) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "setting values, newest zoo model first.",
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
-      "translation": "inställningsvärden, nyaste zoo-modell först."
+      "translation": "inställningsvärden, nyaste zoo-modell först.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Plaque mode on one image: segment it and count what was found.",

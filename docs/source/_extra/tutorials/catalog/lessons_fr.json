@@ -601,6 +601,18 @@
           "speech_text": "Annotate permet d’inspecter les recadrages d’objets et d’enregistrer des étiquettes vérifiées pour les exemples."
         },
         {
+          "visual": "home_module_classify_merged",
+          "narration": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "classify_merged"
+          ],
+          "related_lessons": [
+            "41_classify"
+          ],
+          "speech_text": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées."
+        },
+        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes lit les données de séquençage pour compter et identifier les guides ou codes-barres.",
           "hold_after": 0.7,
@@ -707,6 +719,18 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder crée des graphiques à partir des tables de mesures, avec des colonnes et regroupements configurables."
+        },
+        {
+          "visual": "home_module_toxoplasma",
+          "narration": "La rangée Organism contient Toxoplasma. Elle ouvre un guide, un diagramme interactif et les analyses disponibles pour cet organisme. Le tutoriel Toxoplasma explore cette page séparément.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "82_toxoplasma"
+          ],
+          "speech_text": "La rangée Organism contient Toxoplasma. Elle ouvre un guide, un diagramme interactif et les analyses disponibles pour cet organisme. Le tutoriel Toxoplasma explore cette page séparément."
         },
         {
           "visual": "06_mask_host",

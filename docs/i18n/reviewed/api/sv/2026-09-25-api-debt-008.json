@@ -724,7 +724,7 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "CSV file with ``feature`` and ``coefficient`` columns; read on a worker thread and rebuilt with the chosen link. An empty path only asks for a table.",
       "source_sha256": "af0f1e880f393df455edade026ce2a11609ea7ce9308e84c61392d13eaa4bc79",
-      "translation": "CSV-fil med kolumnerna ``feature`` och ``coefficient``; läses i en arbetstråd och byggs om med den valda länkfunktionen. En tom sökväg ber bara om en tabell."
+      "translation": "CSV-fil med kolumnerna ``feature`` och ``coefficient``; läses i en arbetstråd och byggs om med den valda länkegenskapen. En tom sökväg ber bara om en tabell."
     },
     {
       "context": "the design matrix the model was fitted on, one column per input; ``None`` or an empty frame falls back to a synthetic design. A loaded model is re-profiled at once.",

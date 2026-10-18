@@ -36,7 +36,9 @@
       "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
       "context": "Immutable calibrated processing configuration, safe to pass to workers.",
       "translation": "작업자에 전달해도 안전한, 변경할 수 없는 보정된 처리 구성입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#1",
@@ -76,7 +78,9 @@
       "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
       "context": "Process one spatial image with an explicit last image data channel axis.",
       "translation": "마지막 축이 명시적인 채널 축인 공간 이미지 하나를 처리합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan.apply#1",
@@ -108,7 +112,9 @@
       "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
       "context": "Return JSON-safe identity of every scientifically relevant setting.",
       "translation": "과학적으로 관련 있는 모든 설정의 JSON 안전 식별 정보를 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#0",
@@ -116,7 +122,9 @@
       "source_sha256": "78bd44a4e983becfd25a2add09d6bb239e3a8bf7971e9b508bf7a65b74ebe9ca",
       "context": "Run ``chain`` over every channel of one YXC microscope field of view, strictly.",
       "translation": "YXC 현미경 시야 하나의 모든 채널에 ``chain`` 을 엄격하게 실행합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#1",
@@ -156,7 +164,9 @@
       "source_sha256": "d71cf452f30968a7d649d6d66867c5b2ff0fd15e87f6dd7cedb796e3148116f4",
       "context": "Every ``enhance_*`` value the chain cannot run with, as ``(setting, message)``.",
       "translation": "체인이 실행할 수 없는 모든 ``enhance_*`` 값을 ``(setting, message)`` 형태로 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.chain_problems#1",
@@ -188,7 +198,9 @@
       "source_sha256": "7528bfbfe1ca8e9d961f3f2021d235b97679074a2d0963e6321829ee00e7beaf",
       "context": "The enhancement chain a processing session applies, read from its ``enhance_*`` settings.",
       "translation": "처리 세션이 적용하는 향상 체인이며, ``enhance_*`` 설정에서 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_chain#1",
@@ -236,7 +248,9 @@
       "source_sha256": "8021585a712bee27b6910717266643dd30d94637ba46fe2a164d6133baa07ed9",
       "context": "Capture and validate an optional PSF before processing starts.",
       "translation": "처리를 시작하기 전에 선택적 PSF 를 캡처하고 검증합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_psf#1",
@@ -276,7 +290,9 @@
       "source_sha256": "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
       "context": "Whether these settings ask for a PSF or an enhancement step at all.",
       "translation": "이 설정이 PSF 나 향상 단계를 요청하는지 여부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#1",
@@ -312,7 +328,9 @@
       "source_sha256": "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
       "context": "Refuse V1 archive reuse after a PSF change or incomplete processing.",
       "translation": "PSF 가 변경되었거나 처리가 미완료이면 V1 아카이브 재사용을 거부합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#1",
@@ -2796,7 +2814,9 @@
       "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
       "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
       "translation": "Cellpose 3 체크포인트가 Cellpose 4 에 전달되었는데, 이 버전은 그 체크포인트를 로드할 수 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_plaques#5",
@@ -2820,7 +2840,9 @@
       "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
       "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
       "translation": "숙주 세포별 및 마이크로플레이트 시료 위치별 요약과 함께 마커 리크루트먼트를 측정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_recruitment#1",
@@ -2884,7 +2906,9 @@
       "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
       "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
       "translation": "Cellpose 3 체크포인트에 대한 Cellpose 4 의 거부를 조언으로 바꿉니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.explain_cellpose3#1",
@@ -2926,7 +2950,9 @@
       "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
       "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
       "translation": "네이티브로 짝지어진 이미지와 인스턴스 레이블 마스크로 Cellpose-SAM 을 미세 조정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#1",
@@ -2968,7 +2994,9 @@
       "source_sha256": "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
       "context": "Add the verdict column to ``png_table`` if it is missing.",
       "translation": "``png_table`` 에 판정 열이 없으면 추가합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#1",
@@ -3016,7 +3044,9 @@
       "source_sha256": "d5ea58e07ce483bc4c2e4cbd73469e376f2802612b7b01834e0556a916993ee2",
       "context": "The recorded judgement of each of ``paths`` that has one.",
       "translation": "``paths`` 중 판정이 기록된 각 항목의 판정입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.fetch_verdicts#2",
@@ -3048,7 +3078,9 @@
       "source_sha256": "42d4636ff5909674a9561e602945872e2db53bf394af227e127598756003d778",
       "context": "How the column's suggestions stand: judged, and still to judge.",
       "translation": "열의 제안 현황입니다: 판정된 것과 아직 판정할 것.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.judgement_counts#2",
@@ -3072,7 +3104,9 @@
       "source_sha256": "7650dad656ad61cb386fce9ca3bcc15299b5c79eecb8044387e41d0564cf06d2",
       "context": "The extracted image regions whose suggestion was rejected, and the class that was refused.",
       "translation": "제안이 거부된 추출된 이미지 영역과 거부된 클래스입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#1",
@@ -3108,7 +3142,9 @@
       "source_sha256": "295f1539cc65d7146774f994201847562fc701d4e27425104fef69c5da9e1f96",
       "context": "The column beside ``annotation_column`` that records judgements.",
       "translation": "판정을 기록하는, ``annotation_column`` 옆의 열입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#1",
@@ -3260,7 +3296,9 @@
       "source_sha256": "244dd9a93d926c9b9b765c4bd5cf7c021e1559e0f7d1aa23580d9a8ae6cb55a1",
       "context": "Count the edit operations between a computed tracking and the truth.",
       "translation": "계산된 추적과 정답 사이의 편집 연산을 셉니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.aogm_costs#1",
@@ -3332,7 +3370,9 @@
       "source_sha256": "675914bcab3622ae4acd0c9398cc149a12062edae869f1e2f2325489101941db",
       "context": "The Cell Tracking Challenge's DET: detection only, no links.",
       "translation": "Cell Tracking Challenge 의 DET 로, 검출만 평가하고 연결은 평가하지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.det_score#1",
@@ -3380,7 +3420,9 @@
       "source_sha256": "f5686da6330d393de754babba1a1de74316318e39e966f4df7acae377684f3e3",
       "context": "Count how often a ground-truth object changes computed identity.",
       "translation": "정답 객체가 계산된 동일성을 얼마나 자주 바꾸는지 셉니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.identity_switches#1",
@@ -3404,7 +3446,9 @@
       "source_sha256": "7804e7e63c7574f1bcff6191ea7a871d01ad60d751c0c2a92f630f0828c9e3df",
       "context": "Intersection over union for every pair of labels in two frames.",
       "translation": "두 프레임에 있는 모든 레이블 쌍의 교집합 대 합집합 비율입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.iou_matrix#1",
@@ -3436,7 +3480,9 @@
       "source_sha256": "c9f52499b40c86c61b38960eea8a44282db0671ffe63e2e303ec1e3fa1b9c30f",
       "context": "Match the labels of two consecutive frames one to one.",
       "translation": "연속된 두 프레임의 레이블을 일대일로 대응시킵니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.link_frames#1",
@@ -3468,7 +3514,9 @@
       "source_sha256": "a26bf651ae274eb2372ce668200ed08abda15aa9512fba01265812a3f64fd24e",
       "context": "Match every ground-truth object to the computed segment that detects it.",
       "translation": "모든 정답 객체를 그것을 검출하는 계산된 세그먼트와 대응시킵니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.match_vertices#1",
@@ -3508,7 +3556,9 @@
       "source_sha256": "e40555b52f8f06aaf23c4fc00c84110bec8cca5e1434a7d654d00cf99ff0228c",
       "context": "Cross-tabulate the pixels shared by the labels of two frames.",
       "translation": "두 프레임의 레이블이 공유하는 픽셀을 교차 집계합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.overlap_counts#1",
@@ -3532,7 +3582,9 @@
       "source_sha256": "8e118c570d818c9f23055e6d458f81c9f0c9f899061434ffc6d5df2e389e197e",
       "context": "Run the baseline stitcher on a segmentation and score what it produced.",
       "translation": "분할 결과에 기준선 스티처를 실행하고 그 결과를 채점합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_stitcher#1",
@@ -3582,7 +3634,9 @@
       "source_sha256": "29a6a56d14552c4a05a9fb37314a2b674c9fd3af8eed2f1c735593b0a025a5d8",
       "context": "Score one computed tracking against the truth, counts and all.",
       "translation": "계산된 추적 하나를 정답과 비교해 개수까지 모두 포함하여 채점합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_tracking#6",
@@ -3606,7 +3660,9 @@
       "source_sha256": "c9e111bfc8eb626600920e467b1fa2e5d645bd5b35b14123a87b6cbc7876f857",
       "context": "Put scored trackings in one table, best TRA first.",
       "translation": "채점된 추적 결과를 TRA 가 가장 좋은 것부터 하나의 테이블에 넣습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.scores_table#1",
@@ -3630,7 +3686,9 @@
       "source_sha256": "81f8ee892b4e1dbca0a14adf1ae89f5dcaf451b4cb7dd4094252e03d5d2f0825",
       "context": "Give one id to the same object through a movie, by overlap alone.",
       "translation": "동영상 전체에서 같은 객체에 겹침만으로 하나의 ID 를 부여합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.stitch_by_iou#1",
@@ -3662,7 +3720,9 @@
       "source_sha256": "fca24c029cb57213a51768d4e103f9f4309733c3ff0c817145f9282b43dbb121",
       "context": "The Cell Tracking Challenge's TRA: detection and links together.",
       "translation": "Cell Tracking Challenge 의 TRA 로, 검출과 연결을 함께 평가합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.tra_score#7",
@@ -3678,7 +3738,9 @@
       "source_sha256": "06fa6aeae0fa412bbf36a440bab22b03b04997e587a26988d86a053c8576aa47",
       "context": "Build the acyclic oriented graph the AOGM measures are defined on.",
       "translation": "AOGM 측정이 정의되는 비순환 방향 그래프를 구성합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.tracking_graph#1",
@@ -3812,7 +3874,9 @@
       "source_sha256": "46d518afbab370488c9f31bebb0eb8f9c9918f51a7d37e237053973294b4ef07",
       "context": "Cellpose-SAM's encoder as a feature extractor, sharing its weights.",
       "translation": "가중치를 공유하는 특징 추출기로서의 Cellpose-SAM 인코더입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.CellposeSamFeatures#1",
@@ -3860,7 +3924,9 @@
       "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
       "context": "The encoder's parameters, for freezing and the optimiser.",
       "translation": "동결과 최적화기를 위한 인코더의 매개변수입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.TimeflowsNet#0",
@@ -3868,7 +3934,9 @@
       "source_sha256": "4f7397c59463ef05fda46b5cee01e57eaa76bab81f224935e1ffc6fb3e993707",
       "context": "The time head on a shared backbone, as a ``torch.nn.Module``.",
       "translation": "공유 백본 위의 시간 헤드이며, ``torch.nn.Module`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.TimeflowsNet#1",
@@ -3984,7 +4052,9 @@
       "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
       "context": "``label -> (y, x, equivalent diameter)`` for every object.",
       "translation": "모든 객체에 대한 ``label -> (y, x, equivalent diameter)`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.object_centroids#1",
@@ -4008,7 +4078,9 @@
       "source_sha256": "7bbfa2698c17c4dfef7fe3424e5826af27c212be30bd38001a465c69a409bdf6",
       "context": "Weights that draw pairs evenly across how far their objects move.",
       "translation": "객체가 이동하는 거리 전반에 걸쳐 쌍을 고르게 추출하는 가중치입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#1",
@@ -4050,7 +4122,9 @@
       "source_sha256": "7dfd478da4a5b718f4966e858bd3cc553ffe28f7cab5d853d79fe053eca3f4ef",
       "context": "The time head's prediction for one pair.",
       "translation": "한 쌍에 대한 시간 헤드의 예측입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.predict_pair#1",
@@ -4150,7 +4224,9 @@
       "source_sha256": "02c8458a20509e293f98786494be145f6a84d28c148061aa309b5ec84efab1ea",
       "context": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
       "translation": "프레임 ``t+1`` 의 레이블을 뒤섞고 모델이 이를 찾아내는지 확인합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.scramble_test#1",
@@ -4206,7 +4282,9 @@
       "source_sha256": "dabbb956d7e6def28d35d8facf8ac2b0237b11db1aba677e58ba32c08debe766",
       "context": "What the time head must predict for one pair of labelled frames.",
       "translation": "레이블된 프레임 한 쌍에 대해 시간 헤드가 예측해야 하는 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#1",
@@ -4272,7 +4350,9 @@
       "source_sha256": "327bcea9ebc2740e3b79e5dc3315642596a496b76f4ae4153237bd51f3486590",
       "context": "Masked loss for one batch.",
       "translation": "한 배치에 대한 마스크 적용 손실입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.timeflows_loss#1",
@@ -4408,7 +4488,9 @@
       "source_sha256": "e0244d2fa2d3905a7b33993282b5e32f918073efb26182e3b3af931aa20dd9f8",
       "context": "Audit several label stacks and compare their frame intervals.",
       "translation": "여러 레이블 스택을 감사하고 프레임 간격을 비교합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.audit_datasets#1",
@@ -4506,7 +4588,9 @@
       "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
       "context": "A distinct name for each stack path, as short as it can be.",
       "translation": "각 스택 경로에 대해 서로 구별되는 이름을 가능한 한 짧게 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.dataset_names#1",
@@ -4538,7 +4622,9 @@
       "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
       "context": "Per-frame displacement of every label that survives a frame.",
       "translation": "한 프레임을 넘어 유지되는 모든 레이블의 프레임별 변위입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.displacement_table#1",
@@ -4572,7 +4658,9 @@
       "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
       "context": "Find divisions and say which labelling convention they follow.",
       "translation": "분열을 찾고 그 분열이 어떤 레이블링 규칙을 따르는지 알려 줍니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.division_events#1",
@@ -4604,7 +4692,9 @@
       "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
       "context": "Render a QC table as aligned text.",
       "translation": "QC 테이블을 정렬된 텍스트로 렌더링합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.format_qc_table#1",
@@ -4636,7 +4726,9 @@
       "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
       "context": "Reduce frame timing to an interval and a verdict about its constancy.",
       "translation": "프레임 타이밍을 간격 하나와 그 일정성에 대한 판정으로 요약합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.frame_interval_summary#1",
@@ -4676,7 +4768,9 @@
       "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
       "context": "Measure every labelled object in every frame.",
       "translation": "모든 프레임에서 레이블된 모든 객체를 측정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.label_frames#2",
@@ -4692,7 +4786,9 @@
       "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
       "context": "Summarise where each label lives in the movie.",
       "translation": "각 레이블이 동영상의 어느 구간에 존재하는지 요약합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.label_spans#2",
@@ -4708,7 +4804,9 @@
       "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
       "context": "Read a label stack from a file or a folder of frames.",
       "translation": "파일 또는 프레임 폴더에서 레이블 스택을 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.load_label_stack#1",
@@ -4740,7 +4838,9 @@
       "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
       "context": "Run the QC over one or more label stacks and print the table.",
       "translation": "하나 이상의 레이블 스택에 대해 QC 를 실행하고 테이블을 출력합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc.main#1",
@@ -4834,7 +4934,9 @@
       "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
       "context": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
       "translation": "``'numpy 1.26.4 -> 2.2.6'`` 또는 ``'cuml-cu12 26.8.0 (new)'`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#0",
@@ -4842,7 +4944,9 @@
       "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
       "context": "The repository's releases, newest first, or ``[]``.",
       "translation": "저장소의 릴리스 목록(최신순) 또는 ``[]`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.fetch_release_notes#1",
@@ -4892,7 +4996,9 @@
       "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
       "context": "Launch the updated Qt application after the old event loop has stopped.",
       "translation": "이전 이벤트 루프가 멈춘 뒤 업데이트된 Qt 애플리케이션을 실행합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     }
   ]
 }

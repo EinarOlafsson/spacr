@@ -383,6 +383,61 @@ def pending_suggestions(db_path: str, annotation_column: str, *,
     return int(row[0]) if row else 0
 
 
+def _suggestion_snapshot(db_path: str, annotation_column: str, *,
+                         png_table: str = "png_list") -> Dict[str, int]:
+    """The suggestions waiting in ``annotation_column``, as stored.
+
+    Taken before a suggestion run clears them, so a run that fails or is
+    cancelled before it writes can put them back with
+    :func:`_restore_suggestions` instead of leaving the annotator with
+    neither the old proposals nor new ones.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column holding them.
+    :param png_table: the crop table.
+    :returns: ``{png_path: stored value}``; empty when there are none.
+    """
+    with _connect_read_only(db_path) as db:
+        if not _has_column(db, png_table, annotation_column):
+            return {}
+        rows = db.execute(
+            f'SELECT png_path, "{annotation_column}" FROM "{png_table}" '
+            f'WHERE "{annotation_column}" > ?', (SUGGESTION_OFFSET,)
+        ).fetchall()
+    return {str(path): int(value) for path, value in rows
+            if path is not None and value is not None}
+
+
+def _restore_suggestions(db_path: str, annotation_column: str,
+                         snapshot: Dict[str, int], *,
+                         png_table: str = "png_list") -> int:
+    """Put suggestions from :func:`_suggestion_snapshot` back, in one batch.
+
+    Only where the column is still empty: a crop annotated while the run was
+    going keeps its annotation.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column to write into.
+    :param snapshot: ``{png_path: stored value}``.
+    :param png_table: the crop table.
+    :returns: how many rows were put back.
+    """
+    if not snapshot:
+        return 0
+    from .database_concurrency import transaction
+
+    restored = 0
+    with _connect_writable(db_path) as db:
+        with transaction(db):
+            for path, value in snapshot.items():
+                cur = db.execute(
+                    f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
+                    f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
+                    (int(value), str(path)))
+                restored += cur.rowcount
+    return restored
+
+
 VERDICT_SUFFIX = "_verdict"
 
 

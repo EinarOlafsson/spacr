@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Item 560 DINOv2 drop-in: the DINO choice, its in-use line and the annotated cell example. Preserve DINOv2, Cell-DINO, ViT-S/14, Meta, the 'infected' column name and all placeholders; {button}, {embed}, {classifier} and {run} are filled with the existing translated control captions. The example cells show the workflow only and are not a scientific comparison.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "DINOv2 (Cell-DINO when installed)",
+      "source": "DINOv2 (Cell-DINO when installed)",
+      "source_sha256": "f6e2fe42eef05afe934e2b21abb8b5806461e170a39c683a9d068bfb24c2be31",
+      "translation": "DINOv2 (इंस्टॉल होने पर Cell-DINO)"
+    },
+    {
+      "table": "ui",
+      "key": "Runs official Cell-DINO when its checkpoint is installed and its planes are mapped; otherwise the open DINOv2 ViT-S/14. The line below the controls says which one is in use.",
+      "source": "Runs official Cell-DINO when its checkpoint is installed and its planes are mapped; otherwise the open DINOv2 ViT-S/14. The line below the controls says which one is in use.",
+      "source_sha256": "aae22baeedb4a6bfba6b871297bcbaccd95339331feb22669e850b2beae78772",
+      "translation": "जब इसका चेकपॉइंट इंस्टॉल हो और इसके प्लेन मैप किए गए हों, तब आधिकारिक Cell-DINO चलाता है; अन्यथा खुला DINOv2 ViT-S/14। नियंत्रणों के नीचे की पंक्ति बताती है कि कौन-सा उपयोग में है।"
+    },
+    {
+      "table": "ui",
+      "key": "In use: official Cell-DINO ({factory}), checkpoint {name}{digest}.",
+      "source": "In use: official Cell-DINO ({factory}), checkpoint {name}{digest}.",
+      "source_sha256": "c7b7a4461f376686555d10699d622796e49798035df072e15e9d8edadf26ab15",
+      "translation": "उपयोग में: आधिकारिक Cell-DINO ({factory}), चेकपॉइंट {name}{digest}।"
+    },
+    {
+      "table": "ui",
+      "key": "Cell-DINO checkpoint {name} is installed, but its {planes} input planes are not mapped to crop channels. Map them with {button}",
+      "source": "Cell-DINO checkpoint {name} is installed, but its {planes} input planes are not mapped to crop channels. Map them with {button}",
+      "source_sha256": "b12c9895b16e4bf4aedeee05f7f9feee9f55b4c7cf6eb82fa0812c0e85db9ec6",
+      "translation": "Cell-DINO चेकपॉइंट {name} इंस्टॉल है, लेकिन इसके {planes} इनपुट प्लेन क्रॉप चैनलों से मैप नहीं किए गए हैं। उन्हें {button} से मैप करें"
+    },
+    {
+      "table": "ui",
+      "key": "{path} is not a readable official Cell-DINO model state.",
+      "source": "{path} is not a readable official Cell-DINO model state.",
+      "source_sha256": "583e2b79386cdb27093af507f77de52b3b3bb76df65818bdb340dac3a283acfa",
+      "translation": "{path} पढ़ने योग्य आधिकारिक Cell-DINO मॉडल स्थिति नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "No official Cell-DINO checkpoint is installed. Meta grants access by request; put the file in {folder} to use it.",
+      "source": "No official Cell-DINO checkpoint is installed. Meta grants access by request; put the file in {folder} to use it.",
+      "source_sha256": "f93067f82667fd10eca94d9fd87edb4c6dafdb486e1a2b8eff67854470ff1e3a",
+      "translation": "कोई आधिकारिक Cell-DINO चेकपॉइंट इंस्टॉल नहीं है। Meta अनुरोध पर पहुँच देता है; इसका उपयोग करने के लिए फ़ाइल को {folder} में रखें।"
+    },
+    {
+      "table": "ui",
+      "key": "In use: open DINOv2 ViT-S/14 (general-image weights).",
+      "source": "In use: open DINOv2 ViT-S/14 (general-image weights).",
+      "source_sha256": "5cba7b2a848bc53f94b983411946d8afd0004fae759aea5fdbaae356284b75e1",
+      "translation": "उपयोग में: खुला DINOv2 ViT-S/14 (सामान्य-छवि भार)।"
+    },
+    {
+      "table": "ui",
+      "key": "Load 24 generated shapes with labels. DINOv2 runs on the CPU; pretrained weights download only if not cached.",
+      "source": "Load 24 generated shapes with labels. DINOv2 runs on the CPU; pretrained weights download only if not cached.",
+      "source_sha256": "b0612cd0277f289449e90defc638fc9b46273ac57f2293bf020ed333242a9f96",
+      "translation": "लेबल सहित 24 बनाई गई आकृतियाँ लोड करें। DINOv2 को CPU पर चलाया जाता है; पूर्व-प्रशिक्षित भार केवल कैश में न होने पर डाउनलोड होते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Load cell example",
+      "source": "Load cell example",
+      "source_sha256": "d7803c866f47486817d9da4e90b2f0e70828e35ee70e7bdb04bad3bd368c3128",
+      "translation": "कोशिका उदाहरण लोड करें"
+    },
+    {
+      "table": "ui",
+      "key": "Load the example plate's annotated single-cell crops with their labels and run DINOv2 on the CPU. The plate downloads once, about 280 MB.",
+      "source": "Load the example plate's annotated single-cell crops with their labels and run DINOv2 on the CPU. The plate downloads once, about 280 MB.",
+      "source_sha256": "f328b92dc375ccfd0fc17b16d5d381c10a384dbd544490e99f86325717071071",
+      "translation": "उदाहरण प्लेट के एनोटेट किए गए एकल-कोशिका क्रॉप उनके लेबल सहित लोड करें और DINOv2 को CPU पर चलाएँ। प्लेट एक बार डाउनलोड होती है, लगभग 280 MB।"
+    },
+    {
+      "table": "ui",
+      "key": "Loading the annotated example cells…",
+      "source": "Loading the annotated example cells…",
+      "source_sha256": "ccba3b0feeddde328e66364151a5968596847ccd7280a7211fe76356af16e04e",
+      "translation": "एनोटेट की गई उदाहरण कोशिकाएँ लोड हो रही हैं…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading the annotated example cells was stopped.",
+      "source": "Loading the annotated example cells was stopped.",
+      "source_sha256": "3f007803a4f2847ac1c020ceee99eeb41a41d11e21968fd4367a1c39c2466f40",
+      "translation": "एनोटेट की गई उदाहरण कोशिकाओं को लोड करना रोक दिया गया।"
+    },
+    {
+      "table": "ui",
+      "key": "These example cells carry the plate's own 'infected' annotation (classes 1 and 2). They show the workflow on real crops; so few labels are not a scientific comparison.",
+      "source": "These example cells carry the plate's own 'infected' annotation (classes 1 and 2). They show the workflow on real crops; so few labels are not a scientific comparison.",
+      "source_sha256": "5dfd254d291294ba575dd3fc2659c2a591dc9dbb3d08d551595e3af827918568",
+      "translation": "इन उदाहरण कोशिकाओं पर प्लेट का अपना 'infected' एनोटेशन (वर्ग 1 और 2) है। ये असली क्रॉप पर कार्यप्रवाह दिखाती हैं; इतने कम लेबल वैज्ञानिक तुलना नहीं हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Loaded {count} annotated example cells and their labels. Press {embed}, then choose {classifier} and {run}. Labels: {path}",
+      "source": "Loaded {count} annotated example cells and their labels. Press {embed}, then choose {classifier} and {run}. Labels: {path}",
+      "source_sha256": "d9f96daadec9ead92f604854905fa1eb4daf137056e9cc01717cbb078a4882dd",
+      "translation": "{count} एनोटेट की गई उदाहरण कोशिकाएँ और उनके लेबल लोड हो गए हैं। {embed} दबाएँ, फिर {classifier} और {run} चुनें। लेबल: {path}"
+    }
+  ]
+}

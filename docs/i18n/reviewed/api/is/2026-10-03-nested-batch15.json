@@ -1037,6 +1037,8 @@
     },
     {
       "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "Open the install/login dialog, then re-list the providers.",
       "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
       "context": "Open the install/login dialog, then re-list the providers.",

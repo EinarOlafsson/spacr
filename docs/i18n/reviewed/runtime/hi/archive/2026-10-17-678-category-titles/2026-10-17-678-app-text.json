@@ -1,0 +1,603 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "Item 678 Home app-text pass: settings-group descriptions, preference and sound tooltips, theme and palette descriptions, the Make Masks diameter tooltip, the figure text-size tooltip and the Embeddings introduction were rewritten as factual descriptions without metaphors. Preserve backticked setting names, product names, numbers, units and paragraph breaks.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Turns each segmented object into a vector with a pretrained image encoder, alongside the measured panel rather than instead of it. Measured features describe properties chosen in advance; an embedding records the image features the encoder learned, which is useful when the phenotype is not yet defined. Per-channel encoding is the default. Every dimension then records the stain it came from. Interpret the dimensions together: a single dimension has no defined meaning.",
+      "source": "Turns each segmented object into a vector with a pretrained image encoder, alongside the measured panel rather than instead of it. Measured features describe properties chosen in advance; an embedding records the image features the encoder learned, which is useful when the phenotype is not yet defined. Per-channel encoding is the default. Every dimension then records the stain it came from. Interpret the dimensions together: a single dimension has no defined meaning.",
+      "source_sha256": "0ba3a77ed41e50e8cd55c2fc1767ef6c4368a56b57f4a682e39686fac60ca24e",
+      "translation": "पूर्व-प्रशिक्षित इमेज एनकोडर से प्रत्येक खंडित ऑब्जेक्ट को एक वेक्टर में बदलता है, मापे गए पैनल के स्थान पर नहीं बल्कि उसके साथ। मापी गई विशेषताएँ पहले से चुने गए गुणों का वर्णन करती हैं; एम्बेडिंग एनकोडर द्वारा सीखी गई इमेज विशेषताओं को दर्ज करती है, जो तब उपयोगी है जब फ़ीनोटाइप अभी परिभाषित नहीं है। प्रति-चैनल एन्कोडिंग डिफ़ॉल्ट है। तब प्रत्येक आयाम यह दर्ज करता है कि वह किस स्टेन से आया। आयामों की व्याख्या एक साथ करें: किसी एक आयाम का कोई निर्धारित अर्थ नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Warm orange on near-black, a backdrop of luminous points, and a sound set in G minor at 118 BPM.",
+      "source": "Warm orange on near-black, a backdrop of luminous points, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "8ec34d4f0050acf01dbd927723c0d60fa3777f52761624a3453e80700ec02aed",
+      "translation": "लगभग काली पृष्ठभूमि पर गर्म नारंगी रंग, चमकते बिंदुओं की पृष्ठभूमि और G माइनर में 118 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Gold on brown-black, slowly drifting colour blobs, and a sound set in F Dorian at 120 BPM.",
+      "source": "Gold on brown-black, slowly drifting colour blobs, and a sound set in F Dorian at 120 BPM.",
+      "source_sha256": "56b4353b21d47cdebc7d03e6dffb293434869e94304eef53da48f0ef7a0f8801",
+      "translation": "भूरी-काली पृष्ठभूमि पर सुनहरा रंग, धीरे-धीरे बहते रंगीन धब्बे और F डोरियन में 120 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Olive and pale gold, a backdrop of luminous points, and a sound set in G Lydian at 112 BPM.",
+      "source": "Olive and pale gold, a backdrop of luminous points, and a sound set in G Lydian at 112 BPM.",
+      "source_sha256": "9db5f9f661e9d0cda21b4b73a630a9389e0c4187ac36ddb8f3b6c10126d8768b",
+      "translation": "जैतूनी और हल्का सुनहरा रंग, चमकते बिंदुओं की पृष्ठभूमि और G लिडियन में 112 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Green on green-black, waves travelling through points, and a sound set in E minor at 116 BPM with the most sub-bass of the ten.",
+      "source": "Green on green-black, waves travelling through points, and a sound set in E minor at 116 BPM with the most sub-bass of the ten.",
+      "source_sha256": "a4c82158545a0d380516030167501565927ca8f848d7158ad6ba8bc00301117f",
+      "translation": "हरी-काली पृष्ठभूमि पर हरा रंग, बिंदुओं से गुजरती लहरें और E माइनर में 116 BPM का ध्वनि समूह, जिसमें दसों में सबसे अधिक सब-बास है।"
+    },
+    {
+      "table": "ui",
+      "key": "Teal on a dark background, particle currents, and a sound set in A Dorian at 124 BPM.",
+      "source": "Teal on a dark background, particle currents, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "9b2dba49348981ffe9d875b25c12f30f87f9bc642e31d768add8c8e02b764161",
+      "translation": "गहरी पृष्ठभूमि पर नीलहरित रंग, कणों की धाराएँ और A डोरियन में 124 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Pale, low-saturation ice blue, a starfield backdrop, and a sound set in B minor at 126 BPM.",
+      "source": "Pale, low-saturation ice blue, a starfield backdrop, and a sound set in B minor at 126 BPM.",
+      "source_sha256": "24ccd1cccda898c4d1f3d41fcb7a691cb229e164dc6e282df627547218d53e19",
+      "translation": "हल्का, कम संतृप्ति वाला बर्फीला नीला, तारों भरी पृष्ठभूमि और B माइनर में 126 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Violet on a dark background, waves travelling through points, and a sound set in D harmonic minor at 128 BPM.",
+      "source": "Violet on a dark background, waves travelling through points, and a sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "b863fbd7c553868a21697c7691adf7e16bb21696daffdb37e6b249808d1529e8",
+      "translation": "गहरी पृष्ठभूमि पर बैंगनी रंग, बिंदुओं से गुजरती लहरें और D हार्मोनिक माइनर में 128 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Magenta on black, slowly drifting colour blobs, and a sound set in F sharp minor at 128 BPM.",
+      "source": "Magenta on black, slowly drifting colour blobs, and a sound set in F sharp minor at 128 BPM.",
+      "source_sha256": "faabd4d5495bf3438f54b9f2845c762c5029b5375d45d8317b52c2ca61ce89ee",
+      "translation": "काली पृष्ठभूमि पर मैजेंटा, धीरे-धीरे बहते रंगीन धब्बे और F शार्प माइनर में 128 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Plum and dusty rose, particle currents, and a sound set in E flat minor at 114 BPM.",
+      "source": "Plum and dusty rose, particle currents, and a sound set in E flat minor at 114 BPM.",
+      "source_sha256": "08858d40ea4651a6c41e28960fbdedc8d5d8664e37b916a4c8a71bfaae8577c9",
+      "translation": "आलूबुखारी और फीका गुलाबी रंग, कणों की धाराएँ और E फ्लैट माइनर में 114 BPM का ध्वनि समूह।"
+    },
+    {
+      "table": "ui",
+      "key": "Vary the travel speed over time instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+      "source": "Vary the travel speed over time instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+      "source_sha256": "22e64dc65e6bcd23d80cb668a100af065db34dc722ac15f6427c2c93d2acb9ad",
+      "translation": "यात्रा गति को एक मान पर स्थिर रखने के बजाय समय के साथ बदलें। यह ऊपर की गति को प्रतिस्थापित नहीं करता बल्कि उसे मॉड्युलेट करता है, इसलिए आपके द्वारा सेट की गई संख्या अब भी सीमा का मध्य बिंदु रहती है।"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to set it yourself; your previous choice is then restored.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to set it yourself; your previous choice is then restored.",
+      "source_sha256": "bf3312a48db301916258371ada438a24cd17635150b36707fa0aedcde3dd6071",
+      "translation": "जब विस्तृत लॉगिंग चालू है (मॉड्यूल टैब), DEBUG हमेशा लॉग फ़ाइलों में लिखा जाता है, इसलिए यह स्विच चालू रहता है। इसे स्वयं सेट करने के लिए विस्तृत लॉगिंग बंद करें; तब आपकी पिछली पसंद बहाल हो जाती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. These records show the steps that led to a problem in a bug report.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. These records show the steps that led to a problem in a bug report.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "70d338e59448e903729378c86f0d048251981cafcf4f36889609893b7c14c932",
+      "translation": "~/.spacr/logs की लॉग फ़ाइलों में spaCR के DEBUG संदेश जोड़ता है। इससे cellpose यह भी बता पाता है कि उसने कौन-सा मॉडल लोड किया, और यह दर्ज होता है कि आपने कौन-से बटन दबाए। ये रिकॉर्ड बग रिपोर्ट में उन चरणों को दिखाते हैं जिनसे समस्या उत्पन्न हुई।\n\nइसके चालू रहने पर spaCR शुरू करने और उसकी स्क्रीन खोलने में अधिक समय नहीं लगा। यह एक वर्कस्टेशन पर हर मॉड्यूल को एक बार इसे चालू और एक बार बंद रखकर खोलकर मापा गया। दोनों स्थितियों में कोल्ड स्टार्ट के बाद मुखपृष्ठ लगभग 4 सेकंड में तैयार था। सबसे धीमा मॉड्यूल दोनों स्थितियों में लगभग 7 सेकंड में खुला। पाइपलाइन रन का समय नहीं मापा गया।\n\nकंसोल अब भी केवल वही स्तर दिखाता है जिन्हें आप लॉगिंग टैब पर उसके लिए चालू करते हैं। यह स्विच हर फ़ंक्शन कॉल का अनुरेखण नहीं करता। वह अनुरेखक डेवलपर के लिए एक अलग टूल है, और यहाँ की कोई भी सेटिंग उसे चालू नहीं करती।"
+    },
+    {
+      "table": "ui",
+      "key": "Each level sets supersampling, render scale, the iteration budget and the scale below. Each of these remains a field that can be changed after a level is chosen.\n\nAuto chooses the values for each backend from the hardware every time, instead of storing fixed values.",
+      "source": "Each level sets supersampling, render scale, the iteration budget and the scale below. Each of these remains a field that can be changed after a level is chosen.\n\nAuto chooses the values for each backend from the hardware every time, instead of storing fixed values.",
+      "source_sha256": "663460fc4249a0a961ab752c21f9e1a42637c5097157380998daab868b29221f",
+      "translation": "प्रत्येक स्तर सुपरसैंपलिंग, रेंडर स्केल, पुनरावृत्ति बजट और नीचे दिए गए स्केल को सेट करता है। स्तर चुनने के बाद भी इनमें से प्रत्येक एक फ़ील्ड बना रहता है जिसे बदला जा सकता है।\n\nस्वतः निश्चित मान संग्रहीत करने के बजाय हर बार हार्डवेयर के आधार पर प्रत्येक बैकएंड के लिए मान चुनता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes periodically scores several directions around the centre by the set boundary they contain and moves the camera toward the highest score. The camera movement is visible; the Steering control below sets how far each move reaches.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes periodically scores several directions around the centre by the set boundary they contain and moves the camera toward the highest score. The camera movement is visible; the Steering control below sets how far each move reaches.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source_sha256": "eaf2d71913ffe8c9345b5569cc54f1ee4bc31c7f8be7b83c0946eed4b3f1efc2",
+      "translation": "सीधे नीचे सीमा पर एक बिंदु तक उतरता है और उसी की ओर इंगित रहता है — सबसे स्थिर चित्र, और वही जो प्रकाशित सेटिंग्स उपयोग करती हैं।\n\nचलते-चलते खोजें समय-समय पर केंद्र के आसपास की कई दिशाओं को उनमें मौजूद सेट सीमा के आधार पर अंक देता है और कैमरे को सबसे अधिक अंक वाली दिशा की ओर ले जाता है। कैमरे की गति दिखाई देती है; नीचे का दिशा नियंत्रण तय करता है कि प्रत्येक गति कितनी दूर तक जाती है।\n\nरोचक स्थानों की सैर उतरते समय दृश्य को मापती है और सबसे अधिक रंगों वाले भाग की ओर सरकती है, कभी एक-रंगी हिस्से की ओर नहीं। कैमरा हर गति को धीरे से शुरू और समाप्त करता है, विवरण समाप्त होने से पहले मुड़ जाता है, और एक गोते के अंत में फिर ऊपर सरक आता है। दृश्य को खींचने से सैर रुक जाती है; Ctrl+R कैमरा फिर उसे सौंप देता है।"
+    },
+    {
+      "table": "ui",
+      "key": "How far the camera moves off a straight descent. 0 goes straight down; 1 makes the largest moves toward set boundary structure.\n\nIt sets how far each move reaches, how often one happens and how long it takes, together — a move never takes more than half the gap before the next, at any setting, so it always settles rather than being caught mid-course.",
+      "source": "How far the camera moves off a straight descent. 0 goes straight down; 1 makes the largest moves toward set boundary structure.\n\nIt sets how far each move reaches, how often one happens and how long it takes, together — a move never takes more than half the gap before the next, at any setting, so it always settles rather than being caught mid-course.",
+      "source_sha256": "528a159692f43efe2e87e2be5a4183a5756ba374f352562f7b3691ade1b6a992",
+      "translation": "कैमरा सीधे अवतरण से कितना हटता है। 0 सीधे नीचे जाता है; 1 सेट सीमा की संरचना की ओर सबसे बड़ी गतियाँ करता है।\n\nयह एक साथ तय करता है कि प्रत्येक गति कितनी दूर तक जाती है, कितनी बार होती है और कितना समय लेती है — किसी भी सेटिंग पर कोई गति अगली गति से पहले के अंतराल के आधे से अधिक समय नहीं लेती, इसलिए वह बीच में बाधित होने के बजाय हमेशा पूरी होती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Expected object diameter in pixels; 0 lets Cellpose estimate it. It is the only pre-SAM sizing setting that Cellpose 4 still uses, and it rescales the image by 30/diameter. Adjust it when objects are split or fused.",
+      "source": "Expected object diameter in pixels; 0 lets Cellpose estimate it. It is the only pre-SAM sizing setting that Cellpose 4 still uses, and it rescales the image by 30/diameter. Adjust it when objects are split or fused.",
+      "source_sha256": "fc10aa9c53630f17f05ed1c4aec8cd41e8ef52e0e2b96df83e7512b0617c5023",
+      "translation": "पिक्सेल में अपेक्षित ऑब्जेक्ट व्यास; 0 होने पर Cellpose इसका अनुमान लगाता है। यह SAM से पहले की एकमात्र आकार सेटिंग है जिसका Cellpose 4 अब भी उपयोग करता है, और यह इमेज को 30/diameter के अनुपात में पुनः स्केल करती है। जब ऑब्जेक्ट विभाजित हों या आपस में जुड़ जाएँ तब इसे समायोजित करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Channel assignment, intensity normalisation and whether preview figures are drawn. The other groups use these values, so check them for each new dataset.",
+      "source": "Channel assignment, intensity normalisation and whether preview figures are drawn. The other groups use these values, so check them for each new dataset.",
+      "source_sha256": "0ad24e9e2c7d888d3b946c17cb84fc438832ce5671799fc4c3acd8d9d9305b9c",
+      "translation": "चैनल असाइनमेंट, तीव्रता सामान्यीकरण और यह कि पूर्वावलोकन चित्र बनाए जाएँ या नहीं। अन्य समूह इन मानों का उपयोग करते हैं, इसलिए प्रत्येक नए डेटासेट के लिए इन्हें जाँचें।"
+    },
+    {
+      "table": "ui",
+      "key": "Which detected objects are kept, for every object class in one place. `cell_min_size` and `nucleus_min_size` do the same thing to different objects. The settings are ordered by object, so the filters for one object are listed together. Raise the minimum size to drop debris, set a maximum to drop merged clumps, and use the border filters when objects cut off by the image edge would bias your measurements.",
+      "source": "Which detected objects are kept, for every object class in one place. `cell_min_size` and `nucleus_min_size` do the same thing to different objects. The settings are ordered by object, so the filters for one object are listed together. Raise the minimum size to drop debris, set a maximum to drop merged clumps, and use the border filters when objects cut off by the image edge would bias your measurements.",
+      "source_sha256": "94fe8c16987cbc94fb1cad9bcfc5be909bb735b1d1edf6521031d2cfcbd6cbd4",
+      "translation": "सभी ऑब्जेक्ट वर्गों के लिए एक ही स्थान पर तय करता है कि कौन-से पहचाने गए ऑब्जेक्ट रखे जाएँ। `cell_min_size` और `nucleus_min_size` अलग-अलग ऑब्जेक्ट पर एक ही काम करते हैं। सेटिंग्स ऑब्जेक्ट के क्रम में हैं, इसलिए एक ऑब्जेक्ट के फ़िल्टर एक साथ सूचीबद्ध हैं। मलबा हटाने के लिए न्यूनतम आकार बढ़ाएँ, जुड़े हुए गुच्छों को हटाने के लिए अधिकतम आकार सेट करें, और जब इमेज के किनारे से कटे ऑब्जेक्ट आपके मापों में पूर्वाग्रह ला सकते हों तब सीमा फ़िल्टर का उपयोग करें।"
+    },
+    {
+      "table": "ui",
+      "key": "The forty-eight detection parameters behind the organelle type: shape family and method, the background and contrast correction applied first, the parameters of the chosen method, and the intensity filters applied to detected objects. Choosing an organelle type sets the parameters it uses; a value changed here takes precedence and is not overwritten. Punctate, tubular and ring-shaped organelles use different methods, and the organelle type selects one.",
+      "source": "The forty-eight detection parameters behind the organelle type: shape family and method, the background and contrast correction applied first, the parameters of the chosen method, and the intensity filters applied to detected objects. Choosing an organelle type sets the parameters it uses; a value changed here takes precedence and is not overwritten. Punctate, tubular and ring-shaped organelles use different methods, and the organelle type selects one.",
+      "source_sha256": "e3e93471048d676a0d214fa7ef86522782c05a5b7303ebfd0a30c787c7639474",
+      "translation": "ऑर्गेनेल प्रकार के पीछे के अड़तालीस पहचान पैरामीटर: आकार परिवार और विधि, पहले लागू किया गया पृष्ठभूमि और कंट्रास्ट सुधार, चुनी गई विधि के पैरामीटर, और पहचाने गए ऑब्जेक्ट पर लागू तीव्रता फ़िल्टर। ऑर्गेनेल प्रकार चुनने से उसके द्वारा उपयोग किए जाने वाले पैरामीटर सेट हो जाते हैं; यहाँ बदला गया मान प्राथमिकता लेता है और अधिलेखित नहीं होता। बिंदुनुमा, नलिकाकार और वलयाकार ऑर्गेनेल अलग-अलग विधियों का उपयोग करते हैं, और ऑर्गेनेल प्रकार इनमें से एक चुनता है।"
+    },
+    {
+      "table": "ui",
+      "key": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
+      "source": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
+      "source_sha256": "342b78775e53c52279736e006d310dfc3d2d15be3fd54cf7d12551e57747dba3",
+      "translation": "ऑर्गेनेल प्रकार के पीछे के अड़तालीस पहचान पैरामीटर। प्रकार चुनने से उसके द्वारा उपयोग किए जाने वाले पैरामीटर सेट हो जाते हैं; यहाँ बदला गया मान प्राथमिकता लेता है और अधिलेखित नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
+      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
+      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
+      "translation": "Cellpose कैसे चलाया जाता है: अपेक्षित ऑब्जेक्ट व्यास, प्रायिकता और फ़्लो थ्रेशोल्ड, पुनः स्केलिंग और व्युत्क्रमण। जब मास्क व्यवस्थित रूप से बहुत अधिक, बहुत कम या गलत आकार के हों तब इन्हें समायोजित करें; मॉडल, मॉडल प्रशिक्षण के अंतर्गत चुना जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
+      "source": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
+      "source_sha256": "1eca02ed8f2dff6571222b02a4607b2619c74442bc5a46a11902aebdea95e637",
+      "translation": "ड्रॉपआउट और वेट डिके, जो प्रशिक्षण सेट पर ओवरफ़िटिंग कम करते हैं, और ग्रेडिएंट चेकपॉइंटिंग, जो GPU मेमोरी उपयोग कम करती है। जब प्रशिक्षण सटीकता बढ़े और सत्यापन सटीकता न बढ़े तब ड्रॉपआउट या वेट डिके बढ़ाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Run-level settings: verbosity, worker and batch sizing, background handling, and whether results are written. Use them to reduce console output, CPU or memory use, or to run without saving results.",
+      "source": "Run-level settings: verbosity, worker and batch sizing, background handling, and whether results are written. Use them to reduce console output, CPU or memory use, or to run without saving results.",
+      "source_sha256": "6c8c224b733111061d968906e8da2e1b1897232dc8b717cc8df54f1085e41fa8",
+      "translation": "रन-स्तरीय सेटिंग्स: विवरण स्तर, वर्कर और बैच आकार, पृष्ठभूमि प्रबंधन, और यह कि परिणाम लिखे जाएँ या नहीं। कंसोल आउटपुट, CPU या मेमोरी उपयोग कम करने, या परिणाम सहेजे बिना चलाने के लिए इनका उपयोग करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Detailed settings of the beta motility pipeline: feature selection and the filter windows applied to tracks. Change them after the basic assay runs, when the tracks show a specific error.",
+      "source": "Detailed settings of the beta motility pipeline: feature selection and the filter windows applied to tracks. Change them after the basic assay runs, when the tracks show a specific error.",
+      "source_sha256": "f3d3690cbe5eb8b796356979f5643a01d9f5fad303c2a4602b3c551680861445",
+      "translation": "बीटा गतिशीलता पाइपलाइन की विस्तृत सेटिंग्स: विशेषता चयन और ट्रैक पर लागू फ़िल्टर विंडो। मूल परख चलने के बाद, जब ट्रैक में कोई विशिष्ट त्रुटि दिखे, तब इन्हें बदलें।"
+    },
+    {
+      "table": "ui",
+      "key": "Per-family parameters. Each applies to only some regression types, and a family refuses a setting it cannot read rather than ignoring it, so no setting here changes a fit silently. Change a parameter only when the chosen family documents it.",
+      "source": "Per-family parameters. Each applies to only some regression types, and a family refuses a setting it cannot read rather than ignoring it, so no setting here changes a fit silently. Change a parameter only when the chosen family documents it.",
+      "source_sha256": "c01dcafeefe638407b01ee55644ce89fa6e4a8e2fac1c815755a0a025e9459ba",
+      "translation": "प्रति-परिवार पैरामीटर। प्रत्येक केवल कुछ रिग्रेशन प्रकारों पर लागू होता है, और कोई परिवार उस सेटिंग को अनदेखा करने के बजाय अस्वीकार कर देता है जिसे वह पढ़ नहीं सकता, इसलिए यहाँ की कोई भी सेटिंग फ़िट को चुपचाप नहीं बदलती। किसी पैरामीटर को तभी बदलें जब चुने गए परिवार के दस्तावेज़ में उसका वर्णन हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Processing applied to the pixels before any mask is made: intensity normalisation, projection, upscaling, denoising, and field batching. Adjust it when the images are dim, noisy, or at a different scale from the one the model expects.",
+      "source": "Processing applied to the pixels before any mask is made: intensity normalisation, projection, upscaling, denoising, and field batching. Adjust it when the images are dim, noisy, or at a different scale from the one the model expects.",
+      "source_sha256": "7eacfefef7b4a58d5ab4c8ea0e30cce24df6e7348c5d6404a9c81341b6c36522",
+      "translation": "कोई भी मास्क बनाने से पहले पिक्सेल पर लागू प्रसंस्करण: तीव्रता सामान्यीकरण, प्रक्षेपण, अपस्केलिंग, नॉइज़ हटाना और फ़ील्ड बैचिंग। जब इमेज मंद हों, उनमें नॉइज़ अधिक हो, या वे मॉडल की अपेक्षित स्केल से भिन्न स्केल पर हों तब इसे समायोजित करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Everything that produces the pathogen mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Adjust this group when parasites packed into one vacuole are merged into a single object.",
+      "source": "Everything that produces the pathogen mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Adjust this group when parasites packed into one vacuole are merged into a single object.",
+      "source_sha256": "180f33f3acfd0b0a0da9608670b572b4619cfdd1c626cadbe682a67bbace2493",
+      "translation": "रोगजनक मास्क बनाने वाली सभी सेटिंग्स: मॉडल और अपेक्षित व्यास, थ्रेशोल्ड, पृष्ठभूमि हटाना, और बाद में लागू आकार, तीव्रता और सीमा फ़िल्टर। जब एक रिक्तिका में सटे परजीवी एक ही ऑब्जेक्ट में विलीन हो जाएँ तब इस समूह को समायोजित करें।"
+    },
+    {
+      "table": "ui",
+      "key": "All organelle mask settings, in setup order: shape family and detection method, the background and contrast correction applied first, the parameters of the chosen method (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), the size, intensity and border filters applied to detected objects, and the parent compartment the results are summarised into. It is the largest group in the module because punctate, tubular and ring-shaped organelles use different methods.",
+      "source": "All organelle mask settings, in setup order: shape family and detection method, the background and contrast correction applied first, the parameters of the chosen method (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), the size, intensity and border filters applied to detected objects, and the parent compartment the results are summarised into. It is the largest group in the module because punctate, tubular and ring-shaped organelles use different methods.",
+      "source_sha256": "c19a6a56aef1f1ff7761aa576263d31c7dd02a57288982639e67c3471ed3eee8",
+      "translation": "सेटअप क्रम में सभी ऑर्गेनेल मास्क सेटिंग्स: आकार परिवार और पहचान विधि, पहले लागू किया गया पृष्ठभूमि और कंट्रास्ट सुधार, चुनी गई विधि (adaptive, spot, ridge, ring, irregular, Cellpose या U-Net) के पैरामीटर, पहचाने गए ऑब्जेक्ट पर लागू आकार, तीव्रता और सीमा फ़िल्टर, और वह मूल कम्पार्टमेंट जिसमें परिणाम सारांशित किए जाते हैं। यह मॉड्यूल का सबसे बड़ा समूह है क्योंकि बिंदुनुमा, नलिकाकार और वलयाकार ऑर्गेनेल अलग-अलग विधियों का उपयोग करते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Which plane of the stack holds each mask and each intensity channel, whether a cytoplasm compartment is derived, and whether the data is a time series. A wrong index measures the wrong object without an error, so check each index against the images.",
+      "source": "Which plane of the stack holds each mask and each intensity channel, whether a cytoplasm compartment is derived, and whether the data is a time series. A wrong index measures the wrong object without an error, so check each index against the images.",
+      "source_sha256": "ce00fe082ce04f548b66180afda29e673a399d665d6d49f6c27b421b0399296e",
+      "translation": "स्टैक का कौन-सा तल प्रत्येक मास्क और प्रत्येक तीव्रता चैनल रखता है, क्या साइटोप्लाज़्म कम्पार्टमेंट व्युत्पन्न किया जाता है, और क्या डेटा एक समय श्रृंखला है। गलत इंडेक्स बिना किसी त्रुटि के गलत ऑब्जेक्ट को मापता है, इसलिए प्रत्येक इंडेक्स को इमेज से मिलाकर जाँचें।"
+    },
+    {
+      "table": "ui",
+      "key": "The remaining parameters of individual regression families and plots: bootstrap counts, quantile and hinge parameters, solver tolerance and axis limits. Only the parameters of the model chosen above take effect.",
+      "source": "The remaining parameters of individual regression families and plots: bootstrap counts, quantile and hinge parameters, solver tolerance and axis limits. Only the parameters of the model chosen above take effect.",
+      "source_sha256": "06fca89b9d1fcb205d40196d576b722ad67706b8b16bff7af579f2e0ed1d743e",
+      "translation": "अलग-अलग रिग्रेशन परिवारों और प्लॉट के शेष पैरामीटर: बूटस्ट्रैप गणना, क्वांटाइल और hinge पैरामीटर, सॉल्वर टॉलरेंस और अक्ष सीमाएँ। केवल ऊपर चुने गए मॉडल के पैरामीटर ही प्रभावी होते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Checks that test whether an attribution map depends on the model: insertion and deletion steps, the baseline they are measured against, and the model-weight sanity check. Run them before an attribution map is used in a figure.",
+      "source": "Checks that test whether an attribution map depends on the model: insertion and deletion steps, the baseline they are measured against, and the model-weight sanity check. Run them before an attribution map is used in a figure.",
+      "source_sha256": "c21cf6f2b0021509e374218ff674e8a9a6180bee2500787bd8de129d00552e81",
+      "translation": "जाँचें जो परखती हैं कि कोई एट्रिब्यूशन मैप मॉडल पर निर्भर करता है या नहीं: इंसर्शन और डिलीशन चरण, वह आधार रेखा जिसके सापेक्ष उन्हें मापा जाता है, और मॉडल-वेट सैनिटी जाँच। किसी एट्रिब्यूशन मैप को चित्र में उपयोग करने से पहले इन्हें चलाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Detection thresholds: the probability floor below which a candidate is discarded, the required flow agreement, and whether holes are filled. Adjust them when there are too many objects, too few, or one object where there are two cells.",
+      "source": "Detection thresholds: the probability floor below which a candidate is discarded, the required flow agreement, and whether holes are filled. Adjust them when there are too many objects, too few, or one object where there are two cells.",
+      "source_sha256": "aac61e95d9fadf07bd099ce0dc8eb306ce5d988239737086d0c81a5b764169cf",
+      "translation": "पहचान थ्रेशोल्ड: वह प्रायिकता निम्न सीमा जिससे नीचे किसी उम्मीदवार को त्याग दिया जाता है, आवश्यक फ़्लो सहमति, और यह कि छिद्र भरे जाएँ या नहीं। जब ऑब्जेक्ट बहुत अधिक या बहुत कम हों, या जहाँ दो कोशिकाएँ हैं वहाँ एक ही ऑब्जेक्ट हो, तब इन्हें समायोजित करें।"
+    },
+    {
+      "table": "ui",
+      "key": "The pixel dimensions the images are resampled to before any other step. A wrong value rescales every object and changes the meaning of the expected object size; set it once per acquisition.",
+      "source": "The pixel dimensions the images are resampled to before any other step. A wrong value rescales every object and changes the meaning of the expected object size; set it once per acquisition.",
+      "source_sha256": "d3875ac7d222f7ad5168fc4bded03dc067c441e207aa42b07e1c60b2c4e74441",
+      "translation": "वे पिक्सेल आयाम जिन पर किसी भी अन्य चरण से पहले इमेज को पुनः सैंपल किया जाता है। गलत मान हर ऑब्जेक्ट को पुनः स्केल करता है और अपेक्षित ऑब्जेक्ट आकार का अर्थ बदल देता है; इसे प्रति अधिग्रहण एक बार सेट करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Training length and step size: epochs, learning rate, weight decay, batch size and augmentation. Adjust them when the loss stops decreasing early, or when the model overfits the training images.",
+      "source": "Training length and step size: epochs, learning rate, weight decay, batch size and augmentation. Adjust them when the loss stops decreasing early, or when the model overfits the training images.",
+      "source_sha256": "a24fa3cd555f244760bd9daf042cc3f15ca639ab3eb5f4349941c2cedadac82b",
+      "translation": "प्रशिक्षण अवधि और चरण आकार: एपॉक, लर्निंग रेट, वेट डिके, बैच आकार और ऑगमेंटेशन। जब लॉस जल्दी घटना बंद कर दे, या मॉडल प्रशिक्षण इमेज पर ओवरफ़िट करे, तब इन्हें समायोजित करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Expected well composition: the number of distinct guides per well, the statistic used to assess it, and the read floor below which a well is treated as unreliable. The other checks use these values as their reference.",
+      "source": "Expected well composition: the number of distinct guides per well, the statistic used to assess it, and the read floor below which a well is treated as unreliable. The other checks use these values as their reference.",
+      "source_sha256": "f8bf009428235a331546d933b2cac2db8c6aeb104934e03e9d11ee2c2b7d372e",
+      "translation": "अपेक्षित वेल संरचना: प्रति वेल अलग-अलग गाइड की संख्या, उसका आकलन करने वाला सांख्यिकीय माप, और वह रीड निम्न सीमा जिससे नीचे किसी वेल को अविश्वसनीय माना जाता है। अन्य जाँचें इन मानों को संदर्भ के रूप में उपयोग करती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Checks for two systematic artefacts to rule out before accepting a hit: counts that correlate with well position on the plate, and barcodes similar enough in sequence to be confused with each other. Both can resemble a biological effect.",
+      "source": "Checks for two systematic artefacts to rule out before accepting a hit: counts that correlate with well position on the plate, and barcodes similar enough in sequence to be confused with each other. Both can resemble a biological effect.",
+      "source_sha256": "1b6435209b64f3ad877f79e44c59444eae7cbdf2e5f5d6edce780e8b0623db8e",
+      "translation": "किसी हिट को स्वीकार करने से पहले दो व्यवस्थित आर्टिफ़ैक्ट को खारिज करने की जाँचें: प्लेट पर वेल की स्थिति से सहसंबद्ध गणनाएँ, और अनुक्रम में इतने समान बारकोड कि वे एक-दूसरे से भ्रमित हो सकें। दोनों जैविक प्रभाव जैसे दिख सकते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Whether preview figures are drawn, their size, and the number of examples. Turn them on to check the first plate of an experiment and off for later plates.",
+      "source": "Whether preview figures are drawn, their size, and the number of examples. Turn them on to check the first plate of an experiment and off for later plates.",
+      "source_sha256": "5b9d2854fbfe9aafb2d7a974f1489a8fd106a1def0319e5e4da66c8abe36a917",
+      "translation": "पूर्वावलोकन चित्र बनाए जाएँ या नहीं, उनका आकार और उदाहरणों की संख्या। किसी प्रयोग की पहली प्लेट जाँचने के लिए इन्हें चालू करें और बाद की प्लेटों के लिए बंद करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Parameters specific to one estimator: the elastic-net mixing ratio, the fitted quantile, Huber's cut-off, the convergence tolerance, and the bootstrap counts behind the hinge and lasso selection thresholds. Only the parameters of the model chosen above take effect.",
+      "source": "Parameters specific to one estimator: the elastic-net mixing ratio, the fitted quantile, Huber's cut-off, the convergence tolerance, and the bootstrap counts behind the hinge and lasso selection thresholds. Only the parameters of the model chosen above take effect.",
+      "source_sha256": "f02669a0b3a53855fe2cb730b3c3a4478bf183b2c00ef493d35db2dbc4259d3a",
+      "translation": "किसी एक एस्टिमेटर के विशिष्ट पैरामीटर: elastic-net मिश्रण अनुपात, फ़िट की गई क्वांटाइल, Huber की कट-ऑफ़, अभिसरण टॉलरेंस, और hinge तथा lasso चयन थ्रेशोल्ड के पीछे की बूटस्ट्रैप गणनाएँ। केवल ऊपर चुने गए मॉडल के पैरामीटर ही प्रभावी होते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Screen design inputs fixed before plating: library size and redundancy, distribution over plates and replicates, the effect size to detect and its prevalence, sequencing depth, and the simulation settings for the estimate.",
+      "source": "Screen design inputs fixed before plating: library size and redundancy, distribution over plates and replicates, the effect size to detect and its prevalence, sequencing depth, and the simulation settings for the estimate.",
+      "source_sha256": "1deb5a15730e8ef9b7b065c838cb84e9dac03a13d0ed73c7401f8e2fd1b2ff6f",
+      "translation": "प्लेटिंग से पहले तय किए गए स्क्रीनिंग डिज़ाइन इनपुट: लाइब्रेरी आकार और अतिरेक, प्लेटों और प्रतिकृतियों में वितरण, पहचाना जाने वाला प्रभाव आकार और उसकी व्यापकता, अनुक्रमण गहराई, और अनुमान के लिए सिमुलेशन सेटिंग्स।"
+    },
+    {
+      "table": "ui",
+      "key": "The target effect and its prevalence: the effect size to detect, the fraction of genes expected to show it, the background rate, and how well the readout separates a hit from a non-hit. Overestimating these values overestimates the power of the screen.",
+      "source": "The target effect and its prevalence: the effect size to detect, the fraction of genes expected to show it, the background rate, and how well the readout separates a hit from a non-hit. Overestimating these values overestimates the power of the screen.",
+      "source_sha256": "1f3ea79cad36492f95a6ec8c82da3ac177cf29f5ef4073e7cddcde11d175167b",
+      "translation": "लक्षित प्रभाव और उसकी व्यापकता: पहचाना जाने वाला प्रभाव आकार, उन जीनों का अनुपात जिनमें यह प्रभाव अपेक्षित है, पृष्ठभूमि दर, और रीडआउट किसी हिट को नॉन-हिट से कितनी अच्छी तरह अलग करता है। इन मानों को अधिक आँकने से स्क्रीनिंग की सांख्यिकीय शक्ति भी अधिक आँकी जाती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Read the plate from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Not used for a plate on local disk.",
+      "source": "Read the plate from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Not used for a plate on local disk.",
+      "source_sha256": "c311596cc8c9d8661795b41b8adb9532471787334cf00b76c9781f43faf6af0e",
+      "translation": "क्लाउड स्टोरेज से प्लेट पढ़ें: क्रेडेंशियल, एंडपॉइंट और स्थानीय कैश, और वह क्लाउड फ़ोल्डर जिसमें रन पूरा होने पर माप कॉपी किए जाते हैं। स्थानीय डिस्क पर रखी प्लेट के लिए उपयोग नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Which objects are linked across frames when the imported data is a time series. Not used for single-timepoint plates.",
+      "source": "Which objects are linked across frames when the imported data is a time series. Not used for single-timepoint plates.",
+      "source_sha256": "0292f7887fad9088c763e95b5378ea0b2401828069e7e98b79a3a127bcdcc09e",
+      "translation": "जब आयात किया गया डेटा समय श्रृंखला हो तब कौन-से ऑब्जेक्ट फ़्रेमों के पार जोड़े जाते हैं। एकल-समय-बिंदु प्लेटों के लिए उपयोग नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Least squares: minimises the summed squared residual and assumes the well residuals are approximately normal with one common variance. Use it as the reference for the other model families.",
+      "source": "Least squares: minimises the summed squared residual and assumes the well residuals are approximately normal with one common variance. Use it as the reference for the other model families.",
+      "source_sha256": "9f0de2d2df5f94282e9aeebd7364e88b87e7fa7e993c36aa1aec6f3b0cba6277",
+      "translation": "न्यूनतम वर्ग: वर्गित अवशेषों के योग को न्यूनतम करता है और मानता है कि वेल अवशेष लगभग सामान्य रूप से वितरित हैं और उनका एक समान प्रसरण है। इसे अन्य मॉडल परिवारों के संदर्भ के रूप में उपयोग करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Least squares weighted by the well's cell count, so a well of 400 cells has more weight than one of 30. Use it when wells differ widely in the number of cells averaged into their score; ols weights every well equally.",
+      "source": "Least squares weighted by the well's cell count, so a well of 400 cells has more weight than one of 30. Use it when wells differ widely in the number of cells averaged into their score; ols weights every well equally.",
+      "source_sha256": "069d5a3031f70d266e0a2939d0d552bcbdf56fe86684af05b3ccd647a14a22bc",
+      "translation": "वेल की कोशिका संख्या से भारित न्यूनतम वर्ग, जिससे 400 कोशिकाओं वाले वेल का भार 30 कोशिकाओं वाले वेल से अधिक होता है। इसका उपयोग तब करें जब वेल के स्कोर में औसत की गई कोशिकाओं की संख्या वेल के बीच बहुत भिन्न हो; ols हर वेल को समान भार देता है।"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider, confirming that the press registered.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider, confirming that the press registered.",
+      "source_sha256": "737fdbee8f2a0f2b4a5d03ea06333a2866df6659926d395dbd744604e7911f54",
+      "translation": "जब आप कोई बटन, स्विच, टैब, सूची या स्लाइडर दबाते हैं, तो ध्वनि समूह के स्वर में एक छोटी, धीमी झंकार, जो पुष्टि करती है कि दबाव दर्ज हुआ।"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, audible while spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, audible while spaCR is in another window.",
+      "source_sha256": "efd70ef7b04bac2618dd122fd5fc3e42ef342c446c15dae881c95a9327180833",
+      "translation": "किसी मॉड्यूल का रन सफलतापूर्वक पूरा होने पर एक चढ़ता आर्पेजियो जो स्वर के मूल सुर पर ठहरता है, और spaCR के किसी अन्य विंडो के पीछे होने पर भी सुनाई देता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Pale, low-contrast colours for a faint backdrop.",
+      "source": "Pale, low-contrast colours for a faint backdrop.",
+      "source_sha256": "a478e282cd7b75147a714082eee9cc0714ca99d22228e54e3ed7bf8273d34282",
+      "translation": "हल्की पृष्ठभूमि के लिए फीके, कम कंट्रास्ट वाले रंग।"
+    },
+    {
+      "table": "ui",
+      "key": "Greys only: the backdrop moves without colour.",
+      "source": "Greys only: the backdrop moves without colour.",
+      "source_sha256": "30da9ebbbe69864b227ace86440c9848b93d0b052b8221d31e646f8dbf44baae",
+      "translation": "केवल धूसर रंग: पृष्ठभूमि बिना रंग के चलती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Auroral emission lines: atomic oxygen at 557.7 nm (the dominant green), atomic oxygen at 630.0 nm (the red that appears only at high altitude), ionised nitrogen at 427.8 nm (the blue-violet lower fringe), and the pale yellow-green where the green and the red overlap.",
+      "source": "Auroral emission lines: atomic oxygen at 557.7 nm (the dominant green), atomic oxygen at 630.0 nm (the red that appears only at high altitude), ionised nitrogen at 427.8 nm (the blue-violet lower fringe), and the pale yellow-green where the green and the red overlap.",
+      "source_sha256": "ed0b4edffa8058775b0102fe3e7df8ac556b9609904e8a1f30ee3d6528a76b36",
+      "translation": "ध्रुवीय ज्योति की उत्सर्जन रेखाएँ: 557.7 nm पर परमाणु ऑक्सीजन (प्रमुख हरा), 630.0 nm पर परमाणु ऑक्सीजन (वह लाल जो केवल अधिक ऊँचाई पर दिखता है), 427.8 nm पर आयनित नाइट्रोजन (नीला-बैंगनी निचला किनारा), और जहाँ हरा और लाल एक-दूसरे पर पड़ते हैं वहाँ का फीका पीला-हरा।"
+    },
+    {
+      "table": "ui",
+      "key": "Emission colours of a standard filter set: DAPI at 461 nm (blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and the yellow where green and red overlap.",
+      "source": "Emission colours of a standard filter set: DAPI at 461 nm (blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and the yellow where green and red overlap.",
+      "source_sha256": "d1650b34883c963bf5d932f2f920d1859ca0fb98dc278df7a76e2b8914e73c56",
+      "translation": "एक मानक फ़िल्टर सेट के उत्सर्जन रंग: 461 nm पर DAPI (नीला), 519 nm पर FITC (हरा), 576 nm पर TRITC (नारंगी-लाल), और जहाँ हरा और लाल एक-दूसरे पर पड़ते हैं वहाँ का पीला।"
+    },
+    {
+      "table": "ui",
+      "key": "Indigo, violet, ice blue and pale periwinkle.",
+      "source": "Indigo, violet, ice blue and pale periwinkle.",
+      "source_sha256": "3f9697f116983340380a09c702ca4b0c479c5ad9d2cdab1b84fc7ea187760a0f",
+      "translation": "इंडिगो, बैंगनी, बर्फीला नीला और हल्का पेरिविंकल।"
+    },
+    {
+      "table": "ui",
+      "key": "Rose, magenta, dusty gold and plum.",
+      "source": "Rose, magenta, dusty gold and plum.",
+      "source_sha256": "b951727770cf2e62b8ed8470d0f5711fc6f8f22cfe80676efa923ed1f282be6d",
+      "translation": "गुलाबी, मैजेंटा, फीका सुनहरा और आलूबुखारी।"
+    },
+    {
+      "table": "ui",
+      "key": "Gold, amber, pale gold and moss green.",
+      "source": "Gold, amber, pale gold and moss green.",
+      "source_sha256": "2237d6dc8bdd538fcf44f2d8accdfff885b4db122c7e00bc71c72de569a96e30",
+      "translation": "सुनहरा, एम्बर, हल्का सुनहरा और काई हरा।"
+    },
+    {
+      "table": "ui",
+      "key": "Sea green, mint and teal.",
+      "source": "Sea green, mint and teal.",
+      "source_sha256": "9fd46144d805fc5d0598c58021695c2bc4754f8f89a16d629283a3d518f77f1e",
+      "translation": "समुद्री हरा, पुदीना और नीलहरित।"
+    },
+    {
+      "table": "ui",
+      "key": "All specks move upward, as in the original starfield.",
+      "source": "All specks move upward, as in the original starfield.",
+      "source_sha256": "9c606234a09629287100e662be81bc1be24b091a49b54ca8acf71ad2d7f68842",
+      "translation": "सभी कण ऊपर की ओर चलते हैं, जैसे मूल तारा-क्षेत्र में।"
+    },
+    {
+      "table": "ui",
+      "key": "All specks move downward.",
+      "source": "All specks move downward.",
+      "source_sha256": "60c79c32497a471a8fef0745699d280f98e04dbf8161c18340c3b3e1a0a6f928",
+      "translation": "सभी कण नीचे की ओर चलते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Each speck moves in its own random direction (Brownian motion) instead of one shared direction.",
+      "source": "Each speck moves in its own random direction (Brownian motion) instead of one shared direction.",
+      "source_sha256": "4681919971e21f929c03330622076ddf5a42440d87325b8b97957e52bb9fc09d",
+      "translation": "प्रत्येक कण एक साझा दिशा के बजाय अपनी यादृच्छिक दिशा में चलता है (ब्राउनियन गति)।"
+    },
+    {
+      "table": "ui",
+      "key": "The text size used for every figure. Leave it unchanged to keep each figure's own text sizes. To resize one figure, use its right-click menu, under Figure settings.",
+      "source": "The text size used for every figure. Leave it unchanged to keep each figure's own text sizes. To resize one figure, use its right-click menu, under Figure settings.",
+      "source_sha256": "2d0b04fd2c744831307444bd2dd27065083b3268d45a30285ae5eacaee6fbc1a",
+      "translation": "हर चित्र के लिए उपयोग किया जाने वाला पाठ आकार। प्रत्येक चित्र के अपने पाठ आकार बनाए रखने के लिए इसे अपरिवर्तित छोड़ें। किसी एक चित्र का आकार बदलने के लिए उसके राइट-क्लिक मेनू में चित्र सेटिंग्स का उपयोग करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Channel assignment, intensity normalisation and whether preview figures are drawn. The other groups use these values, so check them for each new dataset.",
+      "source": "Channel assignment, intensity normalisation and whether preview figures are drawn. The other groups use these values, so check them for each new dataset.",
+      "source_sha256": "0ad24e9e2c7d888d3b946c17cb84fc438832ce5671799fc4c3acd8d9d9305b9c",
+      "translation": "चैनल असाइनमेंट, तीव्रता सामान्यीकरण और यह कि पूर्वावलोकन चित्र बनाए जाएँ या नहीं। अन्य समूह इन मानों का उपयोग करते हैं, इसलिए प्रत्येक नए डेटासेट के लिए इन्हें जाँचें।"
+    },
+    {
+      "table": "categories",
+      "key": "Which detected objects are kept, for every object class in one place. `cell_min_size` and `nucleus_min_size` do the same thing to different objects. The settings are ordered by object, so the filters for one object are listed together. Raise the minimum size to drop debris, set a maximum to drop merged clumps, and use the border filters when objects cut off by the image edge would bias your measurements.",
+      "source": "Which detected objects are kept, for every object class in one place. `cell_min_size` and `nucleus_min_size` do the same thing to different objects. The settings are ordered by object, so the filters for one object are listed together. Raise the minimum size to drop debris, set a maximum to drop merged clumps, and use the border filters when objects cut off by the image edge would bias your measurements.",
+      "source_sha256": "94fe8c16987cbc94fb1cad9bcfc5be909bb735b1d1edf6521031d2cfcbd6cbd4",
+      "translation": "सभी ऑब्जेक्ट वर्गों के लिए एक ही स्थान पर तय करता है कि कौन-से पहचाने गए ऑब्जेक्ट रखे जाएँ। `cell_min_size` और `nucleus_min_size` अलग-अलग ऑब्जेक्ट पर एक ही काम करते हैं। सेटिंग्स ऑब्जेक्ट के क्रम में हैं, इसलिए एक ऑब्जेक्ट के फ़िल्टर एक साथ सूचीबद्ध हैं। मलबा हटाने के लिए न्यूनतम आकार बढ़ाएँ, जुड़े हुए गुच्छों को हटाने के लिए अधिकतम आकार सेट करें, और जब इमेज के किनारे से कटे ऑब्जेक्ट आपके मापों में पूर्वाग्रह ला सकते हों तब सीमा फ़िल्टर का उपयोग करें।"
+    },
+    {
+      "table": "categories",
+      "key": "The forty-eight detection parameters behind the organelle type: shape family and method, the background and contrast correction applied first, the parameters of the chosen method, and the intensity filters applied to detected objects. Choosing an organelle type sets the parameters it uses; a value changed here takes precedence and is not overwritten. Punctate, tubular and ring-shaped organelles use different methods, and the organelle type selects one.",
+      "source": "The forty-eight detection parameters behind the organelle type: shape family and method, the background and contrast correction applied first, the parameters of the chosen method, and the intensity filters applied to detected objects. Choosing an organelle type sets the parameters it uses; a value changed here takes precedence and is not overwritten. Punctate, tubular and ring-shaped organelles use different methods, and the organelle type selects one.",
+      "source_sha256": "e3e93471048d676a0d214fa7ef86522782c05a5b7303ebfd0a30c787c7639474",
+      "translation": "ऑर्गेनेल प्रकार के पीछे के अड़तालीस पहचान पैरामीटर: आकार परिवार और विधि, पहले लागू किया गया पृष्ठभूमि और कंट्रास्ट सुधार, चुनी गई विधि के पैरामीटर, और पहचाने गए ऑब्जेक्ट पर लागू तीव्रता फ़िल्टर। ऑर्गेनेल प्रकार चुनने से उसके द्वारा उपयोग किए जाने वाले पैरामीटर सेट हो जाते हैं; यहाँ बदला गया मान प्राथमिकता लेता है और अधिलेखित नहीं होता। बिंदुनुमा, नलिकाकार और वलयाकार ऑर्गेनेल अलग-अलग विधियों का उपयोग करते हैं, और ऑर्गेनेल प्रकार इनमें से एक चुनता है।"
+    },
+    {
+      "table": "categories",
+      "key": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
+      "source": "The forty-eight detection parameters behind the organelle type. Choosing a type sets the parameters it uses; a value changed here takes precedence and is not overwritten.",
+      "source_sha256": "342b78775e53c52279736e006d310dfc3d2d15be3fd54cf7d12551e57747dba3",
+      "translation": "ऑर्गेनेल प्रकार के पीछे के अड़तालीस पहचान पैरामीटर। प्रकार चुनने से उसके द्वारा उपयोग किए जाने वाले पैरामीटर सेट हो जाते हैं; यहाँ बदला गया मान प्राथमिकता लेता है और अधिलेखित नहीं होता।"
+    },
+    {
+      "table": "categories",
+      "key": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
+      "source": "How Cellpose is run: expected object diameter, probability and flow thresholds, rescaling and inversion. Adjust these when masks are systematically too many, too few or the wrong size; the model is chosen under Model Training.",
+      "source_sha256": "3d0de8ba877f0b7522057b8a803ed22a3588cb25eb30847148fbdf716e76f979",
+      "translation": "Cellpose कैसे चलाया जाता है: अपेक्षित ऑब्जेक्ट व्यास, प्रायिकता और फ़्लो थ्रेशोल्ड, पुनः स्केलिंग और व्युत्क्रमण। जब मास्क व्यवस्थित रूप से बहुत अधिक, बहुत कम या गलत आकार के हों तब इन्हें समायोजित करें; मॉडल, मॉडल प्रशिक्षण के अंतर्गत चुना जाता है।"
+    },
+    {
+      "table": "categories",
+      "key": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
+      "source": "Dropout and weight decay, which reduce overfitting to the training set, and gradient checkpointing, which reduces GPU memory use. Increase dropout or weight decay when training accuracy rises and validation accuracy does not.",
+      "source_sha256": "1eca02ed8f2dff6571222b02a4607b2619c74442bc5a46a11902aebdea95e637",
+      "translation": "ड्रॉपआउट और वेट डिके, जो प्रशिक्षण सेट पर ओवरफ़िटिंग कम करते हैं, और ग्रेडिएंट चेकपॉइंटिंग, जो GPU मेमोरी उपयोग कम करती है। जब प्रशिक्षण सटीकता बढ़े और सत्यापन सटीकता न बढ़े तब ड्रॉपआउट या वेट डिके बढ़ाएँ।"
+    },
+    {
+      "table": "categories",
+      "key": "Run-level settings: verbosity, worker and batch sizing, background handling, and whether results are written. Use them to reduce console output, CPU or memory use, or to run without saving results.",
+      "source": "Run-level settings: verbosity, worker and batch sizing, background handling, and whether results are written. Use them to reduce console output, CPU or memory use, or to run without saving results.",
+      "source_sha256": "6c8c224b733111061d968906e8da2e1b1897232dc8b717cc8df54f1085e41fa8",
+      "translation": "रन-स्तरीय सेटिंग्स: विवरण स्तर, वर्कर और बैच आकार, पृष्ठभूमि प्रबंधन, और यह कि परिणाम लिखे जाएँ या नहीं। कंसोल आउटपुट, CPU या मेमोरी उपयोग कम करने, या परिणाम सहेजे बिना चलाने के लिए इनका उपयोग करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Detailed settings of the beta motility pipeline: feature selection and the filter windows applied to tracks. Change them after the basic assay runs, when the tracks show a specific error.",
+      "source": "Detailed settings of the beta motility pipeline: feature selection and the filter windows applied to tracks. Change them after the basic assay runs, when the tracks show a specific error.",
+      "source_sha256": "f3d3690cbe5eb8b796356979f5643a01d9f5fad303c2a4602b3c551680861445",
+      "translation": "बीटा गतिशीलता पाइपलाइन की विस्तृत सेटिंग्स: विशेषता चयन और ट्रैक पर लागू फ़िल्टर विंडो। मूल परख चलने के बाद, जब ट्रैक में कोई विशिष्ट त्रुटि दिखे, तब इन्हें बदलें।"
+    },
+    {
+      "table": "categories",
+      "key": "Per-family parameters. Each applies to only some regression types, and a family refuses a setting it cannot read rather than ignoring it, so no setting here changes a fit silently. Change a parameter only when the chosen family documents it.",
+      "source": "Per-family parameters. Each applies to only some regression types, and a family refuses a setting it cannot read rather than ignoring it, so no setting here changes a fit silently. Change a parameter only when the chosen family documents it.",
+      "source_sha256": "c01dcafeefe638407b01ee55644ce89fa6e4a8e2fac1c815755a0a025e9459ba",
+      "translation": "प्रति-परिवार पैरामीटर। प्रत्येक केवल कुछ रिग्रेशन प्रकारों पर लागू होता है, और कोई परिवार उस सेटिंग को अनदेखा करने के बजाय अस्वीकार कर देता है जिसे वह पढ़ नहीं सकता, इसलिए यहाँ की कोई भी सेटिंग फ़िट को चुपचाप नहीं बदलती। किसी पैरामीटर को तभी बदलें जब चुने गए परिवार के दस्तावेज़ में उसका वर्णन हो।"
+    },
+    {
+      "table": "categories",
+      "key": "Processing applied to the pixels before any mask is made: intensity normalisation, projection, upscaling, denoising, and field batching. Adjust it when the images are dim, noisy, or at a different scale from the one the model expects.",
+      "source": "Processing applied to the pixels before any mask is made: intensity normalisation, projection, upscaling, denoising, and field batching. Adjust it when the images are dim, noisy, or at a different scale from the one the model expects.",
+      "source_sha256": "7eacfefef7b4a58d5ab4c8ea0e30cce24df6e7348c5d6404a9c81341b6c36522",
+      "translation": "कोई भी मास्क बनाने से पहले पिक्सेल पर लागू प्रसंस्करण: तीव्रता सामान्यीकरण, प्रक्षेपण, अपस्केलिंग, नॉइज़ हटाना और फ़ील्ड बैचिंग। जब इमेज मंद हों, उनमें नॉइज़ अधिक हो, या वे मॉडल की अपेक्षित स्केल से भिन्न स्केल पर हों तब इसे समायोजित करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Everything that produces the pathogen mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Adjust this group when parasites packed into one vacuole are merged into a single object.",
+      "source": "Everything that produces the pathogen mask: model and expected diameter, thresholds, background removal, and the size, intensity and border filters applied afterwards. Adjust this group when parasites packed into one vacuole are merged into a single object.",
+      "source_sha256": "180f33f3acfd0b0a0da9608670b572b4619cfdd1c626cadbe682a67bbace2493",
+      "translation": "रोगजनक मास्क बनाने वाली सभी सेटिंग्स: मॉडल और अपेक्षित व्यास, थ्रेशोल्ड, पृष्ठभूमि हटाना, और बाद में लागू आकार, तीव्रता और सीमा फ़िल्टर। जब एक रिक्तिका में सटे परजीवी एक ही ऑब्जेक्ट में विलीन हो जाएँ तब इस समूह को समायोजित करें।"
+    },
+    {
+      "table": "categories",
+      "key": "All organelle mask settings, in setup order: shape family and detection method, the background and contrast correction applied first, the parameters of the chosen method (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), the size, intensity and border filters applied to detected objects, and the parent compartment the results are summarised into. It is the largest group in the module because punctate, tubular and ring-shaped organelles use different methods.",
+      "source": "All organelle mask settings, in setup order: shape family and detection method, the background and contrast correction applied first, the parameters of the chosen method (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), the size, intensity and border filters applied to detected objects, and the parent compartment the results are summarised into. It is the largest group in the module because punctate, tubular and ring-shaped organelles use different methods.",
+      "source_sha256": "c19a6a56aef1f1ff7761aa576263d31c7dd02a57288982639e67c3471ed3eee8",
+      "translation": "सेटअप क्रम में सभी ऑर्गेनेल मास्क सेटिंग्स: आकार परिवार और पहचान विधि, पहले लागू किया गया पृष्ठभूमि और कंट्रास्ट सुधार, चुनी गई विधि (adaptive, spot, ridge, ring, irregular, Cellpose या U-Net) के पैरामीटर, पहचाने गए ऑब्जेक्ट पर लागू आकार, तीव्रता और सीमा फ़िल्टर, और वह मूल कम्पार्टमेंट जिसमें परिणाम सारांशित किए जाते हैं। यह मॉड्यूल का सबसे बड़ा समूह है क्योंकि बिंदुनुमा, नलिकाकार और वलयाकार ऑर्गेनेल अलग-अलग विधियों का उपयोग करते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Which plane of the stack holds each mask and each intensity channel, whether a cytoplasm compartment is derived, and whether the data is a time series. A wrong index measures the wrong object without an error, so check each index against the images.",
+      "source": "Which plane of the stack holds each mask and each intensity channel, whether a cytoplasm compartment is derived, and whether the data is a time series. A wrong index measures the wrong object without an error, so check each index against the images.",
+      "source_sha256": "ce00fe082ce04f548b66180afda29e673a399d665d6d49f6c27b421b0399296e",
+      "translation": "स्टैक का कौन-सा तल प्रत्येक मास्क और प्रत्येक तीव्रता चैनल रखता है, क्या साइटोप्लाज़्म कम्पार्टमेंट व्युत्पन्न किया जाता है, और क्या डेटा एक समय श्रृंखला है। गलत इंडेक्स बिना किसी त्रुटि के गलत ऑब्जेक्ट को मापता है, इसलिए प्रत्येक इंडेक्स को इमेज से मिलाकर जाँचें।"
+    },
+    {
+      "table": "categories",
+      "key": "The remaining parameters of individual regression families and plots: bootstrap counts, quantile and hinge parameters, solver tolerance and axis limits. Only the parameters of the model chosen above take effect.",
+      "source": "The remaining parameters of individual regression families and plots: bootstrap counts, quantile and hinge parameters, solver tolerance and axis limits. Only the parameters of the model chosen above take effect.",
+      "source_sha256": "06fca89b9d1fcb205d40196d576b722ad67706b8b16bff7af579f2e0ed1d743e",
+      "translation": "अलग-अलग रिग्रेशन परिवारों और प्लॉट के शेष पैरामीटर: बूटस्ट्रैप गणना, क्वांटाइल और hinge पैरामीटर, सॉल्वर टॉलरेंस और अक्ष सीमाएँ। केवल ऊपर चुने गए मॉडल के पैरामीटर ही प्रभावी होते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Checks that test whether an attribution map depends on the model: insertion and deletion steps, the baseline they are measured against, and the model-weight sanity check. Run them before an attribution map is used in a figure.",
+      "source": "Checks that test whether an attribution map depends on the model: insertion and deletion steps, the baseline they are measured against, and the model-weight sanity check. Run them before an attribution map is used in a figure.",
+      "source_sha256": "c21cf6f2b0021509e374218ff674e8a9a6180bee2500787bd8de129d00552e81",
+      "translation": "जाँचें जो परखती हैं कि कोई एट्रिब्यूशन मैप मॉडल पर निर्भर करता है या नहीं: इंसर्शन और डिलीशन चरण, वह आधार रेखा जिसके सापेक्ष उन्हें मापा जाता है, और मॉडल-वेट सैनिटी जाँच। किसी एट्रिब्यूशन मैप को चित्र में उपयोग करने से पहले इन्हें चलाएँ।"
+    },
+    {
+      "table": "categories",
+      "key": "Detection thresholds: the probability floor below which a candidate is discarded, the required flow agreement, and whether holes are filled. Adjust them when there are too many objects, too few, or one object where there are two cells.",
+      "source": "Detection thresholds: the probability floor below which a candidate is discarded, the required flow agreement, and whether holes are filled. Adjust them when there are too many objects, too few, or one object where there are two cells.",
+      "source_sha256": "aac61e95d9fadf07bd099ce0dc8eb306ce5d988239737086d0c81a5b764169cf",
+      "translation": "पहचान थ्रेशोल्ड: वह प्रायिकता निम्न सीमा जिससे नीचे किसी उम्मीदवार को त्याग दिया जाता है, आवश्यक फ़्लो सहमति, और यह कि छिद्र भरे जाएँ या नहीं। जब ऑब्जेक्ट बहुत अधिक या बहुत कम हों, या जहाँ दो कोशिकाएँ हैं वहाँ एक ही ऑब्जेक्ट हो, तब इन्हें समायोजित करें।"
+    },
+    {
+      "table": "categories",
+      "key": "The pixel dimensions the images are resampled to before any other step. A wrong value rescales every object and changes the meaning of the expected object size; set it once per acquisition.",
+      "source": "The pixel dimensions the images are resampled to before any other step. A wrong value rescales every object and changes the meaning of the expected object size; set it once per acquisition.",
+      "source_sha256": "d3875ac7d222f7ad5168fc4bded03dc067c441e207aa42b07e1c60b2c4e74441",
+      "translation": "वे पिक्सेल आयाम जिन पर किसी भी अन्य चरण से पहले इमेज को पुनः सैंपल किया जाता है। गलत मान हर ऑब्जेक्ट को पुनः स्केल करता है और अपेक्षित ऑब्जेक्ट आकार का अर्थ बदल देता है; इसे प्रति अधिग्रहण एक बार सेट करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Training length and step size: epochs, learning rate, weight decay, batch size and augmentation. Adjust them when the loss stops decreasing early, or when the model overfits the training images.",
+      "source": "Training length and step size: epochs, learning rate, weight decay, batch size and augmentation. Adjust them when the loss stops decreasing early, or when the model overfits the training images.",
+      "source_sha256": "a24fa3cd555f244760bd9daf042cc3f15ca639ab3eb5f4349941c2cedadac82b",
+      "translation": "प्रशिक्षण अवधि और चरण आकार: एपॉक, लर्निंग रेट, वेट डिके, बैच आकार और ऑगमेंटेशन। जब लॉस जल्दी घटना बंद कर दे, या मॉडल प्रशिक्षण इमेज पर ओवरफ़िट करे, तब इन्हें समायोजित करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Expected well composition: the number of distinct guides per well, the statistic used to assess it, and the read floor below which a well is treated as unreliable. The other checks use these values as their reference.",
+      "source": "Expected well composition: the number of distinct guides per well, the statistic used to assess it, and the read floor below which a well is treated as unreliable. The other checks use these values as their reference.",
+      "source_sha256": "f8bf009428235a331546d933b2cac2db8c6aeb104934e03e9d11ee2c2b7d372e",
+      "translation": "अपेक्षित वेल संरचना: प्रति वेल अलग-अलग गाइड की संख्या, उसका आकलन करने वाला सांख्यिकीय माप, और वह रीड निम्न सीमा जिससे नीचे किसी वेल को अविश्वसनीय माना जाता है। अन्य जाँचें इन मानों को संदर्भ के रूप में उपयोग करती हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Checks for two systematic artefacts to rule out before accepting a hit: counts that correlate with well position on the plate, and barcodes similar enough in sequence to be confused with each other. Both can resemble a biological effect.",
+      "source": "Checks for two systematic artefacts to rule out before accepting a hit: counts that correlate with well position on the plate, and barcodes similar enough in sequence to be confused with each other. Both can resemble a biological effect.",
+      "source_sha256": "1b6435209b64f3ad877f79e44c59444eae7cbdf2e5f5d6edce780e8b0623db8e",
+      "translation": "किसी हिट को स्वीकार करने से पहले दो व्यवस्थित आर्टिफ़ैक्ट को खारिज करने की जाँचें: प्लेट पर वेल की स्थिति से सहसंबद्ध गणनाएँ, और अनुक्रम में इतने समान बारकोड कि वे एक-दूसरे से भ्रमित हो सकें। दोनों जैविक प्रभाव जैसे दिख सकते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Whether preview figures are drawn, their size, and the number of examples. Turn them on to check the first plate of an experiment and off for later plates.",
+      "source": "Whether preview figures are drawn, their size, and the number of examples. Turn them on to check the first plate of an experiment and off for later plates.",
+      "source_sha256": "5b9d2854fbfe9aafb2d7a974f1489a8fd106a1def0319e5e4da66c8abe36a917",
+      "translation": "पूर्वावलोकन चित्र बनाए जाएँ या नहीं, उनका आकार और उदाहरणों की संख्या। किसी प्रयोग की पहली प्लेट जाँचने के लिए इन्हें चालू करें और बाद की प्लेटों के लिए बंद करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Parameters specific to one estimator: the elastic-net mixing ratio, the fitted quantile, Huber's cut-off, the convergence tolerance, and the bootstrap counts behind the hinge and lasso selection thresholds. Only the parameters of the model chosen above take effect.",
+      "source": "Parameters specific to one estimator: the elastic-net mixing ratio, the fitted quantile, Huber's cut-off, the convergence tolerance, and the bootstrap counts behind the hinge and lasso selection thresholds. Only the parameters of the model chosen above take effect.",
+      "source_sha256": "f02669a0b3a53855fe2cb730b3c3a4478bf183b2c00ef493d35db2dbc4259d3a",
+      "translation": "किसी एक एस्टिमेटर के विशिष्ट पैरामीटर: elastic-net मिश्रण अनुपात, फ़िट की गई क्वांटाइल, Huber की कट-ऑफ़, अभिसरण टॉलरेंस, और hinge तथा lasso चयन थ्रेशोल्ड के पीछे की बूटस्ट्रैप गणनाएँ। केवल ऊपर चुने गए मॉडल के पैरामीटर ही प्रभावी होते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Screen design inputs fixed before plating: library size and redundancy, distribution over plates and replicates, the effect size to detect and its prevalence, sequencing depth, and the simulation settings for the estimate.",
+      "source": "Screen design inputs fixed before plating: library size and redundancy, distribution over plates and replicates, the effect size to detect and its prevalence, sequencing depth, and the simulation settings for the estimate.",
+      "source_sha256": "1deb5a15730e8ef9b7b065c838cb84e9dac03a13d0ed73c7401f8e2fd1b2ff6f",
+      "translation": "प्लेटिंग से पहले तय किए गए स्क्रीनिंग डिज़ाइन इनपुट: लाइब्रेरी आकार और अतिरेक, प्लेटों और प्रतिकृतियों में वितरण, पहचाना जाने वाला प्रभाव आकार और उसकी व्यापकता, अनुक्रमण गहराई, और अनुमान के लिए सिमुलेशन सेटिंग्स।"
+    },
+    {
+      "table": "categories",
+      "key": "The target effect and its prevalence: the effect size to detect, the fraction of genes expected to show it, the background rate, and how well the readout separates a hit from a non-hit. Overestimating these values overestimates the power of the screen.",
+      "source": "The target effect and its prevalence: the effect size to detect, the fraction of genes expected to show it, the background rate, and how well the readout separates a hit from a non-hit. Overestimating these values overestimates the power of the screen.",
+      "source_sha256": "1f3ea79cad36492f95a6ec8c82da3ac177cf29f5ef4073e7cddcde11d175167b",
+      "translation": "लक्षित प्रभाव और उसकी व्यापकता: पहचाना जाने वाला प्रभाव आकार, उन जीनों का अनुपात जिनमें यह प्रभाव अपेक्षित है, पृष्ठभूमि दर, और रीडआउट किसी हिट को नॉन-हिट से कितनी अच्छी तरह अलग करता है। इन मानों को अधिक आँकने से स्क्रीनिंग की सांख्यिकीय शक्ति भी अधिक आँकी जाती है।"
+    },
+    {
+      "table": "categories",
+      "key": "Read the plate from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Not used for a plate on local disk.",
+      "source": "Read the plate from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Not used for a plate on local disk.",
+      "source_sha256": "c311596cc8c9d8661795b41b8adb9532471787334cf00b76c9781f43faf6af0e",
+      "translation": "क्लाउड स्टोरेज से प्लेट पढ़ें: क्रेडेंशियल, एंडपॉइंट और स्थानीय कैश, और वह क्लाउड फ़ोल्डर जिसमें रन पूरा होने पर माप कॉपी किए जाते हैं। स्थानीय डिस्क पर रखी प्लेट के लिए उपयोग नहीं होता।"
+    },
+    {
+      "table": "categories",
+      "key": "Which objects are linked across frames when the imported data is a time series. Not used for single-timepoint plates.",
+      "source": "Which objects are linked across frames when the imported data is a time series. Not used for single-timepoint plates.",
+      "source_sha256": "0292f7887fad9088c763e95b5378ea0b2401828069e7e98b79a3a127bcdcc09e",
+      "translation": "जब आयात किया गया डेटा समय श्रृंखला हो तब कौन-से ऑब्जेक्ट फ़्रेमों के पार जोड़े जाते हैं। एकल-समय-बिंदु प्लेटों के लिए उपयोग नहीं होता।"
+    }
+  ]
+}

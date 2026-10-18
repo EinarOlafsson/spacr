@@ -450,7 +450,7 @@
       "source": "Whether one row's guide support is sufficient to trust.",
       "source_sha256": "a66a5cefb0e431cca4ec4dc6338aa42d9c937f569ffff8b89bb3c8410bfa9341",
       "context": "Whether one row's guide support is sufficient to trust.",
-      "translation": "Ob die Leitfadenunterstützung einer Zeile ausreicht, um ihr zu vertrauen.",
+      "translation": "Ob die Guide-Unterstützung einer Zeile ausreicht, um ihr zu vertrauen.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

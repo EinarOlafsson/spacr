@@ -264,7 +264,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Pas des zéros : une plaque au repos reste une plaque, et l’arrière-plan doit se mettre au repos avec élégance plutôt que s’éteindre. Le moteur lit ceci comme \"respirer lentement sur votre propre horloge\", ce à quoi sert :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`."
+      "translation": "Pas des zéros : une plaque au repos reste une plaque, et l’arrière-plan doit se mettre au repos avec élégance plutôt que s’éteindre. Le moteur lit ceci comme \"respirer lentement sur votre propre horloge\", ce à quoi sert :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE`.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "an all-zero moment.",

@@ -90,24 +90,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "translation": "Rísandi arpeggio sem leysist upp á grunntón tóntegundarinnar þegar keyrslu einingar lýkur með árangri, fyrir þegar spaCR er í öðrum glugga."
-    },
-    {
-      "table": "ui",
       "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
       "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
       "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
       "translation": "Sameiginleg frumuteikning fyrir Apicomplexa, með SwissBioPics-myndefninu sem einnig er notað í ParaScape. Haltu bendlinum yfir til að sjá lýsingu á staðsetningu frá UniProt og hakaðu við nokkur hólf til að halda þeim auðkenndum. Lögun sníkjudýrsins og skipulag frumulíffæra eru breytileg eftir tegund og stigi lífsferils; þetta er ekki endurgerð blóðstigs. Úthlutanir hyperLOPIT fyrir Toxoplasma eru ekki yfirfærðar á Plasmodium."
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "translation": "Stuttur, hljóðlátur plokkaður tónn í tóntegund hljóðasettsins þegar þú ýtir á hnapp, rofa, flipa, lista eða sleða: staðfesting á að ýtt var, meira fundin en heyrð."
     },
     {
       "table": "ui",
@@ -143,13 +129,6 @@
       "source": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
       "source_sha256": "0339730f143445b4f4f8ce4f10e566a3577b5291e8a26b1955ae92cf33596bbc",
       "translation": "Bæta aftur við hápassaafriti af myndinni, sem gerir brúnir brattari og hjálpar þröskuldi að lenda á mörkunum frekar en í geislabaugnum. Of mikið magn setur bjarta brún utan um hvern hlut og dökkt síki fyrir utan."
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "translation": "Bætir DEBUG-skilaboðum spaCR við annálaskrárnar í ~/.spacr/logs. Það leyfir einnig cellpose að greina frá hvaða líkani það hlóð, og það skráir hvaða hnappa þú ýttir á. Sú slóð er það sem gerir villuskýrslu þess virði að lesa hana.\n\nRæsing spaCR og opnun skjáa þess tók ekki lengri tíma með þetta virkt. Þetta var mælt á einni vinnustöð með því að opna allar einingar, einu sinni með þetta virkt og einu sinni óvirkt. Heimaskjárinn var tilbúinn á um 4 sekúndum eftir kalda ræsingu í báðum tilvikum. Hægasta einingin opnaðist á um 7 sekúndum í báðum tilvikum. Keyrslur vinnsluferla voru ekki tímamældar.\n\nStjórnborðið sýnir áfram aðeins þau stig sem þú kveikir á fyrir það í flipanum Annálar. Þessi rofi rekur ekki hvert fallakall. Sá rakari er sérstakt tól fyrir forritara og ekkert hér kveikir á honum."
     },
     {
       "table": "ui",
@@ -2939,13 +2918,6 @@
     },
     {
       "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "translation": "Meðan ítarleg annálaskráning er virk (flipinn Einingar) er DEBUG alltaf skrifað í annálaskrárnar, svo þessi rofi helst virkur. Slökktu á ítarlegri annálaskráningu til að velja sjálf/ur. Þínu eigin vali er haldið fyrir þegar þú gerir það."
-    },
-    {
-      "table": "ui",
       "key": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source_sha256": "d8229a4be8729ffabea08e0fcef6064cffc85a7787d02f745473556d886e6738",
@@ -3441,6 +3413,38 @@
         "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
         "translation": "npm fékk ekki að skrifa í alþjóðlegu möppuna sína. Keyrðu `npm config set prefix ~/.local` einu sinni í skipanalínu svo npm setji upp í möppu sem þú átt, og ýttu svo á Reyna aftur."
       }
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Rísandi arpeggio sem leysist upp á grunntón tóntegundarinnar þegar keyrslu einingar lýkur með árangri, fyrir þegar spaCR er í öðrum glugga.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "Stuttur, hljóðlátur plokkaður tónn í tóntegund hljóðasettsins þegar þú ýtir á hnapp, rofa, flipa, lista eða sleða: staðfesting á að ýtt var, meira fundin en heyrð.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Bætir DEBUG-skilaboðum spaCR við annálaskrárnar í ~/.spacr/logs. Það leyfir einnig cellpose að greina frá hvaða líkani það hlóð, og það skráir hvaða hnappa þú ýttir á. Sú slóð er það sem gerir villuskýrslu þess virði að lesa hana.\n\nRæsing spaCR og opnun skjáa þess tók ekki lengri tíma með þetta virkt. Þetta var mælt á einni vinnustöð með því að opna allar einingar, einu sinni með þetta virkt og einu sinni óvirkt. Heimaskjárinn var tilbúinn á um 4 sekúndum eftir kalda ræsingu í báðum tilvikum. Hægasta einingin opnaðist á um 7 sekúndum í báðum tilvikum. Keyrslur vinnsluferla voru ekki tímamældar.\n\nStjórnborðið sýnir áfram aðeins þau stig sem þú kveikir á fyrir það í flipanum Annálar. Þessi rofi rekur ekki hvert fallakall. Sá rakari er sérstakt tól fyrir forritara og ekkert hér kveikir á honum.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "translation": "Meðan ítarleg annálaskráning er virk (flipinn Einingar) er DEBUG alltaf skrifað í annálaskrárnar, svo þessi rofi helst virkur. Slökktu á ítarlegri annálaskráningu til að velja sjálf/ur. Þínu eigin vali er haldið fyrir þegar þú gerir það.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -7,24 +7,25 @@ helper verifies the desktop interpreter and imported application before retiring
 other copies or requesting a restart. :func:`run_update_sequence` remains the
 low-level removal procedure used by explicit cleanup commands.
 
-Supported macOS online installations and dedicated POSIX pip environments
-use their existing package tool after approved shutdown to stage, verify and
-atomically activate an updated sibling runtime. Bootstrap files, launchers,
-unchanged packages and the previous runtime are retained. Shared, Conda and
-Windows Python environments require their own replacement adapter.
+Supported macOS online installations and dedicated POSIX or Windows pip
+environments use their existing package tool to stage and verify an updated
+sibling runtime before requesting Restart. Activation requires approved
+shutdown. Bootstrap files, launchers, unchanged packages and the previous
+runtime are retained. Shared and Conda environments require their own
+replacement adapter.
 
-A supported frozen macOS application uses a verified DMG replacement and
-retains its complete previous application bundle. These macOS update paths
-do not run the standard deletion procedure. Other frozen application
-families require a supported replacement adapter before an update can start.
+A supported frozen macOS, Windows or Debian installation stages its verified
+replacement while the desktop remains open. Protected installations obtain
+graphical administrator authorization before requesting Restart. Activation
+requires approved shutdown and actual process exit; recovery data remains
+until the updated desktop confirms its identity and main window.
 
-Removal never runs an old version's own uninstaller, so a copy whose
-``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed
-all the same. Preferences and user data are kept: ``~/.spacr``,
-``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,
-``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``
-settings (``~/.config/spacr``, the macOS preferences file, and the
-``Software\\spacr`` registry key on Windows).
+Ordinary removal preserves preferences and user data. The confirmed GUI
+uninstall instead previews current or all detected installations and separate
+cleanup categories, selected by default with individual opt-outs. Protected
+removal uses only a validated installed helper with the required protocol;
+authorization, preparation and approved desktop exit precede deletion.
+Unrelated projects, unverified data and shared environments are preserved.
 
 A pip or conda environment the user made is listed but never deleted; the
 spaCR package is uninstalled from it only when the caller says it was ticked.
@@ -57,8 +58,8 @@ import stat
 import subprocess
 import sys
 import tempfile
-import time
 import threading
+import time
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field, replace
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -83,6 +84,7 @@ _WAIT_SECONDS = 600.0
 _FROZEN_PREPARATION_SECONDS = 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 _PRIVILEGED_DEBIAN_HELPER = False
+_MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root", "uninstall-macos-root")
 
 
 @dataclass(frozen=True)
@@ -772,11 +774,14 @@ def _find_windows_offline(machine: _Machine) -> List[InstallRecord]:
         if any(_exists(os.path.join(root, m))
                for m in ("spacr.exe", "Uninstall.exe", "_internal"))]
     menu = _windows_start_menu(machine)
+    menus = [menu]
+    if machine.real and os.name == "nt":
+        menus.append(_windows_known_folder(0x17))
     records = []
     for root in roots:
         needles = _spellings(root)
         shortcuts = [link for link in _dedupe(
-            os.path.join(menu, f"{name}.lnk") for name in _NAMES)
+            os.path.join(folder, f"{name}.lnk") for folder in menus for name in _NAMES)
             if _mentions(link, needles)]
         notes = () if _exists(os.path.join(root, "Uninstall.exe")) else (
             "its own uninstaller is missing",)
@@ -1629,8 +1634,8 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
     :param machine: the computer.
     :param report: where the outcome is recorded.
     """
-    dists = _distributions(record.root) or glob.glob(
-        os.path.join(record.root, "site-packages", "spacr*-*.dist-info"))
+    dists = _distributions(record.root) or [dist for name in _DISTRIBUTIONS
+        for dist in glob.glob(os.path.join(record.root, "site-packages", f"{name}-*.dist-info"))]
     names = sorted({_dist_name(d) for d in dists}) or ["spacr"]
     python = record.python
     if not python:
@@ -1651,6 +1656,916 @@ def _uninstall_from_environment(record: InstallRecord, machine: _Machine,
     else:
         last = (output or "").strip().splitlines()
         report.failed.append((item, last[-1] if last else f"exit code {code}"))
+
+
+_UNINSTALL_CATEGORIES = ("caches", "models", "logs", "settings", "history",
+                         "temporary", "downloads", "other")
+
+
+def _uninstall_path_state(path):
+    """Bind an existing path to its unlinked directory ancestry without reading file contents."""
+    path = os.path.abspath(path)
+    cursor = path
+    identity = []
+    while True:
+        details = os.lstat(cursor)
+        if (stat.S_ISLNK(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400):
+            raise ValueError("linked_path")
+        identity.append([cursor, details.st_dev,
+                         None if cursor == path and stat.S_ISREG(details.st_mode) else details.st_ino,
+                         stat.S_IFMT(details.st_mode)])
+        parent = os.path.dirname(cursor)
+        if parent == cursor:
+            return identity
+        cursor = parent
+
+
+def _uninstall_data_candidates(machine):
+    """List known spaCR data locations by independent uninstall category, without broad home deletion."""
+    home = machine.home
+
+    def expand(value):
+        """Expand the configured user's leading home marker."""
+        value = value.strip()
+        if value == "~" or value.startswith(("~/", "~\\")):
+            value = home + value[1:]
+        return os.path.abspath(value)
+
+    app_home = expand(machine.env("SPACR_HOME").strip() or os.path.join(home, ".spacr"))
+    children = {
+        "caches": ("cache", "news", "backgrounds", "sounds", "icons"),
+        "models": ("models", "backends", "community_models.json"),
+        "logs": ("logs", "anonymous_reports"),
+        "settings": ("settings", "network.json", "notification_secrets.json", "cache_locations.json"),
+        "history": ("runs", "history", "restart_state.json", "last_session.json", "queue.json"),
+        "temporary": ("tmp", "temp"),
+        "downloads": ("downloads",),
+        "other": ("plugins", "recipes", "macros", "blinding", "analysis_locks", "features"),
+    }
+    candidates = [(category, os.path.join(app_home, name), True)
+                  for category, names in children.items() for name in names]
+    candidates.extend((category, path, True) for category, path in (
+        ("caches", os.path.join(machine.xdg("XDG_CACHE_HOME", ".cache"), "spacr")),
+        ("settings", os.path.join(machine.xdg("XDG_CONFIG_HOME", ".config"), "spacr")),
+        ("settings", os.path.join(home, "Library", "Preferences", "com.spacr.qt.plist")),
+        ("history", os.path.join(machine.xdg("XDG_STATE_HOME", os.path.join(".local", "state")), "spacr")),
+        ("downloads", os.path.join(home, "spacr-demos")),
+        ("downloads", os.path.join(home, "spacr-tutorials")),
+    ))
+    variables = {
+        "SPACR_MODEL_CACHE": "models", "SPACR_BACKENDS_DIR": "models",
+        "SPACR_LOG_DIR": "logs", "SPACR_PLUGIN_HOME": "other",
+        "SPACR_NEWS_CACHE": "caches", "SPACR_SPACE_CACHE": "caches",
+        "SPACR_SOUND_CACHE": "caches", "SPACR_ICON_CACHE": "caches",
+        "MPLCONFIGDIR": "caches", "HF_HOME": "models", "TORCH_HOME": "models",
+        "CELLPOSE_LOCAL_MODELS_PATH": "models",
+    }
+    relocated = {}
+    try:
+        with open(os.path.join(app_home, _CACHE_LOCATIONS_FILE), encoding="utf-8") as stream:
+            locations = json.load(stream)
+        for variable, key in (("SPACR_MODEL_CACHE", "models"), ("SPACR_BACKENDS_DIR", "backends"),
+                              ("SPACR_NEWS_CACHE", "news")):
+            path = locations.get(variable, "") if isinstance(locations, dict) else ""
+            if isinstance(path, str) and os.path.basename(path) == "spacr-" + key:
+                relocated[_norm(path)] = (variables[variable], os.path.abspath(path))
+    except (OSError, ValueError, RecursionError):
+        pass
+    for variable, category in variables.items():
+        raw = machine.env(variable)
+        if not raw.strip():
+            continue
+        path = expand(raw)
+        owned = (_inside(path, app_home) and _norm(path) != _norm(app_home)
+                 or _norm(path) in relocated and variable not in {"HF_HOME", "TORCH_HOME", "CELLPOSE_LOCAL_MODELS_PATH"})
+        candidates.append((category, path, owned))
+    for category, path in relocated.values():
+        candidates.append((category, path, True))
+    shared = {_norm(path) for path in _never_delete(machine)}
+    shared_models = [expand(machine.env(variable))
+                     for variable in ("HF_HOME", "TORCH_HOME", "CELLPOSE_LOCAL_MODELS_PATH")
+                     if machine.env(variable).strip()
+                     and not _inside(expand(machine.env(variable)), app_home)]
+    unique = {}
+    for category, path, owned in candidates:
+        if not _exists(path):
+            continue
+        path = os.path.abspath(path)
+        if _norm(path) in shared or (machine.running_prefix and _inside(machine.running_prefix, path)):
+            owned = False
+        if any(_inside(path, folder) or _inside(folder, path) for folder in shared_models):
+            owned = False
+        unique[path] = (category, path, owned)
+    result = []
+    pending = list(unique.values())
+    while pending:
+        category, path, owned = pending.pop(0)
+        nested = [other for other in unique if other != path and _inside(other, path)]
+        if nested and owned and os.path.isdir(path) and not os.path.islink(path):
+            try:
+                entries = sorted(os.listdir(path))
+            except OSError:
+                result.append((category, path, False))
+                continue
+            for name in entries:
+                child = os.path.join(path, name)
+                if child not in unique:
+                    pending.append((category, child, owned))
+        else:
+            result.append((category, path, owned))
+    return sorted(set(result), key=lambda row: (row[0], row[1]))
+
+
+def _uninstall_preview(operation_id, *, system=None):
+    """Discover exact current/all installation scopes and separately selectable spaCR data paths."""
+    if not isinstance(operation_id, str) or not operation_id.strip():
+        raise ValueError("operation_id")
+    machine = system or _Machine()
+    records = find_old_installs(system=machine)
+    current = {record.root for record in records if record.running
+               or (machine.real and record.kind == "installer" and _inside(__file__, record.root))}
+    mac_apps = [record for record in records if record.layout == "macos-app"]
+    if (len(mac_apps) == 1 and os.path.isfile(os.path.join(mac_apps[0].root, "install-for-user.sh"))
+            and any(record.root in current and record.layout in {"macos-runtime", "macos-online"}
+                                  and os.path.basename(record.root).lower() == "spacr"
+                                  for record in records)):
+        current.add(mac_apps[0].root)
+    installations = []
+    for record in records:
+        data = json.loads(json.dumps(asdict(record)))
+        key = hashlib.sha256((record.kind + "\0" + _norm(record.root)).encode()).hexdigest()
+        try:
+            identity = _uninstall_path_state(record.root)
+            reason = "checkout" if record.kind == "checkout" else ""
+        except (OSError, ValueError):
+            identity, reason = [], "unverified"
+        sites = [os.path.join(record.root, "site-packages")] if record.layout == "user-site" else _site_packages(record.root)
+        paths = ([record.root] if record.kind != "environment" else
+                 [path for site in sites for name in _DISTRIBUTIONS
+                  for path in glob.glob(os.path.join(site, f"{name}-*.dist-info"))]
+                 + [os.path.join(site, "spacr") for site in sites if os.path.isdir(os.path.join(site, "spacr"))])
+        paths += list(record.launchers + record.shortcuts + record.menu_entries + record.registrations)
+        installations.append({"key": key, "record": data, "paths": list(dict.fromkeys(paths)),
+                              "identity": identity, "current": record.root in current,
+                              "selectable": not reason, "reason": reason})
+    cleanup = []
+    for category, path, owned in _uninstall_data_candidates(machine):
+        try:
+            identity = _uninstall_path_state(path)
+            reason = "" if owned else "unverified"
+        except (OSError, ValueError):
+            identity, reason = [], "unverified"
+        cleanup.append({"category": category, "path": path, "identity": identity,
+                        "selectable": not reason, "reason": reason})
+    registry = machine.registry
+    if registry is not None and (registry.values(_SETTINGS_REGISTRY_KEY) or registry.subkeys(_SETTINGS_REGISTRY_KEY)):
+        cleanup.append({"category": "settings", "path": "registry:" + _SETTINGS_REGISTRY_KEY,
+                        "identity": [], "selectable": True, "reason": ""})
+    payload = {"schema": 1, "operation_id": operation_id, "installations": installations,
+               "cleanup": cleanup, "categories": list(_UNINSTALL_CATEGORIES)}
+    payload["snapshot_id"] = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+    return payload
+
+
+def _uninstall_selection(preview, *, scope="current", categories=None):
+    """Freeze an explicit current/all choice; uninstall data categories default to selected."""
+    if scope not in {"current", "all"}:
+        raise ValueError("scope")
+    chosen = list(_UNINSTALL_CATEGORIES if categories is None else categories)
+    if len(set(chosen)) != len(chosen) or any(key not in _UNINSTALL_CATEGORIES for key in chosen):
+        raise ValueError("categories")
+    keys = [row["key"] for row in preview["installations"]
+            if row["selectable"] and (scope == "all" or row["current"])]
+    if not keys:
+        raise ValueError(tr("No removable spaCR installation was found for this scope."))
+    return {"operation_id": preview["operation_id"], "snapshot_id": preview["snapshot_id"],
+            "scope": scope, "installations": keys, "categories": chosen}
+
+
+def _validate_uninstall_selection(preview, selection, machine, *, after_shutdown=False):
+    """Re-discover selected scope and reject changed roots before any deletion or package operation."""
+    expected = _uninstall_selection(preview, scope=selection.get("scope"), categories=selection.get("categories"))
+    if expected != selection:
+        raise ValueError(tr("The uninstall selection changed. Review the paths again."))
+    current = _uninstall_preview(preview["operation_id"], system=machine)
+    available = {row["key"]: row for row in current["installations"]}
+    selected = []
+    for row in preview["installations"]:
+        if row["key"] not in selection["installations"]:
+            continue
+        fresh = available.get(row["key"])
+        if fresh is None:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        before, now = dict(row["record"]), dict(fresh["record"])
+        before.pop("running", None)
+        now.pop("running", None)
+        if (before != now or row["identity"] != fresh["identity"]
+                or row["paths"] != fresh["paths"] or not fresh["selectable"]):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        if fresh["record"]["running"] and not after_shutdown:
+            raise ValueError(tr("spaCR must close before this installation can be removed."))
+        selected.append(_record_from_json(dict(fresh["record"], running=False)))
+    fresh_data = {(row["category"], row["path"]): row for row in current["cleanup"]}
+    cleanup = []
+    for row in preview["cleanup"]:
+        if not row["selectable"] or row["category"] not in selection["categories"]:
+            continue
+        fresh = fresh_data.get((row["category"], row["path"]))
+        if fresh != row:
+            raise ValueError(tr("The cleanup paths changed. Review the uninstall paths again."))
+        cleanup.append(row)
+    return selected, cleanup
+
+
+def _apply_uninstall_selection(preview, selection, *, system=None, after_shutdown=False):
+    """Remove only a revalidated confirmed scope, retaining shared environments and opted-out data."""
+    machine = system or _Machine()
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine,
+                                                     after_shutdown=after_shutdown)
+    return _apply_uninstall_records(preview, selection, records, cleanup, machine)
+
+
+def _apply_uninstall_records(preview, selection, records, cleanup, machine):
+    """Apply the confirmed user-owned remainder after any native software removal."""
+    for row in cleanup:
+        if not row["path"].startswith("registry:") and _uninstall_path_state(row["path"]) != row["identity"]:
+            raise ValueError(tr("The cleanup paths changed. Review the uninstall paths again."))
+    protected = [row["path"] for row in preview["cleanup"] if not row["path"].startswith("registry:")]
+    reports = []
+    for record in records:
+        report = remove_install(record, ticked=True, keep=protected, system=machine)
+        reports.append(report)
+        if not report.ok:
+            return {"ok": False, "reports": [asdict(item) for item in reports], "cleanup": None}
+    data = RemovalReport(record=None)
+    keep = [row["path"] for row in preview["cleanup"]
+            if (not row["selectable"] or row["category"] not in selection["categories"])
+            and not row["path"].startswith("registry:")]
+    for row in cleanup:
+        if row["path"].startswith("registry:"):
+            _delete_registry_tree(machine.registry, _SETTINGS_REGISTRY_KEY, data)
+        else:
+            _delete(row["path"], keep, data, tr("Permission denied. These files were kept."))
+    return {"ok": data.ok, "reports": [asdict(item) for item in reports], "cleanup": asdict(data)}
+
+
+def _uninstall_binding(preview, selection):
+    """Bind the exact displayed scope and selected categories into the existing shutdown lease."""
+    return hashlib.sha256(json.dumps([preview, selection], sort_keys=True,
+                                     separators=(",", ":")).encode()).hexdigest()
+
+
+def _macos_native_uninstall_adapter(preview, records, machine):
+    """Select the installed native helper only for its fixed package-owned macOS paths."""
+    if machine.platform != "macos":
+        return None
+    app = machine.path("/Applications/spaCR.app")
+    support = machine.path("/Library/Application Support/spaCR")
+    eligible = [record for record in records if record.layout == "macos-app"
+                and record.root in {app, support} and any(
+                    _exists(path) and (not os.access(os.path.dirname(path), os.W_OK | os.X_OK)
+                        or os.path.isdir(path) and (not os.access(path, os.W_OK | os.X_OK)
+                            or machine.real and os.lstat(path).st_uid != os.geteuid()))
+                    for path in [record.root, *record.registrations, *record.launchers])]
+    if not eligible:
+        return None
+    helper = os.path.join(app, "Contents", "MacOS", "install-spacr-gui")
+    capabilities = os.path.join(app, "Contents", "Resources", "uninstall-capabilities.json")
+    for leaf in (helper, capabilities):
+        current = leaf
+        while _inside(current, app):
+            metadata = os.lstat(current)
+            if (stat.S_ISLNK(metadata.st_mode) or metadata.st_uid != (0 if machine.real else os.getuid())
+                    or stat.S_IMODE(metadata.st_mode) & 0o022
+                    or not (stat.S_ISREG(metadata.st_mode) if current == leaf else stat.S_ISDIR(metadata.st_mode))):
+                raise PermissionError(tr("Uninstall preparation stopped: {error}", error=leaf))
+            current = os.path.dirname(current)
+    descriptor = os.open(capabilities, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, encoding="utf-8") as stream:
+        metadata = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != (0 if machine.real else os.getuid())
+                or stat.S_IMODE(metadata.st_mode) & 0o022 or metadata.st_size > 128
+                or stream.read(129).strip() != '{"native_uninstall_schema":1}'):
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=capabilities))
+    if os.path.realpath(helper) != helper:
+        raise PermissionError(tr("Uninstall preparation stopped: {error}", error=helper))
+    targets, launchers = set(), set()
+    for record in eligible:
+        targets.update([record.root, *record.registrations])
+        launchers.update(record.launchers)
+    command_link = machine.path("/usr/local/bin/spacr")
+    if (app not in targets or not targets <= {app, support}
+            or not launchers <= {command_link}
+            or any(record.shortcuts or record.menu_entries for record in eligible)):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    if launchers and (not os.path.islink(command_link)
+                      or os.readlink(command_link) != os.path.join(app, "Contents", "MacOS", "spaCR")):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    return {"adapter": "macos-online-native", "helper": helper,
+            "roots": [record.root for record in eligible],
+            "desktop_executable": machine.executable,
+            "request": {"launcher": bool(launchers), "targets": [
+                {"path": path, "identity": list(_identity(path)),
+                 "keep": [row["path"] for row in preview["cleanup"]
+                          if not row["path"].startswith("registry:") and _inside(row["path"], path)]}
+                for path in sorted(targets)]}}
+
+
+def _macos_native_uninstall_command(adapter, endpoint, pid):
+    """Request graphical authorization for one installed native helper with fixed arguments."""
+    import shlex
+
+    arguments = [adapter["helper"], "--spacr-uninstall-native", endpoint, str(pid),
+                 adapter["desktop_executable"], json.dumps(adapter["request"], separators=(",", ":"))]
+    command = "exec " + shlex.join(arguments)
+    literal = command.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r")
+    return ["/usr/bin/osascript", "-e",
+            f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _native_uninstall_adapter(preview, records, machine):
+    """Bind each supported protected installation to its installed administrator helper."""
+    if machine.platform == "windows" and machine.real and not _windows_process_elevated():
+        return _windows_native_uninstall_adapter(preview, records, machine)
+    if machine.platform == "macos":
+        frozen = _macos_frozen_uninstall_adapter(preview, records, machine)
+        if frozen is not None:
+            return frozen
+    if machine.platform != "linux":
+        return _macos_native_uninstall_adapter(preview, records, machine)
+    selected = [record for record in records if record.layout == "linux-deb" and record.needs_admin]
+    if not selected or not machine.real or os.geteuid() == 0:
+        return None
+    if (len(selected) != 1 or selected[0].root != "/opt/spacr"
+            or selected[0].registrations != ("deb:spacr",)
+            or any(_inside(row["path"], "/opt/spacr") for row in preview["cleanup"]
+                   if not row["path"].startswith("registry:"))):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="/opt/spacr"))
+    helper = _debian_check_package_owner(selected[0].version, run=_run)
+    marker = "/opt/spacr/uninstall-protocol.json"
+    details = os.lstat(marker)
+    if (not stat.S_ISREG(details.st_mode) or details.st_uid != 0
+            or stat.S_IMODE(details.st_mode) & 0o022 or details.st_size > 1024):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=marker))
+    with open(marker, encoding="utf-8") as stream:
+        if json.load(stream) != {"schema": 1, "adapter": "linux-deb-uninstall-v1"}:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=marker))
+    if not os.path.isfile("/usr/bin/pkexec") or not os.access("/usr/bin/pkexec", os.X_OK):
+        raise PermissionError(tr("graphical administrator authorization is unavailable"))
+    return {"adapter": "linux-deb-native", "helper": helper, "roots": [selected[0].root],
+            "desktop_executable": machine.executable, "desktop_uid": os.getuid(),
+            "previous_version": selected[0].version}
+
+
+def _native_uninstall_command(adapter, endpoint, pid):
+    """Build one graphical authorization request without elevating user-owned code."""
+    if adapter["adapter"] == "macos-online-native":
+        return _macos_native_uninstall_command(adapter, endpoint, pid)
+    if adapter["adapter"] == "macos-frozen-native":
+        return _macos_frozen_authorized_command("uninstall-macos-root", [
+            "--phase-channel", endpoint, "--desktop-pid", str(pid),
+            "--desktop-executable", adapter["desktop_executable"],
+            "--previous-version", adapter["previous_version"],
+            "--app-identity", ":".join(str(value) for value in adapter["identity"]),
+            "--keep-json", json.dumps(adapter["keep"], separators=(",", ":"))])
+    if adapter["adapter"] != "linux-deb-native":
+        raise ValueError("unsupported_native_uninstall")
+    return ["/usr/bin/pkexec", adapter["helper"], "uninstall-debian-root", "--phase-channel", endpoint,
+            "--desktop-pid", str(pid), "--desktop-executable", adapter["desktop_executable"],
+            "--desktop-uid", str(adapter["desktop_uid"]), "--previous-version", adapter["previous_version"]]
+
+
+def _uninstall_debian_root(endpoint, desktop_pid, desktop_executable, desktop_uid, previous_version):
+    """Remove only the trusted spaCR Debian package after authorization and the desktop's exit."""
+    _debian_authenticated_user(desktop_uid)
+    if _desktop_process_identity(desktop_pid) != (desktop_uid, os.path.realpath(desktop_executable)):
+        raise ValueError(tr("The running desktop could not be identified."))
+    helper = _debian_check_package_owner(previous_version)
+    if not getattr(sys, "frozen", False) or os.path.realpath(sys.executable) != helper:
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=helper))
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        with _debian_frontend_lock():
+            code, output = _debian_root_runner(["/usr/bin/dpkg", "--no-act", "--remove", "spacr"])
+        if code:
+            raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=output[-2000:]))
+        channel._send("prepared")
+        decision = channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)
+        if decision["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        with _debian_frontend_lock():
+            _debian_check_package_owner(previous_version)
+            code, output = _debian_root_runner(["/usr/bin/dpkg", "--remove", "spacr"])
+        if code:
+            raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=output[-2000:]))
+        channel._send("complete")
+    return 0
+
+
+def _macos_frozen_uninstall_adapter(preview, records, machine):
+    """Select the signed frozen bundle's installed helper without elevating user-owned code."""
+    app = machine.path("/Applications/spaCR.app")
+    selected = [record for record in records if record.layout == "macos-app" and record.root == app]
+    if not selected or not machine.real or not os.path.isfile(os.path.join(app, "Contents", "Frameworks", "spacr-update-helper")):
+        return None
+    required = [os.path.dirname(app), app, os.path.join(app, "Contents"),
+                os.path.join(app, "Contents", "MacOS"), os.path.join(app, "Contents", "Frameworks")]
+    if os.lstat(app).st_uid == os.geteuid() and all(os.access(path, os.W_OK | os.X_OK) for path in required):
+        return None
+    if len(selected) != 1 or selected[0].registrations != (app,) or selected[0].launchers:
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    _macos_frozen_trusted_helper()
+    info = _macos_bundle_identity(app, selected[0].version)
+    return {"adapter": "macos-frozen-native", "roots": [app], "identity": list(_identity(app)),
+            "previous_version": info["SPACRPackageVersion"], "desktop_executable": machine.executable,
+            "keep": [row["path"] for row in preview["cleanup"]
+                     if not row["path"].startswith("registry:") and _inside(row["path"], app)]}
+
+
+def _macos_uninstall_tree(path, identity, keep, *, apply=False, owner=0):
+    """Traverse bound directories by descriptor, preserving selected paths and never following links."""
+    def visit(parent, name, absolute):
+        """Remove one verified child through its parent descriptor while preserving selected paths."""
+        if any(_inside(absolute, saved) for saved in keep):
+            return False
+        before = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if stat.S_ISDIR(before.st_mode):
+            if before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o022:
+                raise PermissionError(tr("Uninstall preparation stopped: {error}", error=absolute))
+            descriptor = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            try:
+                actual = os.fstat(descriptor)
+                if (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino):
+                    raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+                removed = True
+                for child in sorted(os.listdir(descriptor)):
+                    removed = visit(descriptor, child, os.path.join(absolute, child)) and removed
+            finally:
+                os.close(descriptor)
+            if not removed:
+                return False
+        elif not (stat.S_ISREG(before.st_mode) or stat.S_ISLNK(before.st_mode)):
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=absolute))
+        if apply:
+            actual = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if (actual.st_dev, actual.st_ino, stat.S_IFMT(actual.st_mode)) != (
+                    before.st_dev, before.st_ino, stat.S_IFMT(before.st_mode)):
+                raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+            (os.rmdir if stat.S_ISDIR(before.st_mode) else os.unlink)(name, dir_fd=parent)
+        return True
+
+    if (not isinstance(keep, list) or len(keep) > 256
+            or any(not isinstance(saved, str) or os.path.abspath(saved) != saved or not _inside(saved, path)
+                   for saved in keep) or tuple(_identity(path)) != tuple(identity)
+            or os.path.realpath(path) != path):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    parent = os.open(os.path.dirname(path), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        actual = os.stat(os.path.basename(path), dir_fd=parent, follow_symlinks=False)
+        if (actual.st_dev, actual.st_ino) != tuple(identity) or not stat.S_ISDIR(actual.st_mode):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        visit(parent, os.path.basename(path), path)
+    finally:
+        os.close(parent)
+
+
+def _uninstall_macos_root(endpoint, desktop_pid, desktop_executable, previous_version, identity, keep):
+    """Remove only the fixed signed macOS bundle after native authorization and actual desktop exit."""
+    import re
+
+    target = "/Applications/spaCR.app"
+    executable = os.path.realpath(sys.executable)
+    if (os.geteuid() != 0 or not getattr(sys, "frozen", False)
+            or not re.fullmatch(r"/private/var/root/spacr-helper\.[A-Za-z0-9]{8}/helper", executable)):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="trusted_helper"))
+    for path in (os.path.dirname(executable), executable):
+        details = os.lstat(path)
+        if details.st_uid != 0 or stat.S_IMODE(details.st_mode) & 0o077 or os.path.realpath(path) != path:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=path))
+    owner, desktop = _desktop_process_identity(desktop_pid)
+    if owner == 0 or desktop != os.path.realpath(desktop_executable):
+        raise ValueError(tr("The running desktop could not be identified."))
+    installed = _macos_frozen_trusted_helper()
+    if _macos_digest(executable) != _macos_digest(installed):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error="trusted_helper"))
+    _macos_bundle_identity(target, previous_version)
+    if len(keep) > 32768 or not re.fullmatch(r"[0-9]+:[0-9]+", identity):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    bound = tuple(int(value) for value in identity.split(":"))
+    saved = json.loads(keep)
+    if not isinstance(saved, list):
+        raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+    saved += [os.path.join(target, name) for name in os.listdir(target) if name != "Contents"]
+    _macos_uninstall_tree(target, bound, saved)
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        channel._send("prepared")
+        if channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        _macos_frozen_trusted_helper()
+        _macos_bundle_identity(target, previous_version)
+        _macos_uninstall_tree(target, bound, saved)
+        _macos_uninstall_tree(target, bound, saved, apply=True)
+        channel._send("complete")
+    return 0
+
+
+def _run_native_uninstall(plan, adapter, handshake, wait=None):
+    """Finish native authorization while the desktop remains open, then await its approved exit."""
+    if adapter["adapter"] == "windows-frozen-native":
+        return _run_windows_native_uninstall(plan, adapter, handshake, wait=wait)
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        command = _native_uninstall_command(adapter, channel.endpoint, plan["pid"])
+        with open(os.path.join(plan["workdir"], "native-uninstall.log"), "xb") as output:
+            process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=output,
+                                       stderr=subprocess.STDOUT, start_new_session=True)
+            activated = False
+            try:
+                def stopped():
+                    """Check desktop cancellation before observing the authorized helper's completion."""
+                    handshake.check()
+                    return process.poll() is not None
+
+                channel._receive({"prepared"}, stopped=stopped)
+                handshake.ready()
+                handshake.wait_for_shutdown(wait=wait)
+                channel._send("activate")
+                activated = True
+                channel._receive({"complete"}, stopped=lambda: process.poll() is not None)
+                if process.wait(timeout=10):
+                    raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=plan["workdir"]))
+            finally:
+                if not activated and channel._connection is not None:
+                    try:
+                        channel._send("cancel")
+                    except OSError:
+                        pass
+                if process.poll() is None and not activated:
+                    process.terminate()
+
+
+def _windows_known_folder(identifier):
+    """Read an operating-system folder without trusting an inherited environment variable."""
+    import ctypes
+
+    shell = _windows_update_library("shell32")
+    function = shell.SHGetFolderPathW
+    function.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_wchar_p]
+    function.restype = ctypes.c_int32
+    path = ctypes.create_unicode_buffer(32768)
+    if function(None, identifier, None, 0, path) != 0 or not path.value:
+        raise OSError(tr("Uninstall preparation stopped: {error}", error="windows_folder"))
+    return _installer_metadata_folder(path.value, "windows_uninstall_folder", windows=True)
+
+
+def _windows_system_owned(path):
+    """Require native system or administrator ownership without effective foreign write access."""
+    trusted = {"S-1-5-18", "S-1-5-32-544",
+               "S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464"}
+    _installer_metadata_folder(path, "windows_uninstall_path", windows=True)
+    details = os.lstat(path)
+    if not (stat.S_ISREG(details.st_mode) or stat.S_ISDIR(details.st_mode)):
+        raise ValueError(tr("Uninstall preparation stopped: {error}", error=path))
+    evidence = _windows_pip_acl(path)
+    if (evidence.get("owner") not in trusted or evidence.get("has_dacl") is not True
+            or not evidence.get("rules")):
+        raise PermissionError(tr("Uninstall preparation stopped: {error}", error=path))
+    for rule in evidence["rules"]:
+        if (rule.get("type") not in (0, 1) or type(rule.get("rights")) is not int
+                or type(rule.get("propagation")) is not int or rule["propagation"] & ~3
+                or not isinstance(rule.get("sid"), str)
+                or (rule["type"] == 0 and not rule["propagation"] & 2
+                    and rule["rights"] & 0x500D0156 and rule["sid"] not in trusted)):
+            raise PermissionError(tr("Uninstall preparation stopped: {error}", error=path))
+
+
+def _windows_uninstall_targets(request):
+    """Validate all fixed installed roots and manifest-owned files before permitting any removal."""
+    from pathlib import PurePosixPath
+
+    if not isinstance(request, dict) or set(request) != {"targets"} or not 0 < len(request["targets"]) <= 4:
+        raise ValueError("invalid_windows_uninstall_scope")
+    allowed = {os.path.normcase(os.path.join(_windows_known_folder(identifier), name))
+               for identifier in (0x26, 0x2a) for name in _NAMES}
+    common_menu = _windows_known_folder(0x17)
+    results, seen = [], set()
+    for target in request["targets"]:
+        root = _installer_metadata_folder(target["root"], "windows_uninstall_root", windows=True)
+        if os.path.normcase(root) not in allowed or os.path.normcase(root) in seen:
+            raise ValueError("invalid_windows_uninstall_root")
+        seen.add(os.path.normcase(root))
+        if list(_identity(root)) != target["identity"]:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        keep = target["keep"]
+        if (not isinstance(keep, list) or len(keep) > 256
+                or any(not isinstance(path, str) or os.path.abspath(path) != path or not _inside(path, root)
+                       for path in keep)):
+            raise ValueError("invalid_windows_uninstall_keep")
+        for path in (os.path.dirname(root), root, os.path.join(root, "_internal")):
+            _windows_system_owned(path)
+        _windows_uninstall_protocol(root)
+        version = _frozen_windows_previous_version(root)
+        manifest = _frozen_windows_payload(root, version)
+        if version != target["version"] or _macos_digest(os.path.join(root, "spacr-payload.json")) != target["manifest"]:
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        files = [os.path.join(root, *PurePosixPath(name).parts) for name in manifest["files"]]
+        files.extend(os.path.join(root, name) for name in (
+            "Uninstall.exe", "spacr-uninstaller.json", "spacr-payload.json") if _exists(os.path.join(root, name)))
+        directories = {root}
+        for path in files:
+            cursor = os.path.dirname(path)
+            while _inside(cursor, root):
+                directories.add(cursor)
+                if cursor == root:
+                    break
+                cursor = os.path.dirname(cursor)
+            _windows_system_owned(path)
+        for path in directories:
+            _windows_system_owned(path)
+        shortcuts = target["shortcuts"]
+        if (not isinstance(shortcuts, list) or any(path not in {
+                os.path.join(common_menu, name + ".lnk") for name in _NAMES} for path in shortcuts)):
+            raise ValueError("invalid_windows_uninstall_shortcut")
+        for path in shortcuts:
+            _windows_system_owned(os.path.dirname(path))
+            _windows_system_owned(path)
+            if not _mentions(path, _spellings(root)):
+                raise ValueError("changed_windows_uninstall_shortcut")
+        results.append({"root": root, "files": files + shortcuts,
+                        "directories": sorted(directories, key=len, reverse=True), "keep": keep})
+    return results
+
+
+def _windows_uninstall_protocol(root):
+    """Bind the advertised native protocol to the actual installed uninstaller before launching it."""
+    receipt = os.path.join(root, "spacr-uninstaller.json")
+    uninstaller = os.path.join(root, "Uninstall.exe")
+    for path in (receipt, uninstaller):
+        _windows_system_owned(path)
+    details = os.lstat(receipt)
+    if not stat.S_ISREG(details.st_mode) or details.st_size > 1024:
+        raise ValueError("invalid_windows_uninstaller_receipt")
+    with open(receipt, encoding="utf-8") as stream:
+        bound = json.loads(stream.read(1025))
+    expected = {"schema": 1, "adapter": "windows-frozen-uninstall-v1", "sha256": _macos_digest(uninstaller)}
+    if bound != expected:
+        raise ValueError("changed_windows_uninstaller_receipt")
+    return expected["sha256"]
+
+
+def _windows_native_uninstall_adapter(preview, records, machine):
+    """Use the installed native uninstaller only when its declared protocol and payload are intact."""
+    selected = [record for record in records if record.layout == "windows-offline" and record.needs_admin]
+    if not selected:
+        return None
+    common_menu = _windows_known_folder(0x17)
+    targets, remaining = [], []
+    for record in selected:
+        root = record.root
+        _windows_uninstall_protocol(root)
+        marker = os.path.join(root, "_internal", "spacr-uninstall-protocol.json")
+        _windows_system_owned(marker)
+        if os.path.getsize(marker) > 1024:
+            raise ValueError("invalid_windows_uninstall_protocol")
+        with open(marker, encoding="utf-8") as stream:
+            if json.load(stream) != {"schema": 1, "adapter": "windows-frozen-uninstall-v1"}:
+                raise ValueError("invalid_windows_uninstall_protocol")
+        targets.append({"root": root, "identity": list(_identity(root)),
+                        "version": _frozen_windows_previous_version(root),
+                        "manifest": _macos_digest(os.path.join(root, "spacr-payload.json")),
+                        "keep": [row["path"] for row in preview["cleanup"]
+                                 if not row["path"].startswith("registry:") and _inside(row["path"], root)],
+                        "shortcuts": [path for path in record.shortcuts if os.path.dirname(path) == common_menu]})
+        remaining.extend(path for path in record.shortcuts if os.path.dirname(path) != common_menu)
+    request = {"targets": targets}
+    _windows_uninstall_targets(request)
+    _windows_system_owned(os.path.join(selected[0].root, "Uninstall.exe"))
+    return {"adapter": "windows-frozen-native", "roots": [record.root for record in selected],
+            "uninstaller": os.path.join(selected[0].root, "Uninstall.exe"),
+            "uninstaller_sha256": _windows_uninstall_protocol(selected[0].root),
+            "desktop_executable": machine.executable, "request": request,
+            "remaining": [{"path": path, "identity": _uninstall_path_state(path)} for path in remaining]}
+
+
+def _run_windows_native_uninstall(plan, adapter, handshake, *, wait=None):
+    """Use authenticated completion across the native uninstaller's standard outside-root copy."""
+    request = os.path.join(plan["workdir"], "native-request.json")
+    descriptor = os.open(request, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        json.dump(adapter["request"], stream, separators=(",", ":"))
+    _windows_pip_private_access(request, private_read=True)
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        values = (channel.endpoint, adapter["desktop_executable"], request)
+        if any(any(character in value for character in '\x00\r\n"') for value in values):
+            raise ValueError("invalid_windows_uninstall_argument")
+        arguments = ('/S /SPACRUNINSTALL="' + channel.endpoint + '" /SPACRPID=' + str(plan["pid"])
+                     + ' /SPACREXE="' + adapter["desktop_executable"] + '" /SPACRREQUEST="' + request + '"')
+        if len(arguments) > 900:
+            raise ValueError("windows_uninstall_scope_too_large")
+        result = {}
+
+        def authorize():
+            """Retain the native uninstaller's bootstrap result until authenticated completion."""
+            try:
+                result["result"] = _windows_authorized_process(adapter["uninstaller"], arguments, visible=False)
+            except BaseException as error:
+                result["error"] = error
+
+        def stopped():
+            """Treat failed native startup as stopped without confusing bootstrap exit with completion."""
+            handshake.check()
+            if "error" in result:
+                raise result["error"]
+            return "result" in result and result["result"][0] != 0
+
+        activated = False
+        try:
+            with _windows_frozen_installer_pin(adapter["uninstaller"], adapter["uninstaller_sha256"]):
+                worker = threading.Thread(target=authorize, name="spacr-uninstall-authorization", daemon=True)
+                worker.start()
+                channel._receive({"prepared"}, stopped=stopped)
+            handshake.ready()
+            handshake.wait_for_shutdown(wait=wait)
+            channel._send("activate")
+            activated = True
+            channel._receive({"complete"}, stopped=stopped)
+            worker.join(timeout=10)
+            if worker.is_alive() or "error" in result or result.get("result", (1, ""))[0]:
+                raise RuntimeError(tr("Uninstall preparation stopped: {error}", error=plan["workdir"]))
+        finally:
+            if not activated and channel._connection is not None:
+                try:
+                    channel._send("cancel")
+                except OSError:
+                    pass
+
+
+def _uninstall_frozen_windows(request, root, endpoint, desktop_pid, desktop_executable):
+    """Run only the native uninstaller's hardened outside-root helper against manifest-owned files."""
+    if not _windows_process_elevated() or not getattr(sys, "frozen", False):
+        raise ValueError("invalid_windows_native_uninstall")
+    owner, executable = _desktop_process_identity(desktop_pid)
+    if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
+        raise ValueError(tr("The running desktop could not be identified."))
+    _installer_metadata_folder(request, "windows_uninstall_request", windows=True)
+    _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    before = os.lstat(request)
+    if not stat.S_ISREG(before.st_mode) or before.st_size > 65536:
+        raise ValueError("invalid_windows_uninstall_request")
+    with open(request, encoding="utf-8") as stream:
+        actual = os.fstat(stream.fileno())
+        if not stat.S_ISREG(actual.st_mode) or (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino):
+            raise ValueError("changed_windows_uninstall_request")
+        request = json.loads(stream.read(65537))
+    targets = _windows_uninstall_targets(request)
+    if root not in {target["root"] for target in targets} or any(_inside(sys.executable, target["root"]) for target in targets):
+        raise ValueError("windows_uninstall_helper_must_be_outside")
+    _windows_system_owned(sys.executable)
+    _windows_system_owned(os.path.dirname(sys.executable))
+    installed = os.path.join(root, "_internal", "spacr-update-helper.exe")
+    if _macos_digest(sys.executable) != _macos_digest(installed):
+        raise ValueError("windows_uninstall_helper_changed")
+    with _UpdatePhaseClient(endpoint, desktop_pid, desktop_executable) as channel:
+        channel._send("prepared")
+        if channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)["phase"] != "activate":
+            return 3
+        if not _wait_for_exit(desktop_pid, timeout=1):
+            raise RuntimeError(tr("spaCR must close before this installation can be removed."))
+        targets = _windows_uninstall_targets(request)
+        for target in targets:
+            for path in target["files"]:
+                if not any(_inside(path, kept) for kept in target["keep"]):
+                    os.unlink(path)
+            for directory in target["directories"]:
+                if any(_inside(directory, kept) for kept in target["keep"]):
+                    continue
+                try:
+                    os.rmdir(directory)
+                except OSError as error:
+                    if error.errno not in (errno.ENOTEMPTY, errno.EEXIST):
+                        raise
+        channel._send("complete")
+    return 0
+
+
+def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, system=None, spawn=None):
+    """Prepare a copied helper outside the removed paths; no removal precedes approved GUI shutdown."""
+    machine = system or _Machine()
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=True)
+    native = _native_uninstall_adapter(preview, records, machine)
+    native_roots = set(native["roots"]) if native else set()
+    denied = []
+    for record in records:
+        if record.root in native_roots:
+            continue
+        if (record.needs_admin and machine.real
+                and (machine.platform == "windows" and not _windows_process_elevated()
+                     or any(token.startswith("deb:") for token in record.registrations)
+                     and getattr(os, "geteuid", lambda: 1)() != 0)):
+            denied.append(record.root)
+        row = next(row for row in preview["installations"] if row["record"]["root"] == record.root)
+        paths = ([] if record.kind == "environment" else [record.root]) + row["paths"]
+        for path in (path for path in paths if not path.startswith(("deb:", "registry"))):
+            if _exists(path) and not os.access(os.path.dirname(path), os.W_OK | os.X_OK):
+                denied.append(path)
+    for row in cleanup:
+        path = row["path"]
+        if not path.startswith("registry:") and not os.access(os.path.dirname(path), os.W_OK | os.X_OK):
+            denied.append(path)
+    if denied:
+        raise PermissionError(tr(
+            "Administrator access is required for these paths. Nothing was removed and spaCR will stay open: {paths}",
+            paths="\n".join(dict.fromkeys(denied))))
+    workdir = os.path.abspath(workdir or tempfile.mkdtemp(prefix="spacr-uninstall-"))
+    os.makedirs(workdir, mode=0o700, exist_ok=True)
+    paths = [record.root for record in records] + [row["path"] for row in cleanup
+                                                   if not row["path"].startswith("registry:")]
+    if any(_inside(workdir, path) for path in paths):
+        raise ValueError(tr("The uninstall helper must be outside every selected path."))
+    plan = {"schema": 1, "adapter": "uninstall-v1", "preview": preview, "selection": selection,
+            "version": _uninstall_binding(preview, selection),
+            "pid": int(os.getpid() if pid is None else pid),
+            "records": [row["record"] for row in preview["installations"]],
+            "ticked": list(selection["installations"]), "workdir": workdir,
+            "running_prefix": machine.running_prefix, "platform": machine.platform,
+            "desktop_executable": machine.executable,
+            "native": native,
+            "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + _WAIT_SECONDS}}
+    handshake_type = _WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake
+    handshake_type(plan)
+    module = os.path.join(workdir, "install_cleanup.py")
+    plan_path = os.path.join(workdir, "plan.json")
+    running = next((record for record in records if record.kind == "installer"
+                    and _inside(machine.executable, record.root)), None)
+    if machine.platform == "windows" and running is not None and not getattr(sys, "frozen", False):
+        copied = os.path.join(workdir, "helper")
+        os.mkdir(copied, mode=0o700)
+        prepared = _prepare_windows_uninstall(running.root, copied, machine=machine)
+        command = prepared["command"][:3] + ["run-uninstall-plan", plan_path]
+        environment = None
+    else:
+        if not getattr(sys, "frozen", False):
+            shutil.copy2(__file__, module)
+        original_records = [_record_from_json(row["record"]) for row in preview["installations"]
+                            if row["key"] in selection["installations"]]
+        command, environment, error = _helper_command(original_records, workdir, module, plan_path, machine)
+        if error or not command:
+            raise ValueError(tr("Uninstall preparation stopped: {error}", error=error))
+        command[-2] = "run-uninstall-plan"
+    plan["command"] = command
+    descriptor = os.open(plan_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        json.dump(plan, handle, indent=2)
+    (spawn or _spawn_detached)(command, environment, workdir)
+    return plan
+
+
+def _run_uninstall_plan(plan_path, *, system=None, wait=None):
+    """Require an intact confirmed plan, explicit shutdown approval and actual exit before uninstalling."""
+    descriptor = os.open(plan_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+    with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
+        details = os.fstat(handle.fileno())
+        if not stat.S_ISREG(details.st_mode) or details.st_size > 16 * 1024 * 1024:
+            raise ValueError("invalid_uninstall_plan")
+        plan = json.load(handle)
+    machine = system or _Machine(running_prefix=plan.get("running_prefix"),
+                                 executable=plan.get("desktop_executable"))
+    if (plan.get("schema") != 1 or plan.get("adapter") != "uninstall-v1"
+            or plan.get("platform") != machine.platform
+            or os.path.abspath(plan_path) != os.path.join(plan["workdir"], "plan.json")
+            or plan.get("version") != _uninstall_binding(plan["preview"], plan["selection"])):
+        raise ValueError("invalid_uninstall_binding")
+    handshake = (_WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake)(plan)
+    try:
+        records, cleanup = _validate_uninstall_selection(plan["preview"], plan["selection"], machine,
+                                                         after_shutdown=True)
+        native = _native_uninstall_adapter(plan["preview"], records, machine)
+        if native != plan.get("native"):
+            raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+        if native:
+            _run_native_uninstall(plan, native, handshake, wait=wait)
+            records = [record for record in records if record.root not in native["roots"]]
+            for row in native.get("remaining", []):
+                if _uninstall_path_state(row["path"]) != row["identity"]:
+                    raise ValueError(tr("The installation changed. Review the uninstall paths again."))
+                report = RemovalReport(record=None)
+                _delete(row["path"], [], report, tr("Permission denied. These files were kept."))
+                if not report.ok:
+                    raise PermissionError(tr("Uninstall preparation stopped: {error}", error=row["path"]))
+        else:
+            handshake.ready()
+            handshake.wait_for_shutdown(wait=wait)
+        outcome = _apply_uninstall_records(plan["preview"], plan["selection"], records, cleanup, machine)
+        destination = os.path.join(plan["workdir"], "result.json")
+        with open(destination, "x", encoding="utf-8") as handle:
+            json.dump(outcome, handle, indent=2)
+        return 0 if outcome["ok"] else 1
+    except Exception as error:
+        handshake.failed(error)
+        raise
 
 
 
@@ -1775,6 +2690,7 @@ private_stage=
 old_identity=
 new_identity=
 receipt_ready=0
+phased=${phased:-0}
 
 private_path() {
   [ ! -L "$1" ] && [ -e "$1" ] || return 1
@@ -1916,11 +2832,24 @@ restore_transaction() {
   write_journal
 }
 
+phase_checkpoint() {
+  [ "$phased" = 1 ] || return 0
+  printf 'SPACR_PHASE_%s\n' "$1"
+  answer=
+  IFS= read -r answer || answer=retain
+  case "$1:$answer" in
+    prepared:activate|activated:confirmed) return 0;;
+    activated:failed) return 1;;
+    activated:*) phase=desktop-unconfirmed; write_journal; exit 79;;
+    *) return 1;;
+  esac
+}
+
 finish() {
   result=$?
   trap - EXIT HUP INT TERM
   set +e
-  if [ "$phase" != initial ] && [ "$phase" != committed ] && [ "$phase" != rolled-back ] && [ -n "$old_identity" ] && [ -n "$new_identity" ]; then
+  if [ "$phase" != initial ] && [ "$phase" != committed ] && [ "$phase" != desktop-unconfirmed ] && [ "$phase" != rolled-back ] && [ -n "$old_identity" ] && [ -n "$new_identity" ]; then
     if ! restore_transaction; then
       printf 'Automatic recovery refused changed identities/content; preserved transaction: %s\n' "$txn" >&2
       result=76
@@ -2014,6 +2943,9 @@ new_identity=$(identity "$txn/new.app")
 inventory "$target" "$txn/old.inventory"
 phase=prepared
 write_journal
+phase_checkpoint prepared || exit 79
+[ "$(identity "$target")" = "$old_identity" ] || exit 75
+matches_inventory "$target" "$txn/old.inventory" || exit 75
 /bin/mv -n "$target" "$txn/previous.app"
 [ "$(identity "$txn/previous.app")" = "$old_identity" ] || exit 75
 phase=old-moved
@@ -2026,28 +2958,16 @@ write_journal
 verify_bundle "$target"
 matches_inventory "$target" "$txn/source.inventory"
 matches_inventory "$txn/previous.app" "$txn/old.inventory"
+phase_checkpoint activated || exit 79
 phase=committed
 write_journal
 receipt_ready=1
 """
 
 
-def _macos_protected_command(version, digest, *, image=None, transaction=None,
-                              original_identity=None):
-    """Encode one fixed native administrator transaction without executing user-owned code.
-
-    The protected inventory uses byte lengths under ``LC_ALL=C`` to delimit
-    paths and link targets, retaining trailing target newlines and removing only
-    readlink's output terminator. Every inventory command propagates failure
-    even when a caller uses a conditional or OR-list.
-
-    :param version: exact numeric public package release string.
-    :param digest: positive published lowercase SHA-256 of that release's DMG.
-    :param image: absolute DMG path for replacement, mutually exclusive with transaction.
-    :param transaction: exact protected transaction directory for restart recovery.
-    :param original_identity: installed bundle's device/inode pair, required for replacement.
-    :returns: quoted OS osascript argument vector; constructing it executes nothing.
-    """
+def _macos_protected_script(version, digest, *, image=None, transaction=None,
+                            original_identity=None):
+    """Build the fixed privileged transaction without entering an authorization boundary."""
     import re
     import shlex
 
@@ -2072,10 +2992,205 @@ def _macos_protected_command(version, digest, *, image=None, transaction=None,
               "build_version": fields["CFBundleVersion"], "expected_digest": digest,
               "download": image or "", "recovery_transaction": transaction or "",
               "original_identity": ":".join(map(str, original_identity or []))}
-    script = "\n".join(f"{key}={shlex.quote(value)}" for key, value in values.items()) + "\n" + _MACOS_PROTECTED_TRANSACTION
+    return "\n".join(f"{key}={shlex.quote(value)}" for key, value in values.items()) + "\n" + _MACOS_PROTECTED_TRANSACTION
+
+
+def _macos_protected_command(version, digest, *, image=None, transaction=None,
+                              original_identity=None):
+    """Encode one fixed native administrator transaction without executing user-owned code.
+
+    The protected inventory uses byte lengths under ``LC_ALL=C`` to delimit
+    paths and link targets, retaining trailing target newlines and removing only
+    readlink's output terminator. Every inventory command propagates failure
+    even when a caller uses a conditional or OR-list.
+
+    :param version: exact numeric public package release string.
+    :param digest: positive published lowercase SHA-256 of that release's DMG.
+    :param image: absolute DMG path for replacement, mutually exclusive with transaction.
+    :param transaction: exact protected transaction directory for restart recovery.
+    :param original_identity: installed bundle's device/inode pair, required for replacement.
+    :returns: quoted OS osascript argument vector; constructing it executes nothing.
+    """
+    script = _macos_protected_script(version, digest, image=image, transaction=transaction,
+                                      original_identity=original_identity)
     literal = script.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
     return ["/usr/bin/osascript", "-e",
             f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _macos_frozen_trusted_helper(*, run=None):
+    """Validate the installed root-owned helper and every containing directory."""
+    import re
+
+    helper = "/Applications/spaCR.app/Contents/Frameworks/spacr-update-helper"
+    invoke = run or _macos_native
+    paths = ["/", "/Applications", "/Applications/spaCR.app", "/Applications/spaCR.app/Contents",
+             "/Applications/spaCR.app/Contents/Frameworks", helper]
+    for path in paths:
+        details = os.lstat(path)
+        allowed_group = path in {"/", "/Applications"} and details.st_gid in {0, 80}
+        if (os.path.realpath(path) != path or details.st_uid != 0
+                or not (stat.S_ISREG if path == helper else stat.S_ISDIR)(details.st_mode)
+                or stat.S_IMODE(details.st_mode) & (0o002 if allowed_group else 0o022)
+                or re.search(r"(?m)^\s+[0-9]+:.* allow ", invoke(["/bin/ls", "-lde", path]))):
+            raise ValueError(tr("The installed macOS helper is not protected from modification."))
+    invoke(["/usr/bin/codesign", "--verify", "--strict", helper])
+    return helper
+
+
+def _macos_frozen_authorized_command(command, arguments):
+    """Authorize only an installed trusted helper copied into a root-private directory."""
+    import shlex
+
+    if (command not in {"apply-macos-root", "uninstall-macos-root"}
+            or not isinstance(arguments, (list, tuple)) or len(arguments) > 32
+            or any(not isinstance(value, str) or len(value) > 32768
+                   or any(ord(character) < 32 for character in value) for value in arguments)):
+        raise ValueError(tr("The macOS helper request is invalid."))
+    if os.geteuid() == 0:
+        raise ValueError(tr("The desktop coordinator must run without administrator privileges."))
+    helper = _macos_frozen_trusted_helper()
+    capability = json.loads(_macos_native([helper, "native-phase-protocol"]))
+    if (not isinstance(capability, dict) or capability.get("schema") != 1
+            or not isinstance(capability.get("commands"), list)
+            or command not in capability["commands"]):
+        raise ValueError(tr("The installed macOS helper does not support this operation."))
+    script = r'''
+set -eu
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+umask 077
+[ "$(/usr/bin/id -u)" = 0 ] || exit 70
+helper=/Applications/spaCR.app/Contents/Frameworks/spacr-update-helper
+for path in / /Applications /Applications/spaCR.app /Applications/spaCR.app/Contents /Applications/spaCR.app/Contents/Frameworks "$helper" /private /private/var /private/var/root; do
+  [ ! -L "$path" ] && [ "$(/usr/bin/stat -f %u "$path")" = 0 ] || exit 71
+  mode=$(/usr/bin/stat -f %Lp "$path")
+  [ $((0$mode & 0002)) = 0 ] || exit 71
+  if [ $((0$mode & 0020)) != 0 ]; then
+    [ "$path" = / ] || [ "$path" = /Applications ] || exit 71
+    group=$(/usr/bin/stat -f %g "$path")
+    [ "$group" = 0 ] || [ "$group" = 80 ] || exit 71
+  fi
+  if /bin/ls -lde "$path" | /usr/bin/grep -Eq '^[[:space:]]+[0-9]+:.* allow '; then exit 71; fi
+done
+[ -f "$helper" ] || exit 71
+/usr/bin/codesign --verify --strict "$helper"
+stage=$(/usr/bin/mktemp -d /private/var/root/spacr-helper.XXXXXXXX)
+/bin/cp -pP "$helper" "$stage/helper"
+/usr/bin/cmp "$helper" "$stage/helper"
+/bin/chmod 700 "$stage/helper"
+/usr/bin/codesign --verify --strict "$stage/helper"
+trap 'result=$?; if [ "$result" = 0 ]; then /bin/rm -rf "$stage"; fi; exit "$result"' EXIT
+'''
+    script += '\n/usr/bin/env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin HOME=/private/var/root TMPDIR="$stage/" PYINSTALLER_RESET_ENVIRONMENT=1 "$stage/helper" '
+    script += " ".join(shlex.quote(value) for value in [command, *arguments])
+    literal = script.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    return ["/usr/bin/osascript", "-e",
+            f'do shell script "{literal}" with administrator privileges without altering line endings']
+
+
+def _macos_phased_transaction(script, channel, version, desktop_pid, *, popen=None):
+    """Relay fixed transaction checkpoints over root-private pipes and retain uncertain activation."""
+    import selectors
+
+    with tempfile.TemporaryFile(mode="w+b") as errors:
+        child = (popen or subprocess.Popen)(["/bin/sh", "-c", script], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=errors, cwd="/", env={"PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+                "HOME": "/private/var/root", "LC_ALL": "C"})
+        phase = "preparing"
+        output = bytearray()
+        pending = bytearray()
+        failure = None
+        deadline = time.monotonic() + 10800
+        try:
+            with selectors.DefaultSelector() as reader:
+                reader.register(child.stdout, selectors.EVENT_READ)
+                while True:
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(tr("The macOS transaction did not finish before its deadline."))
+                    if not reader.select(0.2):
+                        continue
+                    chunk = os.read(child.stdout.fileno(), 8192)
+                    if not chunk:
+                        break
+                    pending.extend(chunk)
+                    if len(pending) > 65536:
+                        raise ValueError(tr("The macOS helper returned an invalid transaction receipt."))
+                    while b"\n" in pending:
+                        line, _, remaining = pending.partition(b"\n")
+                        pending = bytearray(remaining)
+                        if line == b"SPACR_PHASE_prepared" and phase == "preparing":
+                            _native_update_ready(channel, version, desktop_pid)
+                            child.stdin.write(b"activate\n")
+                            child.stdin.flush()
+                            phase = "activating"
+                        elif line == b"SPACR_PHASE_activated" and phase == "activating":
+                            phase = "activated"
+                            try:
+                                _native_update_activated(channel, version)
+                            except _UpdateActivationUnconfirmed:
+                                child.stdin.write(b"retain\n")
+                                child.stdin.flush()
+                                raise
+                            except Exception:
+                                child.stdin.write(b"failed\n")
+                                child.stdin.flush()
+                                raise
+                            child.stdin.write(b"confirmed\n")
+                            child.stdin.flush()
+                            phase = "confirmed"
+                        else:
+                            output.extend(line + b"\n")
+                            if len(output) > 65536:
+                                raise ValueError(tr("The macOS helper returned an invalid transaction receipt."))
+            output.extend(pending)
+        except BaseException as error:
+            failure = error
+        finally:
+            try:
+                child.stdin.close()
+            except OSError:
+                pass
+            try:
+                code = child.wait(timeout=180)
+            except subprocess.TimeoutExpired as error:
+                raise _UpdateActivationUnconfirmed(tr("The macOS transaction is still running; its recovery files were retained.")) from error
+            child.stdout.close()
+        if failure is not None:
+            raise failure
+        if code or phase != "confirmed":
+            errors.seek(0)
+            detail = errors.read(8192).decode("utf-8", "replace")
+            raise RuntimeError(tr("The macOS transaction stopped: {error}", error=detail))
+        return output.decode("utf-8")
+
+
+def _macos_apply_root_transaction(version, digest, image, phase_channel, desktop_pid):
+    """Run only the authenticated release transaction from the copied root-owned helper."""
+    import re
+
+    executable = os.path.realpath(sys.executable)
+    if (os.geteuid() != 0 or not getattr(sys, "frozen", False)
+            or not re.fullmatch(r"/private/var/root/spacr-helper\.[A-Za-z0-9]{8}/helper", executable)):
+        raise ValueError(tr("The macOS transaction requires its trusted copied helper."))
+    for path in (os.path.dirname(executable), executable):
+        details = os.lstat(path)
+        if details.st_uid != 0 or stat.S_IMODE(details.st_mode) & 0o077 or os.path.realpath(path) != path:
+            raise ValueError(tr("The macOS transaction requires its trusted copied helper."))
+    owner, desktop = _desktop_process_identity(desktop_pid)
+    expected_desktop = "/Applications/spaCR.app/Contents/MacOS/spacr"
+    if owner == 0 or desktop != expected_desktop:
+        raise ValueError(tr("The running desktop could not be identified."))
+    version = _runtime_requested_version(version)
+    if _published_digest(_RELEASE_DOWNLOAD + "/v" + version + "/spaCR-" + version + ".dmg") != digest:
+        raise ValueError(tr("The macOS release checksum could not be authenticated."))
+    target = "/Applications/spaCR.app"
+    _macos_frozen_trusted_helper()
+    details = os.lstat(target)
+    script = "phased=1\n" + _macos_protected_script(version, digest, image=image,
+        original_identity=(details.st_dev, details.st_ino))
+    with _UpdatePhaseClient(phase_channel, desktop_pid, expected_desktop) as channel:
+        return _macos_phased_transaction(script, channel, version, desktop_pid)
 
 
 def _macos_request_protected_update(version, digest, *, image=None, transaction=None,
@@ -2090,7 +3205,6 @@ def _macos_request_protected_update(version, digest, *, image=None, transaction=
     :param run: optional native-command runner compatible with _macos_native.
     :returns: verified transaction receipt, including retained backup and journal paths.
     """
-    import re
 
     original_uid = os.geteuid()
     if original_uid == 0:
@@ -2109,6 +3223,16 @@ def _macos_request_protected_update(version, digest, *, image=None, transaction=
     argv = _macos_protected_command(version, digest, image=image, transaction=transaction,
                                     original_identity=identity)
     receipt = (run or _macos_native)(argv).strip()
+    return _macos_protected_receipt(version, digest, receipt, original_uid, image=image,
+        transaction=transaction, expected_inventory=expected_inventory, run=run)
+
+
+def _macos_protected_receipt(version, digest, receipt, original_uid, *, image=None,
+                             transaction=None, expected_inventory=None, run=None):
+    """Check the fixed privileged receipt and installed bundle from the original desktop account."""
+    import re
+
+    target = "/Applications/spaCR.app"
     match = re.fullmatch(r"(committed|rolled-back)\t(/Applications/\.spacr-update\.[A-Za-z0-9]{8})\t(detached|failed|not-mounted)", receipt)
     if match is None:
         raise ValueError("native authorization returned no valid transaction receipt")
@@ -2322,7 +3446,7 @@ def _macos_swap(left, right):
     exchange.restype = ctypes.c_int
     if exchange(os.fsencode(left), os.fsencode(right), 0x00000002) != 0:
         error = ctypes.get_errno()
-        raise OSError(error, os.strerror(error), left, right)
+        raise OSError(error, os.strerror(error), left, None, right)
 
 
 def _macos_journal(transaction, data):
@@ -2469,19 +3593,21 @@ class _FrozenUpdateHandshake:
             raise ValueError("frozen updater readiness belongs to a different plan")
         return message
 
-    def _write(self, name, state, error="", expires=None):
+    def _write(self, name, state, error="", expires=None, details=None):
         """Atomically publish a complete message; interruption cannot expose half JSON.
 
         :param name: internal message filename inside the private helper folder.
         :param state: the protocol state being published.
         :param error: bounded diagnostic for a preparation failure.
         :param expires: a readiness-specific shutdown deadline, or the preparation deadline.
+        :param details: optional verified desktop identity carried by a launch acknowledgment.
         """
         descriptor, temporary = tempfile.mkstemp(prefix="readiness-", dir=self.root)
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             json.dump({"binding": self.binding, "state": state,
                        "error": str(error)[:2000],
-                       "expires": self.expires if expires is None else expires}, stream)
+                       "expires": self.expires if expires is None else expires,
+                       "details": details}, stream)
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, os.path.join(self.root, name))
@@ -2552,7 +3678,7 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     """Verify an official read-only DMG and replace a writable app without elevation.
 
     Cleanup and relaunch failures retain the committed replacement receipt.
-    A zero open result proves LaunchServices acceptance, not GUI readiness.
+    Relaunch requires the new executable to verify itself and reach its main window.
 
     :param plan: serialized update plan with the running bundle, release, workdir and PID.
     :param run: optional native-command runner, including the captured open request.
@@ -2571,7 +3697,7 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     if original_uid == 0:
         raise ValueError("start the application as its normal user before updating")
     records = [_record_from_json(data) for data in plan["records"]]
-    installers = [record for record in records if record.kind == "installer"]
+    installers = [record for record in records if record.kind == "installer" and record.running]
     if (len(installers) != 1 or not installers[0].running or plan.get("ticked")
             or installers[0].layout != "macos-app" or not installers[0].root.endswith(".app")):
         raise ValueError("mixed or legacy macOS installations require a separately reviewed migration")
@@ -2579,8 +3705,9 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
     if os.path.realpath(target) != target or not os.path.isdir(target):
         raise ValueError("the installed app must be an actual canonical directory")
     _macos_bundle_identity(target, run=invoke)
-    if not os.access(os.path.dirname(target), os.W_OK | os.X_OK):
-        raise ValueError("protected Applications replacement requires its reviewed native authorization adapter")
+    protected = not os.access(os.path.dirname(target), os.W_OK | os.X_OK)
+    if protected and (target != "/Applications/spaCR.app" or handshake is None):
+        raise ValueError(tr("Protected macOS updates require the standard application and its desktop handoff."))
     parent_details = os.stat(os.path.dirname(target))
     if parent_details.st_mode & 0o002:
         raise ValueError("an application in a world-writable parent cannot be replaced safely")
@@ -2610,22 +3737,55 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
         source = os.path.join(mount, "spaCR.app")
         _macos_bundle_identity(source, version, run=invoke)
         expected = _macos_tree(source)
-        transaction = tempfile.mkdtemp(prefix=".spacr-update-", dir=os.path.dirname(target))
-        staged = os.path.join(transaction, "previous-or-new.app")
-        invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
-        if _macos_digest(image) != expected_digest:
-            raise ValueError("DMG changed while its payload was staged")
-        if handshake is not None:
-            _macos_bundle_identity(staged, version, run=invoke)
-            if _macos_tree(staged) != expected:
-                raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
-            _macos_tree(target, allow_external_links=True)
-            handshake.ready()
-            handshake.wait_for_shutdown(wait)
-        elif not (wait or _wait_for_exit)(int(plan["pid"])):
-            raise RuntimeError("spaCR did not close; the installed bundle was not changed")
-        result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
-                                            run=invoke, swap=swap)
+        if protected:
+            before = os.lstat(target)
+            old_inventory = _macos_tree(target, allow_external_links=True)
+
+            def _unchanged():
+                """Refuse activation if the installed bundle or authenticated image changed."""
+                current = os.lstat(target)
+                if ((current.st_dev, current.st_ino) != (before.st_dev, before.st_ino)
+                        or _macos_tree(target, allow_external_links=True) != old_inventory
+                        or _macos_digest(image) != expected_digest):
+                    raise ValueError(tr("The installed application changed during staging; activation was stopped."))
+
+            def _authorized(endpoint):
+                """Request one native authorization for trusted staging and deferred activation."""
+                command = _macos_frozen_authorized_command("apply-macos-root", [
+                    "--version", version, "--digest", expected_digest, "--image", image,
+                    "--phase-channel", endpoint, "--desktop-pid", str(plan["pid"])])
+                return 0, invoke(command)
+
+            def _new_desktop():
+                """Verify the activated release and wait for its actual main window."""
+                _macos_bundle_identity(target, version, run=invoke)
+                if _macos_tree(target) != expected:
+                    raise ValueError(tr("The activated macOS application differs from its authenticated release."))
+                return _launch_updated_desktop(plan, [os.path.join(target, "Contents", "MacOS", "spacr")],
+                    version, target, frozen=True)
+
+            receipt, desktop = _coordinate_native_update(plan, handshake, _authorized,
+                check=_unchanged, launch=_new_desktop, wait=wait)
+            result = _macos_protected_receipt(version, expected_digest, receipt.strip(), original_uid,
+                image=image, expected_inventory=expected, run=invoke)
+            result.update(desktop=desktop, relaunch={"status": "ready"})
+        else:
+            transaction = tempfile.mkdtemp(prefix=".spacr-update-", dir=os.path.dirname(target))
+            staged = os.path.join(transaction, "previous-or-new.app")
+            invoke(["/usr/bin/ditto", "--rsrc", "--extattr", source, staged])
+            if _macos_digest(image) != expected_digest:
+                raise ValueError("DMG changed while its payload was staged")
+            if handshake is not None:
+                _macos_bundle_identity(staged, version, run=invoke)
+                if _macos_tree(staged) != expected:
+                    raise ValueError("staged bytes differ from the authenticated read-only mounted payload")
+                _macos_tree(target, allow_external_links=True)
+                handshake.ready()
+                handshake.wait_for_shutdown(wait)
+            elif not (wait or _wait_for_exit)(int(plan["pid"])):
+                raise RuntimeError("spaCR did not close; the installed bundle was not changed")
+            result = _macos_replace_user_bundle(target, staged, transaction, version, expected,
+                                                run=invoke, swap=swap)
     finally:
         if attached:
             operation_error = sys.exc_info()[1]
@@ -2641,27 +3801,33 @@ def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=N
                 else:
                     raise
     result.update(original_uid=original_uid, dmg_sha256=expected_digest)
-    return _macos_relaunch(result, original_uid, run=invoke)
+    return result if protected else _macos_relaunch(result, original_uid, run=invoke, plan=plan)
 
 
-def _macos_relaunch(result, original_uid, *, run=None):
+def _macos_relaunch(result, original_uid, *, run=None, plan=None):
     """Keep verified replacement/recovery state even when normal-user launch fails.
 
     :param result: verified transaction receipt naming its installed target.
     :param original_uid: normal user that began this replacement or recovery.
     :param run: optional native-command runner for the captured LaunchServices request.
-    :returns: the same receipt with an accepted, failed or refused relaunch result.
+    :param plan: active update plan requiring actual desktop readiness; absent for legacy recovery.
+    :returns: the same receipt with a ready, accepted, failed or refused relaunch result.
     """
     invoke = run or _macos_native
     if os.geteuid() != original_uid or original_uid == 0:
         result["relaunch"] = {"status": "refused", "error": "updater identity changed; GUI relaunch requires the original normal user"}
         return result
     try:
-        invoke(["/usr/bin/open", "-n", result["target"]])
+        if plan is None:
+            invoke(["/usr/bin/open", "-n", result["target"]])
+        else:
+            executable = os.path.join(result["target"], "Contents", "MacOS", "spacr")
+            result["desktop"] = _launch_updated_desktop(
+                plan, [executable], result["version"], result["target"], frozen=True)
     except Exception as launch_error:
         result["relaunch"] = {"status": "failed", "error": str(launch_error)}
     else:
-        result["relaunch"] = {"status": "accepted"}
+        result["relaunch"] = {"status": "ready" if plan is not None else "accepted"}
     return result
 
 
@@ -2916,7 +4082,7 @@ def _helper_command(records: Sequence[InstallRecord], workdir: str,
 
 
 def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
-                    *, os_name: Optional[str] = None, popen=None) -> int:
+                    *, os_name: Optional[str] = None, popen=None, return_process=False):
     """Start a process that keeps running after spaCR exits.
 
     :param argv: the command.
@@ -2924,7 +4090,8 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
     :param cwd: its working folder, which must not be inside an installation.
     :param os_name: :data:`os.name` of the computer; this one when ``None``.
     :param popen: replaces :class:`subprocess.Popen`.
-    :returns: the new process id.
+    :param return_process: keep the owned process handle for verified startup and safe failure shutdown.
+    :returns: the new process id, or its handle when requested.
     """
     options: Dict[str, object] = {
         "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL,
@@ -2937,7 +4104,489 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
             | getattr(subprocess, "CREATE_NO_WINDOW", 0x8000000))
     else:
         options["start_new_session"] = True
-    return (popen or subprocess.Popen)([str(a) for a in argv], **options).pid
+    process = (popen or subprocess.Popen)([str(a) for a in argv], **options)
+    return process if return_process else process.pid
+
+
+class _UpdateLaunchHandshake(_FrozenUpdateHandshake):
+    """A private one-use acknowledgment from the newly launched GUI process."""
+
+    def __init__(self, root, binding):
+        """Validate the message location before either side reads a launch request."""
+        if (not isinstance(binding, str) or len(binding) != 64
+                or any(character not in "0123456789abcdef" for character in binding)):
+            raise ValueError(tr("invalid update launch binding"))
+        self.root = os.path.abspath(root)
+        if os.name == "nt":
+            _windows_pip_private_directory(self.root)
+        else:
+            details = os.lstat(self.root)
+            if (not stat.S_ISDIR(details.st_mode) or details.st_uid != os.geteuid()
+                    or stat.S_IMODE(details.st_mode) & 0o077):
+                raise ValueError(tr("update launch requires a private owner directory"))
+            self.root = os.path.realpath(self.root)
+            resolved = os.lstat(self.root)
+            if (resolved.st_dev, resolved.st_ino) != (details.st_dev, details.st_ino):
+                raise ValueError(tr("update launch directory changed during validation"))
+        self.binding = binding
+        self.expires = time.time() + _WAIT_SECONDS
+
+    def _read(self, name):
+        """Use the same bounded message guards as the platform's shutdown handoff."""
+        reader = _WindowsPipHandshake._read if os.name == "nt" else super()._read
+        return reader(self, name) if os.name == "nt" else reader(name)
+
+
+def _begin_update_launch():
+    """Verify this running executable and imported module before opening its GUI.
+
+    The environment carries only a private message location and one-use binding.
+    A normal launch has no update request and does no additional work. It runs
+    inside the restarted application, so the application package and
+    ``packaging`` are looked up only then; the module itself still runs as a
+    standalone helper with the standard library alone.
+    """
+    request = os.environ.pop("SPACR_UPDATE_LAUNCH", "")
+    if not request:
+        return None
+    root, binding = json.loads(request)
+    handshake = _UpdateLaunchHandshake(root, binding)
+    try:
+        message = handshake._read("launch-request.json")
+        if message is None or message.get("state") != "requested" or time.time() >= float(message["expires"]):
+            raise ValueError(tr("update launch request expired or missing"))
+        if handshake._read("launch-result.json") is not None:
+            raise ValueError(tr("update launch request already consumed"))
+        expected = message["details"]
+        from importlib import import_module
+
+        Version = import_module("packaging.version").Version
+        spacr = import_module("spacr")
+        shipped = import_module("spacr._version").__version__
+
+        actual = {"version": str(Version(str(spacr.__version__))),
+                  "executable": os.path.abspath(sys.executable),
+                  "module": os.path.realpath(spacr.__file__),
+                  "prefix": os.path.realpath(sys.prefix), "pid": os.getpid()}
+        if (Version(actual["version"]) != Version(expected["version"])
+                or Version(str(shipped)) != Version(expected["version"])
+                or os.path.normcase(actual["executable"]) != os.path.normcase(expected["executable"])
+                or not _inside(actual["module"], expected["root"])):
+            raise ValueError(tr("restarted executable, module or version differs from the verified update"))
+        if expected["frozen"]:
+            if not getattr(sys, "frozen", False):
+                raise ValueError(tr("the restarted application is not the verified frozen bundle"))
+        else:
+            from importlib.metadata import distributions
+
+            owners = [dist for dist in distributions()
+                      if dist.metadata.get("Name", "").lower().replace("_", "-") in {"spacr", "spacr-nightly"}
+                      and os.path.realpath(dist.locate_file("spacr/__init__.py")) == actual["module"]]
+            if (len(owners) != 1 or Version(owners[0].version) != Version(expected["version"])
+                    or actual["prefix"] != os.path.realpath(expected["root"])
+                    or not _inside(str(getattr(owners[0], "_path", "")), expected["root"])):
+                raise ValueError(tr("the restarted module is not owned by the verified update"))
+        handshake._write("launch-result.json", "starting", details=actual)
+        return handshake, actual
+    except Exception as error:
+        handshake._write("launch-result.json", "error", error)
+        raise
+
+
+def _finish_update_launch(launch):
+    """Acknowledge the verified process only after its startup reaches the main window."""
+    if launch is not None:
+        handshake, actual = launch
+        handshake._write("launch-result.json", "ready", details=actual)
+
+
+class _UpdateLaunchStillRunning(RuntimeError):
+    """Keep both runtimes when an unconfirmed desktop cannot be safely stopped."""
+
+    def __init__(self, pid):
+        """Bind recovery to the exact desktop that could not be stopped."""
+        self.pid = int(pid)
+        super().__init__(tr("The updated desktop could not be stopped; both runtimes were retained."))
+
+
+def _desktop_process_identity(pid):
+    """Read a live desktop's native owner and executable without running its code."""
+    if isinstance(pid, bool) or not isinstance(pid, int) or not 1 < pid <= 0xFFFFFFFF:
+        raise ValueError(tr("The running desktop could not be identified."))
+    if os.name == "nt":
+        import ctypes
+
+        kernel = _windows_update_library("kernel32")
+        security = _windows_update_library("advapi32")
+        pointer, dword = ctypes.c_void_p, ctypes.c_uint32
+        kernel.OpenProcess.argtypes = [dword, ctypes.c_int32, dword]
+        kernel.OpenProcess.restype = pointer
+        kernel.CloseHandle.argtypes = [pointer]
+        security.OpenProcessToken.argtypes = [pointer, dword, ctypes.POINTER(pointer)]
+        security.GetTokenInformation.argtypes = [pointer, dword, pointer, dword, ctypes.POINTER(dword)]
+        security.ConvertSidToStringSidW.argtypes = [pointer, ctypes.POINTER(ctypes.c_wchar_p)]
+        kernel.QueryFullProcessImageNameW.argtypes = [pointer, dword, ctypes.c_wchar_p, ctypes.POINTER(dword)]
+        kernel.LocalFree.argtypes = [pointer]
+        process = kernel.OpenProcess(0x1000, False, pid)
+        if not process:
+            raise OSError(tr("The running desktop could not be identified."))
+        token, text = pointer(), ctypes.c_wchar_p()
+        try:
+            size = dword(32768)
+            path = ctypes.create_unicode_buffer(size.value)
+            if not kernel.QueryFullProcessImageNameW(process, 0, path, ctypes.byref(size)):
+                raise OSError(tr("The running desktop could not be identified."))
+            if not security.OpenProcessToken(process, 8, ctypes.byref(token)):
+                raise OSError(tr("The running desktop could not be identified."))
+            needed = dword()
+            security.GetTokenInformation(token, 1, None, 0, ctypes.byref(needed))
+            if not ctypes.sizeof(pointer) <= needed.value <= 1 << 20:
+                raise ValueError(tr("The running desktop could not be identified."))
+            buffer = ctypes.create_string_buffer(needed.value)
+            if not security.GetTokenInformation(token, 1, buffer, needed, ctypes.byref(needed)):
+                raise OSError(tr("The running desktop could not be identified."))
+            sid = ctypes.cast(buffer, ctypes.POINTER(pointer)).contents
+            if not security.ConvertSidToStringSidW(sid, ctypes.byref(text)):
+                raise OSError(tr("The running desktop could not be identified."))
+            return text.value, os.path.realpath(path.value)
+        finally:
+            if text:
+                kernel.LocalFree(ctypes.cast(text, pointer))
+            if token:
+                kernel.CloseHandle(token)
+            kernel.CloseHandle(process)
+    if sys.platform == "darwin":
+        import ctypes
+
+        library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        library.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+        library.proc_pidpath.restype = ctypes.c_int
+        path = ctypes.create_string_buffer(4096)
+        if library.proc_pidpath(pid, path, len(path)) <= 0:
+            raise OSError(tr("The running desktop could not be identified."))
+        code, owner = _run(["/bin/ps", "-p", str(pid), "-o", "uid="], timeout=10)
+        if code or not owner.strip().isdigit():
+            raise ValueError(tr("The running desktop could not be identified."))
+        return int(owner.strip()), os.path.realpath(os.fsdecode(path.value))
+    proc = "/proc/" + str(pid)
+    return os.stat(proc).st_uid, os.path.realpath(os.readlink(proc + "/exe"))
+
+
+class _UpdatePhaseChannel:
+    """Bounded authenticated local messages; privileged peers accept only fixed phases."""
+
+    def _send(self, phase, **details):
+        """Send one numbered, HMAC-signed phase message to the peer.
+
+        :param phase: the phase name the peer expects next.
+        :param details: JSON-safe facts that travel with the phase.
+        :raises ValueError: when the encoded message exceeds 8192 bytes.
+        """
+        import hmac
+
+        self._sent += 1
+        payload = {"sequence": self._sent, "direction": self._direction,
+                   "phase": phase, "details": details}
+        encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        message = json.dumps({"payload": payload, "mac": hmac.new(
+            self._secret, encoded, hashlib.sha256).hexdigest()}, separators=(",", ":")).encode() + b"\n"
+        if len(message) > 8192:
+            raise ValueError(tr("The authorized helper returned an invalid operation message."))
+        self._connection.sendall(message)
+
+    def _receive(self, expected, *, timeout=_FROZEN_PREPARATION_SECONDS, stopped=None):
+        """Wait for the peer's next signed phase message and verify it.
+
+        :param expected: the phase names accepted at this point.
+        :param timeout: seconds to wait before giving up.
+        :param stopped: optional callable that ends the wait early when true.
+        :returns: the verified message payload.
+        :raises ValueError: for a forged, out-of-order or oversized message.
+        :raises RuntimeError: when the peer disconnects or the wait is stopped.
+        :raises TimeoutError: when no message arrives before the deadline.
+        """
+        import hmac
+        import socket
+
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                if self._connection is None:
+                    self._connection, address = self._listener.accept()
+                    self._connection.settimeout(0.2)
+                    if address[0] != "127.0.0.1":
+                        raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                if b"\n" not in self._buffer:
+                    chunk = self._connection.recv(8193 - len(self._buffer))
+                    if not chunk:
+                        raise RuntimeError(tr("The authorized helper disconnected before the operation finished."))
+                    self._buffer += chunk
+                if len(self._buffer) > 8192:
+                    raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                if b"\n" in self._buffer:
+                    line, self._buffer = self._buffer.split(b"\n", 1)
+                    message = json.loads(line)
+                    payload = message["payload"]
+                    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+                    digest = hmac.new(self._secret, encoded, hashlib.sha256).hexdigest()
+                    if (not hmac.compare_digest(message["mac"], digest)
+                            or payload.get("sequence") != self._received + 1
+                            or payload.get("direction") == self._direction
+                            or payload.get("direction") not in {"desktop", "installer"}
+                            or payload.get("phase") not in expected or not isinstance(payload.get("details"), dict)):
+                        raise ValueError(tr("The authorized helper returned an invalid operation message."))
+                    self._received += 1
+                    return payload
+            except socket.timeout:
+                pass
+            if stopped is not None and stopped():
+                raise RuntimeError(tr("The authorized helper stopped before confirming its preparation."))
+        raise TimeoutError(tr("The authorized helper did not confirm its preparation before the deadline."))
+
+    def __enter__(self):
+        """Use the channel as a context manager that closes its connection."""
+        return self
+
+    def __exit__(self, *_args):
+        """Close the peer connection, if one was accepted or opened."""
+        if self._connection is not None:
+            self._connection.close()
+
+
+class _UpdatePhaseServer(_UpdatePhaseChannel):
+    """Keep authorization secrets in a private descriptor, never in process arguments."""
+
+    def __init__(self, workdir):
+        """Listen on a loopback port and write its port and secret to a private file.
+
+        :param workdir: folder that receives the private descriptor file.
+        """
+        import socket
+
+        self._connection, self._buffer = None, b""
+        self._sent = self._received = 0
+        self._direction, self._secret = "desktop", os.urandom(32)
+        self._listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._listener.bind(("127.0.0.1", 0))
+        self._listener.listen(1)
+        self._listener.settimeout(0.2)
+        self.endpoint = None
+        try:
+            descriptor, self.endpoint = tempfile.mkstemp(prefix="phase-", dir=workdir)
+            with os.fdopen(descriptor, "w", encoding="ascii") as stream:
+                if os.name == "nt":
+                    _windows_pip_private_access(self.endpoint, private_read=True)
+                stream.write(str(self._listener.getsockname()[1]) + ":" + self._secret.hex())
+                stream.flush()
+                os.fsync(stream.fileno())
+        except BaseException:
+            self._listener.close()
+            if self.endpoint is not None:
+                os.unlink(self.endpoint)
+            raise
+
+    def __exit__(self, *args):
+        """Close the connection and listener and remove the descriptor file."""
+        super().__exit__(*args)
+        self._listener.close()
+        os.unlink(self.endpoint)
+
+
+class _UpdatePhaseClient(_UpdatePhaseChannel):
+    """Read only the bound desktop user's regular private descriptor before staging."""
+
+    def __init__(self, endpoint, desktop_pid, desktop_executable):
+        """Connect to the desktop's phase server after checking who owns it.
+
+        :param endpoint: path of the desktop's private descriptor file.
+        :param desktop_pid: process ID of the running desktop.
+        :param desktop_executable: executable the desktop must be running.
+        """
+        import re
+        import socket
+
+        owner, executable = _desktop_process_identity(desktop_pid)
+        if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
+            raise ValueError(tr("The running desktop could not be identified."))
+        before = os.lstat(endpoint)
+        if (not stat.S_ISREG(before.st_mode) or before.st_size > 128
+                or getattr(before, "st_file_attributes", 0) & 0x400):
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        if os.name == "nt":
+            _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+        elif before.st_uid != owner or stat.S_IMODE(before.st_mode) & 0o077:
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        descriptor = os.open(endpoint, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(descriptor, "r", encoding="ascii") as stream:
+            actual = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(actual.st_mode) or actual.st_size > 128
+                    or (actual.st_dev, actual.st_ino) != (before.st_dev, before.st_ino)
+                    or os.name != "nt" and (actual.st_uid != owner or stat.S_IMODE(actual.st_mode) & 0o077)):
+                raise ValueError(tr("The operation authorization descriptor is not private."))
+            if os.name == "nt":
+                _windows_pip_private_access(endpoint, owner_sid=owner, private_read=True)
+            endpoint_text = stream.read(129)
+        match = re.fullmatch(r"([1-9][0-9]{0,4}):([a-f0-9]{64})", endpoint_text)
+        if match is None or int(match[1]) > 65535:
+            raise ValueError(tr("The operation authorization descriptor is not private."))
+        self._secret = bytes.fromhex(match[2])
+        self._connection = socket.create_connection(("127.0.0.1", int(match[1])), timeout=10)
+        self._connection.settimeout(0.2)
+        self._buffer = b""
+        self._sent = self._received = 0
+        self._direction = "installer"
+
+
+class _UpdateActivationUnconfirmed(RuntimeError):
+    """Retain both payloads after losing the coordinator during desktop startup."""
+
+
+def _native_update_ready(channel, version, desktop_pid):
+    """Offer activation only after staging; require the old desktop's actual exit."""
+    channel._send("prepared", version=version, desktop_pid=desktop_pid)
+    decision = channel._receive({"activate", "cancel"}, timeout=_WAIT_SECONDS)
+    if decision["phase"] != "activate":
+        raise RuntimeError(tr("Update cancelled; the previous application was preserved."))
+    if not _wait_for_exit(desktop_pid, timeout=1):
+        raise RuntimeError(tr("The running application has not closed; activation was stopped."))
+
+
+def _native_update_activated(channel, version):
+    """Retain recovery until the unelevated new desktop confirms its main window."""
+    try:
+        channel._send("activated", version=version)
+        decision = channel._receive({"confirmed", "failed", "retain"}, timeout=_WAIT_SECONDS)
+    except Exception as error:
+        raise _UpdateActivationUnconfirmed(tr("Desktop startup was not confirmed; both application versions were retained.")) from error
+    if decision["phase"] == "retain":
+        raise _UpdateActivationUnconfirmed(tr("Desktop startup was not confirmed; both application versions were retained."))
+    if decision["phase"] != "confirmed":
+        raise RuntimeError(tr("The new desktop could not open; restoring the previous application."))
+
+
+def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait=None):
+    """Authorize staging while the GUI runs, then bind activation to Restart and startup."""
+    with _UpdatePhaseServer(plan["workdir"]) as channel:
+        completed = threading.Event()
+        result = []
+
+        def _run_authorized():
+            """Retain the native worker's completion or error until its owned process finishes."""
+            try:
+                result.append(operation(channel.endpoint))
+            except BaseException as error:
+                result.append(error)
+            finally:
+                completed.set()
+
+        def _stopped():
+            """Check desktop cancellation before observing native worker completion."""
+            handshake.check()
+            return completed.is_set()
+
+        worker = threading.Thread(target=_run_authorized, name="spaCR-authorized-update", daemon=True)
+        handshake.check()
+        worker.start()
+        prepared_received = False
+        activated = False
+        desktop_stopped = False
+        try:
+            prepared = channel._receive({"prepared"}, stopped=_stopped)
+            if prepared["details"] != {"version": plan["version"], "desktop_pid": plan["pid"]}:
+                raise ValueError(tr("The authorized installer returned an invalid update message."))
+            prepared_received = True
+            check()
+            handshake.ready()
+            handshake.wait_for_shutdown(wait)
+            handshake.check()
+            check()
+            channel._send("activate")
+            changed = channel._receive({"activated"}, stopped=completed.is_set)
+            if changed["details"] != {"version": plan["version"]}:
+                raise ValueError(tr("The authorized installer returned an invalid update message."))
+            activated = True
+            try:
+                desktop = launch()
+            except _UpdateLaunchStillRunning:
+                raise
+            except BaseException:
+                desktop_stopped = True
+                raise
+            channel._send("confirmed")
+            completed.wait()
+            if isinstance(result[0], BaseException):
+                raise result[0]
+            code, output = result[0]
+            if code:
+                raise RuntimeError(tr("The authorized installer could not complete the update: {error}", error=output))
+            return output, desktop
+        except BaseException:
+            if channel._connection is not None:
+                try:
+                    channel._send("failed" if desktop_stopped else "retain" if activated else "cancel")
+                except (OSError, ValueError):
+                    pass
+            if not completed.is_set():
+                if channel._connection is not None:
+                    channel._connection.close()
+                channel._listener.close()
+                completed.wait()
+            if not prepared_received and result and isinstance(result[0], BaseException):
+                raise result[0] from None
+            raise
+
+
+def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=None):
+    """Launch the exact updated executable and wait for its verified main window.
+
+    Failure stops the owned child before a runtime transaction may roll back.
+    An unkillable child retains the activated runtime and its recovery copy.
+    """
+    folder = tempfile.mkdtemp(prefix="launch-", dir=plan["workdir"])
+    handshake = _UpdateLaunchHandshake(folder, os.urandom(32).hex())
+    expected = {"version": str(version), "executable": os.path.abspath(argv[0]),
+                "root": os.path.realpath(root), "frozen": bool(frozen)}
+    handshake._write("launch-request.json", "requested", details=expected)
+    environment = dict(os.environ)
+    for key in tuple(environment):
+        if key.startswith("DYLD_") or key in {"PYTHONHOME", "PYTHONPATH", "LD_LIBRARY_PATH", "LD_LIBRARY_PATH_ORIG"}:
+            environment.pop(key, None)
+    environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    environment["SPACR_UPDATE_LAUNCH"] = json.dumps([folder, handshake.binding])
+    process = (spawn(argv, environment, plan["workdir"]) if spawn is not None else
+               _spawn_detached(argv, environment, plan["workdir"], return_process=True))
+    try:
+        while time.time() < handshake.expires:
+            message = handshake._read("launch-result.json")
+            if message is not None:
+                if message.get("state") == "error":
+                    raise RuntimeError(message["error"])
+                if message.get("state") == "ready":
+                    actual = message["details"]
+                    if (actual.get("version") != expected["version"]
+                            or actual.get("executable") != expected["executable"]
+                            or not _inside(actual.get("module", ""), expected["root"])
+                            or (process is not None and actual.get("pid") != process.pid)):
+                        raise RuntimeError(tr("the new desktop acknowledgment does not match its update"))
+                    if process is not None and process.poll() is not None:
+                        raise RuntimeError(tr("the updated application exited before its main window was ready"))
+                    return actual
+            if process is not None and process.poll() is not None:
+                raise RuntimeError(tr("the updated application exited before its main window was ready"))
+            time.sleep(0.05)
+        raise RuntimeError(tr("the updated application did not confirm its main window before the deadline"))
+    except BaseException:
+        if process is not None and process.poll() is None:
+            try:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+            except Exception as error:
+                raise _UpdateLaunchStillRunning(process.pid) from error
+        raise
 
 
 
@@ -3114,6 +4763,11 @@ print(json.dumps({'verified': True, 'version': version, 'prefix': sys.prefix,
 def _macos_online_commands(record, version, workdir):
     """The install, probe and relaunch commands for a macOS online update."""
     import re
+    from importlib import import_module
+    from pathlib import Path
+
+    profiles = import_module("spacr.install_profile")
+    read_profile = profiles.read_profile
 
     version = _runtime_requested_version(version)
     python = os.path.join(record.root, "venv", "bin", "python")
@@ -3127,7 +4781,23 @@ def _macos_online_commands(record, version, workdir):
         raise ValueError("the updater folder must be outside the installed environment")
     explicit = re.search(r"(?:a|b|rc)[0-9]+|\.dev[0-9]+", version.partition("+")[0])
     package = "spacr==" + version if explicit or "+" in version else "spacr"
-    install = [uv, "pip", "install", "--upgrade", "--python", python, package]
+    install = [uv, "pip", "install", "--upgrade", "--python", python]
+    profile_path = Path(record.root) / "install-profile.json"
+    profile = read_profile(profile_path)
+    if profile_path.exists() and (profile is None or not isinstance(profile.get("without_wgpu", False), bool)):
+        raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+    if profile:
+        install.extend(["--torch-backend", profile["requested_backend"]])
+        if profile.get("without_wgpu") is True:
+            try:
+                no_wgpu_override = profiles.no_wgpu_override
+            except AttributeError as error:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved.")) from error
+            override = no_wgpu_override(profile, Path(workdir) / "no-wgpu-override.txt")
+            if override is None:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved."))
+            install.extend(["--override", str(override)])
+    install.append(package)
     probe = _runtime_identity_command(python, version, minimum=package == "spacr")
     relaunch = [python, "-I", "-m", "spacr.qt"]
     return install, probe, relaunch
@@ -3208,7 +4878,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         state = json.load(stream)
     prefix, backup = state["prefix"], state["rollback_runtime"]
     if (state.get("schema") != 2 or state.get("family") != "posix-runtime"
-            or state.get("state") not in {"committed", "rolling_back", "rolled_back"}
+            or state.get("state") not in {"committed", "rolling_back", "rolled_back", "launch_unconfirmed"}
             or os.path.dirname(prefix) != os.path.dirname(root)
             or backup != os.path.join(root, "runtime")
             or any(os.path.realpath(path) != path for path in (prefix, backup))
@@ -3222,6 +4892,8 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
             raise ValueError("recovery cannot replace shared runtime directories")
     if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0 or pid == os.getpid():
         raise ValueError("recovery requires the previous desktop process identity")
+    if state.get("state") == "launch_unconfirmed" and pid != state.get("launch_pid"):
+        raise ValueError(tr("recovery requires the unconfirmed desktop process identity"))
     lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
     os.mkdir(lock, 0o700)
     try:
@@ -3233,7 +4905,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         identities = ([left.st_dev, left.st_ino], [right.st_dev, right.st_ino])
         new_at_target = identities == (state["new_identity"], state["old_identity"])
         old_at_target = identities == (state["old_identity"], state["new_identity"])
-        if ((state["state"] == "committed" and not new_at_target)
+        if ((state["state"] in {"committed", "launch_unconfirmed"} and not new_at_target)
                 or (state["state"] == "rolled_back" and not old_at_target)
                 or not (old_at_target or new_at_target)):
             raise ValueError("journaled runtime directories were replaced; preserving both")
@@ -3286,7 +4958,34 @@ def _runtime_recovery_journal(root, state):
             os.unlink(temporary)
 
 
-def _transactional_runtime_update(record, version, install, *, machine, runner=None, activate=None):
+def _only_saved_wgpu_omission(code, output):
+    """Recognize only uv's sole missing spaCR-to-wgpu dependency diagnostic.
+
+    Unknown output, extra diagnostics and checker failures remain failures.
+    Callers must separately require the explicit saved installation choice.
+    """
+    import re
+
+    if code != 1:
+        return False
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    if lines and re.fullmatch(r"Using Python [0-9][^\r\n]* environment at: .+", lines[0]):
+        lines.pop(0)
+    if len(lines) != 3 or not re.fullmatch(r"Checked [0-9]+ packages? in [0-9.]+(?:µs|μs|us|ms|s|m)", lines[0]):
+        return False
+    if lines[1] != "Found 1 incompatibility":
+        return False
+    missing = re.fullmatch(r"The package `spacr` requires `([^`]+)`, but it's not installed", lines[2])
+    if missing is None:
+        return False
+    specifier = r"(?:===|~=|==|!=|<=|>=|<|>)\s*[A-Za-z0-9.*+!_-]+"
+    return re.fullmatch(r"wgpu\s*(?:\(?\s*" + specifier + r"(?:\s*,\s*" + specifier
+                        + r")*\s*\)?)?(?:\s*;\s*[^;@\[\]]+)?", missing.group(1).strip(),
+                        re.IGNORECASE) is not None
+
+
+def _transactional_runtime_update(record, version, install, *, machine, runner=None,
+                                  activate=None, before_activate=None, without_wgpu=False):
     """Update a private POSIX runtime through a verified atomic exchange.
 
     The previous runtime is retained as a rollback copy. All package operations
@@ -3355,11 +5054,13 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 raise ValueError("the package command does not target this private runtime")
             command[position] = staged_python
             check_command = [command[0], "pip", "check", "--python", staged_python]
+            if without_wgpu:
+                check_command.extend(["--color", "never"])
         code, output = runner(command)
         if code:
             raise RuntimeError(f"The staged package upgrade failed with exit code {code}: {output}")
         code, checked = runner(check_command)
-        if code:
+        if code and not (without_wgpu and not pip_command and _only_saved_wgpu_omission(code, checked)):
             raise RuntimeError(f"Staged package dependencies failed verification: {checked}")
         for directory, _folders, files in os.walk(staged, followlinks=False):
             for name in files:
@@ -3410,6 +5111,13 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
                 handle.write(header.replace(os.fsencode(staged), os.fsencode(prefix)) + remainder)
         state["new_identity"] = [os.stat(staged).st_dev, os.stat(staged).st_ino]
         note("ready")
+        if before_activate is not None:
+            before_activate()
+            _runtime_staging_allowed(prefix, machine)
+            if (_retiring_runtime_identity(prefix) != current
+                    or [os.stat(prefix).st_dev, os.stat(prefix).st_ino] != state["old_identity"]
+                    or _runtime_recovery_inventory(prefix) != state["old_inventory"]):
+                raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
         _runtime_exchange(prefix, staged)
         exchanged = True
         note("verifying")
@@ -3432,13 +5140,17 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
             activate(identity["version"])
         committed = True
         return identity["version"], output + "\nPrevious runtime retained at " + staged
+    except _UpdateLaunchStillRunning as error:
+        committed = True
+        state["launch_pid"] = error.pid
+        note("launch_unconfirmed")
+        raise
     except BaseException:
         if exchanged:
             try:
                 _runtime_exchange(prefix, staged)
                 exchanged = False
-                if transaction:
-                    note("rolled_back")
+                note("rolled_back")
             except BaseException as rollback_error:
                 raise RuntimeError("Runtime restoration failed; previous runtime retained at " + staged) from rollback_error
         raise
@@ -3469,12 +5181,20 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     if _runtime_version_compare(record.python, record.version, plan["version"], run) > 0:
         raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _macos_online_commands(record, plan["version"], plan["workdir"])
+    handshake.check()
+
+    def prepared():
+        """Offer Restart only after the replacement passes its staged checks."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        if _macos_online_commands(record, plan["version"], plan["workdir"]) != (install, probe, relaunch):
+            raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
+
     return _transactional_runtime_update(
         record, plan["version"], install, machine=machine, runner=run,
-        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+        before_activate=prepared, without_wgpu="--override" in install,
+        activate=lambda observed: _launch_updated_desktop(
+            plan, relaunch, observed, os.path.dirname(os.path.dirname(record.python)), spawn=spawn))
 
 
 @contextmanager
@@ -3600,7 +5320,7 @@ def _debian_installed_version(*, run=None):
 
 
 def _debian_package_transaction(new_archive, rollback_archive, previous_version,
-                                requested_version, *, verify, run=None, journal=None):
+                                requested_version, *, verify, run=None, journal=None, after_activate=None):
     """Install a prepared package and restore its prepared predecessor on failure.
 
     The privileged caller must first authenticate both archives and retain them
@@ -3639,8 +5359,14 @@ def _debian_package_transaction(new_archive, rollback_archive, previous_version,
             raise RuntimeError(tr("Debian replacement failed: {error}", error=output))
         if _debian_installed_version(run=runner) != requested_version or verify(requested_version) is not True:
             raise RuntimeError(tr("Debian replacement identity could not be verified"))
+        if after_activate is not None:
+            after_activate()
         if journal is not None:
             journal("committed")
+    except _UpdateActivationUnconfirmed:
+        if journal is not None:
+            journal("desktop-unconfirmed")
+        raise
     except BaseException as failure:
         try:
             state = _debian_installed_state(run=runner)
@@ -3777,7 +5503,7 @@ def _debian_update_commands(records, version, machine, *, helper=False):
 
 
 def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, published_digest=None):
-    """Require GUI-approved shutdown before graphical privilege authorization.
+    """Authorize and verify a staged package before offering Restart and activation.
 
     :param plan: Immutable package/desktop identity bound to a readiness lease.
     :param machine: Actual process and installation description.
@@ -3806,20 +5532,24 @@ def _run_debian_update(plan, machine, *, wait=None, run=None, spawn=None, publis
                 or any(character not in "0123456789abcdef" for character in digest)):
             raise ValueError("both replacement and rollback releases require published checksums")
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    if _debian_update_commands(records, plan["version"], machine, helper=True) != (command, relaunch):
-        raise ValueError("the Debian update identity changed after shutdown")
-    code, output = (run or (lambda argv: _run(argv, timeout=10800)))(command)
-    if code:
-        raise RuntimeError(tr("The Debian update stopped; retained packages and its transaction log can be used for recovery. {error}", error=output))
+
+    def _check_current():
+        """Bind activation to the same installed Debian package and trusted helper."""
+        if _debian_update_commands(records, plan["version"], machine, helper=True) != (command, relaunch):
+            raise ValueError("the Debian update identity changed after shutdown")
+
+    output, _desktop = _coordinate_native_update(plan, handshake,
+        lambda endpoint: (run or (lambda argv: _run(argv, timeout=10800)))(command + [
+            "--phase-channel", endpoint, "--desktop-pid", str(plan["pid"])]),
+        check=_check_current, wait=wait,
+        launch=lambda: _launch_updated_desktop(plan, relaunch, plan["version"], "/opt/spacr", frozen=True, spawn=spawn))
     try:
         receipt = json.loads(output.strip().splitlines()[-1])
     except (ValueError, IndexError) as error:
         raise RuntimeError("the privileged Debian helper returned no verified receipt") from error
     if receipt.get("state") != "committed" or receipt.get("version") != plan["version"]:
         raise RuntimeError("the privileged Debian replacement was not verified")
-    (spawn or _spawn_detached)(relaunch, None, machine.home)
+    handshake._write("debian-transaction.json", "committed", details=receipt)
     return plan["version"], output
 
 
@@ -3865,7 +5595,7 @@ def _debian_check_package_owner(previous_version, *, run=None):
     return helper
 
 
-def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid):
+def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid, *, phase_channel=None, desktop_pid=None):
     """Apply an authenticated update from the root-owned outside-runtime helper.
 
     :param stage: Private directory containing this independently copied helper.
@@ -3890,20 +5620,59 @@ def _debian_apply_root_transaction(stage, version, previous_version, desktop_uid
             or not stat.S_ISREG(helper_details.st_mode) or helper_details.st_uid != 0
             or stat.S_IMODE(helper_details.st_mode) & 0o022):
         raise ValueError(tr("Debian privileged staging identity changed"))
-    base = {"schema": 1, "adapter": "linux-deb-v1", "version": version,
-            "previous_version": previous_version, "desktop_uid": desktop_uid}
-    _debian_write_journal(stage, dict(base, state="preparing"))
-    new_archive = _debian_prepare_archive(version, stage)
-    rollback = _debian_prepare_archive(previous_version, stage)
-    base.update(replacement=new_archive, rollback=rollback)
-    _debian_write_journal(stage, dict(base, state="prepared"))
-    with _debian_frontend_lock():
-        _debian_check_package_owner(previous_version)
-        return _debian_package_transaction(
-            new_archive["path"], rollback["path"], previous_version, version,
-            verify=lambda expected: _debian_verify_desktop(expected, desktop_uid),
-            run=_debian_root_runner,
-            journal=lambda state: _debian_write_journal(stage, dict(base, state=state)))
+    channel = None
+    staged = None
+    if phase_channel is not None:
+        if _desktop_process_identity(desktop_pid)[0] != desktop_uid:
+            raise ValueError(tr("The running desktop could not be identified."))
+        channel = _UpdatePhaseClient(phase_channel, desktop_pid, "/opt/spacr/spacr")
+    try:
+        base = {"schema": 1, "adapter": "linux-deb-v1", "version": version,
+                "previous_version": previous_version, "desktop_uid": desktop_uid}
+        _debian_write_journal(stage, dict(base, state="preparing"))
+        new_archive = _debian_prepare_archive(version, stage)
+        rollback = _debian_prepare_archive(previous_version, stage)
+        base.update(replacement=new_archive, rollback=rollback)
+        if channel is not None:
+            _debian_package_metadata(rollback["path"], previous_version, "amd64", run=_debian_root_runner)
+            staged = _debian_stage_payload(new_archive["path"], version, desktop_uid)
+            base["staged_payload"] = staged
+        _debian_write_journal(stage, dict(base, state="prepared"))
+        if channel is not None:
+            _native_update_ready(channel, version, desktop_pid)
+        with _debian_frontend_lock():
+            _debian_check_package_owner(previous_version)
+            return _debian_package_transaction(
+                new_archive["path"], rollback["path"], previous_version, version,
+                verify=lambda expected: _debian_verify_desktop(expected, desktop_uid),
+                run=_debian_root_runner,
+                after_activate=(lambda: _native_update_activated(channel, version)) if channel is not None else None,
+                journal=lambda state: _debian_write_journal(stage, dict(base, state=state)))
+    finally:
+        if channel is not None:
+            channel.__exit__()
+        if staged is not None:
+            shutil.rmtree(staged)
+
+
+def _debian_stage_payload(archive, version, desktop_uid, *, run=None, verify=None):
+    """Unpack and run the new bundle unprivileged while the installed desktop stays intact."""
+    runner = run or _debian_root_runner
+    _debian_package_metadata(archive, version, "amd64", run=runner)
+    parent = os.lstat("/opt")
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0 or stat.S_IMODE(parent.st_mode) & 0o022):
+        raise ValueError(tr("The Debian application is not a trusted system package."))
+    staged = tempfile.mkdtemp(prefix=".spacr-staged-", dir="/opt")
+    try:
+        os.chmod(staged, 0o755)
+        code, output = runner(["/usr/bin/dpkg-deb", "--extract", os.path.abspath(archive), staged])
+        if code or not (verify or _debian_verify_desktop)(version, desktop_uid,
+                root=os.path.join(staged, "opt", "spacr")):
+            raise RuntimeError(tr("The staged Debian application could not be verified: {error}", error=output))
+        return staged
+    except BaseException:
+        shutil.rmtree(staged)
+        raise
 
 
 def _debian_write_journal(stage, data):
@@ -3930,7 +5699,7 @@ def _debian_write_journal(stage, data):
             os.unlink(temporary)
 
 
-def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
+def _debian_prepare_root_transaction(version, previous_version, desktop_uid, *, phase_channel=None, desktop_pid=None):
     """Copy only the trusted installed helper before replacing its package.
 
     :param version: Exact requested release version.
@@ -3964,9 +5733,11 @@ def _debian_prepare_root_transaction(version, previous_version, desktop_uid):
     environment = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LANG": "C.UTF-8",
                    "HOME": "/root", "PKEXEC_UID": str(desktop_uid),
                    "PYINSTALLER_RESET_ENVIRONMENT": "1"}
-    result = subprocess.run([
-        helper, "apply-debian-root", "--stage", stage, "--version", version,
-        "--previous-version", previous_version, "--desktop-uid", str(desktop_uid)],
+    command = [helper, "apply-debian-root", "--stage", stage, "--version", version,
+        "--previous-version", previous_version, "--desktop-uid", str(desktop_uid)]
+    if phase_channel is not None:
+        command.extend(["--phase-channel", phase_channel, "--desktop-pid", str(desktop_pid)])
+    result = subprocess.run(command,
         env=environment, cwd="/", text=True, stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=7200)
     return result.returncode, result.stdout
@@ -4108,10 +5879,10 @@ def _windows_pip_private_directory(path):
     return root
 
 
-def _windows_pip_private_access(path, *, system_owner=False):
+def _windows_pip_private_access(path, *, system_owner=False, owner_sid=None, private_read=False):
     """Require a non-null trusted-owner ACL without foreign file or descendant write grants."""
     evidence = _windows_pip_acl(path)
-    user = evidence.get("user")
+    user = evidence.get("user") if owner_sid is None else owner_sid
     rules = evidence.get("rules")
     if (not isinstance(user, str) or not user.startswith("S-1-")
             or evidence.get("owner") not in ({user, "S-1-5-18", "S-1-5-32-544"} if system_owner else {user})
@@ -4119,7 +5890,7 @@ def _windows_pip_private_access(path, *, system_owner=False):
             or not isinstance(rules, list) or not rules):
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     permitted = {user, "S-1-5-18", "S-1-5-32-544"}
-    write_mask = 0x500D0156
+    write_mask = 0xF01F01FF if private_read else 0x500D0156
     for rule in rules:
         if (not isinstance(rule, dict) or rule.get("type") not in (0, 1)
                 or not isinstance(rule.get("sid"), str)
@@ -4239,13 +6010,43 @@ def _windows_process_elevated():
         close(token)
 
 
-def _windows_frozen_install(installer, destination, *, timeout=1800):
+def _windows_frozen_install(installer, destination, *, timeout=1800, phase_channel=None, desktop_pid=None):
     """Elevate only the pinned NSIS image and retain an unelevated coordinator.
 
     The caller must keep a checksum-verified installer handle denying writes
     and deletion open throughout this call. A timeout leaves the installer
     running; its caller must retain its pending journal and must not attempt
     another installation, rollback, cleanup or application relaunch.
+    """
+    import math
+    import ntpath
+
+    if (not isinstance(timeout, (int, float)) or isinstance(timeout, bool)
+            or not math.isfinite(timeout) or timeout <= 0 or timeout * 1000 >= 0xFFFFFFFF):
+        raise ValueError(tr("invalid Windows installer timeout"))
+    installer, destination = os.fspath(installer), os.fspath(destination)
+    if any(character in value for value in (installer, destination) for character in '\x00\r\n"'):
+        raise ValueError(tr("invalid Windows installer path"))
+    if any(not ntpath.isabs(path) or len(ntpath.splitdrive(path)[0]) != 2
+           or not ntpath.splitdrive(path)[0][0].isalpha()
+           or ntpath.splitdrive(path)[0][1] != ":" for path in (installer, destination)):
+        raise ValueError(tr("Windows installer paths must be absolute"))
+    parameters = "/S /D=" + destination
+    if phase_channel is not None:
+        if (not isinstance(desktop_pid, int) or isinstance(desktop_pid, bool) or desktop_pid <= 1
+                or any(character in phase_channel for character in '\x00\r\n"')
+                or not ntpath.isabs(phase_channel)):
+            raise ValueError(tr("invalid Windows installer path"))
+        parameters = '/S /SPACRUPDATE="' + phase_channel + '" /SPACRPID=' + str(desktop_pid) + ' /D=' + destination
+    return _windows_authorized_process(installer, parameters, timeout=timeout)
+
+
+def _windows_authorized_process(installer, parameters, *, timeout=1800, visible=True):
+    """Run a caller-validated trusted helper with one native authorization and an owned process handle.
+
+    The caller must pin or otherwise protect the executable and construct only
+    fixed supported arguments. An uncertain completion retains the process ID
+    in TimeoutError; it never authorizes cleanup or another privileged operation.
     """
     import ctypes
     import math
@@ -4256,13 +6057,9 @@ def _windows_frozen_install(installer, destination, *, timeout=1800):
         raise ValueError(tr("invalid Windows installer timeout"))
     if _windows_process_elevated():
         raise ValueError(tr("the update coordinator must run without administrator privileges"))
-    installer, destination = os.fspath(installer), os.fspath(destination)
-    if any(character in value for value in (installer, destination) for character in '\x00\r\n"'):
+    if (not ntpath.isabs(installer) or any(character in installer for character in '\x00\r\n"')
+            or any(character in parameters for character in '\x00\r\n')):
         raise ValueError(tr("invalid Windows installer path"))
-    if any(not ntpath.isabs(path) or len(ntpath.splitdrive(path)[0]) != 2
-           or not ntpath.splitdrive(path)[0][0].isalpha()
-           or ntpath.splitdrive(path)[0][1] != ":" for path in (installer, destination)):
-        raise ValueError(tr("Windows installer paths must be absolute"))
     kernel = _windows_update_library("kernel32")
     shell = _windows_update_library("shell32")
     pointer, dword = ctypes.c_void_p, ctypes.c_uint32
@@ -4291,9 +6088,9 @@ def _windows_frozen_install(installer, destination, *, timeout=1800):
     request.fMask = 0x00000040 | 0x00000100 | 0x00000400
     request.lpVerb = "runas"
     request.lpFile = installer
-    request.lpParameters = "/S /D=" + destination
+    request.lpParameters = parameters
     request.lpDirectory = ntpath.dirname(installer)
-    request.nShow = 1
+    request.nShow = 1 if visible else 0
     if not execute(ctypes.byref(request)):
         raise OSError(ctypes.get_last_error(), tr("Windows installer authorization did not complete"))
     if not request.hProcess:
@@ -4439,7 +6236,8 @@ def _windows_pip_transition(path, identity, inventory):
         raise ValueError("windows_runtime_replaced_or_modified")
 
 
-def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None):
+def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None,
+                             before_activate=None):
     """Stage a Windows venv and retain its original through journaled, non-atomic replacement."""
     runner = runner or _run
     prefix = _windows_pip_private_directory(record.root)
@@ -4514,6 +6312,8 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         details = os.stat(staged, follow_symlinks=False)
         state.update(new_identity=[details.st_dev, details.st_ino], new_inventory=_windows_pip_tree(staged), state="ready")
         _runtime_recovery_journal(root, state)
+        if before_activate is not None:
+            before_activate()
         _windows_pip_transition(prefix, state["old_identity"], state["old_inventory"])
         _windows_pip_transition(staged, state["new_identity"], state["new_inventory"])
         state["state"] = "retiring"
@@ -4542,6 +6342,11 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         if activate is not None:
             activate(identity["version"])
         return identity["version"], output + "\nPrevious runtime retained at " + previous
+    except _UpdateLaunchStillRunning as error:
+        state["state"] = "launch_unconfirmed"
+        state["launch_pid"] = error.pid
+        _runtime_recovery_journal(root, state)
+        raise
     except BaseException:
         if retired:
             try:
@@ -4590,13 +6395,20 @@ def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
     if code:
         raise RuntimeError(output)
     handshake = _WindowsPipHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
-    if _retiring_runtime_identity(record.root) != current:
-        raise ValueError("previous_runtime_identity_unverified")
+    handshake.check()
+
+    def prepared():
+        """Request shutdown only when the private replacement is verified."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        _windows_pip_commands(record, plan["version"], plan["workdir"], machine)
+        if _retiring_runtime_identity(record.root) != current:
+            raise ValueError("previous_runtime_identity_unverified")
+
     return _windows_pip_transaction(record, plan["version"], install, machine=machine, runner=runner,
-                                    activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+                                    before_activate=prepared,
+                                    activate=lambda observed: _launch_updated_desktop(
+                                        plan, relaunch, observed, record.root, spawn=spawn))
 
 
 _PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
@@ -4660,7 +6472,7 @@ def _pip_environment_identity(record, runner):
 
 
 def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=None):
-    """Wait for approved shutdown before updating a verified private pip venv."""
+    """Stage a private pip update before requesting approved shutdown."""
     if machine.platform == "windows":
         return _run_windows_pip_update(plan, machine, wait=wait, run=run, spawn=spawn)
     records = [_record_from_json(data) for data in plan["records"]]
@@ -4680,14 +6492,21 @@ def _run_pip_environment_update(plan, machine, *, wait=None, run=None, spawn=Non
     if code:
         raise RuntimeError(output)
     handshake = _FrozenUpdateHandshake(plan)
-    handshake.ready()
-    handshake.wait_for_shutdown(wait)
-    _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
-    if _pip_environment_identity(record, runner) != current:
-        raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+    handshake.check()
+
+    def prepared():
+        """Keep the running environment until the verified replacement is accepted."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        _pip_environment_commands(record, plan["version"], plan["workdir"], machine)
+        if _pip_environment_identity(record, runner) != current:
+            raise RuntimeError("The desktop interpreter could not be identified; no relaunch was requested.")
+
     return _transactional_runtime_update(
         record, plan["version"], install, machine=machine, runner=runner,
-        activate=lambda _version: (spawn or _spawn_detached)(relaunch, None, plan["workdir"]))
+        before_activate=prepared,
+        activate=lambda observed: _launch_updated_desktop(
+            plan, relaunch, observed, record.root, spawn=spawn))
 
 
 def _frozen_windows_walk_error(error):
@@ -4820,11 +6639,14 @@ def _frozen_windows_entry_state(path):
     return details.st_dev, details.st_ino, contents
 
 
-def _install_frozen_windows(source, destination, version, *, run=None):
+def _install_frozen_windows(source, destination, version, *, run=None,
+                            before_activate=None, after_activate=None, preserve_previous=False):
     """Stage, verify and replace only a Windows bundle's application payload.
 
-    Caches, preferences, unrelated install-root files and the existing uninstaller
-    are never part of the replacement. A displaced legacy payload, or one with
+    Caches, preferences and unrelated install-root files are never part of the
+    replacement. A new native uninstaller and its executable-bound capability
+    record participate in the same transaction when supplied by the installer;
+    otherwise the existing uninstaller remains unchanged. A displaced legacy payload, or one with
     unknown or modified files, remains in private recovery storage. A failed
     activation restores the original payload; an interrupted transaction refuses
     further changes and leaves its recovery directory intact.
@@ -4843,6 +6665,18 @@ def _install_frozen_windows(source, destination, version, *, run=None):
         raise ValueError("frozen_install_requires_outside_helper")
     _macos_online_version(version)
     _frozen_windows_payload(source, version)
+    names = ("_internal", "spacr.exe", "spacr-payload.json")
+    native_names = ("Uninstall.exe", "spacr-uninstaller.json")
+    native_state = None
+    candidate = source / native_names[0]
+    if os.path.lexists(candidate):
+        details = candidate.lstat()
+        if (not stat.S_ISREG(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400
+                or details.st_size == 0 or os.path.lexists(source / native_names[1])):
+            raise ValueError("frozen_uninstaller_candidate_invalid")
+        native_state = _frozen_windows_entry_state(candidate)
+        names += native_names
     destination.parent.mkdir(parents=True, exist_ok=True)
     lock = destination.parent / ("." + destination.name + ".spacr-install-lock")
     lock.mkdir(mode=0o700)
@@ -4854,12 +6688,38 @@ def _install_frozen_windows(source, destination, version, *, run=None):
         previous = _frozen_windows_previous_version(destination)
         if previous is not None and _macos_online_version(previous) > _macos_online_version(version):
             raise ValueError("frozen_application_downgrade_refused")
+        previous_state = _windows_frozen_root_state(str(destination)) if before_activate is not None else None
+        if native_state:
+            for name in native_names:
+                if os.path.lexists(destination / name) and not stat.S_ISREG((destination / name).lstat().st_mode):
+                    raise ValueError("frozen_uninstaller_candidate_invalid")
+        previous_native = {name: _frozen_windows_entry_state(destination / name)
+                           if os.path.lexists(destination / name) else None for name in native_names} if native_state else None
         transaction = Path(tempfile.mkdtemp(prefix=".spacr-frozen-install-", dir=destination.parent))
         staged, backup = transaction / "new", transaction / "previous"
         shutil.copytree(source, staged)
+        if native_state is not None:
+            if (_frozen_windows_entry_state(candidate) != native_state
+                    or _frozen_windows_entry_state(staged / native_names[0])[2] != native_state[2]):
+                raise ValueError("frozen_uninstaller_candidate_changed")
+            with open(staged / native_names[1], "x", encoding="utf-8") as stream:
+                json.dump({"schema": 1, "adapter": "windows-frozen-uninstall-v1",
+                           "sha256": native_state[2]}, stream, sort_keys=True)
+                stream.flush()
+                os.fsync(stream.fileno())
+            staged_native = {name: _frozen_windows_entry_state(staged / name) for name in native_names}
         _frozen_windows_payload(staged, version)
         _frozen_windows_identity(staged, version, run)
         _frozen_windows_payload(staged, version)
+        if before_activate is not None:
+            before_activate()
+            if _windows_frozen_root_state(str(destination)) != previous_state:
+                raise ValueError(tr("The installed application changed during staging; activation was stopped."))
+        if previous_native is not None:
+            for name, expected in previous_native.items():
+                actual = _frozen_windows_entry_state(destination / name) if os.path.lexists(destination / name) else None
+                if actual != expected or _frozen_windows_entry_state(staged / name) != staged_native[name]:
+                    raise ValueError("frozen_uninstaller_changed_during_staging")
         backup.mkdir()
         destination.mkdir(exist_ok=True)
         old_manifest = None
@@ -4868,7 +6728,6 @@ def _install_frozen_windows(source, destination, version, *, run=None):
                 old_manifest = _frozen_windows_payload(destination, previous, retirement=True)
         except (OSError, ValueError, TypeError):
             pass
-        names = ("_internal", "spacr.exe", "spacr-payload.json")
         with open(transaction / "recovery.json", "x", encoding="utf-8") as stream:
             json.dump({"schema": 1, "destination": str(destination), "version": version,
                        "payload": names}, stream)
@@ -4885,9 +6744,11 @@ def _install_frozen_windows(source, destination, version, *, run=None):
             activated[name] = entry_state
         _frozen_windows_payload(destination, version)
         _frozen_windows_identity(destination, version, run)
+        if after_activate is not None:
+            after_activate()
         complete = True
         retained = str(backup) if moved else None
-        if old_manifest is not None:
+        if old_manifest is not None and not preserve_previous:
             try:
                 _frozen_windows_payload(backup, previous, retirement=True)
             except (OSError, ValueError, TypeError):
@@ -4899,6 +6760,9 @@ def _install_frozen_windows(source, destination, version, *, run=None):
                 except OSError:
                     pass
         return {"ok": True, "version": version, "previous_runtime": retained}
+    except _UpdateActivationUnconfirmed:
+        restored = False
+        raise
     except BaseException:
         for name in reversed(activated):
             try:
@@ -5044,7 +6908,7 @@ def _windows_frozen_update_journal(directory, plan, state, **details):
 
 
 def _run_windows_frozen_update(plan, machine, *, download=None, install=None, run=None, wait=None, spawn=None):
-    """Stage a checksummed official NSIS setup, require approved exit, and relaunch only verified bytes unelevated."""
+    """Stage a mandatory-phase official updater, then activate and confirm the new desktop unelevated."""
     if (not plan.get("frozen_application") or plan.get("adapter") != "windows-frozen-nsis-v1"
             or _windows_process_elevated()):
         raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
@@ -5054,7 +6918,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
     root, initial = _windows_frozen_root_state(record.root)
     if _inside(os.path.realpath(sys.executable), root):
         raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_outside_helper"))
-    name = "spaCR-" + str(plan["version"]) + "-setup.exe"
+    name = "spaCR-" + str(plan["version"]) + "-update.exe"
     installer = os.path.join(handshake.root, name)
     url = _RELEASE_DOWNLOAD + "/v" + str(plan["version"]) + "/" + name
     relaunch = [os.path.join(root, "spacr.exe")]
@@ -5082,32 +6946,43 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
             _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)
             if _windows_frozen_root_state(root) != (root, initial):
                 raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            _windows_frozen_update_journal(lock, plan, "prepared", root=root, previous=previous, installer=installer, sha256=expected)
-            handshake.ready()
-            handshake.wait_for_shutdown(wait)
-            if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
-                    or _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)[1] != previous):
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            with _windows_frozen_installer_pin(installer, expected):
-                _windows_frozen_update_journal(lock, plan, "installing", root=root, previous=previous, installer=installer, sha256=expected)
-                handshake.check()
-                retained = True
-                code, output = (install or _windows_frozen_install)(installer, root)
-            if code:
-                _windows_frozen_update_journal(lock, plan, "installer-failed", root=root, exit_code=code)
-                raise RuntimeError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_exit_" + str(code)))
-            observed_root, observed_state = _windows_frozen_root_state(root)
-            if observed_root != root or observed_state[:2] != initial[:2]:
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
-            _frozen_windows_payload(root, plan["version"])
-            identity = _frozen_windows_identity(root, plan["version"], run)
-            if _windows_process_elevated():
-                raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
-            _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
-            (spawn or _spawn_detached)(relaunch, None, plan["workdir"])
-            _windows_frozen_update_journal(lock, plan, "relaunch-requested", root=root, identity=identity)
+            _windows_frozen_update_journal(lock, plan, "preparing", root=root, previous=previous, installer=installer, sha256=expected)
+            retained = True
+
+            def _check_current():
+                """Recheck the pinned installer and unchanged Windows destination before activation."""
+                if _macos_digest(installer) != expected:
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_installer_checksum"))
+                if (_windows_process_elevated() or _windows_frozen_root_state(root) != (root, initial)
+                        or _windows_frozen_update_record(records, plan["version"], plan["workdir"], machine)[1] != previous):
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+
+            def _launch_verified():
+                """Confirm the activated Windows payload and its unelevated main window."""
+                observed_root, observed_state = _windows_frozen_root_state(root)
+                if observed_root != root or observed_state[:2] != initial[:2]:
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_changed_destination"))
+                _frozen_windows_payload(root, plan["version"])
+                identity = _frozen_windows_identity(root, plan["version"], run)
+                if _windows_process_elevated():
+                    raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_elevated_relaunch"))
+                _windows_frozen_update_journal(lock, plan, "verified", root=root, identity=identity)
+                return _launch_updated_desktop(plan, relaunch, identity["version"], root, frozen=True, spawn=spawn)
+
+            try:
+                output, desktop = _coordinate_native_update(plan, handshake,
+                    lambda endpoint: (install or _windows_frozen_install)(
+                        installer, root, phase_channel=endpoint, desktop_pid=plan["pid"]),
+                    check=_check_current, launch=_launch_verified, wait=wait)
+            except Exception as error:
+                _windows_frozen_update_journal(lock, plan, "desktop-unconfirmed", root=root,
+                    pid=getattr(error, "pid", None), error=str(error))
+                if handshake._read("cancelled.json") is not None and _windows_frozen_root_state(root) == (root, initial):
+                    retained = False
+                raise
+            _windows_frozen_update_journal(lock, plan, "desktop-ready", root=root, identity=desktop)
             retained = False
-            return identity["version"], output
+            return desktop["version"], output
     except TimeoutError as error:
         if retained:
             try:
@@ -5144,22 +7019,23 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
     """Run an installation update in a process that outlives spaCR.
 
     Installer-made copies and supported dedicated POSIX or Windows pip
-    environments can use this helper. It waits for the running process to exit before changing
-    the installation; the pip adapter also requires authenticated shutdown
-    approval.
+    environments can use this helper. It stages replacements while the current
+    application runs and requires authenticated shutdown approval and actual
+    process exit before activation.
 
     For a supported macOS online installation, use the existing bundled
-    ``uv`` and private Python to upgrade spaCR in the same environment.
-    Preserve the environment directory, bootstrap files, application launcher,
-    and installed packages that need no update. Restart only after verifying
-    that the installed version is at least ``version`` and newer than the
-    previous version, when that previous version is known. A failed upgrade
-    or version check does not trigger removal or a replacement installer.
+    ``uv`` and private Python to install the requested spaCR release into a
+    staged sibling environment. Preserve bootstrap files, the application
+    launcher, and packages that need no update. After verified staging and
+    approved shutdown, activate the staged environment at the existing runtime
+    path and retain the complete previous environment for recovery. Relaunch
+    verifies the requested version, executable, imported module and visible
+    main window. Failed preparation leaves the running environment unchanged.
 
-    The standard replacement path downloads and runs the new staged installer,
-    verifies its actual interpreter and imported application, then retires other
-    copies and starts it. Failed installation or verification does not remove
-    the previous working copy. A failed retirement is logged without relaunch.
+    Runtime adapters install and verify a private replacement before publishing
+    readiness. The GUI offers Restart and preserves its settings before
+    approving shutdown. Relaunch verifies the actual new desktop process and
+    its main window. Unsupported layouts refuse before starting an installer.
 
     :param records: installations from :func:`find_old_installs`.
     :param version: the version to install.
@@ -5172,13 +7048,14 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
         helper's command, or ``None`` with ``plan["error"]`` saying why
         nothing was started.
 
-    A frozen macOS bundle in a user-writable location uses its verified DMG
-    replacement adapter and retains its complete prior bundle. A protocol-marked
-    Debian bundle uses graphical administrator authorization and a root-owned
-    helper outside the installation. Both the replacement and rollback package
-    require published checksums; package and unprivileged runtime verification
-    precede relaunch. Unsupported frozen application families return an error
-    before removing anything; no online-installer fallback is enabled for them.
+    Frozen macOS, Windows and protocol-marked Debian installations use their
+    verified native replacement adapters. Protected macOS requires an installed
+    helper with the current native phase protocol. Windows requires a separately
+    published, checksummed update executable. Administrator authorization and
+    staging precede Restart; activation follows approved desktop exit. The new
+    desktop must confirm its identity and main window before recovery files are
+    retired. Unsupported layouts or missing capabilities leave the running
+    application unchanged; no ordinary-installer fallback is enabled.
     """
     machine = system or _Machine()
     records = list(records)
@@ -5264,7 +7141,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
                     or os.path.normcase(os.path.realpath(machine.executable)) != os.path.normcase(os.path.join(os.path.realpath(running.root), "spacr.exe"))):
                 raise ValueError(tr("Upgrade unavailable: {error}", error="windows_frozen_coordinator"))
             _WindowsPipHandshake(plan)
-            name = "spaCR-" + str(version) + "-setup.exe"
+            name = "spaCR-" + str(version) + "-update.exe"
             target = os.path.join(os.path.realpath(workdir), name)
             plan["fetch"] = {"url": _RELEASE_DOWNLOAD + "/v" + str(version) + "/" + name, "path": target}
             plan["install"] = [target, "/S", "/D=" + os.path.realpath(running.root)]
@@ -5291,17 +7168,7 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
             "run the new installer instead. Nothing was removed."
         )
     else:
-        try:
-            with open(__file__, "rb") as source, open(module, "wb") as copy:
-                copy.write(source.read())
-        except OSError as error:
-            plan["error"] = f"could not prepare the updater: {error}. Nothing was removed."
-        else:
-            plan["fetch"], plan["install"], plan["relaunch"] = _reinstall_steps(
-                running, str(version), workdir, machine)
-            argv, environment, error = _helper_command(
-                records, workdir, module, plan_path, machine)
-            plan["command"], plan["error"] = argv, error
+        plan["error"] = tr("This installation cannot stage a verified update. Nothing was changed.")
     with open(plan_path, "w", encoding="utf-8") as handle:
         json.dump(plan, handle, indent=2)
     if plan["command"]:
@@ -5331,7 +7198,13 @@ def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS, *,
         if not 0 < int(pid) <= 0xFFFFFFFF:
             return False
         import ctypes
-        kernel32 = ctypes.windll.kernel32                    # type: ignore[attr-defined]
+        kernel32 = ctypes.windll.kernel32
+        kernel32.OpenProcess.argtypes = [ctypes.c_uint32, ctypes.c_int32, ctypes.c_uint32]
+        kernel32.OpenProcess.restype = ctypes.c_void_p
+        kernel32.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        kernel32.WaitForSingleObject.restype = ctypes.c_uint32
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+        kernel32.CloseHandle.restype = ctypes.c_int32
         handle = kernel32.OpenProcess(0x00100000, False, int(pid))
         if not handle:
             return kernel32.GetLastError() == 87
@@ -5500,7 +7373,7 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         try:
             observed, output = _run_windows_frozen_update(
                 plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
-            lines.extend([output, json.dumps({"version": observed, "relaunch": "requested"})])
+            lines.extend([output, json.dumps({"version": observed, "relaunch": "ready"})])
             return _finish(0)
         except Exception as error:
             lines.append(str(error))
@@ -5512,7 +7385,7 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
     if plan.get("adapter") == "linux-deb-v1":
         try:
             observed, output = _run_debian_update(plan, machine, wait=wait, run=run, spawn=spawn)
-            lines.extend([output, "Verified Debian spaCR " + observed + "; desktop relaunch requested."])
+            lines.extend([output, "Verified Debian spaCR " + observed + "; updated desktop ready."])
             return _finish(0)
         except Exception as error:
             if plan.get("handshake"):
@@ -5530,8 +7403,8 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
                 raise ValueError("the frozen update plan has no readiness handshake")
             receipt = _run_macos_frozen_update(plan, wait=wait)
             lines.append(json.dumps(receipt, sort_keys=True))
-            if receipt["relaunch"]["status"] != "accepted":
-                lines.append("The bundle replacement committed, but LaunchServices did not accept its relaunch; the backup and journal are retained.")
+            if receipt["relaunch"]["status"] != "ready":
+                lines.append("The bundle replacement committed, but its new desktop did not confirm startup; the backup and journal are retained.")
                 return _finish(6)
         except Exception as error:
             if plan.get("handshake"):
@@ -5784,30 +7657,113 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     :returns: the exit code; ``1`` when an installer-made copy was not removed,
         or ``6`` when retained-runtime recovery or its launch request fails.
     """
-    arguments = list(sys.argv[1:] if argv is None else argv)
-    if arguments and arguments[0] in {"prepare-debian-root", "apply-debian-root"}:
-        global _PRIVILEGED_DEBIAN_HELPER
+    global _PRIVILEGED_DEBIAN_HELPER
 
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments == ["native-phase-protocol"]:
+        print(json.dumps({"schema": 1, "commands": list(_MACOS_FROZEN_PHASE_COMMANDS)}))
+        return 0
+    if arguments and arguments[0] == "apply-macos-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command", choices=("apply-macos-root",))
+        for name in ("version", "digest", "image", "phase-channel"):
+            root_parser.add_argument("--" + name, required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            print(_macos_apply_root_transaction(root_args.version, root_args.digest, root_args.image,
+                root_args.phase_channel, root_args.desktop_pid), end="")
+            return 0
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-macos-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--phase-channel", required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--previous-version", required=True)
+        root_parser.add_argument("--app-identity", required=True)
+        root_parser.add_argument("--keep-json", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_macos_root(root_args.phase_channel, root_args.desktop_pid,
+                root_args.desktop_executable, root_args.previous_version, root_args.app_identity, root_args.keep_json)
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] in {"prepare-debian-root", "apply-debian-root"}:
         root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
         root_parser.add_argument("command", choices=("prepare-debian-root", "apply-debian-root"))
         root_parser.add_argument("--version", required=True)
         root_parser.add_argument("--previous-version", required=True)
         root_parser.add_argument("--desktop-uid", type=int, required=True)
         root_parser.add_argument("--stage")
+        root_parser.add_argument("--phase-channel")
+        root_parser.add_argument("--desktop-pid", type=int)
         root_args = root_parser.parse_args(arguments)
         _PRIVILEGED_DEBIAN_HELPER = True
         try:
+            if (root_args.phase_channel is None) != (root_args.desktop_pid is None):
+                raise ValueError(tr("The update authorization descriptor is not private."))
             if root_args.command == "prepare-debian-root":
                 code, output = _debian_prepare_root_transaction(
-                    root_args.version, root_args.previous_version, root_args.desktop_uid)
+                    root_args.version, root_args.previous_version, root_args.desktop_uid,
+                    **({"phase_channel": root_args.phase_channel, "desktop_pid": root_args.desktop_pid}
+                       if root_args.phase_channel is not None else {}))
                 print(output)
                 return code
             if root_args.stage is None:
                 raise ValueError("a private Debian transaction directory is required")
             receipt = _debian_apply_root_transaction(
-                root_args.stage, root_args.version, root_args.previous_version, root_args.desktop_uid)
+                root_args.stage, root_args.version, root_args.previous_version, root_args.desktop_uid,
+                **({"phase_channel": root_args.phase_channel, "desktop_pid": root_args.desktop_pid}
+                   if root_args.phase_channel is not None else {}))
             print(json.dumps(receipt, sort_keys=True))
             return 0
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-frozen-windows":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--root", required=True)
+        root_parser.add_argument("--request", required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--phase-channel", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_frozen_windows(root_args.request, root_args.root,
+                root_args.phase_channel, root_args.desktop_pid, root_args.desktop_executable)
+        except Exception as error:
+            print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
+            return 6
+        finally:
+            _PRIVILEGED_DEBIAN_HELPER = False
+    if arguments and arguments[0] == "uninstall-debian-root":
+        root_parser = argparse.ArgumentParser(prog="spacr-update-helper")
+        root_parser.add_argument("command")
+        root_parser.add_argument("--previous-version", required=True)
+        root_parser.add_argument("--desktop-uid", type=int, required=True)
+        root_parser.add_argument("--desktop-pid", type=int, required=True)
+        root_parser.add_argument("--desktop-executable", required=True)
+        root_parser.add_argument("--phase-channel", required=True)
+        root_args = root_parser.parse_args(arguments)
+        _PRIVILEGED_DEBIAN_HELPER = True
+        try:
+            return _uninstall_debian_root(root_args.phase_channel, root_args.desktop_pid,
+                root_args.desktop_executable, root_args.desktop_uid, root_args.previous_version)
         except Exception as error:
             print(json.dumps({"state": "stopped", "error": str(error)}, sort_keys=True))
             return 6
@@ -5821,6 +7777,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     frozen_windows.add_argument("--source", required=True)
     frozen_windows.add_argument("--destination", required=True)
     frozen_windows.add_argument("--version", required=True)
+    frozen_windows.add_argument("--phase-channel")
+    frozen_windows.add_argument("--desktop-pid", type=int)
     verify = commands.add_parser("verify-runtime", help="verify a desktop interpreter and imported application")
     verify.add_argument("--python", required=True)
     verify.add_argument("--version")
@@ -5847,6 +7805,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     purge.add_argument("--root", default="/", help=argparse.SUPPRESS)
     plan = commands.add_parser("run-plan", help="finish an in-app update")
     plan.add_argument("plan")
+    uninstall_plan = commands.add_parser("run-uninstall-plan", help=tr("finish a confirmed uninstall after spaCR closes"))
+    uninstall_plan.add_argument("plan")
     recover = commands.add_parser("recover-macos-frozen", help="recover one retained macOS bundle transaction")
     recover.add_argument("transaction")
     recover.add_argument("--protected", action="store_true")
@@ -5863,9 +7823,24 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     metadata.add_argument("--folder", required=True)
     metadata.add_argument("--paths", nargs="*")
     args = parser.parse_args(argv)
+    if args.command == "run-uninstall-plan":
+        try:
+            return _run_uninstall_plan(args.plan)
+        except Exception as error:
+            print(tr("Uninstall stopped: {error}", error=str(error)))
+            return 1
     if args.command == "install-frozen-windows":
         try:
-            outcome = _install_frozen_windows(args.source, args.destination, args.version)
+            if args.phase_channel is not None:
+                with _UpdatePhaseClient(args.phase_channel, args.desktop_pid,
+                        os.path.join(args.destination, "spacr.exe")) as channel:
+                    outcome = _install_frozen_windows(args.source, args.destination, args.version,
+                        before_activate=lambda: _native_update_ready(channel, args.version, args.desktop_pid),
+                        after_activate=lambda: _native_update_activated(channel, args.version), preserve_previous=True)
+            else:
+                if args.desktop_pid is not None:
+                    raise ValueError(tr("The update authorization descriptor is not private."))
+                outcome = _install_frozen_windows(args.source, args.destination, args.version)
         except Exception as error:
             print(json.dumps({"ok": False, "error": str(error)}))
             return 1

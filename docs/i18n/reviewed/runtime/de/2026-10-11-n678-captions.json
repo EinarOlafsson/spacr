@@ -523,13 +523,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "plaque_model",
-      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3', the default until 2026-10-11, scores higher on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v4'.",
-      "source_sha256": "01ef869742a956fb394d3b1571df69067cac6eaa49a0ccc21de1fe7eafe594ec",
-      "translation": "Cellpose-Checkpoint zur Plaque-Segmentierung: Ein Schlüssel aus dem Modellkatalog lädt beim ersten Einsatz einen anhand der Prüfsumme verifizierten Checkpoint herunter ('toxoplasma_plaque_v4' ist das cpsam_v2-Modell der Runde 6; 'toxoplasma_plaque_v3', bis 2026-10-11 der Standard, schneidet auf Wells aus dem Gel Doc besser ab; 'toxoplasma_plaque_v2' ist der frühere Standard), ein Dateisystempfad wählt einen eigenen Checkpoint, und 'bundled' ist ein Cellpose 3-Checkpoint, der Cellpose 3 benötigt. Ein Wechsel ändert die Plaque-Zählungen; dokumentierte Läufe sollten daher ihren Wert beibehalten. Standard 'toxoplasma_plaque_v4'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "png_channel_mapping",
       "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
       "source_sha256": "468dfadcd279c00a361b9b50baa1317e888ee1f0ae2eedcfab8697da05981efd",

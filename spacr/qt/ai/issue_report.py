@@ -634,7 +634,7 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
     """Build the ``https://github.com/<repo>/issues/new?…`` URL.
 
     The URL is truncated to ~7.5 KB so it fits GitHub's parser limit;
-    an ellipsis + note is appended to the body when we clip.
+    an ellipsis and a note are appended to the body when it is clipped.
 
     :param title: URL-encodable issue title.
     :param body: markdown body; may be truncated.

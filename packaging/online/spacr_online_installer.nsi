@@ -45,12 +45,18 @@ Var ConsentCollectedValue
 Section /o "$(SPACR_NSIS_GPU)" SecGpu
 SectionEnd
 
+; Off by default: wgpu draws the True 3D view through Vulkan or Direct3D 12.
+; Ticked, spaCR is installed without wgpu and draws 3D through OpenGL or the CPU.
+Section /o "$(SPACR_WITHOUT_WGPU)" SecWithoutWgpu
+SectionEnd
+
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
   ; Automatic acceleration is the default. uv selects CUDA when compatible
   ; NVIDIA hardware is present and falls back safely on other systems. The
   ; user can still untick this component to require the smaller CPU wheel.
   SectionSetFlags ${SecGpu} ${SF_SELECTED}
+  SectionSetFlags ${SecWithoutWgpu} 0
   StrCpy $ConsentShareValue 0
   StrCpy $ConsentIssuesValue 0
   StrCpy $ConsentCollectedValue 0
@@ -79,6 +85,7 @@ FunctionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "Automatic acceleration (recommended): uses CUDA on compatible NVIDIA hardware and falls back safely elsewhere. Untick only for a smaller CPU-only installation."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWithoutWgpu} "$(SPACR_WITHOUT_WGPU_DESCRIPTION)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
@@ -98,6 +105,13 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   IntOp $2 $2 & ${SF_SELECTED}
   ${If} $2 != 0
     StrCpy $1 "auto"
+  ${EndIf}
+
+  StrCpy $5 ""
+  SectionGetFlags ${SecWithoutWgpu} $2
+  IntOp $2 $2 & ${SF_SELECTED}
+  ${If} $2 != 0
+    StrCpy $5 " -WithoutWgpu"
   ${EndIf}
 
   ; Keep the bootstrap phase in the language selected in MUI_LANGDLL_DISPLAY,
@@ -126,10 +140,10 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   ; Keep a tiny wrapper-level trace even when PowerShell fails before its own
   ; transcript starts. This makes silent enterprise/CI installs diagnosable.
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" w
-  FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$\r$\n"
+  FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$5$\r$\n"
   FileClose $4
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue$5'
   Pop $0
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" a
   FileWrite $4 "exit=$0$\r$\n"

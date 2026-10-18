@@ -202,7 +202,7 @@
       "source": "Cellpose 3.1.1.3 is BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose downloads its cyto, cyto2, cyto3 and nuclei weights from cellpose.org itself, into the backend's own folder.",
       "source_sha256": "26cffdd5b28ab7612450531eef251e716cd86dc623dcf9b52354df839833ef7d",
       "table": "ui",
-      "translation": "Cellpose 3.1.1.3 er undir BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose sækir sjálft vogir fyrir cyto, cyto2, cyto3 og nuclei frá cellpose.org í eigin möppu bakendans."
+      "translation": "Cellpose 3.1.1.3 er undir BSD-3-Clause (Copyright 2020 Howard Hughes Medical Institute). Cellpose sækir sjálft vægi fyrir cyto, cyto2, cyto3 og nuclei frá cellpose.org í eigin möppu bakendans."
     },
     {
       "key": "Published results: Stringer and Pachitariu, 'Cellpose3: one-click image restoration for improved cellular segmentation', Nature Methods 2025 (doi:10.1038/s41592-025-02595-5). The project's README publishes no results table. spaCR has not scored this backend on its own data.",

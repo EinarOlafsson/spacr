@@ -1287,7 +1287,6 @@ class FilePathListWidget(QWidget):
         self._single = bool(single)
         self._allow_folders = bool(allow_folders) and not self._single
         self._last_directory = ""
-        self._path_drop_generation = 0
         self._pending_path_drops = []
 
         outer = QVBoxLayout(self)
@@ -1387,7 +1386,6 @@ class FilePathListWidget(QWidget):
             iterable of paths; surrounding quotes and placeholder values are
             dropped.
         """
-        self._path_drop_generation += 1
         self._pending_path_drops.clear()
         before = self.paths()
         self._list.clear()
@@ -1543,7 +1541,6 @@ class FilePathListWidget(QWidget):
 
     def clear(self) -> None:
         """Drop every path, and say so only if there was anything to drop."""
-        self._path_drop_generation += 1
         self._pending_path_drops.clear()
         if self._list.count():
             self._list.clear()
@@ -1711,7 +1708,7 @@ class FilePathListWidget(QWidget):
 
         incoming = self._coerce(paths)
         kind = self._kind
-        slot = {"paths": None, "generation": self._path_drop_generation}
+        slot = {"paths": None}
         self._pending_path_drops.append(slot)
 
         def collect():
@@ -1733,8 +1730,6 @@ class FilePathListWidget(QWidget):
             slot["paths"] = resolved
             while self._pending_path_drops and self._pending_path_drops[0]["paths"] is not None:
                 ready = self._pending_path_drops.pop(0)
-                if ready["generation"] != self._path_drop_generation:
-                    continue
                 added = sum(int(self._append(path)) for path in ready["paths"])
                 if added:
                     self._refresh_hint()

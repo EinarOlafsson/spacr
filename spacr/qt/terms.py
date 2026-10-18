@@ -231,7 +231,7 @@ TERMS: Tuple[str, ...] = (
     "basis; it cannot identify material that is confidential for reasons "
     "particular to Your work.",
 
-    "6. SPACR AI AND THIRD PARTY SERVICES",
+    "6. spaCR AI AND THIRD PARTY SERVICES",
     "6.1 spaCR AI (free) is ON BY DEFAULT. It explains errors in the "
     "console and answers questions You ask the assistant, and it needs no "
     "account. Your question, the error summary described in Section 5.6 "

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "合并测量表以用于绘图和门控"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "从 Home 打开 **Graph Builder** 或 **Gate Editor**，以探索测量结果。两个界面都在表选择器旁提供 **合并表格**。同一合并定义在两个界面中生成相同的测量值。相关整体工作流程见 :doc:`workflows`。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "从 Home 打开 **Graph Builder** 或 **Gate Editor**，以绘制测量结果或对其设门。两个界面都在表选择器旁提供 **合并表格**。同一合并定义在两个界面中生成相同的测量值。相关整体工作流程见 :doc:`workflows`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"
@@ -254,9 +255,9 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "标注条件前恢复原始文件名"
 
 # AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
-msgstr "如果图像已重命名为 Yokogawa 格式，请在 **合并原始文件名…** 中使用 **合并表格**，恢复转换时记录的名称。选择 ``conversion_map.csv``、旧版 ``rename_log.csv``、``channel_sorting_manifest.csv``，或包含 ``conversion_map`` 表的 SQLite 数据库。如果在测量数据库旁或其父文件夹找到已知映射，文件选择器会从其附近打开。映射必须包含已记录的源文件到输出文件的关系；此操作不会根据重命名后的图像推断处理条件名称。"
+msgstr "如果图像已重命名为 Yokogawa 格式，请在 **合并表格** 中使用 **合并原始文件名…**，恢复转换时记录的名称。选择 ``conversion_map.csv``、``rename_log.csv``、``channel_sorting_manifest.csv``，或包含 ``conversion_map`` 表的 SQLite 数据库。如果在测量数据库旁或其父文件夹中找到已知映射，文件选择器会从其附近打开。映射必须包含已记录的源文件到输出文件的关系；此操作不会根据重命名后的图像推断处理条件名称。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."

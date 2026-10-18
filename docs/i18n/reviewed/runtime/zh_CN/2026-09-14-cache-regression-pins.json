@@ -111,14 +111,14 @@
       "source": "How displayed cells are selected. 'rank' takes the highest scores, with the count determined by the inferred fraction. 'attributed' assigns each cell a guide probability and takes those above the threshold. 'assigned' assigns exactly one guide to every cell in the well, so each guide receives the number of cells implied by its reads. 'multivariate' uses all measurements rather than the score alone and requires the gene-by-measurement sweep effects grid. Default 'rank'.",
       "source_sha256": "834cc6315b67a13c79e9275874fa0e1a84f75ec0b464d53740b813f8ab270dca",
       "table": "setting_tooltips",
-      "translation": "如何显示的细胞被选择。 'rank' 得到了最高的分数,其数量由完成分数确定。 'attributed' 指定每个细胞一个引导 RNA的概率,并采取超越边界的。 'assigned' 将一个引导 RNA分配给孔中的每个细胞,因此每个引导 RNA都收到由其阅读所指定的单元素数量。 'multivariate' 使用所有测量,而不是单独的分数,并要求基因测量冲动效应网络。 默认 'rank'。"
+      "translation": "如何显示的细胞被选择。 'rank' 得到了最高的分数,其数量由完成分数确定。 'attributed' 指定每个细胞一个引导 RNA的概率,并采取超越阈值的。 'assigned' 将一个引导 RNA分配给孔中的每个细胞,因此每个引导 RNA都收到由其阅读所指定的单元素数量。 'multivariate' 使用所有测量,而不是单独的分数,并要求基因测量冲动效应网络。 默认 'rank'。"
     },
     {
       "key": "guide_fractions_file",
       "source": "Sequencing-derived table with one fraction per well and guide. Duplicate well-guide rows are refused because they would reweight target evidence ambiguously. Default '' requires selection.",
       "source_sha256": "d63bddd19afc999a90d3c88b8a72ffa2bd4de39c298dccbd1feda818ffa3a452",
       "table": "setting_tooltips",
-      "translation": "序列衍生表,每个字符和引导 RNA一分之一,被拒绝复制好导行的行列,因为它们会双重重的目标证据,默认“需要选择。"
+      "translation": "测序得到的表，每个孔和引导 RNA 一个比例。重复的孔-引导 RNA 行会被拒绝，因为它们会使目标证据的权重变得含糊。默认值 '' 表示需要选择。"
     },
     {
       "key": "guide_presence_threshold",
@@ -146,7 +146,7 @@
       "source": "Number of distinct guides supporting the selected hit in the source regression. It is provenance for interpretation, not a cell-level prediction threshold. Default 0.",
       "source_sha256": "20b19b36e42739d11fe616849e09bc41e37445d8907c68b8427a1d5636bde4d5",
       "table": "setting_tooltips",
-      "translation": "不同引导 RNA的数量支持在源回归中选择的打击,它是解释的来源,而不是细胞级预测边界。"
+      "translation": "不同引导 RNA的数量支持在源回归中选择的打击,它是解释的来源,而不是细胞级预测阈值。"
     },
     {
       "key": "hit_pipeline_permutations",
@@ -181,7 +181,7 @@
       "source": "Scaled median-absolute-deviation threshold for nucleus area before guide annotation. Lower values remove more nucleus-size extremes before guide fractions and normalization are computed. Set to None to disable. Default None.",
       "source_sha256": "eb64535ebc12f0ec9a1b7bc04c4cb3f81d9f5e4c9da72aabbbaa3a9a5a733db8",
       "table": "setting_tooltips",
-      "translation": "在引导 RNA标记之前,将中间绝对偏差边界扩展到核区域。 较低的值在引导 RNA分裂和正常化计算之前删除更多的核尺寸极端. 设置为 None 以禁用. 默认值 None。"
+      "translation": "在引导 RNA标记之前,将中间绝对偏差阈值扩展到核区域。 较低的值在引导 RNA分裂和正常化计算之前删除更多的核尺寸极端. 设置为 None 以禁用. 默认值 None。"
     },
     {
       "key": "regression",
@@ -216,7 +216,7 @@
       "source": "Guide columns in a wide independent-variable table. Leave empty to use all numeric columns other than plate/well metadata; list them explicitly when the table contains additional numeric metadata. Ignored for long input. Default [].",
       "source_sha256": "b02b01b10549c128c411619a1bfd9a78f064fdfc0519d18bb9fd3270de2f3836",
       "table": "setting_tooltips",
-      "translation": "引导 RNA列在一个广泛的独立变量表中. 放空使用所有数字列,而不是平板/好数据; 明确列出它们,当表包含额外的数字数据。"
+      "translation": "宽格式自变量表中的引导 RNA 列。留空则使用除板/孔元数据以外的所有数值列；当表中包含其他数值元数据时，请明确列出这些列。长格式输入时忽略。默认值 []。"
     },
     {
       "key": "A gene's fraction in a well is the sum of its guide fractions, matching the aggregation used by regression. Gene-level sweep results therefore use the same guide aggregation as the fitted gene effect.",
@@ -363,7 +363,7 @@
       "source": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
       "source_sha256": "aa89e631c9922a030a916ada977d20e8c54a827d7c739cf7233246ca1e58162e",
       "table": "ui",
-      "translation": "被列入草案中的物品。 'gRNAs' 只显示与火山上选择的引导 RNA标记的物体。 “gRNAs + 其他数据点在选择的孔里”也显示了这些孔里剩下的对象,具有不同的编码。 同一孔内对象的比较对其共享板、收购、绘画和图像条件进行控制。"
+      "translation": "图中包含的对象。'gRNAs' 只显示带有火山图上所选引导 RNA 标注的对象。“gRNAs + 其他数据点在选择的孔里”还会以不同的编码显示这些孔中的其余对象。在同一孔内比较对象，可以控制它们共有的板、采集、染色和成像条件。"
     },
     {
       "key": "One coefficient per gene, from the summed guide fraction.",
@@ -503,7 +503,7 @@
       "source": "logit — parametric: a fraction as a binomial proportion, log-odds linear in the guides, weighted by the cells behind the well",
       "source_sha256": "3e336a09ee8d6df0ee84184f457e2bdea69efef5fbdaa85ffb711a067c7b18b8",
       "table": "ui",
-      "translation": "logit - 参数:一个分裂作为一个二元比例,Log-odds线性在引导 RNA中,重量由细胞背后的孔"
+      "translation": "logit - 参数:一个分裂作为一个二元比例,Log-odds线性在引导 RNA中,权重由细胞背后的孔"
     },
     {
       "key": "mixed — parametric: guides nested in genes as random effects, those effects normal; guides that disagree widen their gene's interval",

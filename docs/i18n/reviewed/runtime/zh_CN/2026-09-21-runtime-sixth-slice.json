@@ -102,13 +102,6 @@
     },
     {
       "table": "ui",
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "translation": "天空中最后一抹色彩：暗金色之上的玫瑰色和洋红色，以及入夜前地平线呈现的梅紫色。",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f"
-    },
-    {
-      "table": "ui",
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "translation": "当前无法访问已发布的文档，因此这里显示的是随本机代码保存的描述。",
@@ -316,6 +309,14 @@
       "translation": "将设置作为一组显示或隐藏，包括画笔、魔棒、显示、自动筛选、对象操作、Otsu、对象检测和实时放大镜。隐藏后，画布会占用这些设置腾出的宽度。",
       "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
       "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "translation": "天空中最后一抹色彩：暗金色之上的玫瑰色和洋红色，以及入夜前地平线呈现的梅紫色。",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27."

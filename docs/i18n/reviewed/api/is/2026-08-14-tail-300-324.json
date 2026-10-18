@@ -64,7 +64,10 @@
       "source_sha256": "442d2e98bc2e4de92a950ca39b229864d8dc2e40d4d17069924431d8e19ef37b",
       "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
       "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
-      "translation": "Geymt sem gögn frekar en sett beint í töflu svo leit sé prófanleg án GUI, og svo sá sem kallar ákveður hvað \"best\" þýðir -- sem það þarf að gera, vegna þess að stigin eru á skjön við hvort annað að ásettu ráði. Silhouette er blindur fyrir því hversu mikið var hent, svo keyrsla sem kallar 90% af plötuhávaða og klasar restina þétt fær frábært stig og er ónothæf."
+      "translation": "Geymt sem gögn frekar en sett beint í töflu svo leit sé prófanleg án GUI, og svo sá sem kallar ákveður hvað \"best\" þýðir -- sem það þarf að gera, vegna þess að stigin eru á skjön við hvort annað að ásettu ráði. Silhouette er blindur fyrir því hversu mikið var hent, svo keyrsla sem kallar 90% af plötuhávaða og klasar restina þétt fær frábært stig og er ónothæf.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.crops.MergedCropSource.spec_for#1",
@@ -103,7 +106,9 @@
       "source_sha256": "0144691542450b10065d13d2a7a39d72eb7e2252929878caf9c62fcfd84da9ac",
       "source": "The classes a settings dict defines, in the order they were given.",
       "context": "The classes a settings key-value mapping defines, in the order they were given.",
-      "translation": "Flokkarnir sem stillingaleyfa-lykil-gildi kortlagning skilgreinir, í þeirri röð sem þau voru gefin."
+      "translation": "Flokkarnir sem stillingaleyfa-lykil-gildi kortlagning skilgreinir, í þeirri röð sem þau voru gefin.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.zstack.stitch_planes#1",

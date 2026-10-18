@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source": "Automatic pass/fail checks on the finished masks, what the run keeps on disk, and how it behaves when something fails: object count, size and border checks, the files and intermediates saved, error handling, workers, batch size, GPUs and the random seed. Tighten the checks once you know what a good field looks like.",
+      "source_sha256": "0328eb9975be8f0f5f6427d13c1a061101d7206a75e15c8cfcc03b7f6bdabd11",
+      "translation": "Automatiska godkänd/underkänd-kontroller av de färdiga maskerna, vad körningen sparar på disk och hur den beter sig när något går fel: kontroller av antal objekt, storlek och kant, sparade filer och mellanresultat, felhantering, arbetsprocesser, batchstorlek, GPUs och slumpfröet. Skärp kontrollerna när du vet hur ett bra bildfält ser ut."
+    },
+    {
+      "table": "categories",
+      "key": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source": "Deconvolution or convolution with the microscope's point spread function, applied to the segmentation channels before normalization: a calibrated measured PSF, one inferred from the objective, or an explicit Gaussian. Richardson-Lucy deconvolution sharpens and can amplify noise. Raw images and measurement intensities remain unchanged.",
+      "source_sha256": "7cc5d1d59638d155c5b90c414adab0826063f8a6cbd31646c284ac2d16f7f43e",
+      "translation": "Dekonvolution eller faltning med mikroskopets punktspridningsfunktion, tillämpad på segmenteringskanalerna före normaliseringen: en kalibrerad uppmätt PSF, en som härletts från objektivet eller en explicit gaussisk. Richardson-Lucy-dekonvolution skärper och kan förstärka brus. Råbilder och mätintensiteter förblir oförändrade."
+    },
+    {
+      "table": "categories",
+      "key": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source": "Noise2Void denoising trained on the run's own noisy images, with no clean targets: one model per segmentation channel, applied after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo.",
+      "source_sha256": "05072f9978f4f7a438fbfc269f81553fea5d09750038ae29de5c3f984610d534",
+      "translation": "Noise2Void-brusreducering tränad på körningens egna brusiga bilder, utan rena mål: en modell per segmenteringskanal, tillämpad efter belysningskorrigeringen och före PSF:en och förbättringskedjan. Kräver CAREamics-motorn från modellbiblioteket."
+    },
+    {
+      "table": "categories",
+      "key": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source": "One column per object -- cell, nucleus, pathogen, cytoplasm -- and one row per question: channel, model, diameter, thresholds, remove background, adjust cells, and any filters added with Add a filter. Fill a column for every object the run segments.",
+      "source_sha256": "56a21ef6fc343f2f81c8032c7f78cdb7624042157a0913c2027c04e788c2e3a8",
+      "translation": "En kolumn per objekt – cell, kärna, patogen, cytoplasma – och en rad per fråga: kanal, modell, diameter, trösklar, ta bort bakgrund, justera celler och eventuella filter som lagts till med Lägg till ett filter. Fyll i en kolumn för varje objekt som körningen segmenterar."
+    },
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "Läs plattan direkt från molnlagring: inloggningsuppgifter, slutpunkt och lokal cache, samt molnmappen som mätvärdena kopieras till när körningen är klar. Lämna orört för en platta på lokal disk."
+    },
+    {
+      "table": "categories",
+      "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
+      "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
+      "translation": "Mappen med de maskade bilderna, experimentnamnet som mätvärdena arkiveras under, samt den lilla testkörning och de diagram som används för att kontrollera en konfiguration innan man satsar på en hel platta."
+    },
+    {
+      "table": "categories",
+      "key": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source": "What happens around and after the measurement: how the run recovers from failures and how many workers it uses, profiling of the finished tables, and copying them to a database backend.",
+      "source_sha256": "ca6fff8808c134c26c36828f1ed7a6539f1e6cdbbd34365c6f0f5c8414762aa0",
+      "translation": "Vad som händer kring och efter mätningen: hur körningen återhämtar sig från fel och hur många arbetsprocesser den använder, profilering av de färdiga tabellerna och kopiering av dem till en databasmotor."
+    },
+    {
+      "table": "categories",
+      "key": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source": "What is done to the pixels of each field before a single feature is measured -- bleach, spectral and illumination correction, deconvolution with a point spread function and cross-plate intensity calibration -- and which barcode links each plate to its plate map. The masks are not changed.",
+      "source_sha256": "72a3eb42ea282a4243dfefb3c6e0b69feae21b8046fa694ab8018bb18a5e21ed",
+      "translation": "Vad som görs med pixlarna i varje bildfält innan en enda egenskap mäts – blekningskorrigering, spektral korrigering och belysningskorrigering, dekonvolution med en punktspridningsfunktion och intensitetskalibrering mellan plattor – och vilken streckkod som kopplar varje platta till dess plattkarta. Maskerna ändras inte."
+    },
+    {
+      "table": "categories",
+      "key": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
+      "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
+      "translation": "Vilka familjer av mätvärden som beräknas för varje objekt – intensitet, morfologi, textur, radiell fördelning och kolokalisering – och de analyser som läses från dem, som konfluens, cellcykel, sårslutning, viabilitet och tid till händelse. Fler egenskaper betyder en bredare tabell och en längre körning."
+    }
+  ]
+}

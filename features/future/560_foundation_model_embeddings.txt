@@ -1,11 +1,26 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: OPEN (alpha) — 2026-10-16 usable example data/workflow requested; official Cell-DINO access and scientific comparisons remain separate acceptance gates.
+Status: OPEN (alpha) — BLOCKED ON MAINTAINER (2026-10-17): open-DINOv2 workflow, real-cell and synthetic examples and Cell-DINO drop-in shipped; only the steps below remain.
 2026-10-11: official Cell-DINO weights still only via Meta's gated request
 form (maintainer must submit it); see the 2026-10-11 note.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
-Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+Owner: Claude Home (2026-10-17; Codex stopped); next step maintainer. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+BLOCKED ON MAINTAINER (2026-10-17; supersedes the 2026-10-15 steps)
+    1. Request Cell-DINO at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/
+       and read the FAIR non-commercial model licence yourself.
+    2. With the e-mailed URL: wget the checkpoint into ~/.spacr/models/cell_dino/
+       (or point $SPACR_CELL_DINO_CHECKPOINT at it). No configuration needed.
+    3. Show alpha features -> Embeddings -> Foundation model "DINOv2 (Cell-DINO
+       when installed)". The line under the controls names the detected
+       factory; press Checkpoint and channels..., map the 4 (HPA) or 5
+       (Cell Painting) planes in model order, OK. The line then reads
+       "In use: official Cell-DINO (...)"; Embed.
+    4. Human-label comparison: embed one human-labelled crop set with each
+       backbone (resnet18, DINOv2, OpenPhenom, ChAda-ViT, SubCell, Cell-DINO),
+       load Labels... (one row per crop, 'label' column) and record kNN/mAP
+       vs chance and Use for -> Classifier per backbone in this file.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
     "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
@@ -405,10 +420,7 @@ data/560_comparison_caption_owner_2026-10-15/ and
 data/370_560_runtime_catalogs_2026-10-15/.
 
 2026-10-15 — Labels now reports unreadable/empty tables without losing existing labels, vectors or scorecards (source 5bbc31cec12); 19 related checks and normal nine-locale generation/audit pass.
-BLOCKED ON MAINTAINER: request official Cell-DINO access at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/ and review the model terms personally.
-Download the approved checkpoint; provide its path, SHA256, official factory and correctly ordered biological channels using the existing instructions above.
-Enable Show alpha features → Embeddings; embed the same labelled crops for each backbone, load Labels… with one row per crop in crop order and a label column, then compare kNN/mAP/chance and classifier results.
-Record the dataset/labels, checkpoint and resulting scores; these CPU software checks neither recertify historical scientific results nor establish official-weight acceptance.
+(Maintainer steps moved to BLOCKED ON MAINTAINER at the top, 2026-10-17.)
 
 2026-10-16 — Maintainer requests an available alpha Embeddings feature with usable test data; embedding_implementation + embedding_acceptance own completion.
 Keep the feature behind Show alpha features with ALPHA_FEATURES registration and literal object names; supply a small reproducible generic example crop/label bundle and clear GUI loading/testing instructions.
@@ -419,3 +431,10 @@ Official Cell-DINO access must not block delivery of a usable alpha example for 
 Actual threaded GUI load, cached pretrained ResNet-18 CPU inference (24×512 finite vectors), retrieval scorecard and five-fold classifier passed;36 owning software checks remain green.
 Normal runtime generation/audit passes all9 locales;9 installed-locale GUI checks pass, including action captions and persistent synthetic-only caveat.
 Requested functional alpha example is delivered; original F560 scientific acceptance remains OPEN for official Cell-DINO access/terms and labelled foundation-model comparisons.
+
+2026-10-17 — Claude Home: Foundation model "DINOv2 (Cell-DINO when installed)" runs open DINOv2 ViT-S/14 unless an official checkpoint sits in ~/.spacr/models/cell_dino (or $SPACR_CELL_DINO_CHECKPOINT); factory read from its patch embedding, SHA-256 computed, planes mapped once; an alpha line says which model runs and why.
+Alpha "Load cell example" loads the example plate's 53 annotated cells (infected 1/2) with a written label table; the synthetic demo now uses the same DINOv2 choice. Both widgets in ALPHA_FEATURES[560].
+CPU acceptance (DINOv2, real screen): cell example 53 x 384 finite, kNN 0.91, mAP 0.76 (chance 0.56), 15 s; synthetic 24 x 384, kNN 1.00, mAP 1.00 (chance 0.39). Functional only. Tests: test_cell_dino_drop_in, qt/test_embedding_synthetic_demo.
+Remaining: only the BLOCKED ON MAINTAINER steps at the top (Meta form; human-label comparisons incl. Cell-DINO).
+
+2026-10-18 — Release-note accuracy: distinguish the selectable DINOv2 workflow from the fresh GUI/API ResNet18 backbone default; Cell-DINO requires a configured official checkpoint and channel mapping. Correct the1.5.1.5 note only, preserving alpha status and all existing checkpoint/scientific acceptance gates; no model or application changes.

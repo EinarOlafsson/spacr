@@ -7,7 +7,9 @@
       "source_sha256": "084ddd37c9218216c4e9b8a32cadc4dded347924250d4d51156c64331f61e25c",
       "source": "Cross-fitted hit-like probabilities and independent-unit evidence.",
       "context": "Cross-fitted hit-like probabilities and independent-unit evidence.",
-      "translation": "Víxlprófaðar líkur á svipgerð sem líkist erfðaskimunarhitti ásamt gögnum frá óháðum tilraunaeiningum."
+      "translation": "Víxlprófaðar líkur á svipgerð sem líkist erfðaskimunarhitti ásamt gögnum frá óháðum tilraunaeiningum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     }
   ]
 }

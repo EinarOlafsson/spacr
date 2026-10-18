@@ -96,7 +96,7 @@ def test_pypi_keeps_each_readable_panel_destination(metadata):
     article = Images()
     article.feed(html)
     pages = readme_tool().compose("en", render=False).pages
-    assert {"hardware-support-2", "generated-model-zoo-3"} <= set(pages)
+    assert {"generated-hardware-1", "generated-model-zoo-3"} <= set(pages)
     destination_prefix = (
         "https://github.com/EinarOlafsson/spacr/blob/main/docs/readme_text/en/"
     )

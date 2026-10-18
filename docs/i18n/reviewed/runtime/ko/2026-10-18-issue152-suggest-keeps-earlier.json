@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude); no human or native-speaker signoff",
+  "review_method": "Direct translation of the three Annotate Suggest failure and cancellation texts added for issue #152, reusing the terms of the reviewed 2026-10-01 Suggest records and the runtime catalog (image type filter, crop, annotations, round scores).",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest cancelled before writing new suggestions. Earlier suggestions were kept; round scores may have been updated.",
+      "source": "Suggest cancelled before writing new suggestions. Earlier suggestions were kept; round scores may have been updated.",
+      "source_sha256": "5654926ad636a39c0a8949486b1d158fb0feddce92fc78e71c934bcad186425c",
+      "translation": "새 제안을 기록하기 전에 제안 생성이 취소되었습니다. 이전 제안은 유지되었으며, 이번 라운드의 점수는 갱신되었을 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No new suggestions from this round were saved. Earlier suggestions were kept; round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — an image filter that keeps no crop, or no measurement tables to build features from.",
+      "source": "No new suggestions from this round were saved. Earlier suggestions were kept; round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — an image filter that keeps no crop, or no measurement tables to build features from.",
+      "source_sha256": "0cb290ca2a7fa7be000836b6a1f839828cddb2082fa3acbca2615b8dfde82a67",
+      "translation": "이번 라운드의 새 제안은 저장되지 않았습니다. 이전 제안은 유지되었으며, 이번 라운드의 점수는 갱신되었을 수 있습니다. 사용자의 주석은 변경되지 않습니다. 일반적인 원인은 레이블이 너무 적은 경우, 지금까지 한 클래스만 주석된 경우(분류기에는 두 클래스의 예가 모두 필요합니다), 이미지 유형 필터가 어떤 크롭도 남기지 않는 경우, 또는 특징을 만들 측정 테이블이 없는 경우입니다."
+    },
+    {
+      "table": "ui",
+      "key": "No new suggestions from this round were saved. Earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — or no measurement tables to build features from.",
+      "source": "No new suggestions from this round were saved. Earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. The usual causes are too few labels, only one class annotated so far — a classifier needs an example of both — or no measurement tables to build features from.",
+      "source_sha256": "2b7e1b06960594b7688e08f76125d2e09eae493a0373d1a3c9a498422d12422a",
+      "translation": "이번 라운드의 새 제안은 저장되지 않았습니다. 이전 제안이 지워졌거나 이번 라운드의 점수가 갱신되었을 수 있습니다. 사용자의 주석은 변경되지 않습니다. 일반적인 원인은 레이블이 너무 적은 경우, 지금까지 한 클래스만 주석된 경우(분류기에는 두 클래스의 예가 모두 필요합니다), 또는 특징을 만들 측정 테이블이 없는 경우입니다."
+    }
+  ]
+}

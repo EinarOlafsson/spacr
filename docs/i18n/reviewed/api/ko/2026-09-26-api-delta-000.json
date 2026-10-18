@@ -34,7 +34,9 @@
       "source_sha256": "68fcf0be6e95d447179c88cdaf96cde4fe0d3cfac9558a064380e3d5500f1a2a",
       "context": ":func:`method_applicability` for every registered method, by name.",
       "translation": "등록된 모든 방법에 대한 :func:`method_applicability` 결과이며, 이름별로 제공됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#0",
@@ -42,7 +44,9 @@
       "source_sha256": "216352c3f8a763c41a3026a2e82665a4dd11d48c07aae937435e440b87f4d8f3",
       "context": "Classify a backbone into what the attribution families can use.",
       "translation": "백본을 귀속 계열들이 사용할 수 있는 종류로 분류합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#1",
@@ -74,7 +78,9 @@
       "source_sha256": "7bee3a802a9a6a4dd59dbb6013aed91af68e2995f37c1dd152c1c958eee4dfdd",
       "context": ":func:`method_applicability` for a ``cam_type`` setting value.",
       "translation": ":func:`method_applicability` 를 ``cam_type`` 설정 값에 대해 적용한 결과입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.cam_type_applicability#1",
@@ -130,7 +136,9 @@
       "source_sha256": "e524e886fe1a31bb50d721eeb276302421da04a4fb462a81a2ba7199fb7b44da",
       "context": "Every ``cam_type`` the Activation Maps settings can name, in menu order.",
       "translation": "Activation Maps 설정이 지정할 수 있는 모든 ``cam_type`` 이며, 메뉴 순서를 따릅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#0",
@@ -138,7 +146,9 @@
       "source_sha256": "bc950ccd085fd63f98634e57fca78f0662962ef4dc9d32bdbffe24282f4edb95",
       "context": "Class-specific transformer relevance (Chefer, Gur & Wolf 2021).",
       "translation": "클래스별 트랜스포머 관련성입니다(Chefer, Gur & Wolf 2021).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#1",
@@ -210,7 +220,9 @@
       "source_sha256": "74c143460065431729d6cab15c0c6ac52215b6ab9de2c107c6947b36fae2b374",
       "context": "Whether a registered method can give a meaningful map for this backbone.",
       "translation": "등록된 방법이 이 백본에 대해 의미 있는 지도를 줄 수 있는지 여부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.method_applicability#1",
@@ -242,7 +254,9 @@
       "source_sha256": "15be02ac3dd27b2ace560b802cfb6402fbae914fe62570d3e6e75469767cbaf2",
       "context": "The registry method a ``cam_type`` names, or None for a legacy one.",
       "translation": "``cam_type`` 이 가리키는 레지스트리 방법이며, 레거시 방법이면 None 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.resolve_cam_type#1",
@@ -274,7 +288,9 @@
       "source_sha256": "918cf3e023827915ba1ada30e3debc2b406b0cc1dab0ae6fc13925e4e2776aa4",
       "context": "Remove one object whole: every element holding ``label`` becomes 0.",
       "translation": "객체 하나를 통째로 제거합니다. ``label`` 을 가진 모든 요소가 0 이 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.curation.MaskCuration.delete_object#1",
@@ -316,7 +332,9 @@
       "source_sha256": "a130dcf219352204403416f544f49f6ada45888dde0228df34121f28c3d394b1",
       "context": "Draw the permuted residual against laboratory microplate position, one row per block.",
       "translation": "순열된 잔차를 플레이트 위치에 대해 그리며, 블록마다 한 행씩 그립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#1",
@@ -400,7 +418,9 @@
       "source_sha256": "ccb70107e3ca853a8ab6c0a0cb4f53909f0731252de90510b2eb568ec180a0e4",
       "context": "Write the permutation run's QC into ``<destination>/regression_qc/``.",
       "translation": "순열 실행의 QC 를 ``<destination>/regression_qc/`` 에 씁니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.write_permutation_qc#1",
@@ -474,7 +494,9 @@
       "source_sha256": "5d02c5e3b497010c47bdef7fb0434371db7f91084d20524a141abe02108cf64d",
       "context": "The folders Figure mode reads for ``src``, in reading order.",
       "translation": "Figure 모드가 ``src`` 에 대해 읽는 폴더들이며, 읽는 순서를 따릅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#1",
@@ -1246,6 +1268,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
@@ -2994,7 +3018,9 @@
       "source_sha256": "2a53e3b695da3ab5e877273e266aceed6dc3824d172f618c8d06d33b1e4defc9",
       "context": "Which importance measures apply to a model, and why the others do not.",
       "translation": "어떤 중요도 척도가 모델에 적용되는지, 나머지는 왜 적용되지 않는지를 나타냅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.importance_method_availability#1",
@@ -3026,7 +3052,9 @@
       "source_sha256": "e89260c6458b51990a7848aecec2613fbb123e9422ad354675fa14c0e705ceb9",
       "context": "Rank the features of any fitted tabular machine-learning classification model or regressor.",
       "translation": "적합된 임의의 표 형식 분류기 또는 회귀기의 특징 순위를 매깁니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.rank_feature_importance#1",

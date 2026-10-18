@@ -360,7 +360,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "La charge utile est le moyen pour une valeur de revenir du travailleur : une valeur renvoyée serait absorbée par l'exécuteur.",
+      "translation": "La charge utile est le moyen pour une valeur de revenir du worker : une valeur renvoyée serait absorbée par l'exécuteur.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

@@ -35,7 +35,7 @@
       "source_sha256": "303a6d539b06c6145188d85af0b621a6486b139c9f96d356bb3e1df83e33a2ec",
       "source": "Filenames are grouped into \"sets\" of (well × field) — one entry per file. Ordering is stable (sorted alphabetically) so re-running on the same folder yields the same canonical names.",
       "context": "Filenames are grouped into \"sets\" of (well × microscope field of view) — one entry per file. Ordering is stable (sorted alphabetically) so re-executing on the same folder yields the same canonical names.",
-      "translation": "Skrárheiti eru flokkuð í \"sets\" af (vel × smásjáarsýn) — eitt skráarskráðar atriði á skrá. Röðun er stöðug (raðað eftir stafrófsröð) þannig að endurtaka framkvæmd á sama möppu gefur sömu kanónísku nöfn."
+      "translation": "Skrárheiti eru flokkuð í \"sets\" af (brunnur × smásjáarsýn) — eitt skráarskráðar atriði á skrá. Röðun er stöðug (raðað eftir stafrófsröð) þannig að endurtaka framkvæmd á sama möppu gefur sömu kanónísku nöfn."
     },
     {
       "label": "spacr.qt.settings_search.SettingsSearchBar#0",

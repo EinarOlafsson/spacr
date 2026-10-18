@@ -472,7 +472,7 @@
       "source": "Paint what the worker resolved, back on the GUI thread.",
       "source_sha256": "15af4da7fcd0d041106b43efa19221fb9351b03c63c09e60f2d073703629d91c",
       "context": "Paint what the worker resolved, back on the main GUI execution path.",
-      "translation": "Peint ce que le travailleur a résolu, de retour sur le fil de la GUI.",
+      "translation": "Peint ce que le worker a résolu, de retour sur le fil de la GUI.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -488,7 +488,7 @@
       "source": "the worker's ``(resolution, notes)``, or None when it produced nothing to draw.",
       "source_sha256": "b01e6158405a63e2e6b77fdd7eb1008f767ca4ce7973d0e8ba459e224c09cc9a",
       "context": "the worker's ``(resolution, notes)``, or None when it produced nothing to draw.",
-      "translation": "le ``(resolution, notes)`` du travailleur, ou None s'il n'a rien produit à dessiner.",
+      "translation": "le ``(resolution, notes)`` du worker, ou None s'il n'a rien produit à dessiner.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -632,7 +632,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "La charge utile est le moyen pour une valeur de revenir du travailleur : une valeur renvoyée serait absorbée par l'exécuteur.",
+      "translation": "La charge utile est le moyen pour une valeur de revenir du worker : une valeur renvoyée serait absorbée par l'exécuteur.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -640,7 +640,7 @@
       "source": "The same worker-side isdir as scan(), for the same reason.",
       "source_sha256": "d9bf2012333080d51db4493c8bd077cb6a6d9929d0771a135d27b873419d130c",
       "context": "The same worker-side isdir as scan(), for the same reason.",
-      "translation": "Le même isdir côté travailleur que scan(), pour la même raison.",
+      "translation": "Le même isdir côté worker que scan(), pour la même raison.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

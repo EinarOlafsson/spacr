@@ -37,6 +37,7 @@ WORKER_MODULES = (
     "spacr/qt/parascape.py",
     "spacr/qt/widgets/primary_mask_selector.py",
     "spacr/qt/widgets/channel_sort_dialog.py",
+    "spacr/qt/install_consent.py",
 )
 
 #: Calls that reach the worker's own C++ half and so can raise once it is

@@ -1,7 +1,7 @@
 Combine measurement tables for plots and gates
 ==============================================
 
-Open **Graph Builder** or **Gate Editor** from Home to explore measurements.
+Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements.
 Both screens offer **Merge tables** immediately beside the table picker.
 The same merge definition produces the same measurements in either screen.
 For the surrounding workflow, see :doc:`workflows`.

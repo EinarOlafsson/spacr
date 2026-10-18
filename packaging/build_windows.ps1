@@ -40,6 +40,8 @@ from pathlib import Path
 import sys
 
 root = Path(sys.argv[1]).resolve(strict=True)
+with (root / "_internal" / "spacr-uninstall-protocol.json").open("x", encoding="utf-8") as stream:
+    json.dump({"schema": 1, "adapter": "windows-frozen-uninstall-v1"}, stream)
 manifest = root / "spacr-payload.json"
 if manifest.exists() or manifest.is_symlink():
     raise ValueError("The payload ownership record already exists")
@@ -81,6 +83,7 @@ with manifest.open("x", encoding="utf-8") as stream:
         return
     }
     $Installer = Join-Path $Root "dist\spaCR-$Version-setup.exe"
+    $Updater = Join-Path $Root "dist\spaCR-$Version-update.exe"
     $DeleteFiles = @(Get-ChildItem $Source -File -Recurse | ForEach-Object {
         $Relative = $_.FullName.Substring($Source.Length).TrimStart([char]'\')
         '  Delete "$INSTDIR\' + $Relative.Replace('$', '$$') + '"'
@@ -93,8 +96,14 @@ with manifest.open("x", encoding="utf-8") as stream:
     $Template = @'
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
+!include "FileFunc.nsh"
 Name "spaCR"
+!ifdef SPACR_UPDATE_ONLY
+OutFile "@UPDATER@"
+SilentInstall silent
+!else
 OutFile "@INSTALLER@"
+!endif
 InstallDir "$PROGRAMFILES64\spaCR"
 RequestExecutionLevel admin
 Page directory
@@ -103,9 +112,20 @@ UninstPage instfiles
 Section
   SetShellVarContext all
   InitPluginsDir
+  System::Call 'advapi32::ConvertStringSecurityDescriptorToSecurityDescriptorW(w "O:BAG:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)", i 1, *p .r5, p 0) i .r6'
+  ${If} $6 == 0
+    Goto frozen_install_failed
+  ${EndIf}
+  System::Call 'advapi32::SetFileSecurityW(w "$PLUGINSDIR", i 0x80000005, p r5) i .r6'
+  System::Call 'kernel32::LocalFree(p r5)'
+  ${If} $6 == 0
+    Goto frozen_install_failed
+  ${EndIf}
   ClearErrors
   SetOutPath "$PLUGINSDIR\spaCR-payload"
   File /r "@SOURCE@\*"
+  IfErrors frozen_install_failed
+  WriteUninstaller "$PLUGINSDIR\spaCR-payload\Uninstall.exe"
   IfErrors frozen_install_failed
   CopyFiles /SILENT "$PLUGINSDIR\spaCR-payload\_internal\spacr-update-helper.exe" "$PLUGINSDIR\spacr-update-helper.exe"
   IfErrors frozen_install_failed
@@ -114,14 +134,29 @@ Section
   ${If} $1 == 0
     Goto frozen_install_failed
   ${EndIf}
+!ifdef SPACR_UPDATE_ONLY
+  ${GetParameters} $R0
+  ClearErrors
+  ${GetOptions} $R0 "/SPACRUPDATE=" $R1
+  IfErrors frozen_install_failed
+  ${GetOptions} $R0 "/SPACRPID=" $R2
+  IfErrors frozen_install_failed
+  ${If} $R1 == ""
+  ${OrIf} $R2 == ""
+    Goto frozen_install_failed
+  ${EndIf}
+  nsExec::ExecToLog '"$PLUGINSDIR\spacr-update-helper.exe" install-frozen-windows --source "$PLUGINSDIR\spaCR-payload" --destination "$INSTDIR" --version "@VERSION@" --phase-channel "$R1" --desktop-pid "$R2"'
+!else
   nsExec::ExecToLog '"$PLUGINSDIR\spacr-update-helper.exe" install-frozen-windows --source "$PLUGINSDIR\spaCR-payload" --destination "$INSTDIR" --version "@VERSION@"'
+!endif
   Pop $0
   ${If} $0 != 0
     Goto frozen_install_failed
   ${EndIf}
+!ifndef SPACR_UPDATE_ONLY
   SetOutPath "$INSTDIR"
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortcut "$SMPROGRAMS\spaCR.lnk" "$INSTDIR\spacr.exe"
+!endif
   Goto frozen_install_finished
 frozen_install_failed:
   SetErrorLevel 1
@@ -130,19 +165,70 @@ frozen_install_finished:
 SectionEnd
 Section "Uninstall"
   SetShellVarContext all
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/SPACRUNINSTALL=" $1
+  ${IfNot} ${Errors}
+    ${GetOptions} $0 "/SPACRPID=" $2
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ${GetOptions} $0 "/SPACREXE=" $3
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ${GetOptions} $0 "/SPACRREQUEST=" $4
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    InitPluginsDir
+    System::Call 'advapi32::ConvertStringSecurityDescriptorToSecurityDescriptorW(w "O:BAG:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)", i 1, *p .r5, p 0) i .r6'
+    ${If} $6 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    System::Call 'advapi32::SetFileSecurityW(w "$PLUGINSDIR", i 0x80000005, p r5) i .r6'
+    System::Call 'kernel32::LocalFree(p r5)'
+    ${If} $6 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    ClearErrors
+    CopyFiles /SILENT "$INSTDIR\_internal\spacr-update-helper.exe" "$PLUGINSDIR\spacr-update-helper.exe"
+    ${If} ${Errors}
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    SetOutPath "$PLUGINSDIR"
+    System::Call 'kernel32::SetEnvironmentVariableW(w "PYINSTALLER_RESET_ENVIRONMENT", w "1") i .r5'
+    ${If} $5 == 0
+      SetErrorLevel 6
+      Abort
+    ${EndIf}
+    nsExec::ExecToLog '"$PLUGINSDIR\spacr-update-helper.exe" uninstall-frozen-windows --root "$INSTDIR" --phase-channel "$1" --desktop-pid "$2" --desktop-executable "$3" --request "$4"'
+    Pop $0
+    SetErrorLevel $0
+    Goto native_uninstall_finished
+  ${EndIf}
   Delete "$SMPROGRAMS\spaCR.lnk"
 @DELETE_FILES@
 @DELETE_DIRECTORIES@
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
+native_uninstall_finished:
 SectionEnd
 '@
     $Script = Join-Path $Root "build\spacr_installer.nsi"
-    $Template.Replace("@VERSION@", $Version).Replace("@INSTALLER@", $Installer.Replace('$', '$$')).Replace("@SOURCE@", $Source.Replace('$', '$$')).Replace("@DELETE_FILES@", $DeleteFiles).Replace("@DELETE_DIRECTORIES@", $DeleteDirectories) |
+    $Template.Replace("@VERSION@", $Version).Replace("@INSTALLER@", $Installer.Replace('$', '$$')).Replace("@UPDATER@", $Updater.Replace('$', '$$')).Replace("@SOURCE@", $Source.Replace('$', '$$')).Replace("@DELETE_FILES@", $DeleteFiles).Replace("@DELETE_DIRECTORIES@", $DeleteDirectories) |
         Set-Content -Encoding UTF8 $Script
     Invoke-CheckedNative $NsisPath @($Script)
     if (-not (Test-Path $Installer)) { throw "NSIS returned without an installer" }
-    Write-Host "Built $Installer and the portable onedir archive"
+    Invoke-CheckedNative $NsisPath @("/DSPACR_UPDATE_ONLY", $Script)
+    if (-not (Test-Path $Updater)) { throw "NSIS returned without the phased updater" }
+    Write-Host "Built $Installer, $Updater and the portable onedir archive"
 } finally {
     Pop-Location
 }

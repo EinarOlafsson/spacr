@@ -2,9 +2,9 @@
 UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
 ================================================================================
 
-Status:    open
+Status:    PARTIAL — 7/34 released versions published; BLOCKED ON MAINTAINER for upstream prerequisites
 Requested: 2026-10-08
-Owner:     Home packaging/release lane; workstation documentation follow-up
+Owner:     conda_recipe; root publication coordination; upstream feedstock maintainers
 Related:   N59 established feedstock; N43 required GitHub tests
 
 WHAT THE STATE IS
@@ -160,3 +160,9 @@ Current receipt: data/675_forge_current_state_2026-10-15/receipt.json.
 2026-10-16 — Maintainer broadens scope to every released spaCR version supported for conda-forge publication; use one existing agent, conda_recipe (the final staffing instruction supersedes the earlier request for two).
 Do all executable recipe/dependency/fork/PR work on our side, including the existing pyfixest reviewer correction; reuse prepared changes and passed checks, preserve dependency/import assertions and real release hashes.
 Build a concrete supported publication path for released versions, including current1.5.1.4 and1.5.1.5 only after it exists; external feedstock review/channel publication remains a stated prerequisite, not a reason to stop other executable work.
+
+2026-10-16 — N675 incomplete: 7/34 released spaCR versions are on conda-forge; 1.4.9.9, 1.5.0.1 and 1.5.0.2 were newly published and channel-verified.
+2026-10-16 — DGL 0.9.1 candidate 6da5ce2 passed isolated conda package/import/version/numerical tests and was fork-published: https://github.com/EinarOlafsson/dgl-feedstock/compare/v0.9.x...codex-dgl-0.9.1-cpu-20261016
+2026-10-16 — BLOCKED ON MAINTAINER: upstream conda-forge/dgl-feedstock must create v0.9.x at seed 24334a4ad3db0938b68d22d6c0c2f58bda913da6 before the prepared PR can target it; our account has no push permission.
+2026-10-16 — Historical publication awaits upstream merge/channel uploads for staged-recipes#35101 (pyfixest), btrack-feedstock#18 and staged-recipes#35223 (ttkthemes/fonts); all their current checks pass.
+2026-10-16 — staged-recipes#35225 customtkinter still requires Bioconda coordination; historical recipes/tests remain prepared, and spaCR 1.5.1.5 remains gated on its real PyPI release.

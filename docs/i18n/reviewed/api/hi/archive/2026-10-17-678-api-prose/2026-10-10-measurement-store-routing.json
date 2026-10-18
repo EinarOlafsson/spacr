@@ -1,0 +1,107 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` under the first source folder.",
+      "label": "spacr.ml.generate_ml_scores#1",
+      "source": "Reads the measurement store selected by ``measurement_backend`` from :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` under the first source folder.",
+      "source_sha256": "36825b8b74e6ab3d1b65ddf9c4431f61466f4668d09b9fa6f46bf0698334e247",
+      "translation": "``measurement_backend`` द्वारा चुने गए, :func:`spacr.measure.measure_crop` से आए मापन स्टोर को पढ़ता है, कोशिका/केंद्रक/रोगजनक/ कोशिकाद्रव्य फ़ीचर तालिकाओं को मर्ज करता है, ``positive_control`` / ``negative_control`` के रूप में चिह्नित वेल (या एक एनोटेशन कॉलम) को प्रशिक्षण लेबल के रूप में उपयोग करता है, फ़िटिंग :func:`ml_analysis` को सौंपता है, और प्रति-ऑब्जेक्ट पूर्वानुमान, परम्यूटेशन और फ़ीचर-महत्व तालिकाएँ तथा एक प्लेट हीटमैप पहले स्रोत फ़ोल्डर के अंतर्गत ``results/`` में लिखता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
+    },
+    {
+      "context": "``src`` (str or list) — folder(s) containing the measurements.",
+      "label": "spacr.ml.generate_ml_scores#3",
+      "source": "``src`` (str or list) — folder(s) containing the measurements.",
+      "source_sha256": "f9649bcde48272dcf6fe6c267b467dd966b1b229e8957f7c2f9b1060139c801d",
+      "translation": "``src`` (str या list) — मापन वाले फ़ोल्डर।"
+    },
+    {
+      "context": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "label": "spacr.ml.generate_ml_scores#4",
+      "source": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "source_sha256": "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
+      "translation": "``measurement_backend`` / ``measurement_backend_target`` — SQLite, DuckDB, Parquet या PostgreSQL मापन स्टोर चुनते हैं।"
+    },
+    {
+      "context": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and image data channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence image data channel drives the model.",
+      "label": "spacr.ml.interpret_vision_model#1",
+      "source": "Merges per-object measurements from the selected measurement store with a CSV of predicted scores, runs any combination of RF feature importance, permutation importance and SHAP over the top features, then aggregates SHAP contributions into compartment and channel radar plots so you can see which region (cell / nucleus / pathogen / cytoplasm) and which fluorescence channel drives the model.",
+      "source_sha256": "b3fd4e7d658707f3e9bae619a91fd0814c79c0818e1ef5b829740efa9b7cc05e",
+      "translation": "चुने गए मापन स्टोर से प्रति-ऑब्जेक्ट मापनों को पूर्वानुमानित स्कोर की एक CSV के साथ मर्ज करता है, शीर्ष फ़ीचरों पर RF फ़ीचर महत्व, परम्यूटेशन महत्व और SHAP का कोई भी संयोजन चलाता है, फिर SHAP योगदानों को कम्पार्टमेंट और चैनल रडार प्लॉट में समेकित करता है, ताकि आप देख सकें कि कौन-सा क्षेत्र (कोशिका / केंद्रक / रोगजनक / कोशिकाद्रव्य) और कौन-सा फ़्लोरेसेंस चैनल मॉडल को संचालित करता है।"
+    },
+    {
+      "context": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",
+      "label": "spacr.ml.interpret_vision_model#12",
+      "source": "The merged per-object DataFrame — the measurement tables joined to the scores CSV — that the explainers were fitted on. Radar and importance plots are rendered, and with ``save=True`` importance CSVs are written under the source folder's ``results/``, as side effects.",
+      "source_sha256": "410a0e3de10b66cfb8aba04f997a4fec17d85fbd1984f2512af1d9368c7d446f",
+      "translation": "मर्ज किया गया प्रति-ऑब्जेक्ट DataFrame — स्कोर CSV से जोड़ी गई मापन तालिकाएँ — जिस पर एक्सप्लेनर फ़िट किए गए थे। साइड इफ़ेक्ट के रूप में रडार और महत्व प्लॉट रेंडर किए जाते हैं, और ``save=True`` होने पर महत्व CSV स्रोत फ़ोल्डर के ``results/`` के अंतर्गत लिखी जाती हैं।"
+    },
+    {
+      "context": "``src`` — folder containing the measurements.",
+      "label": "spacr.ml.interpret_vision_model#3",
+      "source": "``src`` — folder containing the measurements.",
+      "source_sha256": "2c2a047f662554493f1912f8ed549570e65fbf341ad893b2a27696d085c25fec",
+      "translation": "``src`` — मापन वाला फ़ोल्डर।"
+    },
+    {
+      "context": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "label": "spacr.ml.interpret_vision_model#4",
+      "source": "``measurement_backend`` / ``measurement_backend_target`` — select the SQLite, DuckDB, Parquet or PostgreSQL measurement store.",
+      "source_sha256": "81903cfc95928e1020ce1f205374868f38a2507f1997dc0d59a389b24c29b4ed",
+      "translation": "``measurement_backend`` / ``measurement_backend_target`` — SQLite, DuckDB, Parquet या PostgreSQL मापन स्टोर चुनते हैं।"
+    },
+    {
+      "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label. Database inputs also specify ``'score_table'`` or ``'count_table'``; tables from the same database are cached and paired separately.",
+      "label": "spacr.ml.load_regression_input_pairs#2",
+      "source": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label. Database inputs also specify ``'score_table'`` or ``'count_table'``; tables from the same database are cached and paired separately.",
+      "source_sha256": "91c0ecf82e1a22d071a2449f0c6f854ae695f77baadd4600d0b403ba73d3f2b1",
+      "translation": "``'score'`` और ``'count'`` तालिका पथों वाली मैपिंग का अनुक्रम (इनमें से कोई भी खाली हो सकता है), जैसा :func:`normalize_regression_input_pairs` द्वारा लौटाया जाता है। प्रत्येक मैपिंग का ``'plate'`` हल किए गए प्लेट लेबल से अधिलेखित किया जाता है। डेटाबेस इनपुट ``'score_table'`` या ``'count_table'`` भी निर्दिष्ट करते हैं; एक ही डेटाबेस की तालिकाएँ कैश की जाती हैं और अलग-अलग जोड़ी जाती हैं।"
+    },
+    {
+      "context": "How big the fit is about to be, read off its count input tables.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#0",
+      "source": "How big the fit is about to be, read off its count input tables.",
+      "source_sha256": "16d867741877db30c3e82c476b9571fa2687122c81af25093e121cfddb45cdf1",
+      "translation": "फ़िट कितना बड़ा होने वाला है, यह उसकी गणना इनपुट तालिकाओं से पढ़ा जाता है।"
+    },
+    {
+      "context": "What this is and is not. It reads the sgRNA count inputs and nothing else, so it is the design as the input files hold it: before the merge with the score data, before ``fraction_threshold`` and before the microplate sample position filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#2",
+      "source": "WHAT THIS IS AND IS NOT. It reads the sgRNA count inputs and nothing else, so it is the design AS THE INPUT FILES HOLD IT: before the merge with the score data, before ``fraction_threshold`` and before the well filters. That is deliberate -- it is the number to compare the run's own post-cleaning counts against, and comparing them is how a filter that did something unexpected becomes visible. Every caller says which it is.",
+      "source_sha256": "0e43b420537b13399aee953fa3bf7407e016d8421caddce9d4446ceb194f3341",
+      "translation": "यह क्या है और क्या नहीं है। यह sgRNA गणना इनपुट पढ़ता है और कुछ नहीं, इसलिए यह डिज़ाइन वैसा है जैसा इनपुट फ़ाइलें उसे रखती हैं: स्कोर डेटा के साथ मर्ज से पहले, ``fraction_threshold`` से पहले और वेल फ़िल्टरों से पहले। यह जानबूझकर है -- यह वह संख्या है जिससे रन की अपनी सफ़ाई-पश्चात गणनाओं की तुलना करनी है, और इसी तुलना से वह फ़िल्टर दिखाई देता है जिसने कुछ अप्रत्याशित किया। प्रत्येक कॉलर बताता है कि वह कौन-सा है।"
+    },
+    {
+      "context": "regression settings; count paths and optional ``count_table`` names come from ``paired_data``, or paths from legacy ``count_data`` when there are no paired counts.",
+      "label": "spacr.qt.screens.settings_model.regression_design_scan#4",
+      "source": "regression settings; count paths and optional ``count_table`` names come from ``paired_data``, or paths from legacy ``count_data`` when there are no paired counts.",
+      "source_sha256": "0d98b403d68a96ab0a4d25a8b36fc9524780cb9f2200fb52f900ebaaf4635031",
+      "translation": "रिग्रेशन सेटिंग्स; गणना पथ और वैकल्पिक ``count_table`` नाम ``paired_data`` से आते हैं, या जोड़ी गई गणनाएँ न होने पर पथ पुराने ``count_data`` से आते हैं।"
+    },
+    {
+      "context": "Editable one-row-per-laboratory microplate score/count input and measurement link.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#0",
+      "source": "Editable one-row-per-plate score/count input and measurement link.",
+      "source_sha256": "0cea675f583a20c5e0fba9704eab5fd61499cd52d6d713b8ddc38aa5e0bc520e",
+      "translation": "संपादन योग्य, प्रति प्लेट एक पंक्ति वाला स्कोर/गणना इनपुट और मापन लिंक।"
+    },
+    {
+      "context": "A row is one laboratory microplate: its score and count source paths, optional named tables within those sources, and the separate measurements database that laboratory microplate's per-object tables live in. The source paths are filled by addition -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the files still land on the right laboratory microplates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#1",
+      "source": "A row is ONE PLATE: its score and count source paths, optional named tables within those sources, and the separate measurements database that plate's per-object tables live in. The source paths are filled BY ADDITION -- every arrival re-proposes the whole table from filename tokens -- so databases dropped in the opposite order to the files still land on the right plates. That is the rule, and the third column obeys it rather than keeping a list of its own.",
+      "source_sha256": "892f02642e630a53c1ca30bee2c142b9343e81bcdf9a73b730ab8bbc57851f94",
+      "translation": "एक पंक्ति एक प्लेट है: उसके स्कोर और गणना स्रोत पथ, उन स्रोतों के भीतर वैकल्पिक नामित तालिकाएँ, और वह अलग मापन डेटाबेस जिसमें उस प्लेट की प्रति-ऑब्जेक्ट तालिकाएँ रहती हैं। स्रोत पथ जोड़कर भरे जाते हैं -- हर आगमन फ़ाइल नाम टोकन से पूरी तालिका फिर से प्रस्तावित करता है -- ताकि फ़ाइलों के विपरीत क्रम में छोड़े गए डेटाबेस भी सही प्लेटों पर पहुँचें। यही नियम है, और तीसरा कॉलम अपनी अलग सूची रखने के बजाय इसका पालन करता है।"
+    },
+    {
+      "context": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the source files still land on the right plates.",
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#3",
+      "source": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the source files still land on the right plates.",
+      "source_sha256": "97e2d7a934760480fc3c9447069c7db5cefea5a5501f0a59cfe078001c0e34ef",
+      "translation": "पहले से सहेजी गई तालिका, प्रति प्लेट एक प्रविष्टि। इसके बाद आने वाली हर चीज़ जोड़ने के बजाय फ़ाइल नाम टोकन से पूरी तालिका फिर से प्रस्तावित करती है, जिससे स्रोत फ़ाइलों के विपरीत क्रम में छोड़े गए डेटाबेस भी सही प्लेटों पर पहुँचते हैं।"
+    }
+  ],
+  "schema": 1
+}

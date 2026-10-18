@@ -1,1 +1,1 @@
-Le [guide Docker](<../../source/installer_guide.rst#container-images>) décrit la configuration du GPU, le montage des données et les commandes des pipelines.
+Le [guide Docker (nightly, en anglais)](<https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>) décrit la configuration du GPU, le montage des données et les commandes des pipelines.

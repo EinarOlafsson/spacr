@@ -1,0 +1,160 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "label": "spacr.doctor.check_3d_backends#1",
+      "source": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "source_sha256": "8b11956791f38a4e23ee2f831e5b4c6819337c27b3e53ef09c857cca45f5bd4d",
+      "translation": "wgpu (Vulkan, Metal, Direct3D 12) ist eine Standardabhängigkeit, aber eine Installation ohne wgpu wird ebenfalls unterstützt: Die Ansicht zeichnet dann mit OpenGL (VisPy) oder der CPU. Fehlendes wgpu ergibt daher ``PASS``; nur wenn wgpu installiert ist, aber nicht importiert werden kann, lautet das Ergebnis ``WARN``."
+    },
+    {
+      "context": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "label": "spacr.install_profile.build_parser#4",
+      "source": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "source_sha256": "edd2b6caa23768597c33730155e2562a5e2fdfbd21e09aa99f2d09a71b1a8b24",
+      "translation": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) hält fest, dass wgpu bei der Installation ausgelassen wurde, damit Aktualisierungen innerhalb der App es ebenfalls auslassen."
+    },
+    {
+      "context": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "label": "spacr.install_profile.no_wgpu_override#0",
+      "source": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "source_sha256": "6e915bf8a163ef6cdd629f54467df54a4d9adaf60cb01f5cf12221270fa35260",
+      "translation": "Die uv-Datei für ``--override``, die wgpu weiterhin ausschließt, wenn es bei der Installation ausgelassen wurde."
+    },
+    {
+      "context": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "label": "spacr.install_profile.write_profile#4",
+      "source": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "source_sha256": "038864379b17789f078c632901fe9be0c4d9c44eeff811a401ee2b1251040c3f",
+      "translation": "bei der Installation wurde wgpu ausgelassen (über die Installationsoption \"Install without wgpu\" oder unter Linux mit einer glibc-Version vor 2.28); dies wird gespeichert, damit eine Aktualisierung innerhalb der App es ebenfalls auslässt (:func:`no_wgpu_override`)."
+    },
+    {
+      "context": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "label": "spacr.layers.WGPUVolumeRenderer#0",
+      "source": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "source_sha256": "c2dd98ecc2dd29cce527c278aece94156886a94ddfa71e8627e8e93f96aa9b00",
+      "translation": ":func:`render_volume`, mit Raymarching auf der GPU über wgpu (WGSL)."
+    },
+    {
+      "context": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "label": "spacr.layers.WGPUVolumeRenderer#1",
+      "source": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "source_sha256": "df87602fa9ec4c3c20c6a9672078f968d0e89ad2282ca16daf356e2dcdb6d565",
+      "translation": "Der dritte Renderer für dasselbe Einzelbild: je nach übergebenem Adapter Vulkan, Metal oder Direct3D 12. Er verwendet dieselben Strahlen (:class:`VolumeRays`), Darstellungsarten, Oberflächenausführungen und dieselbe Linse wie :func:`render_volume` und :class:`GLVolumeRenderer`; jeder Aufruf des Compute-Shaders durchläuft einen Strahl. Volumen werden mit ``textureLoad`` gelesen und im Shader genau wie bei :func:`scipy.ndimage.map_coordinates` interpoliert (``order=1``, Randwerte wiederholt). Bildebenen werden addiert, Beschriftungsebenen in Stapelreihenfolge darübergelegt, und jede Beschriftungsebene speichert unter jedem Strahl das dem Betrachter nächstgelegene Objekt für die Objektauswahl. Das Einzelbild wird in einen Speicherpuffer gezeichnet, auf die Bildgröße skaliert und zurückgelesen, sodass es unter denselben matplotlib-Achsen wie bei der CPU dargestellt wird."
+    },
+    {
+      "context": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "label": "spacr.layers.WGPUVolumeRenderer#2",
+      "source": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "source_sha256": "7982e7e8cb9341b4386ec24d61f951c3531bf5db1cbd4b2b9d3388efc4af9ccb",
+      "translation": "Ein Volumen wird einmal hochgeladen und anhand seines Speicherbereichs im Cache gehalten, solange es in jedem Einzelbild gezeichnet wird, wie bei :class:`GLVolumeRenderer`."
+    },
+    {
+      "context": "Free every volume, buffer and the device.",
+      "label": "spacr.layers.WGPUVolumeRenderer.close#0",
+      "source": "Free every volume, buffer and the device.",
+      "source_sha256": "5c7a7de2b931c0483b52dc1a028ca177a96ca65eed2d343c0ea9e6defeee2eac",
+      "translation": "Alle Volumen, Puffer und das Gerät freigeben."
+    },
+    {
+      "context": "Draw one frame; the same picture as :func:`render_volume`.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#0",
+      "source": "Draw one frame; the same picture as :func:`render_volume`.",
+      "source_sha256": "70a2013676a8d386c2fdd2947a30979964b58a9a1663add195dfeef9f2418f88",
+      "translation": "Ein Einzelbild zeichnen; dasselbe Bild wie bei :func:`render_volume`."
+    },
+    {
+      "context": "where to sample, in the layers' array indices.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#2",
+      "source": "where to sample, in the layers' array indices.",
+      "source_sha256": "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+      "translation": "die Abtastpositionen, angegeben als Array-Indizes der Ebenen."
+    },
+    {
+      "context": "an object drawn lighter.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#3",
+      "source": "an object drawn lighter.",
+      "source_sha256": "f966b4c17af8888f15b83a7d7d9f82d6a7b9a30237f2fe40217ec200744caaba",
+      "translation": "ein heller dargestelltes Objekt."
+    },
+    {
+      "context": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "label": "spacr.layers.gpu_render_refusal#0",
+      "source": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "source_sha256": "13ff1b338956527418011a1b790b28302b5ccf67840c2570b77c7ab14dbd15dd",
+      "translation": "Der Grund, warum eine 3D-Ansicht hier nicht auf der GPU zeichnen darf, oder ``\"\"``."
+    },
+    {
+      "context": "The graphics adapters wgpu can draw the True 3D view with.",
+      "label": "spacr.layers.wgpu_adapters#0",
+      "source": "The graphics adapters wgpu can draw the True 3D view with.",
+      "source_sha256": "fe49253da26f9b6a6d0b62804952e4cf5038e3b38ef2ffa3d268361d6ca62012",
+      "translation": "Die Grafikadapter, mit denen wgpu die True 3D-Ansicht zeichnen kann."
+    },
+    {
+      "context": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "label": "spacr.layers.wgpu_adapters#1",
+      "source": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "source_sha256": "2cdb02e405e9c1ebdeeb068d68b2b6791e6d4331eabbf659ee021f3b2103bcac",
+      "translation": "wgpu wird erst beim ersten Aufruf importiert, niemals vorher; auf einem Computer ohne wgpu entsteht daher kein zusätzlicher Aufwand. Das Ergebnis wird anschließend gespeichert."
+    },
+    {
+      "context": "a key-value mapping that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a structured-data name never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "label": "spacr.qt.preferences.get_volume_view#1",
+      "source": "a dict that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a key never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "source_sha256": "5a10d40273c87e39a871b830712422664da124f71b866eaeeb2fec37c45bfbaa",
+      "translation": "ein Wörterbuch, das ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` oder ``cpu``), ``scale`` (Render-Skalierung von 1 bis 100) und ``finish`` (Oberflächenausführung der Masken) enthalten kann; ein nie gewählter Schlüssel fehlt. Der Aufrufer prüft die Werte, sodass sich auch ein von einer neueren Version geschriebener Speicher weiterhin öffnen lässt."
+    },
+    {
+      "context": "The GPU backends a choice tries, in order, before the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#0",
+      "source": "The GPU backends a choice tries, in order, before the CPU.",
+      "source_sha256": "ad781141c364e0b2e5e0570975191cd4f44cfb51dde4ea7bc77297b0b0fe5a00",
+      "translation": "Die GPU-Backends, die eine Auswahl der Reihe nach vor der CPU ausprobiert."
+    },
+    {
+      "context": "``sys.platform``; defaults to this computer's.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#4",
+      "source": "``sys.platform``; defaults to this computer's.",
+      "source_sha256": "98cecf4522321d185f3c6acbe53b4718e9467034b1efa6e29a81a10f9114352d",
+      "translation": "``sys.platform``; standardmäßig der Wert dieses Computers."
+    },
+    {
+      "context": "GPU backend keys, best first.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#5",
+      "source": "GPU backend keys, best first.",
+      "source_sha256": "6f5ca7279131b7b5b3d31f756f623ce45006cc6344d36555445df47bd825a3ab",
+      "translation": "Schlüssel der GPU-Backends, das beste zuerst."
+    },
+    {
+      "context": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#0",
+      "source": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "source_sha256": "9f4ae569cf871d5e81685fbb7333907b1858712f0a7f70351ed47d92b1fd35df",
+      "translation": "Der Grund, warum die True 3D-Ansicht hier nicht auf der GPU zeichnen darf, oder ``''``."
+    },
+    {
+      "context": "a one-line reason naming the variable, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#2",
+      "source": "a one-line reason naming the variable, or ``''``.",
+      "source_sha256": "002a142ff3b97da71419c4e17b8b70b9c4263634e6e950e9151ab4bfcf7d8142",
+      "translation": "ein einzeiliger Grund mit dem Namen der Variablen, oder ``''``."
+    },
+    {
+      "context": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "label": "spacr.qt.screens.make_masks.volume_render_backends#1",
+      "source": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "source_sha256": "60e2f48fcd39dab08fe4f6024740cf91c1f765664cb6cbeffe72a5fdb920bed6",
+      "translation": "immer ``auto`` und ``cpu``; ``vulkan``, ``metal`` und ``d3d12``, wenn wgpu installiert ist und einen entsprechenden Adapter findet (:func:`spacr.layers.wgpu_adapters`, das wgpu erst beim ersten Aufruf importiert); ``opengl``, wenn VisPy (eine spaCR-Abhängigkeit) importiert werden kann. Bei ausgeschalteter GPU (:func:`volume_gpu_refusal`) nur ``auto`` und ``cpu``. Ob ein Backend tatsächlich zeichnet, zeigt sich erst beim Zeichnen des ersten Einzelbilds; :meth:`_VolumeStage._active_backend` ermittelt dies, und Auto wechselt entlang :func:`volume_backend_chain` zu den Ersatz-Backends."
+    },
+    {
+      "context": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "source_sha256": "a9946bbe0907d70735d911e3509181d5ad71030515170b76b29ef6bc509582d6",
+      "translation": "Eine Installation, bei der wgpu ausgelassen wurde (ihr Installationsprofil speichert ``without_wgpu``), wird mit der uv-Option ``--override`` aus :func:`spacr.install_profile.no_wgpu_override` aktualisiert, damit auch die Aktualisierung wgpu auslässt."
+    }
+  ],
+  "schema": 1
+}

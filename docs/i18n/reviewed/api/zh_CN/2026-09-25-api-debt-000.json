@@ -258,7 +258,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Consistent device and weight precision for ``CellposeModel`` inference.",
       "source_sha256": "ce02ca9048b4671a445be09ceb1c9f758321d5d68d09535dea2de42e3126da61",
-      "translation": "为 ``CellposeModel`` 推理提供一致的设备和权重精度。"
+      "translation": "为 ``CellposeModel`` 推理提供一致的设备和权重精度。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``gpu`` -- controls Cellpose's selection when no explicit device is supplied, including callers that deliberately drop ``device`` below.",
@@ -486,7 +488,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read a checkpoint's decoder contract, preserving historical untagged models.",
       "source_sha256": "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
-      "translation": "读取检查点的解码器约定，并保留历史上未加标记的模型。"
+      "translation": "读取检查点的解码器约定，并保留历史上未加标记的模型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "artifact mapping returned by ``load_model_artifact``.",
@@ -518,7 +522,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Select decoding before training loaders are built for a resumed model.",
       "source_sha256": "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
-      "translation": "在为恢复的模型构建训练加载器之前选择解码方式。"
+      "translation": "在为恢复的模型构建训练加载器之前选择解码方式。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "trusted checkpoint path, or None for a new training processing session.",
@@ -542,7 +548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Find the decoding record through loaders, subsets and combined datasets.",
       "source_sha256": "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
-      "translation": "在加载器、子集和组合数据集中查找解码记录。"
+      "translation": "在加载器、子集和组合数据集中查找解码记录。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unknown external tensor datasets return None. Mixed recorded policies are refused because a single checkpoint cannot describe both transformations.",
@@ -582,7 +590,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a path or archive stream using the model's recorded policy.",
       "source_sha256": "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
-      "translation": "使用模型记录的策略解码路径或归档流。"
+      "translation": "使用模型记录的策略解码路径或归档流。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image path or seekable binary stream, as accepted by PIL.",
@@ -630,7 +640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Record actual loader decoding and reject checkpoint or validation conflicts.",
       "source_sha256": "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
-      "translation": "记录加载器实际使用的解码方式，并拒绝与检查点或验证集的冲突。"
+      "translation": "记录加载器实际使用的解码方式，并拒绝与检查点或验证集的冲突。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "training loader or dataset whose decoding is inspected.",
@@ -686,7 +698,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Accept only implemented crop decoding policies; never guess a new one.",
       "source_sha256": "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
-      "translation": "只接受已实现的裁剪图解码策略；绝不猜测新的策略。"
+      "translation": "只接受已实现的裁剪图解码策略；绝不猜测新的策略。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``declared_uint8_v1`` or ``stored_pil_v1``.",
@@ -898,7 +912,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one plate folder the three plate example sets unpack into.",
       "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
-      "translation": "三个板示例数据集解压到的那一个板文件夹。"
+      "translation": "三个板示例数据集解压到的那一个板文件夹。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
@@ -1120,7 +1136,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What a query matched, before any pixel was read.",
       "source_sha256": "5bce440c131c6cfb6be8836af2fce1b93c6120fa6b53ac7183ebf5cdea46a379",
-      "translation": "查询在读取任何像素之前匹配到的内容。"
+      "translation": "查询在读取任何像素之前匹配到的内容。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`CropQuery` this answers.",
@@ -1202,7 +1220,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the limit kept crops out of this plan.",
       "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
-      "translation": "限制是否把一些裁剪图排除在此规划之外。"
+      "translation": "限制是否把一些裁剪图排除在此规划之外。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
@@ -1220,7 +1240,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many crops this plan will load.",
       "source_sha256": "5783b2c4d9978bf0dab791660e1c57b4a4a10883eb720a222c0bd5a41c2bf1f6",
-      "translation": "此规划将加载的裁剪图数量。"
+      "translation": "此规划将加载的裁剪图数量。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One line a status bar can show the moment planning returns.",
@@ -1246,7 +1268,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many selected rows could not be turned into a crop at all.",
       "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
-      "translation": "有多少已选择的行根本无法转换为裁剪图。"
+      "translation": "有多少已选择的行根本无法转换为裁剪图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
@@ -1262,7 +1286,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the query matched nothing at all.",
       "source_sha256": "7e4e5d66fbb175e63f93b1162751214bb4b1992954443035d06ab426887037f7",
-      "translation": "查询是否完全没有匹配任何内容。"
+      "translation": "查询是否完全没有匹配任何内容。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(start, stop)`` for each page, covering every row exactly once.",
@@ -1270,7 +1296,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``(start, stop)`` for each page, covering every row exactly once.",
       "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
-      "translation": "每页的 ``(start, stop)``，恰好覆盖每一行一次。"
+      "translation": "每页的 ``(start, stop)``，恰好覆盖每一行一次。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "extracted image regions per page; ``0`` takes the query's own.",
@@ -1286,7 +1314,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Which crops to load, and how much of the answer to take.",
       "source_sha256": "e780d9c102021b621038eaa6301ce0e76a26e93711cde02a74c57426b4316917",
-      "translation": "要加载哪些裁剪图，以及要从答案中取用多少。"
+      "translation": "要加载哪些裁剪图，以及要从答案中取用多少。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`CROP_SOURCE_DATABASE` or :data:`CROP_SOURCE_FOLDER`.",
@@ -1358,7 +1388,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One line naming everything this query asked for.",
       "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
-      "translation": "用一行文本列出此查询请求的全部内容。"
+      "translation": "用一行文本列出此查询请求的全部内容。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
@@ -1374,7 +1406,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Centre a crop in a ``height`` x ``width`` frame, padding or trimming.",
       "source_sha256": "116da44772294181c3518db148bfcf3cb39788dc5de2118c3b8ea46ec9209673",
-      "translation": "将裁剪图居中放入 ``height`` x ``width`` 的画框中，必要时填充或修剪。"
+      "translation": "将裁剪图居中放入 ``height`` x ``width`` 的画框中，必要时填充或修剪。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling an extracted image region changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a microscope field of view, so two extracted image regions of the same object arrive the same way whichever route cut them.",
@@ -1416,7 +1450,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read every crop in ``plan``, a page at a time.",
       "source_sha256": "5a96d2756f9e2cf1b136e576245a4674ca38cd6b9a5b818f706d40e195cc3f30",
-      "translation": "逐页读取 ``plan`` 中的每个裁剪图。"
+      "translation": "逐页读取 ``plan`` 中的每个裁剪图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here touches a widget and nothing here is Qt: ``progress`` and ``cancelled`` are plain callables, so an application view passes a signal emit and a flag and the same function drives a script or a test.",
@@ -1480,7 +1516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read one page of ``plan``'s crops.",
       "source_sha256": "c731df150ea03eff5ec4076ec311175d4584efa68b21d8aa19d0ccc9430cf33b",
-      "translation": "读取 ``plan`` 的一页裁剪图。"
+      "translation": "读取 ``plan`` 的一页裁剪图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "first row of the page.",
@@ -1606,7 +1644,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a ``measurements.db``, reading no pixels.",
       "source_sha256": "e708900911e0f41204e959544c6f2d3c53d108a547b0b1fa0834a92904162492",
-      "translation": "从 ``measurements.db`` 中选择裁剪图，不读取任何像素。"
+      "translation": "从 ``measurements.db`` 中选择裁剪图，不读取任何像素。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The rows come back carrying ``png_path`` -- what :class:`spacr.crops.PngCropSource` reads -- and, through :func:`spacr.png_list.crop_rows_from_png_list`, ``path_name`` and an integer ``object_label``, which is what :class:`spacr.crops.MergedCropSource` needs. So the plan is good for whichever route :func:`spacr.crops.resolve_crop_source` picks, and the route is picked here, once, rather than per extracted image region.",
@@ -1646,7 +1686,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
       "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
-      "translation": "从 ``*.png`` 文件夹中选择裁剪图，不读取任何像素。"
+      "translation": "从 ``*.png`` 文件夹中选择裁剪图，不读取任何像素。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
@@ -1670,7 +1712,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every plate the crop table names, sorted.",
       "source_sha256": "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
-      "translation": "裁剪图表中列出的所有板，已排序。"
+      "translation": "裁剪图表中列出的所有板，已排序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "laboratory microplate identifiers as strings. Empty when the table has no ``plateID`` column, which is how a database written before laboratory microplate structured-data names existed reads rather than an error.",
@@ -1782,7 +1826,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Decode a PIL crop without clipping its high-bit-depth intensities.",
       "source_sha256": "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
-      "translation": "解码 PIL 裁剪图，不截断其高位深强度值。"
+      "translation": "解码 PIL 裁剪图，不截断其高位深强度值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "open PIL image; owned and closed by the caller.",
@@ -1846,7 +1892,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Silence the per-crop announcements on the CALLING THREAD only.",
       "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
-      "translation": "仅在调用线程上屏蔽逐个裁剪图的提示信息。"
+      "translation": "仅在调用线程上屏蔽逐个裁剪图的提示信息。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
@@ -1926,7 +1974,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Turn the per-crop path printing on or off, for the whole process.",
       "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
-      "translation": "为整个进程打开或关闭逐个裁剪图的路径打印。"
+      "translation": "为整个进程打开或关闭逐个裁剪图的路径打印。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A curation session is a work list with a memory, not one field.",
@@ -2012,7 +2062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "where this queue's resume record is read and written:",
       "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
-      "translation": "此队列的恢复记录读取和写入的位置："
+      "translation": "此队列的恢复记录读取和写入的位置：",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
@@ -2028,7 +2080,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What is left to do in a curation session.",
       "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
-      "translation": "标注整理会话中尚待完成的工作。"
+      "translation": "标注整理会话中尚待完成的工作。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the work list as :attr:`CurationQueue.notices` for the editor to show.",
@@ -2046,7 +2100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the external curation tool keeps one of a queue's files.",
       "source_sha256": "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
-      "translation": "外部整理工具存放队列某个文件的位置。"
+      "translation": "外部整理工具存放队列某个文件的位置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the work list folder.",
@@ -2088,7 +2144,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the queue's scores file, when there is one.",
       "source_sha256": "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
-      "translation": "读取队列的分数文件（如果存在）。"
+      "translation": "读取队列的分数文件（如果存在）。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
@@ -2116,7 +2174,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's probabilities are read from, if anywhere.",
       "source_sha256": "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
-      "translation": "此队列的概率读取位置（如果有）。"
+      "translation": "此队列的概率读取位置（如果有）。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_scores.csv`` first; failing that, the external curation tool's ``<parent>/<name>_scores.csv`` when its header has a ``stem`` column and a probability column, which is how the plaque project's scores are written. A file beside the folder that does not look like scores is not a scores file and is passed over rather than allowed to stop the session.",
@@ -2140,7 +2200,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where this queue's resume record is read from and written to.",
       "source_sha256": "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
-      "translation": "此队列的恢复记录读取和写入的位置。"
+      "translation": "此队列的恢复记录读取和写入的位置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``<folder>/curate_status.csv``, inside the work list folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every microscope field of view already done or skipped as undone while the other tool went on reading the first.",
@@ -2408,7 +2470,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``'complete'``, ``'partial'`` or ``'empty'``.",
       "source_sha256": "97a637dfda4282ecc8318efc67521803d529716c3752e39393c24e5c3e62b3a0",
-      "translation": "``'complete'``、``'partial'`` 或 ``'empty'``。"
+      "translation": "``'complete'``、``'partial'`` 或 ``'empty'``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Not to be confused with :mod:`spacr.example_data`, which fetches the Regression example screen's count and score CSVs from a GitHub release. That is a different set of files, a different host and a different transport. This module is about the ``.tar`` archives of imaging data: the Mask demo laboratory microplate, the Measure example, the Annotate/Classify example, the Replication and Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.",
@@ -2462,7 +2526,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the set called ``key`` unpacks: its folder beside the plate.",
       "source_sha256": "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
-      "translation": "名为 ``key`` 的数据集的解压位置：板旁边属于它自己的文件夹。"
+      "translation": "名为 ``key`` 的数据集的解压位置：板旁边属于它自己的文件夹。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an :data:`EXAMPLE_SETS` key.",
@@ -2770,7 +2836,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze measured projects and save a unified, source-separated report.",
       "source_sha256": "a2099ebcd38a976a383e1b382fd01b3e3c3092e6cbddec8d5a00faaa54ac29e7",
-      "translation": "分析已测量的项目，并保存一份统一的、按来源分开的报告。"
+      "translation": "分析已测量的项目，并保存一份统一的、按来源分开的报告。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "hp_* settings from :func:`default_settings`; src accepts a project, measurements.db, or a list of either. Each canonical DB path is a distinct source identity, even when laboratory microplate/microscope field of view IDs repeat.",
@@ -2794,7 +2862,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Apply Host–Pathogen defaults; replication requires explicit count inputs.",
       "source_sha256": "d222fb7632cd9acf10ab7cb2aaa49fdf67d3d678033abbe1f0ac985a33d88f4d",
-      "translation": "应用 Host–Pathogen 默认值；复制分析需要显式的计数输入。"
+      "translation": "应用 Host–Pathogen 默认值；复制分析需要显式的计数输入。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional overrides, copied without modifying the caller.",
@@ -2818,7 +2888,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Join per-vacuole signals to host references and retain every host cell.",
       "source_sha256": "32cb6713565e9bf1ba73d05f5716173c6fe3fedd5299ff8de1152fa3d8ac82a9",
-      "translation": "将每个纳虫泡的信号连接到宿主参考区域，并保留每一个宿主细胞。"
+      "translation": "将每个纳虫泡的信号连接到宿主参考区域，并保留每一个宿主细胞。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one row per host, including uninfected cells.",
@@ -2890,7 +2962,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Link each child label only when one vacuole covers most of its pixels.",
       "source_sha256": "8343d901c669a34b850e650f8f0f9f16ee47f050d2c5ad8433cdd1dc4d84e18b",
-      "translation": "仅当单个纳虫泡覆盖某个子标签的大部分像素时，才将其关联。"
+      "translation": "仅当单个纳虫泡覆盖某个子标签的大部分像素时，才将其关联。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "integer parasite/object mask, zero background.",
@@ -2930,7 +3004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Create a ready-to-run synthetic project, preserving existing user files.",
       "source_sha256": "a2672e0cbbe6ffad531adadf664ac89b04d1e260e20ee11a92d402a28575d32c",
-      "translation": "创建可直接运行的合成项目，保留已有的用户文件。"
+      "translation": "创建可直接运行的合成项目，保留已有的用户文件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "new/empty project directory or this complete cached sample.",
@@ -2986,7 +3062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return the private cache directory for the synthetic example.",
       "source_sha256": "df47585f94a2c349dfd7e9972cfd63579333257d0cc3db3da2e87d59da40e088",
-      "translation": "返回合成示例的私有缓存目录。"
+      "translation": "返回合成示例的私有缓存目录。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Recognize a complete generated project without replacing user modifications.",
@@ -2994,7 +3072,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Recognize a complete generated project without replacing user modifications.",
       "source_sha256": "f4ebbbd2adf97b3493e0b6750a728d35335947d676a6c8b17c2a67cdf4c76138",
-      "translation": "识别完整的已生成项目，不替换用户所做的修改。"
+      "translation": "识别完整的已生成项目，不替换用户所做的修改。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "candidate synthetic project directory.",
@@ -3018,7 +3098,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the sample from the command line without requiring Qt or network.",
       "source_sha256": "44e902da78d8eb5deee1c63b0c0eca743dd39b339652a9729c50a112f6091708",
-      "translation": "从命令行构建样本，无需 Qt 或网络。"
+      "translation": "从命令行构建样本，无需 Qt 或网络。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional argument list; None reads the process arguments.",
@@ -3050,7 +3132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Analyze one measured field without modifying source or result files.",
       "source_sha256": "06c02f18687c9930962966640ebc2f21205e62e3397b5eeca60b46626f4dca1d",
-      "translation": "分析一个已测量的视野，不修改源文件或结果文件。"
+      "translation": "分析一个已测量的视野，不修改源文件或结果文件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "current Host–Pathogen settings, shared with the full run.",
@@ -3106,7 +3190,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "List at most ``limit`` measured fields, in stable source/identity order.",
       "source_sha256": "1e5a9fdec3e4e81602a488c0278ae4d9849efaea47c3163df20169496de733a4",
-      "translation": "最多列出 ``limit`` 个已测量的视野，按稳定的来源/标识顺序排列。"
+      "translation": "最多列出 ``limit`` 个已测量的视野，按稳定的来源/标识顺序排列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Host–Pathogen settings; src is a project, database or list.",
@@ -3346,7 +3432,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure focus, saturation and nonfinite pixels on unnormalized channels.",
       "source_sha256": "8b4f02a62739041fd0a29a104650ce647ec37bcbb0100d940b887b256467ab9a",
-      "translation": "在未归一化的通道上测量对焦、饱和和非有限像素。"
+      "translation": "在未归一化的通道上测量对焦、饱和和非有限像素。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "YX, YXC or leading-dimensions plus YXC array.",
@@ -3394,7 +3482,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Refuse exclusions that would leave previously measured fields in reports.",
       "source_sha256": "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
-      "translation": "拒绝那些会在报告中留下先前已测量视野的排除操作。"
+      "translation": "拒绝那些会在报告中留下先前已测量视野的排除操作。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Existing results are never deleted. Re-screening an analyzed project needs a fresh project if excluded fields already have measurement rows.",
@@ -3442,7 +3532,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read the active saved exclusion policy for downstream field consumers.",
       "source_sha256": "ccd64f9690eb862b0890839b0f8a5b3f463a9f2f5c54f577d3f528fb1abf1b04",
-      "translation": "为下游视野使用方读取当前生效的已保存排除策略。"
+      "translation": "为下游视野使用方读取当前生效的已保存排除策略。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder whose qc/image_quality.json is authoritative.",
@@ -3474,7 +3566,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Remove policy-excluded fields without substituting empty label images.",
       "source_sha256": "d7c65a291d6a8acfcfb08f1ac33c015823ba7b139b024a3be9b794f564326fbe",
-      "translation": "移除被策略排除的视野，不以空标签图像代替。"
+      "translation": "移除被策略排除的视野，不以空标签图像代替。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "normalized image batch with its original microscope field of view axis.",
@@ -3514,7 +3608,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Validate a saved per-channel policy without inspecting any image.",
       "source_sha256": "c33816246556f8f881be3790683d92f017369949e2083c793f0b297e398ce131",
-      "translation": "验证已保存的逐通道策略，不检查任何图像。"
+      "translation": "验证已保存的逐通道策略，不检查任何图像。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mask settings containing image_qc_* options.",
@@ -3546,7 +3642,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Save a field/channel report and return fields explicitly excluded by policy.",
       "source_sha256": "2e6582f8ea5837914fb9845e7f9a0a71ab5d4aeee7d2cdda88b045c01fa2c5a0",
-      "translation": "保存视野/通道报告，并返回被策略明确排除的视野。"
+      "translation": "保存视野/通道报告，并返回被策略明确排除的视野。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "project folder; reports go to qc/image_quality.json and .csv.",
@@ -3748,7 +3846,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One way the same fields were written, and how Import reads it back.",
       "source_sha256": "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
-      "translation": "写出相同视野的一种方式，以及 Import 如何将其读回。"
+      "translation": "写出相同视野的一种方式，以及 Import 如何将其读回。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder under ``variants/`` and the chooser's route key.",
@@ -3820,7 +3920,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The paragraph the chooser shows on hover.",
       "source_sha256": "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641",
-      "translation": "选择器在鼠标悬停时显示的段落。"
+      "translation": "选择器在鼠标悬停时显示的段落。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the unpacked set lives.",
@@ -3828,7 +3930,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the unpacked set lives.",
       "source_sha256": "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
-      "translation": "解压后的数据集所在位置。"
+      "translation": "解压后的数据集所在位置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the shared example plate the archive unpacks into; :func:`spacr.example_archives.example_plate_folder` when omitted.",
@@ -3852,7 +3956,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The variant called ``key``.",
       "source_sha256": "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
-      "translation": "名为 ``key`` 的变体。"
+      "translation": "名为 ``key`` 的变体。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a key from :data:`IMPORT_VARIANTS`.",
@@ -3876,7 +3982,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether a complete copy of the set -- or of one variant -- is here.",
       "source_sha256": "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
-      "translation": "此处是否有该数据集的完整副本——或其中某个变体的完整副本。"
+      "translation": "此处是否有该数据集的完整副本——或其中某个变体的完整副本。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the unpacked ``import_example`` folder.",
@@ -3910,7 +4018,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every row of the set's ``manifest.csv``.",
       "source_sha256": "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
-      "translation": "数据集 ``manifest.csv`` 中的每一行。"
+      "translation": "数据集 ``manifest.csv`` 中的每一行。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the rows, or ``[]`` when there is no readable manifest.",
@@ -3926,7 +4036,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the chooser fills in for one variant.",
       "source_sha256": "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
-      "translation": "选择器为某个变体填写的内容。"
+      "translation": "选择器为某个变体填写的内容。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the variant.",
@@ -3950,7 +4062,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write the infection report beside the database it came from.",
       "source_sha256": "b2e80c6e268ddb318470ae7a1fdac362421ad203ba9605d25984101a0bdb8cdd",
-      "translation": "将感染报告写在其来源数据库旁边。"
+      "translation": "将感染报告写在其来源数据库旁边。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A measure run emits the report, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
@@ -4018,7 +4132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Average probabilities or vote across selected image orientations.",
       "source_sha256": "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
-      "translation": "在所选的图像方向之间平均概率或进行投票。"
+      "translation": "在所选的图像方向之间平均概率或进行投票。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "evaluation-mode callable returning binary or multiclass logits.",
@@ -4066,7 +4182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return distinct right-angle rotations/reflections, with identity first.",
       "source_sha256": "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
-      "translation": "返回互不相同的直角旋转/镜像，恒等变换排在首位。"
+      "translation": "返回互不相同的直角旋转/镜像，恒等变换排在首位。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping containing the optional tta_* switches.",
@@ -4340,7 +4458,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One row of the FEATURES table: one field, and the files that make it.",
       "source_sha256": "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
-      "translation": "FEATURES 表中的一行：一个视野，以及组成它的文件。"
+      "translation": "FEATURES 表中的一行：一个视野，以及组成它的文件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A row becomes exactly one ``merged/<stem>.npy``, so it is also one field in the measurements database.",
@@ -4396,7 +4516,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``plate_well_field`` name this row is written and measured as.",
       "source_sha256": "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
-      "translation": "此行在写入和测量时所使用的 ``plate_well_field`` 名称。"
+      "translation": "此行在写入和测量时所使用的 ``plate_well_field`` 名称。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the plate name the whole table carries.",
@@ -4420,7 +4542,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Rows are fields, columns are channels and mask types.",
       "source_sha256": "bebdf9806bbffab3f1d3d341aa9ce60377bae00865ffc8d5e5dc003a2db03a23",
-      "translation": "行是视野，列是通道和掩膜类型。"
+      "translation": "行是视野，列是通道和掩膜类型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the thing the FEATURES window edits and the only input :func:`measure_from_field_table` needs. It is deliberately Qt-free: the window drives it, and the tests drive it without a window.",
@@ -4478,7 +4602,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Whether the table is complete enough to measure.",
       "source_sha256": "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286",
-      "translation": "表格是否已完整到可以进行测量。"
+      "translation": "表格是否已完整到可以进行测量。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``role -> plane index`` on the merged array this table would write.",
@@ -4486,7 +4612,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``role -> plane index`` on the merged array this table would write.",
       "source_sha256": "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
-      "translation": "此表格将写出的合并数组上的 ``role -> plane index``。"
+      "translation": "此表格将写出的合并数组上的 ``role -> plane index``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The masks follow the image data channels with no gap, which is the only layout :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes the indices from the image data channel count and the order and refuses a manifest that disagrees.",
@@ -4502,7 +4630,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The mask columns in merged-plane order, duplicates removed.",
       "source_sha256": "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6",
-      "translation": "按合并图层顺序排列的掩膜列，已去除重复项。"
+      "translation": "按合并图层顺序排列的掩膜列，已去除重复项。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything that would stop this table being measured, as sentences.",
@@ -4510,7 +4640,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Everything that would stop this table being measured, as sentences.",
       "source_sha256": "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
-      "translation": "以句子形式列出所有会阻止此表格被测量的问题。"
+      "translation": "以句子形式列出所有会阻止此表格被测量的问题。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Empty means :func:`measure_from_field_table` will run. The window shows these live, so a user never presses a Run button that is going to refuse.",
@@ -4526,7 +4658,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What one regex did to one set of dropped files.",
       "source_sha256": "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
-      "translation": "一个正则表达式对一组拖放文件所做的处理。"
+      "translation": "一个正则表达式对一组拖放文件所做的处理。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table the files were assigned into.",
@@ -4560,7 +4694,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Sort dropped files into rows and channel/mask columns with one regex.",
       "source_sha256": "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
-      "translation": "用一个正则表达式将拖放的文件分到各行以及通道/掩膜列中。"
+      "translation": "用一个正则表达式将拖放的文件分到各行以及通道/掩膜列中。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "key-value mapping with ``switches``, ``tracks_with_switches`` and ``gt_tracks``.",
@@ -4576,7 +4712,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Intersection over union for every pair of labels in two frames.",
       "source_sha256": "7804e7e63c7574f1bcff6191ea7a871d01ad60d751c0c2a92f630f0828c9e3df",
-      "translation": "两帧中每一对标签的交并比。"
+      "translation": "两帧中每一对标签的交并比。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "2-D label frame.",
@@ -4608,7 +4746,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match the labels of two consecutive frames one to one.",
       "source_sha256": "c9f52499b40c86c61b38960eea8a44282db0671ffe63e2e303ec1e3fa1b9c30f",
-      "translation": "将两个连续帧的标签一一匹配。"
+      "translation": "将两个连续帧的标签一一匹配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Hungarian assignment maximising total IoU, then every pair below the threshold is dropped. The assignment matters where a cell divides or two cells touch: greedy best-match links both children to the parent and produces two objects with one id, which the metrics then punish twice.",
@@ -4640,7 +4780,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match every ground-truth object to the computed segment that detects it.",
       "source_sha256": "a26bf651ae274eb2372ce668200ed08abda15aa9512fba01265812a3f64fd24e",
-      "translation": "将每个参考标注对象与检测到它的计算分割区域相匹配。"
+      "translation": "将每个参考标注对象与检测到它的计算分割区域相匹配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge's criterion: a computed segment detects a ground-truth object when it covers more than half of that object's pixels.",
@@ -4680,7 +4822,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cross-tabulate the pixels shared by the labels of two frames.",
       "source_sha256": "e40555b52f8f06aaf23c4fc00c84110bec8cca5e1434a7d654d00cf99ff0228c",
-      "translation": "对两帧标签共享的像素进行交叉列表统计。"
+      "translation": "对两帧标签共享的像素进行交叉列表统计。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One pass over the pixels where both frames are labelled, so the cost is the image rather than the product of the two label counts.",
@@ -4704,7 +4848,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Run the baseline stitcher on a segmentation and score what it produced.",
       "source_sha256": "8e118c570d818c9f23055e6d458f81c9f0c9f899061434ffc6d5df2e389e197e",
-      "translation": "在分割结果上运行基线拼接器，并对其输出进行评分。"
+      "translation": "在分割结果上运行基线拼接器，并对其输出进行评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
@@ -4754,7 +4900,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Score one computed tracking against the truth, counts and all.",
       "source_sha256": "29a6a56d14552c4a05a9fb37314a2b674c9fd3af8eed2f1c735593b0a025a5d8",
-      "translation": "将一个计算所得的跟踪结果与真实情况对比评分，包括所有计数。"
+      "translation": "将一个计算所得的跟踪结果与真实情况对比评分，包括所有计数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the row is called, so several trackings concatenate into one table.",
@@ -4778,7 +4926,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Put scored trackings in one table, best TRA first.",
       "source_sha256": "c9e111bfc8eb626600920e467b1fa2e5d645bd5b35b14123a87b6cbc7876f857",
-      "translation": "将已评分的跟踪结果放入一张表中，TRA 最高者在前。"
+      "translation": "将已评分的跟踪结果放入一张表中，TRA 最高者在前。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "iterable of :func:`score_tracking` results.",
@@ -4802,7 +4952,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Give one id to the same object through a movie, by overlap alone.",
       "source_sha256": "81f8ee892b4e1dbca0a14adf1ae89f5dcaf451b4cb7dd4094252e03d5d2f0825",
-      "translation": "仅凭重叠，为影像序列中的同一对象赋予一个 ID。"
+      "translation": "仅凭重叠，为影像序列中的同一对象赋予一个 ID。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the baseline the plan calls \"the plain stitcher\": each frame is segmented independently, consecutive frames are matched by IoU, an object that matches nothing starts a new id, and nothing is bridged across a gap. It has no notion of a division -- both children are new objects, and the parent simply ends -- which is exactly the limitation the time-flow head is supposed to remove, so it is left in rather than patched around.",
@@ -4834,7 +4986,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Cell Tracking Challenge's TRA: detection and links together.",
       "source_sha256": "fca24c029cb57213a51768d4e103f9f4309733c3ff0c817145f9282b43dbb121",
-      "translation": "Cell Tracking Challenge 的 TRA：同时考虑检测和链接。"
+      "translation": "Cell Tracking Challenge 的 TRA：同时考虑检测和链接。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "float in ``[0, 1]``; ``1.0`` for a tracking identical to the truth.",
@@ -4850,7 +5004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the acyclic oriented graph the AOGM measures are defined on.",
       "source_sha256": "06fa6aeae0fa412bbf36a440bab22b03b04997e587a26988d86a053c8576aa47",
-      "translation": "构建定义 AOGM 度量所用的有向无环图。"
+      "translation": "构建定义 AOGM 度量所用的有向无环图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A label whose frames are not contiguous -- a tracker that bridged a gap, or annotation that let an object vanish for a frame and kept its id -- is not refused, but the gap earns no edge. The challenge's format has no way to say \"the same object, not visible for a while\", and an edge across the gap would credit a link the graph cannot express and the truth does not contain. The tracking is scored on the links it can show; the identity it claims across the gap is still honoured by :func:`identity_switches`, which is where that claim belongs.",

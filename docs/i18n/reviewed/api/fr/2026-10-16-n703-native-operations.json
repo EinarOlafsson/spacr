@@ -1,0 +1,161 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Supported macOS online installations and dedicated POSIX or Windows pip environments use their existing package tool to stage and verify an updated sibling runtime before requesting Restart. Activation requires approved shutdown. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared and Conda environments require their own replacement adapter.",
+      "label": "spacr.install_cleanup#2",
+      "source": "Supported macOS online installations and dedicated POSIX or Windows pip environments use their existing package tool to stage and verify an updated sibling runtime before requesting Restart. Activation requires approved shutdown. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared and Conda environments require their own replacement adapter.",
+      "source_sha256": "e0d76c6db052c67226a155017113c974ea0956726168ef17c855529211ed4c54",
+      "translation": "Les installations en ligne macOS prises en charge et les environnements dédiés avec pip sous POSIX ou Windows utilisent leur outil de paquets existant pour préparer et vérifier un environnement d’exécution mis à jour dans un répertoire frère avant de demander Redémarrer. L’activation exige un arrêt approuvé. Les fichiers d’amorçage, les lanceurs, les paquets inchangés et l’environnement d’exécution précédent sont conservés. Les environnements partagés et Conda nécessitent leur propre adaptateur de remplacement."
+    },
+    {
+      "context": "A supported frozen macOS, Windows or Debian installation stages its verified replacement while the desktop remains open. Protected installations obtain graphical administrator authorization before requesting Restart. Activation requires approved shutdown and actual process exit; recovery data remains until the updated desktop confirms its identity and main window.",
+      "label": "spacr.install_cleanup#3",
+      "source": "A supported frozen macOS, Windows or Debian installation stages its verified replacement while the desktop remains open. Protected installations obtain graphical administrator authorization before requesting Restart. Activation requires approved shutdown and actual process exit; recovery data remains until the updated desktop confirms its identity and main window.",
+      "source_sha256": "f08330e3b1a0a9470b6cc8c0e4470b9f0b667c197fdcf830d836be90a37e12fb",
+      "translation": "Une installation empaquetée macOS, Windows ou Debian prise en charge prépare son remplacement vérifié pendant que l’application de bureau reste ouverte. Les installations protégées obtiennent une autorisation d’administrateur par une interface graphique avant de demander Redémarrer. L’activation exige un arrêt approuvé et la fin effective du processus ; les données de récupération sont conservées jusqu’à ce que l’application de bureau mise à jour confirme son identité et sa fenêtre principale."
+    },
+    {
+      "context": "Ordinary removal preserves preferences and user data. The confirmed GUI uninstall instead previews current or all detected installations and separate cleanup categories, selected by default with individual opt-outs. Protected removal uses only a validated installed helper with the required protocol; authorization, preparation and approved desktop exit precede deletion. Unrelated projects, unverified data and shared environments are preserved.",
+      "label": "spacr.install_cleanup#4",
+      "source": "Ordinary removal preserves preferences and user data. The confirmed GUI uninstall instead previews current or all detected installations and separate cleanup categories, selected by default with individual opt-outs. Protected removal uses only a validated installed helper with the required protocol; authorization, preparation and approved desktop exit precede deletion. Unrelated projects, unverified data and shared environments are preserved.",
+      "source_sha256": "7e7465b19ed0856c63c643081b418f8299629d079f51bb7d42aa5b8f23fe50e4",
+      "translation": "La suppression ordinaire conserve les préférences et les données utilisateur. La désinstallation confirmée dans la GUI affiche quant à elle un aperçu de l’installation actuelle ou de toutes les installations détectées et de catégories de nettoyage distinctes, sélectionnées par défaut avec possibilité de les exclure individuellement. La suppression protégée utilise uniquement un programme auxiliaire installé et validé disposant du protocole requis ; l’autorisation, la préparation et la fermeture approuvée de l’application de bureau précèdent la suppression. Les projets sans rapport, les données non vérifiées et les environnements partagés sont conservés."
+    },
+    {
+      "context": "Retain the native worker's completion or error until its owned process finishes.",
+      "label": "spacr.install_cleanup._coordinate_native_update._run_authorized#0",
+      "source": "Retain the native worker's completion or error until its owned process finishes.",
+      "source_sha256": "a3a72649d96197b1ddcdad241c16a0433083bd42776c86956aa43c9b25d5f76f",
+      "translation": "Conserver la fin d’exécution ou l’erreur du processus de travail natif jusqu’à la fin du processus dont il a la charge."
+    },
+    {
+      "context": "Check desktop cancellation before observing native worker completion.",
+      "label": "spacr.install_cleanup._coordinate_native_update._stopped#0",
+      "source": "Check desktop cancellation before observing native worker completion.",
+      "source_sha256": "33e97b7079dbd95275d614062b32167621984b812fc483c142ac83ac44372729",
+      "translation": "Vérifier l’annulation par l’application de bureau avant d’observer la fin du processus de travail natif."
+    },
+    {
+      "context": "Remove one verified child through its parent descriptor while preserving selected paths.",
+      "label": "spacr.install_cleanup._macos_uninstall_tree.visit#0",
+      "source": "Remove one verified child through its parent descriptor while preserving selected paths.",
+      "source_sha256": "8d8e1dea690b2435111c54eb1c552d8511d05322a158939cc66d1d2acc95194e",
+      "translation": "Supprimer un élément enfant vérifié par le descripteur de son répertoire parent tout en conservant les chemins sélectionnés."
+    },
+    {
+      "context": "Bind activation to the same installed Debian package and trusted helper.",
+      "label": "spacr.install_cleanup._run_debian_update._check_current#0",
+      "source": "Bind activation to the same installed Debian package and trusted helper.",
+      "source_sha256": "a09b6b9297a24d56e65d2f9ca02977d1fa1e334d21783f6e857caaa36cc2b804",
+      "translation": "Lier l’activation au même paquet Debian installé et au programme auxiliaire de confiance."
+    },
+    {
+      "context": "Request one native authorization for trusted staging and deferred activation.",
+      "label": "spacr.install_cleanup._run_macos_frozen_update._authorized#0",
+      "source": "Request one native authorization for trusted staging and deferred activation.",
+      "source_sha256": "8e3b768057cb6bb7c7ec097cfe34c910967f30cf00d3674c671b389ee1c8cedc",
+      "translation": "Demander une seule autorisation native pour une préparation de confiance et une activation différée."
+    },
+    {
+      "context": "Verify the activated release and wait for its actual main window.",
+      "label": "spacr.install_cleanup._run_macos_frozen_update._new_desktop#0",
+      "source": "Verify the activated release and wait for its actual main window.",
+      "source_sha256": "a8e47fdff3291a1e73ae2a648787297cea24eab33964bae83d70972440242801",
+      "translation": "Vérifier la version activée et attendre sa véritable fenêtre principale."
+    },
+    {
+      "context": "Refuse activation if the installed bundle or authenticated image changed.",
+      "label": "spacr.install_cleanup._run_macos_frozen_update._unchanged#0",
+      "source": "Refuse activation if the installed bundle or authenticated image changed.",
+      "source_sha256": "2658a5e98c612635866695bfbde4feb4a2e88eda2bf56838c9b16abb405efc7b",
+      "translation": "Refuser l’activation si le paquet installé ou l’image authentifiée a changé."
+    },
+    {
+      "context": "Offer Restart only after the replacement passes its staged checks.",
+      "label": "spacr.install_cleanup._run_macos_online_update.prepared#0",
+      "source": "Offer Restart only after the replacement passes its staged checks.",
+      "source_sha256": "eb89780f273278e9222a1987ac553218309513fdef4c36821c415e26354e8d28",
+      "translation": "Proposer Redémarrer uniquement après que le remplacement a réussi ses vérifications de préparation."
+    },
+    {
+      "context": "Check desktop cancellation before observing the authorized helper's completion.",
+      "label": "spacr.install_cleanup._run_native_uninstall.stopped#0",
+      "source": "Check desktop cancellation before observing the authorized helper's completion.",
+      "source_sha256": "ae20b54f8091558de19fccfbcea7cbd08b1071a08fd73543c20160b89017b0ad",
+      "translation": "Vérifier l’annulation par l’application de bureau avant d’observer la fin du programme auxiliaire autorisé."
+    },
+    {
+      "context": "Keep the running environment until the verified replacement is accepted.",
+      "label": "spacr.install_cleanup._run_pip_environment_update.prepared#0",
+      "source": "Keep the running environment until the verified replacement is accepted.",
+      "source_sha256": "fa9029cc38e3bc15409300f76c269d66d3cad450cbed7b1f270f621bcaaab2b0",
+      "translation": "Conserver l’environnement en cours d’exécution jusqu’à l’acceptation du remplacement vérifié."
+    },
+    {
+      "context": "Recheck the pinned installer and unchanged Windows destination before activation.",
+      "label": "spacr.install_cleanup._run_windows_frozen_update._check_current#0",
+      "source": "Recheck the pinned installer and unchanged Windows destination before activation.",
+      "source_sha256": "69d55cfeb8ba5b13b719f205fb986a7d62d443b72bb242ff487691cd1f68b4a5",
+      "translation": "Revérifier l’installateur dont l’identité est fixée et la destination Windows inchangée avant l’activation."
+    },
+    {
+      "context": "Confirm the activated Windows payload and its unelevated main window.",
+      "label": "spacr.install_cleanup._run_windows_frozen_update._launch_verified#0",
+      "source": "Confirm the activated Windows payload and its unelevated main window.",
+      "source_sha256": "d84691719ff0efddd5bfd225f439ec94b00953baabad489728aa396343b2dea8",
+      "translation": "Confirmer le contenu Windows activé et sa fenêtre principale sans élévation de privilèges."
+    },
+    {
+      "context": "Retain the native uninstaller's bootstrap result until authenticated completion.",
+      "label": "spacr.install_cleanup._run_windows_native_uninstall.authorize#0",
+      "source": "Retain the native uninstaller's bootstrap result until authenticated completion.",
+      "source_sha256": "fbca2e109203a09a1d07c7f6a5e1f1cf6c79bdb0666b19e469dc47648e7ad6b1",
+      "translation": "Conserver le résultat d’amorçage du désinstallateur natif jusqu’à la fin authentifiée de l’opération."
+    },
+    {
+      "context": "Treat failed native startup as stopped without confusing bootstrap exit with completion.",
+      "label": "spacr.install_cleanup._run_windows_native_uninstall.stopped#0",
+      "source": "Treat failed native startup as stopped without confusing bootstrap exit with completion.",
+      "source_sha256": "533bcf00f100db8593becbee7dbf1360ed65431eb1ce6beae70ab0da076f9c11",
+      "translation": "Traiter un démarrage natif échoué comme un arrêt, sans confondre la fin de l’amorçage avec la fin de l’opération."
+    },
+    {
+      "context": "Request shutdown only when the private replacement is verified.",
+      "label": "spacr.install_cleanup._run_windows_pip_update.prepared#0",
+      "source": "Request shutdown only when the private replacement is verified.",
+      "source_sha256": "35e7bfbe7ae13050a14cb79dade46404cac35685e6efd56cef80fb1261324261",
+      "translation": "Demander l’arrêt uniquement lorsque le remplacement privé est vérifié."
+    },
+    {
+      "context": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It stages replacements while the current application executes and requires authenticated shutdown approval and actual process exit before activation.",
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Installer-made copies and supported dedicated POSIX or Windows pip environments can use this helper. It stages replacements while the current application runs and requires authenticated shutdown approval and actual process exit before activation.",
+      "source_sha256": "da2fc080e7ce4d62a57ad783bc506fca93f3ac1c227e2e2d86a5f3c2287c7f7a",
+      "translation": "Les copies créées par l’installateur et les environnements dédiés avec pip sous POSIX ou Windows pris en charge peuvent utiliser ce programme auxiliaire. Il prépare les remplacements pendant que l’application actuelle s’exécute et exige une approbation d’arrêt authentifiée ainsi que la fin effective du processus avant l’activation."
+    },
+    {
+      "context": "Frozen macOS, Windows and protocol-marked Debian installations use their verified native replacement adapters. Protected macOS requires an installed helper with the current native phase protocol. Windows requires a separately published, checksummed update executable. Administrator authorization and staging precede Restart; activation follows approved desktop exit. The new desktop must confirm its identity and main window before recovery files are retired. Unsupported layouts or missing capabilities leave the executing application unchanged; no ordinary-installer fallback is enabled.",
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "source": "Frozen macOS, Windows and protocol-marked Debian installations use their verified native replacement adapters. Protected macOS requires an installed helper with the current native phase protocol. Windows requires a separately published, checksummed update executable. Administrator authorization and staging precede Restart; activation follows approved desktop exit. The new desktop must confirm its identity and main window before recovery files are retired. Unsupported layouts or missing capabilities leave the running application unchanged; no ordinary-installer fallback is enabled.",
+      "source_sha256": "e4c02e1396bec959a337254cf3f21c3c2cf75cda1b95885223e1361b2b0bdc70",
+      "translation": "Les installations empaquetées macOS et Windows et les installations Debian portant un marqueur de protocole utilisent leurs adaptateurs natifs de remplacement vérifiés. Les installations macOS protégées nécessitent un programme auxiliaire installé disposant du protocole natif de phases actuel. Windows exige un exécutable de mise à jour publié séparément et muni d’une somme de contrôle. L’autorisation d’administrateur et la préparation précèdent Redémarrer ; l’activation suit la fermeture approuvée de l’application de bureau. La nouvelle application de bureau doit confirmer son identité et sa fenêtre principale avant le retrait des fichiers de récupération. Les structures non prises en charge ou les capacités manquantes laissent l’application en cours d’exécution inchangée ; aucun recours à un installateur ordinaire n’est activé."
+    },
+    {
+      "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to install the requested spaCR release into a staged sibling environment. Preserve bootstrap files, the application launcher, and packages that need no update. After verified staging and approved shutdown, activate the staged environment at the existing runtime path and retain the complete previous environment for recovery. Relaunch verifies the requested version, executable, imported module and visible main window. Failed preparation leaves the executing environment unchanged.",
+      "label": "spacr.install_cleanup.start_update_helper#2",
+      "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to install the requested spaCR release into a staged sibling environment. Preserve bootstrap files, the application launcher, and packages that need no update. After verified staging and approved shutdown, activate the staged environment at the existing runtime path and retain the complete previous environment for recovery. Relaunch verifies the requested version, executable, imported module and visible main window. Failed preparation leaves the running environment unchanged.",
+      "source_sha256": "d8c0e7cad66dadfc30b5b50b7e4c54576e3e34ff6ddd735fb6f083efd1682746",
+      "translation": "Pour une installation en ligne macOS prise en charge, utiliser le ``uv`` fourni existant et le Python privé pour installer la version de spaCR demandée dans un environnement préparé au sein d’un répertoire frère. Conserver les fichiers d’amorçage, le lanceur de l’application et les paquets qui n’ont pas besoin de mise à jour. Après une préparation vérifiée et un arrêt approuvé, activer l’environnement préparé au chemin d’exécution existant et conserver l’intégralité de l’environnement précédent pour la récupération. La relance vérifie la version demandée, l’exécutable, le module importé et la fenêtre principale visible. Une préparation échouée laisse l’environnement en cours d’exécution inchangé."
+    },
+    {
+      "context": "Runtime adapters install and verify a private replacement before publishing readiness. The GUI offers Restart and preserves its settings before approving shutdown. Relaunch verifies the actual new desktop process and its main window. Unsupported layouts refuse before starting an installer.",
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "Runtime adapters install and verify a private replacement before publishing readiness. The GUI offers Restart and preserves its settings before approving shutdown. Relaunch verifies the actual new desktop process and its main window. Unsupported layouts refuse before starting an installer.",
+      "source_sha256": "073898c084d9fad964180534bcd5431b6a343a5187d1ff27b5e7a322707e936b",
+      "translation": "Les adaptateurs d’exécution installent et vérifient un remplacement privé avant de signaler qu’il est prêt. La GUI propose Redémarrer et conserve ses réglages avant d’approuver l’arrêt. La relance vérifie le véritable processus de la nouvelle application de bureau et sa fenêtre principale. Les structures d’installation non prises en charge sont refusées avant le démarrage d’un installateur."
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

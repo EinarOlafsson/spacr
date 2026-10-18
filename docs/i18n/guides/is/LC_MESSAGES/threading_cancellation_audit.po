@@ -121,9 +121,9 @@ msgstr "Þetta er eðlileg niðurstaða stýriflæðis, ekki villa í vinnsluke�
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Skila hvort kallandi vinnsluþráður hafi afturköllunarbeiðni í bið."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
-msgstr "Kasta :class:`PipelineCancelled` þegar beðið var um afturköllun."
+msgstr "Kasta :class:`PipelineCancelled` ef beðið var um afturköllun á tóka þessa þráðar."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Köll utan stýrðs vinnsluþráðar gera vísvitandi ekkert, svo sömu föll vinnslukeðjunnar virka í gegnum GUI, CLI, fartölvur og prófanir."

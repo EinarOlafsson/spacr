@@ -37,6 +37,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPlainTextEdit,
     QScrollArea,
     QSizePolicy,
@@ -2193,6 +2194,10 @@ class ConsolePanel(QWidget):
         self._ai_messages.append({"role": "user", "content": prompt})
         self._ai_error_traceback = ""
         self._append_user(text + f"\n\n[{status}]")
+        self._begin_ai_reply()
+
+    def _begin_ai_reply(self) -> None:
+        """Open the "spaCR AI" heading and reply block, then start the stream."""
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
         self._pending_ai_topic = self.begin_topic(
@@ -2360,6 +2365,11 @@ class ConsolePanel(QWidget):
         provider = self._current_provider()
         if provider is None:
             return
+        if not self._hosted_is_current():
+            from ..ai.prompts import tool_approval_note
+
+            note = tool_approval_note(self._current_provider_name or "")
+            system = f"{system}\n\n{note}" if system else note
         self._ai_buf = []
         thread, worker = make_stream_thread(
             provider, list(self._ai_messages), system=system,
@@ -2402,8 +2412,8 @@ class ConsolePanel(QWidget):
         `QThread: Destroyed while thread '' is still running`.
 
         The cancel path kills the CLI subprocess directly so the
-        stream reader unblocks immediately; we then wait for the
-        worker's run() to return and the QThread to quit normally.
+        stream reader unblocks immediately; this method then waits for
+        the worker's run() to return and the QThread to quit normally.
 
         There is deliberately no ``QThread.terminate()`` fallback. It used
         to be here, described as a last resort, and it was reached far more
@@ -2592,6 +2602,76 @@ class ConsolePanel(QWidget):
             self._current_stdout.append("\n")
         self._ai_buf = []
         self.ai_stream_finished.emit()
+        if ok:
+            self._offer_tool_approval()
+
+    def _offer_tool_approval(self) -> None:
+        """Ask the user about tool calls the CLI blocked, and resume if allowed.
+
+        ``claude -p`` cannot show its own approval prompt, so a command that
+        needs permission was refused silently and the reply asked the user to
+        approve a prompt that never appeared (GitHub #147). The provider keeps
+        the refused calls; this asks once in a dialog, and an allowed call is
+        run by resuming the same session with exactly that call allowed, for
+        that one reply.
+        """
+        from ..ai.providers import describe_tool_call
+
+        provider = self._current_provider()
+        denials = [d for d in getattr(provider, "last_permission_denials", None) or []
+                   if isinstance(d, dict)]
+        if not denials or not hasattr(provider, "allow_once"):
+            return
+        provider.last_permission_denials = []
+        session = str(getattr(provider, "last_session_id", "") or "")
+        calls = list(dict.fromkeys(describe_tool_call(d) for d in denials))
+        shown = "; ".join(calls)
+        if not session or not self._ask_tool_approval(calls):
+            self.append_notice(
+                "[AI] Not run: {calls}. Run it in your own terminal if you "
+                "need its output.\n", calls=shown)
+            return
+        provider.allow_once(denials, session)
+        self.append_notice("[AI] Allowed once: {calls}\n", calls=shown)
+        self._ai_messages.append({"role": "user", "content": (
+            "I approved these tool calls in spaCR's dialog. Run them now and "
+            "continue:\n" + "\n".join(f"- {call}" for call in calls))})
+        self._begin_ai_reply()
+
+    def _tool_approval_box(self, calls: List[str]) -> QMessageBox:
+        """The dialog that asks whether the assistant may run ``calls`` once.
+
+        :param calls: one line per tool call, the command for a shell call.
+        :returns: the box, with :attr:`_allow_button` set to its allow button.
+        """
+        box = QMessageBox(self)
+        box.setObjectName("aiToolApprovalBox")
+        box.setIcon(QMessageBox.Question)
+        box.setWindowTitle(tr("Allow the assistant to run this?"))
+        box.setText(tr("The assistant asked to run:") + "\n\n"
+                    + "\n".join(calls))
+        box.setInformativeText(tr(
+            "Allow once runs it a single time with your user permissions, "
+            "then the assistant continues. Allow it only if you trust the "
+            "command."))
+        self._allow_button = box.addButton(tr("Allow once"),
+                                           QMessageBox.AcceptRole)
+        deny = box.addButton(tr("Don't allow"), QMessageBox.RejectRole)
+        box.setDefaultButton(deny)
+        box.setEscapeButton(deny)
+        return box
+
+    def _ask_tool_approval(self, calls: List[str]) -> bool:
+        """Show :meth:`_tool_approval_box` and return whether the user allowed it.
+
+        :param calls: one line per tool call.
+        :returns: ``True`` for "Allow once".
+        """
+        box = self._tool_approval_box(calls)
+        box.exec()
+        allowed = box.clickedButton() is self._allow_button
+        box.deleteLater()
+        return allowed
 
     def ai_explanation_of(self, traceback_text: str) -> str:
         """spaCR AI's answer about ``traceback_text``, or ``""``.

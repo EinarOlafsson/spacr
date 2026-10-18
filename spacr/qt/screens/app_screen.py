@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .. import _after
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
@@ -1897,7 +1898,8 @@ class _BuiltOnFirstUse:
             return self
         values = screen.__dict__
         owed = values.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = values.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         try:
             return values[self.slot]
@@ -1907,7 +1909,8 @@ class _BuiltOnFirstUse:
     def __set__(self, screen, value) -> None:
         """Build the owed part first, so an assignment lands after it."""
         owed = screen.__dict__.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = screen.__dict__.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         screen.__dict__[self.slot] = value
 
@@ -1919,7 +1922,14 @@ class _BuiltOnFirstUse:
             raise AttributeError(self.name) from None
 
     def peek(self, screen):
-        """The value held now, WITHOUT building an owed part; else ``None``."""
+        """The value held now, WITHOUT building an owed part; else ``None``.
+
+        A part still being built in steps answers ``None`` as well: before
+        its last step it is not the finished part a reader would get.
+        """
+        stepping = screen.__dict__.get("_parts_stepping")
+        if stepping and self.part in stepping:
+            return None
         return screen.__dict__.get(self.slot)
 
 
@@ -2081,6 +2091,7 @@ class AppScreen(QWidget):
 
     error_explain_requested = Signal(str, str)
     remote_submit_requested = Signal(str, dict)
+    _example_fetch_moved = Signal(str, object, object)
 
     _ambient = None
     _ambient_applied = None
@@ -2222,6 +2233,9 @@ class AppScreen(QWidget):
         self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage",
                                     user_visible=False)
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
+        self._example_fetch_running = False
+        self._example_fetch_button = None
+        self._example_fetch_moved.connect(self._on_example_fetch_moved)
 
         self._usage_generation = 0
         self._usage_timer = QTimer(self)
@@ -5418,7 +5432,7 @@ class AppScreen(QWidget):
                                  "instant.")
             one.clicked.connect(
                 lambda _checked=False, _k=kind: self.load_the_example_screen(
-                    kind=_k))
+                    kind=_k, in_background=True))
             layout.addWidget(one)
             setattr(self, f"_example_{kind}_button", one)
 
@@ -5451,7 +5465,8 @@ class AppScreen(QWidget):
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
             "first time; cached afterwards, so pressing it again is instant.")
-        button.clicked.connect(lambda: self.load_the_example_screen())
+        button.clicked.connect(
+            lambda: self.load_the_example_screen(in_background=True))
         self._example_data_button = button
         section.add_prose(button, at_top=True)
 
@@ -6204,11 +6219,15 @@ class AppScreen(QWidget):
                 "settings": str(settings) if settings else ""}
 
     def load_the_example_screen(self, *, download: bool = True,
-                               kind=None) -> dict:
+                               kind=None, in_background: bool = False) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
 
         :param download: If ``True``, download files that are not already in
             the local cache.
+        :param in_background: check, download and verify the files on a
+            worker thread and fill the slots when they arrive, so the window
+            keeps painting through a download. The buttons use this; the
+            mapping is then empty and the slots fill on completion.
         :returns: A mapping of populated setting names to their file paths.
         """
         from ...example_data import ExampleDataError, fetch, missing
@@ -6216,6 +6235,9 @@ class AppScreen(QWidget):
         button = getattr(self, f"_example_{kind}_button", None) if kind else None
         if button is None:
             button = getattr(self, "_example_data_button", None)
+        if in_background:
+            self._fetch_the_example_screen_in_background(button, download, kind)
+            return {}
         absent = missing(kind=kind)
         if absent and button is not None:
             button.setEnabled(False)
@@ -6231,7 +6253,149 @@ class AppScreen(QWidget):
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
+        return self._put_the_example_screen_in(got)
 
+    #: Shortest gap between two download progress updates sent to the GUI
+    #: thread, in seconds. Each file's last update is always sent.
+    EXAMPLE_PROGRESS_INTERVAL_S = 0.1
+
+    def _fetch_the_example_screen_in_background(self, button, download,
+                                                kind) -> bool:
+        """Run :func:`spacr.example_data.fetch` through the screen's jobs.
+
+        The digest check, the download and the verification all read or
+        write tens of megabytes, which froze the window for most of a second
+        per file when they ran on the GUI thread. Progress reaches the button
+        at most every :attr:`EXAMPLE_PROGRESS_INTERVAL_S`, and each file's
+        final count always arrives.
+
+        :returns: whether a fetch was started; a second press while one runs
+            starts nothing.
+        """
+        if getattr(self, "_example_fetch_running", False):
+            return False
+        self._example_fetch_running = True
+        self._example_fetch_button = button
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+        last = {"at": None}
+        work = partial(self._fetch_the_example_screen, download, kind,
+                       partial(self._report_the_example_fetch, last))
+        return self._jobs.submit(work, self._on_the_example_screen_fetched)
+
+    def _report_the_example_fetch(self, last, name, seen, total) -> None:
+        """Send one progress update, unless the last was too recent.
+
+        Runs on the worker thread; it only emits a signal. Each file's final
+        count is always sent.
+        """
+        now = time.monotonic()
+        final = bool(total) and seen >= total
+        if (not final and last["at"] is not None
+                and now - last["at"] < float(self.EXAMPLE_PROGRESS_INTERVAL_S)):
+            return
+        last["at"] = now
+        try:
+            self._example_fetch_moved.emit(str(name), int(seen), int(total))
+        except RuntimeError:
+            pass
+
+    @staticmethod
+    def _fetch_the_example_screen(download, kind, report) -> tuple:
+        """Fetch on the worker thread; answer ``(fetched, error)``."""
+        from ...example_data import ExampleDataError, fetch
+
+        try:
+            return fetch(download=download, kind=kind, progress=report), ""
+        except ExampleDataError as error:
+            return None, str(error)
+        except Exception as error:
+            return None, str(error) or error.__class__.__name__
+
+    def _on_example_fetch_moved(self, name, seen, total) -> None:
+        """Show one coalesced download update on the pressed button."""
+        if not getattr(self, "_example_fetch_running", False) or not name:
+            return
+        self._say_the_download_is_moving(name, seen, total, pump=False)
+
+    def _on_the_example_screen_fetched(self, outcome) -> None:
+        """Restore the button and fill the slots from a background fetch."""
+        button = getattr(self, "_example_fetch_button", None)
+        self._example_fetch_button = None
+        self._example_fetch_running = False
+        got, error = outcome if isinstance(outcome, tuple) else (None, "")
+        try:
+            if got is None:
+                self._console.append_stdout(f"{error}\n")
+                return
+        finally:
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+        self._put_the_example_screen_in(got)
+        self._prepare_the_results_part()
+
+    _RESULTS_PART_MODULES = (
+        "spacr.qt.widgets.fast_plots",
+        "spacr.qt.widgets.regression_results",
+        "spacr.qt.widgets.figure_grid_view",
+        "spacr.qt.widgets.sweep_runs",
+        "spacr.qt.widgets.measurement_scan_panel",
+        "spacr.qt.widgets.sweep_panel",
+        "spacr.qt.widgets.cell_montage_view",
+        "spacr.qt.widgets.folding_summary",
+        "spacr.qt.widgets.annotation_umap_tab",
+        "spacr.qt.widgets.gene_panel",
+    )
+
+    def _prepare_the_results_part(self) -> bool:
+        """Get Regression's results part ready while nothing is running.
+
+        Once the input tables are filled a Run is the next press, and a Run
+        with the part still owed builds it alongside the pipeline, each step
+        slowed by the worker's hold on the interpreter lock. So the part's
+        modules (:attr:`_RESULTS_PART_MODULES`) are imported on a worker
+        thread and the part is then built one step per event-loop turn.
+
+        :returns: whether the preparation was started.
+        """
+        if not self._part_is_owed(_REGRESSION_RESULTS):
+            return False
+        if self.__dict__.get("_results_part_preparing"):
+            return False
+        self._results_part_preparing = True
+        return self._jobs.submit(
+            partial(self._import_the_modules, self._RESULTS_PART_MODULES),
+            self._build_the_prepared_results_part)
+
+    @staticmethod
+    def _import_the_modules(names) -> int:
+        """Import ``names`` under the heavy-import lock; answer how many."""
+        import importlib
+        from contextlib import nullcontext
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        imported = 0
+        for name in names:
+            try:
+                with lock if lock is not None else nullcontext():
+                    importlib.import_module(name)
+                imported += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not import %s early", name, exc_info=True)
+        return imported
+
+    def _build_the_prepared_results_part(self, _imported=None) -> bool:
+        """Build the results part in steps once its modules are imported."""
+        self._results_part_preparing = False
+        if self._worker_thread_is_running():
+            return False
+        return self._build_owed_part_in_steps(_REGRESSION_RESULTS)
+
+    def _put_the_example_screen_in(self, got) -> dict:
+        """Pair a fetched example screen into Input Tables and say so."""
         table = self._settings_model._widgets.get("paired_data")
         added = 0
         if table is not None and hasattr(table, "add_paths_for_side"):
@@ -6247,12 +6411,20 @@ class AppScreen(QWidget):
         return {"counts": got.counts, "scores": got.scores,
                 "applied": added, "folder": got.folder}
 
-    def _say_the_download_is_moving(self, name, seen, total) -> None:
-        """Progress on the button itself, which is where the user is looking."""
+    def _say_the_download_is_moving(self, name, seen, total,
+                                    pump: bool = True) -> None:
+        """Progress on the button itself, which is where the user is looking.
+
+        :param pump: let the window paint, for a fetch on the GUI thread. A
+            background fetch's updates arrive through the event loop, so it
+            passes ``False``.
+        """
         button = getattr(self, "_example_data_button", None)
         if button is None or not total:
             return
         button.setText(f"{name} — {100 * seen // max(total, 1)}%")
+        if not pump:
+            return
         from PySide6.QtWidgets import QApplication
 
         QApplication.processEvents()
@@ -7209,8 +7381,9 @@ class AppScreen(QWidget):
         return getattr(self, name, None)
 
     def _part_is_owed(self, part: str) -> bool:
-        """Whether ``part`` has been deferred and not built yet."""
-        return part in (self.__dict__.get("_parts_owed") or {})
+        """Whether ``part`` has been deferred and not finished yet."""
+        return (part in (self.__dict__.get("_parts_owed") or {})
+                or part in (self.__dict__.get("_parts_stepping") or {}))
 
     def _build_owed_part(self, part: str) -> bool:
         """Build ``part`` now if it is still owed.
@@ -7224,27 +7397,106 @@ class AppScreen(QWidget):
         fold strip adding the Hits tab, which came after that sweep), then
         the language pass and the polish, which reached the Hits tab too.
 
-        :returns: ``True`` when this call built it.
+        A part that :meth:`_build_owed_part_in_steps` has started is
+        finished here, in one go, so a reader never sees it half built.
+
+        :returns: ``True`` when this call built or finished it.
         """
-        owed = self.__dict__.get("_parts_owed") or {}
-        build = owed.pop(part, None)
-        if build is None:
-            return False
+        steps = (self.__dict__.get("_parts_stepping") or {}).pop(part, None)
+        if steps is None:
+            owed = self.__dict__.get("_parts_owed") or {}
+            build = owed.pop(part, None)
+            if build is None:
+                return False
+            steps = self._owed_part_steps(part, build)
         from .. import timing
 
         with timing.span("build deferred part", part):
-            root = build()
-            if root is not None:
-                self._clear_a_late_parts_surfaces(root)
-            waiting = (self.__dict__.get("_after_parts") or {}).pop(part, [])
-            for callback in waiting:
-                try:
-                    callback()
-                except Exception:                            # noqa: BLE001
-                    LOG.exception("could not finish a deferred %s", part)
-            if root is not None:
-                self._translate_a_late_part(root)
+            _run_to_the_end(steps)
         return True
+
+    def _owed_part_steps(self, part: str, build):
+        """Build ``part`` with ``build``, as a generator of event-loop steps.
+
+        ``build`` may return the part's root, or be a generator of its own
+        steps that returns it. The steps run back to back in
+        :meth:`_build_owed_part`, or one per event-loop turn in
+        :meth:`_build_owed_part_in_steps`; the order is the same either way.
+        """
+        import inspect
+
+        made = build()
+        if inspect.isgenerator(made):
+            root = yield from made
+        else:
+            root = made
+        if root is not None:
+            self._clear_a_late_parts_surfaces(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        if root is not None:
+            yield
+            self._translate_a_late_part(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        self._run_the_parts_callbacks(part, "_parts_then")
+
+    def _run_the_parts_callbacks(self, part: str, table: str) -> None:
+        """Run and forget the callbacks queued for ``part`` in ``table``."""
+        waiting = (self.__dict__.get(table) or {}).pop(part, [])
+        for callback in waiting:
+            try:
+                callback()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not finish a deferred %s", part)
+
+    def _build_owed_part_in_steps(self, part: str, then=None) -> bool:
+        """Build ``part`` one step per event-loop turn, then call ``then``.
+
+        For a click that needs a large deferred part: built in one go, its
+        construction, surface sweep and language pass were one freeze of
+        over a second. Each step is followed by a turn of the event loop. A
+        reader of any of the part's attributes in between finishes the
+        build at once (see :class:`_BuiltOnFirstUse`), so nothing ever sees
+        it half built, and the part counts as owed for as long as it runs.
+
+        :param part: the deferred part.
+        :param then: called once the part is finished, however it finished.
+        :returns: ``False`` when the part is not owed, in which case the
+            caller does its work now.
+        """
+        stepping = self.__dict__.get("_parts_stepping")
+        if stepping is None:
+            stepping = self.__dict__["_parts_stepping"] = {}
+        if part not in stepping:
+            build = (self.__dict__.get("_parts_owed") or {}).pop(part, None)
+            if build is None:
+                return False
+            stepping[part] = self._owed_part_steps(part, build)
+            _after(0, self, partial(self._step_owed_part, part))
+        if then is not None:
+            thens = self.__dict__.get("_parts_then")
+            if thens is None:
+                thens = self.__dict__["_parts_then"] = {}
+            thens.setdefault(part, []).append(then)
+        return True
+
+    def _step_owed_part(self, part: str) -> None:
+        """Run the next step of ``part``, and queue the one after it."""
+        stepping = self.__dict__.get("_parts_stepping") or {}
+        steps = stepping.pop(part, None)
+        if steps is None:
+            return
+        from .. import timing
+
+        try:
+            with timing.span("build deferred part, a step", part):
+                next(steps)
+        except StopIteration:
+            return
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not build the deferred %s", part)
+            return
+        stepping[part] = steps
+        _after(0, self, partial(self._step_owed_part, part))
 
     def _after_part_is_built(self, part: str, callback) -> bool:
         """Run ``callback`` once ``part`` is built, if it is still owed.
@@ -7383,6 +7635,11 @@ class AppScreen(QWidget):
         before constructing the panels, so opening the screen does not
         load their data libraries and a missing dependency leaves no
         partially constructed results widgets.
+
+        A generator of build steps: :meth:`_build_owed_part` runs them back
+        to back, and :meth:`_build_owed_part_in_steps` gives the event loop
+        a turn after each, so the Hits button's first press is not one
+        freeze of over a second.
         """
         try:
             from ..widgets.regression_results import RegressionResultsPanel
@@ -7394,10 +7651,16 @@ class AppScreen(QWidget):
                 MeasurementScanPanel)
             from ..widgets.sweep_panel import SweepPanel
             from ..widgets.cell_montage_view import CellMontageView
+            from importlib import import_module
 
-            self._results_panel = RegressionResultsPanel(
+            import_module("..widgets.fast_plots", __package__)
+            yield
+
+            panel = yield from RegressionResultsPanel._constructed_in_steps(
                 self._figures_card, external_volcano=True)
+            self._results_panel = panel
             self._results_panel.refit_requested.connect(self._on_refit)
+            yield
 
             self._figure_grid = FigureGridView(self._figures_card)
             self._figure_grid.figure_activated.connect(
@@ -7481,6 +7744,7 @@ class AppScreen(QWidget):
                 self._live_tile_menu)
             self._results_panel.table.key_selected.connect(
                 self._on_guide_selected)
+            yield
 
             self._sweep_runs = SweepRunsPanel(self._figures_card)
             self._sweep_runs.trial_activated.connect(self._show_trial)
@@ -7509,6 +7773,7 @@ class AppScreen(QWidget):
                                   "Picking a row in Runs re-points this "
                                   "at that run.")
 
+            yield
             self._scan_panel = MeasurementScanPanel(
                 frame_provider=self._scan_source_frame,
                 database_provider=self._attached_database_rows,
@@ -7541,6 +7806,7 @@ class AppScreen(QWidget):
                    "each measurement -- a measurement that passes alone "
                    "and fails across the scan is the one worth knowing "
                    "about.")
+            yield
             self._cell_montage = CellMontageView(
                 frame_provider=self._results_panel.results_frame,
                 results_provider=self._results_source_path,
@@ -7563,6 +7829,7 @@ class AppScreen(QWidget):
             self._results_tabs = left
             left.setCurrentWidget(self._results_page)
 
+            yield
             split = CollapsibleSplitter(Qt.Horizontal, self._figures_card)
             split.add_pane(left, "Results", mode=EDGE, stretch=1,
                            extent=780, fold_key="regression/Results")
@@ -11063,7 +11330,17 @@ class AppScreen(QWidget):
         """Record a starting regression run on the Runs tab.
 
         Return the run handle, or ``None`` when this screen has no Runs tab.
+
+        A Run pressed while Regression's results part is still owed builds
+        it one step per event-loop turn rather than in one freeze of over a
+        second, and records the run as the build finishes; the handle then
+        reaches ``_run_handle`` from there, and ``None`` is returned now.
         """
+        if self._part_is_owed(_REGRESSION_RESULTS):
+            record = partial(self._record_the_run_once_built, label, source,
+                             dict(settings or {}))
+            if self._build_owed_part_in_steps(_REGRESSION_RESULTS, record):
+                return None
         runs = getattr(self, "_sweep_runs", None)
         if runs is None:
             return None
@@ -11073,6 +11350,11 @@ class AppScreen(QWidget):
             LOG.debug("could not record the run in the Runs tab",
                       exc_info=True)
             return None
+
+    def _record_the_run_once_built(self, label, source, settings) -> None:
+        """Record a run whose Run press waited for the results part."""
+        self._run_handle = self._record_run_in_runs_tab(label, source,
+                                                        settings)
 
     def _update_run_in_runs_tab(self, **fields) -> bool:
         """Update the row for the run this screen last started."""
@@ -11763,8 +12045,16 @@ class AppScreen(QWidget):
 
         Asked of the card rather than stored, so the two cannot disagree
         about which folder the sweep is filling.
+
+        A sweep card nobody has opened still holds its stand-in, and a
+        fresh panel's folder stays empty until the card seeds it, so the
+        answer is ``""`` without building the panel (half a second on the
+        Runs tab's first open).
         """
         sweep = getattr(self, "_sweep", None)
+        built = getattr(sweep, "built", None)
+        if callable(built) and not built():
+            return ""
         field = getattr(sweep, "destination", None)
         try:
             return field.text().strip()
@@ -12098,6 +12388,17 @@ class AppScreen(QWidget):
             self._refresh_figure_grid()
             stack.setCurrentIndex(0)
 
+    def _show_figure_grid_soon(self) -> None:
+        """Raise the grid now and rebuild it on its debounce timer.
+
+        For a caller that has just spent its turn drawing a run: the rebuild
+        photographs every live plot, and a turn later is soon enough.
+        """
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            self._queue_figure_grid_refresh()
+            stack.setCurrentIndex(0)
+
     def _show_regression_graph(self) -> None:
         """Fill the results container with the interactive volcano plot."""
         stack = getattr(self, "_figures_stack", None)
@@ -12203,7 +12504,7 @@ class AppScreen(QWidget):
                     LOG.debug("could not hand the run's model to the results "
                               "panel", exc_info=True)
                 self._results_loaded_in_memory = True
-                self._show_figure_grid()
+                self._show_figure_grid_soon()
                 self._figures_card.show()
                 self._console.append_stdout(
                     f"{len(frame)} coefficients loaded from the run itself"
@@ -12964,12 +13265,14 @@ class AppScreen(QWidget):
 
         The callable reads the attribute with :meth:`_if_built`, so asking for
         a section never builds a deferred panel. The run journal asks from the
-        worker thread that ran the pipeline, and a panel built there is a
-        widget created off the GUI thread; a panel that was never built has
-        no state to save.
+        worker thread that ran the pipeline, so the registry is given a
+        dispatcher that reads every section on the GUI thread and hands the
+        worker plain data; a panel that was never built has no state to save.
         """
         from ...workspace import register
+        from ..bridge import _install_the_workspace_dispatcher
 
+        _install_the_workspace_dispatcher()
         key = str(self.app_key)
         register(f"{key}:settings", lambda: self)
         register(f"{key}:databases", self._workspace_database_control)

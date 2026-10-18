@@ -143,6 +143,7 @@ def test_browser_cli_selects_protected_retained_or_normal_validator_before_brows
     import build_navigation
     import native_live_timing
     import retained_visual_refresh
+    pytest.importorskip('playwright', reason='Playwright is installed only in the tutorial render Python')
     import verify_staged_lesson as browser
     r = source_files
     monkeypatch.setattr(browser, 'REPO', r.repo)
@@ -170,6 +171,7 @@ def test_browser_cli_selects_protected_retained_or_normal_validator_before_brows
 
 
 def test_browser_rejects_whole_retention_and_visual_refresh_together(tmp_path):
+    pytest.importorskip('playwright', reason='Playwright is installed only in the tutorial render Python')
     import verify_staged_lesson as browser
     with pytest.raises(SystemExit):
         browser.main(['--retained-media', '--retain-visual-from', str(tmp_path)])

@@ -1,15 +1,11 @@
 Where a setting goes
 ====================
 
-Every setting spaCR reads, and the call paths that carry it from an entry
-point to the functions that actually read it.
-
-Asked for on 2026-09-08: *"in the API when a user clicks a settings they
-should see the setting and the function it goes to and the function(s) that
-the settings get passed along to. when they click the setting itself they
-should get the tool tip text."* This page lists those call paths. When the
-function that reads a setting has no published API anchor, the **API** link
-in the setting's tooltip opens the setting's section on this page instead.
+This page lists every setting spaCR reads, with its tooltip text and the
+call paths that pass it from an entry point to the functions that read it.
+When the function that reads a setting has no published API anchor, the
+**API** link in the setting's tooltip opens the setting's section on this page
+instead.
 
 Each line of a branch is a call, indented under its caller. A step marked
 **-- reads it** is where the value is used rather than passed on. Branches

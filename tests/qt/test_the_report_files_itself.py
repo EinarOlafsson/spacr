@@ -241,11 +241,9 @@ class TestTheDefault:
 
         assert preferences.get_issue_prompt_mode() == stored
 
-    def test_an_upgraded_profile_sees_always_on_the_slide(self, fresh, qtbot):
-        """It is shown before it is acted on: the terms go from 4.1 to 4.2,
-        so this slide is in front of the user again, showing what the
-        profile will now do, with the switch to change it on the same page.
-        """
+    def test_an_upgraded_profile_keeps_the_default_through_setup(self, fresh, qtbot):
+        """Setup preserves the migrated default without a retired report question."""
+        from spacr.qt import setup_screen
         from spacr.qt.widgets.setup_slides import SetupSlides
 
         preferences, _ai = fresh
@@ -256,7 +254,11 @@ class TestTheDefault:
         slides = SetupSlides()
         qtbot.addWidget(slides)
 
-        assert slides._editors["issue_prompt"].currentData() == "always"
+        assert "issue_prompt" not in slides._editors
+        assert "issue_prompt" not in slides.answers()
+        assert setup_screen.apply(slides.answers()) == []
+        assert preferences.get_issue_prompt_mode() == "always"
+        assert _ai.get_auto_file_issues() is True
 
     def test_the_installer_s_explicit_answers_are_kept(self, fresh):
         """The desktop installer asks, and says a report is sent only on
@@ -946,13 +948,19 @@ class TestTheAgreementSaysSo:
 
     def test_it_states_automatic_public_filing_by_default(self, clause):
         automatic = clause["5.6"]
-        for said in ("AUTOMATIC ERROR REPORTS", "\u201calways\u201d",
-                     "WHICH IS THE DEFAULT", "without showing it to You first",
-                     "YOU AGREE TO THE AUTOMATIC FILING"):
+        for said in ("ANONYMISED ERROR REPORTS ARE ON BY DEFAULT",
+                     "PUBLIC issue", "EinarOlafsson/spacr",
+                     "You need no GitHub account", "NEVER sent",
+                     "file and folder paths", "login and host names",
+                     "tokens and other credentials", "logs, settings values",
+                     "cannot be reliably unpublished"):
             assert said in automatic, said
+        assert "YOU AGREE TO THE SENDING" in clause["5.7"]
         published = clause["5.5"]
         for said in ("PUBLISHED", "github.com/EinarOlafsson/spacr",
-                     "traceback", "settings", "login and host names"):
+                     "credential-shaped values", "database file names",
+                     "login and host names", "replaced with placeholders",
+                     "The log is never published"):
             assert said in published, said
 
     def test_it_no_longer_says_nothing_is_sent(self, clause):
@@ -964,35 +972,34 @@ class TestTheAgreementSaysSo:
         assert "Section 5.6" in clause["5.1"]
 
     def test_the_way_to_change_it_is_where_it_says(self, clause):
-        """The clause names a menu item, a page, a question and a switch.
-        Each has to exist under that name, or the clause is a promise the
-        screen does not keep."""
+        """The agreement's opt-out labels exist in Preferences and the notice."""
         from pathlib import Path
 
         import spacr
-        from spacr.qt import setup_screen
-        from spacr.qt.widgets.setup_slides import SLIDES
+        from spacr import crashreport
 
-        automatic = clause["5.6"]
+        choices = clause["5.7"]
         root = Path(spacr.__file__).parent / "qt"
-        assert "Set spaCR up again\u2026" in automatic
-        assert '"Set spaCR up again…"' in (root / "app.py").read_text(
-            encoding="utf-8")
-        assert "When something breaks" in automatic
-        assert "When something breaks" in [t for t, _b, _k in SLIDES]
-        caption = {q[0]: q[1] for q in setup_screen.questions()}[
-            "issue_prompt"]
-        assert f"\u201c{caption}\u201d" in automatic
-        assert "Report errors as GitHub issues" in automatic
-        assert "Report errors as GitHub issues" in (
-            root / "widgets" / "ai_chat_panel.py").read_text(encoding="utf-8")
+        preferences = (root / "preferences.py").read_text(encoding="utf-8")
+        notice = (root / "install_consent.py").read_text(encoding="utf-8")
+        assert "Preferences → AI" in choices
+        for caption in ("AI Error report", "What is sent…"):
+            assert f"“{caption}”" in choices
+            assert f'tr("{caption}")' in preferences
+        assert "“Send anonymised error reports”" in choices
+        assert 'tr("Send anonymised error reports")' in notice
+        modes = dict(crashreport.ERROR_REPORT_MODES)
+        for key in ("off", "summarize"):
+            assert f"“{modes[key]}”" in choices
+            for kind in (crashreport.KIND_FAULT, crashreport.KIND_USER_ERROR):
+                assert crashreport.mode_sends(kind, key) is False
 
     def test_a_profile_that_accepted_the_old_terms_is_asked_again(self):
         from spacr.qt import terms
 
-        terms.record_agreement("4.1")
+        terms.record_agreement("4.2")
 
-        assert terms.TERMS_VERSION == "4.2"
+        assert terms.TERMS_VERSION == "4.3"
         assert terms.needs_agreement() is True
 
 

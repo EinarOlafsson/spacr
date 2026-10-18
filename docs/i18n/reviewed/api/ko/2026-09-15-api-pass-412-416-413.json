@@ -113,7 +113,9 @@
       "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-      "translation": "제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키)."
+      "translation": "제거할 때 이전 버전 자체의 제거 프로그램은 절대 실행하지 않으므로, ``Uninstall.exe`` 또는 ``uninstall-spacr.sh`` 파일이 없거나 손상된 사본도 똑같이 제거됩니다. 환경설정과 사용자 데이터는 유지됩니다: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, Hugging Face 캐시, 그리고 ``spacr``/``qt`` 설정(``~/.config/spacr``, macOS의 환경설정 파일, Windows의 ``Software\\spacr`` 레지스트리 키).",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",

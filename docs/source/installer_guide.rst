@@ -50,16 +50,24 @@ access. Automatic hardware acceleration is selected by default. It installs a
 CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it
 installs the PyTorch build that ``uv`` selects for the detected hardware, which
 is the CPU build when no supported GPU is detected. Clear the component only
-when you require the smaller CPU-only installation.
+when you require the smaller CPU-only installation. The unticked component
+**Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D
+renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is
+the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``.
 
 macOS 11 or later
 ~~~~~~~~~~~~~~~~~
 
 Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed
-in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap
-creates the private runtime under ``~/Library/Application Support/spaCR``.
+in ``/Applications/spaCR.app``. The spaCR setup window creates its private
+runtime under ``~/Library/Application Support/spaCR`` and displays progress,
+dependency choices and any required consent. Complete those choices in the
+window; setup does not require answers in Terminal. When setup finishes,
+spaCR opens its startup window and then the main application.
 The current beta is not notarized. If Gatekeeper blocks it, open **System
-Settings → Privacy & Security** and choose **Open Anyway** for spaCR.
+Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The
+first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU
+for 3D)** box; see :ref:`wgpu-3d-rendering`.
 
 Linux x86-64
 ~~~~~~~~~~~~
@@ -80,14 +88,40 @@ Automatic backend selection is the Linux default. It installs CUDA support
 when compatible NVIDIA hardware is available. To require the smaller CPU-only
 build instead, run the installer with ``--torch-backend cpu``.
 
+To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``,
+or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer
+window; the box is unchecked by default. On a Linux system whose glibc is
+older than 2.28 the installer leaves wgpu out by itself and prints one line
+saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer.
+``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering``
+line. See :ref:`wgpu-3d-rendering`.
+
 Updating
 --------
 
-Download and run the installer for the newer version. Installation is staged
-and validated before it replaces the active private environment; a failed
-update leaves the previous working environment in place. Project folders and
-results are not stored in the installation directory and are not removed by
-an update.
+Choose **Help → Check for updates**, review the offered version and choose
+**Update**. Supported macOS installations and dedicated private Python
+installations prepare the replacement in the background. When it is ready,
+choose **Restart** to finish closing the current application and open the
+verified replacement through the spaCR startup window. No manual click on the
+application icon is needed. Frozen Windows and Debian installations use their
+native authorization and replacement workflows.
+
+Older Linux and Windows online layouts without a verified update adapter are
+refused before replacement starts. The application stays open and keeps its
+data. Use the matching release installer for those installations.
+
+Alternatively, download and run the installer for the requested version from
+the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This
+is also the way to move an older installer to the current desktop update flow.
+Use the installer for the same platform and installation family as the copy
+being replaced.
+
+Installation is staged and validated before replacement. An unsuccessful
+preparation keeps the previous application; activation failures retain or
+restore the previous runtime and report any recovery needed. Ordinary updates
+keep models, caches, preferences, run history and project outputs. Optional
+update cache cleanup starts unselected and requires a separate confirmation.
 
 Update channel and What's new
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,17 +156,43 @@ macOS online installation: update and reopen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Choose **Help → Check for updates**, accept the available update, and confirm
-that spaCR will be reinstalled in its current environment. spaCR closes, uses
-the installation's bundled ``uv`` to upgrade its existing private environment,
-checks the installed version, and reopens automatically. This path keeps the
-application launcher and environment in place. It does not run the first-use
-installer or ask its terminal questions again.
+the requested version. spaCR prepares a separate private runtime using the
+installation's bundled ``uv`` while the window remains responsive. After
+preparation succeeds, **Restart** activates the verified runtime and opens its
+startup window and main window. The existing launcher is retained. No remove
+prompt, manual icon relaunch or Terminal questionnaire is part of this flow.
 
-The command is the same as the macOS recovery command below, using the actual
-installation directory. An unsuccessful upgrade or version check is recorded
-in ``~/.spacr/logs/update.log`` and does not trigger a successful-update
-relaunch. The update also stops if spaCR cannot finish closing safely. The
-separate frozen application bundle uses its bundle replacement workflow.
+If preparation or verification fails, the application stays on the previous
+version and shows the failure. If an analysis or screen prevents safe closure,
+the replacement is not authorized. Details are retained in
+``~/.spacr/logs/update.log``. A frozen application bundle uses its verified
+bundle replacement workflow instead of updating a Python environment.
+
+Supported frozen macOS, Windows and Debian installations prepare their
+replacement while the current application remains open. Protected installations
+request the operating system's graphical administrator authorization before
+offering **Restart**. Cancellation keeps the current application open. Activation
+waits for safe closure and actual process exit; the new application must confirm
+its version, executable and main window before recovery files are retired.
+
+Windows automatic updates require the release's checksummed
+``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains
+the interactive installation download and is never substituted by the updater.
+Protected macOS updates require an installed helper that advertises the current
+native phase protocol. Older helpers, missing update assets and unsupported
+legacy Linux or Windows online layouts report the limitation while keeping the
+application open. Use the matching ordinary installer from GitHub releases to
+bring such an installation forward; shared and Conda environments use their
+package manager.
+
+Reinstalling the same version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Download that version's matching desktop installer from GitHub releases and
+run it again. Reinstallation repairs the application code and launcher while
+preserving user data. Do not uninstall first merely to repair an installation.
+Check the version in **Help → About spaCR** after the application reopens; the
+version must match the installer you selected.
 
 Existing installations and full installers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,6 +274,47 @@ install from.
 Uninstalling
 ------------
 
+Open **Preferences → Performance → Uninstall**. In the popup, choose either
+**Current version** or **All detected spaCR versions**. The preview identifies
+the installation paths and versions. The all-versions choice also finds spaCR
+in detected Python and Conda environments; it removes the spaCR package from
+those environments and keeps their other packages and files. Editable source
+checkouts are shown as retained.
+
+The popup separately selects **Caches**, **Models**, **Logs**, **Settings**,
+**History**, **Temporary files**, **Downloads** and **Other spaCR data**.
+Every cleanup category starts selected for uninstall. Clear any category to
+keep it, inspect the exact paths listed, and confirm the uninstall. Cancel
+leaves the application and files unchanged. spaCR closes safely before its
+running installation is removed.
+
+Supported protected macOS applications, Windows frozen installations and Debian
+packages request graphical administrator authorization during preparation,
+while spaCR remains open. The helper must be installed, verified and advertise
+the required uninstall protocol. Declining authorization or cancelling the
+popup leaves the application and files intact. Removal waits for confirmed safe
+closure and actual process exit.
+
+If a selected installation has an older unsupported helper, or a selected data
+path cannot be removed with the available permissions, preparation stops before
+spaCR closes and nothing is removed. The preview still identifies the affected
+paths. The native alternatives below remain available for those installations.
+
+These categories cover identified spaCR-owned locations. Shared external
+caches, unverified or linked folders and arbitrary project folders are kept;
+the preview marks retained locations. History includes spaCR's run records and
+any output copies stored within those records. Keep History if those copies
+are still needed. Projects, databases and exports outside the listed spaCR
+locations are not removed.
+
+Uninstall cleanup defaults differ from update defaults: an ordinary update
+preserves user data, while the uninstall popup selects the displayed cleanup
+categories until you opt out. The native and command-line alternatives below
+retain their existing explicit purge switches.
+
+Native and command-line alternatives
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * **Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**,
   or run ``%LOCALAPPDATA%\spaCR\Uninstall.exe``.
 * **macOS:** run
@@ -227,12 +328,10 @@ Uninstalling
 * **PyPI:** activate the environment and run
   ``python -m pip uninstall spacr``.
 
-Remove the environment itself if it was created only for spaCR.
-
-Uninstalling does not delete microscopy projects, databases or exported
-results. User preferences, run records and logs under ``~/.spacr`` are also
-left in place so they can be inspected or reused. Remove that directory
-separately only if those records are no longer needed.
+These package-manager commands remove the package from the selected
+environment. They do not remove the whole environment. The native and
+command-line alternatives keep user preferences, run records and logs unless
+their explicit purge option is used.
 
 Clean uninstall (purge)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -469,6 +568,79 @@ Common additions are:
    * - ``tutorial``
      - Packages used by the interactive tutorial environment.
 
+.. _wgpu-3d-rendering:
+
+3D rendering and wgpu
+---------------------
+
+spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it
+publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or
+Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through
+the CPU when OpenGL is not available either. The **Render backend** list offers
+Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends
+this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows,
+Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan
+is unavailable), then OpenGL, then the CPU.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 30 36
+
+   * - Installation
+     - wgpu
+     - True 3D view uses
+   * - Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or
+       Linux x86-64/aarch64 with glibc 2.28 or newer
+     - Installed, ``wgpu<=0.31.0``
+     - Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU
+   * - Python 3.11 or newer on the same platforms (the desktop installers
+       use Python 3.12)
+     - Installed, ``wgpu<0.33``
+     - Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU
+   * - Python 3.9
+     - Not installed
+     - OpenGL, else CPU
+   * - Other processors (for example 32-bit x86, ppc64le, s390x)
+     - Not installed
+     - OpenGL, else CPU
+   * - Linux with glibc older than 2.28 (installers skip wgpu automatically)
+     - Not installed
+     - OpenGL, else CPU
+   * - Installed without wgpu (installer option, or the commands below)
+     - Not installed
+     - OpenGL, else CPU
+
+The desktop installers skip wgpu when it is resolved, so it is never
+downloaded: they pass ``uv`` an override file containing the single line
+``wgpu; sys_platform == "never"``. Because the marker never holds, the
+resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs.
+
+With pip, install spaCR as usual and then remove wgpu:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   python -m pip uninstall -y wgpu rendercanvas
+
+``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this
+is expected, and spaCR draws 3D through OpenGL or the CPU.
+
+On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``),
+``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its
+source release, which fails. pip cannot drop a dependency while it resolves,
+so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the
+installers use, inside the activated environment:
+
+.. code-block:: bash
+
+   python -m pip install uv
+   printf '%s\n' 'wgpu; sys_platform == "never"' > no-wgpu.txt
+   python -m uv pip install --override no-wgpu.txt spacr
+
+Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that
+environment. Add ``--dry-run`` to the last command to see the resolved
+packages, without wgpu, before anything is installed.
+
 .. _container-images:
 
 Container images
@@ -483,8 +655,9 @@ built it fails.
 
 The public `GHCR package page
 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
-versions. The commands below use the published **1.5.1.0** images; not every
-spaCR release has a container image.
+versions. The commands below name the image tags of the spaCR release this
+page documents. Not every spaCR release has a container image; check the
+package page before pulling a tag.
 
 The images run spaCR without a display: the CLI, the pipelines, cluster jobs
 and reruns of an earlier analysis with a pinned version. Use the platform

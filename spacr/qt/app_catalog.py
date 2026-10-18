@@ -860,12 +860,12 @@ DECLARED_APPS = (
         intro=(
             'Turns each segmented object into a vector with a pretrained '
             'image encoder, alongside the measured panel rather than instead '
-            'of it. Measured features answer questions chosen in advance; an '
-            'embedding carries whatever the encoder found useful, which is '
-            'worth having when the phenotype has no name yet. Per-channel '
-            'encoding is the default. Every dimension then records the '
-            'stain it came from. Read them as a vector: one dimension means '
-            'nothing alone.'
+            'of it. Measured features describe properties chosen in advance; '
+            'an embedding records the image features the encoder learned, '
+            'which is useful when the phenotype is not yet defined. '
+            'Per-channel encoding is the default. Every dimension then '
+            'records the stain it came from. Interpret the dimensions '
+            'together: a single dimension has no defined meaning.'
         ),
         cli_note=(
             'For headless use, call spacr.embeddings.embed_array() on the '

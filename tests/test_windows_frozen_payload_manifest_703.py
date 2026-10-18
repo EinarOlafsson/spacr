@@ -1,9 +1,9 @@
 """The Windows builder binds the exact payload consumed by its transaction."""
 import hashlib
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -36,6 +36,9 @@ def test_manifest_binds_every_payload_file_and_exact_requested_version(tmp_path)
               for path in source.rglob("*") if path.is_file()}
     result = _run(source)
     assert result.returncode == 0, result.stderr
+    protocol = source / "_internal/spacr-uninstall-protocol.json"
+    assert json.loads(protocol.read_text()) == {"schema": 1, "adapter": "windows-frozen-uninstall-v1"}
+    before[protocol.relative_to(source).as_posix()] = protocol.read_bytes()
     manifest = json.loads((source / "spacr-payload.json").read_text())
     assert manifest == {"schema": 1, "version": "1.5.1.4", "files": {
         name: hashlib.sha256(content).hexdigest() for name, content in before.items()}}

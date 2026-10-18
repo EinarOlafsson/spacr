@@ -325,6 +325,8 @@
     },
     {
       "label": "spacr.qt.bridge.PipelineWorker.run._capture_show#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-volume-rendering.json. Historical translation retained.",
       "source": "Agg's savefig touches no Qt, so the expensive part happens off the GUI thread and the GUI only does a file move and a pixmap load -- which is what stops it hanging while figures stream in.",
       "source_sha256": "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
       "context": "Agg's savefig touches no Qt, so the expensive part happens off the main GUI execution path and the GUI only does a file move and a pixmap load -- which is what stops it hanging while figures stream in.",

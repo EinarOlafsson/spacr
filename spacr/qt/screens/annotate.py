@@ -1089,6 +1089,31 @@ class _SuggestWorker(QThread):
         self._png_table = png_table
         self._only = None if only_paths is None else [str(p)
                                                       for p in only_paths]
+        self.earlier_kept: Optional[bool] = None
+
+    def _put_back(self, snapshot: Dict[str, int], cleared: bool) -> None:
+        """Restore the suggestions this run cleared, when it wrote none.
+
+        Sets :attr:`earlier_kept`: True when nothing was lost (nothing was
+        cleared, or everything cleared went back), False when putting them
+        back failed.
+
+        :param snapshot: the suggestions taken before the clear.
+        :param cleared: whether the clear ran.
+        """
+        if not cleared or not snapshot:
+            self.earlier_kept = True
+            return
+        from ...suggest import _restore_suggestions
+
+        try:
+            _restore_suggestions(self._db_path, self._column, snapshot,
+                                 png_table=self._png_table)
+        except Exception:
+            LOG.exception("could not put earlier suggestions back")
+            self.earlier_kept = False
+            return
+        self.earlier_kept = True
 
     def _step(self, step: int, stage: str) -> None:
         """Stop here if Cancel was pressed, else announce the next step.
@@ -1140,14 +1165,20 @@ class _SuggestWorker(QThread):
         commits, the saved result is reported even if Cancel arrived during the
         write, since reporting a cancel would contradict the database.
         """
+        snapshot: Dict[str, int] = {}
+        cleared = False
         try:
             from ... import active_learning as al
-            from ...suggest import (rejected_suggestions, resolve_suggestions,
+            from ...suggest import (_suggestion_snapshot,
+                                    rejected_suggestions, resolve_suggestions,
                                     suggest_from_scores, write_suggestions)
 
             self._step(1, "clear")
+            snapshot = _suggestion_snapshot(self._db_path, self._column,
+                                            png_table=self._png_table)
             resolve_suggestions(self._db_path, self._column, keep=False,
                                 png_table=self._png_table)
+            cleared = True
             rejections = rejected_suggestions(
                 self._db_path, self._column, png_table=self._png_table)
             options = dict(self._options)
@@ -1178,12 +1209,14 @@ class _SuggestWorker(QThread):
                     self._db_path, self._column, frame,
                     png_table=self._png_table)
         except _SuggestCancelled:
+            self._put_back(snapshot, cleared)
             try:
                 self.cancelled.emit()
             except RuntimeError:
                 pass
             return
         except Exception as exc:
+            self._put_back(snapshot, cleared)
             try:
                 self.failed.emit(f"{type(exc).__name__}: {exc}")
             except RuntimeError:
@@ -5953,10 +5986,16 @@ class AnnotateScreen(QWidget):
     @Slot()
     def _on_suggest_cancelled(self) -> None:
         """The run stopped on Cancel: say so, and show what is there now."""
-        self._console.append_notice(
-            "Suggest cancelled before writing new suggestions. Earlier "
-            "suggestions may have been cleared and round scores may have "
-            "been updated.\n")
+        if self._earlier_suggestions_kept():
+            self._console.append_notice(
+                "Suggest cancelled before writing new suggestions. Earlier "
+                "suggestions were kept; round scores may have been "
+                "updated.\n")
+        else:
+            self._console.append_notice(
+                "Suggest cancelled before writing new suggestions. Earlier "
+                "suggestions may have been cleared and round scores may have "
+                "been updated.\n")
         self._status_label.setText(tr("Suggest cancelled."))
         if self._worker is not None:
             self._recount_judgements()
@@ -6022,21 +6061,39 @@ class AnnotateScreen(QWidget):
         self._recount_judgements()
         self._refresh_total(then=self._load_page)
 
+    def _earlier_suggestions_kept(self) -> bool:
+        """Whether the run that just stopped put its cleared suggestions back.
+
+        :returns: True only when the running worker says so; a stand-in
+            without the attribute keeps the cautious wording.
+        """
+        return getattr(self._suggest_worker, "earlier_kept", None) is True
+
     @Slot(str)
     def _on_suggest_failed(self, message: str) -> None:
         """A suggestion run could not fit — say why, and what is missing."""
         self._console.append_notice(
             "Suggest failed: {msg}\n", msg=message)
         self._status_label.setText(f"Suggest failed — {message}")
+        if self._earlier_suggestions_kept():
+            detail = tr(
+                "No new suggestions from this round were saved. Earlier "
+                "suggestions were kept; round scores may have been updated. "
+                "Your annotations are unchanged. The usual causes are too few "
+                "labels, only one class annotated so far — a classifier needs "
+                "an example of both — an image filter that keeps no crop, or "
+                "no measurement tables to build features from.")
+        else:
+            detail = tr(
+                "No new suggestions from this round were saved. Earlier "
+                "suggestions may have been cleared and round scores may have "
+                "been updated. Your annotations are unchanged. The usual "
+                "causes are too few labels, only one class annotated so far "
+                "— a classifier needs an example of both — or no measurement "
+                "tables to build features from.")
         box = QMessageBox(
             QMessageBox.Warning, "Suggest failed",
-            self._blind_text(
-                f"{message}\n\nNo new suggestions from this round were saved. "
-                f"Earlier suggestions may have been cleared and round scores "
-                f"may have been updated. Your annotations are unchanged. "
-                f"The usual causes are too few labels, only one "
-                f"class annotated so far — a classifier needs an example of "
-                f"both — or no measurement tables to build features from."),
+            self._blind_text(f"{message}\n\n{detail}"),
             QMessageBox.Ok, self)
         box.setObjectName("AnnotateSuggestFailedBox")
         box.setAttribute(Qt.WA_DeleteOnClose)

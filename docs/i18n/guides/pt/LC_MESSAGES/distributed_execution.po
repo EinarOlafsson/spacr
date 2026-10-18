@@ -257,8 +257,9 @@ msgstr "substituições de configuração SSH não secretas, como utilizador, po
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "utilizar uma sessão SSH persistente e verificada, com pedidos gráficos de autenticação interativa por teclado, em vez do comando OpenSSH externo."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
-msgstr ""
+msgstr "lembrar a senha de login, nunca códigos de uso único nem respostas push, no chaveiro do sistema operacional; desativado por padrão."
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Constrói e valida um perfil a partir de dados compatíveis com JSON."

@@ -15,6 +15,14 @@ from spacr import install_cleanup as ic
 pytestmark = pytest.mark.skipif(os.name == "nt", reason="Models the macOS POSIX runtime and handshake")
 
 
+@pytest.fixture(autouse=True)
+def desktop_boundary(monkeypatch):
+    """Model the GUI boundary; actual child identity/startup is exercised by N703's real-venv tests."""
+    def launch(plan, argv, version, root, *, spawn=None):
+        return (spawn or ic._spawn_detached)(argv, None, plan["workdir"])
+    monkeypatch.setattr(ic, "_launch_updated_desktop", launch)
+
+
 @pytest.fixture
 def installation(tmp_path, monkeypatch):
     root = tmp_path / 'user home' / 'Library' / 'Application Support' / 'spaCR'
@@ -91,14 +99,14 @@ def test_upgrade_waits_verifies_then_relaunches_once(tmp_path, installation, mon
         return (0, _identity('1.5.1.1')) if '-c' in argv else (0, 'Updated')
 
     def wait(pid):
-        assert not events
+        assert [event[0] for event in events] == ['upgrade', 'check', 'verify', 'verify']
         events.append(('wait', pid))
         return True
 
     assert ic._run_plan(str(path), wait=wait, run=run, remove=no_cleanup,
                         fetch=no_cleanup, system=machine,
                         spawn=lambda *args: events.append(('relaunch', args))) == 0
-    assert [event[0] for event in events] == ['wait', 'upgrade', 'check', 'verify', 'verify', 'verify', 'verify', 'relaunch']
+    assert [event[0] for event in events] == ['upgrade', 'check', 'verify', 'verify', 'wait', 'verify', 'verify', 'relaunch']
     assert kept.exists()
     assert 'Verified spaCR 1.5.1.1' in Path(plan['log']).read_text()
 
@@ -148,9 +156,15 @@ def test_cancelled_shutdown_never_upgrades_on_later_exit(tmp_path, installation,
         controller.cancel()
         return True  # A later unrelated close must still not authorize work.
 
-    assert ic._run_plan(str(path), wait=wait, run=no_cleanup, remove=no_cleanup,
+    original = Path(installation[0].python).read_bytes()
+    def staged_only(argv):
+        assert Path(installation[0].python).read_bytes() == original
+        assert argv[0] != installation[0].python
+        return 0, _identity('1.5.1.1') if '-c' in argv else 'staged'
+    assert ic._run_plan(str(path), wait=wait, run=staged_only, remove=no_cleanup,
                         system=machine, spawn=no_cleanup) == 6
     assert kept.exists()
+    assert Path(installation[0].python).read_bytes() == original
 
 
 @pytest.mark.parametrize('unavailable', ['bootstrap/uv', 'venv/bin/python'])
@@ -253,14 +267,15 @@ def test_real_private_executables_upgrade_verify_and_launch_in_order(tmp_path, i
     approve_when_ready(monkeypatch, plan)
 
     def wait(pid):
-        journal.write_text('wait\n')
+        with journal.open('a') as stream:
+            stream.write('wait\n')
         return True
 
     assert ic._run_plan(str(path), wait=wait, remove=no_cleanup, fetch=no_cleanup, system=machine) == 0
     deadline = time.monotonic() + 3
     while 'relaunch' not in journal.read_text() and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert journal.read_text().splitlines() == ['wait', 'upgrade', 'check', 'verify', 'verify', 'verify', 'verify', 'relaunch']
+    assert journal.read_text().splitlines() == ['upgrade', 'check', 'verify', 'verify', 'wait', 'verify', 'verify', 'relaunch']
     installed_args = argv_log.read_text().splitlines()
     assert installed_args[:4] == ['pip', 'install', '--upgrade', '--python']
     assert installed_args[-1] == 'spacr' and installed_args[4] != record.python

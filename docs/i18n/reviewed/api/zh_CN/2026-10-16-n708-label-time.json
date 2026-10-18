@@ -1,0 +1,210 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Map an observed frame label to a persistent segment, or remove a mapping.",
+      "label": "spacr.qt.mask_engine.assign_lineage_label#0",
+      "source": "Map an observed frame label to a persistent segment, or remove a mapping.",
+      "source_sha256": "0a916b0df090bc5220aa26a4407a05f7b70638a509b82036a785451a3025c355",
+      "translation": "将观测到的帧标签映射到持久的谱系区段，或移除映射。"
+    },
+    {
+      "context": "Assign one explicit uint32 identity without joining different objects.",
+      "label": "spacr.qt.mask_engine.assign_object_label#0",
+      "source": "Assign one explicit uint32 identity without joining different objects.",
+      "source_sha256": "ed632c22679c20274e9bd71d7731f8122a50904429de631894960dc85ddf311c",
+      "translation": "分配一个显式 uint32 身份标识，不合并不同对象。"
+    },
+    {
+      "context": "All pixels bearing the clicked object's existing ID move together, including disconnected pieces deliberately sharing that identity. Zero removes that object. A nonzero target already belonging to another object is refused before any pixel changes.",
+      "label": "spacr.qt.mask_engine.assign_object_label#1",
+      "source": "All pixels bearing the clicked object's existing ID move together, including disconnected pieces deliberately sharing that identity. Zero removes that object. A nonzero target already belonging to another object is refused before any pixel changes.",
+      "source_sha256": "010eed10cf7324c917088578f2dea9bf647fa88a56d56b572180920265a2e10a",
+      "translation": "带有所点击对象现有 ID 的所有像素会一起更改，包括有意共享该身份的不连通部分。零会移除该对象。如果非零目标值已属于另一个对象，则在更改任何像素前拒绝该值。"
+    },
+    {
+      "context": "nonempty 2-D nonnegative integer labels; never modified.",
+      "label": "spacr.qt.mask_engine.assign_object_label#2",
+      "source": "nonempty 2-D nonnegative integer labels; never modified.",
+      "source_sha256": "854eea82c6c7a38ae4639ce286b9fe72e219caf46e4dd1c2d25c306272277152",
+      "translation": "非空的 2-D 非负整数标签；绝不修改。"
+    },
+    {
+      "context": "integer column; outside the field changes nothing.",
+      "label": "spacr.qt.mask_engine.assign_object_label#3",
+      "source": "integer column; outside the field changes nothing.",
+      "source_sha256": "35fa40c51b5be26f6a5acdf52adcd12c771df1f2732ab1c4fd29d98e7205dba4",
+      "translation": "整数列坐标；位于视野外时不作更改。"
+    },
+    {
+      "context": "integer row; outside the field changes nothing.",
+      "label": "spacr.qt.mask_engine.assign_object_label#4",
+      "source": "integer row; outside the field changes nothing.",
+      "source_sha256": "c7036dc22b5719adbf8a2f8afb64d9aa909679f87aae3a3cdd3cd7959a80533c",
+      "translation": "整数行坐标；位于视野外时不作更改。"
+    },
+    {
+      "context": "integer in 0 through 4294967295, with zero reserved for background.",
+      "label": "spacr.qt.mask_engine.assign_object_label#5",
+      "source": "integer in 0 through 4294967295, with zero reserved for background.",
+      "source_sha256": "410bf676223f4c51a2eb728dbd840df98aac74c0b880aead8c6dc362b4f6b1bd",
+      "translation": "0 到 4294967295 之间的整数，其中零保留给背景。"
+    },
+    {
+      "context": "an unsigned label copy and the original ID under the pointer, or zero for background or an outside position. The same ID is a no-op.",
+      "label": "spacr.qt.mask_engine.assign_object_label#6",
+      "source": "an unsigned label copy and the original ID under the pointer, or zero for background or an outside position. The same ID is a no-op.",
+      "source_sha256": "c90d3cdc5ec7541e11dbe89c8ba501266f9619ee5ff587b0d56d5792ceb8d90a",
+      "translation": "无符号标签副本及指针下方的原始 ID；若为背景或外部位置则返回零。相同 ID 不触发任何操作。"
+    },
+    {
+      "context": "for invalid labels, coordinates, or an occupied ID.",
+      "label": "spacr.qt.mask_engine.assign_object_label#7",
+      "source": "for invalid labels, coordinates, or an occupied ID.",
+      "source_sha256": "09ed95bbd5c37d0e2af604a30118ed202c19cc7057aab96bd2f3fc04ffdcd7c9",
+      "translation": "标签、坐标无效或 ID 已被占用时。"
+    },
+    {
+      "context": "Track a hovered object using a free local ID without stealing another track.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#0",
+      "source": "Track a hovered object using a free local ID without stealing another track.",
+      "source_sha256": "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+      "translation": "使用空闲的局部 ID 追踪指针悬停的对象，不占用其他追踪轨迹。"
+    },
+    {
+      "context": "Return validated labels, retaining explicit uint32 identities.",
+      "label": "spacr.qt.mask_engine.canonical_labels#0",
+      "source": "Return validated labels, retaining explicit uint32 identities.",
+      "source_sha256": "3cc814a2d5962130662f52667baa9862fa65e324d11a2109105780341c502b77",
+      "translation": "返回验证后的标签，保留显式 uint32 身份标识。"
+    },
+    {
+      "context": "uint16 labels for ordinary segmentation, or uint32 for explicit identities requiring that width. Existing uint32 masks retain their exact IDs even without the explicit flag.",
+      "label": "spacr.qt.mask_engine.canonical_labels#8",
+      "source": "uint16 labels for ordinary segmentation, or uint32 for explicit identities requiring that width. Existing uint32 masks retain their exact IDs even without the explicit flag.",
+      "source_sha256": "5dfd101b6689c4a8a37dc29acf367bed6e0d29e3c0cbd8ad486e3baf115d400d",
+      "translation": "普通分割使用 uint16 标签，需要该位宽的显式身份标识使用 uint32。现有 uint32 掩膜即使没有显式标志也会保留其精确 ID。"
+    },
+    {
+      "context": "when ordinary segmentation exceeds uint16 capacity, exact IDs exceed uint32 capacity, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "label": "spacr.qt.mask_engine.canonical_labels#9",
+      "source": "when ordinary segmentation exceeds uint16 capacity, exact IDs exceed uint32 capacity, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "source_sha256": "05ac7f9d8cb54b4bca466d9fcef968203d6f401bec1eb083decf12f82f8e7d05",
+      "translation": "当普通分割超出 uint16 容量、精确 ID 超出 uint32 容量，或精确 ID 模式收到无效标签时。过大的 ID 绝不会被截断。"
+    },
+    {
+      "context": "End a segment and create two distinct daughter segments at one frame.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#0",
+      "source": "End a segment and create two distinct daughter segments at one frame.",
+      "source_sha256": "a29fc3212fa7d8d89d05ecc38f2fda134873320bfbbf241922053c24bca42beb",
+      "translation": "结束一个谱系区段，并在同一帧创建两个不同的子区段。"
+    },
+    {
+      "context": "validate the ids as exact primary IDs first (unsigned labels, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
+      "label": "spacr.qt.mask_engine.fill_holes#3",
+      "source": "validate the ids as exact primary IDs first (unsigned labels, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
+      "source_sha256": "89195b3832c55cad5986ede8105a823b9c906ca9e6c5c42390a9a879bf221e29",
+      "translation": "先将编号验证为精确的主编号（无符号标签，通过 :func:`canonical_labels`）。无论哪种情况，每个编号都会保留。默认情况下，只有单一前景值的掩膜——用画笔绘制的二值掩膜，不带编号——会先按连通性编号，与 :func:`canonical_labels` 的编号方式相同。"
+    },
+    {
+      "context": "Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.",
+      "label": "spacr.qt.mask_engine.load_image_and_mask#3",
+      "source": "Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.",
+      "source_sha256": "55aeb27b47d2d9508adab03978b7889b221d9514fc8a1dbfc1ced2b28d58c4ae",
+      "translation": "图像以 uint16 返回；掩膜保留 uint8/uint16/uint32 标签 ID。"
+    },
+    {
+      "context": "Read an independent lineage graph from a TIFF mask or return an empty graph.",
+      "label": "spacr.qt.mask_engine.load_mask_lineage#0",
+      "source": "Read an independent lineage graph from a TIFF mask or return an empty graph.",
+      "source_sha256": "363d4ababdbc23672448e3eceb68ffc2b5c811d1ae66828969573787f2fcaab4",
+      "translation": "从 TIFF 掩膜读取独立的谱系图，或返回空图。"
+    },
+    {
+      "context": "Read identity semantics and lineage from the mask itself, without a sidecar.",
+      "label": "spacr.qt.mask_engine.load_mask_metadata#0",
+      "source": "Read identity semantics and lineage from the mask itself, without a sidecar.",
+      "source_sha256": "fd48f8029f2eb072e768b857656382ee5ae11161601eaca59c7d1b212e626682",
+      "translation": "直接从掩膜读取身份语义和谱系，无需附属文件。"
+    },
+    {
+      "context": "Merge embedded snapshots, preserving newer edits and immutable ancestry.",
+      "label": "spacr.qt.mask_engine.merge_lineage_states#0",
+      "source": "Merge embedded snapshots, preserving newer edits and immutable ancestry.",
+      "source_sha256": "a6ec761637c869239509658c5dd5b5173c8ae4a964fe7b41054f2b309075a80b",
+      "translation": "合并内嵌快照，保留较新的编辑和不可变的祖先关系。"
+    },
+    {
+      "context": "Create an unplaced founder without claiming any existing mask pixels.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#0",
+      "source": "Create an unplaced founder without claiming any existing mask pixels.",
+      "source_sha256": "7e5303339f8f195d48fee89440043f196a92f098d7af4191bdadc87ddf148b84",
+      "translation": "创建尚未定位的始祖细胞，不占用任何现有掩膜像素。"
+    },
+    {
+      "context": "Prefer the next highest ID, using an unused local ID at uint32 capacity.",
+      "label": "spacr.qt.mask_engine.next_label#0",
+      "source": "Prefer the next highest ID, using an unused local ID at uint32 capacity.",
+      "source_sha256": "2f98ffced82cc6ac6ce571c8521526be0f10ee32ff3228f3f171bfad622f43e1",
+      "translation": "优先使用下一个更大的 ID，在达到 uint32 容量时使用尚未使用的局部 ID。"
+    },
+    {
+      "context": "Persistent lineage uses independent UUIDs, so a free local pixel ID can be reused without merging cell identities. Allocation visits observed labels only and never constructs a table of every possible uint32 ID.",
+      "label": "spacr.qt.mask_engine.next_label#1",
+      "source": "Persistent lineage uses independent UUIDs, so a free local pixel ID can be reused without merging cell identities. Allocation visits observed labels only and never constructs a table of every possible uint32 ID.",
+      "source_sha256": "298b1acf4681eb8bcbf4df848687531e2a556adb6555e70a55e4a9910c89e528",
+      "translation": "持久谱系使用独立的 UUID，因此可以重用空闲的局部像素 ID，而不合并细胞身份。分配过程只遍历观测到的标签，绝不会构造包含所有可能 uint32 ID 的表。"
+    },
+    {
+      "context": "Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.",
+      "label": "spacr.qt.mask_engine.prune_lineage_frame#0",
+      "source": "Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.",
+      "source_sha256": "551c9de4a6a4bedc234ce4e2ce21bccd392d4fe994f91b5d3dde74e01782e44f",
+      "translation": "将不存在的像素映射作为带修订版本的编辑移除，同时保留细胞祖先关系。"
+    },
+    {
+      "context": "Rename a segment while retaining its identity and parent links.",
+      "label": "spacr.qt.mask_engine.rename_lineage_cell#0",
+      "source": "Rename a segment while retaining its identity and parent links.",
+      "source_sha256": "d6f77f0bb1c4d8e2eeda14aa47fe012ce448cade1ba7400bfe7a4587e9dd948a",
+      "translation": "重命名谱系区段，同时保留其身份和亲代链接。"
+    },
+    {
+      "context": "Make undo or redo an explicit newer edit that survives older TIFF snapshots.",
+      "label": "spacr.qt.mask_engine.restore_lineage_state#0",
+      "source": "Make undo or redo an explicit newer edit that survives older TIFF snapshots.",
+      "source_sha256": "f6bc465629677bfdcb83e5a4f14482b89a0d27299cf122c635cc737ecd1e6b2c",
+      "translation": "将撤销或重做明确记为较新的编辑，使其不被较旧的 TIFF 快照覆盖。"
+    },
+    {
+      "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 4294967295 before writing; it never silently renumbers them.",
+      "label": "spacr.qt.mask_engine.save_mask#7",
+      "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 4294967295 before writing; it never silently renumbers them.",
+      "source_sha256": "625af900c771823ab53d2c8ed63b36580f48756caf079f3361393b3f58172262",
+      "translation": "保留精确的初级/次级 ID，不把单值掩膜解读为二值掩膜，也不拆分不连通的部分。显式模式会验证非负的 2-D 整数标签，并在写入前拒绝大于 4294967295 的 ID；它绝不会悄悄地重新编号。"
+    },
+    {
+      "context": "versioned UUID graph and per-frame pixel mappings to embed in the TIFF. Even an empty graph requests uint32 storage. Existing embedded lineage and exact-ID semantics survive ordinary later saves.",
+      "label": "spacr.qt.mask_engine.save_mask#8",
+      "source": "versioned UUID graph and per-frame pixel mappings to embed in the TIFF. Even an empty graph requests uint32 storage. Existing embedded lineage and exact-ID semantics survive ordinary later saves.",
+      "source_sha256": "31317539b1c498a9731dccc7a11be3bd9e9ac62a722b8432450c9548ffd4bf10",
+      "translation": "要内嵌于 TIFF 的带版本 UUID 图和逐帧像素映射。即使是空图也会请求 uint32 存储。现有内嵌谱系和精确 ID 语义在之后的普通保存中仍会保留。"
+    },
+    {
+      "context": "Copy and validate a versioned lineage graph without recursive traversal.",
+      "label": "spacr.qt.mask_engine.validate_lineage#0",
+      "source": "Copy and validate a versioned lineage graph without recursive traversal.",
+      "source_sha256": "2004dbae3bf75d8052b61da7dc4b0be1c19df5d6b8a33302eb5a878b7e8a88d9",
+      "translation": "复制并验证带版本的谱系图，无需递归遍历。"
+    },
+    {
+      "context": "Install validated lineage and refresh cell controls after the mask update.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit#0",
+      "source": "Install validated lineage and refresh cell controls after the mask update.",
+      "source_sha256": "066deda27a4a19e008ba2afc5c7296d5fb6f4e5ce3d6b5a4754eb3ad487db727",
+      "translation": "更新掩膜后应用验证过的谱系并刷新细胞控件。"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review with independent peer review; no native-speaker signoff",
+  "schema": 1
+}

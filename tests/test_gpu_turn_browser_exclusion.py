@@ -43,24 +43,28 @@ def _scheduler(tmp_path, pid, *, blocked=False, unreadable=False):
     binary = tmp_path / 'bin'
     binary.mkdir()
     programs = {
-        'date': 'import os, pathlib, subprocess, sys\n'
-                'if sys.argv[1:] == ["+%s"]: print(pathlib.Path(os.environ["CLOCK"]).read_text())\n'
-                'else: subprocess.run(["/bin/date", *sys.argv[1:]], check=True)\n',
-        'sleep': 'import os, pathlib, sys\n'
-                 'p=pathlib.Path(os.environ["CLOCK"]); p.write_text(str(int(p.read_text())+int(sys.argv[1])))\n',
-        'nvidia-smi': 'import os, pathlib\n'
-                      'now=int(pathlib.Path(os.environ["CLOCK"]).read_text())\n'
-                      'with open(os.environ["QUERIES"], "a") as f: f.write(str(now)+"\\n")\n'
-                      'if now < int(os.environ["CLEAR_AT"]): print(os.environ["TEST_PID"])\n',
+        'date': 'if [ "$#" -eq 1 ] && [ "$1" = "+%s" ]; then\n'
+                '  cat "$CLOCK"\n'
+                'else\n'
+                '  exec /bin/date "$@"\n'
+                'fi\n',
+        'sleep': 'now=$(cat "$CLOCK")\n'
+                 'printf "%s" "$((now + $1))" > "$CLOCK"\n',
+        'nvidia-smi': 'now=$(cat "$CLOCK")\n'
+                      'printf "%s\\n" "$now" >> "$QUERIES"\n'
+                      'if [ "$now" -lt "$CLEAR_AT" ]; then\n'
+                      '  printf "%s\\n" "$TEST_PID"\n'
+                      'fi\n',
     }
     if unreadable:
-        programs['readlink'] = 'raise SystemExit(1)\n'
-        programs['tr'] = ('import subprocess, sys\n'
-                          'if sys.argv[1:] != ["-d", " "]: raise SystemExit(1)\n'
-                          'raise SystemExit(subprocess.call(["/usr/bin/tr", *sys.argv[1:]]))\n')
+        programs['readlink'] = 'exit 1\n'
+        programs['tr'] = ('if [ "$#" -eq 2 ] && [ "$1" = "-d" ] && [ "$2" = " " ]; then\n'
+                          '  exec /usr/bin/tr "$@"\n'
+                          'fi\n'
+                          'exit 1\n')
     for name, source in programs.items():
         path = binary / name
-        path.write_text('#!' + sys.executable + '\n' + source)
+        path.write_text('#!/bin/sh\n' + source)
         path.chmod(0o700)
     environment = {key: value for key, value in os.environ.items()
                    if key not in {'GPU_IDLE_S', 'GPU_GAP_S', 'GPU_POLL_S'}}

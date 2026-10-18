@@ -3,7 +3,7 @@ Bridge between spacr's plain-python default settings and Qt form widgets.
 
 The existing spacr GUI expresses settings as `{name: (widget_type, options,
 default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`.
-Here we consume the same conversion output and materialize each entry as
+This module consumes the same conversion output and materializes each entry as
 a real Qt widget grouped into logical Section boxes based on
 `spacr.settings.categories`.
 """
@@ -2567,10 +2567,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "at a new plate or experiment; every other group assumes they are "
         "right.",
     "GENERAL":
-        "The few decisions the rest of the run depends on: which channel is "
-        "which, whether intensities are normalised, and whether preview "
-        "figures are drawn. Worth a look on any dataset you have not run "
-        "before.",
+        "Channel assignment, intensity normalisation and whether preview "
+        "figures are drawn. The other groups use these values, so check "
+        "them for each new dataset.",
     "CELL":
         "How the cell mask is found — model, expected diameter, probability "
         "and flow thresholds. What is done to the channel first, and which "
@@ -2616,41 +2615,37 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION (ALL OBJECTS)":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied once per "
-        "object rather than a row of unrelated knobs — the settings are "
-        "ordered by "
-        "object, so each group reads together. Raise the minimum size to "
+        "different objects. The settings are ordered by object, so the "
+        "filters for one object are listed together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied once per "
-        "object rather than a row of unrelated knobs — the settings are "
-        "ordered by "
-        "object, so each group reads together. Raise the minimum size to "
+        "different objects. The settings are ordered by object, so the "
+        "filters for one object are listed together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
     "ORGANELLE ADVANCED":
         "The forty-eight detection parameters behind the organelle type: "
         "shape family and method, the background and contrast correction "
-        "applied first, the knobs belonging to the method chosen, and the "
-        "intensity filters applied to what was found. Choosing an organelle "
-        "type sets the ones that matter for it; anything you change here "
-        "wins and is never overwritten. Punctate, tubular and ring-shaped "
-        "organelles each want a different method, which is what the type is "
-        "choosing for you.",
+        "applied first, the parameters of the chosen method, and the "
+        "intensity filters applied to detected objects. Choosing an "
+        "organelle type sets the parameters it uses; a value changed here "
+        "takes precedence and is not overwritten. Punctate, tubular and "
+        "ring-shaped organelles use different methods, and the organelle "
+        "type selects one.",
     "ORGANELLE SEGMENTATION (ADVANCED)":
         "The forty-eight detection parameters behind the organelle type. "
-        "Choosing a type sets the ones that matter for it; anything you "
-        "change here wins and is never overwritten.",
+        "Choosing a type sets the parameters it uses; a value changed here "
+        "takes precedence and is not overwritten.",
     "CELLPOSE":
-        "How Cellpose itself is run: expected object diameter, probability "
-        "and flow thresholds, rescaling and inversion. Reach for these when "
-        "masks are systematically too many, too few or the wrong size; "
-        "which model runs is chosen under Model Training.",
+        "How Cellpose is run: the base or custom model, expected object "
+        "diameter, probability and flow thresholds, rescaling and inversion. "
+        "Adjust these when masks are systematically too many, too few or the "
+        "wrong size.",
     "SEGMENTATION QC":
         "Automatic pass/fail checks on the finished masks — object counts, "
         "size and split ratios, border and foreground fractions, and how "
@@ -2701,9 +2696,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
     "COMPUTER VISION OPTIMIZATION AND REGULARIZATION":
-        "What keeps the model from memorising the training set: dropout, "
-        "weight decay, gradient checkpointing. Reach for these when training "
-        "accuracy climbs and validation accuracy does not.",
+        "Dropout and weight decay, which reduce overfitting to the training "
+        "set, and gradient checkpointing, which reduces GPU memory use. "
+        "Increase dropout or weight decay when training accuracy rises and "
+        "validation accuracy does not.",
     "MODEL EVALUATION":
         "Cross-validation design used to estimate generalization performance: "
         "whether validation runs, the number of folds, and the grouping unit. "
@@ -2841,10 +2837,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "time axis. Only relevant to a time series; a single-timepoint "
         "plate ignores it.",
     "ADVANCED":
-        "Run-level knobs that rarely need touching — verbosity, worker and "
-        "batch sizing, background handling, and whether results are written "
-        "at all. Come here to make a run quieter or lighter on the machine, "
-        "or to keep a scratch run from saving anything.",
+        "Run-level settings: verbosity, worker and batch sizing, background "
+        "handling, and whether results are written. Use them to reduce "
+        "console output, CPU or memory use, or to run without saving "
+        "results.",
     "3D SETTINGS (BETA)":
         "Experimental volumetric handling: how the z-axis is read, whether "
         "planes are projected or stitched, and the physical voxel size used "
@@ -2969,10 +2965,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The standalone Motility Assay module is the fuller version of the "
         "same analysis.",
     "MOTILITY ADVANCED (BETA)":
-        "Fine-grained control over the beta motility pipeline — which "
-        "features are selected and the filter windows applied to tracks. "
-        "Only worth opening once the basic assay runs and the tracks look "
-        "wrong in a specific way.",
+        "Detailed settings of the beta motility pipeline: feature selection "
+        "and the filter windows applied to tracks. Change them after the "
+        "basic assay runs, when the tracks show a specific error.",
     "RESPONSE":
         "What is being modelled: which score column (or columns — name "
         "several and each is fitted and corrected as its own family), "
@@ -3018,10 +3013,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "type' selects the fitted model family. The mixed model nests guides "
         "within genes and reports both levels.",
     "REGRESSION: MODEL TUNING":
-        "Per-family knobs. Each applies to only some regression types, and a "
-        "family refuses a setting it cannot read rather than ignoring it, so "
-        "nothing here changes a fit silently. Leave them alone unless the "
-        "chosen family documents the one you are changing.",
+        "Per-family parameters. Each applies to only some regression types, "
+        "and a family refuses a setting it cannot read rather than ignoring "
+        "it, so no setting here changes a fit silently. Change a parameter "
+        "only when the chosen family documents it.",
     "REGRESSION: PERMUTATION TEST":
         "Read only when inference resolves to the nonparametric test. These "
         "control the permutation itself: what is measured, how many "
@@ -3098,9 +3093,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "of fields, and configure resumption after interruption. Validate a "
         "new dataset with a test run before processing the complete plate.",
     "IMAGE PREPROCESSING":
-        "What happens to the pixels before any mask is made — intensity "
-        "normalisation, projection, upscaling, denoising, and how fields "
-        "are batched. Reach for it when the images are dim, noisy, or at a "
+        "Processing applied to the pixels before any mask is made: "
+        "intensity normalisation, projection, upscaling, denoising, and "
+        "field batching. Adjust it when the images are dim, noisy, or at a "
         "different scale from the one the model expects.",
     "CELL SEGMENTATION":
         "Everything that produces the cell mask: model and expected "
@@ -3115,18 +3110,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "PATHOGEN SEGMENTATION":
         "Everything that produces the pathogen mask: model and expected "
         "diameter, thresholds, background removal, and the size, intensity "
-        "and border filters applied afterwards. Parasites packed into one "
-        "vacuole fusing into a single object is the usual reason to come "
-        "here.",
+        "and border filters applied afterwards. Adjust this group when "
+        "parasites packed into one vacuole are merged into a single "
+        "object.",
     "ORGANELLE SEGMENTATION":
-        "Everything the organelle mask needs, in the order you set it up: "
-        "shape family and detection method, the background and contrast "
-        "correction applied first, the knobs belonging to the method you "
-        "chose (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), "
-        "the size, intensity and border filters applied to what was found, "
-        "and which parent compartment the results are summarised into. The "
-        "largest group in the module, because punctate, tubular and "
-        "ring-shaped organelles each want a different method.",
+        "All organelle mask settings, in setup order: shape family and "
+        "detection method, the background and contrast correction applied "
+        "first, the parameters of the chosen method (adaptive, spot, ridge, "
+        "ring, irregular, Cellpose or U-Net), the size, intensity and border "
+        "filters applied to detected objects, and the parent compartment the "
+        "results are summarised into. It is the largest group in the module "
+        "because punctate, tubular and ring-shaped organelles use different "
+        "methods.",
     "QUALITY CONTROL":
         "Automatic pass/fail checks on the finished masks — object counts, "
         "size and split ratios, border and foreground fractions, and how "
@@ -3178,8 +3173,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "MASK & CHANNEL MAPPING":
         "Which plane of the stack holds each mask and each intensity "
         "channel, whether a cytoplasm compartment is derived, and whether "
-        "the data is a time series. A wrong index here quietly measures the "
-        "wrong object, so it is worth checking twice.",
+        "the data is a time series. A wrong index measures the wrong object "
+        "without an error, so check each index against the images.",
     "OBJECT FILTERING":
         "Which objects are large enough, infected enough or clean enough to "
         "be measured at all. Raise the minimum sizes when debris is being "
@@ -3284,10 +3279,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reported on; each cutoff silently shrinks the dataset, so check the "
         "diagnostics after changing one.",
     "ADDITIONAL SETTINGS":
-        "The remaining knobs belonging to individual regression families "
-        "and plots — bootstrap counts, quantile and hinge parameters, "
-        "solver tolerance and axis limits. Only the ones for the model you "
-        "chose above have any effect.",
+        "The remaining parameters of individual regression families and "
+        "plots: bootstrap counts, quantile and hinge parameters, solver "
+        "tolerance and axis limits. Only the parameters of the model chosen "
+        "above take effect.",
     "MODEL & DATA":
         "The trained model, the dataset it is applied to, and the input "
         "channels, object type and image size it expects. These have to "
@@ -3298,10 +3293,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters of whichever you pick. Methods disagree; comparing two "
         "is often more informative than tuning one.",
     "ATTRIBUTION VALIDATION":
-        "The checks that separate a real explanation from a pretty picture "
-        "— insertion and deletion steps, the baseline they are measured "
-        "against, and the model-weight sanity check. Worth running before "
-        "an attribution map goes into a figure.",
+        "Checks that test whether an attribution map depends on the model: "
+        "insertion and deletion steps, the baseline they are measured "
+        "against, and the model-weight sanity check. Run them before an "
+        "attribution map is used in a figure.",
     "MAP DISPLAY":
         "How the finished map is rendered — input and map normalisation, "
         "overlay on the source image, and whether it is plotted at all. "
@@ -3349,15 +3344,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "trained here; this is the picker, and the expected size matters "
         "more than the choice of weights.",
     "DETECTION THRESHOLDS":
-        "How much the model is allowed to find: the probability floor below "
-        "which a candidate is discarded, how strictly flow has to agree, and "
-        "whether holes are filled. Come here when there are too many objects, "
-        "too few, or one blob where two cells belong.",
+        "Detection thresholds: the probability floor below which a candidate "
+        "is discarded, the required flow agreement, and whether holes are "
+        "filled. Adjust them when there are too many objects, too few, or "
+        "one object where there are two cells.",
     "IMAGE GEOMETRY":
-        "The pixel dimensions the images are resampled to before anything "
-        "else happens. Getting this wrong rescales every object and quietly "
-        "changes what the expected size means, so set it once per "
-        "acquisition and leave it.",
+        "The pixel dimensions the images are resampled to before any other "
+        "step. A wrong value rescales every object and changes the meaning "
+        "of the expected object size; set it once per acquisition.",
     "BACKGROUND & DENOISING":
         "Correction applied before segmentation: the intensity floor treated "
         "as empty and the signal-to-noise gate a field has to clear. Raise "
@@ -3369,10 +3363,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "result is saved under. Fine-tuning needs far fewer labelled images "
         "than starting from scratch.",
     "TRAINING SCHEDULE":
-        "How long the fit runs and how fast it moves: epochs, learning rate, "
-        "weight decay, batch size and augmentation. Reach for these when the "
-        "loss stops falling early, or when the model memorises the training "
-        "images instead of generalising.",
+        "Training length and step size: epochs, learning rate, weight decay, "
+        "batch size and augmentation. Adjust them when the loss stops "
+        "decreasing early, or when the model overfits the training images.",
     "SEQUENCING INPUT":
         "The read files and whether they are treated as a pair or a single "
         "direction. Everything downstream assumes this is right, and a "
@@ -3393,20 +3386,20 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "which the checks below are computed from. Point them at the outputs "
         "of the run you want to judge, not at a newer plate.",
     "WELL EXPECTATIONS":
-        "What a healthy well should look like — how many distinct guides it "
-        "ought to carry, which statistic that is judged by, and the read "
-        "floor below which a well is not worth trusting. These set the bar "
-        "that everything else is measured against.",
+        "Expected well composition: the number of distinct guides per well, "
+        "the statistic used to assess it, and the read floor below which a "
+        "well is treated as unreliable. The other checks use these values as "
+        "their reference.",
     "STARVATION & EXCLUSION":
         "How wells that received too few reads are detected and whether they "
         "are dropped before the rest of the analysis. Leaving them in drags "
         "every plate-level summary toward noise, so exclude them once you "
         "trust the read floor above.",
     "POSITION & COLLISION CHECKS":
-        "Two systematic artefacts worth ruling out before believing a hit: "
-        "counts that track a well's position on the plate, and barcodes "
-        "close enough in sequence to be confused for one another. Both look "
-        "like biology until they are checked.",
+        "Checks for two systematic artefacts to rule out before accepting a "
+        "hit: counts that correlate with well position on the plate, and "
+        "barcodes similar enough in sequence to be confused with each other. "
+        "Both can resemble a biological effect.",
     "THRESHOLD SWEEP":
         "The range and resolution of the scan used to show how the results "
         "would change under a different cut-off. Widen the span when the "
@@ -3477,9 +3470,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "below assumes it is right — point it at the project folder a "
         "measure run wrote, not at the raw images.",
     "PLOTS & DIAGNOSTICS":
-        "Whether preview figures are drawn, how large they are, and how many "
-        "examples are produced. Worth turning on for the first plate of an "
-        "experiment and off again once the numbers are trusted.",
+        "Whether preview figures are drawn, their size, and the number of "
+        "examples. Turn them on to check the first plate of an experiment "
+        "and off for later plates.",
     "CHANNELS & INTENSITY":
         "Which channels carry the signals the assay compares, the statistic "
         "each object is summarised by, and whether background is subtracted "
@@ -3494,11 +3487,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate must contribute before its number is believed. Raise the "
         "minimums when sparse wells produce implausibly extreme rates.",
     "ESTIMATOR TUNING":
-        "The knobs that belong to one estimator rather than to all of them — "
-        "the elastic-net mixing ratio, the quantile being fitted, Huber's "
-        "cut-off, the convergence tolerance, and the bootstrap counts behind "
-        "the hinge and lasso selection thresholds. Only the ones matching "
-        "the model chosen above have any effect.",
+        "Parameters specific to one estimator: the elastic-net mixing ratio, "
+        "the fitted quantile, Huber's cut-off, the convergence tolerance, "
+        "and the bootstrap counts behind the hinge and lasso selection "
+        "thresholds. Only the parameters of the model chosen above take "
+        "effect.",
     "SOURCE & PROVENANCE":
         "The exact database, prediction, sequencing and result artifacts used "
         "by this run. Preserve these paths and hashes so the explanation can "
@@ -3519,10 +3512,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Well-level bootstrap/permutation evidence, blinded gallery sampling, "
         "versioned database storage and exported artifacts.",
     "POWER ANALYSIS":
-        "Everything a screening design has to commit to before a plate is "
-        "poured: library size and redundancy, how it is spread over plates "
-        "and replicates, the effect worth detecting and how rare it is, "
-        "sequencing depth, and how the estimate itself is simulated.",
+        "Screen design inputs fixed before plating: library size and "
+        "redundancy, distribution over plates and replicates, the effect "
+        "size to detect and its prevalence, sequencing depth, and the "
+        "simulation settings for the estimate.",
     "LIBRARY DESIGN":
         "The size and redundancy of the screening library: how many genes "
         "are targeted, how many guides each one gets, and how many "
@@ -3533,11 +3526,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate count, replicates and cells sampled per well. These values "
         "determine the physical plate and acquisition requirements.",
     "EFFECT & PREVALENCE":
-        "What the screen is looking for and how rare it is: the effect size "
-        "worth detecting, the fraction of genes expected to show it, the "
-        "background rate underneath, and how well the readout separates a "
-        "hit from a miss. Optimism here is the usual reason a real screen "
-        "underperforms its power curve.",
+        "The target effect and its prevalence: the effect size to detect, "
+        "the fraction of genes expected to show it, the background rate, "
+        "and how well the readout separates a hit from a non-hit. "
+        "Overestimating these values overestimates the power of the screen.",
     "SEQUENCING DEPTH":
         "How many reads each well is allotted. Too few and guide counts "
         "become noise before any biology is involved, which no amount of "
@@ -3577,9 +3569,9 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
     },
     "measure": {
         "CLOUD \u0391":
-            "Read the plate straight from cloud storage: credentials, endpoint "
-            "and local cache, and the cloud folder the measurements are copied "
-            "to when the run finishes. Leave it alone for a plate on local disk.",
+            "Read the plate from cloud storage: credentials, endpoint and "
+            "local cache, and the cloud folder the measurements are copied to "
+            "when the run finishes. Not used for a plate on local disk.",
         "IMAGE PREPROCESSING":
             "What is done to the pixels of each field before a single "
             "feature is measured -- bleach, spectral and illumination "
@@ -3725,7 +3717,7 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "images you are importing.",
         "TIMELAPSE":
             "Which objects are linked across frames when the imported data "
-            "is a time series. Leave it alone for single-timepoint plates.",
+            "is a time series. Not used for single-timepoint plates.",
         "MEASUREMENTS":
             "Which feature families are computed for the imported masks — "
             "intensity, texture, radial distribution and colocalisation. "
@@ -4983,13 +4975,14 @@ _MODE_NOTES = {
     ),
     "ols": (
         "Least squares: minimises the summed squared residual and assumes "
-        "the well residuals are roughly normal around one common variance. "
-        "It is the baseline the others are worth comparing against."
+        "the well residuals are approximately normal with one common "
+        "variance. Use it as the reference for the other model families."
     ),
     "wls": (
         "Least squares weighted by the well's cell count, so a well of 400 "
-        "cells outweighs one of 30. Worth choosing when wells differ widely "
-        "in how many cells their score was averaged over, which ols ignores."
+        "cells has more weight than one of 30. Use it when wells differ "
+        "widely in the number of cells averaged into their score; ols "
+        "weights every well equally."
     ),
     "rlm": (
         "Robust M-estimation with a Huber loss, tuned by huber_t (default "
@@ -9612,6 +9605,55 @@ class _SpinCommitInput(QObject):
         return False
 
 
+#: The module the Activation form asks which ``cam_type`` entries apply.
+_ATTRIBUTION_MODULE = "spacr.attribution"
+
+#: The one worker importing :data:`_ATTRIBUTION_MODULE`, once started.
+_ATTRIBUTION_IMPORT: List[threading.Thread] = []
+
+
+def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
+    """Import :data:`_ATTRIBUTION_MODULE` on a worker, once per process.
+
+    It imports torch, a second of the GUI thread the first time an
+    Activation page is built. The worker shortens the interpreter's switch
+    interval as other importing workers do, and holds the application's
+    heavy-import lock when the window has one, so it never imports torch
+    alongside the preloader.
+
+    :returns: the importing thread while it runs, or ``None`` when the
+        module is imported or its import has been tried.
+    """
+    if _ATTRIBUTION_MODULE in sys.modules:
+        return None
+    if _ATTRIBUTION_IMPORT:
+        thread = _ATTRIBUTION_IMPORT[0]
+        return thread if thread.is_alive() else None
+
+    def _work() -> None:
+        """Import the module, logging rather than raising a failure."""
+        import importlib
+        from contextlib import nullcontext
+
+        from ..gil_priority import responsive_gui
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        with responsive_gui(), (lock if lock is not None
+                                else nullcontext()):
+            try:
+                importlib.import_module(_ATTRIBUTION_MODULE)
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not import the attribution rules",
+                             exc_info=True)
+
+    thread = threading.Thread(target=_work, daemon=True,
+                              name="spacr-attribution-import")
+    _ATTRIBUTION_IMPORT.append(thread)
+    thread.start()
+    return thread
+
+
 class SettingsWidgets:
     """Container for the Qt widgets bound to a settings dict.
 
@@ -11430,6 +11472,9 @@ class SettingsWidgets:
         combo = self._built_control("cam_type")
         if not isinstance(combo, QComboBox):
             return
+        if _ATTRIBUTION_MODULE not in sys.modules:
+            self._grey_cam_types_once_imported(combo)
+            return
         try:
             from ...attribution import cam_type_applicability
         except Exception:                                    # noqa: BLE001
@@ -11456,6 +11501,44 @@ class SettingsWidgets:
                     "Not applicable to {model}: {reason}",
                     model=model_type or tr("this model"), reason=reason),
                 Qt.ToolTipRole)
+
+    def _grey_cam_types_once_imported(self, combo) -> None:
+        """Grey the ``cam_type`` menu once the attribution rules are imported.
+
+        The rules live in :mod:`spacr.attribution`, which imports torch: the
+        first Activation page froze for a second while it did. The import
+        runs on a worker (:func:`_import_attribution_off_the_gui_thread`)
+        and the menu is greyed when it has finished. Until then every entry
+        stays enabled, as when the rules cannot be imported at all.
+
+        :param combo: the ``cam_type`` menu; the poll is parented to it.
+        """
+        thread = _import_attribution_off_the_gui_thread()
+        if thread is None:
+            if _ATTRIBUTION_MODULE in sys.modules:
+                self._refresh_attribution_method_enablement()
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is None:
+            timer = QTimer(combo)
+            timer.setInterval(50)
+            timer.timeout.connect(self._after_the_attribution_import)
+            self._attribution_import_poll = timer
+        timer.start()
+
+    def _after_the_attribution_import(self) -> None:
+        """Stop polling and grey the menu once the worker has finished."""
+        thread = _ATTRIBUTION_IMPORT[0] if _ATTRIBUTION_IMPORT else None
+        if thread is not None and thread.is_alive():
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is not None:
+            timer.stop()
+        if _ATTRIBUTION_MODULE in sys.modules:
+            try:
+                self._refresh_attribution_method_enablement()
+            except RuntimeError:
+                pass
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""

@@ -4255,7 +4255,9 @@
       "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
       "context": "Describe object types once, collapsing organelle slots into a regex.",
       "translation": "Lýsa hlutagerðum einu sinni, og fella frumulíffærahólf saman í reglulega segð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.object_type_summary#1",
@@ -4501,7 +4503,9 @@
       "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
       "context": "Fields scored ``'fail'`` in current, readable cards.",
       "translation": "Sjónsvið skoruð ``'fail'`` í núgildandi, læsilegum spjöldum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.QCDigest.n_fields#0",
@@ -4509,7 +4513,9 @@
       "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
       "context": "Fields scored in current, readable cards; stale rows are excluded.",
       "translation": "Sjónsvið skoruð í núgildandi, læsilegum spjöldum; úreltar raðir eru undanskildar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.Scorecard.verdict#0",
@@ -4517,7 +4523,9 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
       "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` eða ``'error'``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.qc_mode#3",
@@ -4653,7 +4661,9 @@
       "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
       "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
       "translation": "Cellpose 3-vistunarpunktur var afhentur Cellpose 4, sem getur ekki hlaðið honum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_plaques#5",
@@ -4677,7 +4687,9 @@
       "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
       "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
       "translation": "Mæla nýliðun merkis með samantektum fyrir hverja hýsilfrumu og hvern brunn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_recruitment#1",
@@ -4741,7 +4753,9 @@
       "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
       "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
       "translation": "Breyta synjun Cellpose 4 á Cellpose 3-vistunarpunkti í ráðleggingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.explain_cellpose3#1",

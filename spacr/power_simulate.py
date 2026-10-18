@@ -229,7 +229,7 @@ class ScreenDesignError(PowerSimulationError):
     Zero genes, zero wells, a hit rate outside ``[0, 1]``, a non-positive
     abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into
     the two-element vector ``c(1, 0)`` and simulates two wells; there is no
-    silently-empty frame to return here, so we refuse the design instead.
+    silently-empty frame to return here, so the design is rejected instead.
     """
 
 

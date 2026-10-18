@@ -1349,11 +1349,12 @@ function mapTiming(seconds, fromTimings, toTimings) {
   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
   const targetStart = Number(target.speech_start) || 0;
   const targetEnd = Number(target.scene_end) || targetStart;
-  if ((visualTimings?.preserve_visual_intervals === true &&
-      visualTimings?.native_live_video === true) ||
+  if (completeNativePlayback() ||
       located.scene.native_live_video || target.native_live_video) {
-    // Preserved intervals and native footage map speech by elapsed time.
-    // Ordinary native playback skips unused tails; preserved playback holds speech.
+    // Complete native playback (complete clips or preserved intervals) runs
+    // the picture at speed 1 in every scene, stills included, so speech maps
+    // by elapsed time there too. Ordinary native playback skips unused tails;
+    // preserved playback holds speech.
     const elapsed = Math.max(0, seconds - sourceStart);
     return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
   }

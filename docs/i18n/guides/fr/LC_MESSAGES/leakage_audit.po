@@ -105,8 +105,9 @@ msgstr "Évaluation des classifieurs, calibration et diagnostics de fuite entre 
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Le module est indépendant du modèle : il consomme des étiquettes, des probabilités, des identifiants de pli et des chemins d’échantillons. La validation croisée en apprentissage profond et les futurs pipelines de ML classique peuvent donc écrire le même ensemble d’évaluation, et l’atelier Qt peut afficher un format d’artefact stable unique."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Result of auditing every cross-validation fold for leakage."
-msgstr ""
+msgstr "Résultat de l’audit de fuite de chaque pli de validation croisée."
 
 msgid "Parameters"
 msgstr "Paramètres"
@@ -210,13 +211,13 @@ msgstr "classe facultative par chemin, une valeur par chemin. Sert uniquement à
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "niveau d’identité qui ne doit pas franchir une frontière de pli -- ``none``, ``field``, ``well`` ou ``plate``. Une partition groupée par puits autorise la même plaque des deux côtés, mais jamais le même puits."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
-msgstr "compare aussi le CONTENU des fichiers, de sorte qu’une copie identique octet par octet sous un autre nom est détectée. Coûte une lecture par fichier."
+msgstr "compare aussi le contenu des fichiers, de sorte qu’une copie identique octet par octet sous un autre nom est détectée. Coûte une lecture par fichier."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
-msgstr "traite ce qui est INVÉRIFIABLE comme critique. Un nom de fichier qui ne code pas l’identité demandée, ou un fichier dont l’empreinte ne peut pas être calculée, n’est sinon qu’un avertissement -- laisser cette option à False signifie donc qu’un rapport propre peut encore masquer une fuite que personne n’a pu vérifier."
+msgstr "traite les échantillons invérifiables comme critiques. Un nom de fichier qui ne code pas l’identité demandée, ou un fichier dont l’empreinte ne peut pas être calculée, n’est sinon qu’un avertissement ; avec cette option à False, un rapport réussi peut donc inclure des échantillons dont la fuite n’a pas été vérifiée."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "lève :class:`LeakageError` au lieu de renvoyer un rapport dont ``passed`` vaut False."

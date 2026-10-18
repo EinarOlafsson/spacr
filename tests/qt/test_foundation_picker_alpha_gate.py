@@ -65,7 +65,8 @@ def test_the_picker_offers_every_foundation_model_and_none_first(screen):
 
     picker = screen._foundation
     offered = [picker.itemData(i) for i in range(picker.count())]
-    assert offered == [""] + list(_foundation_names())
+    # 560: the open DINOv2 / Cell-DINO drop-in follows None, before the named models.
+    assert offered == ["", "dino_auto"] + list(_foundation_names())
     assert screen.spec().backbone == screen._backbone.currentText().strip()
 
 

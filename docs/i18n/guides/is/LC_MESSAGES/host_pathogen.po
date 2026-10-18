@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Host–Pathogen Analysis"
 msgstr "Greining hýsils og sýkils"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
-msgstr "Frá **Heim → Prófanir → Toxoplasma** skaltu opna **Greining hýsils og sýkils**. Þessi eining sameinar söfnun merkis á bólustigi við samantektir á hýsilfrumum og brunnum. Fyrir söfnun í bólur eingöngu skaltu nota :doc:`Söfnunargreining <recruitment>`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
+msgstr "Frá **Heim → Lífvera → Toxoplasma** skaltu opna **Greining hýsils og sýkils**. Þessi eining sameinar söfnun merkis á bólustigi við samantektir á hýsilfrumum og brunnum. Fyrir söfnun í bólur eingöngu skaltu nota :doc:`Söfnunargreining <recruitment>`."
 
 msgid "Try the real microscopy test data"
 msgstr "Prófaðu raunverulegu smásjárprófunargögnin"
 
-msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
-msgstr "Opnaðu **Heim → Prófanir → Toxoplasma → Greining hýsils og sýkils** og veldu **Hlaða prófunargögnum...**. Niðurhalið er um 114 MB."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "Opnaðu **Heim → Lífvera → Toxoplasma → Greining hýsils og sýkils** og veldu **Hlaða prófunargögnum...**. Niðurhalið er um 114 MB."
 
 msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
 msgstr "Virkjaðu **Beint** við hlið aðgerðastýringanna neðst og veldu síðan **Keyra forskoðun**. Veldu annað hvort mældu sjónsviðanna og veldu bólur í myndinni eða töflunni til að skoða tengsl þeirra við hýsil og hlutföll merkja."

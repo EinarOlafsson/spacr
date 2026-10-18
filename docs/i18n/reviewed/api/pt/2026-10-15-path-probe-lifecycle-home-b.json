@@ -101,7 +101,10 @@
       "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
       "previous_same_source_indexes": [],
       "translation": "O diálogo de ficheiros acabou de indicar que um caminho existe; consultar novamente o sistema de ficheiros seria uma segunda consulta stat para um facto já conhecido. Isto limpa o marcador de pendente correspondente, mas não cancela uma verificação em fila ou em execução. Essa verificação pode posteriormente substituir a resposta pré-carregada e emitir o sinal ``answered`` de :data:`probes` se o resultado alterar o valor em cache. Esta chamada, por si só, não emite qualquer sinal.",
-      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     }
   ]
 }

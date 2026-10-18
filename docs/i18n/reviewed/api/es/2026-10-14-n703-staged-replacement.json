@@ -26,7 +26,9 @@
       "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
       "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
       "translation": "El procedimiento habitual de reemplazo descarga y ejecuta el nuevo instalador que prepara la instalación, verifica su intérprete real y la aplicación importada, y después retira otras copias e inicia la aplicación. Si falla la instalación o la verificación, no se elimina la copia anterior que funcionaba. Un fallo al retirar otras copias se registra sin volver a iniciar la aplicación.",
-      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     }
   ]
 }

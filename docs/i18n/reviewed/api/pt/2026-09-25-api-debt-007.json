@@ -2966,7 +2966,7 @@
       "source": "the run files to download.",
       "source_sha256": "3c153032c4e64108482710ab44f31f016e9c393ec52f696a0a7cf1178e165b2f",
       "context": "the run files to download.",
-      "translation": "os arquivos da corrida de sequenciamento a baixar.",
+      "translation": "os arquivos da execução de sequenciamento a baixar.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -2998,7 +2998,7 @@
       "source": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
       "source_sha256": "d122d2e1d5b46e1b4fbce99891734f5d25730f91dd65df52bee024da8c41670e",
       "context": "the run files; their ``size_bytes`` are summed, so a file of unknown size adds zero.",
-      "translation": "os arquivos da corrida de sequenciamento; seus ``size_bytes`` são somados, então um arquivo de tamanho desconhecido soma zero.",
+      "translation": "os arquivos da execução de sequenciamento; seus ``size_bytes`` são somados, então um arquivo de tamanho desconhecido soma zero.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {

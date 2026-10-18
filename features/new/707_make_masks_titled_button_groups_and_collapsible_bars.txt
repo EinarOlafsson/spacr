@@ -2,8 +2,9 @@
 MAKE MASKS BUTTONS IN TITLED GROUPS AROUND THE IMAGE, WITH COLLAPSIBLE BARS
 ================================================================================
 
-Status:    DONE 2026-10-16 (code, tests). Tutorials showing Make Masks need
-           re-recording by the tutorial lane (WS); see the last section.
+Status:    BLOCKED ON MAINTAINER — implementation, tests and translated
+           outputs complete on nightly; only the maintainer's native layout
+           check remains (tutorial re-recordings belong to lane 676).
 Owner:     spacr/qt/screens/make_masks.py, spacr/qt/widgets/collapse_arrow.py,
            spacr/qt/preferences.py (Plugins tab), spacr/qt/screens/
            settings_model.py and app_screen.py (vvvv), spacr/qt/theme.py
@@ -155,3 +156,13 @@ Plugins -> Export to vvvv instead of the two retired Make Masks buttons.
 2026-10-16 — Follow-ups accepted:705/706 pair updates capture_make_masks_experiment.py to use current Edit actions instead of removed _btn_undo/_btn_redo and makes TOOLS/IO extractable through the normal caption pipeline.
 Tutorial owner retains fresh re-recording14/42/46/79 and checks05/19–22/54/57/80; no Home recording. Maintainer checks layout at1366×768 and1920×1080.
 CI pair handles the real N698 fake-tree and alpha tutorial contract failures; stale Swedish install_consent.apply_choices#1 is refreshed against final N703 source before normal API generation, preserving assertions and reviewed translations.
+
+2026-10-16 — Maintainer correction supersedes the original image-overlay placement: show the editable image index and filename together at the bottom-left of the image-containing container, outside the image pixels; remove their canvas overlay and duplicate row beneath Open File / Folder.
+Flows remains an ordinary content tab. Image index, Reset zoom and Ruler must not be embedded in the Flows tab; place Reset zoom/Ruler separately beside the tabs with their top edges aligned to the tab tops and their full height visible above the image.
+Retain index-based navigation, filenames, reset/ruler behavior, collapse persistence and the new705/706/708 controls. Check actual widget geometry/visibility at1366×768 and1920×1080, with translated captions and tab switching; no Home GPU/native-display claim.
+
+2026-10-16 — Footer now holds the editable index and filename outside image pixels; duplicate identity rows are removed, Flows is a normal tab, and Reset zoom/Ruler align beside the tabs with their full height visible.
+2026-10-16 — Retained26 focused checks cover behavior, EN/FR geometry at1366×768 and1920×1080, and clearing stale filename tooltips in blind mode; no native-display acceptance is inferred.
+2026-10-16 — Capture helper uses current Edit actions; TOOLS/IO are normally extracted with approved nine-language records. Runtime/API audits, Help/arrival generation and13 catalog checks pass; normal outputs ship with705.
+2026-10-16 — Remaining owner steps: maintainer native layout check at both resolutions; Work fresh recordings14/42/46/79 and checks05/19–22/54/57/80, preserving the current-layout/alpha-content rules.
+2026-10-17 — Claude Home re-verified on nightly ec3980daeb7: capture helper uses _act_edit_undo/_act_edit_redo, TOOLS/IO are tr() captions with nine-locale catalog rows, 30/30 test_707 checks pass. No code remains. Maintainer: open Make Masks at 1366×768 and 1920×1080 (light and dark), open a folder and a 3D image, fold/unfold top bar, bottom bar and title; confirm groups, footer, Reset zoom/Ruler beside the tabs; then set DONE.

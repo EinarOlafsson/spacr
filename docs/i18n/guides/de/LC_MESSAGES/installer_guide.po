@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -49,14 +49,15 @@ msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation."
-msgstr "Führen Sie ``SpaCR-<version>-Windows-Online-Setup.exe`` aus. Der voreingestellte benutzerspezifische Speicherort ist ``%LOCALAPPDATA%\\spaCR`` und erfordert keine Administratorrechte. Die automatische Hardwarebeschleunigung ist standardmäßig ausgewählt. Sie installiert auf kompatiblen NVIDIA-Systemen einen CUDA-fähigen PyTorch-Build. Auf anderen Systemen installiert sie den PyTorch-Build, den ``uv`` für die erkannte Hardware auswählt; das ist der CPU-Build, wenn keine unterstützte GPU erkannt wird. Heben Sie die Auswahl der Komponente nur auf, wenn Sie die kleinere reine CPU-Installation benötigen."
+msgid "Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user location is ``%LOCALAPPDATA%\\spaCR`` and does not require administrator access. Automatic hardware acceleration is selected by default. It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected. Clear the component only when you require the smaller CPU-only installation. The unticked component **Install without wgpu (use OpenGL/CPU for 3D)** leaves out the wgpu 3D renderer; see :ref:`wgpu-3d-rendering`. From PowerShell, the same choice is the ``-WithoutWgpu`` switch of ``install_spacr_windows.ps1``."
+msgstr "Führen Sie ``SpaCR-<version>-Windows-Online-Setup.exe`` aus. Der voreingestellte benutzerspezifische Speicherort ist ``%LOCALAPPDATA%\\spaCR`` und erfordert keine Administratorrechte. Die automatische Hardwarebeschleunigung ist standardmäßig ausgewählt. Sie installiert auf kompatiblen NVIDIA-Systemen einen CUDA-fähigen PyTorch-Build. Auf anderen Systemen installiert sie den PyTorch-Build, den ``uv`` für die erkannte Hardware auswählt; das ist der CPU-Build, wenn keine unterstützte GPU erkannt wird. Heben Sie die Auswahl der Komponente nur auf, wenn Sie die kleinere reine CPU-Installation benötigen. Die nicht angehakte Komponente **Install without wgpu (use OpenGL/CPU for 3D)** lässt den wgpu-3D-Renderer weg; siehe :ref:`wgpu-3d-rendering`. In PowerShell entspricht dieselbe Wahl dem Schalter ``-WithoutWgpu`` von ``install_spacr_windows.ps1``."
 
 msgid "macOS 11 or later"
 msgstr "macOS 11 oder neuer"
 
-msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. On first launch, a visible Terminal bootstrap creates the private runtime under ``~/Library/Application Support/spaCR``. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR."
-msgstr "Öffnen Sie ``SpaCR-<version>-macOS-Universal-Online.pkg``. Die Anwendung wird in ``/Applications/spaCR.app`` abgelegt. Beim ersten Start erstellt ein sichtbarer Bootstrap im Terminal die private Laufzeitumgebung unter ``~/Library/Application Support/spaCR``. Die aktuelle Beta ist nicht notarisiert. Wenn Gatekeeper sie blockiert, öffnen Sie **System Settings → Privacy & Security** und wählen Sie **Open Anyway** für spaCR."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open ``SpaCR-<version>-macOS-Universal-Online.pkg``. The application is placed in ``/Applications/spaCR.app``. The spaCR setup window creates its private runtime under ``~/Library/Application Support/spaCR`` and displays progress, dependency choices and any required consent. Complete those choices in the window; setup does not require answers in Terminal. When setup finishes, spaCR opens its startup window and then the main application. The current beta is not notarized. If Gatekeeper blocks it, open **System Settings → Privacy & Security** and choose **Open Anyway** for spaCR. The first-launch window has an unchecked **Install without wgpu (use OpenGL/CPU for 3D)** box; see :ref:`wgpu-3d-rendering`."
+msgstr "Öffnen Sie ``SpaCR-<version>-macOS-Universal-Online.pkg``. Die Anwendung wird in ``/Applications/spaCR.app`` abgelegt. Das Einrichtungsfenster von spaCR erstellt die private Laufzeitumgebung unter ``~/Library/Application Support/spaCR`` und zeigt den Fortschritt, die Auswahl der Abhängigkeiten und jede erforderliche Zustimmung an. Treffen Sie diese Auswahl im Fenster; die Einrichtung erfordert keine Antworten im Terminal. Wenn die Einrichtung abgeschlossen ist, öffnet spaCR sein Startfenster und anschließend die Hauptanwendung. Die aktuelle Beta ist nicht notarisiert. Wenn Gatekeeper sie blockiert, öffnen Sie **System Settings → Privacy & Security** und wählen Sie **Open Anyway** für spaCR. Das Fenster beim ersten Start enthält ein nicht angehaktes Kästchen **Install without wgpu (use OpenGL/CPU for 3D)**; siehe :ref:`wgpu-3d-rendering`."
 
 msgid "Linux x86-64"
 msgstr "Linux x86-64"
@@ -70,11 +71,28 @@ msgstr "Das voreingestellte Installationsverzeichnis ist ``~/.local/share/spacr`
 msgid "Automatic backend selection is the Linux default. It installs CUDA support when compatible NVIDIA hardware is available. To require the smaller CPU-only build instead, run the installer with ``--torch-backend cpu``."
 msgstr "Die automatische Backend-Auswahl ist unter Linux die Voreinstellung. Sie installiert CUDA-Unterstützung, wenn kompatible NVIDIA-Hardware vorhanden ist. Um stattdessen den kleineren reinen CPU-Build zu erzwingen, führen Sie das Installationsprogramm mit ``--torch-backend cpu`` aus."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "To leave out the wgpu 3D renderer, run the installer with ``--without-wgpu``, or tick **Install without wgpu (use OpenGL/CPU for 3D)** in the installer window; the box is unchecked by default. On a Linux system whose glibc is older than 2.28 the installer leaves wgpu out by itself and prints one line saying so, because wgpu publishes Linux wheels only for glibc 2.28 and newer. ``--dry-run`` shows the decision in its plan, as the ``wgpu 3D rendering`` line. See :ref:`wgpu-3d-rendering`."
+msgstr "Um den wgpu-3D-Renderer wegzulassen, führen Sie den Installer mit ``--without-wgpu`` aus oder haken Sie **Install without wgpu (use OpenGL/CPU for 3D)** im Installerfenster an; das Kästchen ist standardmäßig nicht angehakt. Auf einem Linux-System mit einer glibc älter als 2.28 lässt der Installer wgpu von sich aus weg und gibt dazu eine Zeile aus, weil wgpu Linux-Wheels nur für glibc 2.28 und neuer veröffentlicht. ``--dry-run`` zeigt die Entscheidung in seinem Plan als Zeile ``wgpu 3D rendering``. Siehe :ref:`wgpu-3d-rendering`."
+
 msgid "Updating"
 msgstr "Aktualisieren"
 
-msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
-msgstr "Laden Sie das Installationsprogramm für die neuere Version herunter und führen Sie es aus. Die Installation wird bereitgestellt und validiert, bevor sie die aktive private Umgebung ersetzt; eine fehlgeschlagene Aktualisierung lässt die bisherige funktionierende Umgebung bestehen. Projektordner und Ergebnisse werden nicht im Installationsverzeichnis gespeichert und durch eine Aktualisierung nicht entfernt."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Help → Check for updates**, review the offered version and choose **Update**. Supported macOS installations and dedicated private Python installations prepare the replacement in the background. When it is ready, choose **Restart** to finish closing the current application and open the verified replacement through the spaCR startup window. No manual click on the application icon is needed. Frozen Windows and Debian installations use their native authorization and replacement workflows."
+msgstr "Wählen Sie **Hilfe → Check for updates**, prüfen Sie die angebotene Version und wählen Sie **Update**. Unterstützte macOS-Installationen und eigene private Python-Installationen bereiten den Ersatz im Hintergrund vor. Wenn er bereit ist, wählen Sie **Neu starten**, um das Schließen der aktuellen Anwendung abzuschließen und den verifizierten Ersatz über das spaCR-Startfenster zu öffnen. Ein manueller Klick auf das Anwendungssymbol ist nicht nötig. Eingefrorene Windows- und Debian-Installationen verwenden ihre nativen Abläufe für Autorisierung und Ersatz."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Older Linux and Windows online layouts without a verified update adapter are refused before replacement starts. The application stays open and keeps its data. Use the matching release installer for those installations."
+msgstr "Ältere Linux- und Windows-Online-Layouts ohne verifizierten Update-Adapter werden abgelehnt, bevor der Ersatz beginnt. Die Anwendung bleibt geöffnet und behält ihre Daten. Verwenden Sie für diese Installationen den passenden Release-Installer."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Alternatively, download and run the installer for the requested version from the `GitHub releases <https://github.com/EinarOlafsson/spacr/releases>`_. This is also the way to move an older installer to the current desktop update flow. Use the installer for the same platform and installation family as the copy being replaced."
+msgstr "Alternativ können Sie den Installer für die gewünschte Version von den `GitHub-Releases <https://github.com/EinarOlafsson/spacr/releases>`_ herunterladen und ausführen. Auf diesem Weg lässt sich auch eine Installation aus einem älteren Installer auf den aktuellen Update-Ablauf für Desktop-Installationen umstellen. Verwenden Sie den Installer für dieselbe Plattform und dieselbe Installationsfamilie wie die zu ersetzende Kopie."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Installation is staged and validated before replacement. An unsuccessful preparation keeps the previous application; activation failures retain or restore the previous runtime and report any recovery needed. Ordinary updates keep models, caches, preferences, run history and project outputs. Optional update cache cleanup starts unselected and requires a separate confirmation."
+msgstr "Die Installation wird vor dem Ersatz bereitgestellt und validiert. Eine fehlgeschlagene Vorbereitung behält die bisherige Anwendung; bei Fehlern während der Aktivierung wird die bisherige Laufzeitumgebung beibehalten oder wiederhergestellt, und eine nötige Wiederherstellung wird gemeldet. Gewöhnliche Updates behalten Modelle, Zwischenspeicher, Einstellungen, Laufverlauf und Projektausgaben. Die optionale Bereinigung des Update-Zwischenspeichers ist anfangs nicht ausgewählt und erfordert eine gesonderte Bestätigung."
 
 msgid "Update channel and What's new"
 msgstr "Update-Kanal und Neuigkeiten"
@@ -93,24 +111,39 @@ msgstr "Jeder Download von spaCR (Modellgewichte, Updates, Plugins, pip, uv, con
 msgid "macOS online installation: update and reopen"
 msgstr "macOS-Onlineinstallation: aktualisieren und erneut öffnen"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again."
-msgstr "Wählen Sie **Hilfe → Check for updates**, akzeptieren Sie das verfügbare Update und bestätigen Sie, dass spaCR in seiner aktuellen Umgebung erneut installiert wird. spaCR wird geschlossen, aktualisiert seine bestehende private Umgebung mit dem mitgelieferten ``uv``, prüft die installierte Version und öffnet sich automatisch wieder. Bei diesem Verfahren bleiben der Programmstarter und die Umgebung erhalten. Der Installer für die Erstinstallation wird nicht ausgeführt und seine Terminalfragen werden nicht erneut gestellt."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Help → Check for updates**, accept the available update, and confirm the requested version. spaCR prepares a separate private runtime using the installation's bundled ``uv`` while the window remains responsive. After preparation succeeds, **Restart** activates the verified runtime and opens its startup window and main window. The existing launcher is retained. No remove prompt, manual icon relaunch or Terminal questionnaire is part of this flow."
+msgstr "Wählen Sie **Hilfe → Check for updates**, nehmen Sie das verfügbare Update an und bestätigen Sie die gewünschte Version. spaCR bereitet mit dem mitgelieferten ``uv`` der Installation eine separate private Laufzeitumgebung vor, während das Fenster reaktionsfähig bleibt. Nach erfolgreicher Vorbereitung aktiviert **Neu starten** die verifizierte Laufzeitumgebung und öffnet deren Startfenster und Hauptfenster. Der vorhandene Programmstarter bleibt erhalten. Eine Abfrage zum Entfernen, ein manueller Neustart über das Symbol oder ein Fragebogen im Terminal sind nicht Teil dieses Ablaufs."
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
-msgstr "Der Befehl entspricht dem unten angegebenen macOS-Wiederherstellungsbefehl und verwendet das tatsächliche Installationsverzeichnis. Eine fehlgeschlagene Aktualisierung oder Versionsprüfung wird in ``~/.spacr/logs/update.log`` protokolliert und löst keinen Neustart nach erfolgreichem Update aus. Die Aktualisierung stoppt auch, wenn spaCR nicht sicher beendet werden kann. Das separate eingefrorene Anwendungspaket verwendet sein Verfahren zum Ersetzen des Pakets."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "If preparation or verification fails, the application stays on the previous version and shows the failure. If an analysis or screen prevents safe closure, the replacement is not authorized. Details are retained in ``~/.spacr/logs/update.log``. A frozen application bundle uses its verified bundle replacement workflow instead of updating a Python environment."
+msgstr "Schlägt die Vorbereitung oder Verifizierung fehl, bleibt die Anwendung auf der bisherigen Version und zeigt den Fehler an. Verhindert eine Analyse oder ein Bildschirm das sichere Schließen, wird der Ersatz nicht autorisiert. Details werden in ``~/.spacr/logs/update.log`` festgehalten. Ein eingefrorenes Anwendungspaket verwendet seinen verifizierten Ablauf für den Paketersatz, statt eine Python-Umgebung zu aktualisieren."
 
-# AI technical review (Codex), no native-speaker signoff.
-#, fuzzy
-msgid "Existing installations and full installers"
-msgstr "Ältere Installationen und vollständige Installer"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Supported frozen macOS, Windows and Debian installations prepare their replacement while the current application remains open. Protected installations request the operating system's graphical administrator authorization before offering **Restart**. Cancellation keeps the current application open. Activation waits for safe closure and actual process exit; the new application must confirm its version, executable and main window before recovery files are retired."
+msgstr "Unterstützte eingefrorene macOS-, Windows- und Debian-Installationen bereiten ihren Ersatz vor, während die aktuelle Anwendung geöffnet bleibt. Geschützte Installationen fordern die grafische Administratorautorisierung des Betriebssystems an, bevor **Neu starten** angeboten wird. Ein Abbruch lässt die aktuelle Anwendung geöffnet. Die Aktivierung wartet auf das sichere Schließen und das tatsächliche Prozessende; die neue Anwendung muss ihre Version, ihre ausführbare Datei und ihr Hauptfenster bestätigen, bevor die Wiederherstellungsdateien entfernt werden."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Windows automatic updates require the release's checksummed ``spaCR-VERSION-update.exe``. The ordinary ``spaCR-VERSION-setup.exe`` remains the interactive installation download and is never substituted by the updater. Protected macOS updates require an installed helper that advertises the current native phase protocol. Older helpers, missing update assets and unsupported legacy Linux or Windows online layouts report the limitation while keeping the application open. Use the matching ordinary installer from GitHub releases to bring such an installation forward; shared and Conda environments use their package manager."
+msgstr "Automatische Updates unter Windows erfordern die mit Prüfsumme versehene ``spaCR-VERSION-update.exe`` des Releases. Die gewöhnliche ``spaCR-VERSION-setup.exe`` bleibt der Download für die interaktive Installation und wird vom Updater nie ersatzweise verwendet. Geschützte macOS-Updates erfordern ein installiertes Hilfsprogramm, das das aktuelle native Phasenprotokoll angibt. Ältere Hilfsprogramme, fehlende Update-Dateien und nicht unterstützte ältere Linux- oder Windows-Online-Layouts melden die Einschränkung und lassen die Anwendung geöffnet. Verwenden Sie den passenden gewöhnlichen Installer aus den GitHub-Releases, um eine solche Installation zu aktualisieren; gemeinsam genutzte und Conda-Umgebungen verwenden ihren Paketmanager."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Reinstalling the same version"
+msgstr "Dieselbe Version neu installieren"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Download that version's matching desktop installer from GitHub releases and run it again. Reinstallation repairs the application code and launcher while preserving user data. Do not uninstall first merely to repair an installation. Check the version in **Help → About spaCR** after the application reopens; the version must match the installer you selected."
+msgstr "Laden Sie den passenden Desktop-Installer dieser Version aus den GitHub-Releases herunter und führen Sie ihn erneut aus. Die Neuinstallation repariert den Anwendungscode und den Programmstarter und bewahrt die Benutzerdaten. Deinstallieren Sie nicht vorher, nur um eine Installation zu reparieren. Prüfen Sie die Version unter **Hilfe → Über spaCR**, nachdem die Anwendung wieder geöffnet ist; die Version muss mit dem gewählten Installer übereinstimmen."
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-#, fuzzy
+msgid "Existing installations and full installers"
+msgstr "Vorhandene Installationen und vollständige Installer"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
-msgstr "Die vollständigen Installer und die anderen Aktualisierungsverfahren der Installer suchen nach spaCR-Installationen, die ein früherer Installer angelegt hat, und entfernen diese, sodass nur eine vom Installer angelegte Kopie übrig bleibt. Erkannt werden Windows-Online- und Offlineinstallationen, die macOS-Anwendung mit ihrer benutzereigenen Umgebung, die Linux-Onlineinstallation und das Debian-Paket sowie deren Programmstarter, Verknüpfungen, Menüeinträge und Deinstallierungsregistrierungen. Selbst erstellte Umgebungen und Quellcode-Arbeitskopien werden aufgelistet, aber nie entfernt, und Ihre Projektordner und Ergebnisse bleiben stets unangetastet. Lässt sich eine Kopie nicht entfernen -- etwa eine macOS-Anwendung in ``/Applications``, die Administratorrechte erfordert --, nennt der Installer sie und installiert die neue Version nicht."
+msgstr "Die vollständigen Installer und die anderen Aktualisierungsverfahren der Installer suchen nach spaCR-Installationen, die ein anderer spaCR-Installer angelegt hat, und entfernen diese, sodass nur eine vom Installer angelegte Kopie übrig bleibt. Erkannt werden Windows-Online- und Offlineinstallationen, die macOS-Anwendung mit ihrer benutzereigenen Umgebung, die Linux-Onlineinstallation und das Debian-Paket sowie deren Programmstarter, Verknüpfungen, Menüeinträge und Deinstallierungsregistrierungen. Selbst erstellte Umgebungen und Quellcode-Arbeitskopien werden aufgelistet, aber nie entfernt, und Ihre Projektordner und Ergebnisse bleiben stets unangetastet. Lässt sich eine Kopie nicht entfernen -- etwa eine macOS-Anwendung in ``/Applications``, die Administratorrechte erfordert --, nennt der Installer sie und installiert die neue Version nicht."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
 msgstr "Um zu sehen, was es finden würde, ohne etwas zu verändern, führen Sie die Suche aus einem spaCR-Checkout aus: ``python spacr/install_cleanup.py find``."
@@ -149,6 +182,34 @@ msgstr "``python -m pip index versions spacr`` listet die PyPI-Releases auf, und
 msgid "Uninstalling"
 msgstr "Deinstallieren"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Preferences → Performance → Uninstall**. In the popup, choose either **Current version** or **All detected spaCR versions**. The preview identifies the installation paths and versions. The all-versions choice also finds spaCR in detected Python and Conda environments; it removes the spaCR package from those environments and keeps their other packages and files. Editable source checkouts are shown as retained."
+msgstr "Öffnen Sie **Einstellungen → Leistung → Deinstallieren**. Wählen Sie im Popup entweder **Aktuelle Version** oder **Alle erkannten spaCR-Versionen**. Die Vorschau nennt die Installationspfade und Versionen. Die Auswahl aller Versionen findet spaCR auch in erkannten Python- und Conda-Umgebungen; sie entfernt das spaCR-Paket aus diesen Umgebungen und behält deren übrige Pakete und Dateien. Editierbare Quellcode-Arbeitskopien werden als beibehalten angezeigt."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The popup separately selects **Caches**, **Models**, **Logs**, **Settings**, **History**, **Temporary files**, **Downloads** and **Other spaCR data**. Every cleanup category starts selected for uninstall. Clear any category to keep it, inspect the exact paths listed, and confirm the uninstall. Cancel leaves the application and files unchanged. spaCR closes safely before its running installation is removed."
+msgstr "Das Popup wählt getrennt **Zwischenspeicher (alle)**, **Modelle**, **Protokolle**, **Einstellungen**, **Verlauf**, **Temporäre Dateien**, **Heruntergeladene Dateien** und **Sonstige spaCR-Daten** aus. Jede Bereinigungskategorie ist für die Deinstallation zunächst ausgewählt. Heben Sie die Auswahl einer Kategorie auf, um sie zu behalten, prüfen Sie die genau aufgelisteten Pfade und bestätigen Sie die Deinstallation. Abbrechen lässt die Anwendung und die Dateien unverändert. spaCR wird sicher geschlossen, bevor die laufende Installation entfernt wird."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Supported protected macOS applications, Windows frozen installations and Debian packages request graphical administrator authorization during preparation, while spaCR remains open. The helper must be installed, verified and advertise the required uninstall protocol. Declining authorization or cancelling the popup leaves the application and files intact. Removal waits for confirmed safe closure and actual process exit."
+msgstr "Unterstützte geschützte macOS-Anwendungen, eingefrorene Windows-Installationen und Debian-Pakete fordern während der Vorbereitung eine grafische Administratorautorisierung an, während spaCR geöffnet bleibt. Das Hilfsprogramm muss installiert und verifiziert sein und das erforderliche Deinstallationsprotokoll angeben. Wird die Autorisierung abgelehnt oder das Popup abgebrochen, bleiben Anwendung und Dateien unverändert. Das Entfernen wartet auf bestätigtes sicheres Schließen und das tatsächliche Prozessende."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "If a selected installation has an older unsupported helper, or a selected data path cannot be removed with the available permissions, preparation stops before spaCR closes and nothing is removed. The preview still identifies the affected paths. The native alternatives below remain available for those installations."
+msgstr "Hat eine ausgewählte Installation ein älteres, nicht unterstütztes Hilfsprogramm oder lässt sich ein ausgewählter Datenpfad mit den verfügbaren Berechtigungen nicht entfernen, stoppt die Vorbereitung, bevor spaCR geschlossen wird, und nichts wird entfernt. Die Vorschau nennt trotzdem die betroffenen Pfade. Die nativen Alternativen unten bleiben für diese Installationen verfügbar."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "These categories cover identified spaCR-owned locations. Shared external caches, unverified or linked folders and arbitrary project folders are kept; the preview marks retained locations. History includes spaCR's run records and any output copies stored within those records. Keep History if those copies are still needed. Projects, databases and exports outside the listed spaCR locations are not removed."
+msgstr "Diese Kategorien umfassen identifizierte Speicherorte, die spaCR gehören. Gemeinsam genutzte externe Zwischenspeicher, nicht verifizierte oder verknüpfte Ordner und beliebige Projektordner werden beibehalten; die Vorschau kennzeichnet beibehaltene Speicherorte. Verlauf umfasst die Laufdatensätze von spaCR und alle in diesen Datensätzen gespeicherten Ausgabekopien. Behalten Sie Verlauf, wenn diese Kopien noch benötigt werden. Projekte, Datenbanken und Exporte außerhalb der aufgelisteten spaCR-Speicherorte werden nicht entfernt."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Uninstall cleanup defaults differ from update defaults: an ordinary update preserves user data, while the uninstall popup selects the displayed cleanup categories until you opt out. The native and command-line alternatives below retain their existing explicit purge switches."
+msgstr "Die voreingestellte Bereinigung bei der Deinstallation unterscheidet sich von der beim Update: Ein gewöhnliches Update bewahrt die Benutzerdaten, während das Deinstallations-Popup die angezeigten Bereinigungskategorien auswählt, bis Sie sie abwählen. Die nativen und Befehlszeilen-Alternativen unten behalten ihre bestehenden expliziten Schalter für das vollständige Löschen."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Native and command-line alternatives"
+msgstr "Native und Befehlszeilen-Alternativen"
+
 msgid "**Windows:** open **Settings → Apps → Installed apps → spaCR → Uninstall**, or run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe``."
 msgstr "**Windows:** Öffnen Sie **Einstellungen → Apps → Installed apps → spaCR → Deinstallieren** oder führen Sie ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe`` aus."
 
@@ -164,11 +225,9 @@ msgstr "**conda-forge:** Aktivieren Sie die Umgebung und führen Sie ``conda rem
 msgid "**PyPI:** activate the environment and run ``python -m pip uninstall spacr``."
 msgstr "**PyPI:** Aktivieren Sie die Umgebung und führen Sie ``python -m pip uninstall spacr`` aus."
 
-msgid "Remove the environment itself if it was created only for spaCR."
-msgstr "Entfernen Sie die Umgebung selbst, wenn sie nur für spaCR erstellt wurde."
-
-msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
-msgstr "Die Deinstallation löscht keine Mikroskopieprojekte, Datenbanken oder exportierten Ergebnisse. Benutzereinstellungen, Ausführungseinträge und Protokolle unter ``~/.spacr`` bleiben ebenfalls erhalten, damit sie eingesehen oder wiederverwendet werden können. Entfernen Sie dieses Verzeichnis nur dann separat, wenn diese Einträge nicht mehr benötigt werden."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "These package-manager commands remove the package from the selected environment. They do not remove the whole environment. The native and command-line alternatives keep user preferences, run records and logs unless their explicit purge option is used."
+msgstr "Diese Paketmanager-Befehle entfernen das Paket aus der ausgewählten Umgebung. Sie entfernen nicht die gesamte Umgebung. Die nativen und Befehlszeilen-Alternativen behalten Benutzereinstellungen, Laufdatensätze und Protokolle, sofern nicht ihre explizite Option zum vollständigen Löschen verwendet wird."
 
 msgid "Clean uninstall (purge)"
 msgstr "Vollständige Deinstallation (Purge)"
@@ -364,6 +423,90 @@ msgstr "``tutorial``"
 msgid "Packages used by the interactive tutorial environment."
 msgstr "Pakete, die von der Umgebung der interaktiven Tutorials verwendet werden."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D rendering and wgpu"
+msgstr "3D-Rendering und wgpu"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR installs `wgpu <https://github.com/pygfx/wgpu-py>`_ by default where it publishes wheels. wgpu draws the **True 3D** view through Vulkan, Metal or Direct3D 12. Without wgpu, spaCR draws 3D through OpenGL (VisPy), and through the CPU when OpenGL is not available either. The **Render backend** list offers Auto, Vulkan, Metal, Direct3D 12, OpenGL and CPU, showing only the backends this computer supports. **Auto** prefers wgpu (Vulkan on Linux and Windows, Metal then available Vulkan on macOS, Direct3D 12 on Windows when Vulkan is unavailable), then OpenGL, then the CPU."
+msgstr "spaCR installiert `wgpu <https://github.com/pygfx/wgpu-py>`_ standardmäßig dort, wo wgpu Wheels veröffentlicht. wgpu zeichnet die Ansicht **True 3D** über Vulkan, Metal oder Direct3D 12. Ohne wgpu zeichnet spaCR 3D über OpenGL (VisPy) und, wenn auch OpenGL nicht verfügbar ist, über die CPU. Die Liste **Render-Backend** bietet Automatisch, Vulkan, Metal, Direct3D 12, OpenGL und CPU an und zeigt nur die Backends, die dieser Computer unterstützt. **Automatisch** bevorzugt wgpu (Vulkan unter Linux und Windows, Metal und dann verfügbares Vulkan unter macOS, Direct3D 12 unter Windows, wenn Vulkan nicht verfügbar ist), dann OpenGL, dann die CPU."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Installation"
+msgstr "Installation"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "wgpu"
+msgstr "wgpu"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "True 3D view uses"
+msgstr "Die Ansicht True 3D verwendet"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Python 3.10 on Windows x86-64/ARM64, macOS Intel/Apple silicon, or Linux x86-64/aarch64 with glibc 2.28 or newer"
+msgstr "Python 3.10 unter Windows x86-64/ARM64, macOS Intel/Apple Silicon oder Linux x86-64/aarch64 mit glibc 2.28 oder neuer"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Installed, ``wgpu<=0.31.0``"
+msgstr "Installiert, ``wgpu<=0.31.0``"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan, Metal or Direct3D 12 (Auto), else OpenGL, else CPU"
+msgstr "Vulkan, Metal oder Direct3D 12 (Automatisch), sonst OpenGL, sonst CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Python 3.11 or newer on the same platforms (the desktop installers use Python 3.12)"
+msgstr "Python 3.11 oder neuer auf denselben Plattformen (die Desktop-Installer verwenden Python 3.12)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Installed, ``wgpu<0.33``"
+msgstr "Installiert, ``wgpu<0.33``"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Python 3.9"
+msgstr "Python 3.9"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Not installed"
+msgstr "Nicht installiert"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "OpenGL, else CPU"
+msgstr "OpenGL, sonst CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Other processors (for example 32-bit x86, ppc64le, s390x)"
+msgstr "Andere Prozessoren (zum Beispiel 32-Bit-x86, ppc64le, s390x)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Linux with glibc older than 2.28 (installers skip wgpu automatically)"
+msgstr "Linux mit glibc älter als 2.28 (die Installer lassen wgpu automatisch weg)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Installed without wgpu (installer option, or the commands below)"
+msgstr "Ohne wgpu installiert (Installeroption oder die Befehle unten)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The desktop installers skip wgpu when it is resolved, so it is never downloaded: they pass ``uv`` an override file containing the single line ``wgpu; sys_platform == \"never\"``. Because the marker never holds, the resolver drops wgpu, and with it ``rendercanvas``, which only wgpu needs."
+msgstr "Die Desktop-Installer lassen wgpu bei der Abhängigkeitsauflösung weg, sodass es nie heruntergeladen wird: Sie übergeben ``uv`` eine Override-Datei mit der einzigen Zeile ``wgpu; sys_platform == \"never\"``. Da die Bedingung nie zutrifft, verwirft der Resolver wgpu und damit auch ``rendercanvas``, das nur wgpu benötigt."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With pip, install spaCR as usual and then remove wgpu:"
+msgstr "Mit pip installieren Sie spaCR wie gewohnt und entfernen dann wgpu:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``pip check`` then reports that spaCR's ``wgpu`` requirement is missing; this is expected, and spaCR draws 3D through OpenGL or the CPU."
+msgstr "``pip check`` meldet dann, dass die ``wgpu``-Anforderung von spaCR fehlt; das ist erwartet, und spaCR zeichnet 3D über OpenGL oder die CPU."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "On Linux with glibc older than 2.28 (check with ``getconf GNU_LIBC_VERSION``), ``pip install spacr`` finds no wgpu wheel and tries to build wgpu from its source release, which fails. pip cannot drop a dependency while it resolves, so install with `uv <https://docs.astral.sh/uv/>`_ and the same override the installers use, inside the activated environment:"
+msgstr "Unter Linux mit glibc älter als 2.28 (prüfen mit ``getconf GNU_LIBC_VERSION``) findet ``pip install spacr`` kein wgpu-Wheel und versucht, wgpu aus dessen Quellrelease zu bauen, was fehlschlägt. pip kann während der Auflösung keine Abhängigkeit verwerfen; installieren Sie daher mit `uv <https://docs.astral.sh/uv/>`_ und demselben Override, das die Installer verwenden, in der aktivierten Umgebung:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use the same ``--override no-wgpu.txt`` when upgrading spaCR in that environment. Add ``--dry-run`` to the last command to see the resolved packages, without wgpu, before anything is installed."
+msgstr "Verwenden Sie dasselbe ``--override no-wgpu.txt``, wenn Sie spaCR in dieser Umgebung aktualisieren. Fügen Sie dem letzten Befehl ``--dry-run`` hinzu, um die aufgelösten Pakete ohne wgpu zu sehen, bevor etwas installiert wird."
+
 msgid "Container images"
 msgstr "Container-Images"
 
@@ -371,9 +514,9 @@ msgstr "Container-Images"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "Zwei Images werden als Teil jedes spaCR-Release in der GitHub Container Registry veröffentlicht, nachdem diese Version PyPI erreicht hat. Jedes wird gebaut und vor dem Hochladen geprüft: Es muss die Version melden, die sein Tag angibt, es darf nicht als root laufen, und es muss einen Pipeline-Lauf auf einem synthetischen Bildfeld abschließen. Ein Image, das eine Prüfung nicht besteht, wird nicht veröffentlicht, und der Workflow-Lauf, der es gebaut hat, schlägt fehl."
 
-#, fuzzy
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
-msgstr "Die öffentliche `GHCR-Paketseite <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ listet die verfügbaren Versionen auf. Die folgenden Befehle verwenden die veröffentlichten Images **1.5.1.0**; nicht jedes ältere spaCR-Release hat ein Container-Image."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below name the image tags of the spaCR release this page documents. Not every spaCR release has a container image; check the package page before pulling a tag."
+msgstr "Die öffentliche `GHCR-Paketseite <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ listet die verfügbaren Versionen auf. Die folgenden Befehle nennen die Image-Tags des spaCR-Releases, das diese Seite dokumentiert. Nicht jedes spaCR-Release hat ein Container-Image; prüfen Sie die Paketseite, bevor Sie einen Tag abrufen."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application."
@@ -385,16 +528,16 @@ msgstr "Bild"
 msgid "For"
 msgstr "Für"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Nur CPU. Läuft in Linux-x86-64-Containern mit Docker oder Podman und benötigt keinen GPU-Treiber."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
-msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."
 msgstr "CUDA 12.4. Benötigt einen NVIDIA-Treiber **ab Version 550 auf dem Host** und das NVIDIA Container Toolkit. Ohne ``--gpus`` verhält es sich wie das CPU-Image."

@@ -296,3 +296,35 @@ def test_the_birth_guard_never_breaks_construction(guard, qapp, monkeypatch):
 
     assert obj.objectName() == ""
     assert module.born_off_thread() == []
+
+
+@pytest.mark.parametrize("application", ["none", "broken"])
+def test_the_affinity_check_does_not_depend_on_the_application_answering(
+        guard, qapp, monkeypatch, application):
+    """No application, or one whose thread cannot be read, changes nothing.
+
+    The application's thread is read only to keep PySide6 from retiring
+    the GUI thread's wrapper; the verdict comes from the object's own
+    affinity either way.
+    """
+    from PySide6.QtCore import QCoreApplication, QThread, QTimer
+
+    class _Broken:
+        def thread(self):
+            raise RuntimeError("the application is shutting down")
+
+    answer = None if application == "none" else _Broken()
+    module, wrappers = guard
+    timer = QTimer()
+    timer.setSingleShot(True)
+    other = QThread()
+    with monkeypatch.context() as patched:
+        patched.setattr(QCoreApplication, "instance",
+                        staticmethod(lambda: answer))
+        wrappers["timer_start"](timer, 0)
+        assert module.offences() == []
+        timer.thread = lambda: other
+        wrappers["timer_start"](timer, 0)
+        assert len(module.offences()) == 1
+    assert QCoreApplication.instance() is qapp
+    timer.stop()

@@ -90,11 +90,11 @@ PYQTGRAPH_MISSING_MESSAGE = (
     "Everything else works without it: the run still produces every figure, "
     "and they appear on the grid above the console.")
 
-from PySide6.QtCore import QSizeF, Qt, Signal
+from PySide6.QtCore import QSizeF, Qt, QThread, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QHBoxLayout, QLabel, QPushButton, QSizePolicy,
-    QVBoxLayout, QWidget,
+    QTableWidget, QVBoxLayout, QWidget,
 )
 
 #: Colour-blind-safe qualitative order. A screen's categories are nominal, so a
@@ -115,6 +115,7 @@ PALETTE = (
 #: at 76 ms with matplotlib still absent from sys.modules -- so this costs a
 #: GUI module nothing.
 from ...figures.style import ROLES as _ROLES
+from .. import _after
 from .sortable_table import install_sorting, table_item
 
 HIGHLIGHT = _ROLES["highlight"]
@@ -8132,6 +8133,51 @@ class GuideAgreementPlot(GroupedPlot):
         return "   ".join(parts)
 
 
+class _FilledOnRead(QTableWidget):
+    """The grid of a :class:`ResultsTable`, finishing a stepped fill on read.
+
+    ``item``, ``selectedItems``, ``findItems`` and ``sortItems`` first
+    complete a fill the owning table is still running in steps, so code that
+    reads the grid directly sees every row.
+    """
+
+    _finish_reading = None
+
+    def __init__(self, *args) -> None:
+        """Build the grid with the shared three-state header sorting.
+
+        :param args: as for ``QTableWidget``.
+        """
+        super().__init__(*args)
+        install_sorting(self)
+
+    def _finished(self) -> None:
+        """Complete the owner's fill, when one is running."""
+        finish = self._finish_reading
+        if finish is not None:
+            finish()
+
+    def item(self, row, column):
+        """The cell at ``row``, ``column``, once every row is in."""
+        self._finished()
+        return QTableWidget.item(self, row, column)
+
+    def selectedItems(self):                         # noqa: N802
+        """The selected cells, once every row is in."""
+        self._finished()
+        return QTableWidget.selectedItems(self)
+
+    def findItems(self, text, flags):                # noqa: N802
+        """Cells matching ``text``, once every row is in."""
+        self._finished()
+        return QTableWidget.findItems(self, text, flags)
+
+    def sortItems(self, column, order=Qt.AscendingOrder):  # noqa: N802
+        """Sort, once every row is in."""
+        self._finished()
+        return QTableWidget.sortItems(self, column, order)
+
+
 class ResultsTable(QWidget):
     """The coefficient table, sortable and searchable, wired to a plot.
 
@@ -8154,11 +8200,13 @@ class ResultsTable(QWidget):
     #: :meth:`select_keys` from the same live selection.
     keys_selected = Signal(list)
 
+    fill_in_steps = False
+    FILL_STEP_CELLS = 2000
+
     def __init__(self, parent=None):
         """Build the table and its filter row."""
         super().__init__(parent)
-        from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
-                                       QTableWidget)
+        from PySide6.QtWidgets import QAbstractItemView, QLineEdit
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -8179,8 +8227,9 @@ class ResultsTable(QWidget):
         top.addWidget(self._copy)
         layout.addLayout(top)
 
-        self.table = QTableWidget(0, 0)
-        install_sorting(self.table)
+        self._filling = None
+        self.table = _FilledOnRead(0, 0)
+        self.table._finish_reading = self._finish_the_fill
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -8206,9 +8255,14 @@ class ResultsTable(QWidget):
         :param frame: the results table, one table row per frame row and one
             column per frame column; ``None`` or an empty frame shows
             "Nothing to show."
-        """
-        from PySide6.QtWidgets import QTableWidgetItem
 
+        With :attr:`fill_in_steps` set, a table of more than
+        :attr:`FILL_STEP_CELLS` cells is filled over several event-loop
+        turns; reading the rows through this widget, or through its grid's
+        ``item``, finishes the fill first.
+        """
+        self._finish_the_fill()
+        self._filling = None
         self._frame = frame
         self._alpha = alpha
         self._key_restriction = None
@@ -8226,16 +8280,66 @@ class ResultsTable(QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setRowCount(len(frame))
+        steps = self._fill_steps(frame, columns)
+        if (self.fill_in_steps
+                and len(frame) * len(columns) > self.FILL_STEP_CELLS):
+            self._filling = steps
+            _after(0, self, self._fill_a_step)
+            return len(frame)
+        for _step in steps:
+            pass
+        return len(frame)
+
+    def _fill_steps(self, frame, columns):
+        """Fill the rows, pausing after each :attr:`FILL_STEP_CELLS` cells.
+
+        Sorting, the column widths and the filter follow the last row.
+        """
+        by_position = frame.columns.is_unique
+        rows_per_step = max(1, self.FILL_STEP_CELLS // max(1, len(columns)))
         for row in range(len(frame)):
+            values = frame.iloc[row]
             for column, name in enumerate(columns):
-                value = frame.iloc[row][name]
+                value = values.iloc[column] if by_position else values[name]
                 item = table_item(value)
                 item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
+            if (row + 1) % rows_per_step == 0 and row + 1 < len(frame):
+                yield
         self.table.setSortingEnabled(True)
+        yield
         self.table.resizeColumnsToContents()
+        self._filling = None
         self._apply_filter()
-        return len(frame)
+
+    def _fill_a_step(self) -> None:
+        """Run the next step of a fill, and queue the one after it."""
+        steps = self._filling
+        if steps is None:
+            return
+        self._filling = None
+        try:
+            next(steps)
+        except StopIteration:
+            return
+        if self._filling is None:
+            self._filling = steps
+            _after(0, self, self._fill_a_step)
+
+    def _finish_the_fill(self) -> bool:
+        """Complete a fill still running in steps; ``True`` if one was.
+
+        Every reader of the rows calls this first, so nothing sees a table
+        that is still being filled. Only the GUI thread fills; a reader on
+        another thread reads the grid as it stands.
+        """
+        steps = self._filling
+        if steps is None or QThread.currentThread() is not self.thread():
+            return False
+        self._filling = None
+        for _step in steps:
+            pass
+        return True
 
     @staticmethod
     def _guess_significance(frame) -> Optional[str]:
@@ -8258,6 +8362,7 @@ class ResultsTable(QWidget):
         :param keys: identifiers to keep visible, compared as ``str`` against
             the key column; ``None`` removes the restriction.
         """
+        self._finish_the_fill()
         self._key_restriction = None if keys is None else {
             str(key) for key in keys}
         self._apply_filter()
@@ -8275,6 +8380,7 @@ class ResultsTable(QWidget):
 
     def _apply_filter(self) -> None:
         """Show only the rows matching the filter box."""
+        self._finish_the_fill()
         text = self._filter.text().strip().lower()
         hits_only = self._only_hits.isChecked()
         significance = self._significance if self._frame is not None else None
@@ -8313,6 +8419,7 @@ class ResultsTable(QWidget):
 
     def _on_selection(self) -> None:
         """Tell whoever is listening which row was selected."""
+        self._finish_the_fill()
         items = self.table.selectedItems()
         if not items:
             return
@@ -8364,6 +8471,7 @@ class ResultsTable(QWidget):
         :param index: zero-based position in the frame; the table row is
             found wherever sorting has put it.
         """
+        self._finish_the_fill()
         for row in range(self.table.rowCount()):
             item = self.table.item(row, 0)
             if item is not None and item.data(Qt.UserRole) == index:
@@ -8386,6 +8494,7 @@ class ResultsTable(QWidget):
         :param key: the identifier, compared as ``str`` with the text of the
             key column's cells.
         """
+        self._finish_the_fill()
         if self._frame is None or not self._key_column:
             return False
         if self._key_column not in self._frame.columns:
@@ -8411,6 +8520,7 @@ class ResultsTable(QWidget):
         :param keys: row keys to select, in the desired selection order.
         :returns: number of matching rows selected.
         """
+        self._finish_the_fill()
         wanted = [str(k) for k in (keys or ())]
         if self._frame is None or not self._key_column:
             return 0
@@ -8446,6 +8556,7 @@ class ResultsTable(QWidget):
         The method reads the live widget selection so Ctrl-click changes are
         represented immediately.
         """
+        self._finish_the_fill()
         if self._frame is None or not self._key_column:
             return []
         if self._key_column not in self._frame.columns:
@@ -8462,6 +8573,7 @@ class ResultsTable(QWidget):
 
     def copy_visible(self) -> str:
         """Put the visible rows on the clipboard as TSV, and return them."""
+        self._finish_the_fill()
         from PySide6.QtWidgets import QApplication
 
         lines = ["\t".join(

@@ -311,15 +311,16 @@ HARDWARE_LEGEND_LABELS = {
 
 
 def localize_hardware_markup(text: str, language: str) -> str:
-    """The hardware table's legend in ``language``, one label per colour."""
+    """The hardware table's legend in ``language``."""
     stable, beta, cpu = HARDWARE_LEGEND_LABELS[language]
     legend = (f"\U0001F7E2 {stable} \u2003 \U0001F7E3 {beta} "
               f"\u2003 \U0001F534 {cpu}")
-    return re.sub(
+    localized = re.sub(
         rf"(?m)^{re.escape(HARDWARE_LEGEND_SOURCE)}$",
         lambda _match: legend,
         str(text),
     )
+    return localized
 
 
 def _underline_width(value: str) -> int:

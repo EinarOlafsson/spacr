@@ -593,8 +593,8 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
                      chunk_size: int = 1 << 15) -> Path:
     """Stream one file from the HF repo to ``dest_dir/basename``.
 
-    Uses plain HTTP + streaming so we don't need the full ``hf_hub``
-    download machinery (and its cache dir) for a one-shot demo pull.
+    Uses plain streamed HTTP rather than the ``hf_hub`` download machinery,
+    so a one-off demo download creates no Hugging Face cache directory.
 
     The body lands in a sibling ``.part`` file and is only moved onto the final
     path once every advertised byte has arrived. A dropped connection therefore

@@ -19,7 +19,7 @@ import re
 import shutil
 import sys
 import time
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
@@ -368,7 +368,7 @@ def space_refusal_reason(error) -> str | None:
     The server text is only matched, never echoed, so a refusal that quotes a
     request URL or credential cannot leak it into a CI log.
     """
-    response = getattr(error, "response", None)
+    response = None if isinstance(error, HTTPError) else getattr(error, "response", None)
     headers = getattr(response, "headers", None) or getattr(error, "headers", None) or {}
     texts = [str(headers.get("X-Error-Message", "") or "")]
     if response is not None:
@@ -376,7 +376,7 @@ def space_refusal_reason(error) -> str | None:
             texts.append(str(response.text)[:4096])
         except Exception:
             pass
-    elif hasattr(error, "read"):
+    else:
         try:
             texts.append(error.read(4096).decode("utf-8", "replace"))
         except Exception:
@@ -653,7 +653,7 @@ def main(argv=None) -> int:
         try:
             print(json.dumps(verify_space_access(args.space)))
         except Exception as error:
-            response = getattr(error, "response", None)
+            response = None if isinstance(error, HTTPError) else getattr(error, "response", None)
             failure = {"space": args.space, "error": type(error).__name__,
                        "status": getattr(response, "status_code", getattr(error, "code", None)),
                        "operation": getattr(error, "spacr_space_access_operation", "validation")}

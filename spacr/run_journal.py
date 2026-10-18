@@ -2528,8 +2528,8 @@ def resolve_run_dir(ref: Any) -> Path:
     * a run-id — the folder basename, e.g.
       ``"2026-07-23_214737_b66bae6b__mask"`` — resolved under
       :func:`runs_root`,
-    * an unambiguous *prefix* of a run-id (``"2026-07-23_2147"``), handy
-      from a shell.
+    * an unambiguous *prefix* of a run-id (``"2026-07-23_2147"``), which
+      shortens command-line use.
 
     :raises FileNotFoundError: when nothing matches, or when a prefix
         matches more than one run.

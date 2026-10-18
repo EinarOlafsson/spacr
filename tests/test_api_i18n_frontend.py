@@ -10,6 +10,7 @@ import contextlib
 import fnmatch
 import html
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -174,7 +175,18 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # Item 662: +4 public mask_engine YOLO helpers, no removals.
 # All 13,177 prior English records preserved; 662_yolo_support receipt.
 # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-REAL_SYMBOL_COUNT = 13_182
+# 2026-10-18 (maintainer-approved): the count now subtracts the documentation
+# inventory test's named arrival contracts and
+# parascape_rename_api_arrivals_2026-10-18.json (the 24 spacr._parascape /
+# spacr.qt.parascape symbols, make_masks_demo._load_example._done and
+# LiveSettingsDialog.done). Against the 13,182 above: +3 item 684 symbols
+# (snap_window, set_click_ripples, _density_follows_theme; see the
+# documentation ratchet's 2026-10-10 note) and -54 retired: the 24
+# spacr._starplast / spacr.qt.starplast symbols and the two renamed helpers
+# (load_the_test_data._done, LiveSettingsDialog.closeEvent) replaced by the
+# rename contract, and the 28 item 700 setup symbols in
+# 700_retired_setup_api_inverse_2026-10-15.json.
+REAL_SYMBOL_COUNT = 13_131
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -720,7 +732,29 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     assert {key: english["symbols"][key]["text"] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & arrivals.keys()
-    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == REAL_SYMBOL_COUNT
+    # 2026-10-18: subtract the same named arrival contracts that
+    # test_documentation_api_catalog_inventory_and_hashes_are_current reads,
+    # read from that test so the two unions cannot drift apart, plus the
+    # ParaScape rename contract.
+    docs_test = (ROOT / "tests/test_documentation_i18n.py").read_text(encoding="utf-8")
+    inventory = docs_test[docs_test.index(
+        "def test_documentation_api_catalog_inventory_and_hashes_are_current"):]
+    inventory = inventory[:inventory.index("retirement = json.loads")]
+    documented_contracts = sorted(set(re.findall(r'"([^"]+\.json)"', inventory)))
+    assert "tutorial_cli_api_changes_2026-10-12.json" in documented_contracts
+    documented_arrivals = {}
+    for filename in (*documented_contracts, "parascape_rename_api_arrivals_2026-10-18.json"):
+        payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text())
+        payload = payload.get("added", payload.get("API_arrivals", payload))
+        assert payload
+        assert {key: docs[key] for key in payload} == payload
+        documented_arrivals.update(payload)
+    rename = json.loads((ROOT / "tests/data/release_contracts"
+        / "parascape_rename_api_arrivals_2026-10-18.json").read_text())
+    assert len(rename) == 26
+    assert not {key for key in catalog if "starplast" in key.lower()}
+    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+               - documented_arrivals.keys()) == REAL_SYMBOL_COUNT
     assert len(catalog) == len(symbols)
     expected_count = len(symbols)
 

@@ -257,8 +257,9 @@ msgstr "óleyndar yfirskriftir SSH-stillinga, svo sem notandi, gátt, slóð au�
 msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
 msgstr "nota staðfesta, viðvarandi SSH-tengingu með grafískum spurningum fyrir gagnvirka auðkenningu með lyklaborði í stað ytri OpenSSH-skipunarinnar."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
-msgstr ""
+msgstr "muna innskráningarlykilorðið, aldrei einnota kóða eða svör við ýtitilkynningum, í lyklakippu stýrikerfisins; óvirkt sjálfgefið."
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Smíða og sannprófa snið úr JSON-samhæfðum gögnum."

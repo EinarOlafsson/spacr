@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "第一次折叠在单独的一轮中创建页面条。创建它会把该界面的整个主体移到页面条上，而 Qt 会为被移动主体中的每个控件重新应用样式；这一步与页面加入页面条曾是同一次冻结。两者之间的一次停顿让窗口能够响应。"
+    }
+  ]
+}
