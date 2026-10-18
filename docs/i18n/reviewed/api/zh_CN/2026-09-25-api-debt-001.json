@@ -120,7 +120,9 @@
       "source_sha256": "519476ca5bd79d598e1461c44b329f1c2c9c568380a646aff2a3895cbc66cd29",
       "context": "Where a run of ``table`` would write, given the destination it was handed.",
       "translation": "根据传入的目标位置，``table`` 的运行将写入的位置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#1",
@@ -162,7 +164,9 @@
       "source_sha256": "923f0eb34be606819f559664ce20d796b59a87b2151d0c76a447f25283827f33",
       "context": "The measure_crop settings this table decides, over the ones it does not.",
       "translation": "此表格所决定的 measure_crop 设置，覆盖其不决定的设置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_settings#1",
@@ -218,7 +222,9 @@
       "source_sha256": "193d07c7811dc1b698b7819d20bcd01980915ed2027c32e76dd737ccfbfa1e75",
       "context": "Resolve what a user typed in a mask column to a spaCR object role.",
       "translation": "将用户在掩膜列中输入的内容解析为 spaCR 对象角色。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.mask_role_of#1",
@@ -258,7 +264,9 @@
       "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
       "context": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
       "translation": "测量一个由手工挑选的图像和掩膜组成的表格。这是 FEATURES 的入口点。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.measure_from_field_table#1",
@@ -372,7 +380,9 @@
       "source_sha256": "1bc0f9f16cdf085ffcdbb5fa13f1ccc50e61bd2a585788b6d941de69beb45611",
       "context": "Write the table out as the folders the Mask module leaves behind.",
       "translation": "将表格写出为 Mask 模块会留下的那些文件夹。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#1",
@@ -1046,7 +1056,9 @@
       "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
       "context": "Adapt a count regressor to the object-head prediction interface.",
       "translation": "将计数回归器适配到对象预测头的预测接口。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#1",
@@ -1070,7 +1082,9 @@
       "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
       "context": "Return unrounded counts and display classes for an extracted image region batch.",
       "translation": "为一批裁剪图返回未取整的计数和显示类别。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
@@ -1102,7 +1116,9 @@
       "source_sha256": "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
       "context": "Put a predicted parasite count in the bin a report shows it in.",
       "translation": "将预测的寄生虫计数放入报告中显示它的区间。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#1",
@@ -1154,7 +1170,9 @@
       "source_sha256": "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
       "context": "Classify every object of a mask that already exists.",
       "translation": "对已存在掩膜中的每个对象进行分类。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.classify_objects#1",
@@ -1284,7 +1302,9 @@
       "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
       "context": "Join each pair into one object, keeping the lower id.",
       "translation": "将每一对合并为一个对象，保留较小的 ID。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.merge_halves#1",
@@ -1324,7 +1344,9 @@
       "source_sha256": "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
       "context": "Take objects out of a mask without renumbering what is left.",
       "translation": "从掩膜中移除对象，且不对剩余对象重新编号。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.remove_labels#2",
@@ -1348,7 +1370,9 @@
       "source_sha256": "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
       "context": "Segment a field with any backend, then classify what it found.",
       "translation": "使用任意后端分割一个视野，然后对找到的对象进行分类。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.segment_and_classify#1",
@@ -1406,7 +1430,9 @@
       "source_sha256": "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
       "context": "Pairs of labels that look like one object cut in two.",
       "translation": "看起来像是一个对象被切成两半的标签对。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.split_candidates#1",
@@ -1446,7 +1472,9 @@
       "source_sha256": "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
       "context": "Whether object ``label`` runs into the edge of the microscope field of view.",
       "translation": "对象 ``label`` 是否延伸到视野边缘。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.touches_border#2",

@@ -26,7 +26,9 @@
       "source_sha256": "b7a9c0957c17bd777d240e22be87701e9ba27ffd053396503ad9eb79e0276c42",
       "context": "Run ``spacr-plugins`` and return a shell exit code.",
       "translation": "运行 ``spacr-plugins`` 并返回 shell 退出码。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.cli_plugins.main#1",

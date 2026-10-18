@@ -76,7 +76,9 @@
       "label": "spacr.active_learning.round_features#0",
       "source": "The measurement features for every crop, indexed by ``png_path``.",
       "source_sha256": "022bf15ca4b1b4ff097bfe8e8def85ad11124015ceb052fa1c3e9deaea9b5562",
-      "translation": "测量特征为每个提取图像区域,以 ``png_path`` 索引。"
+      "translation": "测量特征为每个提取图像区域,以 ``png_path`` 索引。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The feature matrix an in-application view retrain fits on. Measurement features rather than pixels on purpose: the point of retraining from inside Annotate is to get a fresh ranking in seconds, on the machine the annotator is sitting at, without a GPU and without leaving the application view. A CNN retrain is the right thing to do at the *end* of the loop, not between two pages of extracted image regions.",
@@ -132,7 +134,9 @@
       "label": "spacr.align.Tile.n_channels#0",
       "source": "Number of channels this site contributes to the canvas.",
       "source_sha256": "cd3bd68278fd515605851e78f5a5528d6363daf7f7de1e96fbd0a3c7cb3c6a5d",
-      "translation": "这个网站的通道数量为该通道提供贡献。"
+      "translation": "这个网站的通道数量为该通道提供贡献。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Always prints the plan before writing anything, so a headless run also records the tiles that fell back to nominal positions in the log.",
@@ -223,7 +227,9 @@
       "label": "spacr.annotation_dataset.filter_selection#0",
       "source": "Drop objects a run would not have cropped.",
       "source_sha256": "d9179e7747bb2fcc49b3fb0869953853e4792ea057000e91d4dfa8b0b27094fc",
-      "translation": "一次运行的物体不会被挖掘。"
+      "translation": "一次运行的物体不会被挖掘。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "key-value mapping Minimum fraction, reachable well-guide pairs and guides, and optional cell-count bounds. A guide is unreachable when it fails to meet the minimum fraction in every well.",
@@ -286,7 +292,9 @@
       "label": "spacr.annotation_validation.mixture_proportion#0",
       "source": "Estimate a well's positive-control share from cell features.",
       "source_sha256": "226fe2440b11ef8bcf181d3ec8c495d43afd5a778e31bdfb4c2cad132757fcd9",
-      "translation": "从细胞特征中估计微板样本位置的积极控制份额。"
+      "translation": "从细胞特征中估计微板样本位置的积极控制份额。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n_cells, n_features)`` for one mixed well.",
@@ -307,7 +315,9 @@
       "label": "spacr.annotation_validation.permuted#0",
       "source": "Return a screen with guide-to-well assignments permuted.",
       "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
-      "translation": "返回应用程序视图,带有引导 RNA向孔任务转换。"
+      "translation": "返回应用程序视图,带有引导 RNA向孔任务转换。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The permutation preserves cells, features, machine-learning classification model scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
@@ -328,7 +338,9 @@
       "label": "spacr.api.MaskConfig#0",
       "source": "Configuration for image preparation and Cellpose segmentation.",
       "source_sha256": "7847efa3fb23b3888b79c9b2322c82e0cbfae5169a8a9bf4a42b545ebce15215",
-      "translation": "图像配置和 Cellpose 分割。"
+      "translation": "图像配置和 Cellpose 分割。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "ValueError If no segmentation channel is selected, the workflow style is unknown, or ``extra`` repeats a typed setting.",
@@ -384,7 +396,9 @@
       "label": "spacr.batch_correction.correct_batch_effects#0",
       "source": "Normalize numeric features within acquisition batches.",
       "source_sha256": "e387908b2a480ba1b8f083f49012bf6604008ea5eab7429b136af7d529cd287b",
-      "translation": "在收购包内正常化数字特征。"
+      "translation": "在收购包内正常化数字特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``combat`` is the empirical-Bayes method of Johnson, Li & Rabinovich (2007). Unlike the four above it fits a *model*: every feature is regressed on batch indicators **and** on the biology named by ``covariate``, and only the batch part of that fit is removed. The per-batch location and scale are then shrunk toward the distribution of the same parameter across all features, which is what makes it usable on a laboratory microplate with few microplate sample positions where a per-feature estimate would be noise.",
@@ -405,7 +419,9 @@
       "label": "spacr.batch_correction.correct_from_metadata#0",
       "source": "Correct a feature frame using named columns from an aligned metadata frame.",
       "source_sha256": "b0c969df1c7b506e293625d6720132a1240cf073c41603e7783a3c7fe45415aa",
-      "translation": "修复一个特征框,使用从一组合并的甲数据框中命名列。"
+      "translation": "修复一个特征框,使用从一组合并的甲数据框中命名列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "corrected features and diagnostics report.",
@@ -440,7 +456,9 @@
       "label": "spacr.cell_montage.effects_from_results#0",
       "source": "``{guide: effect}`` from a run's results table.",
       "source_sha256": "49825715e51ae23d15d0582f54b9bde12d1659f65beea06373d82f54f8d7911e",
-      "translation": "``{guide: effect}`` 从一次运行的结果表。"
+      "translation": "``{guide: effect}`` 从一次运行的结果表。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Well totals contain one row per well and are merged with ``validate='many_to_one'`` to prevent duplicated guide rows.",
@@ -468,7 +486,9 @@
       "label": "spacr.cell_montage.write_effects_grid#0",
       "source": "Write a sweep's effects grid beside the run. Returns the path.",
       "source_sha256": "b3c3979e89a58574cd9eb1359a66e6633ab63e8dac9b8a35a2651fc84ece9a89",
-      "translation": "写下一张Sweep的效果网旁边的运行。 返回路径。"
+      "translation": "写下一张Sweep的效果网旁边的运行。 返回路径。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here imports Qt, numpy or torch: the Qt layer (:mod:`spacr.qt.chaining`) is a thin wrapper over these functions, and the same answers are available to the CLI and to a batch runner.",
@@ -496,7 +516,9 @@
       "label": "spacr.channel_sorting.apply_plan#0",
       "source": "Move the images and masks as planned, then merge the channels.",
       "source_sha256": "d8852f86e3b2b32f152a98a6956e8545a4f98093d2f4d53ccd048ae24f8b844c",
-      "translation": "按计划移动图像和掩膜,然后合并图像数据通道。"
+      "translation": "按计划移动图像和掩膜,然后合并图像数据通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Yokogawa pattern when it passes, otherwise the passing candidate with the fewest channels, or None.",
@@ -517,7 +539,9 @@
       "label": "spacr.classifier_evaluation.sample_identity#0",
       "source": "Parse plate/well/field/object identities from a crop filename.",
       "source_sha256": "63cd2c1e99a8850935b06318b7cc0cb62439ea967d3952a1698dbf889fdc8ee8",
-      "translation": "从裁剪图像文件名中解析板/孔/视野/对象标识。"
+      "translation": "从裁剪图像文件名中解析板/孔/视野/对象标识。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "number of positively labelled cells whose score meets the threshold.",
@@ -573,7 +597,9 @@
       "label": "spacr.classifier_quality.operating_points#0",
       "source": "Return confusion matrices across quantile-based score thresholds.",
       "source_sha256": "8828a098d32c02571a3ea8e396c1f146d1efa11090592f61dcdf1a40afc9dff5",
-      "translation": "返回基于量子的分数阈值的混乱矩阵。"
+      "translation": "返回基于量子的分数阈值的混乱矩阵。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The sequence exposes the sensitivity-specificity trade-off rather than evaluating only the conventional threshold of 0.5.",
@@ -629,7 +655,9 @@
       "label": "spacr.classify_classes.folder_names#0",
       "source": "Return ordered class-folder names for model training.",
       "source_sha256": "fcbe95c4556bfdfae33a492baa00aa1905d9972f52f307bd88593c29942fae34",
-      "translation": "返回命令的类文件夹名称模型训练。"
+      "translation": "返回命令的类文件夹名称模型训练。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "An override naming a key spaCR does not know is an error, not a no-op: a typo'd override that quietly does nothing costs a whole run to discover, and the run looks like it succeeded.",
@@ -657,7 +685,9 @@
       "label": "spacr.cli_leakage.main#0",
       "source": "Audit a requested classifier dataset without training a model.",
       "source_sha256": "12707009df47aea31bafe626d7827ba0730e69af480f0d96232373aa66d4b798",
-      "translation": "审查所需的机械学习分类模型数据集,而无需训练模型。"
+      "translation": "审查所需的机械学习分类模型数据集,而无需训练模型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A run can contain ``workspace.json`` beside its manifest. The document records the databases and panels that were open, their view state, and the files they reference. ``spacr-workspace`` prints that information from a terminal.",
@@ -671,7 +701,9 @@
       "label": "spacr.column_groups.classify#0",
       "source": "Group ``columns`` by object, by channel and by family.",
       "source_sha256": "b96c7e3cbeddc829755c4a78127b17ff1fda079ba38359c6de88edb0bc91e45e",
-      "translation": "组 ``columns`` 按对象、通道和家庭。"
+      "translation": "组 ``columns`` 按对象、通道和家庭。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Channels sort NUMERICALLY -- ``channel_2`` before ``channel_10`` -- which a plain string sort gets wrong the moment a run has more than ten.",
@@ -818,7 +850,9 @@
       "label": "spacr.core.generate_image_umap#0",
       "source": "Reduce per-object features and plot the resulting 2-D embedding.",
       "source_sha256": "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
-      "translation": "减少每对象的特征,并绘制结果的2D插入。"
+      "translation": "减少每对象的特征,并绘制结果的2D插入。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``resnet_features`` is set; embedding raw extracted image regions with ResNet features is not implemented.",
@@ -867,7 +901,9 @@
       "label": "spacr.core.reducer_hyperparameter_search#0",
       "source": "Sweep UMAP/tSNE and DBSCAN/KMeans hyperparameters over the feature table.",
       "source_sha256": "0b7d7e8ede5116e1ae547c34c24d7085330ddbefdf2b5723a0d79d1c7193453f",
-      "translation": "将 UMAP/tSNE 和 DBSCAN/KMeans 在特征表上输入超级参数。"
+      "translation": "将 UMAP/tSNE 和 DBSCAN/KMeans 在特征表上输入超级参数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The extracted-image-region source has two main values, named as in the other spaCR panels: load images and stream images. Training previously used its own terms (``pre_generated`` / ``on_demand``) for the same choice, so the annotation and training panels presented one setting under two sets of names.",
@@ -909,7 +945,9 @@
       "label": "spacr.crop_source.stream_planes#0",
       "source": "Which planes of a merged array become image channels, by either name.",
       "source_sha256": "22f8fba8c3e04c21dbefd3095165f08ce5696f72e292f03f6309fea85a599f19",
-      "translation": "哪个图像层的合并序列变成图像数据通道,以任何名称。"
+      "translation": "哪个图像层的合并序列变成图像数据通道,以任何名称。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This module is also the authority on **what an extracted-image-region PNG on disk means** -- see the \"Crop PNG format\" section below. In short: the current format is 3 (\"declared_rgb\", :data:`CROP_FORMAT_CURRENT`), whose red, green and blue slots hold exactly the source image data channels ``settings['png_channel_mapping']`` names; format 1 (\"legacy\", unmarked) holds the same bytes for the default mapping and is returned untouched; format 2, written for eleven days in 2026, is the one that is reversed, and :func:`read_crop_png` is what reverses it back. A folder says which format it is via a ``.spacr_crop_format.json`` sidecar, and an unmarked folder is format 1.",
@@ -965,7 +1003,9 @@
       "label": "spacr.crops.channels_from_settings#0",
       "source": "Return the source channels in COLOUR order: ``(red, green, blue)``.",
       "source_sha256": "90b6ec8034773086dd9448bd9843f2054244a455680b00b09ccfe4213faa45ac",
-      "translation": "返回源通道的颜色顺序: ``(red, green, blue)``。"
+      "translation": "返回源通道的颜色顺序: ``(red, green, blue)``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a 1- or 3-tuple of source channel indices.",
@@ -1000,7 +1040,9 @@
       "label": "spacr.crops.resolve_png_channel_mapping#0",
       "source": "Return the ``{r, g, b}`` source-channel mapping a run should use.",
       "source_sha256": "6d8c8c6755257d6c236c08476c8f1436007b458c1c07c7579ee506cdaadbebdc",
-      "translation": "返回 ``{r, g, b}`` 源通道地图一个运行应该使用。"
+      "translation": "返回 ``{r, g, b}`` 源通道地图一个运行应该使用。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. ``settings['png_channel_mapping']`` -- the explicit form. If the user said which channel is red, that is the answer. 2. ``settings['png_dims']`` -- the legacy list, translated by :func:`png_dims_to_channel_mapping`. A settings CSV written by any older build lands here and keeps rendering the way it always did. 3. :data:`DEFAULT_PNG_CHANNEL_MAPPING`.",
@@ -1077,7 +1119,9 @@
       "label": "spacr.curation_queue.QueueItem#0",
       "source": "One field waiting to be curated.",
       "source_sha256": "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
-      "translation": "一个等待被治愈的视野。"
+      "translation": "一个等待被治愈的视野。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the identity of the field, and the structured-data name of its status row.",
@@ -1147,7 +1191,9 @@
       "label": "spacr.curation_queue.pending_items#0",
       "source": "Return the fields that have no reviewed state.",
       "source_sha256": "1c4c4520d1bb783434fd9dda631e590c6aa5094c846309179c2b7da8213fe0d3",
-      "translation": "返回没有审查状态的视野。"
+      "translation": "返回没有审查状态的视野。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the field to rank.",
@@ -1161,7 +1207,9 @@
       "label": "spacr.custom_features.call_feature#0",
       "source": "Invoke a custom feature safely, coercing the result to a ``{column_name: value}`` dict.",
       "source_sha256": "8cfc2f69c8db77038a241090ed24dd535829ce22de6af603246f3ddda7f17ff2",
-      "translation": "安全地召唤个性化特征,迫使结果进行 ``{column_name: value}`` 关键值地图。"
+      "translation": "安全地召唤个性化特征,迫使结果进行 ``{column_name: value}`` 关键值地图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether to normalize the image data channels using mean 0.5 and standard deviation 0.5.",
@@ -1210,7 +1258,9 @@
       "label": "spacr.deep_spacr.dataset_class_balance#0",
       "source": "Count the images the classifier was trained on, per split, per class.",
       "source_sha256": "f9be995c4bc247be0622d66c9a412f20f1748b1545fca0411e15b4b7d65b9d1f",
-      "translation": "计算机学习分类模型的图像,按分类,按课堂进行训练。"
+      "translation": "计算机学习分类模型的图像,按分类,按课堂进行训练。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Current epoch (recorded in the returned key-value mapping).",
@@ -1238,7 +1288,9 @@
       "label": "spacr.deep_spacr.model_fusion#0",
       "source": "Fuse the weights of several identically-shaped model checkpoints into one.",
       "source_sha256": "8f6456ebba9c7d66cc606d87c41cb687cb707808090a3dbb5dd71190fb15a444",
-      "translation": "将多个相同形状的模型检查点的权重合并到一个。"
+      "translation": "将多个相同形状的模型检查点的权重合并到一个。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether pretrained weights are expected.",
@@ -1280,7 +1332,9 @@
       "label": "spacr.deep_spacr.per_class_accuracy#0",
       "source": "``[(name, accuracy, support), …]`` for one epoch's metrics.",
       "source_sha256": "8a77d9779a77a8866abc20cf4993855030c2184d391311d577f440b80a5f2d29",
-      "translation": "``[(name, accuracy, support), …]``为一个轮次的测量。"
+      "translation": "``[(name, accuracy, support), …]``为一个轮次的测量。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The *weights* are registered, with the card stored as ``extra``, so the registry row carries the content fingerprint of the ``.pth``, the settings hash, the spaCR version and the ids of the artifacts it was derived from. Whether a model is stale can then be checked against the registry rather than against a JSON file beside the weights.",
@@ -1385,7 +1439,9 @@
       "label": "spacr.deep_spacr.train_test_model#0",
       "source": "Train a vision classifier on a spacr training dataset and/or evaluate it on the held-out ``test/`` split.",
       "source_sha256": "0ec4859bbdf503329f61039747966be3c660bf709b512fd1cbe121de2cb36178",
-      "translation": "在 spacr 训练数据集中训练视觉机器学习分类模型,并/或在 ``test/`` 分区中评估它。"
+      "translation": "在 spacr 训练数据集中训练视觉机器学习分类模型,并/或在 ``test/`` 分区中评估它。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "See Also: :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training + activation-map workflow. :func:`spacr.io.generate_dataset` — build the ``train/``/``test/`` folder tree.",
@@ -1497,7 +1553,9 @@
       "label": "spacr.embeddings.EmbeddingSpec.fingerprint#0",
       "source": "Return a 16-character digest of the fields that affect the values.",
       "source_sha256": "302bea8a706770a849a028b396d77de30fc090cc6d73d6fa3a92b406a2753236",
-      "translation": "返回影响值的字段的16个字符的消化。"
+      "translation": "返回影响值的字段的16个字符的消化。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Batched here rather than by the caller because the batch size belongs to the device, not to the channel policy: the per-channel policy calls this once per channel and each call must fit the same GPU.",
@@ -1511,7 +1569,9 @@
       "label": "spacr.embeddings.channel_of_column#0",
       "source": "Return the channel index a column came from, or ``None``.",
       "source_sha256": "ce67af0ad559b3989b7ad6ffadea00eef1d58ba573bcdb61cec352992a089bf6",
-      "translation": "返回通道指数,一个列来自,或 ``None``。"
+      "translation": "返回通道指数,一个列来自,或 ``None``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Under the per-channel policy the channel is part of the name -- ``emb_c2_017`` -- so attribution needs no separate map beside the matrix. Under projection the names use ``rgb`` instead of a channel index, because no column belongs to one channel.",
@@ -1546,7 +1606,9 @@
       "label": "spacr.errors.ConfigurationError#0",
       "source": "The run was set up wrongly and cannot produce a valid result.",
       "source_sha256": "81dca5de3e731401190b35c35f0416e5f39e89f6459ebe477c7ee68b868e5da0",
-      "translation": "运行是错误的设置,不能产生有效的结果。"
+      "translation": "运行是错误的设置,不能产生有效的结果。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "logger to emit failure records on. Defaults to the module logger, which funnels into ``~/.spacr/logs/spacr.log`` once :func:`spacr.logging_util.setup_logging` has run.",
@@ -1567,7 +1629,9 @@
       "label": "spacr.errors.RunStatusUnreadable#0",
       "source": "The stamp could not be read, so the run's verdict is unknown.",
       "source_sha256": "1c857adb063c4491a711025d30fb6bf499774b7cac663f11cbf1802b7937a2c6",
-      "translation": "印记不能读,所以运行的判决是未知的。"
+      "translation": "印记不能读,所以运行的判决是未知的。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the entry point for segmentation performed outside spaCR.  It accepts one or more mixed folders/files, detects intensity images and label images, lets callers override every proposed role/object type, builds the canonical ``stack/``, ``masks/`` and ``merged/`` folders, and then delegates all feature extraction and extracted-image-region generation to :func:`spacr.measure.measure_crop`.",
@@ -1609,7 +1673,9 @@
       "label": "spacr.feature_dict.SearchHit#0",
       "source": "One search result: a feature, how well it matched, and why.",
       "source_sha256": "c3df2f6a98bfee5ef9f871cabc03bb002549d5da153f6d467fcbc8f366fa8178",
-      "translation": "搜索结果:一个特征,它如何匹配,以及为什么。"
+      "translation": "搜索结果:一个特征,它如何匹配,以及为什么。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "feature definition selected by the search.",
@@ -1630,7 +1696,9 @@
       "label": "spacr.feature_dict.search_features#0",
       "source": "Find features by name, by substring, or by concept.",
       "source_sha256": "b9c6478e4a91a5379d1c1fbadc1f25a02f3a16fa2639a83e9b307213e379a70d",
-      "translation": "根据名称、字体或概念找到特征。"
+      "translation": "根据名称、字体或概念找到特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**a column name** — ``cell_channel_1_percentile_75`` resolves through :func:`parse_column` and its feature is the first hit, even though no such literal string appears anywhere in this module;",
@@ -1651,7 +1719,9 @@
       "label": "spacr.figure_style.is_legible_on#0",
       "source": "Determine whether a colour meets a contrast threshold.",
       "source_sha256": "af630522b57e1d6e8840ed75c1dbffa588982f11a238a4aa225ac09dc46edaa4",
-      "translation": "确定颜色是否符合对比阈值。"
+      "translation": "确定颜色是否符合对比阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The statistic is the same but its input is not, although both are labelled \"Gini\". The Lorenz curves take raw gRNA counts pooled over a laboratory microplate; this panel takes each guide's share of its own well divided by that well's equal split. On the tsg101 screening experiment those are 0.20 and 0.32 -- the panel's is larger because normalising by the well removes the between-well spread that flattens the pooled curve. The two values are therefore not comparable.",
@@ -1714,14 +1784,18 @@
       "label": "spacr.figures.stats.Comparison#0",
       "source": "Result of one statistical test, with the fields needed to report it.",
       "source_sha256": "7b251b79dcbd2e1ede976b6ef4317d64710d38e14c70ec2abc066a2d5d43075c",
-      "translation": "一个统计测试的结果,需要报告的字段。"
+      "translation": "一个统计测试的结果,需要报告的字段。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Draw a vertical or horizontal reference line, such as a threshold.",
       "label": "spacr.figures.style.reference_line#0",
       "source": "Draw a vertical or horizontal reference line, such as a threshold.",
       "source_sha256": "53ae502c2dc185e4580e2a4177f07464efd1c8cd177e597429e3c49c63b217ca",
-      "translation": "绘制垂直或水平参考线,例如阈值。"
+      "translation": "绘制垂直或水平参考线,例如阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The bias this trades for is that row id order is insertion order, i.e. roughly well by well. For drawing a data-selection boundary on a cloud of a million objects that is not a distinction that matters; for anything where it might, the export applies the data-selection boundary to every row regardless of what was sampled.",
@@ -1756,7 +1830,9 @@
       "label": "spacr.foreign.ImportPlan.stems#0",
       "source": "Field stems that will be imported, sorted.",
       "source_sha256": "67673fdf7ad86b7b865710a0a8da6df9dde8f1b936e6824d4afa37d3406c05a4",
-      "translation": "将进口的视野,分类。"
+      "translation": "将进口的视野,分类。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "non-fatal execution problems, including fields skipped after planning.",
@@ -1819,7 +1895,9 @@
       "label": "spacr.fraction_calibration.describe#0",
       "source": "The sweep in one line, for a log or a run summary.",
       "source_sha256": "459b0a64e4921c2d7cd9dff48fa2fdf68ece3f19ac85e8101554ddbee8c0d674",
-      "translation": "一个字符串,为一个日志或一次运行总结。"
+      "translation": "一个字符串,为一个日志或一次运行总结。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{well: fraction}``, zero for a microplate sample position in which the control did not survive the threshold. A zero is a result of the threshold, not missing data.",
@@ -1847,7 +1925,9 @@
       "label": "spacr.fraction_calibration.well_fractions#0",
       "source": "Each gRNA's share of its well, under one candidate threshold.",
       "source_sha256": "0c7fb58db7dc0565a7bfe70d622262fbdbeff204254316c6d9da27276ea4eb7b",
-      "translation": "每个 gRNA 的份额在一个候选人的阈值之下。"
+      "translation": "每个 gRNA 的份额在一个候选人的阈值之下。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The two settings interact, so they are swept together: normalising raises every surviving share, and raises it more the more reads the threshold removed.",
@@ -1910,7 +1990,9 @@
       "label": "spacr.gene_tile.GeneCandidate#0",
       "source": "One gene the clicked feature could be naming.",
       "source_sha256": "be1208a0a83590684902f5aa5662cff57d12e700798514bb025ae34fe8116b1f",
-      "translation": "一个基因可以称之为点击的特征。"
+      "translation": "一个基因可以称之为点击的特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the feature turned out to be — ``guide``, ``gene``, ``control``, ``nuisance`` or ``unresolved``.",
@@ -1938,7 +2020,9 @@
       "label": "spacr.gene_tile.gene_tile#0",
       "source": "Build a gene record for a regression feature.",
       "source_sha256": "0835411223cabe518236b9b8f7d2964e2a4d2e466dca66d8a83f4c57eea960e8",
-      "translation": "创建一个基因记录为回归特征。"
+      "translation": "创建一个基因记录为回归特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "GeneTile Resolved identity, screen statistics, annotations, references, and explicit notes about missing or ambiguous data. Unrecognised features return an unresolved record rather than ``None``.",
@@ -1973,7 +2057,9 @@
       "label": "spacr.guide_attribution.Preflight.hopeless#0",
       "source": "True when no well in the screen could ever call this guide.",
       "source_sha256": "693b2568682ecb91e4297b98aa6f3b2e052c8f5481f28f04ff7270a602b84330",
-      "translation": "当筛选中没有任何孔能够检出此引导 RNA 时为 True。"
+      "translation": "当筛选中没有任何孔能够检出此引导 RNA 时为 True。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Reported before anything is assigned. A guide whose effect is small against the spread of scores can never reach the threshold, regardless of cell count or fit quality.",
@@ -2015,7 +2101,9 @@
       "label": "spacr.guide_permutation.guide_support_sensitivity#0",
       "source": "Run the same support-threshold analysis for one or more outcomes.",
       "source_sha256": "b7aa402b0210146fc9c6de241e8f14de0ab5010c861c6a3ff66ce6fc90489f76",
-      "translation": "对一个或多个结果进行相同的支持阈值分析。"
+      "translation": "对一个或多个结果进行相同的支持阈值分析。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The long table must have one fraction per well/guide pair.  Phenotype, block and nuisance values may repeat across the guide rows of a well, but they must be identical within that well.  Duplicate well/guide rows are summed, matching the existing spaCR design-matrix construction.",
@@ -2029,7 +2117,9 @@
       "label": "spacr.guide_permutation.save_guide_permutation_results#0",
       "source": "Save the long result and one source-data CSV per support threshold.",
       "source_sha256": "224bf1743694284b8e054380da036019bbb8b6f97e6a48faba950ec90f8a956b",
-      "translation": "保存长结果和每个支持阈值的源数据 CSV。"
+      "translation": "保存长结果和每个支持阈值的源数据 CSV。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "output directory for the long and threshold-specific CSV files.",
@@ -2057,7 +2147,9 @@
       "label": "spacr.hit_attribution.build_hit_cell_frame#0",
       "source": "Join exact cells to well guide fractions and build a review ranking.",
       "source_sha256": "19c098c20838c15f4c0f0253ef1bf82855926174ef60ff945e5c82c27a5eed96",
-      "translation": "将精确的细胞与孔的引导 RNA 比例连接，并建立审查排序。"
+      "translation": "将精确的细胞与孔的引导 RNA 比例连接，并建立审查排序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one sequencing-fraction row per guide and well.",
@@ -2092,14 +2184,18 @@
       "label": "spacr.hits.HitList.significant#0",
       "source": "The rows that clear the FDR (or the selection threshold).",
       "source_sha256": "c6f1c733f6b7bf2f7e09bb236d5ca7dae2d2e4563201a2150fea11ac549db0b9",
-      "translation": "清除 FDR (或选择阈值) 的行列。"
+      "translation": "清除 FDR (或选择阈值) 的行列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build the ranked, annotated hit list of one regression run.",
       "label": "spacr.hits.build_hit_list#0",
       "source": "Build the ranked, annotated hit list of one regression run.",
       "source_sha256": "187581d253ffa9d57abfab5e6c0e932d16d79d6c9286ba4e3f51f6ad6aeb84d3",
-      "translation": "创建一个回归运行的排名,标记的打击列表。"
+      "translation": "创建一个回归运行的排名,标记的打击列表。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Runs with ``level='both'`` contain separate guide and gene testing families. Corrections should be applied within each non-empty label rather than across the pooled coefficient table. Explicit ``:gene[...]`` and ``:grna[...]`` labels take precedence over identifier shape.",
@@ -2162,7 +2258,9 @@
       "label": "spacr.illumination.IlluminationField#0",
       "source": "The illumination estimate for one plate, for one or more channels.",
       "source_sha256": "17dc78a345ffddbb94a23456ec2ec5250d50595d19dd4149d2527dc18605a66a",
-      "translation": "照明估计为一个板,一个或多个通道。"
+      "translation": "照明估计为一个板,一个或多个通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "source channel indices, in the order they index :attr:`flatfield`'s first axis. These are indices into the *merged stack*, i.e. exactly the values in ``settings['channels']``.",
@@ -2183,7 +2281,9 @@
       "label": "spacr.illumination.IlluminationField.describe#0",
       "source": "One line per channel: range, non-uniformity and how it was made.",
       "source_sha256": "19cb5c553d92d693b0845fd2db2cac508e181103d5fd0f9d029c9ec3f36119b1",
-      "translation": "每通道一行:范围、不一致性以及它是如何制作的。"
+      "translation": "每通道一行:范围、不一致性以及它是如何制作的。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a merged-stack channel index.",
@@ -2211,7 +2311,9 @@
       "label": "spacr.illumination.SegmentationIlluminationSession#0",
       "source": "Apply one illumination model exactly once per segmentation field.",
       "source_sha256": "9eba61893130495f30dbf9bc91a5a50386d35d572a6b63eee993e41184a5fb36",
-      "translation": "应用一个照明模型,按分割字段准确一次。"
+      "translation": "应用一个照明模型,按分割字段准确一次。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Open a segmentation-input correction session and stamp its provenance.",
@@ -2232,21 +2334,27 @@
       "label": "spacr.illumination.SegmentationIlluminationSession.completed_fields#0",
       "source": "Durably completed field ids in stable order.",
       "source_sha256": "fea6254d96a634916b0014279e530fd745ff83f4a080b185de47a690840677b3",
-      "translation": "永久完成的视野ID在稳定的顺序。"
+      "translation": "永久完成的视野ID在稳定的顺序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Correct a private copy of one raw field, refusing a second pass.",
       "label": "spacr.illumination.SegmentationIlluminationSession.correct#0",
       "source": "Correct a private copy of one raw field, refusing a second pass.",
       "source_sha256": "56f6e8e0cbc34b2bbd3e05a25e306221bb507ab4588e7a89a16e230447c8dd04",
-      "translation": "修复一个原料视野的私人副本,拒绝第二个通道。"
+      "translation": "修复一个原料视野的私人副本,拒绝第二个通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mark the journal stage done after every expected field is durable.",
       "label": "spacr.illumination.SegmentationIlluminationSession.finish#0",
       "source": "Mark the journal stage done after every expected field is durable.",
       "source_sha256": "30d74191a0fc7367ef598ce12215a038437ffea01eb8bdcfd5d51a7f23204638",
-      "translation": "标记日志阶段完成后,每个预期的视野是可持续的。"
+      "translation": "标记日志阶段完成后,每个预期的视野是可持续的。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one microscope field of view per laboratory microplate (default) or one for everything. Per laboratory microplate is the default because illumination differs between acquisition sessions -- lamp age, a re-seated filter cube, a different objective -- and pooling two sessions estimates neither.",
@@ -2295,21 +2403,27 @@
       "label": "spacr.illumination.load_segmentation_illumination_resume#0",
       "source": "Read and validate prior segmentation illumination without side effects.",
       "source_sha256": "6790b7a8dd277999619cd22f0408129d70b61d92ba02aabe6080d17ce3afbfae",
-      "translation": "阅读和验证之前的分割照明没有副作用。"
+      "translation": "阅读和验证之前的分割照明没有副作用。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Least-squares slope of intensity against distance from the field centre.",
       "label": "spacr.illumination.position_intensity_slope#0",
       "source": "Least-squares slope of intensity against distance from the field centre.",
       "source_sha256": "c7cbedf4d0d8b69e2758373f6b55627c616f484be56fc7bbeb4887d3b31baa15",
-      "translation": "最小四方的强度对距离从视野中心的压力。"
+      "translation": "最小四方的强度对距离从视野中心的压力。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Prepare correction for segmentation inputs without changing raw data.",
       "label": "spacr.illumination.prepare_segmentation_illumination#0",
       "source": "Prepare correction for segmentation inputs without changing raw data.",
       "source_sha256": "8372db59f710936393db883a1d8c8de285ec34b6bbf878dfdab63c4e82a302bf",
-      "translation": "准备对分割输入的纠正,而不会改变原始数据。"
+      "translation": "准备对分割输入的纠正,而不会改变原始数据。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The returned session is not a Measure hook.  V1/V2 adapters hand it raw field copies, then explicitly mark fields complete after their durable segmentation output exists.  The application record is stored beside the current processing session's source folder, even when the optical model is shared from an external path, so two processing sessions cannot overwrite one another's completion set.",
@@ -2323,7 +2437,9 @@
       "label": "spacr.illumination.validate_measurement_illumination_inputs#0",
       "source": "Raise before Measure corrects pixels that segmentation already corrected.",
       "source_sha256": "e993737d09a36f6bbd98f756b0196873c4b811415109177d6fb194585ec3606d",
-      "translation": "在测量之前升,修复了已经修复的分割的像素。"
+      "translation": "在测量之前升,修复了已经修复的分割的像素。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Segmentation is allowed to correct only its private model input.  If a mask run ever records that it instead changed the persisted intensities, Measure must not install another gain over those pixels: doing so squares the optical microscope field of view while producing entirely plausible numbers.  A missing application record is the legacy/raw case and remains valid; a present record must prove the current ``segmentation-input-only`` contract.",
@@ -2344,7 +2460,9 @@
       "label": "spacr.illumination.worker_delivery_status#0",
       "source": "Whether the correction will actually reach ``measure_crop``'s workers.",
       "source_sha256": "e94661485c0c4457d3be4eba7dcff198940e463ca69d927e014ecaa92955f68d",
-      "translation": "是否正确的实际上会达到 ``measure_crop`` 的工作进程。"
+      "translation": "是否正确的实际上会达到 ``measure_crop`` 的工作进程。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "OpenCV read mode; ``-1`` preserves the stored dtype and alpha channel.",
@@ -2442,7 +2560,9 @@
       "label": "spacr.infection.parasites_per_cell#0",
       "source": "Every host cell with its parasite count, including cells with zero.",
       "source_sha256": "a29c9568a3c84eb7e6c61da0611507bc18c3ace8778bcdd6c84067887c3de865",
-      "translation": "每个宿主细胞都有其寄生虫数量,包括零细胞。"
+      "translation": "每个宿主细胞都有其寄生虫数量,包括零细胞。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The relationship between a cell and its parasites is stored on the parasite, so a cell containing none appears nowhere in the pathogen table. Any count taken from that table alone counts only infected cells.",
@@ -2498,7 +2618,9 @@
       "label": "spacr.io.class_sampling_weights#0",
       "source": "Per-class sampling weight for a ``WeightedRandomSampler``.",
       "source_sha256": "7bd94c036f88bf1a75ec21874d835664bf58c55bc627e562a5068901e45ca62d",
-      "translation": "每类样品权重为 ``WeightedRandomSampler``。"
+      "translation": "每类样品权重为 ``WeightedRandomSampler``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "list of per-class weights, scaled so they sum to 1.",
@@ -2526,7 +2648,9 @@
       "label": "spacr.io.format_class_balance_report#0",
       "source": "Render the human-readable skew report printed on every training run.",
       "source_sha256": "ee5b8829fc12acf5c8d39363a992dea3992d7cf18bbb58122b56ca1bad4ef0c2",
-      "translation": "在每个训练处理会议上输出印刷的易于阅读的滑板报告。"
+      "translation": "在每个训练处理会议上输出印刷的易于阅读的滑板报告。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "DataLoader worker count.",
@@ -2547,7 +2671,9 @@
       "label": "spacr.io.generate_loaders#0",
       "source": "Build ``spacrDataLoader`` objects for training, validation, or testing.",
       "source_sha256": "e1073e25d08673232c53b2af21c423568a14a8b7e5ec204ce85cc9465ff55dc1",
-      "translation": "创建 ``spacrDataLoader`` 对象,用于训练、验证或测试。"
+      "translation": "创建 ``spacrDataLoader`` 对象,用于训练、验证或测试。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Reads class subfolders under ``src/<mode>``, applies the requested transforms (channel selection, optional normalisation, optional augmentation) and returns loaders sized to ``batch_size``.",
@@ -2589,7 +2715,9 @@
       "label": "spacr.io.generate_training_dataset#0",
       "source": "Build a balanced training/testing dataset from one of:",
       "source_sha256": "0d23e0d6a252b8c1c2b84f228618cfcabfa2b23d609271b009828f294db56dc0",
-      "translation": "建立一个平衡的训练/测试数据集,从一个:"
+      "translation": "建立一个平衡的训练/测试数据集,从一个:",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The resulting ``class_folder_names`` and ``nr_classes`` are written back into the key-value mapping for downstream training. A pre-split list-shaped ``classes`` entry is retired only after those folders are written; key-value mapping-shaped class definitions remain untouched.",
@@ -2631,7 +2759,9 @@
       "label": "spacr.io.read_plot_model_stats#0",
       "source": "Plot training vs. validation curves from a saved model's per-epoch CSVs.",
       "source_sha256": "4b07d3f6c7cd03a4194e3c20d459ae37f4c9d2de19e25ce4912fb8e6583a82b2",
-      "translation": "Plot 训练和验证曲线从 per-epoch CSVs 一个被拯救的模型。"
+      "translation": "Plot 训练和验证曲线从 per-epoch CSVs 一个被拯救的模型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Path to one extracted image region, taken from ``self.filenames``. The file is fully decoded and copied before the handle closes, so the returned image owns its buffer and is safe to hand to a prefetch thread. Anything PIL can open works: a greyscale extracted image region is widened to three image data channels and an RGBA one loses its alpha, which is what makes every sample the same shape for the transform.",
@@ -2995,7 +3125,9 @@
       "label": "spacr.measure_hooks.PreprocessingContext#0",
       "source": "Everything a preprocessing hook is told about the field it is given.",
       "source_sha256": "2143b393428277a224c71f3f70ce91cd32a1d9242157846ea3becd3e92f04c70",
-      "translation": "所有一个预处理的胡克都被告知它所提供的视野。"
+      "translation": "所有一个预处理的胡克都被告知它所提供的视野。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the microscope field of view's ``.npy`` stem, e.g. ``plate1_A01_F001``. A laboratory microplate-wide illumination model indexes its per-well gain using this.",
@@ -3163,7 +3295,9 @@
       "label": "spacr.ml.resolve_levels#0",
       "source": "Return the level(s) a run fits, given the backend and ``level``.",
       "source_sha256": "a1a3a2f5fb29241fb2ef4e8319ddd5b8b3098de595361926037e48616e82b41a",
-      "translation": "返回一次运行匹配的水平(s),根据后端和``level``。"
+      "translation": "返回一次运行匹配的水平(s),根据后端和``level``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Training features used to seed the explainer.",
@@ -3639,7 +3773,9 @@
       "label": "spacr.object_roles.is_segmented#0",
       "source": "True when ``role`` is found in a channel rather than derived.",
       "source_sha256": "94bffc3c652c1784784c2e7057babb80ec8e4424a1b3125e418788d2b330c473",
-      "translation": "True 如果 ``role`` 在通道中找到而不是衍生。"
+      "translation": "True 如果 ``role`` 在通道中找到而不是衍生。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "object kind, e.g. ``\"nucleus\"``. Unknown names are False rather than an error, because callers use this to decide whether to look for a channel setting; an unknown kind has none.",
@@ -3667,7 +3803,9 @@
       "label": "spacr.object_roles.role_setting#0",
       "source": "Return the setting key for ``suffix`` in one segmented role.",
       "source_sha256": "d236b10b49862306ab420c4ad559acd4566bf60cebe9a904a9b3f7207baf5af7",
-      "translation": "在单个分割角色中返回 ``suffix`` 的设置名称。"
+      "translation": "在单个分割角色中返回 ``suffix`` 的设置名称。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "segmented object role that owns the setting.",
@@ -4479,7 +4617,9 @@
       "label": "spacr.plot.graph_importance#0",
       "source": "Concatenate feature-importance CSVs and hand off to :class:`spacrGraph` for plotting.",
       "source_sha256": "c4a820db822de98c5ca5892a602e3a3fc532d4c7891bdea8dfd974d66c032fdd",
-      "translation": "将特征重要 CSV 混合并将其转移到 :class:`spacrGraph` 以进行插件。"
+      "translation": "将特征重要 CSV 混合并将其转移到 :class:`spacrGraph` 以进行插件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Multi-channel inputs are averaged over their channels for display.",
@@ -4493,7 +4633,9 @@
       "label": "spacr.plot.plot_arrays#0",
       "source": "Plot random ``.npy`` / ``.npz`` arrays from ``src``, one channel per subplot.",
       "source_sha256": "18b2b2301ccce03cb72243f0cb48631fb7556ce079cc5bc2b1b58a70e695f8b3",
-      "translation": "Plot 随机 ``.npy`` / ``.npz`` 从 ``src`` 发射,每个 subplot 的 1 个图像数据通道。"
+      "translation": "Plot 随机 ``.npy`` / ``.npz`` 从 ``src`` 发射,每个 subplot 的 1 个图像数据通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Two-element percentile pair used to normalise each channel.",
@@ -9239,7 +9381,9 @@
       "label": "spacr.settings.deep_spacr_defaults#0",
       "source": "Populate default settings for the end-to-end deep_spacr training pipeline.",
       "source_sha256": "36dc8ee3cb69e05b0fb6dbc7ac566c8764e1419330d8b2c1a08e7e9a53857bca",
-      "translation": "定位设置为终端 deep_spacr 训练工作流。"
+      "translation": "定位设置为终端 deep_spacr 训练工作流。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Covers dataset generation, model training/testing and applying the trained model to the dataset in a single settings key-value mapping.",
@@ -9267,7 +9411,9 @@
       "label": "spacr.settings.set_analyze_invasion_defaults#0",
       "source": "Populate default settings for the two-colour (red/green) invasion assay.",
       "source_sha256": "a8d05d551868756f334cfce1d2e9a45c8ca39bf229a8840b305539a1beb652ee",
-      "translation": "人口默认设置为两色(红/绿)入侵测试。"
+      "translation": "人口默认设置为两色(红/绿)入侵测试。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "key-value mapping populated with the default ``plot_merge`` parameters (channel dimensions, backgrounds, overlay behaviour, colormap, etc.).",
@@ -9281,14 +9427,18 @@
       "label": "spacr.settings.set_default_train_test_model#0",
       "source": "Populate default settings for the train/test classifier training pipeline.",
       "source_sha256": "798397e339b76e8a8f410919da423fa2d6085f79fd5bcb6c98185db3cd206ef5",
-      "translation": "列入训练/测试机械学习分类模型训练工作流的默认设置。"
+      "translation": "列入训练/测试机械学习分类模型训练工作流的默认设置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Populate default settings for generating a labeled training dataset.",
       "label": "spacr.settings.set_generate_training_dataset_defaults#0",
       "source": "Populate default settings for generating a labeled training dataset.",
       "source_sha256": "c17762ad9a7b0e36765efca5ed48af28bc4e42a180a4570fc022843c2fe8a75e",
-      "translation": "使用默认设置,创建标签训练数据集。"
+      "translation": "使用默认设置,创建标签训练数据集。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fit a RandomForest and plot permutation-based feature importances for the sweep columns.",
@@ -9470,7 +9620,9 @@
       "label": "spacr.submodules.CellposeLazyDataset#0",
       "source": "Lazy image/label dataset for Cellpose training and inference.",
       "source_sha256": "fad00c8724d8e0c47604d2daa2cb0f0f3ddd9025aea82084fbc47a9fa002fb70",
-      "translation": "清晰的图像/标签数据集为 Cellpose 训练和引用。"
+      "translation": "清晰的图像/标签数据集为 Cellpose 训练和引用。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mismatched lengths raise here rather than at the first bad index, so a wrongly paired dataset fails at construction instead of part-way through an epoch.",
@@ -9582,7 +9734,9 @@
       "label": "spacr.submodules.analyze_percent_positive#0",
       "source": "Annotate objects above a threshold and summarise positive fractions per well.",
       "source_sha256": "a349f686b5bf637d7e47030c640f0ca09903c59bc283907ea68ad2a6bee1a7ac",
-      "translation": "将对象列出一个阈值以上,并总结每个微板样本位置的积极分数。"
+      "translation": "将对象列出一个阈值以上,并总结每个微板样本位置的积极分数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Merges measurements from ``measurements.db``, thresholds on a chosen feature column, then joins the resulting microplate sample position-level counts against ``rename_log.csv`` to recover easy-to-read laboratory microplate/microplate sample position identifiers.",
@@ -9610,7 +9764,9 @@
       "label": "spacr.submodules.analyze_replication#0",
       "source": "Replication assay: count parasites per vacuole and compare the distributions.",
       "source_sha256": "1a59ac7b21bf28ddf5f980a0248997ddd98099c7b47fa6173f2995963ec5975d",
-      "translation": "反应测试:每个液泡中数出寄生虫,并比较分配。"
+      "translation": "反应测试:每个液泡中数出寄生虫,并比较分配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "*Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside a mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites — a power of two. The readout of a replication assay is therefore the **distribution** of parasites-per-vacuole across a microplate sample position, not a mean: a mean of 3.2 cannot distinguish \"everything at 3-ish\", which is biologically impossible, from a healthy mix of 2s and 4s. A drug that slows replication moves mass from the 8 and 4 buckets down into 2 and 1, and only the distribution shows that.",
@@ -9659,7 +9815,9 @@
       "label": "spacr.submodules.interpret_vision_model#0",
       "source": "Explain a spacr vision-model score by ranking which morphology / intensity features drive it.",
       "source_sha256": "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
-      "translation": "通过排序来解释一个 spacr 视觉模型分数,该分数的 morphology / intensity 特征驱动它。"
+      "translation": "通过排序来解释一个 spacr 视觉模型分数,该分数的 morphology / intensity 特征驱动它。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``src`` — folder containing ``measurements/measurements.db`` with both feature and score tables.",
@@ -10205,7 +10363,9 @@
       "label": "spacr.utils.EarlyFusion#0",
       "source": "1x1 convolution that fuses input channels down to 64 feature maps.",
       "source_sha256": "ccaf5d7d5c53549fab373852e9730df1b86daa30c1a4baa78fb890addc5ea534",
-      "translation": "1x1 通道将输入通道合并到 64 个特征地图。"
+      "translation": "1x1 通道将输入通道合并到 64 个特征地图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "number of input channels.",
@@ -10219,7 +10379,9 @@
       "label": "spacr.utils.EarlyFusion.forward#0",
       "source": "Return the 64-channel fused feature map.",
       "source_sha256": "13af61b18942bcaf6bf977ec8d5b794991eb8c905732c73be9de5a3d9334ddda",
-      "translation": "返回 64 通道合并特征地图。"
+      "translation": "返回 64 通道合并特征地图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image-feature tensor accepted by the 1x1 convolution.",
@@ -10233,7 +10395,9 @@
       "label": "spacr.utils.GradCAMGenerator.percentile_normalize#0",
       "source": "Per-channel percentile-normalize ``img`` into ``[0, 1]``.",
       "source_sha256": "544aa931a19983996b07dc5f8d25a59ef8e4c6f3fe092aeb8d7fe4351a367e46",
-      "translation": "每通道的百分比正常化 ``img`` 到 ``[0, 1]``。"
+      "translation": "每通道的百分比正常化 ``img`` 到 ``[0, 1]``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A 2-D field measures areas in px^2; a 3-D field measures volumes, in voxels or um^3, and writes them into the *same* ``<object>_area`` column, because downstream selectors, models and thresholds read that column by name. Appending both into one table would leave a numeric column that mixes two incompatible quantities with nothing in the row to distinguish them, so the append is refused.",
@@ -10275,7 +10439,9 @@
       "label": "spacr.utils.ResNet.initialize_base#0",
       "source": "Build the backbone (with or without pretrained weights) and the two-layer head.",
       "source_sha256": "d86b681226e738bb3e21375de53d5033622ee7d399f8db7431d335db4d3930a8",
-      "translation": "要建立背部(有或没有预装权重)和两层头。"
+      "translation": "要建立背部(有或没有预装权重)和两层头。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "attention-weighted value tensor.",
@@ -10289,7 +10455,9 @@
       "label": "spacr.utils.SelectChannels#0",
       "source": "Callable transform that zeroes out image channels not present in ``channels``.",
       "source_sha256": "cd657fcb436c8401a5de69c5b683b4043470f680b22a3c5401c6c2217c4eb856",
-      "translation": "可称为转换,将图像数据通道不存在于 ``channels``。"
+      "translation": "可称为转换,将图像数据通道不存在于 ``channels``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "iterable of 1-based channel indices to keep (1=red, 2=green, 3=blue).",
@@ -10331,7 +10499,9 @@
       "label": "spacr.utils.SpatialAttention#0",
       "source": "Spatial attention gate that reweights features by pooled channel statistics.",
       "source_sha256": "f2a58fae539a28cf7f62fc581282a7aae47bcd9eeeba1a80e2c56c6efd386fba",
-      "translation": "空间注意力数据选择边界,通过集成通道统计来重复特征。"
+      "translation": "空间注意力数据选择边界,通过集成通道统计来重复特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "feature map whose channel statistics define the attention.",
@@ -10380,7 +10550,9 @@
       "label": "spacr.utils.annotate_conditions#0",
       "source": "Annotate ``df`` with host cell, pathogen, treatment, and combined ``condition`` columns.",
       "source_sha256": "98287089b6bf4fb5a486039f4e45526e68fa1200ee380a80900b9ef795416f6d",
-      "translation": "注明 ``df`` 与宿主细胞、病原体、治疗和结合的 ``condition`` 列。"
+      "translation": "注明 ``df`` 与宿主细胞、病原体、治疗和结合的 ``condition`` 列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "2-D ``(H, W)`` or 3-D ``(H, W, C)`` array. The mask is built from the first two axes and broadcast across every channel, so all channels are cropped identically.",
@@ -10401,7 +10573,9 @@
       "label": "spacr.utils.calculate_activation_correlations#0",
       "source": "Compute per-image Pearson and Manders correlations between input and activation channels.",
       "source_sha256": "d83d5367d57cb6dd1cfe764b4e174915e4d568d792f628ff5a92d8e64cb6f1ad",
-      "translation": "根据图像计算 Pearson 和 Manders 输入和激活图像数据通道之间的相互关系。"
+      "translation": "根据图像计算 Pearson 和 Manders 输入和激活图像数据通道之间的相互关系。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is a *failure to reject* at alpha 0.05, not evidence of normality: the answer is ``True`` whenever the D'Agostino-Pearson test does not find significant skew or kurtosis. Small samples therefore look normal for want of power, and very large ones fail on deviations too small to matter -- which is what decides whether :func:`perform_statistical_tests` sends a feature to ANOVA or to Kruskal-Wallis.",
@@ -10450,7 +10624,9 @@
       "label": "spacr.utils.classification_metrics#0",
       "source": "Return a one-row DataFrame of accuracy, PR-AUC, and optimal-threshold stats.",
       "source_sha256": "5bc08e378f3bc1c717ef6dd27d4e245fef9a8cb379e93e4493ae68cd0ff6b0e5",
-      "translation": "返回准确性、PR-AUC 和最佳阈值统计的单环 DataFrame。"
+      "translation": "返回准确性、PR-AUC 和最佳阈值统计的单环 DataFrame。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "loss tensor for the epoch (``.item()`` is called).",
@@ -10506,14 +10682,18 @@
       "label": "spacr.utils.compute_segmentation_ap#0",
       "source": "Return the COCO-style segmentation AP by matching connected components across IoU thresholds.",
       "source_sha256": "718db2e64949c2d6b0ac6799e4f0729cd0686c7f0d485670b7540d3dcf9f9e09",
-      "translation": "返回 COCO 式分割 AP 通过在 IoU 界限上匹配连接的组件。"
+      "translation": "返回 COCO 式分割 AP 通过在 IoU 界限上匹配连接的组件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Remove intermediate per-channel and stack folders under ``settings['src']``.",
       "label": "spacr.utils.delete_intermedeate_files#0",
       "source": "Remove intermediate per-channel and stack folders under ``settings['src']``.",
       "source_sha256": "0d287488c03fd396fef162a552ab4f2c953ee3e77aa96dfd024c879e22c91653",
-      "translation": "删除中间每通道和``settings['src']``下方的粘贴文件夹。"
+      "translation": "删除中间每通道和``settings['src']``下方的粘贴文件夹。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The mapping is built the same way `io.preprocess_img_data` builds the stack, so it matches the stored axis order: walk the roles in :data:`MASK_CHANNEL_ROLE_ORDER` and give each newly seen raw channel the next dense position.",
@@ -10527,7 +10707,9 @@
       "label": "spacr.utils.extract_features#0",
       "source": "Extract features from images using a pre-trained ResNet model.",
       "source_sha256": "b8c5f5b3749e106f20537b377096719396b075e725256ea2297a0aa5c315cf1b",
-      "translation": "从图像中提取特征,使用预先训练的ResNet模型。"
+      "translation": "从图像中提取特征,使用预先训练的ResNet模型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The classification head is stripped, so each image yields its pooled backbone features.",
@@ -10562,14 +10744,18 @@
       "label": "spacr.utils.filepaths_to_database#0",
       "source": "Insert cropped PNG filepaths and parsed well/object IDs into the measurements DB.",
       "source_sha256": "4b09f8489b91ba965faf251440ded11d91fdba0ec0a169fc76868a3f6ce4bb09",
-      "translation": "将收集的 PNG 文件路径和分布的 孔 / 对象 ID 插入 DB 测量。"
+      "translation": "将收集的 PNG 文件路径和分布的 孔 / 对象 ID 插入 DB 测量。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Write the rows of a CSV whose ``column_name`` value lies outside both thresholds to a new CSV.",
       "label": "spacr.utils.filter_and_save_csv#0",
       "source": "Write the rows of a CSV whose ``column_name`` value lies outside both thresholds to a new CSV.",
       "source_sha256": "e982b95e3245921b0544831d0910afd64ac77c9a191fa45cfa3c1f686c559a1f",
-      "translation": "写下一个 CSV 的行,其 ``column_name`` 值位于两个阈值之外的新 CSV。"
+      "translation": "写下一个 CSV 的行,其 ``column_name`` 值位于两个阈值之外的新 CSV。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The two tests are combined with OR, not AND, so this is a two-tailed selection that keeps the extremes and discards the middle. Both comparisons are strict, so a value exactly equal to either threshold is dropped, and so is ``NaN``. Passing an ``upper_threshold`` below ``lower_threshold`` makes the two conditions cover the whole line and nothing is filtered out at all.",
@@ -10590,7 +10776,9 @@
       "label": "spacr.utils.filter_dataframe_features#0",
       "source": "Restrict a features DataFrame to a channel of interest and clean up correlated/low-variance columns.",
       "source_sha256": "bc6a1e6a999e08217ad2bc13f1d173481297cb5fe015c80e31e31bcfc9697389",
-      "translation": "将属性 DataFrame 限制到一个兴趣通道,并清除相关/低变量列。"
+      "translation": "将属性 DataFrame 限制到一个兴趣通道,并清除相关/低变量列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "nucleus_mask (np.array): Binary or segmented mask of the nucleus (non-zero values represent nucleus).",
@@ -10611,7 +10799,9 @@
       "label": "spacr.utils.get_ml_results_paths#0",
       "source": "Return the standard set of ML output paths for the given model and channel selection.",
       "source_sha256": "7cc099525cdc69d865540ed3ae99944f2179bc39803562e6240da975bd06143e",
-      "translation": "返回为特定模型和通道选择的 ML 输出路径的标准组。"
+      "translation": "返回为特定模型和通道选择的 ML 输出路径的标准组。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Settings imported from CSV files and older Qt sessions can contain the literal string ``\"None\"``. Treating that as a feature-name substring removes every measurement column, although the UI means \"all channels\".",
@@ -10646,7 +10836,9 @@
       "label": "spacr.utils.perform_statistical_tests#0",
       "source": "Perform ANOVA or Kruskal-Wallis tests depending on normality of features.",
       "source_sha256": "3c743d916b1d10a910556e879f46b20ac05db34a85829b98508b955f9e7b0b19",
-      "translation": "根据特征的正常性进行ANOVA或Kruskal-Wallis测试。"
+      "translation": "根据特征的正常性进行ANOVA或Kruskal-Wallis测试。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "channel of interest passed to :func:`filter_dataframe_features`; ``None`` and its text forms disable filtering.",
@@ -10709,7 +10901,9 @@
       "label": "spacr.utils.suggest_training_changes#0",
       "source": "Inspect saved training/validation progress CSVs and propose concrete training changes.",
       "source_sha256": "3cd2763bd7a1437681af97a7ace3a5f1a84362d83f82ff75be7fd76169b0c5ff",
-      "translation": "检查保存的训练/验证进展 CSV,并提出具体的训练变化。"
+      "translation": "检查保存的训练/验证进展 CSV,并提出具体的训练变化。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "number of recent epochs used for trend and plateau checks.",

@@ -51,14 +51,18 @@
       "source_sha256": "06bccef977116f5e475dca6b9493bfcd2bc35ffefe4cd0ae1d428c0654d33fcd",
       "source": "Segment one object channel across all ``.npz`` batches under ``src`` using a chosen Cellpose model.",
       "context": "Segment one object image data channel across all ``.npz`` batches under ``src`` using a chosen Cellpose model.",
-      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用所选 Cellpose 模型。"
+      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用所选 Cellpose 模型。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks_sam#0",
       "source_sha256": "0b7ffdbdf6731edb022b8e88c07b33c5fcb96b3443178f5c338469f4b1430a18",
       "source": "Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
       "context": "Segment one object image data channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.",
-      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用 Cellpose-SAM。"
+      "translation": "对所有 ``.npz`` 批次中位于 ``src`` 下的一个对象图像数据通道进行分割，并使用 Cellpose-SAM。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ome_zarr#2",
@@ -141,7 +145,9 @@
       "source_sha256": "bf476e9c301130186186a870f20d5483b11d9ea69d6820bd423336ef36c1eadc",
       "source": "Display per-channel images, label mask and flow field for Cellpose v4 outputs.",
       "context": "Display per-image data channel images, label mask and flow microscope field of view for Cellpose v4 outputs.",
-      "translation": "显示 Cellpose v4 输出的逐图像数据通道图像、标签掩模和光流场。"
+      "translation": "显示 Cellpose v4 输出的逐图像数据通道图像、标签掩模和光流场。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plot.spacrGraph#1",
