@@ -71795,6 +71795,22 @@
         "3327fc1aa7f8bca8ba65eb4ed46a73a90c3b2e55a18f6a46dbf9f29f36c49daf"
       ]
     },
+    "spacr.qt.ai.prompts.tool_approval_note": {
+      "source_blocks_sha256": [
+        "b182982b9db2c5993471b399025096fd11a4ee7eff7e417993358fd3483568a9",
+        "391201d4c0d14ce15d34280a2cb177547c90c334c6c963edc49f8ec51ddaf27c",
+        "54b9ed1794e4a1c0cded616a9bee1fe45e38a6cd72017c718e8eb160bab3bbcc",
+        "7ec4b872bf241cbe04ba54b695ac06c0ffd282a893ed35920774af0f0937422e"
+      ],
+      "source_sha256": "650921618e6e65fc9d3a21e3e3f6849ae5a9415dfc57fd9f0b33d87a50c7fe73",
+      "text": "向助手说明 spaCR 控制台中的工具调用审批如何工作（GitHub #147）。\n\n供应商的 CLIs 以非交互方式运行，因此无法显示自己的审批提示。对于 Claude Code，spaCR 会在回复后自行询问用户，并在用户允许调用时恢复会话；其他 CLIs 没有这种途径，因此助手会改为将命令交给用户。\n\n:param provider_name: 提供者的简短标识符，例如 ``\"claude\"``。\n:returns: 要追加到系统提示中的段落。",
+      "translation_source_blocks_sha256": [
+        "b182982b9db2c5993471b399025096fd11a4ee7eff7e417993358fd3483568a9",
+        "391201d4c0d14ce15d34280a2cb177547c90c334c6c963edc49f8ec51ddaf27c",
+        "54b9ed1794e4a1c0cded616a9bee1fe45e38a6cd72017c718e8eb160bab3bbcc",
+        "7ec4b872bf241cbe04ba54b695ac06c0ffd282a893ed35920774af0f0937422e"
+      ]
+    },
     "spacr.qt.ai.prompts.wrap_error_for_prompt": {
       "source_blocks_sha256": [
         "b6149891532f8005702b8f7284e63a042d174c63043b2ee67466cf76098c465c",
@@ -71921,6 +71937,22 @@
       "text": "克劳德(Claude Code)通过CLI的``claude``。",
       "translation_source_blocks_sha256": [
         "c35591999a02b6105d27e7d32dc33643c97a5c3045ed351a29baec073117ac3c"
+      ]
+    },
+    "spacr.qt.ai.providers.ClaudeCliProvider.allow_once": {
+      "source_blocks_sha256": [
+        "c8919ae9a357e6c3770a9eff1df3f8226c7a22d8fca14500d3c48b6b2aba0e56",
+        "96018029665a054c106138c8397d9b366a741b532db204e6b863d006209f203c",
+        "3d61fb1e3fac94ab51df53532933b44a3c40ca9456977f88d2ccf6381c58fc77",
+        "92712d5b8e4d846537df2bff4d55bbd2a236e76349d6f352a1aa833fc4128499"
+      ],
+      "source_sha256": "8f2dfd13d1c1134a50933d7e846dcab0560666329abfb7d3571094bc0b13a305",
+      "text": "让下一次 :meth:`stream_chat` 恢复 ``session_id``，并且仅在该次回复中允许这些工具调用。\n\n:param denials: 用户批准的 :attr:`last_permission_denials` 条目。\n:param session_id: 这些调用被拒绝时所在的会话。\n:returns: 将要传递的 ``--allowedTools`` 规则。",
+      "translation_source_blocks_sha256": [
+        "c8919ae9a357e6c3770a9eff1df3f8226c7a22d8fca14500d3c48b6b2aba0e56",
+        "96018029665a054c106138c8397d9b366a741b532db204e6b863d006209f203c",
+        "3d61fb1e3fac94ab51df53532933b44a3c40ca9456977f88d2ccf6381c58fc77",
+        "92712d5b8e4d846537df2bff4d55bbd2a236e76349d6f352a1aa833fc4128499"
       ]
     },
     "spacr.qt.ai.providers.ClaudeCliProvider.stream_chat": {
@@ -72269,6 +72301,20 @@
         "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
       ]
     },
+    "spacr.qt.ai.providers.describe_tool_call": {
+      "source_blocks_sha256": [
+        "a276bbf026e4cf0d3529ed3516a23ae1e7c3a6145ba9ae738f15f20b0449eaab",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "b92f20fb9374d3446aa0e34bbc48b812aca3f3ea859f66cc5d25830b898aba8b"
+      ],
+      "source_sha256": "4ac2cc5f91af9a18576f0cf32f61c32661287aa5d17e307b424dba9f9cb79891",
+      "text": "用一行说明被拒绝的工具调用原本会做什么。\n\n:param denial: 一个 ``permission_denials`` 条目。\n:returns: 如果是 Shell 调用，则为命令；否则为工具名称及其路径、地址或模式。",
+      "translation_source_blocks_sha256": [
+        "a276bbf026e4cf0d3529ed3516a23ae1e7c3a6145ba9ae738f15f20b0449eaab",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "b92f20fb9374d3446aa0e34bbc48b812aca3f3ea859f66cc5d25830b898aba8b"
+      ]
+    },
     "spacr.qt.ai.providers.effective_provider_name": {
       "source_blocks_sha256": [
         "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
@@ -72527,6 +72573,22 @@
       "translation_source_blocks_sha256": [
         "b7bddd767a897d6a0bc2f63d382c63dbe788054cbf8cea8ee92e73fede0582de",
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
+      ]
+    },
+    "spacr.qt.ai.providers.tool_rule": {
+      "source_blocks_sha256": [
+        "a1ae643f2adef9e0820d0c12591b875130e64742db2252515f3707eeed5d897e",
+        "d80379bd26b3665a1a94188ec3e89f5ed0fa52b5658d1eb0a9d439fd6e6685b6",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "ee06a28d9b9e0805f3e535a4e1999a5c24683f1904749838e28f3102ad762db6"
+      ],
+      "source_sha256": "dcb5968db3865004d48d8785a08549136217ff695c131176eb5cd98f61e432e7",
+      "text": "仅允许一个被拒绝的工具调用的 ``--allowedTools`` 规则。\n\nShell 命令按原样获准，即 ``Bash(gh auth status)``；网页请求按其主机获准；其他工具按名称获准。\n\n:param denial: 一个 ``permission_denials`` 条目。\n:returns: 规则；如果条目没有指定工具名称，则为 ``\"\"``。",
+      "translation_source_blocks_sha256": [
+        "a1ae643f2adef9e0820d0c12591b875130e64742db2252515f3707eeed5d897e",
+        "d80379bd26b3665a1a94188ec3e89f5ed0fa52b5658d1eb0a9d439fd6e6685b6",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "ee06a28d9b9e0805f3e535a4e1999a5c24683f1904749838e28f3102ad762db6"
       ]
     },
     "spacr.qt.ai.providers.usage_bar": {
@@ -92133,6 +92195,16 @@
         "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17"
       ]
     },
+    "spacr.qt.preferences._count_store_writes.write": {
+      "source_blocks_sha256": [
+        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
+      ],
+      "source_sha256": "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355",
+      "text": "转交给 Qt，然后使记住的缓存值失效。",
+      "translation_source_blocks_sha256": [
+        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
+      ]
+    },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
       "source_blocks_sha256": [
         "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
@@ -92297,6 +92369,16 @@
       "text": "如果窗口仍然存在，则针对 ``changes`` 重绘该窗口。",
       "translation_source_blocks_sha256": [
         "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ]
+    },
+    "spacr.qt.preferences._remembered.read": {
+      "source_blocks_sha256": [
+        "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0"
+      ],
+      "source_sha256": "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0",
+      "text": "被包装的取值函数所缓存的值。",
+      "translation_source_blocks_sha256": [
+        "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0"
       ]
     },
     "spacr.qt.preferences._start_disk_report.done": {

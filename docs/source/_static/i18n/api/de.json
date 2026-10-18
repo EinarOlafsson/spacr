@@ -71794,6 +71794,22 @@
         "3327fc1aa7f8bca8ba65eb4ed46a73a90c3b2e55a18f6a46dbf9f29f36c49daf"
       ]
     },
+    "spacr.qt.ai.prompts.tool_approval_note": {
+      "source_blocks_sha256": [
+        "b182982b9db2c5993471b399025096fd11a4ee7eff7e417993358fd3483568a9",
+        "391201d4c0d14ce15d34280a2cb177547c90c334c6c963edc49f8ec51ddaf27c",
+        "54b9ed1794e4a1c0cded616a9bee1fe45e38a6cd72017c718e8eb160bab3bbcc",
+        "7ec4b872bf241cbe04ba54b695ac06c0ffd282a893ed35920774af0f0937422e"
+      ],
+      "source_sha256": "650921618e6e65fc9d3a21e3e3f6849ae5a9415dfc57fd9f0b33d87a50c7fe73",
+      "text": "Dem Assistenten erklären, wie die Genehmigung von Werkzeugaufrufen in der Konsole von spaCR funktioniert (GitHub #147).\n\nDie CLIs der Anbieter laufen ohne Interaktion und können daher keine eigene Genehmigungsabfrage anzeigen. Für Claude Code fragt spaCR den Benutzer selbst nach der Antwort und setzt die Sitzung fort, sobald der Benutzer den Aufruf erlaubt; die anderen CLIs bieten diesen Weg nicht, daher übergibt der Assistent stattdessen den Befehl.\n\n:param provider_name: die Kurzkennung des Anbieters, zum Beispiel ``\"claude\"``.\n:returns: der Absatz, der an die Systemanweisung angehängt werden soll.",
+      "translation_source_blocks_sha256": [
+        "b182982b9db2c5993471b399025096fd11a4ee7eff7e417993358fd3483568a9",
+        "391201d4c0d14ce15d34280a2cb177547c90c334c6c963edc49f8ec51ddaf27c",
+        "54b9ed1794e4a1c0cded616a9bee1fe45e38a6cd72017c718e8eb160bab3bbcc",
+        "7ec4b872bf241cbe04ba54b695ac06c0ffd282a893ed35920774af0f0937422e"
+      ]
+    },
     "spacr.qt.ai.prompts.wrap_error_for_prompt": {
       "source_blocks_sha256": [
         "b6149891532f8005702b8f7284e63a042d174c63043b2ee67466cf76098c465c",
@@ -71920,6 +71936,22 @@
       "text": "Anthropologischer Claude über die ``claude`` (Claude Code) CLI.",
       "translation_source_blocks_sha256": [
         "c35591999a02b6105d27e7d32dc33643c97a5c3045ed351a29baec073117ac3c"
+      ]
+    },
+    "spacr.qt.ai.providers.ClaudeCliProvider.allow_once": {
+      "source_blocks_sha256": [
+        "c8919ae9a357e6c3770a9eff1df3f8226c7a22d8fca14500d3c48b6b2aba0e56",
+        "96018029665a054c106138c8397d9b366a741b532db204e6b863d006209f203c",
+        "3d61fb1e3fac94ab51df53532933b44a3c40ca9456977f88d2ccf6381c58fc77",
+        "92712d5b8e4d846537df2bff4d55bbd2a236e76349d6f352a1aa833fc4128499"
+      ],
+      "source_sha256": "8f2dfd13d1c1134a50933d7e846dcab0560666329abfb7d3571094bc0b13a305",
+      "text": "Den nächsten Aufruf von :meth:`stream_chat` die Sitzung ``session_id`` mit diesen erlaubten Werkzeugaufrufen fortsetzen lassen, ausschließlich für diese eine Antwort.\n\n:param denials: vom Benutzer genehmigte Einträge aus :attr:`last_permission_denials`.\n:param session_id: die Sitzung, in der die Aufrufe abgelehnt wurden.\n:returns: die ``--allowedTools``-Regeln, die übergeben werden.",
+      "translation_source_blocks_sha256": [
+        "c8919ae9a357e6c3770a9eff1df3f8226c7a22d8fca14500d3c48b6b2aba0e56",
+        "96018029665a054c106138c8397d9b366a741b532db204e6b863d006209f203c",
+        "3d61fb1e3fac94ab51df53532933b44a3c40ca9456977f88d2ccf6381c58fc77",
+        "92712d5b8e4d846537df2bff4d55bbd2a236e76349d6f352a1aa833fc4128499"
       ]
     },
     "spacr.qt.ai.providers.ClaudeCliProvider.stream_chat": {
@@ -72268,6 +72300,20 @@
         "2b58f2c2f4c4029a55f5f207e230cfe244ce03e5db1872d465e1f7685ee4c7e5"
       ]
     },
+    "spacr.qt.ai.providers.describe_tool_call": {
+      "source_blocks_sha256": [
+        "a276bbf026e4cf0d3529ed3516a23ae1e7c3a6145ba9ae738f15f20b0449eaab",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "b92f20fb9374d3446aa0e34bbc48b812aca3f3ea859f66cc5d25830b898aba8b"
+      ],
+      "source_sha256": "4ac2cc5f91af9a18576f0cf32f61c32661287aa5d17e307b424dba9f9cb79891",
+      "text": "Eine Zeile, die beschreibt, was ein abgelehnter Werkzeugaufruf getan hätte.\n\n:param denial: ein Eintrag aus ``permission_denials``.\n:returns: der Befehl bei einem Shell-Aufruf, andernfalls der Werkzeugname mit Pfad, Adresse oder Muster.",
+      "translation_source_blocks_sha256": [
+        "a276bbf026e4cf0d3529ed3516a23ae1e7c3a6145ba9ae738f15f20b0449eaab",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "b92f20fb9374d3446aa0e34bbc48b812aca3f3ea859f66cc5d25830b898aba8b"
+      ]
+    },
     "spacr.qt.ai.providers.effective_provider_name": {
       "source_blocks_sha256": [
         "c2683425f4995c2cde5db5eace9a0b488258a90c1ddc9aadcf155a3fa18ece07",
@@ -72526,6 +72572,22 @@
       "translation_source_blocks_sha256": [
         "b7bddd767a897d6a0bc2f63d382c63dbe788054cbf8cea8ee92e73fede0582de",
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
+      ]
+    },
+    "spacr.qt.ai.providers.tool_rule": {
+      "source_blocks_sha256": [
+        "a1ae643f2adef9e0820d0c12591b875130e64742db2252515f3707eeed5d897e",
+        "d80379bd26b3665a1a94188ec3e89f5ed0fa52b5658d1eb0a9d439fd6e6685b6",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "ee06a28d9b9e0805f3e535a4e1999a5c24683f1904749838e28f3102ad762db6"
+      ],
+      "source_sha256": "dcb5968db3865004d48d8785a08549136217ff695c131176eb5cd98f61e432e7",
+      "text": "Die ``--allowedTools``-Regel, die genau einen abgelehnten Werkzeugaufruf erlaubt.\n\nEin Shell-Befehl wird genau wie geschrieben erlaubt, ``Bash(gh auth status)``; ein Webabruf für seinen Host; jedes andere Werkzeug anhand seines Namens.\n\n:param denial: ein Eintrag aus ``permission_denials``.\n:returns: die Regel oder ``\"\"``, wenn der Eintrag kein Werkzeug nennt.",
+      "translation_source_blocks_sha256": [
+        "a1ae643f2adef9e0820d0c12591b875130e64742db2252515f3707eeed5d897e",
+        "d80379bd26b3665a1a94188ec3e89f5ed0fa52b5658d1eb0a9d439fd6e6685b6",
+        "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+        "ee06a28d9b9e0805f3e535a4e1999a5c24683f1904749838e28f3102ad762db6"
       ]
     },
     "spacr.qt.ai.providers.usage_bar": {
@@ -92132,6 +92194,16 @@
         "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17"
       ]
     },
+    "spacr.qt.preferences._count_store_writes.write": {
+      "source_blocks_sha256": [
+        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
+      ],
+      "source_sha256": "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355",
+      "text": "An Qt weiterleiten und anschließend die zwischengespeicherten Werte verwerfen.",
+      "translation_source_blocks_sha256": [
+        "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355"
+      ]
+    },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
       "source_blocks_sha256": [
         "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
@@ -92296,6 +92368,16 @@
       "text": "Das Fenster für ``changes`` neu zeichnen, falls es noch da ist.",
       "translation_source_blocks_sha256": [
         "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ]
+    },
+    "spacr.qt.preferences._remembered.read": {
+      "source_blocks_sha256": [
+        "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0"
+      ],
+      "source_sha256": "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0",
+      "text": "Zwischengespeicherter Wert der umschlossenen Getter-Funktion.",
+      "translation_source_blocks_sha256": [
+        "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0"
       ]
     },
     "spacr.qt.preferences._start_disk_report.done": {

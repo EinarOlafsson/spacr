@@ -1809,6 +1809,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert docs[publication_key].startswith(
         help_changes["changed"][publication_key]["before"] + "\n\n")
     zoo_arrivals = {**zoo_arrivals, **help_arrivals}
+    approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+    assert set(approval_preferences_arrivals) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences_arrivals} == (
+        approval_preferences_arrivals
+    )
+    assert not approval_preferences_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

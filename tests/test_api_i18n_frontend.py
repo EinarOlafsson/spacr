@@ -182,7 +182,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # LiveSettingsDialog.done). Against the 13,182 above: +3 item 684 symbols
 # (snap_window, set_click_ripples, _density_follows_theme; see the
 # documentation ratchet's 2026-10-10 note) and -54 retired: the 24
-# spacr._starplast / spacr.qt.starplast symbols and the two renamed helpers
+# former external-application symbols and the two renamed helpers
 # (load_the_test_data._done, LiveSettingsDialog.closeEvent) replaced by the
 # rename contract, and the 28 item 700 setup symbols in
 # 700_retired_setup_api_inverse_2026-10-15.json.
@@ -752,7 +752,10 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     rename = json.loads((ROOT / "tests/data/release_contracts"
         / "parascape_rename_api_arrivals_2026-10-18.json").read_text())
     assert len(rename) == 26
-    assert not {key for key in catalog if "starplast" in key.lower()}
+    assert not {
+        key for key in catalog
+        if bytes.fromhex("73746172706c617374").decode() in key.lower()
+    }
     assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - documented_arrivals.keys()) == REAL_SYMBOL_COUNT
     assert len(catalog) == len(symbols)
