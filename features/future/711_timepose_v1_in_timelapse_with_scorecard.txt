@@ -2,8 +2,8 @@
 TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
 ================================================================================
 
-Status:    open — 2026-10-18; waiting for Timepose v1 checkpoint/metrics from
-           the Home Timepose session (spacr-c7), then build.
+Status:    built — 2026-10-18 (alpha, private HF repo). BLOCKED ON MAINTAINER
+           only for the flip to public and alpha removal at publication.
 Requested: maintainer, 2026-10-18: "make sure trackstera and timepose v1 are
            included in timelapse and timepose needs to be uploaded to
            huggingface and it needs a scorecard". Visibility (maintainer,
@@ -32,3 +32,9 @@ ACCEPTANCE
   config; spaCR verifies the checksum on download.
 - Flip to public and remove the alpha gate when the maintainer says the paper
   is out.
+
+NOTES
+2026-10-18 Built: timelapse_mode 'timepose_v1' (ALPHA_FEATURES 711: choice, model, timepose_own_masks/timepose_invert, preview note TimelapseTimeposeNote); Trackastra unchanged.
+2026-10-18 Private HF model repo einarolafsson/timepose-v1 holds stripped weights, adapter, 3-page card, README, checksums, run_config, provenance; spaCR pins the revision and every file's sha256 and downloads with the user's HF token.
+2026-10-18 Versions are zoo records of kind 'timepose' loaded through one adapter contract (spacr.timepose/1: load_model, segment_track_movie); v2 = new record + choice, no UI code. Numbers stay on the private card (non-disclosure rule supersedes a card JSON in spacr/resources/model_cards).
+2026-10-18 Remaining: BLOCKED ON MAINTAINER at publication: make the HF repo public, remove ALPHA_FEATURES[711], add the public card/binding.

@@ -956,6 +956,8 @@ SETTING_API_TARGETS = {
     'timelapse_mode': ('spacr.object', 'generate_cellpose_masks_sam', True),
     'timelapse_objects': ('spacr.measure', 'measure_crop', True),
     'timelapse_remove_transient': ('spacr.object', 'generate_cellpose_masks_sam', True),
+    'timepose_invert': ('spacr.object', 'generate_cellpose_masks_sam', True),
+    'timepose_own_masks': ('spacr.object', 'generate_cellpose_masks_sam', True),
     'tolerance': ('spacr.ml', 'minimum_cell_simulation', True),
     'top_features': ('spacr.ml', 'generate_ml_scores', True),
     'total_channel': ('spacr.submodules', 'analyze_invasion', True),

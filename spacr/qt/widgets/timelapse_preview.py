@@ -1970,6 +1970,16 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         trk_form.addRow("Min track length", self._min_len)
         trk_form.addRow("Track tail", self._tail)
         trk_form.addRow(self._remove_transient)
+        self._timepose_note = QLabel(tr(
+            "Timepose v1 (alpha) tracks in the full Timelapse run. Set "
+            "timelapse_mode to timepose_v1 in the settings. It needs a Hugging "
+            "Face account with access to its private model, so this preview "
+            "does not offer it."), trk_group)
+        self._timepose_note.setObjectName("TimelapseTimeposeNote")
+        self._timepose_note.setWordWrap(True)
+        trk_form.addRow(self._timepose_note)
+        from ..preferences import _apply_alpha_widgets
+        _apply_alpha_widgets(self._timepose_note)
 
         groups_host = QWidget(self)
         groups = QHBoxLayout(groups_host)

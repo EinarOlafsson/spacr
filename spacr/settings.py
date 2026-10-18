@@ -1145,6 +1145,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('ultrack_contour_sigma', 0.0)
     settings.setdefault('ultrack_n_workers', 1)
     settings.setdefault('timeflows_model', None)
+    settings.setdefault('timepose_own_masks', False)
+    settings.setdefault('timepose_invert', False)
     settings.setdefault('timelapse_objects', ['cell'])
     settings.setdefault('timelapse_lineage', False)
     settings.setdefault('timelapse_lineage_color_by', 'generation_time')
@@ -3454,6 +3456,8 @@ expected_types = {
     "ultrack_contour_sigma": float,
     "ultrack_n_workers": int,
     "timeflows_model": (str, type(None)),
+    "timepose_own_masks": bool,
+    "timepose_invert": bool,
     "timelapse_objects": list,
     "timelapse_lineage": bool,
     "timelapse_lineage_color_by": str,
@@ -5162,6 +5166,8 @@ tooltips = {
     "ultrack_max_distance": "(float) - The largest jump in pixels Ultrack will consider when linking an object in one frame to a candidate in the next; anything further apart is never joined, so the track breaks instead. Raise it for fast-moving or sparsely sampled cells, lower it on crowded fields where a generous radius invites identity swaps. Only consulted when timelapse_mode='ultrack'. Default 25.0.",
     "ultrack_division_weight": "(float) - Cost the Ultrack solver pays to split one track into two daughters; the value is negative and the more negative it is the more readily divisions are accepted. Make it less negative when a replication assay over-calls divisions on touching cells, more negative when real division events are being missed. Only consulted when timelapse_mode='ultrack'. Default -0.1.",
     "ultrack_contour_sigma": "(float) - Standard deviation of the Gaussian blur applied while turning the segmentation labels into the contour map Ultrack builds its candidate objects from. Zero keeps the boundaries exactly as Cellpose drew them; one to four softens them so the joint solver is free to redraw boundaries between objects that were merged or split. Only consulted when timelapse_mode='ultrack'. Default 0.0.",
+    "timepose_own_masks": "(bool) - With timelapse_mode='timepose_v1', replace the masks spaCR segmented with Timepose's own segmentation before linking. Off links spaCR's masks. Default False.",
+    "timepose_invert": "(bool) - With timelapse_mode='timepose_v1', invert the image intensities before Timepose reads them. Turn on for brightfield, phase-contrast and DIC movies; leave off for fluorescence. Default False.",
     "timeflows_model": "(str) - Path to a trained Timeflows checkpoint, spaCR's experimental temporal Cellpose that predicts where each object's centre moves in the next frame and links masks from those predictions. Only consulted when timelapse_mode='timeflows', which is never the default: on held-out movies measured so far it does not beat overlap linking ('iou'). No checkpoint is downloaded; leave empty unless you trained one. Default None.",
     "ultrack_n_workers": "(int) - How many worker processes Ultrack runs during its candidate-segmentation and linking passes; they all write into the same temporary sqlite store, so extra workers cut wall-clock on long movies but add database contention and memory. Leave it at one for short batches or a busy machine. Only consulted when timelapse_mode='ultrack'. Default 1.",
     "timelapse_frame_limits": "(list) - Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
@@ -5521,7 +5527,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timepose_own_masks', 'timepose_invert', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -7408,6 +7414,12 @@ ALPHA_FEATURES = {
     426: {
         'settings': ('timeflows_model',),
         'choices': {'timelapse_mode': ('timeflows',)},
+    },
+    711: {
+        'settings': ('timepose_own_masks', 'timepose_invert'),
+        'choices': {'timelapse_mode': ('timepose_v1',)},
+        'models': ('timepose_v1',),
+        'widgets': ('TimelapseTimeposeNote',),
     },
     493: {
         'settings': ('mask_parallel', 'mask_gpu_indices'),

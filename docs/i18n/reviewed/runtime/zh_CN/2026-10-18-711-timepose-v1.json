@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review_method": "Direct translation of the two Timepose v1 (alpha) Timelapse settings and the preview note added for item 711. Preserve timelapse_mode, timepose_v1, spaCR, Timepose, Hugging Face, DIC and False.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timepose_invert",
+      "source": "Timepose invert",
+      "source_sha256": "74bdc242792900cf046acfe85fe6923266b4ee1a805d96680a303bce2795350d",
+      "translation": "Timepose 反转"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timepose_own_masks",
+      "source": "Timepose own masks",
+      "source_sha256": "4367b1b9ec6d42e8fdef472f48f69cab0ab3fc1fafc32dc7f5cd42c5f2ec2be7",
+      "translation": "Timepose 自有掩膜"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_invert",
+      "source": "With timelapse_mode='timepose_v1', invert the image intensities before Timepose reads them. Turn on for brightfield, phase-contrast and DIC movies; leave off for fluorescence. Default False.",
+      "source_sha256": "ff107161f82b8c6e1017d359efa3d920e61a075df829d2beca777aadb716d66d",
+      "translation": "当 timelapse_mode='timepose_v1' 时，在 Timepose 读取图像之前反转图像强度。明场、相差和 DIC 影片请开启；荧光影片请保持关闭。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_own_masks",
+      "source": "With timelapse_mode='timepose_v1', replace the masks spaCR segmented with Timepose's own segmentation before linking. Off links spaCR's masks. Default False.",
+      "source_sha256": "04c1d4704b2bb471d6e30e3921279da779850b19f80203b55186204cdd537c3f",
+      "translation": "当 timelapse_mode='timepose_v1' 时，在链接之前用 Timepose 自己的分割替换 spaCR 分割得到的掩膜。关闭时链接 spaCR 的掩膜。默认值 False。"
+    },
+    {
+      "table": "ui",
+      "key": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source_sha256": "3d007207093b0dbc637a8da1e99cc7257e9031eab3a98ad1aacb2d2bb83b8a32",
+      "translation": "Timepose v1（alpha）在完整的 Timelapse 运行中进行追踪。请在设置中将 timelapse_mode 设为 timepose_v1。它需要一个有权访问其私有模型的 Hugging Face 账户，因此本预览不提供该选项。"
+    }
+  ]
+}
