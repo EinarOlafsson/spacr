@@ -1788,6 +1788,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **figure_workspace_arrivals}
+    # 2026-10-18 item 712: the timelapse test movies' download, folder and
+    # loader in make_masks_demo and the archive checksum pin in
+    # example_archives; one named contract.
+    timelapse_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "712_timelapse_test_data_api_arrivals_2026-10-18.json").read_text())
+    assert set(timelapse_arrivals) == {
+        "spacr.example_archives.check_archive_sha256",
+        *("spacr.qt.make_masks_demo." + name for name in (
+            "download_timelapse_example", "load_the_timelapse_test_data",
+            "timelapse_example_folder")),
+    }
+    assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
+    assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text())
     help_arrivals = help_changes["added"]

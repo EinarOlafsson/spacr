@@ -2722,7 +2722,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
-                     "180_session_figure_api_arrivals_2026-10-15.json"):
+                     "180_session_figure_api_arrivals_2026-10-15.json",
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -4617,6 +4618,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+        ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text())
@@ -5121,7 +5123,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
-                     "180_session_figure_api_arrivals_2026-10-15.json"):
+                     "180_session_figure_api_arrivals_2026-10-15.json",
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -5185,7 +5188,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "699_ssh_connection_worker_api_arrival_2026-10-14.json",
                      "reviewed_api_surface_arrivals_2026-10-15.json",
                      "561_classifier_api_arrivals_2026-10-15.json",
-                     "180_session_figure_api_arrivals_2026-10-15.json"):
+                     "180_session_figure_api_arrivals_2026-10-15.json",
+                     "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

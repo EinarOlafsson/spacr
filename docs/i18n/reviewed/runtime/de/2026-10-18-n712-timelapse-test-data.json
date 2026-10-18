@@ -1,0 +1,64 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Timelapse: yeast",
+      "source": "Timelapse: yeast",
+      "source_sha256": "ec2b6ee86c68758e80d42bc07005129f6d3ebb23c61d0e0db6916ab2ac483c1d",
+      "table": "ui",
+      "translation": "Zeitreihe: Hefe"
+    },
+    {
+      "key": "Timelapse: bacteria",
+      "source": "Timelapse: bacteria",
+      "source_sha256": "f8111fe4241dc76e5908fac13d433d9877113f9532b34d774354d0be705f5be3",
+      "table": "ui",
+      "translation": "Zeitreihe: Bakterien"
+    },
+    {
+      "key": "Timelapse: mammalian",
+      "source": "Timelapse: mammalian",
+      "source_sha256": "85b3022d653e6b25968830c08fa7e9181feb07b985b8f12617f94c67ffce5b8d",
+      "table": "ui",
+      "translation": "Zeitreihe: Säugetierzellen"
+    },
+    {
+      "key": "Download a budding yeast colony timelapse (about 70 MB, 81 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and buds across frames. Cached after the first download.",
+      "source": "Download a budding yeast colony timelapse (about 70 MB, 81 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and buds across frames. Cached after the first download.",
+      "source_sha256": "26426ec320ec388ebc1e76d6b237c5f0b660ff207677f7d48312ae7f83fb44e9",
+      "table": "ui",
+      "translation": "Eine Zeitreihe einer knospenden Hefekolonie herunterladen (etwa 70 MB, 81 Einzelbilder, CC BY 4.0) und mit geladenen Masken und Abstammung öffnen. Zeit einschalten, um Zellen und Knospen über die Einzelbilder zu verfolgen. Nach dem ersten Herunterladen zwischengespeichert."
+    },
+    {
+      "key": "Download a dividing bacterial microcolony timelapse (about 56 MB, 60 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and divisions across frames. Cached after the first download.",
+      "source": "Download a dividing bacterial microcolony timelapse (about 56 MB, 60 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and divisions across frames. Cached after the first download.",
+      "source_sha256": "c724e0c843c4d5e87ab2a36630c3fe2b8a4ca2fb21e9e611f86964edf28d3cba",
+      "table": "ui",
+      "translation": "Eine Zeitreihe einer sich teilenden Bakterien-Mikrokolonie herunterladen (etwa 56 MB, 60 Einzelbilder, CC BY 4.0) und mit geladenen Masken und Abstammung öffnen. Zeit einschalten, um Zellen und Teilungen über die Einzelbilder zu verfolgen. Nach dem ersten Herunterladen zwischengespeichert."
+    },
+    {
+      "key": "Download a timelapse of migrating, dividing human cells (about 78 MB, 37 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and divisions across frames. Cached after the first download.",
+      "source": "Download a timelapse of migrating, dividing human cells (about 78 MB, 37 frames, CC BY 4.0) and open it with its masks and lineage loaded. Turn on Time to follow cells and divisions across frames. Cached after the first download.",
+      "source_sha256": "0efc2c79237c9c8fa809c185a3f2fcc066c9b00498afd0dfb5ab3a1f32e56f1d",
+      "table": "ui",
+      "translation": "Eine Zeitreihe wandernder, sich teilender menschlicher Zellen herunterladen (etwa 78 MB, 37 Einzelbilder, CC BY 4.0) und mit geladenen Masken und Abstammung öffnen. Zeit einschalten, um Zellen und Teilungen über die Einzelbilder zu verfolgen. Nach dem ersten Herunterladen zwischengespeichert."
+    },
+    {
+      "key": "Downloading the Make Masks timelapse test data",
+      "source": "Downloading the Make Masks timelapse test data",
+      "source_sha256": "7b7e53d69fac589dfcd1eea09a22880fa692a8eaae21440b21c6acc1348f1521",
+      "table": "ui",
+      "translation": "Zeitreihen-Testdaten für Make Masks werden heruntergeladen"
+    },
+    {
+      "key": "Timelapse test data opened with its lineage. Turn on Time to follow cells and divisions across frames.",
+      "source": "Timelapse test data opened with its lineage. Turn on Time to follow cells and divisions across frames.",
+      "source_sha256": "20b2db69d14de091e0d608b30e0982f47575e4b09dcfaf686e7bb7ab13e35b05",
+      "table": "ui",
+      "translation": "Zeitreihen-Testdaten mit ihrer Abstammung geöffnet. Zeit einschalten, um Zellen und Teilungen über die Einzelbilder zu verfolgen."
+    }
+  ],
+  "review": "Item 712 Make Masks timelapse test data: the three Load test data menu entries (yeast, bacteria, mammalian), their download tooltips, the progress title and the status line after opening. 'Time' names the Make Masks Time toggle and keeps that button's translation; sizes, frame counts and CC BY 4.0 are literal.",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "schema": 1
+}

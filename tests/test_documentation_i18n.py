@@ -3531,6 +3531,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+        ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text())

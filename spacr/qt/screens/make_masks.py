@@ -13657,7 +13657,9 @@ class MakeMasksScreen(QWidget):
         Toxoplasma test data, as it always did
         (:func:`spacr.qt.make_masks_demo.load_the_test_data`), and its arrow
         opens a menu offering the test data again, the TEM test data
-        (:func:`spacr.qt.make_masks_demo.load_the_tem_test_data`), and a sample of
+        (:func:`spacr.qt.make_masks_demo.load_the_tem_test_data`), the
+        yeast, bacteria and mammalian timelapse movies with their lineage
+        (:func:`spacr.qt.make_masks_demo.load_the_timelapse_test_data`), and a sample of
         each training dataset a published model was trained on
         (:func:`spacr.qt.make_masks_datasets.open_a_training_dataset`). It
         replaces the separate "Training datasets…" button, so the screen
@@ -13669,7 +13671,8 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
         from .. import make_masks_datasets as datasets
         from ..make_masks_demo import (load_the_fibsem_test_data,
-                                       load_the_tem_test_data, load_the_test_data)
+                                       load_the_tem_test_data, load_the_test_data,
+                                       load_the_timelapse_test_data)
 
         button = _SplitMenuButton(tr("Load test data…"), self)
         button.setObjectName("MakeMasksTestDataButton")
@@ -13718,6 +13721,36 @@ class MakeMasksScreen(QWidget):
         action.triggered.connect(
             lambda _checked=False: load_the_fibsem_test_data(self, with_masks=True))
         self._test_data_actions["fibsem_masks"] = action
+        action = menu.addAction(tr("Timelapse: yeast"))
+        action.setObjectName("MakeMasksTimelapseYeastTestData")
+        action.setToolTip(tr(
+            "Download a budding yeast colony timelapse (about 70 MB, 81 "
+            "frames, CC BY 4.0) and open it with its masks and lineage "
+            "loaded. Turn on Time to follow cells and buds across frames. "
+            "Cached after the first download."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_timelapse_test_data(self, "yeast"))
+        self._test_data_actions["timelapse_yeast"] = action
+        action = menu.addAction(tr("Timelapse: bacteria"))
+        action.setObjectName("MakeMasksTimelapseBacteriaTestData")
+        action.setToolTip(tr(
+            "Download a dividing bacterial microcolony timelapse (about 56 MB, "
+            "60 frames, CC BY 4.0) and open it with its masks and lineage "
+            "loaded. Turn on Time to follow cells and divisions across frames. "
+            "Cached after the first download."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_timelapse_test_data(self, "bacteria"))
+        self._test_data_actions["timelapse_bacteria"] = action
+        action = menu.addAction(tr("Timelapse: mammalian"))
+        action.setObjectName("MakeMasksTimelapseMammalianTestData")
+        action.setToolTip(tr(
+            "Download a timelapse of migrating, dividing human cells (about "
+            "78 MB, 37 frames, CC BY 4.0) and open it with its masks and "
+            "lineage loaded. Turn on Time to follow cells and divisions across "
+            "frames. Cached after the first download."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_timelapse_test_data(self, "mammalian"))
+        self._test_data_actions["timelapse_mammalian"] = action
         menu.addSeparator()
         for dataset in datasets.datasets_for("mask"):
             action = menu.addAction(tr("Training dataset: {name}",
