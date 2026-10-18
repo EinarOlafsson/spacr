@@ -63,6 +63,22 @@ class _WrappedLabel(QLabel):
         super().setText(text)
         self.setFixedSize(self._wrap_width, self._wrapped_height())
 
+    def changeEvent(self, event) -> None:
+        """Re-measure the wrapped height when the font or style changes.
+
+        A larger interface font wraps the same sentence onto more lines; the
+        fixed height is recomputed here rather than waiting for a new text.
+
+        :param event: the Qt change event.
+        """
+        super().changeEvent(event)
+        from PySide6.QtCore import QEvent
+
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange):
+            height = self._wrapped_height()
+            if self.height() != height:
+                self.setFixedSize(self._wrap_width, height)
+
 
 class EmptyState(QWidget):
     """Centered vertical stack: icon → title → subtitle → CTA button.
