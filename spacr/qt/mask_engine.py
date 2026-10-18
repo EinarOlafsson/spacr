@@ -2782,14 +2782,17 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         size = pixel_size_nm(os.path.join(folder, filename))
-        description = json.dumps({"spacr_mask": metadata}, ensure_ascii=True, allow_nan=False)
+        resolution = _resolution_for(size)
+        description_metadata = resolution.pop("metadata", {})
+        description_metadata.update(shape=labels.shape, spacr_mask=metadata)
+        description = json.dumps(description_metadata, ensure_ascii=True, allow_nan=False)
         descriptor, temporary = tempfile.mkstemp(
             prefix=".spacr-mask-", suffix=".tif", dir=os.path.dirname(save_path))
         os.close(descriptor)
         try:
             write_tiff(temporary, labels, metadata=None, description=description,
                        bigtiff=labels.nbytes + len(description) >= 2**32 - 2**25,
-                       **_resolution_for(size))
+                       **resolution)
             with open(temporary, "rb") as handle:
                 os.fsync(handle.fileno())
             if os.path.isfile(save_path):

@@ -5,7 +5,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Signal  # noqa: E402
+from PySide6.QtCore import QEvent, QObject, Signal  # noqa: E402
+from PySide6.QtWidgets import QApplication  # noqa: E402
+from shiboken6 import isValid  # noqa: E402
 
 from spacr.qt.screens import plate_view as pv  # noqa: E402
 
@@ -99,3 +101,27 @@ def test_busy_holds_until_the_latest_job_settles(qtbot, held):
     _settle(held, 1)
     qtbot.waitUntil(lambda: applied == [1], timeout=3000)
     assert screen.is_busy() is False
+
+
+@pytest.mark.parametrize("failed", (False, True))
+def test_a_worker_outliving_its_screen_drops_late_signals(qtbot, held, failed):
+    """A real Qt worker signal is harmless after its target QObject is gone."""
+    screen = pv.PlateViewScreen(threaded=True)
+    qtbot.addWidget(screen)
+    applied = []
+    _submit(screen, applied, 1)
+    worker = held[0][2]
+    settled = []
+    worker.finished.connect(settled.append)
+
+    screen.deleteLater()
+    QApplication.sendPostedEvents(screen, QEvent.DeferredDelete)
+    assert not isValid(screen)
+    assert isValid(worker)
+
+    _settle(held, 0, ok=not failed,
+            error="ValueError: late failure" if failed else None)
+    qtbot.wait(20)
+
+    assert settled == [not failed]
+    assert applied == []

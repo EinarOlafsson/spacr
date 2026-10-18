@@ -77,7 +77,7 @@ from PySide6.QtWidgets import (
 
 from ... import plate_qc as pqc
 from ...selection import DataFilter
-from ..bridge import make_thread
+from ..bridge import emit_safely, make_thread
 from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Card, Divider
@@ -1401,8 +1401,10 @@ class PlateViewScreen(LinkedView, QWidget):
         if supersedes:
             self._latest_job[supersedes] = job_id
         self._pending.append((job_id, box, on_done, supersedes))
-        worker.error.connect(lambda text, _j=job_id: self._job_failed.emit(text, _j))
-        worker.finished.connect(lambda ok, _j=job_id: self._job_settled.emit(ok, _j))
+        worker.error.connect(
+            lambda text, _j=job_id: emit_safely(self._job_failed, text, _j))
+        worker.finished.connect(
+            lambda ok, _j=job_id: emit_safely(self._job_settled, ok, _j))
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()

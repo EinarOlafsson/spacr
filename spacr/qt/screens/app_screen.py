@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .. import _after
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
@@ -7308,7 +7309,7 @@ class AppScreen(QWidget):
             if build is None:
                 return False
             stepping[part] = self._owed_part_steps(part, build)
-            QTimer.singleShot(0, self, partial(self._step_owed_part, part))
+            _after(0, self, partial(self._step_owed_part, part))
         if then is not None:
             thens = self.__dict__.get("_parts_then")
             if thens is None:
@@ -7333,7 +7334,7 @@ class AppScreen(QWidget):
             LOG.exception("could not build the deferred %s", part)
             return
         stepping[part] = steps
-        QTimer.singleShot(0, self, partial(self._step_owed_part, part))
+        _after(0, self, partial(self._step_owed_part, part))
 
     def _after_part_is_built(self, part: str, callback) -> bool:
         """Run ``callback`` once ``part`` is built, if it is still owed.

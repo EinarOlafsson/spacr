@@ -13,7 +13,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QApplication
 
 from spacr.qt.screens import app_screen, regression
@@ -63,13 +63,55 @@ def test_the_first_press_builds_over_several_event_loop_turns(
 def test_a_reader_between_the_steps_gets_the_finished_part(
         qtbot, qt_theme_applied):
     screen, strip = _screen(qtbot)
+    finished = []
 
     qtbot.mouseClick(strip.button_for("hit_list"), Qt.LeftButton)
+    assert screen._build_owed_part_in_steps(PART, then=lambda: finished.append(1))
     QApplication.processEvents()
     assert screen._part_is_owed(PART)
+    assert finished == []
 
     assert screen._figures_split is not None
     assert not screen._part_is_owed(PART)
     panel = screen._results_panel
     assert panel.hits is not None
     assert panel.tabs.currentWidget() is panel.hits
+    assert finished == [1]
+    qtbot.wait(30)
+    assert finished == [1]
+    assert screen._results_panel_if_built() is panel
+
+
+@pytest.mark.parametrize("advance_first_step", (False, True))
+def test_a_deleted_screen_never_runs_its_queued_build_step(
+        qtbot, qt_theme_applied, monkeypatch, advance_first_step):
+    """Both the initial timer and its queued successor share screen lifetime."""
+    steps = []
+    real = AppScreen._step_owed_part
+
+    def counted(self, part):
+        steps.append(part)
+        return real(self, part)
+
+    monkeypatch.setattr(AppScreen, "_step_owed_part", counted)
+    screen, strip = _screen(qtbot)
+    screen._usage_timer.stop()
+    screen._usage_jobs.shutdown()
+    screen._jobs.shutdown()
+    qtbot.mouseClick(strip.button_for("hit_list"), Qt.LeftButton)
+    if advance_first_step:
+        QApplication.processEvents()
+        assert steps
+    else:
+        assert steps == []
+    assert screen._part_is_owed(PART)
+    before = steps.copy()
+    destroyed = []
+    screen.destroyed.connect(lambda: destroyed.append(True))
+
+    screen.deleteLater()
+    QApplication.sendPostedEvents(screen, QEvent.DeferredDelete)
+    assert destroyed == [True]
+    qtbot.wait(30)
+
+    assert steps == before
