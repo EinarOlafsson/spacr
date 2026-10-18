@@ -36,7 +36,9 @@
       "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
       "context": "Immutable calibrated processing configuration, safe to pass to workers.",
       "translation": "Óbreytanleg kvörðuð vinnslustilling, örugg til að senda vinnsluþráðum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#1",
@@ -76,7 +78,9 @@
       "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
       "context": "Process one spatial image with an explicit last image data channel axis.",
       "translation": "Vinna eina rúmfræðilega mynd með sérstaklega tilgreindum aftasta rásaás.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan.apply#1",
@@ -108,7 +112,9 @@
       "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
       "context": "Return JSON-safe identity of every scientifically relevant setting.",
       "translation": "Skila JSON-öruggu auðkenni hverrar vísindalega viðeigandi stillingar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#0",
@@ -116,7 +122,9 @@
       "source_sha256": "78bd44a4e983becfd25a2add09d6bb239e3a8bf7971e9b508bf7a65b74ebe9ca",
       "context": "Run ``chain`` over every channel of one YXC microscope field of view, strictly.",
       "translation": "Keyra ``chain`` yfir hverja rás eins YXC-sjónsviðs, stranglega.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#1",
@@ -156,7 +164,9 @@
       "source_sha256": "d71cf452f30968a7d649d6d66867c5b2ff0fd15e87f6dd7cedb796e3148116f4",
       "context": "Every ``enhance_*`` value the chain cannot run with, as ``(setting, message)``.",
       "translation": "Hvert ``enhance_*`` gildi sem keðjan getur ekki keyrt með, sem ``(setting, message)``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.chain_problems#1",
@@ -188,7 +198,9 @@
       "source_sha256": "7528bfbfe1ca8e9d961f3f2021d235b97679074a2d0963e6321829ee00e7beaf",
       "context": "The enhancement chain a processing session applies, read from its ``enhance_*`` settings.",
       "translation": "Aukningarkeðjan sem keyrsla beitir, lesin úr ``enhance_*`` stillingum hennar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_chain#1",
@@ -236,7 +248,9 @@
       "source_sha256": "8021585a712bee27b6910717266643dd30d94637ba46fe2a164d6133baa07ed9",
       "context": "Capture and validate an optional PSF before processing starts.",
       "translation": "Skrá og staðfesta valfrjálst PSF áður en vinnsla hefst.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_psf#1",
@@ -276,7 +290,9 @@
       "source_sha256": "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
       "context": "Whether these settings ask for a PSF or an enhancement step at all.",
       "translation": "Hvort þessar stillingar biðja yfirhöfuð um PSF eða aukningarskref.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#1",
@@ -312,7 +328,9 @@
       "source_sha256": "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
       "context": "Refuse V1 archive reuse after a PSF change or incomplete processing.",
       "translation": "Hafna endurnýtingu V1-skjalasafns eftir breytingu á PSF eða ófullkomna vinnslu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#1",

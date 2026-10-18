@@ -51,7 +51,9 @@
       "label": "spacr.predictions.crop_name_metadata#0",
       "source": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.",
       "source_sha256": "bbfaee94a5d5ceda2498128edf0825404ee9586b8ac36ff847567d983c2c8d86",
-      "translation": "Greindu nöfn skrárinnar spaCR fyrir útdregna myndasvæðið í þau gagnalausnarmerki ``prcfo`` sem eru byggð úr."
+      "translation": "Greindu nöfn skrárinnar spaCR fyrir útdregna myndasvæðið í þau gagnalausnarmerki ``prcfo`` sem eru byggð úr.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",

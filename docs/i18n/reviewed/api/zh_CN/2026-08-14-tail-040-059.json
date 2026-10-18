@@ -129,7 +129,9 @@
       "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
       "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
       "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
-      "translation": "把显微镜视野堆栈分批交给 Cellpose，然后将掩模图像数据通道追加到同一批 npy 文件。"
+      "translation": "把显微镜视野堆栈分批交给 Cellpose，然后将掩模图像数据通道追加到同一批 npy 文件。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#3",

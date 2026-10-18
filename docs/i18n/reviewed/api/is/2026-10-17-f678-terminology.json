@@ -5668,7 +5668,9 @@
       "label": "spacr.intensity_rescale.resolve_record#0",
       "source": "Resolve and verify one worker's record against the precomputed plan.",
       "source_sha256": "7d865939881d20dace5c6127b990f785957ddbcf7db4323c48dfbd21a352296d",
-      "translation": "Að leysa og athuga rekstri einn vinnsluferli gegn fyrirþekktri kerfi."
+      "translation": "Að leysa og athuga rekstri einn vinnsluferli gegn fyrirþekktri kerfi.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "field filename used to locate its planned record.",
@@ -6037,7 +6039,9 @@
       "label": "spacr.layers.FieldKey.columns#0",
       "source": "The key columns a field key of this flavour needs, label excluded.",
       "source_sha256": "65384167e4222ae44e03e0843824225de1d1cf188fe106291d868a118e11563d",
-      "translation": "Einn skilaboðskálum er svæðisnúmingu-data-nafn þessara vöru þörf, merki er nefnd."
+      "translation": "Einn skilaboðskálum er svæðisnúmingu-data-nafn þessara vöru þörf, merki er nefnd.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The same rays (:class:`VolumeRays`), the same layer model, renderings, finishes and lens, so a frame drawn here matches the CPU's to within 8-bit rounding and picks the same objects. Each fragment walks one ray; image layers add up, labels layers are laid over them, and a last pass writes the object nearest the viewer under each pixel for picking.",
@@ -6051,7 +6055,9 @@
       "label": "spacr.layers.ImageLayer#0",
       "source": "Intensity data — one channel or many, each with its own LUT.",
       "source_sha256": "93f377fc4c43118461dd38b69e030a8596392d1750b68638f4875c7f368fab6c",
-      "translation": "Intensity data — einn rás eða mörg, hver með eigin LUT."
+      "translation": "Intensity data — einn rás eða mörg, hver með eigin LUT.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the pixel array, image data channels included.",
@@ -6107,21 +6113,27 @@
       "label": "spacr.layers.ImageLayer.auto_contrast#0",
       "source": "Recompute every channel's limits from the data.",
       "source_sha256": "79e865334d14e13ad20cebdf1b4e003caddac7b02f3f7f9ddc33a5d61d4d16b6",
-      "translation": "Hættu að endurkomu grænsernar á hverjum rás frá gögnum."
+      "translation": "Hættu að endurkomu grænsernar á hverjum rás frá gögnum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The spatial array for one image data channel (a view, not a copy).",
       "label": "spacr.layers.ImageLayer.channel_data#0",
       "source": "The spatial array for one channel (a view, not a copy).",
       "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "translation": "Áhugbúnaður fyrir einn rás (sýning, ekki kopi)."
+      "translation": "Áhugbúnaður fyrir einn rás (sýning, ekki kopi).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What each channel is called, in channel order.",
       "label": "spacr.layers.ImageLayer.channel_names#0",
       "source": "What each channel is called, in channel order.",
       "source_sha256": "2d836c0e2be9f617560c17d85cdbf9a98b7357b1addfbb63e7f1a440cee80550",
-      "translation": "Það sem hvert rás er kallað, í aðgerðum rás."
+      "translation": "Það sem hvert rás er kallað, í aðgerðum rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one name per channel.",
@@ -6135,7 +6147,9 @@
       "label": "spacr.layers.ImageLayer.colormap#0",
       "source": "Channel 0's LUT — the one a single-channel layer has. Set the FIRST channel's colormap.",
       "source_sha256": "0631e40096d40448d8eecdef8a37100240e835a0b839858e8c664d05b1cc80c9",
-      "translation": "Rás 0 LUT — það sem einkanna lágurinn hefur. Set upp litrarkarta fyrstu rás."
+      "translation": "Rás 0 LUT — það sem einkanna lágurinn hefur. Set upp litrarkarta fyrstu rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The convenience spelling for the single-channel case, which is most of them; :meth:`set_colormap` names the channel when there is more than one.",
@@ -6149,21 +6163,27 @@
       "label": "spacr.layers.ImageLayer.colormaps#0",
       "source": "One colormap per channel, in channel order.",
       "source_sha256": "dadb71727493c62ed16f0ec351ba821e83b07c2794a18fc92b3f3e86255b6e08",
-      "translation": "Einn litur á rás, í reglu rás."
+      "translation": "Einn litur á rás, í reglu rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The pixel array, image data channels included.",
       "label": "spacr.layers.ImageLayer.data#0",
       "source": "The pixel array, channels included.",
       "source_sha256": "059876f8217b9e90d475ade458266b86bf78612746741f5a246d1b780ca10f94",
-      "translation": "Pixel áreiðan, rásir sem eru inniheldur."
+      "translation": "Pixel áreiðan, rásir sem eru inniheldur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many image data channels this image carries.",
       "label": "spacr.layers.ImageLayer.n_channels#0",
       "source": "How many channels this image carries.",
       "source_sha256": "bdab2b2d501ec11bc711f963e22e4ddf5fbbf1325fe48834e29c72343be89b3f",
-      "translation": "Hversu mörg rás þessi mynd bjarga."
+      "translation": "Hversu mörg rás þessi mynd bjarga.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the channel count.",
@@ -6177,28 +6197,36 @@
       "label": "spacr.layers.ImageLayer.ndim#0",
       "source": "How many SPATIAL axes this image has, excluding channels.",
       "source_sha256": "c2ab21e270d2b2e1345e4e211dec4701c3a54d33d6f2c41af8a2cdcbc6f0da75",
-      "translation": "Hversu mörg SPATIAL axes þessi mynd hefur, nema rás."
+      "translation": "Hversu mörg SPATIAL axes þessi mynd hefur, nema rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Give one channel a new LUT.",
       "label": "spacr.layers.ImageLayer.set_colormap#0",
       "source": "Give one channel a new LUT.",
       "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "translation": "Geta einn rás nýja LUT."
+      "translation": "Geta einn rás nýja LUT.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set one channel's limits.",
       "label": "spacr.layers.ImageLayer.set_contrast_limits#0",
       "source": "Set one channel's limits.",
       "source_sha256": "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
-      "translation": "Settu takmörk á einum rás."
+      "translation": "Settu takmörk á einum rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The spatial shape, excluding channels.",
       "label": "spacr.layers.ImageLayer.shape#0",
       "source": "The spatial shape, excluding channels.",
       "source_sha256": "84ea2070b9e753b1de8ba8fb11946abe29e55527e1a41a95b1b5d80c24e27be2",
-      "translation": "Hugbúnaður, nema rás."
+      "translation": "Hugbúnaður, nema rás.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the new label array.",
@@ -6268,7 +6296,9 @@
       "label": "spacr.layers.render_volume#0",
       "source": "Draw 3-D image and labels layers along parallel rays, as napari does.",
       "source_sha256": "bcc9598a66ed23fa8b4f7e75ebaf0d7ebe2500bcebfbe842941ef22fee1cb835",
-      "translation": "Takið 3D mynd og merki hliðar langs viðbótar strákur, eins og napari gerir."
+      "translation": "Takið 3D mynd og merki hliðar langs viðbótar strákur, eins og napari gerir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build cell → nucleus → pathogen object trees from measurement tables.",
@@ -6436,14 +6466,18 @@
       "label": "spacr.logging_util.apply_level_policy#0",
       "source": "Re-gate the live handlers from the Preferences switches.",
       "source_sha256": "758f25f7ee93712274798611913345e39f6146cf4369ce3c303be531d38885ab",
-      "translation": "Re-data-gate takmarkaði lifandi viðskiptavini frá Preferences svítum."
+      "translation": "Re-data-gate takmarkaði lifandi viðskiptavini frá Preferences svítum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One recorded run: what ran, on what, under which id.",
       "label": "spacr.macro.MacroStep#0",
       "source": "One recorded run: what ran, on what, under which id.",
       "source_sha256": "77d6cf0ab6b353b910d69998fde43de1136a61815d93b0d7206897045581d055",
-      "translation": "Einn skráður keyrsla: hvað keyra, á hvað, undir hvaða id."
+      "translation": "Einn skráður keyrsla: hvað keyra, á hvað, undir hvaða id.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Resolved *textually*. Rendering a script must not import Cellpose, Torch and pandas to find out what a name is, and a recorder that imported the workflow it was describing would turn a cheap write into a several-second stall at the end of every processing session.",
@@ -6883,7 +6917,9 @@
       "label": "spacr.merge_tables.reduce_dimensions#0",
       "source": "Reduce many measurements to a few, for gating in xD.",
       "source_sha256": "7ec47a592d0675779fd689abd3d0b2bda271d670215f76330e5fdbdceccfcf3e",
-      "translation": "Að minnka mörgum mótum á nokkrum, fyrir gate með filtingu í xD."
+      "translation": "Að minnka mörgum mótum á nokkrum, fyrir gate með filtingu í xD.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Data-selection filtering in more dimensions than can be drawn means drawing something else: a projection. The components come back as ordinary columns (``PC1``, ``PC2``, ...), so every existing data-selection boundary tool works on them unchanged -- a data-selection boundary on PC1 vs PC2 is the same kind of object as a data-selection boundary on area vs intensity, and saves, re-applies and exports identically.",
@@ -6911,7 +6947,9 @@
       "label": "spacr.metadata_resolution.clear_run_metadata_decisions#0",
       "source": "Clear remembered prompt answers (primarily for tests/new runs).",
       "source_sha256": "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8",
-      "translation": "Hugsanlega minntast snemma svör (sérstaklega fyrir prófa / nýja keyrsla)."
+      "translation": "Hugsanlega minntast snemma svör (sérstaklega fyrir prófa / nýja keyrsla).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The model therefore never sees the data. It sees a **processing-session digest**: a structured record of the modules that ran, the parameters they ran with, the counts, the versions, the QC verdicts and the statistics *already computed* by the rest of spaCR. It writes prose around those numbers, and then:",
@@ -7195,7 +7233,9 @@
       "label": "spacr.model_check.expected_channels#0",
       "source": "How many image channels this dataset will hand the model.",
       "source_sha256": "4ecb9bee7a0f8f53b3bd1d1f59928cb0b1e4d5ba05475c572b15948020bf5c5a",
-      "translation": "Hversu mörg rás þessi gögn setur mun veita myndavélina."
+      "translation": "Hversu mörg rás þessi gögn setur mun veita myndavélina.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "classification settings containing channel declarations.",
@@ -7251,7 +7291,9 @@
       "label": "spacr.model_compare.ComparisonReport.n_both_empty#0",
       "source": "Fields where neither model found anything — trivial agreement.",
       "source_sha256": "32c7814caa29babc72cad6b0a2e0de4c09c7893daeb03cfc193dcacaf1ec9a95",
-      "translation": "Reiturinn þar sem enginn móður fann ekkert - þrífandi samning."
+      "translation": "Reiturinn þar sem enginn móður fann ekkert - þrífandi samning.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the field count.",
@@ -7300,14 +7342,18 @@
       "label": "spacr.model_zoo.BenchmarkResult.n_failed#0",
       "source": "Fields :mod:`spacr.seg_qc` scored ``'fail'``.",
       "source_sha256": "63901ee69e613e38202aa90eb35cde410c9f1fa8a6e4c608405acfac70610bfa",
-      "translation": "Reiturinn :mod:`spacr.seg_qc` er ritað ``'fail'``."
+      "translation": "Reiturinn :mod:`spacr.seg_qc` er ritað ``'fail'``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One field's result for one model.",
       "label": "spacr.model_zoo.FieldBenchmark#0",
       "source": "One field's result for one model.",
       "source_sha256": "089267520ab09a8620f673a4f9e4bf71c0ac10c03af6b4899b10bef91bd1f75d",
-      "translation": "Einn reitur er niðurstöður fyrir einum tölvu."
+      "translation": "Einn reitur er niðurstöður fyrir einum tölvu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "whatever numbers came with it — for a machine-learning classification model, the best/last epoch metrics :func:`spacr.train_compare.load_run` recovered. Excluded from equality: two records of the same bytes are the same model whether or not somebody attached numbers to one of them.",
@@ -7342,7 +7388,9 @@
       "label": "spacr.model_zoo.fieldset_id#0",
       "source": "A stable id for a set of fields, taken from the **pixels**.",
       "source_sha256": "62b52fac206e4d10e67170c16e902b4eb93bb290dce06672f82bd7312d1dc06e",
-      "translation": "Stable ID fyrir setur reitir, tekið frá **pixelum**."
+      "translation": "Stable ID fyrir setur reitir, tekið frá **pixelum**.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "benchmarks, from any number of field sets.",
@@ -7363,7 +7411,9 @@
       "label": "spacr.model_zoo.mitonet_weights#0",
       "source": "The MitoNet v1 mini weights on this machine, downloaded on first use.",
       "source_sha256": "40150ccfd5fd9e33647cdb9bf41fc170ad4427fcaf42a3ad81764cadb4743509",
-      "translation": ". MitoNet v1 lítill vægi á þessari vél, sótt í fyrstu notkun."
+      "translation": ". MitoNet v1 lítill vægi á þessari vél, sótt í fyrstu notkun.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "fetch the weights when no verified copy is here.",
@@ -7384,7 +7434,9 @@
       "label": "spacr.model_zoo.rank#0",
       "source": "Order benchmarks best-first — **within one field set only**.",
       "source_sha256": "733801703a6c71ba83a9a2d82a0275ef091d6a6b02e67f46b845c6425c7b0da8",
-      "translation": "Bestu bestu - **in einn reitur sett aðeins**."
+      "translation": "Bestu bestu - **in einn reitur sett aðeins**.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A model's numbers on your three fields say nothing about its numbers on somebody else's: different cell density, different exposure, different magnification. Sorting results from two field sets into one list would produce a ranking that looks valid but compares unrelated numbers, so this function raises instead.",
@@ -7461,7 +7513,9 @@
       "label": "spacr.multi_database.MergePlan.screens#0",
       "source": "Every screen this merge would produce, in sorted order.",
       "source_sha256": "fdf5304d99231d763bf5bb893a51d3ce5f22d8456bfcb22d06f445b85a91ac3e",
-      "translation": "Hver skimun þessi samskipti myndi framleiða, í röngum orðum."
+      "translation": "Hver skimun þessi samskipti myndi framleiða, í röngum orðum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "sorted distinct canonical ``(screenID, plateID)`` identities contributed after applying the screen override or stored screen values.",
@@ -7482,7 +7536,9 @@
       "label": "spacr.multi_database.SourceSummary.odd_plates#0",
       "source": "Stored plate ids whose spelling is not the canonical one.",
       "source_sha256": "ecb5e72984bc44f5390ab98a58d5fd46ebc7ebfa05f0ecc993a7085ff3a6617c",
-      "translation": "Saldt plata IDs sem spila er ekki kanónískt."
+      "translation": "Saldt plata IDs sem spila er ekki kanónískt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Reads only sqlite metadata and the distinct plate ids, so this is cheap enough to run while the user is still choosing files.",
@@ -7503,7 +7559,9 @@
       "label": "spacr.multi_database.normalise_plate_ids#0",
       "source": "Collapse a doubled ``p`` prefix in every column that carries a plate.",
       "source_sha256": "a141c1218ceeb8190d5dc0b4974989d75795714fa76971f8b613f1f206e30f2a",
-      "translation": "Skilja duplicated ``p`` staðsetningu í hverjum stólum sem bori mikróplata í plötunni."
+      "translation": "Skilja duplicated ``p`` staðsetningu í hverjum stólum sem bori mikróplata í plötunni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "on a within-screen plate collision under ``on_collision='refuse'``, or an unknown option.",
@@ -7566,7 +7624,9 @@
       "label": "spacr.multiple_testing.method_label#0",
       "source": "Human-readable label for ``method``.",
       "source_sha256": "5426e6ebfcafcde22f69286ba47ea86944eb4022313db22ad1427cf9778879e2",
-      "translation": "Hægt að lesa merki fyrir ``method``."
+      "translation": "Hægt að lesa merki fyrir ``method``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Label values survive exactly.** Label 41 comes back as 41 and not as 1, not renumbered, not relabelled by connectivity. :func:`to_spacr_mask` casts back to spaCR's ``uint16`` mask convention (:func:`spacr.mask_io.save_mask`) and **refuses** a label that would not fit rather than letting it wrap — ``np.uint16(70000)`` is ``4464`` without a warning, which would silently assign the cell a different label.",
@@ -7580,7 +7640,9 @@
       "label": "spacr.napari_bridge.CorrectionResult.describe#0",
       "source": "One line, for a status bar and for the screen's log.",
       "source_sha256": "9a78cacce24e57e8e7932c195dc319194e1eda5bf5e4858d1234a353e9df7838",
-      "translation": "Einn rita, fyrir stöðu rita og fyrir skjá log."
+      "translation": "Einn rita, fyrir stöðu rita og fyrir skjá log.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "You do not need it to correct masks: spaCR's own Curate screen has a brush, a label picker and track curation, and records the same ledger. This bridge is for people who would rather work in napari.",
@@ -7636,7 +7698,9 @@
       "label": "spacr.nonparametric_fits.refuse#0",
       "source": "Why ``name`` cannot be run on data of this shape, or None.",
       "source_sha256": "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
-      "translation": "Hvers vegna ``name`` er ekki hægt að keyra á gögnum í þessari form, eða None."
+      "translation": "Hvers vegna ``name`` er ekki hægt að keyra á gögnum í þessari form, eða None.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when the method cannot be run on this shape -- with the reason, rather than returning an unusable fit.",
@@ -7865,7 +7929,9 @@
       "label": "spacr.ome_zarr.Axis.channel#0",
       "source": "Return a channel axis with no unit and a scale of 1.",
       "source_sha256": "745dbe20ccf418c95f864de79e5372358216a0ec7fc3eaf06a015a2efdebb898",
-      "translation": "Til baka rás axis með engin einkefni og skammt 1."
+      "translation": "Til baka rás axis með engin einkefni og skammt 1.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A channel axis gets no step, because a channel index is not a measurement and ``c: channel, 1/step`` reads like one.",
@@ -7886,7 +7952,9 @@
       "label": "spacr.ome_zarr.OmeZarrImage.channel_axis#0",
       "source": "The channel axis, or ``None``.",
       "source_sha256": "f615a9afe765d93c7b671f1ef2103a210f8e8c52788467b4a13901889f856f6c",
-      "translation": "Ásýni rás eða ``None``."
+      "translation": "Ásýni rás eða ``None``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Drawing a 200 px thumbnail of a 40k x 40k plate then decodes a 300 x 300 level instead of decimating the full one. The rule is \"coarsest that does not need upsampling\" — never return a level smaller than asked for while a bigger one exists, because upsampling to fill the request shows a blur where there is detail. If every level is smaller than ``size`` (a small image, a big request), the finest is returned.",
@@ -7977,7 +8045,9 @@
       "label": "spacr.omero.WellPosition.prc#0",
       "source": "Return spaCR's ``prc`` well key for this position on ``plate``.",
       "source_sha256": "c96b1a7a7998db85d589bfeeba91f9795f7a9cc0eee6874ca0e510cc443072be",
-      "translation": "Til baka spaCR ``prc`` brunnur keyfi fyrir þessa stöðu á ``plate``."
+      "translation": "Til baka spaCR ``prc`` brunnur keyfi fyrir þessa stöðu á ``plate``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when the host is missing, the port is not a usable TCP port, no credential was supplied, or a password was given with no user name to go with it.",
@@ -8068,7 +8138,9 @@
       "label": "spacr.omero.well_position#0",
       "source": "Map OMERO's 0-based ``(row, column)`` onto spaCR's well keys.",
       "source_sha256": "2ba3fba404a7dee48fa98e168859cd79e756d4e4c2041f02f5226dba7f997f50",
-      "translation": "Kartan OMERO er 0-baseð ``(row, column)`` á brunni keyfi spaCR."
+      "translation": "Kartan OMERO er 0-baseð ``(row, column)`` á brunni keyfi spaCR.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The three array operations OPS uses, run on a GPU when one is available.",
@@ -8082,7 +8154,9 @@
       "label": "spacr.ops_accel.accelerated_backends#0",
       "source": "Which backends can run here, best first, always ending in \"numpy\".",
       "source_sha256": "9f7376944e8e281bca81fa787515557a8a3710a42390467fc5ac617df061f258",
-      "translation": "Hvaða viðbót er hægt að keyra hér, best fyrst, alltaf lokið í \"numpy\"."
+      "translation": "Hvaða viðbót er hægt að keyra hér, best fyrst, alltaf lokið í \"numpy\".",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Always chunked. A microplate sample position can carry a hundred thousand nuclei, and the full distance matrix between two such sets is 40 GB -- more than the card and more than the host. Chunking the first set bounds the working set at ``chunk x M`` however large the microplate sample position is.",
@@ -8145,7 +8219,9 @@
       "label": "spacr.ops_cycles.sbs_mean_target#0",
       "source": "Turn one cycle's base channels into a single registration target.",
       "source_sha256": "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
-      "translation": "Svingja grundvallarrásair einra hjól í einn skráð markmið."
+      "translation": "Svingja grundvallarrásair einra hjól í einn skráð markmið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The maximum over channels is used, not the mean. A read is bright in exactly one channel per cycle -- that is what a base call is -- so averaging the four divides every spot by four and leaves the background where it was. The maximum keeps each spot at its own brightness whichever channel carried it.",
@@ -8187,7 +8263,9 @@
       "label": "spacr.ops_objects.WindowObject#0",
       "source": "One segmented object as one window saw it, in well-frame coordinates.",
       "source_sha256": "08b4f80df22b475747c74c178153d7ff1d70c30daa1083fce1dc720ade3fc71c",
-      "translation": "Einn segmenteð hlut sem einn gluggi sá það, í brunni ramma samskiptum."
+      "translation": "Einn segmenteð hlut sem einn gluggi sá það, í brunni ramma samskiptum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "row of the object's centroid, in well-frame pixels -- not window-frame. Matching across a seam compares centroids from two different windows, so they have to be in a frame both agree on.",
@@ -8208,7 +8286,9 @@
       "label": "spacr.ops_objects.objects_in_window#0",
       "source": "Turn one window's label image into well-frame observations.",
       "source_sha256": "c576b67a8a47a48b5c6105a7ce804d7cffec0f591cb1659f8a10f4762a22c1fc",
-      "translation": "Svingja skilaboð á einum gluggi í brunn-frame athygli."
+      "translation": "Svingja skilaboð á einum gluggi í brunn-frame athygli.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "where this label image sits in the microplate sample position.",
@@ -8278,7 +8358,9 @@
       "label": "spacr.ops_register.available_backends#0",
       "source": "Return the backends this machine can run, best first.",
       "source_sha256": "11bfa86682335412e77fa1ef4b7aee3506f6a6e08977b565dd2e1332b81ab480",
-      "translation": "Til baka bakgrundsins þessi vél er hægt að keyra, best fyrst."
+      "translation": "Til baka bakgrundsins þessi vél er hægt að keyra, best fyrst.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the field to place against it, the same shape.",
@@ -8341,7 +8423,9 @@
       "label": "spacr.ops_sample.average_over_cycles#0",
       "source": "Mean of one phenotype channel across cycles.",
       "source_sha256": "ea160edd692f48c71e9c41b52f4ff5e05940328ff114d53dc16c47df0ca83df2",
-      "translation": "Mean af einum fenotypu rás í gegnum hjól."
+      "translation": "Mean af einum fenotypu rás í gegnum hjól.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Phenotype channels are sampled \"at the same object ids\", and a phenotype measured in several cycles is several samples of one quantity -- so averaging raises its precision, exactly as averaging the Hoechst across microscope image fields does when they overlap.",
@@ -8397,7 +8481,9 @@
       "label": "spacr.ops_sbs.assign_reads_to_cells#0",
       "source": "Give each segmented cell the barcode its reads agree on.",
       "source_sha256": "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
-      "translation": "Gefðu hverjum segmentum frumum barkódinn sem lesendur hans samþykkir."
+      "translation": "Gefðu hverjum segmentum frumum barkódinn sem lesendur hans samþykkir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every cell that met the bar.",
@@ -8474,7 +8560,9 @@
       "label": "spacr.ops_sbs.extract_bases#0",
       "source": "Per-cycle, per-channel intensity at each peak.",
       "source_sha256": "e539d8e93ce0330db5ec34be5a7a2c68c6d44f2d11d835f2f8f4e824458af02b",
-      "translation": "Per-sykli, per-rás hjarta á hverri topp."
+      "translation": "Per-sykli, per-rás hjarta á hverri topp.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "ignore maxima below this. ``None`` keeps every local maximum and leaves the decision to the caller, which is the right default because the useful cutoff depends on the stain.",
@@ -8537,7 +8625,9 @@
       "label": "spacr.organelle_types.OrganelleType#0",
       "source": "One named preset: what it is, what it looks like, what to run.",
       "source_sha256": "d691883904916ae6a4d6398b80e50fee1007a58fb71e12a75abc143db77486ff",
-      "translation": "Einn nefndur preset: hvað það er, hvað það lítur út, hvað á að keyra."
+      "translation": "Einn nefndur preset: hvað það er, hvað það lítur út, hvað á að keyra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "how many slots. Zero is legal and means a run with no organelle at all -- most runs -- and returns an empty tuple.",
@@ -8579,7 +8669,9 @@
       "label": "spacr.parameter_sweep.be_polite#0",
       "source": "Lower the current worker's CPU, I/O, and OOM-kill priority.",
       "source_sha256": "eaf6667145e67aa7b99ecd1e046d868e7a3f41b581d629b24d86db2567ce21bf",
-      "translation": "Að minnka CPU, I/O, og OOM-kill priority núverandi vinnsluferli."
+      "translation": "Að minnka CPU, I/O, og OOM-kill priority núverandi vinnsluferli.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The adjustments are best-effort and platform dependent. On Linux, the worker uses the lowest CPU and I/O priorities and sets ``oom_score_adj=800`` so it is preferred over interactive applications when the system is under memory pressure.",
@@ -8600,7 +8692,9 @@
       "label": "spacr.parameter_sweep.recommended_workers#0",
       "source": "Choose a worker count from available memory and CPU capacity.",
       "source_sha256": "e05aed8c65e8bffcca0bc3e85bf5602a525ba0d9ab0e305fe4dd3c14cae9fb00",
-      "translation": "Veldu vinnsluferli frá áætlaðri minningu og CPU tæki."
+      "translation": "Veldu vinnsluferli frá áætlaðri minningu og CPU tæki.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "measured_gib : float or None, optional Peak resident memory for one representative trial, in GiB. ``None`` uses :data:`ASSUMED_TRIAL_GIB`. requested : int or None, optional Preferred maximum worker count. The result is still limited by memory, available CPU cores, and :data:`MAX_WORKERS`.",
@@ -8635,7 +8729,9 @@
       "label": "spacr.picture_settings.applies_to_picking#0",
       "source": "Whether ``key`` applies to the chosen way of picking cells.",
       "source_sha256": "c76f1703b1cf205986cc50e54bbd25095cc4470b37a3d56b2d08ea26d9f43513",
-      "translation": "Hvort ``key`` gildir um valinn leið til að safna frumur."
+      "translation": "Hvort ``key`` gildir um valinn leið til að safna frumur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "`object_array` chooses which mask the intensity image data channels are cut by, and offering it as free text asks the user to remember what their own application view contains -- and to spell it the way `measure` did. The choices are therefore built from the data.",
@@ -8705,7 +8801,9 @@
       "label": "spacr.pipeline_v2.FilenameMapper.by_field#0",
       "source": "Group records by ``stack_field_id`` — one entry per field, with one record per channel inside.",
       "source_sha256": "c57c0f618d39961f6e097e74fc253a33cf22cb2c999d289c8f0fbcba6e71656a",
-      "translation": "Samfélög skráð með ``stack_field_id`` — einn innfang á mikroskópum sviði, með einn skráð á rás inni."
+      "translation": "Samfélög skráð með ``stack_field_id`` — einn innfang á mikroskópum sviði, með einn skráð á rás inni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "field index parsed from the filename.",
@@ -8726,7 +8824,9 @@
       "label": "spacr.pipeline_v2.StackFile#0",
       "source": "One field's on-disk stack: ``merged/stack_<id>.npy`` with shape ``(H, W, C)``.",
       "source_sha256": "3ae4356761284e027a0aa04214062ff1d945a71377c2928e8a3e546a4f024421",
-      "translation": "Á skálum á einum reit: ``merged/stack_<id>.npy`` með form ``(H, W, C)``."
+      "translation": "Á skálum á einum reit: ``merged/stack_<id>.npy`` með form ``(H, W, C)``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "required when ``metadata_type=\"custom\"``, else ``ValueError``. It must supply the named groups (``plateID``, ``wellID``, ``fieldID``, ``chanID``, ``timeID``, ``sliceID``); any group it omits silently defaults, so a regex without ``chanID`` makes every image data channel 1 and therefore its own single-image layer microscope field of view.",
@@ -8782,14 +8882,18 @@
       "label": "spacr.plaque.Well#0",
       "source": "One detected well.",
       "source_sha256": "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
-      "translation": "Einn fannst brunnur."
+      "translation": "Einn fannst brunnur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Pixels-per-millimetre from a detected well, or ``None``.",
       "label": "spacr.plaque.scale_from_well#0",
       "source": "Pixels-per-millimetre from a detected well, or ``None``.",
       "source_sha256": "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
-      "translation": "Pixel á millimeter frá uppgötvandi brunnur, eða ``None``."
+      "translation": "Pixel á millimeter frá uppgötvandi brunnur, eða ``None``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is not sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
@@ -8859,7 +8963,9 @@
       "label": "spacr.plate_measurements.PlateMerge.shared_plates_across_screens#0",
       "source": "Plate ids that appear in more than one screen.",
       "source_sha256": "06dcc4c0c632ddbb4c0b9d473a058c72cce62217319345615b315171333eed50",
-      "translation": "Takið IDs sem birtast á meira en einn skjár."
+      "translation": "Takið IDs sem birtast á meira en einn skjár.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Two screens sharing a guide library both have ``plate1``; with ``screenID`` in the frame those are two identities, so this is not a collision. They are reported so that a user can see that two screens were merged.",
@@ -8894,7 +9000,9 @@
       "label": "spacr.plate_measurements.missing_databases#0",
       "source": "Attached databases that are not on disk, named before the run starts.",
       "source_sha256": "79b8d056eb5cf39d85c24c81dd1cc775e8ef496cd37d486d9874b70827b8958f",
-      "translation": "Að tengja gögn sem eru ekki á skítanum, nafnið áður en keyrður byrjar."
+      "translation": "Að tengja gögn sem eru ekki á skítanum, nafnið áður en keyrður byrjar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Degenerate input is reported.** An empty frame, a single microplate sample position, or a laboratory microplate where every microplate sample position reads the same comes back as a report that says so, with ``None`` where a statistic is undefined. Nothing here returns NaN and nothing here produces an error on empty.",
@@ -8929,7 +9037,9 @@
       "label": "spacr.plate_qc.GradientStats#0",
       "source": "A monotonic drift along one axis of the plate.",
       "source_sha256": "11815192f648b3e48f06325cce8fb322bcfce2cc6a7b12fc24954894fb68afde",
-      "translation": "Einn einstök flýtur á einu axis af plötu."
+      "translation": "Einn einstök flýtur á einu axis af plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "label of the lowest-index row or column present in the usable microplate sample positions.",
@@ -8943,7 +9053,9 @@
       "label": "spacr.plate_qc.RingStats#0",
       "source": "One concentric ring of the plate, compared against its core.",
       "source_sha256": "10c4b94eb737f3b94f92c9f61111d420a58bc637b3b725c913343093d49f5f1b",
-      "translation": "Einn hliðarring á plötu, samanburður við kjarna."
+      "translation": "Einn hliðarring á plötu, samanburður við kjarna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Same specification language as :func:`spacr.plot.generate_plate_heatmap`: ``'all'`` for the full range, ``'allq'`` for the 2nd-98th percentile (which stops one dead microplate sample position from flattening the whole laboratory microplate to a single colour), or an explicit ``[vmin, vmax]`` — floats in ``[0, 1]`` are read as quantiles, anything else as absolute limits.",
@@ -9367,7 +9479,9 @@
       "label": "spacr.power_model.fit_and_evaluate#0",
       "source": "Run the whole inference chain on one simulated screen.",
       "source_sha256": "5c3b2a021dde59349bec7555ebf1d1e7c51118480fc55039e2bae71fbb93a3ae",
-      "translation": "Hættu allan niðurstöður ketti á einum sýnilegum skjám."
+      "translation": "Hættu allan niðurstöður ketti á einum sýnilegum skjám.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Worked example — two microplate sample positions, two genes, gene ``B`` dominating well ``w2``",
@@ -9423,7 +9537,9 @@
       "label": "spacr.power_simulate.MalformedPlateError#0",
       "source": "A plate frame handed to a downstream stage is not a valid plate.",
       "source_sha256": "31e0da05542f2269176c7a46797f8e282bfd43d50d5d7e1c7e62c4cba031858d",
-      "translation": "A plata ramma sem er gefið til niðurstríðs staðar er ekki gilda platta."
+      "translation": "A plata ramma sem er gefið til niðurstríðs staðar er ekki gilda platta.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The second thing neither spaCRPower nor the port did. A microplate sample position where the microscope found three cells produces a positive *fraction* that can only take the values 0, 1/3, 2/3 and 1; its binomial standard error is around 0.27, which is three times the entire gap between the machine-learning classification model's hit-cell and background rates. It carries essentially no information about which genotypes were in it — and it enters the fit as one more observation alongside a microplate sample position with four hundred cells.",
@@ -9675,7 +9791,9 @@
       "label": "spacr.qc_quarantine.QuarantineError#0",
       "source": "A field could not be quarantined or restored without losing data.",
       "source_sha256": "d6e377b039ce9d4efa140c77721535e11d531a1ecd5e52bc5e548d9fd7c344c4",
-      "translation": "Reiturinn gæti ekki verið kvartað eða endurheimt án þess að missa gögnum."
+      "translation": "Reiturinn gæti ekki verið kvartað eða endurheimt án þess að missa gögnum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "plate ``merged`` directory whose quarantine is checked.",
@@ -19097,7 +19215,9 @@
       "label": "spacr.regression_annotation.AnnotationResult.role_counts#0",
       "source": "Return cell counts by annotation role, including the holdout.",
       "source_sha256": "52847ab69eacccd346e9ac677cb8be169a2f4b70e2de51d9492a4ab9f2579306",
-      "translation": "Return fruma tækir eftir annotation hlutverk, þar á meðal holdout."
+      "translation": "Return fruma tækir eftir annotation hlutverk, þar á meðal holdout.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "where the labels came from, in words.",
@@ -19118,7 +19238,9 @@
       "label": "spacr.regression_annotation.missing_requirement#0",
       "source": "Why ``key`` cannot run on this table, or ``\"\"`` when it can.",
       "source_sha256": "019768ae9ce673fccaacd25842444ea40abf7f6d8b4647b8c217b1ec04071ed0",
-      "translation": "Hvers vegna ``key`` er ekki hægt að keyra á þessari tabla, eða ``\"\"`` þegar það er hægt."
+      "translation": "Hvers vegna ``key`` er ekki hægt að keyra á þessari tabla, eða ``\"\"`` þegar það er hægt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to run.",
@@ -19146,14 +19268,18 @@
       "label": "spacr.regression_annotation.scored_cells#0",
       "source": "How many cells carry a finite value in the score column.",
       "source_sha256": "95974d99d2031eb62e391b758ddd944eb9dc2813aa0541d3dea6a21de10c616e",
-      "translation": "Hversu mörg frumur búa til lokið reikning í skólanum."
+      "translation": "Hversu mörg frumur búa til lokið reikning í skólanum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many cells carry an annotation in ``label_column``.",
       "label": "spacr.regression_annotation.usable_annotations#0",
       "source": "How many cells carry an annotation in ``label_column``.",
       "source_sha256": "c7bd6d6e566f95022c095f4786afd41c0eb679f38b5c740d4d84f48c5f34b10e",
-      "translation": "Hversu mörg frumur búa við notkun í ``label_column``."
+      "translation": "Hversu mörg frumur búa við notkun í ``label_column``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Zero when the column is absent, empty, or holds one class only -- which is the same answer :func:`_reference_labels` gives, so a chooser and a run cannot disagree about whether there are labels to fit on.",
@@ -19195,7 +19321,9 @@
       "label": "spacr.regression_diagnostics.collinear_guide_pairs#0",
       "source": "Guide pairs whose well patterns are so alike they cannot be separated.",
       "source_sha256": "2644af4eb82228013ed69bedaaf661909290c4f081812f77f860ef7a3dbd5fa5",
-      "translation": "Leiða parar sem brunnur mönnunir eru svo sömu sem þeir geta ekki verið fjarlægð."
+      "translation": "Leiða parar sem brunnur mönnunir eru svo sömu sem þeir geta ekki verið fjarlægð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "well-by-guide fraction matrix whose nonconstant guide columns are compared pairwise.",
@@ -19370,7 +19498,9 @@
       "label": "spacr.regression_summary.RunSummary.field#0",
       "source": "The first field called ``name`` in any section, or ``None``.",
       "source_sha256": "26e68dc40261c6f90b9d6df52f54a048ccc3dfad40a834f974ec27634ad8f8f8",
-      "translation": "Fyrsta reitur heitir ``name`` í hvaða hluta, eða ``None``."
+      "translation": "Fyrsta reitur heitir ``name`` í hvaða hluta, eða ``None``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the fields, one per name in ``CONTRACT[name]``.",
@@ -19384,14 +19514,18 @@
       "label": "spacr.regression_summary.SummarySection.get#0",
       "source": "The field called ``name``, or ``None``.",
       "source_sha256": "f00b92cfd2f9f5316ed55c10fc0cc9b5a1d8ab5e40559ff026b6c4d366089e1b",
-      "translation": "Reiturinn er kallað ``name`` eða ``None``."
+      "translation": "Reiturinn er kallað ``name`` eða ``None``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Build the summary of one run, with the same fields for every mode.",
       "label": "spacr.regression_summary.build_run_summary#0",
       "source": "Build the summary of one run, with the same fields for every mode.",
       "source_sha256": "de4a53ab8f011a7c259b35e2693f71f0feacb3c4203886254e7049acc41968e0",
-      "translation": "Að byggja samræmi á einum keyrslum, með sömu sviðum fyrir hverri leið."
+      "translation": "Að byggja samræmi á einum keyrslum, með sömu sviðum fyrir hverri leið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whatever the regression type and inference, the result carries every name in :data:`CONTRACT`, and each one is answered with a value or with a sentence saying why this mode cannot have one. :meth:`RunSummary.missing` is empty on every microplate sample position-formed summary. When a section builder raises, its microscope fields of view are filled with the exception text instead of being left empty.",
@@ -19419,7 +19553,9 @@
       "label": "spacr.report.Table#0",
       "source": "A rectangle of already-stringified cells.",
       "source_sha256": "5f7415ad2cc5c4a612f21dc454be1991665e0ab74cef692505d6eb3d50105ad4",
-      "translation": "Eitt rektangle í nú þegar stingda frumur."
+      "translation": "Eitt rektangle í nú þegar stingda frumur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``run_dirs`` is None, scan ``~/.spacr/runs`` for runs whose ``src`` is this folder.",
@@ -19461,7 +19597,9 @@
       "label": "spacr.resume.ResumeState#0",
       "source": "The resume plan: fields to skip, fields to run, and the reasons.",
       "source_sha256": "25e23e2c3673568036d6165b5e684dd5fcaa0377ca06fbfd142516f8e826518e",
-      "translation": "Áætlun um endurskoðun: Reitur til að skipta, reitir til að fylgjast, Og ástæðurnar."
+      "translation": "Áætlun um endurskoðun: Reitur til að skipta, reitir til að fylgjast, Og ástæðurnar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "fields verified complete — these are skipped.",
@@ -19489,14 +19627,18 @@
       "label": "spacr.resume.ResumeState.filter_files#0",
       "source": "Restrict a list of ``.npy`` filenames to the pending fields.",
       "source_sha256": "ba117353090ccbebfdbf89f758d648585b1fdd740bf567b245e64cdb08771531",
-      "translation": "Að takast á lista ``.npy`` filnafn til hækkaðar reitir."
+      "translation": "Að takast á lista ``.npy`` filnafn til hækkaðar reitir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fields that were present on disk but rejected, and so re-queued.",
       "label": "spacr.resume.ResumeState.rejected#0",
       "source": "Fields that were present on disk but rejected, and so re-queued.",
       "source_sha256": "5acfa68f52af08f9ad3190fc6b666ba0bb3650577a23598789015322c6b6b1cc",
-      "translation": "Reiturinn sem var til staðar á skálinu en neitað, og svo endurskoð."
+      "translation": "Reiturinn sem var til staðar á skálinu en neitað, og svo endurskoð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A truncated ``.npy``, or a field with rows in some tables and not others. These would have been silently skipped by an ``os.path.exists`` resume, and measuring them would have produced garbage that looked exactly like data.",
@@ -19531,7 +19673,9 @@
       "label": "spacr.resume.completed_fields_in_db#0",
       "source": "Fields that are already measured in ``db_path``.",
       "source_sha256": "a562b61a4915ce850b8588955ad84770aa56117f011c4f373f67eed172b81b04",
-      "translation": "Reiturinn sem er nú þegar meiddur í ``db_path``."
+      "translation": "Reiturinn sem er nú þegar meiddur í ``db_path``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "\"Already measured\" deliberately means *present in every table this processing session writes*, not \"present somewhere\". ``_measure_crop_core`` inserts into ``cell``, then ``nucleus``, then ``pathogen``, then ``cytoplasm``, then ``png_list``, one call after another with a commit each — so a process killed between two of those calls leaves a field that has cell rows and no nucleus rows. Counting that field as done would permanently lose its nuclei; counting it as pending without clearing it first would duplicate its cells. It is reported through ``partial`` so the caller can do the third, correct thing: clear it and execute it again.",
@@ -19552,7 +19696,9 @@
       "label": "spacr.resume.completed_fields_in_merged#0",
       "source": "Field stems in ``src`` whose ``.npy`` is *verified* complete.",
       "source_sha256": "f600cc2fe7525f0e7e0ecab51af90da6ec1f6afe497c36ea78ec1167fa625cec",
-      "translation": "Reiturinn er í ``src`` sem ``.npy`` er *verified* fullkominn."
+      "translation": "Reiturinn er í ``src`` sem ``.npy`` er *verified* fullkominn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It never answers on the strength of ``os.path.exists``: each candidate's header is parsed and its length checked against its own declared shape, because older releases wrote merged arrays in place with ``np.save`` and a run killed mid-write left a short file behind.",
@@ -19580,7 +19726,9 @@
       "label": "spacr.resume.plan_resume#0",
       "source": "Return a :class:`ResumeState` of fields to run, fields to skip, and why.",
       "source_sha256": "8f022f9731071cc79362f1a4b89c928318b6a2b777b90156e1705a6c32442fad",
-      "translation": "Til baka :class:`ResumeState` af sviðum til að keyra, sviði til að skipta, og hvers vegna."
+      "translation": "Til baka :class:`ResumeState` af sviðum til að keyra, sviði til að skipta, og hvers vegna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "field stems verified complete and safe to skip.",
@@ -19685,7 +19833,9 @@
       "label": "spacr.roi.worker_delivery_status#0",
       "source": "Whether the ROI will reach ``measure_crop``'s worker processes.",
       "source_sha256": "5a74b5043017e5d1342c9148135294de9469ffa5224be0c69b6c7460a1c23028",
-      "translation": "Hvort sem ROI mun ná vinnsluferli á ``measure_crop``."
+      "translation": "Hvort sem ROI mun ná vinnsluferli á ``measure_crop``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The failure this answers is silent by construction: a filter registered only in the parent process is a no-op in every ``spawn`` worker, the processing session completes, and every object in the microscope field of view is measured while the user believes only the ROI was.",
@@ -19720,7 +19870,9 @@
       "label": "spacr.run_compare.CountDiff#0",
       "source": "The count comparison: overall first, then one block per plate.",
       "source_sha256": "d671348705d7d8559d6a7286633dfd457741e57ee5cbc096f1f391da4b5ba6f7",
-      "translation": "Samskipti: Alls fyrst, þá einn blokk á plötu."
+      "translation": "Samskipti: Alls fyrst, þá einn blokk á plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Used for the headline, so a drop such as 12% fewer cells is visible without reading the table.",
@@ -19741,21 +19893,27 @@
       "label": "spacr.run_compare.HitDiff.n_shared#0",
       "source": "Keys both runs called.",
       "source_sha256": "0bab48f961d3421034cbbd5db09649d6e41250aaf264933fd3cdb16ba8038725",
-      "translation": "Kynir báðir keyrir kalla."
+      "translation": "Kynir báðir keyrir kalla.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One run's hits, ranked.",
       "label": "spacr.run_compare.HitList#0",
       "source": "One run's hits, ranked.",
       "source_sha256": "b693cb1a9e772634fcddfcde636b14aede4715052a4b9c9ef219147665cd3afe",
-      "translation": "Einn keyrir í hættu, rangt."
+      "translation": "Einn keyrir í hættu, rangt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Two runs and the three ways they differ.",
       "label": "spacr.run_compare.RunComparison#0",
       "source": "Two runs and the three ways they differ.",
       "source_sha256": "a396d720a92e1c982966f5b1c6076137d52d577edf7bbd95eb82e8e0dbff4f57",
-      "translation": "Tveir keyrir og þrír leiðir sem þeir skilja."
+      "translation": "Tveir keyrir og þrír leiðir sem þeir skilja.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "plates the processing session touched, sorted. Derived from its settings; the count diff finds the real ones in the database.",
@@ -19776,7 +19934,9 @@
       "label": "spacr.run_compare.diff_counts#0",
       "source": "Line two count tables up, overall first and then per plate.",
       "source_sha256": "64f3a07018362f3ca39178f8f361c4c6942338e1a11aee1656f608f9bd58cce7",
-      "translation": "Línt tvær tákn tabla upp, almennt fyrst og þá á plötu."
+      "translation": "Línt tvær tákn tabla upp, almennt fyrst og þá á plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "formatted exception traceback for failed or cancelled runs; empty for successful runs.",
@@ -19790,7 +19950,9 @@
       "label": "spacr.run_journal.Run.record_input#0",
       "source": "Hash a file or directory as an explicit run input.",
       "source_sha256": "f0202a8e10bb21290b863f2fc99b8bab7663e0783f179c145818bc4cd0b3abca",
-      "translation": "Hagsmynda skrif eða skrá sem útskýrt keyrður."
+      "translation": "Hagsmynda skrif eða skrá sem útskýrt keyrður.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each execution worker has isolated state because the batch runner and database browser can operate independent workers concurrently.",
@@ -19818,7 +19980,9 @@
       "label": "spacr.runctx.RunContext.random_state#0",
       "source": "This run's seed, for an estimator's ``random_state=``.",
       "source_sha256": "9245ca8b9e78c8360adf168a678fb4959f4850ae8f474504ca5e18a3386898e0",
-      "translation": "Þetta er slembifræ í ránum, fyrir ættar ``random_state=``."
+      "translation": "Þetta er slembifræ í ránum, fyrir ættar ``random_state=``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``worker_kind`` may also be the complete stamp returned by :func:`spacr.fit_resources._worker_stamp`; that is how a spawned worker reports its own creation time without a PID-reuse race.",
@@ -19860,7 +20024,9 @@
       "label": "spacr.runctx.current_run_id#0",
       "source": "Return the active run id, or ``\"\"`` when no run is open.",
       "source_sha256": "b720ee4a480c88ca3f5e5603dbc499346b9e8731bde087c6a18b0eeff2834cc8",
-      "translation": "Til baka aktiver keyrir ID, eða ``\"\"`` þegar engin renn er opinn."
+      "translation": "Til baka aktiver keyrir ID, eða ``\"\"`` þegar engin renn er opinn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "sklearn, XGBoost, LightGBM and CatBoost all take a ``random_state`` (or ``seed``) and all ignore the NumPy global stream once one is given, so a construction site that hard-codes ``random_state=42`` silently overrides the run's seed. Call this instead",
@@ -19930,14 +20096,18 @@
       "label": "spacr.schema.FieldID.prcf#0",
       "source": "The ``prcf`` field key, with the timepoint when there is one.",
       "source_sha256": "6b9d206c4e40ddd3023043c282215d85d377b246dbbaf21c8d3e2945fd0f6da1",
-      "translation": "Reiturinn ``prcf`` er byggð gögn-nafn, með tímapunkti þegar það er einn."
+      "translation": "Reiturinn ``prcf`` er byggð gögn-nafn, með tímapunkti þegar það er einn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The well name (``'A01'``), or ``None`` for a positional well.",
       "label": "spacr.schema.FieldID.well#0",
       "source": "The well name (``'A01'``), or ``None`` for a positional well.",
       "source_sha256": "eecebffe081c3d9c79c8d468692abbf4dc7b197543f04c33430ddbc95f28b8a4",
-      "translation": "Náms (``'A01'``), eða ``None`` fyrir staðsetningu brunnur."
+      "translation": "Náms (``'A01'``), eða ``None`` fyrir staðsetningu brunnur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "which object table it came from, or ``None`` for \"not stated\". A nucleus and a pathogen with the same label in the same microscope field of view are two objects, and without this they are one structured-data name.",
@@ -20007,14 +20177,18 @@
       "label": "spacr.schema.escape_field_stem_plate#0",
       "source": "Escape the plate component of a merged-stack field stem.",
       "source_sha256": "84a3047465d8c3fab31b40f6c23f02765c44ba0449892427b6f625c838556aa4",
-      "translation": "Flýja mikroskópum þáttum í plötunni af blanda mikroscópum í sjónarhóli."
+      "translation": "Flýja mikroskópum þáttum í plötunni af blanda mikroscópum í sjónarhóli.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the canonical ``'f<N>'`` field id.",
       "label": "spacr.schema.field_id#0",
       "source": "Return the canonical ``'f<N>'`` field id.",
       "source_sha256": "66827c67eb05e955b4b51e0cb4a5adf1dfdda5dfcfd736a7a52bba2f056bf658",
-      "translation": "Til baka er kanonísk ``'f<N>'`` reitur ID."
+      "translation": "Til baka er kanonísk ``'f<N>'`` reitur ID.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "prefixed field id or numeric field token.",
@@ -20042,14 +20216,18 @@
       "label": "spacr.schema.is_within_plate_format#0",
       "source": "True when ``(row, column)`` lies inside an ``n_wells`` plate.",
       "source_sha256": "85cbc194389119caa0798ec65b2773834760c1818610fc23e0cb698a574f0644",
-      "translation": "True þegar ``(row, column)`` er inni í ``n_wells`` plötu."
+      "translation": "True þegar ``(row, column)`` er inni í ``n_wells`` plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``utils._map_wells``' well handling exactly, raising where it raises.",
       "label": "spacr.schema.legacy_well_ids#0",
       "source": "``utils._map_wells``' well handling exactly, raising where it raises.",
       "source_sha256": "f95ef4862da8b4e46db473c73753556daf0013b47ed04d9707bf05e219e5bbdc",
-      "translation": "``utils._map_wells``' brunnur að vinna nákvæmlega, hvar það er upp."
+      "translation": "``utils._map_wells``' brunnur að vinna nákvæmlega, hvar það er upp.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the object table this object came from, or ``None`` for \"not stated\". A type on ``label`` that disagrees with this is an error rather than a silent overwrite.",
@@ -20084,7 +20262,9 @@
       "label": "spacr.schema.parse_object_stem#0",
       "source": "Parse a crop-PNG file name into an :class:`ObjectID`.",
       "source_sha256": "92de2cbbae973d99c752537946bb9f3043e2aa6f52fd969d8f7271ddc3bdc817",
-      "translation": "Talaðu skránafn af myndskurðum myndum PNG í :class:`ObjectID`."
+      "translation": "Talaðu skránafn af myndskurðum myndum PNG í :class:`ObjectID`.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'exp1_plate1_r2_c12_f1'`` — a plate id containing the separator. The right-to-left rule handles it, and that is the case the absorption exists for.",
@@ -20161,7 +20341,9 @@
       "label": "spacr.scorecard.Match#0",
       "source": "One IoU threshold's worth of matching, and what it implies.",
       "source_sha256": "2d0082a1e854617a8e9d8d466afa3505eb509fc8a4a7c18f9fca051b966d9d8a",
-      "translation": "Einn IoU þröskuldur er verðlaun að mæta, og hvað það þýðir."
+      "translation": "Einn IoU þröskuldur er verðlaun að mæta, og hvað það þýðir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A predicted boundary pixel counts as correct when a true boundary pixel lies within ``tolerance`` pixels of it, and vice versa. A tolerance is used because two people labelling the same cell disagree by a pixel or two, so a zero-tolerance boundary score measures the annotator as much as the model.",
@@ -20175,7 +20357,9 @@
       "label": "spacr.scorecard.compare_classifier_against_baseline#0",
       "source": "Two classifiers on the same labels, and the difference.",
       "source_sha256": "ea1f45ef60a0f62fa15f0b1bad9d33d0bb6d3d296d26049a1b7c43ba61eb7d7a",
-      "translation": "Tveir véllæringu flokksmiðju á sömu merkjum, og munurinn."
+      "translation": "Tveir véllæringu flokksmiðju á sömu merkjum, og munurinn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The two numbers measure different things and are often confused. The per-object mean says how well a typical matched object is outlined; the pixel-wise figure ignores object identity and is dominated by the largest objects, so a model that misses ten small cells and outlines one large cell accurately scores well on the pixel-wise figure and badly on the per-object mean.",
@@ -20245,7 +20429,9 @@
       "label": "spacr.screen_data.ScreenAsset#0",
       "source": "One separately downloadable piece of the screen.",
       "source_sha256": "d500c8b625fb316bd2c3e2d4b6ce0cbc5f4ef69ee34a1a8f2a79d446a37ed6e6",
-      "translation": "Einn einhvers stafrænt stökk af skjánum."
+      "translation": "Einn einhvers stafrænt stökk af skjánum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "whether the database file exists, or the extracted image region directory contains at least one PNG, according to this asset's ``kind``.",
@@ -20294,7 +20480,9 @@
       "label": "spacr.seg_qc.FieldAddress#0",
       "source": "Where on the plate a scored field sits.",
       "source_sha256": "7182069bf5623e1ee37bee4fca27d427c481f93cbbb8eddd2b423dc390797fe8",
-      "translation": "Þar sem á mikrópleti í plötu settar sig mikroskópur."
+      "translation": "Þar sem á mikrópleti í plötu settar sig mikroskópur.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "first underscore-separated token, or the whole stem when there is no underscore (a hand-assembled folder is its own plate).",
@@ -20336,7 +20524,9 @@
       "label": "spacr.seg_qc.find_mask_stacks#0",
       "source": "``{object_type: folder}`` for the mask stacks under a plate.",
       "source_sha256": "340abe7ec57073d05a4333965ccedec0c7037b5a513e40acf7cc4049a10db955",
-      "translation": "``{object_type: folder}`` fyrir maska stack undir plötu."
+      "translation": "``{object_type: folder}`` fyrir maska stack undir plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The table lists fields *with problems* — no rows on a good plate, and the useful problem list on a bad plate. Clean fields are counted rather than printed: a 1536-field plate must not scroll a terminal.",
@@ -20378,7 +20568,9 @@
       "label": "spacr.seg_qc.score_field#0",
       "source": "Score one label mask on its own, with no knowledge of the plate.",
       "source_sha256": "51bdf126c0dcd70d57cb95d973371d447fa1e9178d3a8713de7a1d363a55756f",
-      "translation": "Skiljaðu einn etikettmask á sjálfum sér, án þekkingu af plötu."
+      "translation": "Skiljaðu einn etikettmask á sjálfum sér, án þekkingu af plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything here is plate-independent: counts, foreground, border fraction, the robust size range, the fusion cross-check. The comparisons that need the plate (count and size relative to the plate median) are added by :func:`score_masks` afterwards.",
@@ -20406,7 +20598,9 @@
       "label": "spacr.seg_qc.score_masks#0",
       "source": "Score every field of a plate and add the plate-relative flags.",
       "source_sha256": "e0613638d679927c771e83b2623264def3258b68f5cd35a03a64f3c5958c25fb",
-      "translation": "Skoðaðu hvert mikroskópabæli á sýninginni á mikrópleti í plötu og bæta inn mikrópleti-sambandi flags."
+      "translation": "Skoðaðu hvert mikroskópabæli á sýninginni á mikrópleti í plötu og bæta inn mikrópleti-sambandi flags.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Conflating the two is the usual mistake. A filter can be re-applied to a different table (another plate, a re-run) and still mean something; a selection cannot, because it names individual objects.",
@@ -20490,7 +20684,9 @@
       "label": "spacr.sequencing.generate_barecode_mapping#0",
       "source": "Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.",
       "source_sha256": "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-      "translation": "Vertu fótbolta af FASTQ skimun próf í per-microplate próf stöðu sgRNA tól sem hægt er að nota með :func:`spacr.ml.perform_regression`."
+      "translation": "Vertu fótbolta af FASTQ skimun próf í per-microplate próf stöðu sgRNA tól sem hægt er að nota með :func:`spacr.ml.perform_regression`.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``target_grnas_per_well`` — expected gRNAs per microplate sample position, from which that QC step derives its abundance threshold (default 1).",
@@ -20504,7 +20700,9 @@
       "label": "spacr.sequencing.graph_sequencing_stats#0",
       "source": "Pick the fraction cutoff that yields a target mean of unique gRNAs per well.",
       "source_sha256": "b23d83bf4396741a1a76213be48226ca8e68b4b6b89dc7a6d6153bd1ab6c94be",
-      "translation": "Vinsamlegur frakstur sem gefur markmið meðaltali einstaka gRNAs per brunna."
+      "translation": "Vinsamlegur frakstur sem gefur markmið meðaltali einstaka gRNAs per brunna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Loads one or more count CSVs, drops control microplate sample positions, computes per-microplate sample position gRNA fractions, sweeps thresholds to find the value producing the requested unique-count average, and plots both the sweep curve and the resulting per-laboratory microplate heatmap.",
@@ -20560,7 +20758,9 @@
       "label": "spacr.sequencing_qc.barcode_qc#0",
       "source": "QC a barcode-mapping run and derive its abundance threshold from a target.",
       "source_sha256": "19006682d695bb0401198202c4f63e8247ae43324655182133c0ce14b3ed5130",
-      "translation": "QC keyrir barkód-mapping og tekin af yfirflutningarsýni frá markmiðum."
+      "translation": "QC keyrir barkód-mapping og tekin af yfirflutningarsýni frá markmiðum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the library as designed — names from the gRNA reference. Supplying it lets the dropout be reported (\"2% of the library was never seen\") rather than only the observed count, which shows whether the screening experiment has the coverage it was powered for.",
@@ -20588,7 +20788,9 @@
       "label": "spacr.sequencing_qc.threshold_sweep#0",
       "source": "Evaluate the whole trade-off at each threshold.",
       "source_sha256": "d843606df1621af13afebb11384c66b6b50c3d5a7781ee12e9de3b780ad518e1",
-      "translation": "Áhugsaðu allan viðskiptum á hverjum þröskuldi."
+      "translation": "Áhugsaðu allan viðskiptum á hverjum þröskuldi.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``collision_rate`` — share of **all** microplate sample positions over the budget; non-increasing, because each microplate sample position's gRNA count only falls.",
@@ -20820,7 +21022,9 @@
       "label": "spacr.sim.classifier#0",
       "source": "Simulate a noisy binary classifier by drawing per-cell scores from two Beta distributions.",
       "source_sha256": "c61ee9223b233a7d31d5130be763c13cb03ee0218be124cbaa770c99a5891aaf",
-      "translation": "Simulera hræðilegt binær véllækni kennslumál með því að ritna á frumu skólanum frá tveimur Beta útbreytingum."
+      "translation": "Simulera hræðilegt binær véllækni kennslumál með því að ritna á frumu skólanum frá tveimur Beta útbreytingum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mean of the Beta distribution for active cells; must be in ``(0, 1)``.",
@@ -20855,7 +21059,9 @@
       "label": "spacr.sim.generate_gene_weights#0",
       "source": "Draw ``len(df)`` gene weights from a Beta distribution matched to the given moments.",
       "source_sha256": "d3f595bdcbf29e75ed81cce4baae9034eecafbbebb88db263136c504b7550f77",
-      "translation": "Tragð ``len(df)`` gein vægi frá Beta útbreytingu sem matast við gögn."
+      "translation": "Tragð ``len(df)`` gein vægi frá Beta útbreytingu sem matast við gögn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "NumPy array of Beta-distributed weights.",
@@ -20883,7 +21089,9 @@
       "label": "spacr.sim.run_experiment#0",
       "source": "Simulate one cell-level screening experiment and return per-cell + summary tables.",
       "source_sha256": "cba33277e64ed1cb25dac1880b31a9b1be681fb78d9bbf2b28f20d461ae6b376",
-      "translation": "Simulera einn skríning tilraun á frumum og endurheimta per frumu + samræmi tól."
+      "translation": "Simulera einn skríning tilraun á frumum og endurheimta per frumu + samræmi tól.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Draws per-microplate sample position gene assignments from a power-law distribution and per-microplate sample position cell counts from a gamma/Poisson mixture, then labels each cell active/inactive.",
@@ -20918,7 +21126,9 @@
       "label": "spacr.sp_stats.HitScoringError#0",
       "source": "Raised when a screen cannot be scored; the message gives the remedy.",
       "source_sha256": "35e15892f4e87f27ea54d915a21236bb15813a1674ad20dceadc6a13bf3808a5",
-      "translation": "Undantekningin er notað þegar skimun er ekki hægt að skora; skilaboðin gefur lækninginn."
+      "translation": "Undantekningin er notað þegar skimun er ekki hægt að skora; skilaboðin gefur lækninginn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Groups with fewer than three observations are still reported as ``'Skipped'``: Shapiro-Wilk cannot run on two points.",
@@ -20981,7 +21191,9 @@
       "label": "spacr.sra.RunFile#0",
       "source": "One downloadable FASTQ: a run, and which mate of the pair.",
       "source_sha256": "31a6c870174391ad4c4d3bbe2fbcbbee7b322b8bc2c54120a44de19de52a6e68",
-      "translation": "FASTQ niðurstaða: Að keyra, og hvaða manneskja í parinu."
+      "translation": "FASTQ niðurstaða: Að keyra, og hvaða manneskja í parinu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The workflow first records a deterministic object selection table, then extracts the selected extracted image regions from merged arrays. Object types, image data channels, extracted image region shape, and train/test allocation are therefore explicit settings rather than properties of a previously exported directory. Extracted image region names use the same naming function as the standard object-image-region exporter.",
@@ -20995,7 +21207,9 @@
       "label": "spacr.stream_dataset.crop_name#0",
       "source": "Return the standard exported-crop name for an object.",
       "source_sha256": "02a860bee562dd93f0873c22b19b1962ab90616e3398686640d9a4438b9a349d",
-      "translation": "Til baka standað myndskurður mynd svæðisnafn fyrir hlutinn."
+      "translation": "Til baka standað myndskurður mynd svæðisnafn fyrir hlutinn.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Naming is delegated to :func:`spacr.utils._generate_names`, ensuring that streamed and pre-exported extracted image regions from the same object are compatible.",
@@ -21030,7 +21244,9 @@
       "label": "spacr.stream_dataset.stream#0",
       "source": "Write crops described by a saved selection table.",
       "source_sha256": "922411e5b40bfb34266a8667dcb890222f8498488018cd8543cb23d47d7903b9",
-      "translation": "Skrifaðu myndskurðir myndum svæðum sem lýst er með sparað valtakvöru."
+      "translation": "Skrifaðu myndskurðir myndum svæðum sem lýst er með sparað valtakvöru.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "settings : mapping Source, object type, split, image data channel, and extracted image region-shape settings. dst : str Dataset destination. objects : pandas.DataFrame, optional Object table used to build the selection. Merged-array labels are used when the table is unavailable.",
@@ -21058,7 +21274,9 @@
       "label": "spacr.style_base.FigureStyle.shared_with#0",
       "source": "The fields both styles have, so one can be applied to the other.",
       "source_sha256": "735d286b37e8c47d941ca6f32ae21571e85aa714a2e2e89d65b6bd7662d5b897",
-      "translation": "Reiturinn hefur bæði stíl, þannig að einn er hægt að nota við annarra."
+      "translation": "Reiturinn hefur bæði stíl, þannig að einn er hægt að nota við annarra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Call this after drawing plot-specific marks. It changes figure and axes presentation only; it does not add or remove data marks. The title, the axis labels and the tick labels are put into the style's family -- :func:`font_names` -- so a renderer that draws outside a font ``rc_context`` still gets the face spaCR ships rather than DejaVu Sans.",
@@ -21353,14 +21571,18 @@
       "label": "spacr.sudoku.SudokuResult.abstained#0",
       "source": "Boolean mask of the cells no guide was named for.",
       "source_sha256": "87264400c612be08de89b386bca21eb4782a9811321132b3698adda5140892f4",
-      "translation": "Boolean maska af frumunum engin leiðbeining var notuð fyrir."
+      "translation": "Boolean maska af frumunum engin leiðbeining var notuð fyrir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many cells were annotated.",
       "label": "spacr.sudoku.SudokuResult.called#0",
       "source": "How many cells were annotated.",
       "source_sha256": "73b0b1ad75a69461624f232e6275479702f3d3929400bab6a258dad901c36226",
-      "translation": "Hversu mörg frumur voru notuð."
+      "translation": "Hversu mörg frumur voru notuð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "guide whose high-fraction microplate sample positions and high-scoring cells are being selected as anchors.",
@@ -21437,7 +21659,9 @@
       "label": "spacr.sudoku.sudoku#0",
       "source": "Assign guides to cells while retaining competing evidence separately.",
       "source_sha256": "77000659763f57fa1f500f58a56b71e0050431fae61617b761358e2b32cf728d",
-      "translation": "Ákvarða leiðbeiningar til frumna og haldið samkeppnandi getu sérstakt."
+      "translation": "Ákvarða leiðbeiningar til frumna og haldið samkeppnandi getu sérstakt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n_cells, n_features)`` cell measurements.",
@@ -21528,7 +21752,9 @@
       "label": "spacr.suggest.suggest_from_scores#0",
       "source": "Read the last retrain's probabilities and propose a label for each crop.",
       "source_sha256": "264bf9f477fa7875114bf23ed91f1dcfd1bd392622af4f39e8cd0e4b13ab63c2",
-      "translation": "Lestu sannleika síðasta tilbúinn og bjóða upp á merki fyrir hvern myndskurður mynd svæðis."
+      "translation": "Lestu sannleika síðasta tilbúinn og bjóða upp á merki fyrir hvern myndskurður mynd svæðis.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "leave out every extracted image region whose suggestion the annotator rejected (a negative ``<column>_verdict``), so a rejected extracted image region is not suggested again in a later round. It still trains as an example of the other class (:func:`rejected_suggestions`); it is only not proposed.",
@@ -21556,7 +21782,9 @@
       "label": "spacr.surrogate.available_backends#0",
       "source": "Report the supported surrogate families and whether they can run.",
       "source_sha256": "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
-      "translation": "Rannsóknir um aðstæður sem styðjast eru og hvort þeir geta keyrslan."
+      "translation": "Rannsóknir um aðstæður sem styðjast eru og hvort þeir geta keyrslan.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The CV model is indexed by the extracted image region it scored and the features are indexed by the object, so ``png_list`` is the bridge: it is the only table holding both. The join is validated one-to-one — a repeated structured-data name would multiply rows and silently reweight the surrogate towards whichever objects happened to duplicate.",
@@ -21577,7 +21805,9 @@
       "label": "spacr.surrogate.explain_classifier#0",
       "source": "Join predictions to features, fit a surrogate, and rank the features.",
       "source_sha256": "79d89217af27b83f24fceb4c813e0f14c415e9427ad454ab1a8cd3febd7a093f",
-      "translation": "Farið við fyrirspurnir til eiginleika, passa upp á yfirgefið og rangt eiginleikum."
+      "translation": "Farið við fyrirspurnir til eiginleika, passa upp á yfirgefið og rangt eiginleikum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a frame with an extracted image region path and a predicted class.",
@@ -21654,7 +21884,9 @@
       "label": "spacr.timelapse.link_by_iou#0",
       "source": "Match labels between two consecutive frames using IoU and Hungarian assignment.",
       "source_sha256": "a4dd307223cdca0b1f4696004cdf8cc8739e5bf1c4f3f583f29b6a2f6eaeaa80",
-      "translation": "Matches merki milli tvö síðar með því að nota IoU og Hungarian uppsettingu."
+      "translation": "Matches merki milli tvö síðar með því að nota IoU og Hungarian uppsettingu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Is indexed by the column names the measurement writer actually emits: ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent altogether outside a timelapse run) and ``cell_id`` -- the child table's link to its host cell -- not ``pathogen_cell_id``, which no writer produces.",
@@ -21675,7 +21907,9 @@
       "label": "spacr.timelapse.summarize_per_well_inf_non_inf#0",
       "source": "Aggregate per-object peak details per well, split by infection status.",
       "source_sha256": "64e5aef70fe3a4a4cc39310aef5a380c8fecfe449a40258fe4e1c6737520d197",
-      "translation": "Sameinuðu upphafi upplýsingar á hlutum per brunna, skilið eftir sjúkdómstæðum."
+      "translation": "Sameinuðu upphafi upplýsingar á hlutum per brunna, skilið eftir sjúkdómstæðum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when the frame has no ``infected`` column; the pathogen count must be carried under exactly that name.",
@@ -21724,7 +21958,9 @@
       "label": "spacr.toxo.generate_score_heatmap#0",
       "source": "Build combined classification-score and control-fraction heatmaps for a plate.",
       "source_sha256": "82f3ff91fefda99723a1543753b33afb5640ad0e4aa2a7659e28c604a6e200c9",
-      "translation": "Byggðu sameiginlegur flokks-score og stjórn-fraktion heittar fyrir plötu."
+      "translation": "Byggðu sameiginlegur flokks-score og stjórn-fraktion heittar fyrir plötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "DataFrame of screening experiment hits with a ``n_gene`` column.",
@@ -21773,7 +22009,9 @@
       "label": "spacr.train_compare.Comparison.epoch_ranges#0",
       "source": "Return each series label mapped to its finite epoch span.",
       "source_sha256": "45623c90a8b93436b941ca1b36f75674877744a5f10afc8167e89107ab33166d",
-      "translation": "Hættu hverri kynslómi með kartanum til síðasta þjálfunarlota sínu."
+      "translation": "Hættu hverri kynslómi með kartanum til síðasta þjálfunarlota sínu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "runs from :func:`load_run` / :func:`find_runs`. Runs with no curves are kept — their notes travel into :attr:`Comparison.problems` — but contribute no series.",
@@ -21829,7 +22067,9 @@
       "label": "spacr.umap_search.walk_recipes#0",
       "source": "The recipes a walk would try, worked out before any of them runs.",
       "source_sha256": "ef05871407f8f4f79bd97f5a21d9041136822a58bfb07c5b9e3ce4f0e3151c54",
-      "translation": "Ráðgjöfnar á leiðinni myndi reyna, virðist út áður en einhver þeirra keyrir."
+      "translation": "Ráðgjöfnar á leiðinni myndi reyna, virðist út áður en einhver þeirra keyrir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`ORGANISMS` is a table rather than a call to UniProt's own search, so that commonly imaged organisms resolve offline without a round trip. Hosts people culture cells from; every studied apicomplexan; the other parasites that come up beside them.",
@@ -22415,7 +22655,9 @@
       "label": "spacr.validate.describe_resources#0",
       "source": "Estimate the run's resource needs, without running it.",
       "source_sha256": "148c26f5865acac60b456408fa7df3d3a8f66897ff8948f21d5caaf13fbcb4e8",
-      "translation": "Hugsaðu þörf á vöru, án þess að keyra það."
+      "translation": "Hugsaðu þörf á vöru, án þess að keyra það.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Derived: memory is reported as a lower bound -- ``n_jobs`` workers each holding one field is the least the processing session can use, before a single working copy. A lower bound still catches cases such as eight workers holding a 900 MB field each on a 16 GB laptop. The measured peak is what :func:`spacr.benchmark.benchmark` reports, and this card says so rather than inventing a multiplier for it.",
@@ -22485,7 +22727,9 @@
       "label": "spacr.well_spec.parse#0",
       "source": "Resolve a mixed well specification to unique one-based coordinates.",
       "source_sha256": "d0a104e1152dff06c3dde1b1f973b43719d9aeb7f562458b925d0379b590783b",
-      "translation": "Að leysa blanda brunnur speglur til einstaka einn-baseð tengslum."
+      "translation": "Að leysa blanda brunnur speglur til einstaka einn-baseð tengslum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "delimited string or iterable of row, column, and well tokens.",
@@ -22506,7 +22750,9 @@
       "label": "spacr.well_spec.parse_one#0",
       "source": "Resolve one row, column, or well token to one-based coordinates.",
       "source_sha256": "2025b5e5672a34636092c682303170c1c7c30490b0c0727d9409c26a4a6128e0",
-      "translation": "Að leysa einum stefnu, stefn, eða brunnur token til einhversra tengslum."
+      "translation": "Að leysa einum stefnu, stefn, eða brunnur token til einhversra tengslum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "single row, column, or well token to resolve.",
@@ -22562,7 +22808,9 @@
       "label": "spacr.zstack.TStackResult.has_z#0",
       "source": "Whether the labels kept a z axis (i.e. are ``(T, Z, Y, X)``).",
       "source_sha256": "ba4737ab558e33e6f92cdd669c24bf09ad8ac33365cc10b2df91b03bc51dc441",
-      "translation": "hvort merkið hélt z axis (e.t. eru ``(T, Z, Y, X)``)."
+      "translation": "hvort merkið hélt z axis (e.t. eru ``(T, Z, Y, X)``).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "data-selection boundary for the distance-based backends, in xy pixels, with z scaled by ``anisotropy``.",
@@ -22597,7 +22845,9 @@
       "label": "spacr.zstack.UnknownDisplacementError#0",
       "source": "A distance-based backend was asked for without a displacement gate.",
       "source_sha256": "6f4cdf6aa55424c8f4caa80e577f7e90acdf93f3202f9d34128630950b607cdc",
-      "translation": "A fjarlægð byggð bakgrunn var spurð um án að flytja gate."
+      "translation": "A fjarlægð byggð bakgrunn var spurð um án að flytja gate.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "index of a channel axis to ignore, if present.",
@@ -22618,14 +22868,18 @@
       "label": "spacr.zstack.estimate_peak_bytes#0",
       "source": "Peak bytes one field needs, so a plate can be sized before it is run.",
       "source_sha256": "b444af23b4d3497fdd7b62be330faae03acb686409389f2f69789a4656fd2e99",
-      "translation": "Höfuðbítar þurfa mikroskópur á sviði, þannig að mikróplata í plötu getur verið stærð áður en það fer."
+      "translation": "Höfuðbítar þurfa mikroskópur á sviði, þannig að mikróplata í plötu getur verið stærð áður en það fer.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Peak bytes a 4-D run needs, so an acquisition can be sized before it runs.",
       "label": "spacr.zstack.estimate_peak_bytes_4d#0",
       "source": "Peak bytes a 4-D run needs, so an acquisition can be sized before it runs.",
       "source_sha256": "0da8541125137bcd3b8ef0580862c9159ce9b34e793ee14334c408c640fd4e66",
-      "translation": "Pík bytes þarf 4-D keyrsla, svo að upphæðin getur verið stærð áður en það keyra."
+      "translation": "Pík bytes þarf 4-D keyrsla, svo að upphæðin getur verið stærð áður en það keyra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**every timepoint's labels** -- linking cannot begin until the last timepoint is segmented, so the whole ``(T, Z, Y, X)`` label array is resident. At int32 that is 4 bytes per voxel per timepoint, and for a 41 x 21 x 2048 x 2048 acquisition it is ~14 GB against ~350 MB for the live volume -- which is the number that decides whether the run fits.",

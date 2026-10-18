@@ -4580,7 +4580,9 @@
       "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
       "context": "Describe object types once, collapsing organelle slots into a regex.",
       "translation": "객체 유형을 한 번씩 설명하며, 소기관 슬롯은 하나의 정규식으로 묶습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.object_type_summary#1",
@@ -4826,7 +4828,9 @@
       "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
       "context": "Fields scored ``'fail'`` in current, readable cards.",
       "translation": "현재 읽을 수 있는 카드에서 ``'fail'`` 로 채점된 현미경 시야입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.QCDigest.n_fields#0",
@@ -4834,7 +4838,9 @@
       "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
       "context": "Fields scored in current, readable cards; stale rows are excluded.",
       "translation": "현재 읽을 수 있는 카드에서 채점된 현미경 시야이며, 오래된 행은 제외됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.Scorecard.verdict#0",
@@ -4842,7 +4848,9 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
       "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` 또는 ``'error'`` 입니다.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.qc_mode#3",

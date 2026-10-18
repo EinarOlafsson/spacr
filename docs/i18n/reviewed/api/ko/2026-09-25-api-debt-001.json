@@ -264,7 +264,9 @@
       "source_sha256": "3cecf04f719ddfc2894e372b74cc978c2264dcddb6c149372c60d6e46db3414c",
       "context": "The Hugging Face page for this model, derived from its download uri.",
       "translation": "다운로드 URI 에서 만든 이 모델의 Hugging Face 페이지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.ModelEntry.model_card_url#1",
@@ -280,7 +282,9 @@
       "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
       "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
       "translation": "bioimage.io 가 게시하는 모든 Cellpose 모델을 모델 저장소 행으로 나타낸 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.bioimageio_entries#1",
@@ -344,7 +348,9 @@
       "source_sha256": "3f8d93eb9b2d2460875a1858e8632b77035401139aadd552fe264a1ef580465a",
       "context": "Unvetted models uploaded by spaCR users, or an empty list.",
       "translation": "spaCR 사용자가 업로드한 검증되지 않은 모델이며, 없으면 빈 목록입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#1",
@@ -370,7 +376,9 @@
       "source_sha256": "ce40c7898b5b6cd32f4dc53651316e0be8842d53de9464c6a259bec17c1ca6c2",
       "context": "The rows belonging to the headings that are on, in the given order.",
       "translation": "켜져 있는 제목에 속한 행을 주어진 순서대로 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.entries_from_sources#1",
@@ -402,7 +410,9 @@
       "source_sha256": "9343baba1544caf7e62ccc464d512618e0de13c12345c503ecd7272d6a151612",
       "context": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
       "translation": "목록을 :data:`ZOO_SOURCES` 별로 나누며, 각 소스의 순서를 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.group_by_source#1",
@@ -434,7 +444,9 @@
       "source_sha256": "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
       "context": "Every optional segmentation backend, in whatever state it is here.",
       "translation": "모든 선택적 분할 백엔드를, 이 환경에서의 상태와 함께 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.installable_backend_entries#1",
@@ -452,7 +464,9 @@
       "source_sha256": "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
       "context": "The model's scorecard as an HTML table, for a tooltip.",
       "translation": "툴팁용으로 모델의 성적표를 HTML 표로 나타낸 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#1",
@@ -500,7 +514,9 @@
       "source_sha256": "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
       "context": "Which of :data:`ZOO_SOURCES` this row belongs under.",
       "translation": "이 행이 :data:`ZOO_SOURCES` 중 어느 것에 속하는지 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#1",
@@ -554,7 +570,9 @@
       "source_sha256": "3413d54520dbbf73561affe9e8fb675855a81d96ee46b80fd7244a0f335b15c7",
       "context": "Every model the installed Cellpose can fetch for itself.",
       "translation": "설치된 Cellpose 가 직접 가져올 수 있는 모든 모델입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.stock_cellpose_entries#1",
@@ -1224,7 +1242,9 @@
       "source_sha256": "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
       "context": "Stitch, place, segment and decode the microplate sample positions of one sequencing acquisition.",
       "translation": "하나의 시퀀싱 획득의 마이크로플레이트 시료 위치를 스티칭, 배치, 분할 및 디코딩합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#1",
@@ -1284,7 +1304,9 @@
       "source_sha256": "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
       "context": "One record per group no window saw whole, for a run report.",
       "translation": "처리 세션 보고서를 위해, 어떤 창도 전체를 보지 못한 그룹마다 하나의 레코드를 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#1",
@@ -1344,7 +1366,9 @@
       "source_sha256": "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
       "context": "The intensities a call was made on, the barcode, and the margin per cycle.",
       "translation": "호출의 기반이 된 강도, 바코드, 그리고 사이클별 여유값입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_sbs.called_bases#1",
@@ -1482,7 +1506,9 @@
       "source_sha256": "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
       "context": "The shapes ``method`` is a legal detector for.",
       "translation": "``method`` 를 검출기로 사용할 수 있는 형태입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.morphologies_for_method#1",
@@ -1654,7 +1680,9 @@
       "source_sha256": "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
       "context": "The flow picture and cell probability out of a Cellpose result.",
       "translation": "Cellpose 결과에서 흐름 그림과 세포 확률을 꺼냅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.plaque_flow_outputs#1",
@@ -1678,7 +1706,9 @@
       "source_sha256": "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
       "context": "Segment one plaque image the way both Plaque mode's preview and run do.",
       "translation": "Plaque 모드의 미리 보기와 처리 세션이 모두 사용하는 방식으로 플라크 이미지 하나를 분할합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#1",
@@ -1761,7 +1791,9 @@
       "source_sha256": "d06db38d8cc9c72ad953fbddefc9d1616b72a2e6b7387a428d125e6f9181b6c1",
       "context": "Suggest missing scale/time using an explicitly assumed growth relation.",
       "translation": "명시적으로 가정한 성장 관계를 사용하여 누락된 배율/시간을 제안합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimate_page#1",
@@ -1809,7 +1841,9 @@
       "source_sha256": "9f499b1eab475128b832d020e0c203b7961e6ec203bc3bf368446419039206a2",
       "context": "Return per-microplate sample position suggestions and complete JSON provenance when enabled.",
       "translation": "활성화된 경우 시료 위치별 제안과 완전한 JSON 출처 정보를 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimates_from_settings#1",
@@ -1841,7 +1875,9 @@
       "source_sha256": "2400ae0c5a25da75770e394c915fddf157beb306386e8c7902de190e6ecfa2fe",
       "context": "Median equivalent diameter of the largest ceil(N/4) positive areas.",
       "translation": "가장 큰 ceil(N/4) 개 양수 면적의 등가 지름 중앙값입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.largest_quarter#1",
@@ -1953,7 +1989,9 @@
       "source_sha256": "d5b144bb96dcac6a396c2c0043e61a2e5d8ef07f5f9f5454d3d71755f2dc371a",
       "context": "What one plaque image shows, and how that was decided.",
       "translation": "플라크 이미지 하나가 보여 주는 것과, 그것이 결정된 방식입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Annotation#1",
@@ -2041,7 +2079,9 @@
       "source_sha256": "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
       "context": "One figure image and its legend.",
       "translation": "그림 이미지 하나와 그 범례입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Figure#1",
@@ -2089,7 +2129,9 @@
       "source_sha256": "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
       "context": "One paper, however it was named.",
       "translation": "어떻게 지칭되었든 논문 하나입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Paper#1",
@@ -2121,7 +2163,9 @@
       "source_sha256": "89fd591d171eceb74fa5dd9143d3a6b02ecf18fcd391debed0bd997896350818",
       "context": "The figure reader must be installed, or installed again, first.",
       "translation": "그림 판독기를 먼저 설치하거나 다시 설치해야 합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
@@ -2163,7 +2207,9 @@
       "source_sha256": "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
       "context": "One plaque image the detector found inside a figure.",
       "translation": "검출기가 그림 안에서 찾은 플라크 이미지 하나입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region#1",
@@ -2219,7 +2265,9 @@
       "source_sha256": "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6",
       "context": "Shorter side over longer, so 1.0 is square.",
       "translation": "짧은 변을 긴 변으로 나눈 값이므로 1.0 은 정사각형입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#0",
@@ -2227,7 +2275,9 @@
       "source_sha256": "cc38c72a91847fb8cf0b0831289c50261132248d55c1c69d085590d89eaa4d5f",
       "context": "Whether a word's centre lies inside this box.",
       "translation": "단어의 중심이 이 상자 안에 있는지 여부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#1",
@@ -2251,7 +2301,9 @@
       "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
       "context": "Box height in pixels.",
       "translation": "픽셀 단위의 상자 높이입니다.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.width#0",
@@ -2259,7 +2311,9 @@
       "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
       "context": "Box width in pixels.",
       "translation": "픽셀 단위의 상자 너비입니다.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#0",
@@ -2267,7 +2321,9 @@
       "source_sha256": "d5bec4da82e97883c949ceea598469921978e5eb26e16160dd1536ec70818599",
       "context": "How the text around a plaque image is turned into its condition.",
       "translation": "플라크 이미지 주변의 텍스트를 그 조건으로 바꾸는 방법입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#1",
@@ -2387,7 +2443,9 @@
       "source_sha256": "81038886928203d9a3f965e4e911bd337ade46427239ec4b68ba05463d490cf4",
       "context": "Whether a word survives the confidence and ignore filters.",
       "translation": "단어가 신뢰도 필터와 무시 필터를 통과하는지 여부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions.keeps#1",
@@ -2411,7 +2469,9 @@
       "source_sha256": "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
       "context": "One piece of text in a figure, in image pixels.",
       "translation": "이미지 픽셀 단위로 나타낸 그림 속 텍스트 조각 하나입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word#1",
@@ -2467,7 +2527,9 @@
       "source_sha256": "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0",
       "context": "Horizontal centre.",
       "translation": "가로 방향 중심입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.cy#0",
@@ -2475,7 +2537,9 @@
       "source_sha256": "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575",
       "context": "Vertical centre.",
       "translation": "세로 방향 중심입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.panel_letter#0",
@@ -2483,7 +2547,9 @@
       "source_sha256": "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c",
       "context": "The letter when this word is a panel label such as ``F`` or ``(b)``.",
       "translation": "이 단어가 ``F`` 또는 ``(b)`` 와 같은 패널 레이블일 때의 문자입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#0",
@@ -2491,7 +2557,9 @@
       "source_sha256": "04744b44fb595d2ebfaa60f1ae87739800367e1fc69d09b69f99198c08cbafa5",
       "context": "Propose a condition for every plaque image in one figure.",
       "translation": "그림 하나의 모든 플라크 이미지에 대해 조건을 제안합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#1",
@@ -2555,7 +2623,9 @@
       "source_sha256": "e311ac45ef5d98bbec5131b8b24648da27f950e44087e20edaaff1e100f39d47",
       "context": "An annotation as plain values, for JSON and the review dialog.",
       "translation": "JSON 과 검토 대화 상자를 위해 주석을 일반 값으로 나타낸 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotation_as_dict#1",
@@ -2579,7 +2649,9 @@
       "source_sha256": "73cc2c2379f444b0ff76343027c4c7d68ca24ea55ce9fd8d6d4f56becbb6a718",
       "context": "Put a person's edits and approvals onto one figure's proposals.",
       "translation": "사람의 수정과 승인을 그림 하나의 제안에 적용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.apply_overrides#1",
@@ -2635,7 +2707,9 @@
       "source_sha256": "de6e27b12a83aeac319312b45df2a01ad8f8b6830973c677de4525b30f28de5c",
       "context": "Parse an optional finite calibration value without treating invalid input as missing.",
       "translation": "잘못된 입력을 누락으로 취급하지 않고 선택적인 유한 보정 값을 구문 분석합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#0",
@@ -2643,7 +2717,9 @@
       "source_sha256": "372341476aabb3763d862ccc7005408d9c529181e736779e582d85144682685d",
       "context": "Return per-microplate sample position size, scale and timing metadata for preview and saved tables.",
       "translation": "미리 보기와 저장된 테이블을 위해 시료 위치별 크기, 배율 및 시간 메타데이터를 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#1",
@@ -2701,7 +2777,9 @@
       "source_sha256": "e9801e82f0ef743c389c3454861f100bc6d79d2c99c953e1c32a5ba6503dd94e",
       "context": "Show each proposed condition at the terminal and take OK, an edit, or skip.",
       "translation": "제안된 각 조건을 터미널에 보여 주고 OK, 수정 또는 건너뛰기를 입력받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_review#1",
@@ -2733,7 +2811,9 @@
       "source_sha256": "16654b7288c584ab587a18f6c18649cbfdcf0118a6867e7f645fe5b33dcd582e",
       "context": "The detector call Figure mode uses: in process, or in the reader.",
       "translation": "Figure 모드가 사용하는 검출기 호출이며, 프로세스 내에서 또는 판독기 안에서 실행됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.default_detect#1",
@@ -2749,7 +2829,9 @@
       "source_sha256": "c74876a9b99f9f510356cde6978b34e9a4afaa51a8f24f87d3b6fe7c099f6439",
       "context": "Download a paper's figures from Europe PMC with their legends.",
       "translation": "Europe PMC 에서 논문의 그림을 범례와 함께 다운로드합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#1",
@@ -2799,7 +2881,9 @@
       "source_sha256": "c45b48bc27bc20c41911b9fec0017b401ae7dd6436799efb828fd37b66e31b51",
       "context": "Put a paper's figures in a folder Plaque Assay's Figure mode can read.",
       "translation": "Plaque Assay 의 Figure 모드가 읽을 수 있는 폴더에 논문의 그림을 넣습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_paper_to_folder#1",
@@ -2855,7 +2939,9 @@
       "source_sha256": "083dc7acd3ff669f839a328292d3072ea041ca642dfea957c13a72902a6b5065",
       "context": "Every page of a PDF as a figure image, with its text layer attached.",
       "translation": "PDF 의 모든 페이지를 텍스트 레이어가 붙은 그림 이미지로 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_from_pdf#1",
@@ -2927,7 +3013,9 @@
       "source_sha256": "8ec9169b6895b82549fc3b12a5267cb97e05dc322a94d829bc6da230311289d0",
       "context": "Every figure image directly in ``src``, with its legend when known.",
       "translation": "``src`` 바로 안에 있는 모든 그림 이미지이며, 알려진 경우 범례도 포함합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_in_folder#1",
@@ -2959,7 +3047,9 @@
       "source_sha256": "a88b58fc97bea220ab1066d30b0d71b11af071c555c1ed8301009e9855803009",
       "context": "Plaque images in one figure, asked at every inference size given.",
       "translation": "그림 하나의 플라크 이미지이며, 주어진 모든 추론 크기로 질의합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.find_plaque_regions#1",
@@ -3031,7 +3121,9 @@
       "source_sha256": "c979713f02fef8356300beb27390b085800100ce6b1bf0b6e11b6e49b6e965b4",
       "context": "Figure legends found in a paper's running text.",
       "translation": "논문 본문 텍스트에서 찾은 그림 범례입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.legends_from_text#1",
@@ -3071,7 +3163,9 @@
       "source_sha256": "5d91452d503580d1682a59fa04764bbef8536d904b96b738cf1450a1dd210957",
       "context": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.",
       "translation": "Plaque Assay 의 Figure 모드입니다. 폴더를 찾고, 읽고, 주석을 달고, 측정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#1",
@@ -3209,7 +3303,9 @@
       "source_sha256": "3e1793a7e1db6b4d248772127a491eb51eb1ac2f4622f3eacb56296a13f71efa",
       "context": "Measure the plaques in every figure of every paper given.",
       "translation": "주어진 모든 논문의 모든 그림에서 플라크를 측정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_plaques_from_papers#1",
@@ -3305,7 +3401,9 @@
       "source_sha256": "429ed306a9416ec8209f852f9cf0732b1113131e9920f0e94c463603021b889a",
       "context": "One row per plaque in a segmented plaque image.",
       "translation": "분할된 플라크 이미지에서 플라크마다 한 행입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_region#1",
@@ -3339,7 +3437,9 @@
       "source_sha256": "6976dc0dd07662f8e2a3d62dc650fa43cb869b1099a2cf00bfdf2989b5d45c1b",
       "context": "Open (and create, or bring up to date) the results database.",
       "translation": "결과 데이터베이스를 엽니다(필요하면 생성하거나 최신 상태로 갱신합니다).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.open_database#1",
@@ -3405,7 +3505,9 @@
       "source_sha256": "fe2fcf48af0c396f0234fcf54094e0b0178b66fd408896c17e6a170a5e1c20bf",
       "context": "Conditions a person edited or approved, keyed by figure and image.",
       "translation": "사람이 수정하거나 승인한 조건이며, 그림과 이미지를 키로 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_annotation_overrides#1",
@@ -3421,7 +3523,9 @@
       "source_sha256": "c417eed5768de812a16bdb7c5e6e0e6bd2eb21a1f23618014aaae28c3272836a",
       "context": "Figure legends supplied beside a folder of figures.",
       "translation": "그림 폴더 옆에 제공된 그림 범례입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_legends#1",
@@ -3445,7 +3549,9 @@
       "source_sha256": "a4823e5f2660c2209c9e071034c4e26b8bcefcbe42256ffacc265e3338a14570",
       "context": "The text printed in a figure image, with where it is.",
       "translation": "그림 이미지에 인쇄된 텍스트와 그 위치입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_words#1",
@@ -3543,7 +3649,9 @@
       "source_sha256": "e22217703b41c0ae60d2f0a477622214b6fd7e9f12cb0f9cac0f563de38fd65b",
       "context": "The figure reader's own environment when it is installed, else None.",
       "translation": "그림 판독기가 설치되어 있으면 그 자체 환경이며, 그렇지 않으면 None 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_environment#1",
@@ -3559,7 +3667,9 @@
       "source_sha256": "2c4b0219d390309fcded6871329c3e98035da1ce867e1a08af764764816ea129",
       "context": "Whether Figure mode can read now, and what to do when it cannot.",
       "translation": "Figure 모드가 지금 판독할 수 있는지, 없다면 무엇을 해야 하는지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_problem#1",
@@ -3591,7 +3701,9 @@
       "source_sha256": "9fd40dd240a6986eaf7946f48daf5fa81fa17c358581ca0e3207c930d65fa434",
       "context": "Read the text around each grid of plaque images again, enlarged.",
       "translation": "플라크 이미지의 각 그리드 주변 텍스트를 확대하여 다시 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reread_around#1",
@@ -3655,7 +3767,9 @@
       "source_sha256": "06db37f358718807dd30deb26e1be23f9178aef98352a304fd387e51615e8f3b",
       "context": "Look a reference up in Europe PMC, or describe a local PDF.",
       "translation": "Europe PMC 에서 참조를 조회하거나, 로컬 PDF 를 기술합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.resolve_paper#1",
@@ -3695,7 +3809,9 @@
       "source_sha256": "a45fcd6b887924fb6f5007b53bff64fce1328a582fdd17f89defc2ee13cd5a13",
       "context": "Hex sha256 of some bytes.",
       "translation": "바이트의 16진수 sha256 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.sha256_bytes#1",
@@ -3719,7 +3835,9 @@
       "source_sha256": "ea3a961e2d0a5a9f35d10bf9a5a1e040067657754eb4b065423b6336a70f73c4",
       "context": "A figure legend cut into one passage per panel letter.",
       "translation": "그림 범례를 패널 문자마다 한 구절씩 나눈 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.split_legend#1",
@@ -3751,7 +3869,9 @@
       "source_sha256": "5e4878d34b894f321c5d42be71bfc0921a9b08b1e2e735a46376de6fa42055f5",
       "context": "The text a reader would take as this image's label.",
       "translation": "독자가 이 이미지의 레이블로 받아들일 텍스트입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#1",
@@ -3849,7 +3969,9 @@
       "source_sha256": "aaee248eae3cca58718a79e35cb15cd516b4b8f0edaccd56a62e30ea1dfac29b",
       "context": ":class:`TextOptions` from a settings key-value mapping's ``text_*`` structured-data names.",
       "translation": ":class:`TextOptions` 이며, 설정 사전의 ``text_*`` 키로 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_options_from_settings#1",
@@ -3873,7 +3995,9 @@
       "source_sha256": "72a190b5e9f6b6fa0f3dee0f7f846d926139db70c9338c8d806e39ea52e70fbf",
       "context": "Save reviewed conditions for :func:`read_annotation_overrides`.",
       "translation": ":func:`read_annotation_overrides` 가 읽을 수 있도록 검토된 조건을 저장합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.write_annotation_overrides#1",
@@ -3993,7 +4117,9 @@
       "source_sha256": "af600b6cfc25b552a14703657b3135e7a087c397cc21e948d8c8a7bdc0d9489a",
       "context": "One microscope objective: nominal magnification, numerical aperture and immersion.",
       "translation": "현미경 대물렌즈 하나입니다. 공칭 배율, 개구수 및 침지 매질입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.Objective#1",
@@ -4033,7 +4159,9 @@
       "source_sha256": "38eee7f455218b3ff8eace06c7951d36d0d9f4782e858af1c05dbd24638b4ef5",
       "context": "An inferred optical quantity and where it came from.",
       "translation": "추론된 광학량과 그 출처입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.OpticalValue#1",
@@ -4073,7 +4201,9 @@
       "source_sha256": "75330411bedaa82d776fdbfed3773f0168f32bde774c71adb18f6aafa436928b",
       "context": "An immutable, normalized kernel whose bytes identify the actual PSF.",
       "translation": "바이트가 실제 PSF 를 식별하는, 변경할 수 없는 정규화된 커널입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF#1",
@@ -4129,7 +4259,9 @@
       "source_sha256": "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f",
       "context": "Return a read-only float32 view of the normalized kernel.",
       "translation": "정규화된 커널의 읽기 전용 float32 뷰를 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF.provenance#0",
@@ -4137,7 +4269,9 @@
       "source_sha256": "6fb33becbb75cf3ca4ce36036d61f2c1c9c000766371beed302178e48eb7c6c6",
       "context": "Return a fresh JSON-safe record of the kernel and its identity.",
       "translation": "커널과 그 식별 정보에 대한 새로운 JSON 안전 기록을 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#0",
@@ -4145,7 +4279,9 @@
       "source_sha256": "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
       "context": "Processed float32 image and a JSON-safe processing receipt.",
       "translation": "처리된 float32 이미지와 JSON 안전 처리 영수증입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#1",
@@ -4169,7 +4305,9 @@
       "source_sha256": "818f85df594de0515acfe2a8f0fa21082b81025c2ade91a6358007c888daa33f",
       "context": "A caller cancelled processing; no partial image should be applied.",
       "translation": "호출자가 처리를 취소했습니다. 부분 이미지는 적용하면 안 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#0",
@@ -4177,7 +4315,9 @@
       "source_sha256": "19e42c80f76139d7b1f733ec7101df38605f2d70c6fd8dae8aa026bad90ac99c",
       "context": "Convolve or Richardson–Lucy deconvolve each channel with a known PSF.",
       "translation": "알려진 PSF 로 각 채널을 합성곱하거나 Richardson–Lucy 디컨볼루션합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#1",
@@ -4259,7 +4399,9 @@
       "source_sha256": "59fcccfa43216fceb4536e3179b3b114665662142817bfa25624d1cfd1c3766c",
       "context": "One English line per inferred value: ``name = value (source: detail)``.",
       "translation": "추론된 값마다 영어 한 줄: ``name = value (source: detail)``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.describe_optics#1",
@@ -4283,7 +4425,9 @@
       "source_sha256": "ac0670908d4e690aba6df5f3177fe76df98c1d4d03035d8cd9985e61e3dcac77",
       "context": "Fill unset Gaussian PSF calibration in Mask settings, in place.",
       "translation": "Mask 설정에서 설정되지 않은 가우시안 PSF 보정 값을 제자리에서 채웁니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.fill_psf_settings#1",
@@ -4323,7 +4467,9 @@
       "source_sha256": "ca6e1fc0c371c2f3e410587ea927f0edb2553f5774a613e8ffcf1783c7b2ead1",
       "context": "Calculate a sampled Gaussian approximation from declared physical widths.",
       "translation": "선언된 물리적 폭으로부터 표본화된 가우시안 근사를 계산합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.gaussian_psf#1",
@@ -4371,7 +4517,9 @@
       "source_sha256": "5aa8b9059d007dd0fc1ffa8628a08d7d0fe759fcc85ea1acb13b70c9e7af120e",
       "context": "Calibration an image file states about itself, each value with its source.",
       "translation": "이미지 파일이 자신에 대해 명시한 보정 정보이며, 각 값에 출처가 붙습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.image_optics_metadata#1",
@@ -4403,7 +4551,9 @@
       "source_sha256": "a86481cd0dda646466d684a9058d0e3c7a4b6274193489479aec4afa7899d9e7",
       "context": "Infer PSF calibration from image metadata, a chosen objective and defaults.",
       "translation": "이미지 메타데이터, 선택한 대물렌즈 및 기본값으로부터 PSF 보정 정보를 추론합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.infer_optics#1",
@@ -4507,7 +4657,9 @@
       "source_sha256": "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
       "context": "Lateral FWHM of a diffraction-limited widefield PSF, 0.51 λ/NA.",
       "translation": "회절 한계 광시야 PSF 의 측면 FWHM 이며, 0.51 λ/NA 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.lateral_fwhm_um#1",
@@ -4547,7 +4699,9 @@
       "source_sha256": "372eba12e80831842d066b5da891fb2f4cdc632c193094bcf1fddb44352db190",
       "context": "Read a calibrated measured kernel from NPY or a single TIFF series.",
       "translation": "NPY 또는 단일 TIFF 시리즈에서 보정된 측정 커널을 읽습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.load_psf#1",
@@ -4587,7 +4741,9 @@
       "source_sha256": "850fd7814b64c5bf02b84c4404d8034ce5f6474beb161ec37dc0a26b04b98ab4",
       "context": "Normalize a measured 2-D/3-D kernel, preserving its centre as origin.",
       "translation": "측정된 2-D/3-D 커널을 정규화하며, 중심을 원점으로 보존합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.measured_psf#1",
@@ -4627,7 +4783,9 @@
       "source_sha256": "d316a16347fe66c5aafb69e1b2273673bb50a2fc981d355579848110f73e1aaa",
       "context": "Return the :class:`Objective` table row called ``name``.",
       "translation": ":class:`Objective` 표에서 ``name`` 이라는 행을 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.objective#1",
@@ -4659,7 +4817,9 @@
       "source_sha256": "b6aebd917f2074640de6d3a0a45f1adaa830fc24560d64e8fc00144b0f464a26",
       "context": "Sample spacing at the specimen: camera pixel pitch divided by total magnification.",
       "translation": "시료 위치에서의 샘플 간격으로, 카메라 픽셀 피치를 전체 배율로 나눈 값입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.pixel_size_um#1",
@@ -4739,7 +4899,9 @@
       "source_sha256": "f8aea46aa9f67bd22dffcecd9a4f01e9862888d84263ad0e16c5d93faa4db014",
       "context": "Describe the exact intensity stream given to quantitative features.",
       "translation": "정량 특징에 전달되는 정확한 강도 스트림을 기술합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_record#1",
@@ -4787,7 +4949,9 @@
       "source_sha256": "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
       "context": "Return stable JSON configuration, or None for standard intensities.",
       "translation": "안정적인 JSON 구성을 반환하며, 표준 강도이면 None 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_signature#1",
@@ -4847,7 +5011,9 @@
       "source_sha256": "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
       "context": "Capture a calibrated kernel only for explicitly processed measurements.",
       "translation": "명시적으로 처리된 측정에 대해서만 보정된 커널을 캡처합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#1",
@@ -4879,7 +5045,9 @@
       "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
       "context": "Refuse to mix incompatible intensity sources even when resume is off.",
       "translation": "재개가 꺼져 있어도 호환되지 않는 강도 소스를 섞는 것을 거부합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.validate_measurement_psf_history#1",

@@ -51,7 +51,9 @@
       "source_sha256": "2ce6d33b434901213f0d05b4b20bde93527b242a0903f7049bec031a4e9a65d6",
       "source": "Read a run's ``settings.json`` (falling back to settings.csv).",
       "context": "Read a run's ``settings.json`` (falling back to settings.csv).",
-      "translation": "처리 세션의 ``settings.json``을 읽고, 없으면 settings.csv 파일을 사용합니다."
+      "translation": "처리 세션의 ``settings.json``을 읽고, 없으면 settings.csv 파일을 사용합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.read_crop_png#0",
@@ -101,7 +103,9 @@
       "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
       "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
       "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
-      "translation": "현미경 시야 스택을 Cellpose 도구로 일괄 처리한 후 마스크 이미지 데이터 채널을 동일한 npy 파일에 추가합니다."
+      "translation": "현미경 시야 스택을 Cellpose 도구로 일괄 처리한 후 마스크 이미지 데이터 채널을 동일한 npy 파일에 추가합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.hyperparam.activation_search#6",

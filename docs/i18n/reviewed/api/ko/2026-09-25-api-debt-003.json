@@ -4702,7 +4702,9 @@
       "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
       "context": "Where the fetched release list is remembered between launches.",
       "translation": "가져온 릴리스 목록을 실행 간에 기억해 두는 위치입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.updater.run_pip_upgrade#2",

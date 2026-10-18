@@ -2061,7 +2061,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read one or more tables out of a measurement database.",
       "source_sha256": "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
-      "translation": "Les eina eða fleiri töflur úr mælingagagnagrunni."
+      "translation": "Les eina eða fleiri töflur úr mælingagagnagrunni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
@@ -2093,7 +2095,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write one frame into a database table, with canonical column names.",
       "source_sha256": "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
-      "translation": "Skrifar einn gagnaramma í gagnagrunnstöflu, með stöðluðum dálkaheitum."
+      "translation": "Skrifar einn gagnaramma í gagnagrunnstöflu, með stöðluðum dálkaheitum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",

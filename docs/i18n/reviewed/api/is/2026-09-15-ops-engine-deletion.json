@@ -6,7 +6,9 @@
       "label": "spacr.ops_settings.ops_defaults#0",
       "source": "The settings the OPS engine reads, with their defaults filled in.",
       "source_sha256": "b5889f09bc4d9e395fca1c68b572cc709449af2ce7a043f86c2f7a5782b7cff6",
-      "translation": "Stillingarnar sem OPS-vélin les, með sjálfgefnu gildin útfyllt."
+      "translation": "Stillingarnar sem OPS-vélin les, með sjálfgefnu gildin útfyllt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

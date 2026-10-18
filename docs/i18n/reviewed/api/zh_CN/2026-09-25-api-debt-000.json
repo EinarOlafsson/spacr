@@ -4132,7 +4132,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Average probabilities or vote across selected image orientations.",
       "source_sha256": "e68a88ee0f0c7bd86f4b8a72eb8825aaeda1667fb0d871c786452f866ac4668b",
-      "translation": "在所选的图像方向之间平均概率或进行投票。"
+      "translation": "在所选的图像方向之间平均概率或进行投票。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "evaluation-mode callable returning binary or multiclass logits.",
@@ -4180,7 +4182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Return distinct right-angle rotations/reflections, with identity first.",
       "source_sha256": "8e6298d7d62b266ce3dc585a1d6c1f081679e70eb14c3b8a8019a711134b1a00",
-      "translation": "返回互不相同的直角旋转/镜像，恒等变换排在首位。"
+      "translation": "返回互不相同的直角旋转/镜像，恒等变换排在首位。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping containing the optional tta_* switches.",
@@ -4708,7 +4712,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Intersection over union for every pair of labels in two frames.",
       "source_sha256": "7804e7e63c7574f1bcff6191ea7a871d01ad60d751c0c2a92f630f0828c9e3df",
-      "translation": "两帧中每一对标签的交并比。"
+      "translation": "两帧中每一对标签的交并比。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "2-D label frame.",
@@ -4740,7 +4746,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match the labels of two consecutive frames one to one.",
       "source_sha256": "c9f52499b40c86c61b38960eea8a44282db0671ffe63e2e303ec1e3fa1b9c30f",
-      "translation": "将两个连续帧的标签一一匹配。"
+      "translation": "将两个连续帧的标签一一匹配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Hungarian assignment maximising total IoU, then every pair below the threshold is dropped. The assignment matters where a cell divides or two cells touch: greedy best-match links both children to the parent and produces two objects with one id, which the metrics then punish twice.",
@@ -4772,7 +4780,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match every ground-truth object to the computed segment that detects it.",
       "source_sha256": "a26bf651ae274eb2372ce668200ed08abda15aa9512fba01265812a3f64fd24e",
-      "translation": "将每个参考标注对象与检测到它的计算分割区域相匹配。"
+      "translation": "将每个参考标注对象与检测到它的计算分割区域相匹配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge's criterion: a computed segment detects a ground-truth object when it covers more than half of that object's pixels.",
@@ -4812,7 +4822,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cross-tabulate the pixels shared by the labels of two frames.",
       "source_sha256": "e40555b52f8f06aaf23c4fc00c84110bec8cca5e1434a7d654d00cf99ff0228c",
-      "translation": "对两帧标签共享的像素进行交叉列表统计。"
+      "translation": "对两帧标签共享的像素进行交叉列表统计。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One pass over the pixels where both frames are labelled, so the cost is the image rather than the product of the two label counts.",
@@ -4836,7 +4848,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Run the baseline stitcher on a segmentation and score what it produced.",
       "source_sha256": "8e118c570d818c9f23055e6d458f81c9f0c9f899061434ffc6d5df2e389e197e",
-      "translation": "在分割结果上运行基线拼接器，并对其输出进行评分。"
+      "translation": "在分割结果上运行基线拼接器，并对其输出进行评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
@@ -4886,7 +4900,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Score one computed tracking against the truth, counts and all.",
       "source_sha256": "29a6a56d14552c4a05a9fb37314a2b674c9fd3af8eed2f1c735593b0a025a5d8",
-      "translation": "将一个计算所得的跟踪结果与真实情况对比评分，包括所有计数。"
+      "translation": "将一个计算所得的跟踪结果与真实情况对比评分，包括所有计数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the row is called, so several trackings concatenate into one table.",
@@ -4910,7 +4926,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Put scored trackings in one table, best TRA first.",
       "source_sha256": "c9e111bfc8eb626600920e467b1fa2e5d645bd5b35b14123a87b6cbc7876f857",
-      "translation": "将已评分的跟踪结果放入一张表中，TRA 最高者在前。"
+      "translation": "将已评分的跟踪结果放入一张表中，TRA 最高者在前。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "iterable of :func:`score_tracking` results.",
@@ -4934,7 +4952,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Give one id to the same object through a movie, by overlap alone.",
       "source_sha256": "81f8ee892b4e1dbca0a14adf1ae89f5dcaf451b4cb7dd4094252e03d5d2f0825",
-      "translation": "仅凭重叠，为影像序列中的同一对象赋予一个 ID。"
+      "translation": "仅凭重叠，为影像序列中的同一对象赋予一个 ID。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the baseline the plan calls \"the plain stitcher\": each frame is segmented independently, consecutive frames are matched by IoU, an object that matches nothing starts a new id, and nothing is bridged across a gap. It has no notion of a division -- both children are new objects, and the parent simply ends -- which is exactly the limitation the time-flow head is supposed to remove, so it is left in rather than patched around.",
@@ -4966,7 +4986,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Cell Tracking Challenge's TRA: detection and links together.",
       "source_sha256": "fca24c029cb57213a51768d4e103f9f4309733c3ff0c817145f9282b43dbb121",
-      "translation": "Cell Tracking Challenge 的 TRA：同时考虑检测和链接。"
+      "translation": "Cell Tracking Challenge 的 TRA：同时考虑检测和链接。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "float in ``[0, 1]``; ``1.0`` for a tracking identical to the truth.",
@@ -4982,7 +5004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the acyclic oriented graph the AOGM measures are defined on.",
       "source_sha256": "06fa6aeae0fa412bbf36a440bab22b03b04997e587a26988d86a053c8576aa47",
-      "translation": "构建定义 AOGM 度量所用的有向无环图。"
+      "translation": "构建定义 AOGM 度量所用的有向无环图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A label whose frames are not contiguous -- a tracker that bridged a gap, or annotation that let an object vanish for a frame and kept its id -- is not refused, but the gap earns no edge. The challenge's format has no way to say \"the same object, not visible for a while\", and an edge across the gap would credit a link the graph cannot express and the truth does not contain. The tracking is scored on the links it can show; the identity it claims across the gap is still honoured by :func:`identity_switches`, which is where that claim belongs.",

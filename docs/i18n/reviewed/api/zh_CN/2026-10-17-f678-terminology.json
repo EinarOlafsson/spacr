@@ -2824,21 +2824,27 @@
       "label": "spacr.layers.ImageLayer.auto_contrast#0",
       "source": "Recompute every channel's limits from the data.",
       "source_sha256": "79e865334d14e13ad20cebdf1b4e003caddac7b02f3f7f9ddc33a5d61d4d16b6",
-      "translation": "从数据中恢复每个通道的限制。"
+      "translation": "从数据中恢复每个通道的限制。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The spatial array for one image data channel (a view, not a copy).",
       "label": "spacr.layers.ImageLayer.channel_data#0",
       "source": "The spatial array for one channel (a view, not a copy).",
       "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "translation": "一个图像数据通道的空间序列(一个视图,而不是一个副本)。"
+      "translation": "一个图像数据通道的空间序列(一个视图,而不是一个副本)。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What each channel is called, in channel order.",
       "label": "spacr.layers.ImageLayer.channel_names#0",
       "source": "What each channel is called, in channel order.",
       "source_sha256": "2d836c0e2be9f617560c17d85cdbf9a98b7357b1addfbb63e7f1a440cee80550",
-      "translation": "每个通道都被称为什么,通道顺序。"
+      "translation": "每个通道都被称为什么,通道顺序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one name per channel.",
@@ -2852,7 +2858,9 @@
       "label": "spacr.layers.ImageLayer.colormap#0",
       "source": "Channel 0's LUT — the one a single-channel layer has. Set the FIRST channel's colormap.",
       "source_sha256": "0631e40096d40448d8eecdef8a37100240e835a0b839858e8c664d05b1cc80c9",
-      "translation": "通道 0 的 LUT - 一个单通道层有. 设置第一通道的颜色图。"
+      "translation": "通道 0 的 LUT - 一个单通道层有. 设置第一通道的颜色图。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The convenience spelling for the single-channel case, which is most of them; :meth:`set_colormap` names the channel when there is more than one.",
@@ -2866,21 +2874,27 @@
       "label": "spacr.layers.ImageLayer.colormaps#0",
       "source": "One colormap per channel, in channel order.",
       "source_sha256": "dadb71727493c62ed16f0ec351ba821e83b07c2794a18fc92b3f3e86255b6e08",
-      "translation": "每通道一张彩色图,通道顺序。"
+      "translation": "每通道一张彩色图,通道顺序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The pixel array, image data channels included.",
       "label": "spacr.layers.ImageLayer.data#0",
       "source": "The pixel array, channels included.",
       "source_sha256": "059876f8217b9e90d475ade458266b86bf78612746741f5a246d1b780ca10f94",
-      "translation": "像素序列,图像数据通道包括。"
+      "translation": "像素序列,图像数据通道包括。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many image data channels this image carries.",
       "label": "spacr.layers.ImageLayer.n_channels#0",
       "source": "How many channels this image carries.",
       "source_sha256": "bdab2b2d501ec11bc711f963e22e4ddf5fbbf1325fe48834e29c72343be89b3f",
-      "translation": "这个图像带有多少图像数据通道。"
+      "translation": "这个图像带有多少图像数据通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the channel count.",
@@ -2894,7 +2908,9 @@
       "label": "spacr.layers.ImageLayer.ndim#0",
       "source": "How many SPATIAL axes this image has, excluding channels.",
       "source_sha256": "c2ab21e270d2b2e1345e4e211dec4701c3a54d33d6f2c41af8a2cdcbc6f0da75",
-      "translation": "这个图像有多少个空间轴,除了图像数据通道。"
+      "translation": "这个图像有多少个空间轴,除了图像数据通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A channel is not a dimension you can navigate, so counting it here would put a slider on the viewer for something that is not a place.",
@@ -2908,35 +2924,45 @@
       "label": "spacr.layers.ImageLayer.set_colormap#0",
       "source": "Give one channel a new LUT.",
       "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "translation": "给一个通道一个新的LUT。"
+      "translation": "给一个通道一个新的LUT。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set one channel's limits.",
       "label": "spacr.layers.ImageLayer.set_contrast_limits#0",
       "source": "Set one channel's limits.",
       "source_sha256": "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
-      "translation": "设置一个通道的限制。"
+      "translation": "设置一个通道的限制。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The spatial shape, excluding channels.",
       "label": "spacr.layers.ImageLayer.shape#0",
       "source": "The spatial shape, excluding channels.",
       "source_sha256": "84ea2070b9e753b1de8ba8fb11946abe29e55527e1a41a95b1b5d80c24e27be2",
-      "translation": "空间形状,排除通道。"
+      "translation": "空间形状,排除通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "An integer segmentation mask. 0 is background and draws as nothing.",
       "label": "spacr.layers.LabelsLayer#0",
       "source": "An integer segmentation mask. 0 is background and draws as nothing.",
       "source_sha256": "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
-      "translation": "一个完整的分割掩膜. 0 是背景,并将其引用为无。"
+      "translation": "一个完整的分割掩膜. 0 是背景,并将其引用为无。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Which imaging field these labels belong to, if any.",
       "label": "spacr.layers.LabelsLayer.field#0",
       "source": "Which imaging field these labels belong to, if any.",
       "source_sha256": "295684caec0b009b1a5cd18d66613afc1cc7b38413aef848d9920a06bd72cc73",
-      "translation": "这些标签属于哪个图像视野,如果有。"
+      "translation": "这些标签属于哪个图像视野,如果有。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``None`` for background, or when this layer was not told which microscope field of view it segments. This is the whole reason a labels layer carries a :class:`FieldKey`: the string this returns is the same string the UMAP, the laboratory microplate view and the annotation grid use, so publishing it through :mod:`spacr.qt.linked_selection` highlights the same cell everywhere.",
@@ -3027,14 +3053,18 @@
       "label": "spacr.macro.begin_recording#0",
       "source": "Start recording a run. Half of the hook; never raises.",
       "source_sha256": "90710c03646c8ef40905a495fd66996e6d3bfc933929862f9bba561f6ed945ba",
-      "translation": "开始录制一次运行,一半的尾巴;永远不会扔。"
+      "translation": "开始录制一次运行,一半的尾巴;永远不会扔。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The chain the next run would join, or None before anything has run.",
       "label": "spacr.macro.current_macro#0",
       "source": "The chain the next run would join, or None before anything has run.",
       "source_sha256": "0c380abb1bca365cce8afe7fb65a3a941a83963f56da060d7aeb5fbce21ac979",
-      "translation": "接下来的连锁会加入,或者 None 在任何事情都运行之前。"
+      "translation": "接下来的连锁会加入,或者 None 在任何事情都运行之前。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``~/.spacr/macros``, honouring :data:`MACRO_DIR_ENV`. Created on first use. This is the *stable* copy: a chain's file is rewritten in place as each step joins it, so the path does not change while the chain grows. Every run also gets its own copy next to its manifest — see :func:`macro_path`.",
@@ -3183,7 +3213,9 @@
       "label": "spacr.metadata_resolution.clear_run_metadata_decisions#0",
       "source": "Clear remembered prompt answers (primarily for tests/new runs).",
       "source_sha256": "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8",
-      "translation": "清晰记住的即时答案(主要是测试/新运行)。"
+      "translation": "清晰记住的即时答案(主要是测试/新运行)。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the project root. Supplies the provenance summary from :mod:`spacr.pipeline_graph` and the segmentation QC from :mod:`spacr.seg_qc`.",
@@ -3332,7 +3364,9 @@
       "label": "spacr.model_check.expected_classes#0",
       "source": "How many classes the training set will have.",
       "source_sha256": "f0abe12e133a6693d41db23e15c5423575be695279e2157fc8fcde4200e790e5",
-      "translation": "训练组将有多少课。"
+      "translation": "训练组将有多少课。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Run two segmentation models over the same fields and say what changed.",
@@ -3388,7 +3422,9 @@
       "label": "spacr.model_compare.ComparisonReport#0",
       "source": "Two models over a set of fields: the configs, the rows, the aggregate.",
       "source_sha256": "ba74167a7495e772a9e3c74c3c68b33d7fc3e63791d647e91564435b0424771e",
-      "translation": "两个模型在一组视野:配置,行,集合。"
+      "translation": "两个模型在一组视野:配置,行,集合。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "wall-clock seconds model A spent segmenting.",
@@ -3409,7 +3445,9 @@
       "label": "spacr.model_compare.ComparisonReport.n_both_empty#0",
       "source": "Fields where neither model found anything — trivial agreement.",
       "source_sha256": "32c7814caa29babc72cad6b0a2e0de4c09c7893daeb03cfc193dcacaf1ec9a95",
-      "translation": "没有模型发现任何东西的视野 - 三重协议。"
+      "translation": "没有模型发现任何东西的视野 - 三重协议。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the field count.",
@@ -3458,7 +3496,9 @@
       "label": "spacr.model_compare.compare_models#0",
       "source": "Run two models over the same fields and compare what they produced.",
       "source_sha256": "d05330d0a5e602edf4e17cea419db6452b476af030e64f18d738da9d2a188778",
-      "translation": "运行两个模型在相同的视野,并比较他们所产生的。"
+      "translation": "运行两个模型在相同的视野,并比较他们所产生的。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each model is loaded once and run over every field, A first, then B — one model in memory at a time, and the per-model wall clock in the report is therefore a fair (if small-sample) comparison of their cost.",
@@ -3486,7 +3526,9 @@
       "label": "spacr.model_compare.segment_with_cellpose#0",
       "source": "Segment ``images`` with one Cellpose model. The default backend.",
       "source_sha256": "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
-      "translation": "分割 ``images`` 与一个 Cellpose 模型. 默认背景。"
+      "translation": "分割 ``images`` 与一个 Cellpose 模型. 默认背景。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Browse, verify, fetch and benchmark spaCR segmentation and classification models.",
@@ -3535,14 +3577,18 @@
       "label": "spacr.model_zoo.BenchmarkResult.fields#0",
       "source": "Every field this model was benchmarked on.",
       "source_sha256": "ce55971c19887a66c0a10b3d83ff63bad5450d78a3277376060cbffc355e24a8",
-      "translation": "每个视野,这个模型都被比较。"
+      "translation": "每个视野,这个模型都被比较。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many fields came back without a quality complaint.",
       "label": "spacr.model_zoo.BenchmarkResult.n_ok#0",
       "source": "How many fields came back without a quality complaint.",
       "source_sha256": "5833ec94eb7b9ddef2d21415dab07619ef49a8e70f5b753f9db39b55e7f1b18f",
-      "translation": "多少个视野没有质量投诉回来。"
+      "translation": "多少个视野没有质量投诉回来。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the field name.",
@@ -3563,7 +3609,9 @@
       "label": "spacr.model_zoo.compare_entries#0",
       "source": "Compare two zoo entries on the same fields.",
       "source_sha256": "d0bac109138c4a0cae3fb3bc8e4fb45aa7509d247a2fcf674bf9027ba366a295",
-      "translation": "比较两个动物园入口在相同的视野。"
+      "translation": "比较两个动物园入口在相同的视野。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Provenance is recovered from whatever spaCR already wrote beside the model: a ``*_settings.csv`` or ``<src>/settings/<name>.csv`` for a Cellpose model, and — for a machine-learning classification model — the training processing session the checkpoint sits in, loaded through :func:`spacr.train_compare.load_run` so the zoo and the training-processing-session comparison agree about where settings live and what they say.",
@@ -3584,7 +3632,9 @@
       "label": "spacr.model_zoo.mitonet_weights#0",
       "source": "The MitoNet v1 mini weights on this machine, downloaded on first use.",
       "source_sha256": "40150ccfd5fd9e33647cdb9bf41fc170ad4427fcaf42a3ad81764cadb4743509",
-      "translation": "MitoNet v1 mini 权重在此机器上,在第一次使用时下载。"
+      "translation": "MitoNet v1 mini 权重在此机器上,在第一次使用时下载。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "fetch the weights when no verified copy is here.",
@@ -3605,7 +3655,9 @@
       "label": "spacr.model_zoo.segment_mitonet#0",
       "source": "Segment the mitochondria of a TEM image with MitoNet v1 mini.",
       "source_sha256": "b4ed7065aa1901624d4433d2e70b2691ef8269a4bad842563735b08876fea31b",
-      "translation": "用MitoNet v1 mini分割一个TEM图像的神话。"
+      "translation": "用MitoNet v1 mini分割一个TEM图像的神话。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a 2-D image (8-bit is read as the network was trained; see :func:`mitonet_weights` for where the weights come from).",
@@ -3675,7 +3727,9 @@
       "label": "spacr.normalization.dataset_statistics#0",
       "source": "Return the dataset's per-channel mean and standard deviation.",
       "source_sha256": "56fefb16970aa087b34b3e1c20a16e6717977e9db3935e1ae59f8dfc9874878a",
-      "translation": "返回数据集的每通道中间和标准偏差。"
+      "translation": "返回数据集的每通道中间和标准偏差。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(mean, std)``, per channel.",
@@ -3854,7 +3908,9 @@
       "label": "spacr.ome_zarr.Axis.channel#0",
       "source": "Return a channel axis with no unit and a scale of 1.",
       "source_sha256": "745dbe20ccf418c95f864de79e5372358216a0ec7fc3eaf06a015a2efdebb898",
-      "translation": "返回一个没有单位的通道轴和1的规模。"
+      "translation": "返回一个没有单位的通道轴和1的规模。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A channel axis gets no step, because a channel index is not a measurement and ``c: channel, 1/step`` reads like one.",
@@ -3882,7 +3938,9 @@
       "label": "spacr.ome_zarr.OmeZarrImage.channel_axis#0",
       "source": "The channel axis, or ``None``.",
       "source_sha256": "f615a9afe765d93c7b671f1ef2103a210f8e8c52788467b4a13901889f856f6c",
-      "translation": "通道轴或 ``None``。"
+      "translation": "通道轴或 ``None``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything this reads is small JSON: the group's ``.zattrs`` (or the ``attributes`` of its ``zarr.json``) and one ``.zarray`` per level. So reading the levels, shapes, voxel size and channels of a 100 GB plate costs a few kilobytes.",
@@ -3945,7 +4003,9 @@
       "label": "spacr.omero.WellPosition.prc#0",
       "source": "Return spaCR's ``prc`` well key for this position on ``plate``.",
       "source_sha256": "c96b1a7a7998db85d589bfeeba91f9795f7a9cc0eee6874ca0e510cc443072be",
-      "translation": "返回 spaCR 的 ``prc`` 孔键为此位置在 ``plate``。"
+      "translation": "返回 spaCR 的 ``prc`` 孔键为此位置在 ``plate``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Under :data:`REPLACE` — the default — an annotation whose namespace is *exactly* ``namespace`` is updated in place. Nothing is created, nothing is unlinked and **nothing is deleted**; a re-run therefore leaves one annotation rather than a growing pile, and an annotation in any other namespace (a colleague's, OMERO's own bulk annotations) is never even considered. When more than one already exists — only possible after an :data:`APPEND` run or a concurrent writer — the oldest (lowest id) is updated and the rest are reported in ``duplicates`` rather than removed, because an annotation may be linked elsewhere.",
@@ -3959,7 +4019,9 @@
       "label": "spacr.omero.well_position#0",
       "source": "Map OMERO's 0-based ``(row, column)`` onto spaCR's well keys.",
       "source_sha256": "2ba3fba404a7dee48fa98e168859cd79e756d4e4c2041f02f5226dba7f997f50",
-      "translation": "地图 OMERO 的 0 基 ``(row, column)`` 在 spaCR 的 孔钥匙上。"
+      "translation": "地图 OMERO 的 0 基 ``(row, column)`` 在 spaCR 的 孔钥匙上。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`single_threaded_openmp` detects mapped runtimes and, when more than one is resident, calls ``omp_set_num_threads(1)`` on the fitting independent execution path. This serializes that independent execution path's parallel regions without imposing a process-wide ``OMP_NUM_THREADS=1`` limit on segmentation and other workloads. Estimator ``n_jobs`` and ``nthread`` arguments are not substitutes because they do not prevent the OpenMP runtime from creating a worker team.",
@@ -4015,7 +4077,9 @@
       "label": "spacr.ops_cycles.sbs_mean_target#0",
       "source": "Turn one cycle's base channels into a single registration target.",
       "source_sha256": "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
-      "translation": "将一个循环的基通道转换为一个单一的注册目标。"
+      "translation": "将一个循环的基通道转换为一个单一的注册目标。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The maximum over channels is used, not the mean. A read is bright in exactly one channel per cycle -- that is what a base call is -- so averaging the four divides every spot by four and leaves the background where it was. The maximum keeps each spot at its own brightness whichever channel carried it.",
@@ -4043,7 +4107,9 @@
       "label": "spacr.ops_objects.PlateObject#0",
       "source": "One nucleus, numbered for the whole well. The join key for sampling.",
       "source_sha256": "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
-      "translation": "一个细胞核,为整个点数。 加入密钥样本。"
+      "translation": "一个细胞核,为整个点数。 加入密钥样本。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window whose observation was kept, as ``(row, col)``. Recorded so a suspect object can be traced back to the pixels it was segmented from.",
@@ -4064,7 +4130,9 @@
       "label": "spacr.ops_objects.WindowObject#0",
       "source": "One segmented object as one window saw it, in well-frame coordinates.",
       "source_sha256": "08b4f80df22b475747c74c178153d7ff1d70c30daa1083fce1dc720ade3fc71c",
-      "translation": "一个分割的对象作为一个窗口看到它,在良好的框架坐标。"
+      "translation": "一个分割的对象作为一个窗口看到它,在良好的框架坐标。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window it was segmented in, so a disagreement can be traced back to the pixels that produced it.",
@@ -4085,7 +4153,9 @@
       "label": "spacr.ops_objects.segment_windows#0",
       "source": "Run a segmenter over each window and collect the observations.",
       "source_sha256": "f0ef2a40ee9de0d28442159f43c64fdac35c3f2eaa9845b3fbc2417d0a5a9dfd",
-      "translation": "在每个窗口上运行一个分割,并收集观察。"
+      "translation": "在每个窗口上运行一个分割,并收集观察。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "called with one window, returns its label image. A caller composes the pixels (``compose_window``) and segments them inside this callable, so the composite is never held whole.",
@@ -4211,7 +4281,9 @@
       "label": "spacr.ops_sample.average_over_cycles#0",
       "source": "Mean of one phenotype channel across cycles.",
       "source_sha256": "ea160edd692f48c71e9c41b52f4ff5e05940328ff114d53dc16c47df0ca83df2",
-      "translation": "一个现象通道在周期的中间。"
+      "translation": "一个现象通道在周期的中间。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Separate from :func:`decode_input`: the same operation is right for a phenotype channel and destroys a sequencing one, so it is two functions and not one with a flag: a flag would make that a caller's decision, and it is a property of the channel.",
@@ -4225,7 +4297,9 @@
       "label": "spacr.ops_sample.decode_input#0",
       "source": "Stack per-cycle, per-channel samples into ``call_reads``' input.",
       "source_sha256": "0625510160f5879e2a8bff85e4250817ef0c636c0f040b5d23dfc733df251c18",
-      "translation": "将每周,每通道样本插入 ``call_reads``' 输入。"
+      "translation": "将每周,每通道样本插入 ``call_reads``' 输入。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``per_cycle[c][k]`` is :func:`sample_objects`' output for cycle ``c``, channel ``k``. Every entry must be the same length.",
@@ -4281,7 +4355,9 @@
       "label": "spacr.ops_sbs.assign_reads_to_cells#0",
       "source": "Give each segmented cell the barcode its reads agree on.",
       "source_sha256": "a5dd08ef7f5ff33d06fa9eb8f9e82f134bfd568d3d5a568cb29c6620a684d636",
-      "translation": "给每个分割细胞其阅读同意的条码。"
+      "translation": "给每个分割细胞其阅读同意的条码。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the segmentation, as an integer label image where 0 is background.",
@@ -4295,7 +4371,9 @@
       "label": "spacr.ops_sbs.compensate_crosstalk#0",
       "source": "Correct base intensities for dye bleed-through between channels.",
       "source_sha256": "9fba2b5ef38f7f4c10320e07a8ac1035d9f5cb47cdfda85f9a01ecff13ccd7e2",
-      "translation": "校正通道之间因染料串色造成的碱基强度偏差。"
+      "translation": "校正通道之间因染料串色造成的碱基强度偏差。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Without correction the raw argmax is biased: each dye emits into its neighbours' channels, so a channel that is bright overall wins comparisons it should lose, and the bias is systematic rather than noise: it mis-calls the same base everywhere.",
@@ -4351,7 +4429,9 @@
       "label": "spacr.ops_store.objects_ready#0",
       "source": "Check whether ``ops_objects`` is ready so that channels may be read.",
       "source_sha256": "71ecc8157b9ebbfa62dcd61284a7d65aebeb9bfbbb33828d77981d2dac0f2a14",
-      "translation": "检查 ``ops_objects`` 是否准备好,以便可以阅读通道。"
+      "translation": "检查 ``ops_objects`` 是否准备好,以便可以阅读通道。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The data-selection boundary is one sentence -- \"no sequencing or phenotype channel is read until `ops_objects` is on disk and its row count checked\" -- and both halves matter. On disk without a count check would pass an empty table, and an empty ops_objects means every later phase silently produces nothing while appearing to run.",
@@ -4379,7 +4459,9 @@
       "label": "spacr.organelle_types.OrganelleType#0",
       "source": "One named preset: what it is, what it looks like, what to run.",
       "source_sha256": "d691883904916ae6a4d6398b80e50fee1007a58fb71e12a75abc143db77486ff",
-      "translation": "一个被称为前提:它是什么,它看起来是什么,运行什么。"
+      "translation": "一个被称为前提:它是什么,它看起来是什么,运行什么。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "organelle type name resolved by :func:`resolve_type`; blank or ``custom`` yields no recommended settings, while an unknown name produces an error instead of silently changing the segmentation.",
@@ -4421,7 +4503,9 @@
       "label": "spacr.outlier_filter.outliers#0",
       "source": "Identify values beyond a scaled-MAD threshold.",
       "source_sha256": "43b03f19fe43a623bf7dfe74ab9f09c1c2160c8d5b855eca1f9546065a9c4013",
-      "translation": "识别值超越一个规模-MAD 阈值。"
+      "translation": "识别值超越一个规模-MAD 阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Preparation is shared.** Loading 226k score rows and 642k count rows, aggregating per microplate sample position, thresholding and joining costs about twenty seconds and depends only on the filtration settings. Every trial sharing those reuses one prepared frame, so a sweep over models and corrections pays that cost once per filtration cell rather than once per trial.",
@@ -4540,7 +4624,9 @@
       "label": "spacr.plaque.Well#0",
       "source": "One detected well.",
       "source_sha256": "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
-      "translation": "一个检测到的孔。"
+      "translation": "一个检测到的孔。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the full field.",
@@ -8226,7 +8312,9 @@
       "label": "spacr.read_background.suggest_threshold#0",
       "source": "Estimate a global fraction threshold from diffuse background.",
       "source_sha256": "3445c06a5068dce2152bd6121077ba3061f8cb9fa1096629bcaee116d6a91467",
-      "translation": "从分散背景中估计全球分裂阈值。"
+      "translation": "从分散背景中估计全球分裂阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Guides at least ``outlier_factor`` times the median are excluded from the quantile calculation and counted separately because a single threshold does not describe them. The result reports the threshold, sample counts, and the number of guides that require guide-specific review or correction.",
@@ -8331,7 +8419,9 @@
       "label": "spacr.regression_diagnostics.collinear_guide_pairs#0",
       "source": "Guide pairs whose well patterns are so alike they cannot be separated.",
       "source_sha256": "2644af4eb82228013ed69bedaaf661909290c4f081812f77f860ef7a3dbd5fa5",
-      "translation": "引导夫妇,其孔模式是如此相似,他们不能分开。"
+      "translation": "引导夫妇,其孔模式是如此相似,他们不能分开。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Thresholds are the conventional ones: p >= 0.05 for a diagnostic test, Cook's distance of 0.5 and 1.0. A threshold invented here would be a number a reviewer cannot check.",
@@ -8464,7 +8554,9 @@
       "label": "spacr.regression_summary.SummaryField#0",
       "source": "One reported field: a value, or a reason there is none.",
       "source_sha256": "0dac615883e029ee1121d74f661c886cf9fd3678b1f78da28d2bdd306a3bb944",
-      "translation": "一个字段:一个价值,或者一个原因没有。"
+      "translation": "一个字段:一个价值,或者一个原因没有。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "if it has both or neither; if whichever it has is blank; if the kind is unknown; or if a non-computed field carries a value without a reason. An absent kind is inferred from which of the two was given.",
@@ -8478,7 +8570,9 @@
       "label": "spacr.remote_execution.CommandResult#0",
       "source": "Result returned by the injectable command runner.",
       "source_sha256": "04e039dc7516d8be9a7f33969d8a822bc1cb6ba8c7f39e00c369e77699483337",
-      "translation": "结果由注射命令运行器返回。"
+      "translation": "结果由注射命令运行器返回。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Create the manager over its two stores and a command runner.",
@@ -8534,7 +8628,9 @@
       "label": "spacr.resume.ResumeState#0",
       "source": "The resume plan: fields to skip, fields to run, and the reasons.",
       "source_sha256": "25e23e2c3673568036d6165b5e684dd5fcaa0377ca06fbfd142516f8e826518e",
-      "translation": "重定向计划:要跳过的视野,要执行的视野和原因。"
+      "translation": "重定向计划:要跳过的视野,要执行的视野和原因。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "number of candidate fields considered.",
@@ -8555,14 +8651,18 @@
       "label": "spacr.resume.ResumeState.n_pending#0",
       "source": "How many fields will be run.",
       "source_sha256": "cf1cd6e72af202cd3149f716b55025c67f5943a3beb2ebccb39d7fd6542afece",
-      "translation": "将有多少个视野运行。"
+      "translation": "将有多少个视野运行。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many present-but-unusable fields were re-queued.",
       "label": "spacr.resume.ResumeState.n_rejected#0",
       "source": "How many present-but-unusable fields were re-queued.",
       "source_sha256": "1b3f18921346f8a7efd3fc54ac40d7b40b63980f7ddcd90337f8f76c58f2d277",
-      "translation": "多少个现有但不可用的视野被重新发现。"
+      "translation": "多少个现有但不可用的视野被重新发现。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "keys the old run had and this one does not.",
@@ -8653,7 +8753,9 @@
       "label": "spacr.roi.disable_roi_filter#0",
       "source": "Measure whole fields again, here and for any worker started afterwards.",
       "source_sha256": "4308fb520f7858600a381db8ff9ff75546f05a84261dfd97ceb41cf91ab7633c",
-      "translation": "测量整个视野再次,在这里和任何工作进程开始后。"
+      "translation": "测量整个视野再次,在这里和任何工作进程开始后。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "override the set's own rule for uncovered fields.",
@@ -8667,7 +8769,9 @@
       "label": "spacr.run_compare.Comparability#0",
       "source": "Whether two runs may be put side by side, and what to say about it.",
       "source_sha256": "5154e1872498bee86d7244e592dc5319658524cdfcd809f289767d96d70e1079",
-      "translation": "两次运行是否可以放在一边,以及该怎么说。"
+      "translation": "两次运行是否可以放在一边,以及该怎么说。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the runs may be compared.",
@@ -8681,14 +8785,18 @@
       "label": "spacr.run_compare.Comparability.version_changed#0",
       "source": "True when the two runs came out of different spaCR versions.",
       "source_sha256": "4848343f6e516608f666bc1ac0039f585e5dd545341ef1353aa5c18f316ad350",
-      "translation": "True 当两次运行从不同的 spaCR 版本出发时。"
+      "translation": "True 当两次运行从不同的 spaCR 版本出发时。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One reason two runs are hard, or impossible, to compare.",
       "label": "spacr.run_compare.Finding#0",
       "source": "One reason two runs are hard, or impossible, to compare.",
       "source_sha256": "72eb99c0f9b7dab648d0bc4f919ff20289b7e2d23a1c5b3fcb76d336bbe371ef",
-      "translation": "这是两次运行很难,或者不可能比较的原因。"
+      "translation": "这是两次运行很难,或者不可能比较的原因。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the thing being called — a gene, a gRNA, a feature.",
@@ -8709,21 +8817,27 @@
       "label": "spacr.run_compare.HitDiff.n_shared#0",
       "source": "Keys both runs called.",
       "source_sha256": "0bab48f961d3421034cbbd5db09649d6e41250aaf264933fd3cdb16ba8038725",
-      "translation": "两个关键运行。"
+      "translation": "两个关键运行。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One run's hits, ranked.",
       "label": "spacr.run_compare.HitList#0",
       "source": "One run's hits, ranked.",
       "source_sha256": "b693cb1a9e772634fcddfcde636b14aede4715052a4b9c9ef219147665cd3afe",
-      "translation": "一次运行的进球,排名。"
+      "translation": "一次运行的进球,排名。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Two runs and the three ways they differ.",
       "label": "spacr.run_compare.RunComparison#0",
       "source": "Two runs and the three ways they differ.",
       "source_sha256": "a396d720a92e1c982966f5b1c6076137d52d577edf7bbd95eb82e8e0dbff4f57",
-      "translation": "两次运行和三个不同的方式。"
+      "translation": "两次运行和三个不同的方式。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**version-changed** — different spaCR versions. Called out on its own: a segmentation change between versions moves object counts with no setting having moved, so a count delta must never be read without it.",
@@ -8800,7 +8914,9 @@
       "label": "spacr.runctx.RunContext.random_state#0",
       "source": "This run's seed, for an estimator's ``random_state=``.",
       "source_sha256": "9245ca8b9e78c8360adf168a678fb4959f4850ae8f474504ca5e18a3386898e0",
-      "translation": "这个运行的种子,对于一个估计器的``random_state=``。"
+      "translation": "这个运行的种子,对于一个估计器的``random_state=``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unlike a bare ``except: pass``, a skip is named, counted and persisted, so a run that covered 97 of 100 plates cannot be read as one that covered 100.",
@@ -8835,7 +8951,9 @@
       "label": "spacr.runctx.new_run_id#0",
       "source": "Mint a fresh run id.",
       "source_sha256": "22f89f4620a93ea06e88ad026dc47cba5f7af5d0745d80b733dafcdaebc70ee0",
-      "translation": "点击新鲜的运行ID。"
+      "translation": "点击新鲜的运行ID。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "sklearn, XGBoost, LightGBM and CatBoost all take a ``random_state`` (or ``seed``) and all ignore the NumPy global stream once one is given, so a construction site that hard-codes ``random_state=42`` silently overrides the run's seed. Call this instead",
@@ -8884,21 +9002,27 @@
       "label": "spacr.schema.FieldID.well#0",
       "source": "The well name (``'A01'``), or ``None`` for a positional well.",
       "source_sha256": "eecebffe081c3d9c79c8d468692abbf4dc7b197543f04c33430ddbc95f28b8a4",
-      "translation": "孔名(``'A01'``),或 ``None``为位置孔。"
+      "translation": "孔名(``'A01'``),或 ``None``为位置孔。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A declared model feature cannot be represented as numeric input.",
       "label": "spacr.schema.ModelFeatureSchemaError#0",
       "source": "A declared model feature cannot be represented as numeric input.",
       "source_sha256": "4bfe16b0d342b5c3961f2a75fa8ba4ce8d6b2111d841912dfbde05b2f0b87de3",
-      "translation": "一个被宣布的模型特征不能作为数字输入。"
+      "translation": "一个被宣布的模型特征不能作为数字输入。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One segmented object's identity — the ``prcfo`` a merged row is keyed on.",
       "label": "spacr.schema.ObjectID#0",
       "source": "One segmented object's identity — the ``prcfo`` a merged row is keyed on.",
       "source_sha256": "f32359dd0aff596aaa11686e4437a2eb5bf831457eca662893cb8544edd5debf",
-      "translation": "一个分割对象的身份 - 合并行 ``prcfo`` 被键入。"
+      "translation": "一个分割对象的身份 - 合并行 ``prcfo`` 被键入。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Feature columns are open-ended because channel counts and enabled measurements vary per run, but they are not untyped: a feature written by a table starts with ``<object_type>_`` and is numeric. Unknown annotation or provenance columns remain permitted so older databases and user-added labels are not destroyed by validation.",
@@ -8982,14 +9106,18 @@
       "label": "spacr.scorecard.Match#0",
       "source": "One IoU threshold's worth of matching, and what it implies.",
       "source_sha256": "2d0082a1e854617a8e9d8d466afa3505eb509fc8a4a7c18f9fca051b966d9d8a",
-      "translation": "一个 IoU 阈值的相匹配值,以及它意味着什么。"
+      "translation": "一个 IoU 阈值的相匹配值,以及它意味着什么。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``TP / (TP + FP + FN)`` -- the segmentation-benchmark convention.",
       "label": "spacr.scorecard.Match.average_precision#0",
       "source": "``TP / (TP + FP + FN)`` -- the segmentation-benchmark convention.",
       "source_sha256": "ff80eac77530de37a0593b43ba2a4c2e6331b94baa375650f65360329c244010",
-      "translation": "``TP / (TP + FP + FN)`` - 分割指标公约。"
+      "translation": "``TP / (TP + FP + FN)`` - 分割指标公约。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "NOT the area under a precision-recall curve, despite the name. The segmentation literature uses this quantity and calls it AP, and reporting the other thing under the same label is how two papers' numbers stop being comparable. Named explicitly here for that reason.",
@@ -9003,14 +9131,18 @@
       "label": "spacr.scorecard.Match.true_positives#0",
       "source": "Predicted objects that matched a truth object at this threshold.",
       "source_sha256": "87a1016d46a3de2d515ba3b5ab6adaba506014b60089e560f8a39c5d6316a660",
-      "translation": "预测的对象与这个阈值的真相对象相匹配。"
+      "translation": "预测的对象与这个阈值的真相对象相匹配。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Compute every machine-learning classification model metric of the published table at a given threshold.",
       "label": "spacr.scorecard.score_classifier#0",
       "source": "Compute every classifier metric of the published table at a given threshold.",
       "source_sha256": "d1b552acc3d49a922365c16328b3a9ddda87a01f31e09402cff7bf5087e4ebfd",
-      "translation": "计算发布表中的每个机器学习分类模型在一个特定的阈值。"
+      "translation": "计算发布表中的每个机器学习分类模型在一个特定的阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Pooled from the counts, not averaged from the ratios. A field with three objects and a field with three hundred are not equal evidence, and a mean of per-field precisions treats them as though they were -- so a model that fails on one sparse field is punished as hard as one that fails on a confluent one. Precision, recall and F1 are recomputed from the summed true and false positives; only the per-object means (IoU, Dice, area error) are averaged, weighted by each field's matched-object count.",
@@ -9024,7 +9156,9 @@
       "label": "spacr.scorecard.score_segmentation#0",
       "source": "Compute every segmentation metric of the published table for one field.",
       "source_sha256": "2a0f97cdc7035e0bf5a544dbe908efbfb518e6fa7309661ba75333c6c11c8a41",
-      "translation": "计算发布表中的每个分割数为一个字段。"
+      "translation": "计算发布表中的每个分割数为一个字段。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The `merged/` folders are deliberately absent. They are about 300 GB per plate -- 1.2 TB for the screening experiment -- which is past what a public dataset host will take without arrangement, and nothing in Regression reads them.",
@@ -9066,7 +9200,9 @@
       "label": "spacr.seg_qc.FieldQC#0",
       "source": "One field's segmentation verdict.",
       "source_sha256": "cb3745da7e71e3e5ee24b040257c9d8deda31d6f50cbd99a2511b4b37ad77c9e",
-      "translation": "一个视野的分割判决。"
+      "translation": "一个视野的分割判决。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "how many fields are implicated.",
@@ -9087,14 +9223,18 @@
       "label": "spacr.seg_qc.QCDigest.object_types#0",
       "source": "What was segmented, in card order.",
       "source_sha256": "a1f589e17e7715a5e9e7693b40b99dab59d12f84ecae2e0ba1c20334473028c1",
-      "translation": "什么是分割,在卡片顺序。"
+      "translation": "什么是分割,在卡片顺序。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The plate failed segmentation QC and ``seg_qc='stop'`` was set.",
       "label": "spacr.seg_qc.SegmentationQCFailed#0",
       "source": "The plate failed segmentation QC and ``seg_qc='stop'`` was set.",
       "source_sha256": "2e363bedf3d4ca7fa3eee3ca9084a66fc7e661820c6a707953d42fd8da2114be",
-      "translation": "板失败分割 QC 和 ``seg_qc='stop'`` 已设置。"
+      "translation": "板失败分割 QC 和 ``seg_qc='stop'`` 已设置。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**gradient findings** — a laboratory microplate whose object count or object size steps between one half of its rows (or columns) and the other. No single microscope field of view can raise this and no microscope field of view-level flag implies it: a laboratory microplate can be entirely free of per-microscope field of view flags and still be lit unevenly enough to put a position term in every intensity feature.",
@@ -9115,7 +9255,9 @@
       "label": "spacr.seg_qc.find_mask_stacks#0",
       "source": "``{object_type: folder}`` for the mask stacks under a plate.",
       "source_sha256": "340abe7ec57073d05a4333965ccedec0c7037b5a513e40acf7cc4049a10db955",
-      "translation": "``{object_type: folder}`` 掩膜堆栈在板下。"
+      "translation": "``{object_type: folder}`` 掩膜堆栈在板下。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "completed segmentation-QC digest to render.",
@@ -9129,7 +9271,9 @@
       "label": "spacr.seg_qc.read_digest#0",
       "source": "Read the segmentation verdict for a project. Scores nothing.",
       "source_sha256": "85acb16f19995beddfbb8fcbe1bcfffbf9bb0a985a6d440e190b5560aa43e9f2",
-      "translation": "阅读项目分割判决,没有评分。"
+      "translation": "阅读项目分割判决,没有评分。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what was segmented, carried through to the card.",
@@ -9199,7 +9343,9 @@
       "label": "spacr.sequencing_qc.ThresholdChoice#0",
       "source": "The abundance threshold a stated gRNAs-per-well target implies.",
       "source_sha256": "bf1d1c8e1f5915ab72b776517d07ceb37d04c6afe01c77cf3ea009547f369469",
-      "translation": "丰富的阈值意味着一个指定 gRNAs-per-microplate 样品位置目标。"
+      "translation": "丰富的阈值意味着一个指定 gRNAs-per-microplate 样品位置目标。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "exclusive lower end of the plateau of thresholds that all yield ``achieved``. ``threshold`` is its geometric middle.",
@@ -9220,14 +9366,18 @@
       "label": "spacr.sequencing_qc.WellFractions.counts_at#0",
       "source": "gRNAs surviving each threshold, as ``[n_wells, n_thresholds]``.",
       "source_sha256": "344d0e01daa100e2f842416e55a8700d20e8aa26521337d95cc73c30fc7dca11",
-      "translation": "gRNAs 每个阈值的生存,如 ``[n_wells, n_thresholds]``。"
+      "translation": "gRNAs 每个阈值的生存,如 ``[n_wells, n_thresholds]``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Share of all mapped reads surviving each threshold.",
       "label": "spacr.sequencing_qc.WellFractions.reads_retained_at#0",
       "source": "Share of all mapped reads surviving each threshold.",
       "source_sha256": "ff2c3774d4a656e0253c9f4e8bfca65d555eef5e2ce3f9784e3232fed7834d05",
-      "translation": "所有地图的部分阅读者,每个阈值都幸存。"
+      "translation": "所有地图的部分阅读者,每个阈值都幸存。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The population is fixed — a well that loses its last gRNA stays in the denominator as a zero — and that is what makes the result a non-increasing function of the threshold: every well's count only ever falls, so every order statistic of them only ever falls. Dropping emptied microplate sample positions instead would let the median jump *up* when a sparse well is removed, and a target could then be met at two thresholds far apart with no way to say which was meant.",
@@ -9241,7 +9391,9 @@
       "label": "spacr.sequencing_qc.barcode_qc#0",
       "source": "QC a barcode-mapping run and derive its abundance threshold from a target.",
       "source_sha256": "19006682d695bb0401198202c4f63e8247ae43324655182133c0ce14b3ed5130",
-      "translation": "QC 行码地图运行并从目标中提取其丰富的阈值。"
+      "translation": "QC 行码地图运行并从目标中提取其丰富的阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Runs every panel this module provides over one processing session's outputs, derives the threshold that delivers ``target_grnas_per_well``, sweeps around it, writes the figures and tables, and returns everything it computed along with a recommendation in words.",
@@ -9283,7 +9435,9 @@
       "label": "spacr.sequencing_qc.recommend_threshold#0",
       "source": "Write the threshold recommendation out in words.",
       "source_sha256": "3de009ccefb1738b08878aeba59d5f31a1c3df0e1fba826998b9473a01ce5a2b",
-      "translation": "用词写下阈值建议。"
+      "translation": "用词写下阈值建议。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``min_reads`` above zero is used verbatim — an absolute floor the experimenter knows from the library prep. Otherwise the cut is ``starved_read_fraction`` of the median well's depth, a rule that transfers between runs of different total depth.",
@@ -9297,7 +9451,9 @@
       "label": "spacr.sequencing_qc.sweep_grid#0",
       "source": "Log-spaced thresholds spanning ``span``-fold either side of ``threshold``.",
       "source_sha256": "f1b7bbe641ebd93f734a4560c044fdeded8808039a17dfa3003fe08c7ee79e61",
-      "translation": "记录范围的阈值为 ``span``-fold 无论侧面都为 ``threshold``。"
+      "translation": "记录范围的阈值为 ``span``-fold 无论侧面都为 ``threshold``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "on a non-positive threshold, a span at or below 1, fewer than 3 points, or a ``low`` that is not below ``high``.",
@@ -9445,7 +9601,9 @@
       "label": "spacr.sim.calculate_permutation_importance#0",
       "source": "Fit a RandomForest and plot permutation-based feature importances for the sweep columns.",
       "source_sha256": "5d518670cbfe5207caa57038be070063c810089b53c62e67917fe66097d111fb",
-      "translation": "适合一个 RandomForest 和基于旋转的字符串特征的重要性,为滑动列。"
+      "translation": "适合一个 RandomForest 和基于旋转的字符串特征的重要性,为滑动列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Column name or list of columns to remove from the feature set.",
@@ -9459,14 +9617,18 @@
       "label": "spacr.sim.cell_level_roc_auc#0",
       "source": "Compute cell-level ROC/PR metrics and confusion matrix at the F1-optimal threshold.",
       "source_sha256": "d265f2b3fbf7834b8281f868a3163ad70129f647123aae276d8856dbf124c581",
-      "translation": "计算细胞级ROC/PR测量和混合矩阵在F1最佳阈值。"
+      "translation": "计算细胞级ROC/PR测量和混合矩阵在F1最佳阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Draw ``len(df)`` gene weights from a Beta distribution matched to the given moments.",
       "label": "spacr.sim.generate_gene_weights#0",
       "source": "Draw ``len(df)`` gene weights from a Beta distribution matched to the given moments.",
       "source_sha256": "d3f595bdcbf29e75ed81cce4baae9034eecafbbebb88db263136c504b7550f77",
-      "translation": "将 ``len(df)`` 基因权重从与特定时刻相匹配的 beta 分布中绘制。"
+      "translation": "将 ``len(df)`` 基因权重从与特定时刻相匹配的 beta 分布中绘制。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "NumPy array of Beta-distributed weights.",
@@ -9480,21 +9642,27 @@
       "label": "spacr.sim.generate_shap_summary_plot#0",
       "source": "Fit a RandomForest and render a SHAP summary plot over the standard sweep features.",
       "source_sha256": "19e234f8c1674474f92e4962f508c48e0796aa2f7f079fd73786e5d6b4f99973",
-      "translation": "匹配一个 RandomForest 并在标准的滑板特征上完成 SHAP 总结。"
+      "translation": "匹配一个 RandomForest 并在标准的滑板特征上完成 SHAP 总结。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the classification threshold that maximises F1 in a PR result key-value mapping.",
       "label": "spacr.sim.get_optimum_threshold#0",
       "source": "Return the classification threshold that maximises F1 in a PR result dict.",
       "source_sha256": "91f665f8909dafd2ebe4cdd59c33dc4447962a5b936b024d8269b4d1647308d3",
-      "translation": "返回在 PR 结果的关键值地图中最大化 F1 的分类阈值。"
+      "translation": "返回在 PR 结果的关键值地图中最大化 F1 的分类阈值。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fit a GradientBoostingRegressor and plot partial dependences for every sweep feature.",
       "label": "spacr.sim.plot_partial_dependences#0",
       "source": "Fit a GradientBoostingRegressor and plot partial dependences for every sweep feature.",
       "source_sha256": "1ba0eb3ceec1671f2d5604642c50e3a34d5f8b0038de72794b3e3987215700d2",
-      "translation": "适合一个 GradientBoostingRegressor 并为每个插曲特征设置部分依赖。"
+      "translation": "适合一个 GradientBoostingRegressor 并为每个插曲特征设置部分依赖。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "When True, use the F1-optimal probability threshold instead of ``0.5`` for the final confusion matrix.",
@@ -9543,7 +9711,9 @@
       "label": "spacr.sra.RunFile#0",
       "source": "One downloadable FASTQ: a run, and which mate of the pair.",
       "source_sha256": "31a6c870174391ad4c4d3bbe2fbcbbee7b322b8bc2c54120a44de19de52a6e68",
-      "translation": "一个可下载的FASTQ:一次运行,以及哪个伴侣。"
+      "translation": "一个可下载的FASTQ:一次运行,以及哪个伴侣。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one-based mate number within a paired-end run.",
@@ -9585,7 +9755,9 @@
       "label": "spacr.style_base.FigureStyle.shared_with#0",
       "source": "The fields both styles have, so one can be applied to the other.",
       "source_sha256": "735d286b37e8c47d941ca6f32ae21571e85aa714a2e2e89d65b6bd7662d5b897",
-      "translation": "两个风格的字段有,所以一个可以适用于另一个。"
+      "translation": "两个风格的字段有,所以一个可以适用于另一个。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is how a house style carries over: a font size and a grid chosen on a volcano should reach the comparison figure beside it, while the volcano's effect-size threshold must not follow it there.",
@@ -9950,28 +10122,36 @@
       "label": "spacr.surrogate.available_backends#0",
       "source": "Report the supported surrogate families and whether they can run.",
       "source_sha256": "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
-      "translation": "报告支持的超级家庭,以及他们是否可以运行。"
+      "translation": "报告支持的超级家庭,以及他们是否可以运行。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Join CV predictions to the measured feature table.",
       "label": "spacr.surrogate.build_surrogate_frame#0",
       "source": "Join CV predictions to the measured feature table.",
       "source_sha256": "69c17e320cd823d158b41adae283bb04924248c71ea5e342e7e2d4c463437d01",
-      "translation": "加入测量特征表中的CV预测。"
+      "translation": "加入测量特征表中的CV预测。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Join predictions to features, fit a surrogate, and rank the features.",
       "label": "spacr.surrogate.explain_classifier#0",
       "source": "Join predictions to features, fit a surrogate, and rank the features.",
       "source_sha256": "79d89217af27b83f24fceb4c813e0f14c415e9427ad454ab1a8cd3febd7a093f",
-      "translation": "加入预测到特征,匹配一个超级,并排序特征。"
+      "translation": "加入预测到特征,匹配一个超级,并排序特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fit a surrogate to ``frame['cv_prediction']`` and rank the features.",
       "label": "spacr.surrogate.fit_surrogate#0",
       "source": "Fit a surrogate to ``frame['cv_prediction']`` and rank the features.",
       "source_sha256": "e926bc157766dc6bcec8f3b8440019ec7abf86c8a91fd68c2d5486fee2f19861",
-      "translation": "将一个字符串调整为 ``frame['cv_prediction']``,并排序特征。"
+      "translation": "将一个字符串调整为 ``frame['cv_prediction']``,并排序特征。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "apply the vocabulary. Keep it on for ordinary reads: it is what makes the picker and the run agree about what a column is called. Off is for a caller inspecting a file exactly as written.",
@@ -10020,7 +10200,9 @@
       "label": "spacr.timelapse.preprocess_pathogen_data#0",
       "source": "Aggregate a per-parasite table to one row per host cell with a parasite count.",
       "source_sha256": "31be516b4fe393087629aef29967a7f62c6ffd738e48b1f3a66a72c1839bc7c5",
-      "translation": "将一个寄生虫表合并到每个宿主细胞的一个行,并以寄生虫数。"
+      "translation": "将一个寄生虫表合并到每个宿主细胞的一个行,并以寄生虫数。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Is indexed by the column names the measurement writer actually emits: ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent altogether outside a timelapse run) and ``cell_id`` -- the child table's link to its host cell -- not ``pathogen_cell_id``, which no writer produces.",
@@ -10118,14 +10300,18 @@
       "label": "spacr.train_compare.Comparison.epoch_ranges#0",
       "source": "Return each series label mapped to its finite epoch span.",
       "source_sha256": "45623c90a8b93436b941ca1b36f75674877744a5f10afc8167e89107ab33166d",
-      "translation": "返回每个系列标签地图到其终结的轮次范围。"
+      "translation": "返回每个系列标签地图到其终结的轮次范围。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the series do not all cover the same epoch span.",
       "label": "spacr.train_compare.Comparison.lengths_differ#0",
       "source": "True when the series do not all cover the same epoch span.",
       "source_sha256": "10fbdd71e851d67442e20aa577c15a5bc7b4f8e7e61ef2fcb75bb05aa90305e2",
-      "translation": "True 当系列不全部覆盖相同的轮次范围时。"
+      "translation": "True 当系列不全部覆盖相同的轮次范围时。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "identifier of the training processing session that produced this series.",
@@ -10139,28 +10325,36 @@
       "label": "spacr.train_compare.Series.best#0",
       "source": "``{'epoch', 'value', 'direction'}`` for the best epoch, or ``None``.",
       "source_sha256": "1611b32c75fe0bbd5dbc7431e6724a4c40fa3144aa7692bd55621bbf7662c78e",
-      "translation": "``{'epoch', 'value', 'direction'}`` 为最佳轮次,或 ``None``。"
+      "translation": "``{'epoch', 'value', 'direction'}`` 为最佳轮次,或 ``None``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the epoch column coerced to a NumPy numeric array.",
       "label": "spacr.train_compare.Series.epochs#0",
       "source": "Return the epoch column coerced to a NumPy numeric array.",
       "source_sha256": "6125e801d2aee2550ba9de0bf7505338839c3612bf52c7f2c83930ed70a3ac1c",
-      "translation": "返回被强加到 NumPy 数字序列的轮次列。"
+      "translation": "返回被强加到 NumPy 数字序列的轮次列。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "First epoch where fewer than all folds contribute, or ``None``.",
       "label": "spacr.train_compare.Series.support_drops_at#0",
       "source": "First epoch where fewer than all folds contribute, or ``None``.",
       "source_sha256": "eecf650dbe4849e1e9e912e51b85e9f24519ae22f160f534ec9303df045aa484",
-      "translation": "第一个轮次,少于所有字符串的贡献,或 ``None``。"
+      "translation": "第一个轮次,少于所有字符串的贡献,或 ``None``。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One training processing session's curves, settings and notes.",
       "label": "spacr.train_compare.TrainingRun#0",
       "source": "One training run's curves, settings and notes.",
       "source_sha256": "7d5885d908796e0076755c53b5aafd94f38d6ff6c762056e0cdbe4b2410b13c2",
-      "translation": "一个训练处理会议的曲线,设置和笔记。"
+      "translation": "一个训练处理会议的曲线,设置和笔记。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "training-output directory containing progress CSVs or numbered fold subdirectories.",
@@ -10181,14 +10375,18 @@
       "label": "spacr.train_compare.TrainingRun.n_epochs#0",
       "source": "Highest epoch number logged by any split/fold (0 when nothing was).",
       "source_sha256": "96e3b21836f82932ea004db44d2a83d9e3996b7561aa893548c3dafd50f8d3e2",
-      "translation": "最高的轮次号码由任何分裂/分裂(当没有)登录。"
+      "translation": "最高的轮次号码由任何分裂/分裂(当没有)登录。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Metric columns these runs logged, common ones first.",
       "label": "spacr.train_compare.available_metrics#0",
       "source": "Metric columns these runs logged, common ones first.",
       "source_sha256": "93fd73e446dd8707514c72126b5743e1973f9039ce82b5fe7fbf885d4b9f3c1e",
-      "translation": "数学列这些运行登录,常见的第一。"
+      "translation": "数学列这些运行登录,常见的第一。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "training processing sessions whose plottable metrics are requested.",
@@ -10216,7 +10414,9 @@
       "label": "spacr.train_compare.find_runs#0",
       "source": "Discover every training run under ``root``, newest folder first.",
       "source_sha256": "88e5dfe5edca36f75198a7b1eb07925258c8fa303e010c599c0a48e21fe84d94",
-      "translation": "首先在 ``root`` 下发现每个训练处理会议,最新的文件夹。"
+      "translation": "首先在 ``root`` 下发现每个训练处理会议,最新的文件夹。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Runs that are broken (no curves, no settings, zero-epoch log) are returned with their notes rather than skipped, so a scan never silently drops a folder.",
@@ -10237,7 +10437,9 @@
       "label": "spacr.train_compare.load_run#0",
       "source": "Load one training run folder into a :class:`TrainingRun`.",
       "source_sha256": "58d896a51b263c2a2f5af77f4f8eab039fd6167accd12cf96c0e0e503b67f91b",
-      "translation": "将一个训练处理会议文件夹上传到 :class:`TrainingRun`。"
+      "translation": "将一个训练处理会议文件夹上传到 :class:`TrainingRun`。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A folder missing its curves or settings, or containing a zero-epoch log, **returns partial data instead of raising**. The run contains whatever could be read plus one :attr:`TrainingRun.notes` entry per problem, so one bad folder cannot stop comparison of the others.",
@@ -10286,7 +10488,9 @@
       "label": "spacr.training_basis.TrainingBasisError#0",
       "source": "Raised for an unknown training basis, or one that cannot run as configured.",
       "source_sha256": "6ebb01ea9629e4f866d0f886154545386f88f522157203ce64d5c3e8e49b6e31",
-      "translation": "建立在未知的训练基础上,或者不能按照配置执行的。"
+      "translation": "建立在未知的训练基础上,或者不能按照配置执行的。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "key-value mapping Control presence, rank, percentile, effect, and significance fields.",
@@ -10335,7 +10539,9 @@
       "label": "spacr.umap_search.walk_recipes#0",
       "source": "The recipes a walk would try, worked out before any of them runs.",
       "source_sha256": "ef05871407f8f4f79bd97f5a21d9041136822a58bfb07c5b9e3ce4f0e3151c54",
-      "translation": "一个步行的食谱会尝试,在其中任何一次运行之前工作。"
+      "translation": "一个步行的食谱会尝试,在其中任何一次运行之前工作。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "whatever is in the annotation field.",
@@ -10938,7 +11144,9 @@
       "label": "spacr.validate.describe_plan#0",
       "source": "Summarise what the run would actually do, without doing it.",
       "source_sha256": "572d3bab48a22abd48794310b1192756ab663b2b883a08a419cb87e5955d35a2",
-      "translation": "总结一下运行实际上会做什么,没有做。"
+      "translation": "总结一下运行实际上会做什么,没有做。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Reports the app and the function behind it, the resolved source folder, how many files were found, which objects would be segmented or measured with which image data channels and diameters, where output would land, and roughly how many images would be processed.",
@@ -11036,7 +11244,9 @@
       "label": "spacr.zstack.TStackResult#0",
       "source": "The labels a 4-D run produced, plus how it produced them.",
       "source_sha256": "e6943dbcc5e200a4c4820c475ceab2b791d302b6ec2914cae0e790aa5e6660f7",
-      "translation": "标签产生了4D运行,加上它如何生产它们。"
+      "translation": "标签产生了4D运行,加上它如何生产它们。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "number of timepoints segmented.",
@@ -11050,7 +11260,9 @@
       "label": "spacr.zstack.TStackSpec#0",
       "source": "Axis, segmentation and tracking settings for one 4-D acquisition.",
       "source_sha256": "6b6a018e131f68dc1c2022d381ee83dad4d10611bbc20731024d3bb3b5501846",
-      "translation": "轴,分割和跟踪设置为一个4D收购。"
+      "translation": "轴,分割和跟踪设置为一个4D收购。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``dz / dxy``. ``None`` means \"not known\", which is fatal for volumetric segmentation and for the distance-based trackers.",
@@ -11092,7 +11304,9 @@
       "label": "spacr.zstack.ZStackSpec.require_anisotropy#0",
       "source": "Return the anisotropy, or explain why the run cannot proceed.",
       "source_sha256": "1ce165854ce5bfa0696ba474c320d0535251af324d1ccce4e15643a34d109e58",
-      "translation": "返回麻醉,或者解释为什么运行不能进行。"
+      "translation": "返回麻醉,或者解释为什么运行不能进行。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "index of a channel axis to ignore, if present.",
@@ -11148,7 +11362,9 @@
       "label": "spacr.zstack.segment_4d#0",
       "source": "Segment every timepoint independently, in 3-D, and stack the results.",
       "source_sha256": "7a9f061fc17e44d44c8eb9b3e940849cc807c231756c9384ee4bc29cc3edb941",
-      "translation": "分割每小时点独立,在3D,并将结果。"
+      "translation": "分割每小时点独立,在3D,并将结果。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each timepoint goes to :func:`spacr.zstack.segment_3d` with this spec's z settings, so the per-timepoint behaviour is *identical* to a 3-D run and the two cannot drift apart. Segmentation is deliberately per-timepoint and independent: linking is a separate decision made by :func:`track_4d`, and fusing the two is what makes a tracker's mistakes indistinguishable from a segmenter's.",

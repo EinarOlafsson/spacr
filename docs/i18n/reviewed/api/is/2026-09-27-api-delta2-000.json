@@ -1182,7 +1182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Check a run's settings against its preregistered analysis lock.",
       "source_sha256": "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
-      "translation": "Ber stillingar keyrslu saman við forskráðan greiningarlás hennar."
+      "translation": "Ber stillingar keyrslu saman við forskráðan greiningarlás hennar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The lock is the newest one :func:`lock_analysis` made for ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting and every hashed file is compared.",
@@ -1237,7 +1239,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Freeze an analysis plan before its results are seen.",
       "source_sha256": "a814af9286c401fd23c822a779a1dbeacb4d1d3d9f20d57c9f1c83295a5f5d42",
-      "translation": "Frystir greiningaráætlun áður en niðurstöður hennar sjást."
+      "translation": "Frystir greiningaráætlun áður en niðurstöður hennar sjást.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The settings, the stated hypotheses and thresholds, and the SHA-256 of every model, data-selection boundary or threshold file the settings name (plus ``files``) are written with the time and the user to ``~/.spacr/analysis_locks/<lock id>.json`` and hashed. From then on every journalled run of ``app_key`` on the same ``src`` is checked against the newest lock by :func:`check_analysis_lock`; the verdict goes into the processing session's ``manifest.json``, and a difference is listed in the manifest's warnings, the report and the methods text.",
@@ -1380,7 +1384,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Open a blinding key, and record who opened it and when.",
       "source_sha256": "293cb831413a2d9f9d2f92b3e6f9ae55649ae181386159357c944ec33687833c",
-      "translation": "Opnar blindunarlykil og skráir hver opnaði hann og hvenær."
+      "translation": "Opnar blindunarlykil og skráir hver opnaði hann og hvenær.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The record is appended to the structured-data name's log before the structured-data name is returned, so the identities cannot be read through this call without leaving the record. An analysis lock on the same folder treats a difference found after this moment as post-hoc.",
@@ -1462,7 +1468,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Per-well scores, per-treatment SSMD and per-plate QC of one screen.",
       "source_sha256": "83be1a39098c02c134ef53660cbeb6edf34b2e5be75b8cb14995cd68637269ec",
-      "translation": "Skor fyrir hvern brunn, SSMD fyrir hverja meðferð og QC fyrir hverja plötu í einni skimun."
+      "translation": "Skor fyrir hvern brunn, SSMD fyrir hverja meðferð og QC fyrir hverja plötu í einni skimun.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one row per microplate sample position with ``robust_z``, ``ssmd``, ``b_score``, ``difference``, the ``hit_<method>`` flags, ``hit`` (by ``options['rank_by']``) and ``rank``.",
@@ -1510,7 +1518,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The called sample wells, strongest first.",
       "source_sha256": "a52e5094db47e7324ffe44f1e62fd9c455e729d406b69311746f242a07c393d7",
-      "translation": "Sýnabrunnarnir sem valdir voru sem marktækar niðurstöður, sterkustu fyrst."
+      "translation": "Sýnabrunnarnir sem valdir voru sem marktækar niðurstöður, sterkustu fyrst.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The result in sentences, for a text panel or a log.",
@@ -1518,7 +1528,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The result in sentences, for a text panel or a log.",
       "source_sha256": "7bbb1faf1303f3b899bd2e420abe03ec9cccf28b7df31378cca312f50307a6b0",
-      "translation": "Niðurstaðan í setningum, fyrir textaspjald eða skrá."
+      "translation": "Niðurstaðan í setningum, fyrir textaspjald eða skrá.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Exception used when a screen cannot be scored, with the reason and the way out.",
@@ -1536,7 +1548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Tukey's median polish of one plate: ``x = overall + row + column + residual``.",
       "source_sha256": "107902ec1a71382d8de0ff1e216a4d4ce631364fb25738b51716d87bdc30a952",
-      "translation": "Miðgildisslípun Tukey á einni plötu: ``x = overall + row + column + residual``."
+      "translation": "Miðgildisslípun Tukey á einni plötu: ``x = overall + row + column + residual``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the fitted grand effect.",
@@ -1592,7 +1606,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The additive fit ``overall + row + column`` on the full grid.",
       "source_sha256": "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722",
-      "translation": "Samlagningarmátunin ``overall + row + column`` á öllu netinu."
+      "translation": "Samlagningarmátunin ``overall + row + column`` á öllu netinu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "B-score of every microplate sample position on one laboratory microplate (Brideau et al. 2003).",
@@ -1600,7 +1616,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "B-score of every well on one plate (Brideau et al. 2003).",
       "source_sha256": "b473cecad9843f404a206419361d9f450d5cba41c12bae2e537a0226ccca8cc1",
-      "translation": "B-skor hvers brunns á einni plötu (Brideau et al. 2003)."
+      "translation": "B-skor hvers brunns á einni plötu (Brideau et al. 2003).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Row and column effects are fitted by :func:`median_polish` on the microplate sample positions in ``fit_mask`` (normally the sample microplate sample positions, so a control column does not become a column effect), then removed from every well on the laboratory microplate. The residuals are divided by the scaled MAD of the fitted microplate sample positions' residuals, as cellHTS2 does; Brideau's unscaled MAD differs by the constant 1.4826 only and ranks the microplate sample positions identically. A row or column with no fitted well, such as a column holding only controls, has no effect to remove, so its microplate sample positions are scored against the overall and the other effect alone.",
@@ -1648,7 +1666,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Which scores pass ``threshold`` in ``direction``. NaN is never a hit.",
       "source_sha256": "ea1458ebd566093a5ce72160e3827dd75bca87c3ab046b278de1e0ea965c9524",
-      "translation": "Hvaða skor fara yfir ``threshold`` í ``direction``. NaN er aldrei marktæk niðurstaða."
+      "translation": "Hvaða skor fara yfir ``threshold`` í ``direction``. NaN er aldrei marktæk niðurstaða.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the statistic per microplate sample position.",
@@ -1696,7 +1716,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Every plate's ``method`` scores on one diverging scale, hits outlined.",
       "source_sha256": "ffc2e125a2e799a08c6a0af7b3d2c2c690bee9a8fe92600053187c5f1dc9455c",
-      "translation": "``method``-skor hverrar plötu á einum tvístefnukvarða, með marktækar niðurstöður afmarkaðar."
+      "translation": "``method``-skor hverrar plötu á einum tvístefnukvarða, með marktækar niðurstöður afmarkaðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Drawn by :func:`spacr.figures.plates.build_plates`, the house plate small multiple, with :func:`spacr.figures.plates.score_ramp` and a scale symmetric about zero, so the same colour is the same score on every plate and on either side of the negative control.",
@@ -1752,7 +1774,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ranked hit table: sample wells, strongest first.",
       "source_sha256": "eaaf3c8f0840e42641852025b199bd17edc6f088e679c108f56f378a6f9b6ad9",
-      "translation": "Raðaða taflan yfir marktækar niðurstöður: sýnabrunnar, sterkustu fyrst."
+      "translation": "Raðaða taflan yfir marktækar niðurstöður: sýnabrunnar, sterkustu fyrst.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the ``wells`` of an :class:`ArrayedHitResult`.",
@@ -1784,7 +1808,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Median absolute deviation of the finite entries of ``values``.",
       "source_sha256": "c51589ea7af68a3510200c5abad2dab59414ec0545893f5c096a4533fa8cd45c",
-      "translation": "Miðgildisalgildisfrávik endanlegra staka í ``values``."
+      "translation": "Miðgildisalgildisfrávik endanlegra staka í ``values``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numbers; NaN and infinities are ignored.",
@@ -1816,7 +1842,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Tukey's two-way median polish, NaN-aware, following R's ``medpolish``.",
       "source_sha256": "560b1f78b5367d82a549b7b41f995efacad1473923434ca7da724c88bcb20fe6",
-      "translation": "Tvíátta miðgildisslípun Tukey, sem ræður við NaN, að fyrirmynd ``medpolish`` í R."
+      "translation": "Tvíátta miðgildisslípun Tukey, sem ræður við NaN, að fyrirmynd ``medpolish`` í R.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The sweep order, the centring of the effects and the stopping rule are R's, so the fit matches ``stats::medpolish(x, na.rm = TRUE)`` and the cellHTS2 B-score built on it. A row or column with no finite well gets a NaN effect instead of a guessed one.",
@@ -1872,7 +1900,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Robust z against a reference: ``(x - median) / (1.4826 MAD)``.",
       "source_sha256": "7d9c7cda8b7a012d367e91ec7a1bb441cf9453ea8c1363a6bd8a73f531d73ccb",
-      "translation": "Robust z miðað við viðmið: ``(x - median) / (1.4826 MAD)``."
+      "translation": "Robust z miðað við viðmið: ``(x - median) / (1.4826 MAD)``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "With the negative-control microplate sample positions as ``reference`` this is Zhang's z* score: how far a microplate sample position is from the negative control, in robust standard deviations of the negative control.",
@@ -1912,7 +1942,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`screen_wells` then :func:`score_screen`, in one call.",
       "source_sha256": "9fb99a26b7cc9091d43d381e142a2a749ec6d9efa99da18554b5a1cb340c4e30",
-      "translation": ":func:`screen_wells` og síðan :func:`score_screen`, í einu kalli."
+      "translation": ":func:`screen_wells` og síðan :func:`score_screen`, í einu kalli.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the measurement table.",
@@ -1944,7 +1976,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Score every well of an arrayed screen against its negative control.",
       "source_sha256": "153c8f715f372fda595c3d1599716f06a35c10c8a1524b91cf7b62b411eb3b31",
-      "translation": "Skorar hvern brunn í skimun á fylkjaplötum miðað við neikvæðu viðmiðun hans."
+      "translation": "Skorar hvern brunn í skimun á fylkjaplötum miðað við neikvæðu viðmiðun hans.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Robust z and SSMD are taken against the negative-control microplate sample positions of the microplate sample position's own laboratory microplate (``scope='plate'``) or of every laboratory microplate together (``scope='pooled'``). The B-score is always fitted per laboratory microplate, because row and column effects belong to a laboratory microplate; the pooled scope divides by the screen-wide residual MAD instead of each laboratory microplate's own. Controls are scored too, which is how a positive control shows the assay window, but only sample microplate sample positions are called as hits.",
@@ -2024,7 +2058,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Collapse a measurement table to one row per well, with each well's role.",
       "source_sha256": "9c9d611f4de96ae17e7f8a757615b9f3dd65dcfaebdf6ea80c9d52be75165d4e",
-      "translation": "Dregur mælingatöflu saman í eina röð á hvern brunn, með hlutverki hvers brunns."
+      "translation": "Dregur mælingatöflu saman í eina röð á hvern brunn, með hlutverki hvers brunns.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Microplate sample positions are located by the laboratory microplate-QC reader (:mod:`spacr.plate_qc`: ``prc``, a rowID/columnID pair or a ``well`` column), so this and the Plate Viewer agree about where every object sits. Controls are named by a column and its levels, as the control-chart screen names them, or by laboratory microplate position in the ``negative_control_wells`` / ``positive_control_wells`` notation of :mod:`spacr.well_spec` (``c1``, ``r1``, ``A01``), or both.",
@@ -2136,7 +2172,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SSMD of one treatment from its replicate paired differences.",
       "source_sha256": "cfbbe95c6aba10e8cd65e9d4496f23dd8d9250e27be215d8caab758e74b0e2aa",
-      "translation": "SSMD einnar meðferðar út frá pöruðum mismun endurtekninga hennar."
+      "translation": "SSMD einnar meðferðar út frá pöruðum mismun endurtekninga hennar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``differences`` are ``D_j = x_j - median(negative reference)`` for each replicate ``j``, the reference taken on the replicate's own plate (Zhang 2011, screens with replicates):",
@@ -2192,7 +2230,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SSMD of single wells against a negative reference, without replicates.",
       "source_sha256": "a1c285b49ba832306c6dc6e8ae3b1e7997c7b90ba3d86ebe9a31575df1b7bbd4",
-      "translation": "SSMD stakra brunna miðað við neikvætt viðmið, án endurtekninga."
+      "translation": "SSMD stakra brunna miðað við neikvætt viðmið, án endurtekninga.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Zhang (2011), assuming a tested well has the variability of the negative reference ``N``:",
@@ -2240,7 +2280,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Replicate SSMD per treatment from the sample wells' paired differences.",
       "source_sha256": "c30819355fa193dff117b6de57d40e77651935e744cb74630126207fb3a4c5f5",
-      "translation": "SSMD endurtekninga fyrir hverja meðferð út frá pöruðum mismun sýnabrunnanna."
+      "translation": "SSMD endurtekninga fyrir hverja meðferð út frá pöruðum mismun sýnabrunnanna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the ``wells`` of an :class:`ArrayedHitResult`; without a ``treatment`` column the result is empty.",
@@ -2272,7 +2314,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Write the scored screen: CSV tables and one plate heatmap per method.",
       "source_sha256": "a503db99955aceeb4cc96d1b048e7146dd86b5422f58a7777298664622ae8f6d",
-      "translation": "Skrifar skoruðu skimunina: CSV-töflur og eitt plötuhitakort á hverja aðferð."
+      "translation": "Skrifar skoruðu skimunina: CSV-töflur og eitt plötuhitakort á hverja aðferð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Figures go through :func:`spacr.plot.save_figure`, so their format, resolution and print repaint follow the user's figure preferences. The low-contrast colour warning is off for these: the centre of a diverging score map is near the page colour on purpose, because a score of zero is the negative control and is meant to recede.",

@@ -16,7 +16,9 @@
       "source_sha256": "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
       "source": "The (fractional) canvas pixel a world point falls on.",
       "context": "The (fractional) canvas pixel a world point falls on.",
-      "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á."
+      "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_replication#12",
@@ -153,7 +155,9 @@
       "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
       "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
       "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
-      "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar)."
+      "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_spec.points_in_polygon#4",

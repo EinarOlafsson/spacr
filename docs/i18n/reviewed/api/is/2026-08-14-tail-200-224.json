@@ -6,7 +6,9 @@
       "label": "spacr.omero.format_map_value#0",
       "source": "Render ``value`` as the **string** an OMERO map annotation stores.",
       "source_sha256": "0af13cc92f6cae8773a6c04bbcc2eed68a95f13844b0d52044289d89f086e87a",
-      "translation": "Sýndu ``value`` sem **streng** sem OMERO kortamerking geymir."
+      "translation": "Sýndu ``value`` sem **streng** sem OMERO kortamerking geymir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**k-fold runs keep their folds.** ``folds='per_fold'`` (the default) draws every fold; ``folds='mean'`` draws the fold mean with a ±1 sd band and labels it ``mean of k folds ±sd``; ``folds='both'`` draws both. A mean curve rendered as if it were a single run hides precisely the fold-to-fold variance k-fold was added to expose — and because folds can stop at different epochs (early stopping), the mean carries an ``n_folds`` column so a tail computed from two of five folds is visible rather than implied.",

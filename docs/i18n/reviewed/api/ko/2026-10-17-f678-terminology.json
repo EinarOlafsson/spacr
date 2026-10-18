@@ -3084,7 +3084,9 @@
       "label": "spacr.intensity_rescale.resolve_record#0",
       "source": "Resolve and verify one worker's record against the precomputed plan.",
       "source_sha256": "7d865939881d20dace5c6127b990f785957ddbcf7db4323c48dfbd21a352296d",
-      "translation": "사전 컴퓨팅 계획에 대한 한 워커의 기록을 해결하고 확인합니다."
+      "translation": "사전 컴퓨팅 계획에 대한 한 워커의 기록을 해결하고 확인합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "loaded merged field array handled by the worker.",
@@ -3296,7 +3298,9 @@
       "label": "spacr.layers.LabelsLayer#0",
       "source": "An integer segmentation mask. 0 is background and draws as nothing.",
       "source_sha256": "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
-      "translation": "완전한 분할 마스크. 0은 배경이며 아무것도 아닌 것처럼 끌어 올립니다."
+      "translation": "완전한 분할 마스크. 0은 배경이며 아무것도 아닌 것처럼 끌어 올립니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "seeds the label-to-colour mapping. The same seed gives the same object the same colour across sessions and across figures, which is what makes two screenshots of one microscope field of view comparable.",
@@ -3310,14 +3314,18 @@
       "label": "spacr.layers.LabelsLayer.label_at_world#0",
       "source": "The label under a world point, or 0 for background / outside.",
       "source_sha256": "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
-      "translation": "레이블은 세계 지점 아래, 또는 0 배경 / 외부."
+      "translation": "레이블은 세계 지점 아래, 또는 0 배경 / 외부.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every non-zero label present, sorted.",
       "label": "spacr.layers.LabelsLayer.labels#0",
       "source": "Every non-zero label present, sorted.",
       "source_sha256": "af5985ea56119251c616a20a1fda38795d066f2b374de2104d2924d2fa3a9f59",
-      "translation": "모든 0 레이블이 존재하고, 분류됩니다."
+      "translation": "모든 0 레이블이 존재하고, 분류됩니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``None`` for background, or when this layer was not told which microscope field of view it segments. This is the whole reason a labels layer carries a :class:`FieldKey`: the string this returns is the same string the UMAP, the laboratory microplate view and the annotation grid use, so publishing it through :mod:`spacr.qt.linked_selection` highlights the same cell everywhere.",
@@ -3897,7 +3905,9 @@
       "label": "spacr.model_compare.ComparisonReport.fields#0",
       "source": "The field names, in order.",
       "source_sha256": "a2a04dad7b98f8a84efed03d3bfe87558c0a52cefe6fa51d11baac387c7dc5a2",
-      "translation": "시야 이름, 순서대로"
+      "translation": "시야 이름, 순서대로",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "invert the image before inference.",
@@ -3953,7 +3963,9 @@
       "label": "spacr.model_compare.segment_with_cellpose#0",
       "source": "Segment ``images`` with one Cellpose model. The default backend.",
       "source_sha256": "577911d8ffd73ea78a4a1eb87ed6eba45530fbce6fb7ad43511a812996087431",
-      "translation": "``images`` 모델을 가진 분할 Cellpose. 기본 후반."
+      "translation": "``images`` 모델을 가진 분할 Cellpose. 기본 후반.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what was segmented.",
@@ -3981,7 +3993,9 @@
       "label": "spacr.model_zoo.compare_entries#0",
       "source": "Compare two zoo entries on the same fields.",
       "source_sha256": "d0bac109138c4a0cae3fb3bc8e4fb45aa7509d247a2fcf674bf9027ba366a295",
-      "translation": "동일한 시야에서 두 개의 동물원 입구를 비교하십시오."
+      "translation": "동일한 시야에서 두 개의 동물원 입구를 비교하십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "field names, in order.",
@@ -4009,7 +4023,9 @@
       "label": "spacr.model_zoo.mitonet_weights#0",
       "source": "The MitoNet v1 mini weights on this machine, downloaded on first use.",
       "source_sha256": "40150ccfd5fd9e33647cdb9bf41fc170ad4427fcaf42a3ad81764cadb4743509",
-      "translation": "이 기계에서 MitoNet v1 미니 가중치, 첫 사용에 다운로드."
+      "translation": "이 기계에서 MitoNet v1 미니 가중치, 첫 사용에 다운로드.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "fetch the weights when no verified copy is here.",
@@ -4072,7 +4088,9 @@
       "label": "spacr.napari_bridge.open_in_napari#0",
       "source": "Open the field in napari and return the viewer.",
       "source_sha256": "d6046ddb454b01c4fb754855f4bab81e306bad992400d8699e536aa153900996",
-      "translation": "시야를 열어 주세요 napari 그리고 시청자를 돌려보낸다."
+      "translation": "시야를 열어 주세요 napari 그리고 시청자를 돌려보낸다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The mask goes through :func:`spacr.mask_io.save_mask`, which is the one place spaCR decides what a mask file is — ``uint16``, LZW-compressed TIFF by default, ``.npy`` when the path or ``SPACR_MASK_FORMAT`` says so. A corrected mask written any other way would be a mask the rest of the workflow reads differently from the one segmentation produced.",
@@ -4307,7 +4325,9 @@
       "label": "spacr.omero.format_map_value#0",
       "source": "Render ``value`` as the **string** an OMERO map annotation stores.",
       "source_sha256": "0af13cc92f6cae8773a6c04bbcc2eed68a95f13844b0d52044289d89f086e87a",
-      "translation": "``value``를 **string**의 OMERO 지도 어노테이션 스토어로 표시합니다."
+      "translation": "``value``를 **string**의 OMERO 지도 어노테이션 스토어로 표시합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A Dataset is a flat bag of images with no laboratory microplate geometry, so the microplate sample positions have to come from somewhere. Two sources, in order, and which one was used is recorded per file in :data:`SIDECAR_CSV`:",
@@ -4342,7 +4362,9 @@
       "label": "spacr.omero.is_missing#0",
       "source": "Return whether ``value`` represents missing annotation data.",
       "source_sha256": "ba3f8716b47a226bc9f56766f5cef4c861b955d56dd27cb00bc15bd798e0b4d0",
-      "translation": "``value``이 실종된 어노테이션 데이터를 나타내는지 여부를 반환합니다."
+      "translation": "``value``이 실종된 어노테이션 데이터를 나타내는지 여부를 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The test is exact equality against :data:`SPACR_NAMESPACES`, not a prefix match: a prefix match would claim ``github.com/EinarOlafsson/spacr-fork/ 1/measurements`` as spaCR's own and overwrite somebody else's annotation.",
@@ -4363,7 +4385,9 @@
       "label": "spacr.omero.list_spacr_annotations#0",
       "source": "Return the ``(id, namespace)`` of every spaCR annotation on ``target``.",
       "source_sha256": "5130862bb242fd65bdd3bcd2fbc94179903479ec9be78a65a32e53e352e6351d",
-      "translation": "각 spaCR 어노테이션의 ``(id, namespace)``를 ``target``에 반환합니다."
+      "translation": "각 spaCR 어노테이션의 ``(id, namespace)``를 ``target``에 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``listAnnotations()`` is deliberately called **without** a namespace filter and the filtering is done here. The filter is what decides whether an annotation gets written to, and that decision must not depend on a server honouring a query parameter: a server that ignored ``ns=`` would otherwise hand back a stranger's annotation and this module would update it.",
@@ -4468,7 +4492,9 @@
       "label": "spacr.ops_objects.PlateObject#0",
       "source": "One nucleus, numbered for the whole well. The join key for sampling.",
       "source_sha256": "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
-      "translation": "하나의 핵, 전체를 위해 숫자. 샘플링을위한 합류 키."
+      "translation": "하나의 핵, 전체를 위해 숫자. 샘플링을위한 합류 키.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window whose observation was kept, as ``(row, col)``. Recorded so a suspect object can be traced back to the pixels it was segmented from.",
@@ -4489,7 +4515,9 @@
       "label": "spacr.ops_objects.WindowObject#0",
       "source": "One segmented object as one window saw it, in well-frame coordinates.",
       "source_sha256": "08b4f80df22b475747c74c178153d7ff1d70c30daa1083fce1dc720ade3fc71c",
-      "translation": "한 개의 분할 된 개체는 좋은 프레임 코디네이트에서 하나의 창으로 그것을 보았습니다."
+      "translation": "한 개의 분할 된 개체는 좋은 프레임 코디네이트에서 하나의 창으로 그것을 보았습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the window it was segmented in, so a disagreement can be traced back to the pixels that produced it.",
@@ -4573,7 +4601,9 @@
       "label": "spacr.ops_phenotype.nuclear_points#0",
       "source": "Return nuclear centres as smoothed intensity peaks, without segmentation.",
       "source_sha256": "568533242d0ed1824a3660eb436944d68e3b55b1343dfe11be402698dfef8ad0",
-      "translation": "핵 센터는 분할 없이 부드러운 강도 꼭대기로 돌아갑니다."
+      "translation": "핵 센터는 분할 없이 부드러운 강도 꼭대기로 돌아갑니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Alignment needs points that correspond between two frames, not masks; a smoothed local maximum on a nuclear stain provides them at a fraction of a segmentation's cost. Segmentation happens later (phase B), once, on the composite.",
@@ -4587,7 +4617,9 @@
       "label": "spacr.ops_phenotype.refine_similarity#0",
       "source": "Re-solve a seed transform from the correspondences it implies.",
       "source_sha256": "47318d012262c5cac2b95a8a4628dec163e7b5a021a45c2c69d273a5c241188f",
-      "translation": "그것이 의미하는 상호 작용에서 시드 변환을 다시 해결합니다."
+      "translation": "그것이 의미하는 상호 작용에서 시드 변환을 다시 해결합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The seed may be inaccurate. The triangle consensus is biased by up to 44 % in scale on sparse data, but a bias that large still puts the points near the centre of rotation within a few pixels of the truth, which gives enough correspondences to solve from. The first two rounds match at four and two times ``radius`` before narrowing to ``radius``.",
@@ -4601,7 +4633,9 @@
       "label": "spacr.ops_phenotype.seed_by_scaled_pairs#0",
       "source": "A seed transform from two-point correspondences, with the scale known.",
       "source_sha256": "d8ab6a638bf635c148fef108b16a97cd7180f3adfa7995ac07fffdac62026f63",
-      "translation": "시드는 알려진 규모로 2 포인트 상호 작용에서 변환됩니다."
+      "translation": "시드는 알려진 규모로 2 포인트 상호 작용에서 변환됩니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the random seed, so a run is reproducible.",
@@ -4629,7 +4663,9 @@
       "label": "spacr.ops_sbs.compensate_crosstalk#0",
       "source": "Correct base intensities for dye bleed-through between channels.",
       "source_sha256": "9fba2b5ef38f7f4c10320e07a8ac1035d9f5cb47cdfda85f9a01ecff13ccd7e2",
-      "translation": "이미지 데이터 채널 간 염료 번짐(bleed-through)에 대해 염기 강도를 보정합니다."
+      "translation": "이미지 데이터 채널 간 염료 번짐(bleed-through)에 대해 염기 강도를 보정합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Without correction the raw argmax is biased: each dye emits into its neighbours' channels, so a channel that is bright overall wins comparisons it should lose, and the bias is systematic rather than noise: it mis-calls the same base everywhere.",
@@ -4720,7 +4756,9 @@
       "label": "spacr.parameter_sweep.be_polite#0",
       "source": "Lower the current worker's CPU, I/O, and OOM-kill priority.",
       "source_sha256": "eaf6667145e67aa7b99ecd1e046d868e7a3f41b581d629b24d86db2567ce21bf",
-      "translation": "현재 워커의 CPU, I/O 및 OOM-kill 우선 순위를 낮추십시오."
+      "translation": "현재 워커의 CPU, I/O 및 OOM-kill 우선 순위를 낮추십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The adjustments are best-effort and platform dependent. On Linux, the worker uses the lowest CPU and I/O priorities and sets ``oom_score_adj=800`` so it is preferred over interactive applications when the system is under memory pressure.",
@@ -4741,7 +4779,9 @@
       "label": "spacr.parameter_sweep.recommended_workers#0",
       "source": "Choose a worker count from available memory and CPU capacity.",
       "source_sha256": "e05aed8c65e8bffcca0bc3e85bf5602a525ba0d9ab0e305fe4dd3c14cae9fb00",
-      "translation": "사용 가능한 메모리와 CPU 용량에서 워커 계산을 선택합니다."
+      "translation": "사용 가능한 메모리와 CPU 용량에서 워커 계산을 선택합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "measured_gib : float or None, optional Peak resident memory for one representative trial, in GiB. ``None`` uses :data:`ASSUMED_TRIAL_GIB`. requested : int or None, optional Preferred maximum worker count. The result is still limited by memory, available CPU cores, and :data:`MAX_WORKERS`.",
@@ -4965,7 +5005,9 @@
       "label": "spacr.plate_qc.row_label#0",
       "source": "Return the letter label of a 1-based row index: ``3`` → ``'C'``.",
       "source_sha256": "eaa306641b6064a30b0e943195a650b7aa5e2d6aa2c018b2c7eb5d3b97c59cdb",
-      "translation": "1 기반 순서 지수의 문자 레이블을 반환합니다: ``3`` → ``'C'``."
+      "translation": "1 기반 순서 지수의 문자 레이블을 반환합니다: ``3`` → ``'C'``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Threshold on the ``coefficient`` column — positive filters ``> threshold``, negative filters ``< threshold``.",
@@ -5111,7 +5153,9 @@
       "label": "spacr.power_model.ModelData#0",
       "source": "Well-level design for the Poisson model, one row per well.",
       "source_sha256": "767d593ff30048da17c2747c97611e8d3dd2f3ef0567854cee35deaf76e1a108",
-      "translation": "Poisson 모델의 마이크로 플레이트 샘플 위치 레벨 디자인, 마이크로플레이트 시료 위치에 한 줄."
+      "translation": "Poisson 모델의 마이크로 플레이트 샘플 위치 레벨 디자인, 마이크로플레이트 시료 위치에 한 줄.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the seed the fit was run with.",
@@ -9360,7 +9404,9 @@
       "label": "spacr.regression_annotation.AnnotationStrategyError#0",
       "source": "Raised when an annotation strategy cannot use the supplied data.",
       "source_sha256": "e8b5c1db73c1c0a54c1b4744b9dd2a49a2427fff0d165577c9e8d9c91f27787a",
-      "translation": "예외는 어노테이션 전략이 제공된 데이터를 사용할 수 없을 때 사용됩니다."
+      "translation": "예외는 어노테이션 전략이 제공된 데이터를 사용할 수 없을 때 사용됩니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Score threshold defining the positive class, or ``NaN`` when manual annotations define the labels.",
@@ -9374,7 +9420,9 @@
       "label": "spacr.regression_annotation.candidate_feature_columns#0",
       "source": "Return columns that may be features, judged by name and dtype only.",
       "source_sha256": "043c9cb32739c08a45f930eab6ca0c93b677007a53ea905dece77e579ed13afd",
-      "translation": "단지 이름과 dtype에 의해 판단되는 특징이 될 수있는 열을 반환합니다."
+      "translation": "단지 이름과 dtype에 의해 판단되는 특징이 될 수있는 열을 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Optional explicit feature list. Missing columns raise an error rather than being removed silently.",
@@ -9409,7 +9457,9 @@
       "label": "spacr.regression_annotation.usable_annotations#0",
       "source": "How many cells carry an annotation in ``label_column``.",
       "source_sha256": "c7bd6d6e566f95022c095f4786afd41c0eb679f38b5c740d4d84f48c5f34b10e",
-      "translation": "얼마나 많은 세포가 ``label_column``에서 어노테이션을 가져옵니다."
+      "translation": "얼마나 많은 세포가 ``label_column``에서 어노테이션을 가져옵니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the annotation column, or \"\".",
@@ -9437,7 +9487,9 @@
       "label": "spacr.regression_diagnostics.score_residuals#0",
       "source": "Score whether the residuals support the inference drawn from them.",
       "source_sha256": "3c5e6da030031392277bb9302ddbe080cfb20fbeb8c70b72a05656b93115fec1",
-      "translation": "잔류물이 그들로부터 추출 된 추론을 지원하는지 여부를 평가하십시오."
+      "translation": "잔류물이 그들로부터 추출 된 추론을 지원하는지 여부를 평가하십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``spacr.ml.regression_model`` can return a statsmodels ``OLS``, ``WLS``, ``RLM``, ``QuantReg``, a ``GLM`` in any of six families, a ``MixedLM``, a ``BetaModel``, a sklearn ``Lasso``/``Ridge``/``ElasticNet`` or a ``LinearSVC``. Those objects agree on almost nothing: a sklearn ``Lasso`` has no p-values, no covariance matrix and no ``fittedvalues``; a ``MixedLM`` has no hat matrix; a Gaussian model has no calibration curve worth drawing. Every panel therefore either draws or raises :class:`PanelUnavailable` carrying the *reason*, and the reason is printed on the combined report page and returned in the manifest. A panel is never silently omitted, and never faked with a substitute statistic that does not mean what the axis label says.",
@@ -9598,7 +9650,9 @@
       "label": "spacr.resume.ResumeState.n_skipped#0",
       "source": "How many fields are being skipped.",
       "source_sha256": "cd5bd43a6a0177147d11fdd9dfb16f826f7fb6378a971233ea3b598db36c2635",
-      "translation": "얼마나 많은 시야가 어지고 있는가."
+      "translation": "얼마나 많은 시야가 어지고 있는가.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "cosmetic differences (worker counts, plotting) that cannot alter a measured number.",
@@ -9661,14 +9715,18 @@
       "label": "spacr.roi.disable_roi_filter#0",
       "source": "Measure whole fields again, here and for any worker started afterwards.",
       "source_sha256": "4308fb520f7858600a381db8ff9ff75546f05a84261dfd97ceb41cf91ab7633c",
-      "translation": "전체 필드를 다시 측정하고, 여기서 그리고 나중에 시작하는 모든 워커를 위해."
+      "translation": "전체 필드를 다시 측정하고, 여기서 그리고 나중에 시작하는 모든 워커를 위해.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Measure only inside these regions, here and in every worker process.",
       "label": "spacr.roi.enable_roi_filter#0",
       "source": "Measure only inside these regions, here and in every worker process.",
       "source_sha256": "090a416a4ae2615d2fbe4a6206a8cee5ca83115824d8a0823f4a48891aafc0c7",
-      "translation": "이 지역 내에서만 측정하고, 여기서 그리고 모든 워커 과정에서만 측정한다."
+      "translation": "이 지역 내에서만 측정하고, 여기서 그리고 모든 워커 과정에서만 측정한다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. the ROI is written to disk if it is not already a path — a ``spawn`` worker can only reach it through the file system; 2. :data:`ROI_ENV_VAR` (and :data:`ON_MISSING_ENV_VAR`) are set; 3. ``spacr.roi:install`` is appended to :data:`~spacr.measure_hooks.HOOKS_ENV_VAR` — appended, not assigned, because the illumination correction may already be in there — and the registry is then consulted so this process installs the filter through that same environment route.",
@@ -9703,7 +9761,9 @@
       "label": "spacr.roi.worker_delivery_status#0",
       "source": "Whether the ROI will reach ``measure_crop``'s worker processes.",
       "source_sha256": "5a74b5043017e5d1342c9148135294de9469ffa5224be0c69b6c7460a1c23028",
-      "translation": "ROI이 ``measure_crop``의 워커 프로세스에 도달하는지 여부."
+      "translation": "ROI이 ``measure_crop``의 워커 프로세스에 도달하는지 여부.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the permutation seed, so a re-run of the same screen gives the same P values.",
@@ -9724,7 +9784,9 @@
       "label": "spacr.run_compare.count_database#0",
       "source": "Count objects, wells and fields in one measurements database.",
       "source_sha256": "fdecbf12fac1342f718f3811385f5d01a85e8685a22e63f666e8bee4aa1db902",
-      "translation": "한 측정 데이터베이스에서 개체, 마이크로 플레이트 샘플 위치 및 현미경 시야 필드를 계산합니다."
+      "translation": "한 측정 데이터베이스에서 개체, 마이크로 플레이트 샘플 위치 및 현미경 시야 필드를 계산합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Deliberately tolerant: a database missing ``pathogen`` is a run that segmented no pathogens, not an error, and a run whose database has been deleted must report that rather than raise — the comparison screen has to say *why* half the table is empty.",
@@ -9759,7 +9821,9 @@
       "label": "spacr.run_journal.extract_seeds#0",
       "source": "Capture declared seeds plus already-loaded RNG state fingerprints.",
       "source_sha256": "1d240457b8a17716e62ca3bd664b3321170f759d5a9f561b1ed7cfa6dba0d96f",
-      "translation": "캡처 선언 된 시드 플러스 이미 충전 된 RNG 상태 지문."
+      "translation": "캡처 선언 된 시드 플러스 이미 충전 된 RNG 상태 지문.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a key-value mapping with ``declared`` (the collected seed settings), ``python_hash_seed`` (``PYTHONHASHSEED``, or ``None`` when unset), ``python_random_state_sha256``, ``numpy_random_state_sha256`` and ``torch_initial_seed`` — the last two ``None`` when the library is not already imported. A probe that raises contributes ``numpy_random_state_error`` / ``torch_seed_error`` instead of its value structured-data name.",
@@ -9801,7 +9865,9 @@
       "label": "spacr.runctx.RunContext#0",
       "source": "One pipeline run: its id, its seed, its error policy, its ledger.",
       "source_sha256": "68913058365eb85ea296ef7da6e0ca047b023c983948c33499c59c0e543ae9ba",
-      "translation": "작업 흐름 처리 세션 : ID, 시드, 오류 정책, Ledger."
+      "translation": "작업 흐름 처리 세션 : ID, 시드, 오류 정책, Ledger.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the seed applied, or None when the run is unseeded.",
@@ -9822,7 +9888,9 @@
       "label": "spacr.runctx.RunContext.random_state#0",
       "source": "This run's seed, for an estimator's ``random_state=``.",
       "source_sha256": "9245ca8b9e78c8360adf168a678fb4959f4850ae8f474504ca5e18a3386898e0",
-      "translation": "이 과정의 시드는 추정치의 ``random_state=``에 대한 것입니다."
+      "translation": "이 과정의 시드는 추정치의 ``random_state=``에 대한 것입니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "worker category, or a complete stamp mapping.",
@@ -9836,7 +9904,9 @@
       "label": "spacr.runctx.RunContext.rng#0",
       "source": "An independent seeded Generator; see :func:`spacr_rng`.",
       "source_sha256": "fe3cbf3d4d7bd7ae616653b9876de4e6697570e2d2df621917eedc3dd5164125",
-      "translation": "독립적 인 시드 유전자; :func:`spacr_rng` 참조."
+      "translation": "독립적 인 시드 유전자; :func:`spacr_rng` 참조.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A fallback for the record factory installed by :func:`install_run_id_logging`: a handler whose format string contains ``%(run_id)s`` must never throw on a record that came from somewhere the factory did not reach (a record unpickled from a worker, say).",
@@ -9850,7 +9920,9 @@
       "label": "spacr.runctx.SeedReport#0",
       "source": "What :func:`seed_everything` actually managed to seed.",
       "source_sha256": "c5df8b2b57265c600c1c9297eb363ae818505c4294f33ba70daad0288a891529",
-      "translation": ":func:`seed_everything` 실제로 시드를 얻을 수있었습니다."
+      "translation": ":func:`seed_everything` 실제로 시드를 얻을 수있었습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the seed applied.",
@@ -9892,7 +9964,9 @@
       "label": "spacr.runctx.random_state#0",
       "source": "Return the seed to hand an estimator's ``random_state=``.",
       "source_sha256": "96f264a4072bb7252bee31d8b6fe5af82e4f96dba743db20292959fa6f888078",
-      "translation": "시드를 돌려 ``random_state=``의 추정치를 전달합니다."
+      "translation": "시드를 돌려 ``random_state=``의 추정치를 전달합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "sklearn, XGBoost, LightGBM and CatBoost all take a ``random_state`` (or ``seed``) and all ignore the NumPy global stream once one is given, so a construction site that hard-codes ``random_state=42`` silently overrides the run's seed. Call this instead",
@@ -9913,7 +9987,9 @@
       "label": "spacr.runctx.resolve_seed#0",
       "source": "Return the seed a run should use.",
       "source_sha256": "4a790a3f4fdf8172eda662aa9579bfa0a8b1ba4cebdf26822634f05f679b0659",
-      "translation": "시드를 다시 사용해야하는 흐름."
+      "translation": "시드를 다시 사용해야하는 흐름.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to use when nothing names a seed. Pass ``None`` for \"leave the RNGs alone unless asked\".",
@@ -9934,7 +10010,9 @@
       "label": "spacr.runctx.run_context#0",
       "source": "Context manager that opens a run: mint an id, seed the RNGs, set the error policy.",
       "source_sha256": "c52352ac072e5fb9e2fa1941293c7c512187a29e2341e3e03b2bc0ba46df997f",
-      "translation": "실행을 열어주는 컨텍스트 매니저: ID를 입력하고, RNG를 시드하고, 오류 정책을 설정합니다."
+      "translation": "실행을 열어주는 컨텍스트 매니저: ID를 입력하고, RNG를 시드하고, 오류 정책을 설정합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "use this id instead of minting one — for a resumed run, or a distributed worker continuing its parent's run.",
@@ -9955,7 +10033,9 @@
       "label": "spacr.runctx.seed_everything#0",
       "source": "Seed every RNG spaCR can reach, and report what that does not cover.",
       "source_sha256": "aa01677ed374b8dd1a485eb51e550ce6870c6a8cb33b1c72737f9376f1d77a8b",
-      "translation": "각 RNG 시드 spaCR 도달 할 수 있고, 그것이 다루지 않는 것을 보고 할 수 있습니다."
+      "translation": "각 RNG 시드 spaCR 도달 할 수 있고, 그것이 다루지 않는 것을 보고 할 수 있습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Seeds, in order: :mod:`random`, NumPy's legacy global (``np.random``), the :class:`~numpy.random.Generator` stream :func:`spacr_rng` derives, Torch on CPU, and Torch on every visible CUDA device. Cellpose is seeded transitively — it has no seed API and draws from NumPy and Torch. ``PYTHONHASHSEED`` is exported for child processes.",
@@ -10025,7 +10105,9 @@
       "label": "spacr.schema.ObjectID#0",
       "source": "One segmented object's identity — the ``prcfo`` a merged row is keyed on.",
       "source_sha256": "f32359dd0aff596aaa11686e4437a2eb5bf831457eca662893cb8544edd5debf",
-      "translation": "분할된 개체의 정체성 - ``prcfo``의 합병된 순서가 열쇠를 삽입합니다."
+      "translation": "분할된 개체의 정체성 - ``prcfo``의 합병된 순서가 열쇠를 삽입합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``o<label>`` when the object's type is not stated, or ``<type><label>`` when it is. The type lives *inside* this microscope field of view rather than beside it so that two :class:`ObjectID` values compare equal exactly when they name the same object — a separate ``objectType`` microscope field of view would let ``('o7', 'nucleus')`` and ``('nucleus7', None)`` describe one object and compare unequal.",
@@ -10172,14 +10254,18 @@
       "label": "spacr.seg_qc.FieldAddress#0",
       "source": "Where on the plate a scored field sits.",
       "source_sha256": "7182069bf5623e1ee37bee4fca27d427c481f93cbbb8eddd2b423dc390797fe8",
-      "translation": "실험실 마이크로 플레이트에 점수 된 현미경 시야가 위치하는 곳."
+      "translation": "실험실 마이크로 플레이트에 점수 된 현미경 시야가 위치하는 곳.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One field's segmentation verdict.",
       "label": "spacr.seg_qc.FieldQC#0",
       "source": "One field's segmentation verdict.",
       "source_sha256": "cb3745da7e71e3e5ee24b040257c9d8deda31d6f50cbd99a2511b4b37ad77c9e",
-      "translation": "한 시야의 분할 판결."
+      "translation": "한 시야의 분할 판결.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'``, ``'organelle'`` — whatever was segmented.",
@@ -10207,28 +10293,36 @@
       "label": "spacr.seg_qc.QCDigest#0",
       "source": "Segmentation-QC verdict, findings and counts for a project, for display.",
       "source_sha256": "1f166d74ed5fe438dcd6f38ad546c3b037c0fcb8a2dd4f225c836f29d6ce29ac",
-      "translation": "분할-QC 판결, 발견 및 프로젝트에 대한 계산, 표시."
+      "translation": "분할-QC 판결, 발견 및 프로젝트에 대한 계산, 표시.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What was segmented, in card order.",
       "label": "spacr.seg_qc.QCDigest.object_types#0",
       "source": "What was segmented, in card order.",
       "source_sha256": "a1f589e17e7715a5e9e7693b40b99dab59d12f84ecae2e0ba1c20334473028c1",
-      "translation": "무엇이 분할되었는지, 카드 순서로."
+      "translation": "무엇이 분할되었는지, 카드 순서로.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The plate failed segmentation QC and ``seg_qc='stop'`` was set.",
       "label": "spacr.seg_qc.SegmentationQCFailed#0",
       "source": "The plate failed segmentation QC and ``seg_qc='stop'`` was set.",
       "source_sha256": "2e363bedf3d4ca7fa3eee3ca9084a66fc7e661820c6a707953d42fd8da2114be",
-      "translation": "플레이트는 QC 및 ``seg_qc='stop'``의 분할이 실패했습니다."
+      "translation": "플레이트는 QC 및 ``seg_qc='stop'``의 분할이 실패했습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Turn per-microscope field of view verdicts into findings that name laboratory microplates, microplate sample positions and causes.",
       "label": "spacr.seg_qc.diagnose#0",
       "source": "Turn per-field verdicts into findings that name plates, wells and causes.",
       "source_sha256": "2c9ba5bb29d07f9c7f4f8d53e1c60b2e6b629d1290d098225adac74dbaa4e322",
-      "translation": "per-microscope 필드의 시각 판단을 실험실 마이크로 플레이트를 명칭하는 발견으로 변환, 마이크로플레이트 시료 위치 및 원인."
+      "translation": "per-microscope 필드의 시각 판단을 실험실 마이크로 플레이트를 명칭하는 발견으로 변환, 마이크로플레이트 시료 위치 및 원인.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**flag findings** — one per (laboratory microplate, flag): which microplate sample positions, how many microscope fields of view, what that flag does to the measurements and what to do about it. This is the scorecard, grouped and translated.",
@@ -10249,7 +10343,9 @@
       "label": "spacr.seg_qc.parse_field_name#0",
       "source": "Split a field name into plate / well / row / column.",
       "source_sha256": "db74325d0f9b31814253a605674fb3eda5578e49d62d8e73a431f64203e829ca",
-      "translation": "마이크로스코프 필드 이름을 실험실 마이크 / 마이크로플레이트 시료 위치 / 라인 / 열으로 분할합니다."
+      "translation": "마이크로스코프 필드 이름을 실험실 마이크 / 마이크로플레이트 시료 위치 / 라인 / 열으로 분할합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what was segmented, carried through to the card.",
@@ -10319,7 +10415,9 @@
       "label": "spacr.sequencing.generate_barecode_mapping#0",
       "source": "Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.",
       "source_sha256": "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-      "translation": "융합 스크린링 실험 FASTQ 파일의 폴더를 :func:`spacr.ml.perform_regression`로 사용할 수 있는 마이크로플레이트 시료 위치 sgRNA 계산 테이블로 변환합니다."
+      "translation": "융합 스크린링 실험 FASTQ 파일의 폴더를 :func:`spacr.ml.perform_regression`로 사용할 수 있는 마이크로플레이트 시료 위치 sgRNA 계산 테이블로 변환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Per sample it writes ``annotated_reads.h5`` (optional), ``unique_combinations.csv`` (the per-microplate sample position gRNA counts) and ``qc.csv``.",
@@ -10389,7 +10487,9 @@
       "label": "spacr.sequencing_qc.WellFractions.counts_at#0",
       "source": "gRNAs surviving each threshold, as ``[n_wells, n_thresholds]``.",
       "source_sha256": "344d0e01daa100e2f842416e55a8700d20e8aa26521337d95cc73c30fc7dca11",
-      "translation": "gRNAs 각각의 임계값을 벗어나고, ``[n_wells, n_thresholds]``."
+      "translation": "gRNAs 각각의 임계값을 벗어나고, ``[n_wells, n_thresholds]``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The population is fixed — a well that loses its last gRNA stays in the denominator as a zero — and that is what makes the result a non-increasing function of the threshold: every well's count only ever falls, so every order statistic of them only ever falls. Dropping emptied microplate sample positions instead would let the median jump *up* when a sparse well is removed, and a target could then be met at two thresholds far apart with no way to say which was meant.",
@@ -10424,7 +10524,9 @@
       "label": "spacr.sequencing_qc.threshold_sweep#0",
       "source": "Evaluate the whole trade-off at each threshold.",
       "source_sha256": "d843606df1621af13afebb11384c66b6b50c3d5a7781ee12e9de3b780ad518e1",
-      "translation": "각 임계값에 있는 전체 트레이프를 평가하십시오."
+      "translation": "각 임계값에 있는 전체 트레이프를 평가하십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``collision_rate`` — share of **all** microplate sample positions over the budget; non-increasing, because each microplate sample position's gRNA count only falls.",
@@ -10489,7 +10591,9 @@
       "label": "spacr.sim.calculate_permutation_importance#0",
       "source": "Fit a RandomForest and plot permutation-based feature importances for the sweep columns.",
       "source_sha256": "5d518670cbfe5207caa57038be070063c810089b53c62e67917fe66097d111fb",
-      "translation": "RandomForest와 plot permutation 기반 특징의 중요성에 맞게  열."
+      "translation": "RandomForest와 plot permutation 기반 특징의 중요성에 맞게  열.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Column name or list of columns to remove from the feature set.",
@@ -10510,7 +10614,9 @@
       "label": "spacr.sim.generate_gene_weights#0",
       "source": "Draw ``len(df)`` gene weights from a Beta distribution matched to the given moments.",
       "source_sha256": "d3f595bdcbf29e75ed81cce4baae9034eecafbbebb88db263136c504b7550f77",
-      "translation": "``len(df)`` 유전자 가중치를 특정 순간에 맞는 베타 배포에서 끌어 올립니다."
+      "translation": "``len(df)`` 유전자 가중치를 특정 순간에 맞는 베타 배포에서 끌어 올립니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "NumPy array of Beta-distributed weights.",
@@ -10524,21 +10630,27 @@
       "label": "spacr.sim.generate_shap_summary_plot#0",
       "source": "Fit a RandomForest and render a SHAP summary plot over the standard sweep features.",
       "source_sha256": "19e234f8c1674474f92e4962f508c48e0796aa2f7f079fd73786e5d6b4f99973",
-      "translation": "RandomForest를 적합하고 표준 스프링 특징을 넘어 SHAP 요약을 제공합니다."
+      "translation": "RandomForest를 적합하고 표준 스프링 특징을 넘어 SHAP 요약을 제공합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fit a GradientBoostingRegressor and plot partial dependences for every sweep feature.",
       "label": "spacr.sim.plot_partial_dependences#0",
       "source": "Fit a GradientBoostingRegressor and plot partial dependences for every sweep feature.",
       "source_sha256": "1ba0eb3ceec1671f2d5604642c50e3a34d5f8b0038de72794b3e3987215700d2",
-      "translation": "GradientBoostingRegressor를 적합하고 각 스프링 특징에 대한 부분적인 의존도를 틀립니다."
+      "translation": "GradientBoostingRegressor를 적합하고 각 스프링 특징에 대한 부분적인 의존도를 틀립니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Worker that executes one simulation, saves outputs, and appends its runtime.",
       "label": "spacr.sim.run_and_save#0",
       "source": "Worker that runs one simulation, saves outputs, and appends its runtime.",
       "source_sha256": "8e8a305dbc925f899978e55cb327212e2f0425c1b0cd8a586f95d4f7300f16ce",
-      "translation": "하나의 시뮬레이션을 실행하는 워커는 출력을 저장하고 실행 시간을 연장합니다."
+      "translation": "하나의 시뮬레이션을 실행하는 워커는 출력을 저장하고 실행 시간을 연장합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Tuple ``(cell_df, genes_per_well_df, wells_per_gene_df, df_ls)`` where ``df_ls`` contains per-well gene counts, per-gene well counts, per-well Gini values, per-gene Gini values, gene weights and well weights.",
@@ -10922,7 +11034,9 @@
       "label": "spacr.suggest.resolve_suggestions#0",
       "source": "Accept suggestions as annotations, or clear them away.",
       "source_sha256": "bec5492df37ca51f091ea67b6ecb1d6f387e232632ac8c2c6a4e64f24c2d99a9",
-      "translation": "제안을 어노테이션으로 받아들이거나 삭제하십시오."
+      "translation": "제안을 어노테이션으로 받아들이거나 삭제하십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "leave out every extracted image region whose suggestion the annotator rejected (a negative ``<column>_verdict``), so a rejected extracted image region is not suggested again in a later round. It still trains as an example of the other class (:func:`rejected_suggestions`); it is only not proposed.",
@@ -10992,7 +11106,9 @@
       "label": "spacr.surrogate.build_surrogate_frame#0",
       "source": "Join CV predictions to the measured feature table.",
       "source_sha256": "69c17e320cd823d158b41adae283bb04924248c71ea5e342e7e2d4c463437d01",
-      "translation": "측정된 특징 테이블에 CV 예측을 포함합니다."
+      "translation": "측정된 특징 테이블에 CV 예측을 포함합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The CV model is indexed by the extracted image region it scored and the features are indexed by the object, so ``png_list`` is the bridge: it is the only table holding both. The join is validated one-to-one — a repeated structured-data name would multiply rows and silently reweight the surrogate towards whichever objects happened to duplicate.",
@@ -11006,14 +11122,18 @@
       "label": "spacr.surrogate.explain_classifier#0",
       "source": "Join predictions to features, fit a surrogate, and rank the features.",
       "source_sha256": "79d89217af27b83f24fceb4c813e0f14c415e9427ad454ab1a8cd3febd7a093f",
-      "translation": "예측에 참여하여 특징에 맞추고, 서로가트를 맞추고, 특징을 순위합니다."
+      "translation": "예측에 참여하여 특징에 맞추고, 서로가트를 맞추고, 특징을 순위합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fit a surrogate to ``frame['cv_prediction']`` and rank the features.",
       "label": "spacr.surrogate.fit_surrogate#0",
       "source": "Fit a surrogate to ``frame['cv_prediction']`` and rank the features.",
       "source_sha256": "e926bc157766dc6bcec8f3b8440019ec7abf86c8a91fd68c2d5486fee2f19861",
-      "translation": "``frame['cv_prediction']``로 서로가를 맞추고 특징을 순위합니다."
+      "translation": "``frame['cv_prediction']``로 서로가를 맞추고 특징을 순위합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "extra feature columns to drop.",
@@ -11069,7 +11189,9 @@
       "label": "spacr.timelapse.infected_vs_noninfected#0",
       "source": "Plot per-well mean ``delta_<measurement>`` for infected vs uninfected cell groups.",
       "source_sha256": "a758ffe7d062f348fdf8c174e3a466168bc6d74dac538490c1760a0e51a48073",
-      "translation": "플로트/마이크로플레이트 시료 위치는 감염된 세포 그룹에 대하여 ``delta_<measurement>``을 의미합니다."
+      "translation": "플로트/마이크로플레이트 시료 위치는 감염된 세포 그룹에 대하여 ``delta_<measurement>``을 의미합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "list of ``(label_prev, label_next)`` matches above the threshold.",
@@ -11083,7 +11205,9 @@
       "label": "spacr.timelapse.preprocess_pathogen_data#0",
       "source": "Aggregate a per-parasite table to one row per host cell with a parasite count.",
       "source_sha256": "31be516b4fe393087629aef29967a7f62c6ffd738e48b1f3a66a72c1839bc7c5",
-      "translation": "기생충에 대한 테이블을 숙주 세포에 한 줄로 합쳐 기생충의 계산으로 합쳐야합니다."
+      "translation": "기생충에 대한 테이블을 숙주 세포에 한 줄로 합쳐 기생충의 계산으로 합쳐야합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Is indexed by the column names the measurement writer actually emits: ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent altogether outside a timelapse run) and ``cell_id`` -- the child table's link to its host cell -- not ``pathogen_cell_id``, which no writer produces.",
@@ -11181,14 +11305,18 @@
       "label": "spacr.train_compare.Comparison.epoch_ranges#0",
       "source": "Return each series label mapped to its finite epoch span.",
       "source_sha256": "45623c90a8b93436b941ca1b36f75674877744a5f10afc8167e89107ab33166d",
-      "translation": "각 시리즈 레이블을 최종 에포크의 범위로 돌려보내십시오."
+      "translation": "각 시리즈 레이블을 최종 에포크의 범위로 돌려보내십시오.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the series do not all cover the same epoch span.",
       "label": "spacr.train_compare.Comparison.lengths_differ#0",
       "source": "True when the series do not all cover the same epoch span.",
       "source_sha256": "10fbdd71e851d67442e20aa577c15a5bc7b4f8e7e61ef2fcb75bb05aa90305e2",
-      "translation": "True 시리즈가 모두 동일한 에포크 범위를 커버하지 않는 경우."
+      "translation": "True 시리즈가 모두 동일한 에포크 범위를 커버하지 않는 경우.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "epoch-ordered, unresampled frame containing ``epoch`` and this series' numeric metrics.",
@@ -11202,21 +11330,27 @@
       "label": "spacr.train_compare.Series.best#0",
       "source": "``{'epoch', 'value', 'direction'}`` for the best epoch, or ``None``.",
       "source_sha256": "1611b32c75fe0bbd5dbc7431e6724a4c40fa3144aa7692bd55621bbf7662c78e",
-      "translation": "``{'epoch', 'value', 'direction'}`` 최상의 에포크 또는 ``None``을 위해."
+      "translation": "``{'epoch', 'value', 'direction'}`` 최상의 에포크 또는 ``None``을 위해.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the epoch column coerced to a NumPy numeric array.",
       "label": "spacr.train_compare.Series.epochs#0",
       "source": "Return the epoch column coerced to a NumPy numeric array.",
       "source_sha256": "6125e801d2aee2550ba9de0bf7505338839c3612bf52c7f2c83930ed70a3ac1c",
-      "translation": "NumPy 숫자 순서로 강요된 에포크 열을 반환합니다."
+      "translation": "NumPy 숫자 순서로 강요된 에포크 열을 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{'epoch', 'value'}`` for the last epoch with a finite value.",
       "label": "spacr.train_compare.Series.last#0",
       "source": "``{'epoch', 'value'}`` for the last epoch with a finite value.",
       "source_sha256": "8649f23a83d7aa86981d455c4c1d681cec77f8fbe6a81a4b8f20f9309c2e1c04",
-      "translation": "``{'epoch', 'value'}`` 마지막 에포크에 대한 최종 값."
+      "translation": "``{'epoch', 'value'}`` 마지막 에포크에 대한 최종 값.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Folds stop at different epochs when early stopping fires, so the tail of a fold mean can be an average over two folds where the head was an average over five. ``min < max`` is exactly that situation.",
@@ -11230,7 +11364,9 @@
       "label": "spacr.train_compare.Series.support_drops_at#0",
       "source": "First epoch where fewer than all folds contribute, or ``None``.",
       "source_sha256": "eecf650dbe4849e1e9e912e51b85e9f24519ae22f160f534ec9303df045aa484",
-      "translation": "첫 번째 에포크는 모든 폴더보다 적은 기여, 또는 ``None``."
+      "translation": "첫 번째 에포크는 모든 폴더보다 적은 기여, 또는 ``None``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-series summaries containing identity, epoch count and range, last finite observations, and direction-aware best observations when defined.",
@@ -11244,7 +11380,9 @@
       "label": "spacr.train_compare.TrainingRun.n_epochs#0",
       "source": "Highest epoch number logged by any split/fold (0 when nothing was).",
       "source_sha256": "96e3b21836f82932ea004db44d2a83d9e3996b7561aa893548c3dafd50f8d3e2",
-      "translation": "가장 높은 에포크 번호는 분할/분할 (0 아무것도 없었을 때)에 의해 기록됩니다."
+      "translation": "가장 높은 에포크 번호는 분할/분할 (0 아무것도 없었을 때)에 의해 기록됩니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``None`` means \"no meaningful best\" — ``optimal_threshold`` and ``train_time`` are recorded per epoch but neither has a direction, and calling the largest one \"best\" would be meaningless.",
@@ -11286,7 +11424,9 @@
       "label": "spacr.trial_metrics.qc_verdicts#0",
       "source": "Summarize design and inference diagnostics for one sweep trial.",
       "source_sha256": "da682e48d51b72637ba93d968e59d8cbc2e7fa5a3e1a4a3b6ca9e42672a54cf6",
-      "translation": "하나의  테스트를위한 디자인 및 추론 진단을 요약합니다."
+      "translation": "하나의  테스트를위한 디자인 및 추론 진단을 요약합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "integer annotations aligned one-to-one with ``records``.",
@@ -11335,7 +11475,9 @@
       "label": "spacr.umap_search.ClusterWalkRow#0",
       "source": "One clustering tried against one fixed embedding.",
       "source_sha256": "fe3f0e42121c33c05b6b6d49ba7cf379387733b2edad8adcffb92e09d7fe6d90",
-      "translation": "하나의 클러스터링은 하나의 고정 임베딩에 대항하여 시도했습니다."
+      "translation": "하나의 클러스터링은 하나의 고정 임베딩에 대항하여 시도했습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "cluster label for each embedding row, with noise represented by ``-1``.",
@@ -11356,7 +11498,9 @@
       "label": "spacr.umap_search.SearchRow#0",
       "source": "One trial: its recipe, its scores, and the embedding it produced.",
       "source_sha256": "6ff5dc317f2ec56395fbd4c2676a3a176ecd26d883cb8b388e810a134bb82bdc",
-      "translation": "하나의 시험 : 그것의 조리법, 그것의 점수, 그리고 그것이 생산 한 임베딩."
+      "translation": "하나의 시험 : 그것의 조리법, 그것의 점수, 그리고 그것이 생산 한 임베딩.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``embedding`` retains the exact array used to calculate ``scores``. Recomputing an embedding when a row is selected could produce different coordinates with a non-deterministic backend.",
@@ -11391,14 +11535,18 @@
       "label": "spacr.umap_search.SearchTable.to_dicts#0",
       "source": "Return serializable rows without embedding or label arrays.",
       "source_sha256": "789836e0bf04d3b54ab5ff0a44ed93f693dcf805512884227de30647aa0d4918",
-      "translation": "임베딩 또는 라벨 레이아웃없이 시리화 할 수있는 라인을 반환합니다."
+      "translation": "임베딩 또는 라벨 레이아웃없이 시리화 할 수있는 라인을 반환합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Everything needed to redraw one embedding, and nothing else.",
       "label": "spacr.umap_search.UmapRecipe#0",
       "source": "Everything needed to redraw one embedding, and nothing else.",
       "source_sha256": "2e949413efbb25ea66b40bdd4c56f4b6f8e461acd411321bd24dfd8260c08fb1",
-      "translation": "모든 것이 하나의 임베딩을 재구성하는 데 필요하고, 다른 아무것도 없습니다."
+      "translation": "모든 것이 하나의 임베딩을 재구성하는 데 필요하고, 다른 아무것도 없습니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "seed retained so the CPU embedding can be reproduced.",
@@ -11419,7 +11567,9 @@
       "label": "spacr.umap_search.cluster_embedding#0",
       "source": "Cluster a fixed 2-D or 3-D embedding with HDBSCAN.",
       "source_sha256": "8ed0cf9a1e87be56c621e2b439dc72d62f669d902a0ac2eb6b4aab0915747c3c",
-      "translation": "HDBSCAN을 사용하여 고정 2D 또는 3D 임베딩을 클러스터합니다."
+      "translation": "HDBSCAN을 사용하여 고정 2D 또는 3D 임베딩을 클러스터합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "smallest group HDBSCAN may call a cluster; at least two and smaller than the embedding row count.",
@@ -11440,7 +11590,9 @@
       "label": "spacr.uniprot.Resolution#0",
       "source": "What a piece of text in the annotation field turned out to mean.",
       "source_sha256": "cf7b9d6da688146dfa33eb14084fb195d7b03e4981e67e4c45a1443db93f438c",
-      "translation": "어노테이션 필드에있는 텍스트 조각이 의미하는 것은 무엇입니까?"
+      "translation": "어노테이션 필드에있는 텍스트 조각이 의미하는 것은 무엇입니까?",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return whether the text resolved to a supported annotation kind.",
@@ -12034,7 +12186,9 @@
       "label": "spacr.zstack.flag_truncated_z#0",
       "source": "Labels that touch the first or last z plane, and are therefore cut off.",
       "source_sha256": "2b8e6f331e9e63991dd39203d8cc0cd0e13e31c718a970654108a6842f23da95",
-      "translation": "첫 번째 또는 마지막 z 이미지 레이어를 만지는 레이블, 따라서 삭제됩니다."
+      "translation": "첫 번째 또는 마지막 z 이미지 레이어를 만지는 레이블, 따라서 삭제됩니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The z half of the spec is read from the very same keys :func:`spacr.zstack.plan_from_settings` reads, so a 4-D run and a 3-D run configured the same way segment identically. ``frame_interval_s`` falls back to the motility module's ``seconds_per_frame`` when it is not set, rather than becoming a second source of truth for the same physical number.",
@@ -12048,14 +12202,18 @@
       "label": "spacr.zstack.segment_3d#0",
       "source": "Segment a volume in the requested mode and record how it was done.",
       "source_sha256": "f681fa0273ff27fd83f51774521f29b956ba2ef762f37efde894788cd3525a5a",
-      "translation": "요청 모드에서 볼륨을 분할하고 그것이 어떻게 이루어졌는지 기록합니다."
+      "translation": "요청 모드에서 볼륨을 분할하고 그것이 어떻게 이루어졌는지 기록합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Segment every timepoint independently, in 3-D, and stack the results.",
       "label": "spacr.zstack.segment_4d#0",
       "source": "Segment every timepoint independently, in 3-D, and stack the results.",
       "source_sha256": "7a9f061fc17e44d44c8eb9b3e940849cc807c231756c9384ee4bc29cc3edb941",
-      "translation": "각 시간점을 독립적으로 3D로 분할하고 결과를 스택합니다."
+      "translation": "각 시간점을 독립적으로 3D로 분할하고 결과를 스택합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each timepoint goes to :func:`spacr.zstack.segment_3d` with this spec's z settings, so the per-timepoint behaviour is *identical* to a 3-D run and the two cannot drift apart. Segmentation is deliberately per-timepoint and independent: linking is a separate decision made by :func:`track_4d`, and fusing the two is what makes a tracker's mistakes indistinguishable from a segmenter's.",

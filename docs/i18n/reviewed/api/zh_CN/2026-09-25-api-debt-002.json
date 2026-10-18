@@ -75,7 +75,9 @@
       "source_sha256": "d06db38d8cc9c72ad953fbddefc9d1616b72a2e6b7387a428d125e6f9181b6c1",
       "context": "Suggest missing scale/time using an explicitly assumed growth relation.",
       "translation": "使用一个明确假设的生长关系来推测缺失的比例尺/时间。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimate_page#1",
@@ -123,7 +125,9 @@
       "source_sha256": "9f499b1eab475128b832d020e0c203b7961e6ec203bc3bf368446419039206a2",
       "context": "Return per-microplate sample position suggestions and complete JSON provenance when enabled.",
       "translation": "启用时，返回每个孔的推测值以及完整的 JSON 来源记录。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimates_from_settings#1",
@@ -155,7 +159,9 @@
       "source_sha256": "2400ae0c5a25da75770e394c915fddf157beb306386e8c7902de190e6ecfa2fe",
       "context": "Median equivalent diameter of the largest ceil(N/4) positive areas.",
       "translation": "最大的 ceil(N/4) 个正面积的等效直径中位数。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.largest_quarter#1",
@@ -267,7 +273,9 @@
       "source_sha256": "d5b144bb96dcac6a396c2c0043e61a2e5d8ef07f5f9f5454d3d71755f2dc371a",
       "context": "What one plaque image shows, and how that was decided.",
       "translation": "一幅蚀斑图像显示了什么，以及这是如何判定的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Annotation#1",
@@ -355,7 +363,9 @@
       "source_sha256": "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
       "context": "One figure image and its legend.",
       "translation": "一幅图的图像及其图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Figure#1",
@@ -403,7 +413,9 @@
       "source_sha256": "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
       "context": "One paper, however it was named.",
       "translation": "一篇论文，无论它是以何种方式指定的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Paper#1",
@@ -435,7 +447,9 @@
       "source_sha256": "89fd591d171eceb74fa5dd9143d3a6b02ecf18fcd391debed0bd997896350818",
       "context": "The figure reader must be installed, or installed again, first.",
       "translation": "必须先安装（或重新安装）图读取器。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
@@ -477,7 +491,9 @@
       "source_sha256": "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
       "context": "One plaque image the detector found inside a figure.",
       "translation": "检测器在一幅图中找到的一幅蚀斑图像。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region#1",
@@ -533,7 +549,9 @@
       "source_sha256": "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6",
       "context": "Shorter side over longer, so 1.0 is square.",
       "translation": "短边除以长边，因此 1.0 表示正方形。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#0",
@@ -541,7 +559,9 @@
       "source_sha256": "cc38c72a91847fb8cf0b0831289c50261132248d55c1c69d085590d89eaa4d5f",
       "context": "Whether a word's centre lies inside this box.",
       "translation": "某个词的中心是否位于此框内。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#1",
@@ -565,7 +585,9 @@
       "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
       "context": "Box height in pixels.",
       "translation": "框的高度，以像素为单位。",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.width#0",
@@ -573,7 +595,9 @@
       "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
       "context": "Box width in pixels.",
       "translation": "框的宽度，以像素为单位。",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#0",
@@ -581,7 +605,9 @@
       "source_sha256": "d5bec4da82e97883c949ceea598469921978e5eb26e16160dd1536ec70818599",
       "context": "How the text around a plaque image is turned into its condition.",
       "translation": "如何将蚀斑图像周围的文字转换为其条件。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#1",
@@ -701,7 +727,9 @@
       "source_sha256": "81038886928203d9a3f965e4e911bd337ade46427239ec4b68ba05463d490cf4",
       "context": "Whether a word survives the confidence and ignore filters.",
       "translation": "某个词是否通过了置信度过滤和忽略过滤。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions.keeps#1",
@@ -725,7 +753,9 @@
       "source_sha256": "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
       "context": "One piece of text in a figure, in image pixels.",
       "translation": "图中的一段文字，以图像像素为单位。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word#1",
@@ -781,7 +811,9 @@
       "source_sha256": "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0",
       "context": "Horizontal centre.",
       "translation": "水平中心。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.cy#0",
@@ -789,7 +821,9 @@
       "source_sha256": "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575",
       "context": "Vertical centre.",
       "translation": "垂直中心。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.panel_letter#0",
@@ -797,7 +831,9 @@
       "source_sha256": "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c",
       "context": "The letter when this word is a panel label such as ``F`` or ``(b)``.",
       "translation": "当该词是 ``F`` 或 ``(b)`` 这样的分图标签时，返回该字母。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#0",
@@ -805,7 +841,9 @@
       "source_sha256": "04744b44fb595d2ebfaa60f1ae87739800367e1fc69d09b69f99198c08cbafa5",
       "context": "Propose a condition for every plaque image in one figure.",
       "translation": "为一幅图中的每幅蚀斑图像推测一个条件。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#1",
@@ -869,7 +907,9 @@
       "source_sha256": "e311ac45ef5d98bbec5131b8b24648da27f950e44087e20edaaff1e100f39d47",
       "context": "An annotation as plain values, for JSON and the review dialog.",
       "translation": "以普通值表示的标注，用于 JSON 和审阅对话框。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotation_as_dict#1",
@@ -893,7 +933,9 @@
       "source_sha256": "73cc2c2379f444b0ff76343027c4c7d68ca24ea55ce9fd8d6d4f56becbb6a718",
       "context": "Put a person's edits and approvals onto one figure's proposals.",
       "translation": "将人工的编辑和批准应用到一幅图的推测结果上。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.apply_overrides#1",
@@ -949,7 +991,9 @@
       "source_sha256": "de6e27b12a83aeac319312b45df2a01ad8f8b6830973c677de4525b30f28de5c",
       "context": "Parse an optional finite calibration value without treating invalid input as missing.",
       "translation": "解析一个可选的有限校准值，但不把无效输入当作缺失值处理。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#0",
@@ -957,7 +1001,9 @@
       "source_sha256": "372341476aabb3763d862ccc7005408d9c529181e736779e582d85144682685d",
       "context": "Return per-microplate sample position size, scale and timing metadata for preview and saved tables.",
       "translation": "返回每个孔的大小、比例尺和时间元数据，用于预览和保存的表格。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#1",
@@ -1015,7 +1061,9 @@
       "source_sha256": "e9801e82f0ef743c389c3454861f100bc6d79d2c99c953e1c32a5ba6503dd94e",
       "context": "Show each proposed condition at the terminal and take OK, an edit, or skip.",
       "translation": "在终端中显示每个推测的条件，并接受 OK、编辑或跳过。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_review#1",
@@ -1047,7 +1095,9 @@
       "source_sha256": "16654b7288c584ab587a18f6c18649cbfdcf0118a6867e7f645fe5b33dcd582e",
       "context": "The detector call Figure mode uses: in process, or in the reader.",
       "translation": "Figure 模式所使用的检测器调用：在当前进程中，或在读取器中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.default_detect#1",
@@ -1063,7 +1113,9 @@
       "source_sha256": "c74876a9b99f9f510356cde6978b34e9a4afaa51a8f24f87d3b6fe7c099f6439",
       "context": "Download a paper's figures from Europe PMC with their legends.",
       "translation": "从 Europe PMC 下载一篇论文的图及其图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#1",
@@ -1113,7 +1165,9 @@
       "source_sha256": "c45b48bc27bc20c41911b9fec0017b401ae7dd6436799efb828fd37b66e31b51",
       "context": "Put a paper's figures in a folder Plaque Assay's Figure mode can read.",
       "translation": "将一篇论文的图放入 Plaque Assay 的 Figure 模式可以读取的文件夹中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_paper_to_folder#1",
@@ -1169,7 +1223,9 @@
       "source_sha256": "083dc7acd3ff669f839a328292d3072ea041ca642dfea957c13a72902a6b5065",
       "context": "Every page of a PDF as a figure image, with its text layer attached.",
       "translation": "将 PDF 的每一页作为一幅图像，并附上其文字层。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_from_pdf#1",
@@ -1241,7 +1297,9 @@
       "source_sha256": "8ec9169b6895b82549fc3b12a5267cb97e05dc322a94d829bc6da230311289d0",
       "context": "Every figure image directly in ``src``, with its legend when known.",
       "translation": "直接位于 ``src`` 中的每幅图的图像，以及已知时附带的图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_in_folder#1",
@@ -1273,7 +1331,9 @@
       "source_sha256": "a88b58fc97bea220ab1066d30b0d71b11af071c555c1ed8301009e9855803009",
       "context": "Plaque images in one figure, asked at every inference size given.",
       "translation": "一幅图中的蚀斑图像，在给定的每个推理尺寸下分别检测。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.find_plaque_regions#1",
@@ -1345,7 +1405,9 @@
       "source_sha256": "c979713f02fef8356300beb27390b085800100ce6b1bf0b6e11b6e49b6e965b4",
       "context": "Figure legends found in a paper's running text.",
       "translation": "在论文正文中找到的图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.legends_from_text#1",
@@ -1385,7 +1447,9 @@
       "source_sha256": "5d91452d503580d1682a59fa04764bbef8536d904b96b738cf1450a1dd210957",
       "context": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.",
       "translation": "Plaque Assay 的 Figure 模式：查找、读取、标注并测量一个文件夹。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#1",
@@ -1523,7 +1587,9 @@
       "source_sha256": "3e1793a7e1db6b4d248772127a491eb51eb1ac2f4622f3eacb56296a13f71efa",
       "context": "Measure the plaques in every figure of every paper given.",
       "translation": "测量给定的每篇论文中每幅图里的蚀斑。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_plaques_from_papers#1",
@@ -1619,7 +1685,9 @@
       "source_sha256": "429ed306a9416ec8209f852f9cf0732b1113131e9920f0e94c463603021b889a",
       "context": "One row per plaque in a segmented plaque image.",
       "translation": "已分割蚀斑图像中每个蚀斑一行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_region#1",
@@ -1653,7 +1721,9 @@
       "source_sha256": "6976dc0dd07662f8e2a3d62dc650fa43cb869b1099a2cf00bfdf2989b5d45c1b",
       "context": "Open (and create, or bring up to date) the results database.",
       "translation": "打开（并创建或更新到最新结构）结果数据库。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.open_database#1",
@@ -1719,7 +1789,9 @@
       "source_sha256": "fe2fcf48af0c396f0234fcf54094e0b0178b66fd408896c17e6a170a5e1c20bf",
       "context": "Conditions a person edited or approved, keyed by figure and image.",
       "translation": "经人工编辑或批准的条件，以图和图像为键。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_annotation_overrides#1",
@@ -1735,7 +1807,9 @@
       "source_sha256": "c417eed5768de812a16bdb7c5e6e0e6bd2eb21a1f23618014aaae28c3272836a",
       "context": "Figure legends supplied beside a folder of figures.",
       "translation": "随图文件夹一起提供的图注。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_legends#1",
@@ -1759,7 +1833,9 @@
       "source_sha256": "a4823e5f2660c2209c9e071034c4e26b8bcefcbe42256ffacc265e3338a14570",
       "context": "The text printed in a figure image, with where it is.",
       "translation": "图中印刷的文字及其位置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_words#1",
@@ -1857,7 +1933,9 @@
       "source_sha256": "e22217703b41c0ae60d2f0a477622214b6fd7e9f12cb0f9cac0f563de38fd65b",
       "context": "The figure reader's own environment when it is installed, else None.",
       "translation": "图读取器已安装时返回其自身的环境，否则返回 None。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_environment#1",
@@ -1873,7 +1951,9 @@
       "source_sha256": "2c4b0219d390309fcded6871329c3e98035da1ce867e1a08af764764816ea129",
       "context": "Whether Figure mode can read now, and what to do when it cannot.",
       "translation": "Figure 模式现在是否可以读取，以及无法读取时该怎么做。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_problem#1",
@@ -1905,7 +1985,9 @@
       "source_sha256": "9fd40dd240a6986eaf7946f48daf5fa81fa17c358581ca0e3207c930d65fa434",
       "context": "Read the text around each grid of plaque images again, enlarged.",
       "translation": "将每组蚀斑图像网格周围的文字放大后再读取一次。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reread_around#1",
@@ -1969,7 +2051,9 @@
       "source_sha256": "06db37f358718807dd30deb26e1be23f9178aef98352a304fd387e51615e8f3b",
       "context": "Look a reference up in Europe PMC, or describe a local PDF.",
       "translation": "在 Europe PMC 中查找引用，或描述一个本地 PDF。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.resolve_paper#1",
@@ -2009,7 +2093,9 @@
       "source_sha256": "a45fcd6b887924fb6f5007b53bff64fce1328a582fdd17f89defc2ee13cd5a13",
       "context": "Hex sha256 of some bytes.",
       "translation": "一些字节的十六进制 sha256。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.sha256_bytes#1",
@@ -2033,7 +2119,9 @@
       "source_sha256": "ea3a961e2d0a5a9f35d10bf9a5a1e040067657754eb4b065423b6336a70f73c4",
       "context": "A figure legend cut into one passage per panel letter.",
       "translation": "按分图字母切分成段落的图注，每个字母一段。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.split_legend#1",
@@ -2065,7 +2153,9 @@
       "source_sha256": "5e4878d34b894f321c5d42be71bfc0921a9b08b1e2e735a46376de6fa42055f5",
       "context": "The text a reader would take as this image's label.",
       "translation": "读者会把它当作该图像标签的文字。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#1",
@@ -2163,7 +2253,9 @@
       "source_sha256": "aaee248eae3cca58718a79e35cb15cd516b4b8f0edaccd56a62e30ea1dfac29b",
       "context": ":class:`TextOptions` from a settings key-value mapping's ``text_*`` structured-data names.",
       "translation": ":class:`TextOptions`，根据设置字典中的 ``text_*`` 键生成。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_options_from_settings#1",
@@ -2187,7 +2279,9 @@
       "source_sha256": "72a190b5e9f6b6fa0f3dee0f7f846d926139db70c9338c8d806e39ea52e70fbf",
       "context": "Save reviewed conditions for :func:`read_annotation_overrides`.",
       "translation": "保存经审阅的条件，供 :func:`read_annotation_overrides` 使用。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.write_annotation_overrides#1",
@@ -2307,7 +2401,9 @@
       "source_sha256": "af600b6cfc25b552a14703657b3135e7a087c397cc21e948d8c8a7bdc0d9489a",
       "context": "One microscope objective: nominal magnification, numerical aperture and immersion.",
       "translation": "一个显微镜物镜：标称放大倍数、数值孔径和浸没介质。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.Objective#1",
@@ -2347,7 +2443,9 @@
       "source_sha256": "38eee7f455218b3ff8eace06c7951d36d0d9f4782e858af1c05dbd24638b4ef5",
       "context": "An inferred optical quantity and where it came from.",
       "translation": "推断出的光学量及其来源。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.OpticalValue#1",
@@ -2387,7 +2485,9 @@
       "source_sha256": "75330411bedaa82d776fdbfed3773f0168f32bde774c71adb18f6aafa436928b",
       "context": "An immutable, normalized kernel whose bytes identify the actual PSF.",
       "translation": "一个不可变的归一化卷积核，其字节标识实际的 PSF。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF#1",
@@ -2443,7 +2543,9 @@
       "source_sha256": "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f",
       "context": "Return a read-only float32 view of the normalized kernel.",
       "translation": "返回归一化卷积核的只读 float32 视图。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF.provenance#0",
@@ -2451,7 +2553,9 @@
       "source_sha256": "6fb33becbb75cf3ca4ce36036d61f2c1c9c000766371beed302178e48eb7c6c6",
       "context": "Return a fresh JSON-safe record of the kernel and its identity.",
       "translation": "返回卷积核及其标识的新的、可安全序列化为 JSON 的记录。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#0",
@@ -2459,7 +2563,9 @@
       "source_sha256": "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
       "context": "Processed float32 image and a JSON-safe processing receipt.",
       "translation": "处理后的 float32 图像，以及可安全序列化为 JSON 的处理回执。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#1",
@@ -2483,7 +2589,9 @@
       "source_sha256": "818f85df594de0515acfe2a8f0fa21082b81025c2ade91a6358007c888daa33f",
       "context": "A caller cancelled processing; no partial image should be applied.",
       "translation": "调用方取消了处理；不应应用任何部分处理的图像。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#0",
@@ -2491,7 +2599,9 @@
       "source_sha256": "19e42c80f76139d7b1f733ec7101df38605f2d70c6fd8dae8aa026bad90ac99c",
       "context": "Convolve or Richardson–Lucy deconvolve each channel with a known PSF.",
       "translation": "使用已知 PSF 对每个通道进行卷积或 Richardson–Lucy 反卷积。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#1",
@@ -2573,7 +2683,9 @@
       "source_sha256": "59fcccfa43216fceb4536e3179b3b114665662142817bfa25624d1cfd1c3766c",
       "context": "One English line per inferred value: ``name = value (source: detail)``.",
       "translation": "每个推断值一行英文：``name = value (source: detail)``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.describe_optics#1",
@@ -2597,7 +2709,9 @@
       "source_sha256": "ac0670908d4e690aba6df5f3177fe76df98c1d4d03035d8cd9985e61e3dcac77",
       "context": "Fill unset Gaussian PSF calibration in Mask settings, in place.",
       "translation": "就地填充 Mask 设置中未设置的高斯 PSF 校准。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.fill_psf_settings#1",
@@ -2637,7 +2751,9 @@
       "source_sha256": "ca6e1fc0c371c2f3e410587ea927f0edb2553f5774a613e8ffcf1783c7b2ead1",
       "context": "Calculate a sampled Gaussian approximation from declared physical widths.",
       "translation": "根据声明的物理宽度计算采样的高斯近似。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.gaussian_psf#1",
@@ -2685,7 +2801,9 @@
       "source_sha256": "5aa8b9059d007dd0fc1ffa8628a08d7d0fe759fcc85ea1acb13b70c9e7af120e",
       "context": "Calibration an image file states about itself, each value with its source.",
       "translation": "图像文件自身声明的校准信息，每个值都附带其来源。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.image_optics_metadata#1",
@@ -2717,7 +2835,9 @@
       "source_sha256": "a86481cd0dda646466d684a9058d0e3c7a4b6274193489479aec4afa7899d9e7",
       "context": "Infer PSF calibration from image metadata, a chosen objective and defaults.",
       "translation": "根据图像元数据、所选物镜和默认值推断 PSF 校准。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.infer_optics#1",
@@ -2821,7 +2941,9 @@
       "source_sha256": "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
       "context": "Lateral FWHM of a diffraction-limited widefield PSF, 0.51 λ/NA.",
       "translation": "衍射极限宽场 PSF 的横向 FWHM，为 0.51 λ/NA。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.lateral_fwhm_um#1",
@@ -2861,7 +2983,9 @@
       "source_sha256": "372eba12e80831842d066b5da891fb2f4cdc632c193094bcf1fddb44352db190",
       "context": "Read a calibrated measured kernel from NPY or a single TIFF series.",
       "translation": "从 NPY 或单个 TIFF 序列读取经过校准的实测卷积核。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.load_psf#1",
@@ -2901,7 +3025,9 @@
       "source_sha256": "850fd7814b64c5bf02b84c4404d8034ce5f6474beb161ec37dc0a26b04b98ab4",
       "context": "Normalize a measured 2-D/3-D kernel, preserving its centre as origin.",
       "translation": "归一化一个实测的 2-D/3-D 卷积核，并保留其中心作为原点。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.measured_psf#1",
@@ -2941,7 +3067,9 @@
       "source_sha256": "d316a16347fe66c5aafb69e1b2273673bb50a2fc981d355579848110f73e1aaa",
       "context": "Return the :class:`Objective` table row called ``name``.",
       "translation": "返回 :class:`Objective` 表中名为 ``name`` 的行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.objective#1",
@@ -2973,7 +3101,9 @@
       "source_sha256": "b6aebd917f2074640de6d3a0a45f1adaa830fc24560d64e8fc00144b0f464a26",
       "context": "Sample spacing at the specimen: camera pixel pitch divided by total magnification.",
       "translation": "样本处的采样间距：相机像素间距除以总放大倍数。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.pixel_size_um#1",
@@ -3053,7 +3183,9 @@
       "source_sha256": "f8aea46aa9f67bd22dffcecd9a4f01e9862888d84263ad0e16c5d93faa4db014",
       "context": "Describe the exact intensity stream given to quantitative features.",
       "translation": "描述提供给定量特征的确切强度数据流。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_record#1",
@@ -3101,7 +3233,9 @@
       "source_sha256": "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
       "context": "Return stable JSON configuration, or None for standard intensities.",
       "translation": "返回稳定的 JSON 配置；使用标准强度时为 None。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_signature#1",
@@ -4459,7 +4593,9 @@
       "source_sha256": "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
       "context": "Add the verdict column to ``png_table`` if it is missing.",
       "translation": "如果 ``png_table`` 中缺少判定列，则添加它。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.ensure_verdict_column#1",
@@ -4507,7 +4643,9 @@
       "source_sha256": "d5ea58e07ce483bc4c2e4cbd73469e376f2802612b7b01834e0556a916993ee2",
       "context": "The recorded judgement of each of ``paths`` that has one.",
       "translation": "``paths`` 中每个已有判定的项所记录的判定。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.fetch_verdicts#2",
@@ -4539,7 +4677,9 @@
       "source_sha256": "42d4636ff5909674a9561e602945872e2db53bf394af227e127598756003d778",
       "context": "How the column's suggestions stand: judged, and still to judge.",
       "translation": "该列建议的状态：已判定的，以及仍待判定的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.judgement_counts#2",
@@ -4563,7 +4703,9 @@
       "source_sha256": "7650dad656ad61cb386fce9ca3bcc15299b5c79eecb8044387e41d0564cf06d2",
       "context": "The extracted image regions whose suggestion was rejected, and the class that was refused.",
       "translation": "建议被拒绝的裁剪图，以及被拒绝的类别。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#1",
@@ -4599,7 +4741,9 @@
       "source_sha256": "295f1539cc65d7146774f994201847562fc701d4e27425104fef69c5da9e1f96",
       "context": "The column beside ``annotation_column`` that records judgements.",
       "translation": "位于 ``annotation_column`` 旁边、用于记录判定的列。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#1",
@@ -4751,7 +4895,9 @@
       "source_sha256": "244dd9a93d926c9b9b765c4bd5cf7c021e1559e0f7d1aa23580d9a8ae6cb55a1",
       "context": "Count the edit operations between a computed tracking and the truth.",
       "translation": "统计计算所得跟踪结果与真实情况之间的编辑操作。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.aogm_costs#1",
@@ -4823,7 +4969,9 @@
       "source_sha256": "675914bcab3622ae4acd0c9398cc149a12062edae869f1e2f2325489101941db",
       "context": "The Cell Tracking Challenge's DET: detection only, no links.",
       "translation": "Cell Tracking Challenge 的 DET：只考虑检测，不考虑链接。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.det_score#1",
@@ -4871,7 +5019,9 @@
       "source_sha256": "f5686da6330d393de754babba1a1de74316318e39e966f4df7acae377684f3e3",
       "context": "Count how often a ground-truth object changes computed identity.",
       "translation": "统计一个参考标注对象更换计算身份的频率。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.identity_switches#1",

@@ -163,7 +163,9 @@
       "source_sha256": "72afc959a790fd1de660906a16d08eb6bc18810468ac4fd31afa4063b5605409",
       "source": "The world box these points occupy, INCLUDING their drawn size.",
       "context": "The world box these points occupy, INCLUDING their drawn size.",
-      "translation": "Heimskassinn sem þessir punktar taka, MEÐTALINNI teiknaðri stærð þeirra."
+      "translation": "Heimskassinn sem þessir punktar taka, MEÐTALINNI teiknaðri stærð þeirra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measurement_scan.MeasurementEffect#1",
@@ -634,7 +636,9 @@
       "source_sha256": "00eebf2ab64eaaadd8e726e1c47f16b95b7e924dbb2f84dfec979700e450c402",
       "source": "One compact panel reporting wells, predictors, rank and guide support.",
       "context": "One compact panel reporting microplate sample positions, predictors, rank and guide support.",
-      "translation": "Eitt þjappað spjald sem greinir frá brunnum, forspárbreytum, stigi og stuðningi leiðara."
+      "translation": "Eitt þjappað spjald sem greinir frá brunnum, forspárbreytum, stigi og stuðningi leiðara.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_panels#1",
@@ -655,7 +659,9 @@
       "source_sha256": "568bb01b14c61acf93886a5ad2c476412585e30bcb97f4fe7de633197a409bfe",
       "source": "Match predicted objects to labelled ones, one to one and optimally.",
       "context": "Match predicted objects to labelled ones, one to one and optimally.",
-      "translation": "Parar spáða hluti við merkta, einn á móti einum og með sem bestum hætti."
+      "translation": "Parar spáða hluti við merkta, einn á móti einum og með sem bestum hætti.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.SegmentationQCFailed#3",
