@@ -920,7 +920,7 @@ const AS = (i) => `Assays · Toxoplasma · ${i} of 4`;
   header(s, { kicker: "Assays", title: "One module per organism" });
   fit(s, "app_1513/toxoplasma.png", M, 1.45, W - 2 * M, 3.6, { caption: "The Toxoplasma module: the parasite's compartments on the left, its assays as tiles" });
   const orgs = [
-    ["Toxoplasma", "Plaque · Recruitment · Host–Pathogen · Invasion · Replication · Gliding motility, with Starplast's hyperLOPIT compartments"],
+    ["Toxoplasma", "Plaque · Recruitment · Host–Pathogen · Invasion · Replication · Gliding motility, with ParaScape's hyperLOPIT compartments"],
     ["More organisms (alpha)", "Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, virus and mammalian modules: Preferences > Show alpha species"],
   ];
   const cw = (W - 2 * M - 0.2) / 2;
