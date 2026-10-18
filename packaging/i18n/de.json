@@ -94,12 +94,12 @@
   "gui_uninstall_done": "spaCR wurde von diesem Mac entfernt.",
   "gui_uninstall_failed": "Deinstallation angehalten. Prüfen Sie das Protokoll; alles, was nicht als entfernt aufgeführt ist, wurde behalten.",
   "gui_uninstall_no_python": "Es wurde kein Python gefunden, um benutzerbezogene spaCR-Dateien zu entfernen; hier kann nur die Anwendung entfernt werden.",
-  "gui_category_caches": "Caches",
+  "gui_category_caches": "Zwischenspeicher",
   "gui_category_models": "Modelle",
   "gui_category_logs": "Protokolle",
   "gui_category_settings": "Einstellungen",
   "gui_category_history": "Verlauf",
   "gui_category_temporary": "Temporäre Dateien",
-  "gui_category_downloads": "Downloads",
+  "gui_category_downloads": "Heruntergeladene Dateien",
   "gui_category_other": "Weitere spaCR-Daten"
 }

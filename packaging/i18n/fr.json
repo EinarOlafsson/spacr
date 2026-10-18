@@ -94,7 +94,7 @@
   "gui_uninstall_done": "spaCR a été supprimé de ce Mac.",
   "gui_uninstall_failed": "Désinstallation interrompue. Consultez le journal ; tout ce qui n’est pas indiqué comme supprimé a été conservé.",
   "gui_uninstall_no_python": "Aucun Python n’a été trouvé pour supprimer les fichiers spaCR de l’utilisateur ; seule l’application peut être supprimée ici.",
-  "gui_category_caches": "Caches",
+  "gui_category_caches": "Mémoires cache",
   "gui_category_models": "Modèles",
   "gui_category_logs": "Journaux",
   "gui_category_settings": "Réglages",
