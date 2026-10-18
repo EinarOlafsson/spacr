@@ -2,6 +2,7 @@
 
 > 2026-10-17 CODEX RESUMED (maintainer: "reinstate goal"). Claude's published 703/706/708 implementations and CI repairs are retained; do not repeat their integration. Codex delivered708 lineage-table sorting in3dc11a092a7 and703's ten-language default-branch README guide routes in main42e156b9c15. Claude Home retains its ongoing release CI coordination and Claude WS retains tutorials. Prior Codex trees and results are preserved; the obsolete pre-takeover documentation audit is intentionally stopped.
 > Codex completed706's backend acceptance repair: native StarDist3D volumetric loading/cache and Cellpose3 native/stitch worker transport, with unsupported-model gating. All47 related checks and normal runtime/Help/arrival generation pass; nine translated catalogs include the reviewed diagnostics. Claude's threshold/undo behavior is preserved; release CI and tutorials retain their existing owners.
+> Codex root + release_path repair43's Compatibility orchestration: queue running push grids like Tests, preserving every job/check and the separate manual lane. Pending pushes can still replace pending pushes; keep ci_gdb_contract's sole observer and Claude Home's release coordination. Full green CI/release remain open.
 
 > 2026-10-17 OWNERSHIP: Codex has stopped working on spaCR (maintainer). Claude Home now owns EVERY open item, including those Codex owned (release CI 43/288, 703, 706, 707 remaining corrections, 560, 655, 675, 686; tutorials 676 with Claude WS). Agents must not wait for Codex.
 

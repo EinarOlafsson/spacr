@@ -26,6 +26,9 @@ the exemption fails.
 faster than its suite, so a push no longer cancels the push run in flight
 there either; one group per ref keeps the backlog to one pending run. Only
 a pull request cancels its predecessor (``_QUEUEING`` below).
+
+2026-10-17: compat-matrix.yml uses the same queueing policy after tutorial
+and documentation pushes repeatedly superseded the release grid.
 """
 from __future__ import annotations
 
@@ -46,7 +49,7 @@ _REF = "refs/heads/nightly"
 #: Workflows whose in-progress runs may be cancelled, and which therefore need
 #: the dispatch exemption. Suites that never cancel anything are checked
 #: separately by :func:`test_the_deploying_workflows_cancel_nothing_at_all`.
-_CANCELLING = ("compat-matrix.yml",)
+_CANCELLING = ()
 
 #: Workflows whose push runs are never cancelled at all: only a pull request
 #: cancels its predecessor. The group still bounds the backlog -- GitHub keeps
@@ -54,7 +57,7 @@ _CANCELLING = ("compat-matrix.yml",)
 #: replacing the older -- so a burst of pushes cannot queue thirty suites.
 #: tests.yml moved here on 2026-09-30: code pushes to nightly arrive faster
 #: than its ~2.5 h suite, so cancel-on-push left nightly with no verdict.
-_QUEUEING = ("tests.yml",)
+_QUEUEING = ("tests.yml", "compat-matrix.yml")
 
 _GUARDED = _CANCELLING + _QUEUEING
 

@@ -4074,3 +4074,6 @@ Final green CI, excluded-owner repairs and native acceptance still gate release1
 Run the normal hosted CI and fix every actual failure, including completed Claude-owned areas now handed over; retain assertions, coverage ratchets and legitimate test semantics.
 Reuse active runs and passing results; no duplicate dispatch or repeated scope inventory. Do not edit the still-running wgpu/installers or Make Masks layout files until their owner commits land.
 Owner pair: ci_gdb_contract + release_path; root integrates and publishes. F288 broader issue/coverage completion is deferred until after1.5.1.5, without disabling existing CI checks.
+
+2026-10-17 — Root + release_path own the concrete Compatibility supersession repair: runs39088615998 and39089316477 were cancelled by concurrent documentation/tutorial pushes before mandatory checks finished.
+Compatibility now queues push runs like Tests and cancels running predecessors only for PRs; all jobs, triggers, groups, assertions and coverage limits are unchanged. Existing orchestration contracts pass12checks (one empty historical category skips); pending pushes can still replace older pending pushes. ci_gdb_contract keeps the sole observer; green hosted gates and1.5.1.5 publication remain open.
