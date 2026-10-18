@@ -7597,8 +7597,9 @@ class AppScreen(QWidget):
             import_module("..widgets.fast_plots", __package__)
             yield
 
-            self._results_panel = RegressionResultsPanel(
+            panel = yield from RegressionResultsPanel._constructed_in_steps(
                 self._figures_card, external_volcano=True)
+            self._results_panel = panel
             self._results_panel.refit_requested.connect(self._on_refit)
             yield
 
