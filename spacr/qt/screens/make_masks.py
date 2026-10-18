@@ -6143,19 +6143,18 @@ def _detect_puncta_snapshot(request):
 
     source = request['source']
 
-    def digest(path):
-        with open(path, 'rb') as stream:
-            return hashlib.file_digest(stream, 'sha256').hexdigest()
-
-    if digest(source.path) != source.sha256:
-        raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+    with open(source.path, 'rb') as stream:
+        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+            raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     with responsive_gui():
         labels, candidates = cpu_modes.puncta(request['image'], source.labels,
                                               request['params'], measurements=True)
-    if digest(source.image_path) != request['image_sha256']:
-        raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
-    if digest(source.path) != source.sha256:
-        raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+    with open(source.image_path, 'rb') as stream:
+        if hashlib.file_digest(stream, 'sha256').hexdigest() != request['image_sha256']:
+            raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
+    with open(source.path, 'rb') as stream:
+        if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+            raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
     return labels, candidates
 
 
