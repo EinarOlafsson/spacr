@@ -428,6 +428,14 @@ longer links the Space. The Space itself and the Gradio sources here
 (`app.py`, `space_app.py`, `space/`) are kept; the maintainer can delete the
 Space on Hugging Face if wanted.
 
+Update 2026-10-18: the Space `einarolafsson/spacr-mask-generator` is retired
+(paused, not deleted) because Hugging Face now requires PRO to update Gradio
+Spaces and this item stays zero-cost. Use the browser page (ONNX models from
+the public dataset `einarolafsson/models/web-onnx`) or the Colab notebooks in
+`colab/by_class/`. `app.py`, `space_app.py`, `service.py` and `space/` remain
+only as a self-hostable reference; the sections about Space launch above are
+historical.
+
 The browser models are published in the models DATASET repository under
 `web-onnx/`
 (<https://huggingface.co/datasets/einarolafsson/models/tree/main/web-onnx>);

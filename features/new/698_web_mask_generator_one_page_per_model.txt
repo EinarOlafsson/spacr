@@ -686,20 +686,11 @@ What is done (spaCR nightly + private site-src main):
   real request was refused by the provider: "ZeroGPU quota (180s requested
   vs. 167s left)". app.py now reserves 40-120 s by upload size
   (gpu_seconds), so a request fits an anonymous allowance; needs a redeploy.
-Maintainer steps left (your HF account, free tier only):
-1. Redeploy app.py to the Space (one file):
-   huggingface-cli upload einarolafsson/spacr-mask-generator
-     tools/web_mask_generator/app.py tools/web_mask_generator/app.py --repo-type space
-2. Upload the browser models (DATASET repo):
-   huggingface-cli upload einarolafsson/models
-     /mnt/firecuda2/Claude/scratch/n698-onnx/out web-onnx --repo-type dataset
-   The site already lists these exact files/SHA-256 under
-   https://huggingface.co/datasets/einarolafsson/models/resolve/main/web-onnx/
-   and turns each browser model on by itself once it answers there.
-3. Optional: Space variable SPACR_WEB_EXAMPLES_JSON = the "records" list of
-   site-src data/mask-examples.json (enables the Space's own example button).
-Then: one hosted run per tab and one WebGPU run on a real GPU browser to close
-the acceptance (label count / IoU >= 0.99 vs desktop, 10 MB TIFF timing).
+Maintainer steps left (zero cost; Space retired 2026-10-18):
+1. One WebGPU run on a real GPU browser (label count / IoU >= 0.99 vs
+   desktop, 10 MB TIFF timing) using the web-onnx models on the public
+   dataset einarolafsson/models.
+2. One Colab run from tools/web_mask_generator/colab/by_class/<class>.ipynb.
 2026-10-15 Claude Home — Cellpose-style page + hosted ValueError fixed
 - Maintainer's "ValueError" reproduced by replaying the site's default hosted
   request through the Space service on CPU with the real toxoplasma_pv_v4
@@ -745,3 +736,9 @@ the acceptance (label count / IoU >= 0.99 vs desktop, 10 MB TIFF timing).
 - The Space einarolafsson/spacr-mask-generator is no longer linked but was
   not deleted; the maintainer can delete it on Hugging Face if wanted. The
   Gradio sources (app.py, space_app.py, space/) stay in the repository.
+
+2026-10-18 Claude Home - Hugging Face Space einarolafsson/spacr-mask-generator RETIRED (paused, not deleted).
+- HF now requires PRO to update Gradio Spaces; item 698 stays zero-cost. Routes: Browser (WebGPU/WASM) + Colab.
+- Browser ONNX models verified on HF 2026-10-18 (dataset einarolafsson/models/web-onnx). No site, app, README or docs link to the Space remained.
+- Space redeploy and hosted-run maintainer steps removed; keep one WebGPU browser run and one Colab run.
+- tools/web_mask_generator/README.md and space/README.md now say the Gradio sources are a self-hostable reference only.
