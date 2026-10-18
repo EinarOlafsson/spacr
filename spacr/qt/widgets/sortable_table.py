@@ -66,6 +66,11 @@ SORT_KEY_ROLE = Qt.UserRole + 90
 
 _SERIAL = 0
 
+_DISPLAY_ROLE = Qt.ItemDataRole.DisplayRole
+_EDIT_ROLE = Qt.ItemDataRole.EditRole
+_ROLE_TYPE = type(_DISPLAY_ROLE)
+_TEXT_ROLE_VALUES = (_DISPLAY_ROLE.value, _EDIT_ROLE.value)
+
 _RESTORING = False
 
 _STATE_ATTR = "_spacr_sort_state"
@@ -89,6 +94,16 @@ def is_missing(value) -> bool:
         return True
     if isinstance(value, str):
         return not value.strip()
+    if isinstance(value, float):
+        return value != value
+    if isinstance(value, int):
+        return False
+    if getattr(value, "ndim", None) == 0:
+        kind = getattr(getattr(value, "dtype", None), "kind", "")
+        if kind in ("i", "u", "b"):
+            return False
+        if kind == "f":
+            return bool(value != value)
     try:
         import pandas as _pd
 
@@ -278,8 +293,11 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
         :param value: the data stored for ``role``.
         """
         QTableWidgetItem.setData(self, role, value)
-        if role in (Qt.DisplayRole, Qt.EditRole) and hasattr(
-                self, "_sort_serial"):
+        if role is not _DISPLAY_ROLE and role is not _EDIT_ROLE and (
+                type(role) is _ROLE_TYPE
+                or getattr(role, "value", role) not in _TEXT_ROLE_VALUES):
+            return
+        if hasattr(self, "_sort_serial"):
             override = self.data(SORT_KEY_ROLE)
             serial = self._sort_serial
             if override is None:
