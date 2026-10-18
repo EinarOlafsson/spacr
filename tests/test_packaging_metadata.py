@@ -1329,12 +1329,14 @@ def test_extras_do_not_contradict_the_core_pins():
         return (set(str(s) for s in r.specifier), r.marker is None or str(r.marker),
                 sorted(r.extras))
 
-    core = {_name_of(s): s for s in _core_dependencies()}
+    core = {}
+    for s in _core_dependencies():
+        core.setdefault(_name_of(s), []).append(s)
     problems = []
     for extra, specs in _extras().items():
         for spec in specs:
             n = _name_of(spec)
-            if n in core and _shape(core[n]) != _shape(spec):
+            if n in core and _shape(spec) not in [_shape(c) for c in core[n]]:
                 problems.append((extra, spec, core[n]))
     assert not problems, (
         "extra and core declare different pins for the same package: " + str(problems)

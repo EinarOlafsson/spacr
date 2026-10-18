@@ -63,8 +63,8 @@ def _requirements(name: str):
 
 def _for(name: str, environment: dict):
     """The requirement that applies to one environment. Exactly one must."""
-    applies = [r for r in _requirements(name)
-               if r.marker is None or r.marker.evaluate(environment)]
+    applies = list({str(r): r for r in _requirements(name)
+                    if r.marker is None or r.marker.evaluate(environment)}.values())
     assert len(applies) == 1, (
         f"{len(applies)} {name} requirements apply to {environment}: "
         f"{[str(r) for r in applies]}. Two that both apply is a conflict "
@@ -152,3 +152,45 @@ class TestTheInstallerAndThePackageAgree:
 
         assert "no macOS x86_64 wheel" in text
         assert "cmake" in text.lower()
+
+
+INTEL_MAC_313 = dict(INTEL_MAC, python_version="3.13")
+
+
+class TestAnUpdateKeepsTorchAndNumpyCompatible:
+    """torch 2.2.2, the last Intel macOS release, is built against numpy 1.x.
+
+    Reported on an Intel MacBook 2026-10-18: a first install with the
+    installer's numpy<2 guard, then an in-app `uv pip install --upgrade
+    spacr`, left numpy 2.3.5 beside torch 2.2.2 and every
+    `torch.from_numpy` raised "Numpy is not available". The update command
+    carries no resolver guards, so the package metadata has to.
+    """
+
+    @pytest.mark.parametrize("name,ceiling,admitted", [
+        ("numpy", "2.0", "1.26.4"),
+        ("opencv-python-headless", "4.12", "4.11.0.86")])
+    def test_an_intel_mac_with_torch_stays_on_numpy_1(self, name, ceiling,
+                                                      admitted):
+        requirement = _for(name, INTEL_MAC)
+
+        assert not requirement.specifier.contains(ceiling)
+        assert requirement.specifier.contains(admitted)
+
+    @pytest.mark.parametrize("environment", [APPLE_SILICON, LINUX, WINDOWS,
+                                             INTEL_MAC_313])
+    @pytest.mark.parametrize("name,version", [
+        ("numpy", "2.3.5"), ("opencv-python-headless", "4.12.0.88")])
+    def test_everywhere_else_numpy_2_is_still_allowed(self, environment,
+                                                      name, version):
+        """Python 3.13 on an Intel Mac installs no torch and has no numpy
+        1.x wheel, so a ceiling there would force a source build."""
+        assert _for(name, environment).specifier.contains(version)
+
+    def test_the_installer_guard_matches_the_package(self):
+        script = (ROOT / "packaging" / "online"
+                  / "install_spacr_unix.sh").read_text(encoding="utf-8")
+
+        assert '"numpy>=1.26,<2.0"' in script
+        assert '"opencv-python-headless<4.12"' in script
+        assert not _for("numpy", INTEL_MAC).specifier.contains("2.0")
