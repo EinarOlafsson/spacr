@@ -4653,7 +4653,9 @@
       "source_sha256": "95d91008fc3b504260cbe350bffaf70e7bc247fb32bbf081f02502d5e6d342d3",
       "context": "A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it.",
       "translation": "Cellpose 3-vistunarpunktur var afhentur Cellpose 4, sem getur ekki hlaðið honum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_plaques#5",
@@ -4677,7 +4679,9 @@
       "source_sha256": "e8dce620bb42d900fe4ffcff575b8b74cc2c218642da91103eb51332b87c5044",
       "context": "Measure marker recruitment with host-cell and per-microplate sample position summaries.",
       "translation": "Mæla nýliðun merkis með samantektum fyrir hverja hýsilfrumu og hvern brunn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_recruitment#1",
@@ -4741,7 +4745,9 @@
       "source_sha256": "c06357c30e243f47a56f0866d851a560d8821236c421d5e6e896d33f29b70c14",
       "context": "Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.",
       "translation": "Breyta synjun Cellpose 4 á Cellpose 3-vistunarpunkti í ráðleggingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.explain_cellpose3#1",

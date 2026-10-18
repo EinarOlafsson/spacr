@@ -3434,7 +3434,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
       "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
-      "translation": "Fínstilla Cellpose-SAM með upprunalegum pöruðum myndum og tilvikamerkjagrímum."
+      "translation": "Fínstilla Cellpose-SAM með upprunalegum pöruðum myndum og tilvikamerkjagrímum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, image data channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",

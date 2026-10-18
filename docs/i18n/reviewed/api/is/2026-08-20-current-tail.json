@@ -6,7 +6,9 @@
       "label": "spacr.api.run_mask#0",
       "source": "Run Mask from a typed configuration or an existing settings mapping.",
       "source_sha256": "2ea24f9555ba993c500cd0acb5305008ff72bf71342ee773c913935545e267bf",
-      "translation": "Keyra Mask frá vélinni stillingu eða núverandi stillingavörpun."
+      "translation": "Keyra Mask frá vélinni stillingu eða núverandi stillingavörpun.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``cell_count`` as the count data recorded it, or ``None``. Kept beside ``n_objects`` rather than instead of it, because when they disagree the montage has to say so.",
@@ -165,7 +167,9 @@
       "label": "spacr.gene_tile.toxodb_url#0",
       "source": "The ToxoDB gene record page for a full accession. Never fetched.",
       "source_sha256": "50c526737e43ba66feedf1d54b43299083fa779c221ee4d7ff6f8cf28c323b1f",
-      "translation": "ToxoDB genaskráningarsíðan fyrir fulla aðild. Aldrei sótt."
+      "translation": "ToxoDB genaskráningarsíðan fyrir fulla aðild. Aldrei sótt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The participation ratio of the correlation matrix's eigenvalues, ``(sum lambda)^2 / sum lambda^2`` -- 785 for 785 orthogonal columns, and 1 for 785 copies of one column. The same statistic the sweep uses to count a guide's effective microplate sample positions, applied to the other axis.",
@@ -209,7 +213,9 @@
       "label": "spacr.ml.fit_quality_note#0",
       "source": "Return a one-line goodness-of-fit summary for a fitted GLM.",
       "source_sha256": "cdf4dfc0525ee86279535aa942fa571f53dd102dddb03504a4211e1043c566f1",
-      "translation": "Skilaðu einni línu yfirliti yfir hæfileika fyrir innréttaðan GLM."
+      "translation": "Skilaðu einni línu yfirliti yfir hæfileika fyrir innréttaðan GLM.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "McFadden's pseudo-R-squared compares log-likelihoods, and it is the appropriate summary for a GLM with a discrete response. A Gaussian identity-link fit instead reports ordinary R-squared because its likelihood is a density and the McFadden ratio is not interpretable on the usual zero-to-one scale.",

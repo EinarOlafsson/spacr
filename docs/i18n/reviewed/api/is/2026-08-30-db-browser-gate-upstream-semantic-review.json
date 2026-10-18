@@ -364,14 +364,18 @@
       "source": "Adjust the variance with the dispersion parameter.",
       "context": "Adjust the variance with the dispersion parameter.",
       "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
-      "translation": "Aðlaga dreifnina með dreifingarstikunni."
+      "translation": "Aðlaga dreifnina með dreifingarstikunni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.beta_logit#0",
       "source": "A proportion on the logit scale, with the endpoints squeezed in.",
       "context": "A proportion on the logit scale, with the endpoints squeezed in.",
       "source_sha256": "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
-      "translation": "Hlutfall á logit-kvarða þar sem endapunktunum er þrýst inn á við."
+      "translation": "Hlutfall á logit-kvarða þar sem endapunktunum er þrýst inn á við.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.beta_logit#1",
@@ -392,14 +396,18 @@
       "source": "Check if the data is normally distributed using the Shapiro-Wilk test.",
       "context": "Check if the data is normally distributed using the Shapiro-Wilk test.",
       "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
-      "translation": "Athuga með Shapiro-Wilk-prófi hvort gögnin séu normaldreifð."
+      "translation": "Athuga með Shapiro-Wilk-prófi hvort gögnin séu normaldreifð.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#0",
       "source": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.",
       "context": "Train a classical ML machine-learning classification model (XGBoost / logistic / RF) on per-object features and score every microplate sample position of a screen.",
       "source_sha256": "a1cafc3a9f5b819a7e7e49b46a68d39d798891b4ef469e0a6616cb1fc367056e",
-      "translation": "Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni."
+      "translation": "Þjálfa hefðbundinn ML-flokkara (XGBoost / logistic / RF) á eiginleikum einstakra hluta og reikna stig fyrir hverja sýnisstöðu örplötu í skimuninni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#1",
@@ -550,7 +558,9 @@
       "source": "Read paired inputs and resolve plate identity without filename guesses.",
       "context": "Read paired inputs and resolve plate identity without filename guesses.",
       "source_sha256": "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
-      "translation": "Lesa pöruð inntök og ákvarða plötuauðkenni án ágiskana út frá skráarheitum."
+      "translation": "Lesa pöruð inntök og ákvarða plötuauðkenni án ágiskana út frá skráarheitum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.load_regression_input_pairs#1",
@@ -564,7 +574,9 @@
       "source": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
       "context": "Return explicit ``score``/``count`` rows, migrating legacy lists.",
       "source_sha256": "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
-      "translation": "Skila skýrum ``score``/``count`` röðum og færa eldri lista yfir á nýja sniðið."
+      "translation": "Skila skýrum ``score``/``count`` röðum og færa eldri lista yfir á nýja sniðið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.normalize_regression_input_pairs#1",
@@ -672,7 +684,9 @@
       "source": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
       "context": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.",
       "source_sha256": "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
-      "translation": "Velja ``analysis_mode`` fyrir ``inference='auto'`` út frá hönnuninni."
+      "translation": "Velja ``analysis_mode`` fyrir ``inference='auto'`` út frá hönnuninni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#1",
@@ -742,7 +756,9 @@
       "source": "Whether ``screenID`` can be a term in this frame's design.",
       "context": "Whether ``screenID`` can be a term in this frame's design.",
       "source_sha256": "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
-      "translation": "Hvort ``screenID`` geti verið liður í hönnun þessa gagnaramma."
+      "translation": "Hvort ``screenID`` geti verið liður í hönnun þessa gagnaramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#1",
@@ -868,7 +884,9 @@
       "source": "Populate default settings for gRNA/score regression analysis.",
       "context": "Populate default settings for gRNA/score regression analysis.",
       "source_sha256": "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
-      "translation": "Fylla inn sjálfgefnar stillingar fyrir gRNA/stiga-aðhvarfsgreiningu."
+      "translation": "Fylla inn sjálfgefnar stillingar fyrir gRNA/stiga-aðhvarfsgreiningu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#1",

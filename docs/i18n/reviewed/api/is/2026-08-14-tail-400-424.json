@@ -163,7 +163,9 @@
       "source_sha256": "813fe73850798c945f42375a9779949bb9f044e85613932ceac385e0a8ccc8c8",
       "source": "Walk N-dimensional hyperparameter space toward a better score.",
       "context": "Walk N-dimensional hyperparameter space toward a better score.",
-      "translation": "Gakktu um N-dimensionað hyperparameter-rýmið í átt að betri skori."
+      "translation": "Gakktu um N-dimensionað hyperparameter-rýmið í átt að betri skori.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.mask_io#0",

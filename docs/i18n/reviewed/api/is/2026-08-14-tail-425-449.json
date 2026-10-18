@@ -47,7 +47,9 @@
       "label": "spacr.hits.benjamini_hochberg#0",
       "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
       "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
-      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda."
+      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",

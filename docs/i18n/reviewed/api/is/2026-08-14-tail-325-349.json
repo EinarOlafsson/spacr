@@ -74,7 +74,9 @@
       "label": "spacr.hyperparam.SearchSpace.describe#0",
       "source": "One-line human summary of the space and its size.",
       "source_sha256": "294b578a0c762affec6a73f386c95a59609d3f5464d37ecf85ec0e89aff9fa9c",
-      "translation": "Einn lína notendavæns samantekt á rýminu og stærð þess."
+      "translation": "Einn lína notendavæns samantekt á rýminu og stærð þess.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The merge used to live in :mod:`spacr.deep_spacr`, which is an odd home for something :mod:`spacr.ml` needs just as much --- importing ``deep_spacr`` pulls in torch and torchvision, which the classical-ML path has no use for. The obvious alternative, :mod:`spacr.utils`, already owns the database *write* helpers (``_append_to_measurements_db``, ``rename_columns_in_db``), but it is also 8000 lines and imports most of the package; adding a third database concern there would make it harder, not easier, to see that CV and ML share one code path. This module is small, imports nothing from spaCR at module scope except :mod:`spacr.utils` helpers pulled in lazily, and is what both callers import.",

@@ -106,7 +106,9 @@
       "source_sha256": "0144691542450b10065d13d2a7a39d72eb7e2252929878caf9c62fcfd84da9ac",
       "source": "The classes a settings dict defines, in the order they were given.",
       "context": "The classes a settings key-value mapping defines, in the order they were given.",
-      "translation": "Flokkarnir sem stillingaleyfa-lykil-gildi kortlagning skilgreinir, í þeirri röð sem þau voru gefin."
+      "translation": "Flokkarnir sem stillingaleyfa-lykil-gildi kortlagning skilgreinir, í þeirri röð sem þau voru gefin.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.zstack.stitch_planes#1",
