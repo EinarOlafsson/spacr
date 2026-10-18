@@ -2,7 +2,7 @@
 RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
 ================================================================================
 
-Status:    OPEN — 4 open GitHub issues
+Status:    OPEN — 1 open GitHub issue
 Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
            issues and gets reactivated every time issues are added, currently
            there are 4"
@@ -28,10 +28,10 @@ The block and Status match the GitHub issue list (pull requests excluded);
 running the tool twice changes nothing.
 
 --- OPEN ISSUES (auto) ---
-#146 pathogen_diameter=0 fails settings validation; 0 should be treated as "auto" (jak18015, 2026-10-13)
-#147 In-app assistant: tool approval required but no approval prompt is shown (jak18015, 2026-10-13)
-#150 Settings validator rejects float diameters (cell/nucleus/pathogen_diameter) (jak18015, 2026-10-15)
 #152 annotate app suggestions (EinarOlafsson, 2026-10-16)
 --- END OPEN ISSUES ---
 
 2026-10-18 — Registered with the sync tool and the issues workflow; four issues open (#146, #147, #150, #152).
+2026-10-18 — #146 (093ad790e) and #150 (9d8b49418) closed: item 696 already accepted 0/auto and float diameters; regression tests and the "an int" fix text added. #147 closed (9470f0466): Claude tool calls blocked for approval now get an Allow once / Don't allow dialog and a resumed session; other CLIs are told to hand over the command.
+2026-10-18 — #152 fixed on nightly (4f0ff7e02: plate-ID repair, child crops keyed to the parent cell, grid image-type filter, earlier suggestions restored after a failed round); left open until the maintainer confirms Suggest works on his NAS database.
+2026-10-18 — The issues workflow fires only once issues-item.yml is on main (GitHub runs issue-event and dispatch workflows from the default branch), so the block updates automatically after the next release merge; before then run the tool by hand.
