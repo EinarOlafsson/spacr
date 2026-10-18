@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import sys as _sys
 
+import json
 import os
 import shlex
 import shutil
@@ -340,6 +341,10 @@ class ChatProvider(CommandLineTool, ABC):
         indefinitely and the worker thread never exits.
         """
         self._current_proc: Optional[subprocess.Popen] = None
+        self._approved_resume = ""
+        self._approved_tools: List[str] = []
+        self.last_permission_denials: List[Dict] = []
+        self.last_session_id = ""
 
     def is_logged_in(self) -> bool:
         """Best-effort — override per provider if a cheap check exists.
@@ -714,16 +719,136 @@ class ClaudeCliProvider(ChatProvider):
         :returns: iterator yielding stdout text chunks.
         """
         from . import settings as ai_settings
-        prompt = _format_conversation(messages, system=system)
-        argv = ["claude", "-p", prompt]
+        resume, allowed = self._approved_resume, self._approved_tools
+        self._approved_resume, self._approved_tools = "", []
+        self.last_permission_denials = []
+        self.last_session_id = ""
+        if resume and messages:
+            argv = ["claude", "-p", str(messages[-1].get("content", "")),
+                    "--resume", resume]
+            if allowed:
+                argv += ["--allowedTools", *allowed]
+        else:
+            prompt = _format_conversation(messages, system=system)
+            argv = ["claude", "-p", prompt]
         if system:
             argv += ["--append-system-prompt", system]
         if model:
             argv += ["--model", model]
         else:
             argv += ai_settings.provider_args(self.name)
-        yield from _stream_process(argv, provider=self)
+        argv += ["--output-format", "json"]
+        yield from self._read_result(_stream_process(argv, provider=self))
 
+    def _read_result(self, lines: Iterator[str]) -> Iterator[str]:
+        """Yield the reply from ``claude --output-format json`` output.
+
+        The CLI prints one JSON result object. Its ``result`` text is the
+        reply; its ``permission_denials`` are the tool calls that needed the
+        user's approval, which ``claude -p`` cannot ask for (GitHub #147).
+        They are kept in :attr:`last_permission_denials` with the session in
+        :attr:`last_session_id`, so the console can ask the user and resume
+        the session with :meth:`allow_once`. Lines that are not a result
+        object pass through unchanged.
+
+        :param lines: the CLI's output lines.
+        :returns: an iterator over the reply text.
+        :raises ProviderFailed: when the CLI failed, quoting its result text
+            rather than the raw JSON.
+        """
+        result: Dict = {}
+        try:
+            for line in lines:
+                parsed = _result_object(line)
+                if parsed is None:
+                    yield line
+                    continue
+                result = parsed
+                self.last_session_id = str(parsed.get("session_id") or "")
+                self.last_permission_denials = [
+                    d for d in parsed.get("permission_denials") or []
+                    if isinstance(d, dict)]
+                text = parsed.get("result")
+                if isinstance(text, str) and text and not parsed.get("is_error"):
+                    yield text if text.endswith("\n") else text + "\n"
+        except ProviderFailed as failed:
+            text = result.get("result") if result else ""
+            if isinstance(text, str) and text.strip():
+                raise ProviderFailed(
+                    "claude", failed.exit_status, _failure_tail([text]),
+                    login_command=self.login_command) from None
+            raise
+
+    def allow_once(self, denials: List[Dict], session_id: str) -> List[str]:
+        """Let the next :meth:`stream_chat` resume ``session_id`` with these
+        tool calls allowed, for that one reply only.
+
+        :param denials: entries of :attr:`last_permission_denials` the user
+            approved.
+        :param session_id: the session they were denied in.
+        :returns: the ``--allowedTools`` rules that will be passed.
+        """
+        rules = [rule for rule in (tool_rule(d) for d in denials) if rule]
+        self._approved_resume = str(session_id or "")
+        self._approved_tools = list(dict.fromkeys(rules))
+        return list(self._approved_tools)
+
+
+
+def _result_object(line: str) -> Optional[Dict]:
+    """The ``claude --output-format json`` result object on ``line``, or None."""
+    text = line.strip()
+    if not text.startswith("{"):
+        return None
+    try:
+        parsed = json.loads(text)
+    except ValueError:
+        return None
+    if isinstance(parsed, dict) and parsed.get("type") == "result":
+        return parsed
+    return None
+
+
+def tool_rule(denial: Dict) -> str:
+    """The ``--allowedTools`` rule that allows exactly one denied tool call.
+
+    A shell command is allowed as written, ``Bash(gh auth status)``; a web
+    fetch for its host; any other tool by its name.
+
+    :param denial: one ``permission_denials`` entry.
+    :returns: the rule, or ``""`` when the entry names no tool.
+    """
+    name = str(denial.get("tool_name") or "").strip()
+    given = denial.get("tool_input")
+    given = given if isinstance(given, dict) else {}
+    if not name:
+        return ""
+    if name == "Bash" and str(given.get("command") or "").strip():
+        return f"Bash({str(given['command']).strip()})"
+    if name == "WebFetch" and given.get("url"):
+        from urllib.parse import urlparse
+
+        host = urlparse(str(given["url"])).hostname
+        return f"WebFetch(domain:{host})" if host else name
+    return name
+
+
+def describe_tool_call(denial: Dict) -> str:
+    """One line naming what a denied tool call would have done.
+
+    :param denial: one ``permission_denials`` entry.
+    :returns: the command for a shell call, otherwise the tool's name and
+        its path, address or pattern.
+    """
+    name = str(denial.get("tool_name") or "").strip() or "?"
+    given = denial.get("tool_input")
+    given = given if isinstance(given, dict) else {}
+    if name == "Bash" and given.get("command"):
+        return str(given["command"]).strip()
+    for key in ("file_path", "path", "url", "pattern", "notebook_path"):
+        if given.get(key):
+            return f"{name}: {given[key]}"
+    return name
 
 
 class CodexCliProvider(ChatProvider):

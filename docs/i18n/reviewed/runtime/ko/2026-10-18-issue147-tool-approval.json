@@ -1,0 +1,57 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Allow the assistant to run this?",
+      "source": "Allow the assistant to run this?",
+      "source_sha256": "457c2d99566a3722c3934a0124251b9bd02ab13a2be59d0399a692a28ad38db7",
+      "table": "ui",
+      "translation": "어시스턴트가 이것을 실행하도록 허용할까요?"
+    },
+    {
+      "key": "The assistant asked to run:",
+      "source": "The assistant asked to run:",
+      "source_sha256": "1c96bf0c29e9ea18059ea754389ac0955705554564246be869346197ed08a704",
+      "table": "ui",
+      "translation": "어시스턴트가 다음 실행을 요청했습니다:"
+    },
+    {
+      "key": "Allow once runs it a single time with your user permissions, then the assistant continues. Allow it only if you trust the command.",
+      "source": "Allow once runs it a single time with your user permissions, then the assistant continues. Allow it only if you trust the command.",
+      "source_sha256": "f72aeebe22225814482cf5eaaf238724bac800a3c8b2206a39eb51f999c421ff",
+      "table": "ui",
+      "translation": "한 번 허용을 누르면 사용자 권한으로 한 번만 실행한 뒤 어시스턴트가 계속합니다. 명령을 신뢰할 때만 허용하세요."
+    },
+    {
+      "key": "Allow once",
+      "source": "Allow once",
+      "source_sha256": "168511d24d9ee03122b3200f929be11eaaedad45cb0ecb20a95f549b3e3f4d0f",
+      "table": "ui",
+      "translation": "한 번 허용"
+    },
+    {
+      "key": "Don't allow",
+      "source": "Don't allow",
+      "source_sha256": "9803bdd2047b13432e0b2a210a50a34ef2189f57f13c84501ec84dd7d2ffc1e9",
+      "table": "ui",
+      "translation": "허용 안 함"
+    },
+    {
+      "key": "[AI] Allowed once: {calls}",
+      "source": "[AI] Allowed once: {calls}",
+      "source_sha256": "d13c53ce21d031fb6b31aed84ce9dab712e8c25f60b965e69e8aed593a4b7166",
+      "table": "ui",
+      "translation": "[AI] 한 번 허용됨: {calls}"
+    },
+    {
+      "key": "[AI] Not run: {calls}. Run it in your own terminal if you need its output.",
+      "source": "[AI] Not run: {calls}. Run it in your own terminal if you need its output.",
+      "source_sha256": "871c93bdc8cf5f12913d1945fab27f61f62ec44c4ea5447c24fd36b613c44455",
+      "table": "ui",
+      "translation": "[AI] 실행하지 않음: {calls}. 출력이 필요하면 직접 터미널에서 실행하세요."
+    }
+  ],
+  "review": "GitHub #147 tool-approval dialog in the console assistant: its title, prompt, explanation, the Allow once / Don't allow buttons and the two notices. Preserve [AI] and the {calls} placeholder, which is filled with the literal command text; 'Allow once' in the explanation names the button.",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "schema": 1
+}

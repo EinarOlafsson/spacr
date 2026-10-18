@@ -336,7 +336,7 @@ def test_claude_argv_uses_speed_model_and_appends_system(monkeypatch, speed):
     assert "why did masks fail" in argv[2]
     assert "System:\nbe terse" in argv[2]
     assert argv[3:5] == ["--append-system-prompt", "be terse"]
-    assert argv[5:] == ["--model", "opus"]       # "deep" -> opus
+    assert argv[5:] == ["--model", "opus", "--output-format", "json"]
 
 
 def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
@@ -349,7 +349,8 @@ def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
     p = ClaudeCliProvider()
     assert list(p.stream_chat([{"role": "user", "content": "q"}],
                                model="sonnet")) == []
-    assert rec["argv"] == ["claude", "-p", "User:\nq", "--model", "sonnet"]
+    assert rec["argv"] == ["claude", "-p", "User:\nq", "--model", "sonnet",
+                           "--output-format", "json"]
     assert "haiku" not in rec["argv"]
     assert "--append-system-prompt" not in rec["argv"]   # no system given
 
