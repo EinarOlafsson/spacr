@@ -121,9 +121,9 @@ msgstr "Dies ist ein normales Ergebnis des Kontrollflusses, kein Pipeline-Fehler
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Gibt zurück, ob für den aufrufenden Worker eine Abbruchanforderung aussteht."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
-msgstr "Löst :class:`PipelineCancelled` aus, wenn ein Abbruch angefordert wurde."
+msgstr "Löst :class:`PipelineCancelled` aus, wenn das Token dieses Threads abgebrochen wurde."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Aufrufe außerhalb eines verwalteten Workers bewirken absichtlich nichts, sodass dieselben Pipeline-Funktionen über die GUI, die CLI, Notebooks und Tests funktionieren."

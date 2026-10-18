@@ -211,8 +211,9 @@ msgstr "spaCR सीखें"
 msgid "Start with installation, continue to Home and the pipeline overviews, then follow the module walkthrough for your task in the `interactive tutorial library <tutorials/>`_. Each lesson lists its available narration voices and captions. New English lessons can appear while their translations are being prepared. Open the library from the GUI through **Help → Tutorial**."
 msgstr "स्थापना से शुरू करें, मुखपृष्ठ और पाइपलाइन अवलोकनों पर आगे बढ़ें, फिर `इंटरैक्टिव ट्यूटोरियल लाइब्रेरी <tutorials/>`_ में अपने कार्य के मॉड्यूल की मार्गदर्शिका का पालन करें। हर पाठ अपनी उपलब्ध वर्णन आवाज़ें और उपशीर्षक सूचीबद्ध करता है। अनुवाद तैयार होने के दौरान नए अंग्रेज़ी पाठ पहले दिखाई दे सकते हैं। GUI में **सहायता → ट्यूटोरियल** से लाइब्रेरी खोलें।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "From a terminal, ``spacr-tutorial`` lists the lessons by number, title and screen and then opens the library in your web browser. ``spacr-tutorial mask`` opens one lesson, named by number, slug or screen; ``--list`` prints the lessons and opens nothing, and ``--print-url`` prints the address instead of opening a browser. A name that matches no lesson exits with code 2 and suggests close matches."
-msgstr ""
+msgstr "टर्मिनल से, ``spacr-tutorial`` पाठों को संख्या, शीर्षक और स्क्रीन के अनुसार सूचीबद्ध करता है और फिर आपके वेब ब्राउज़र में लाइब्रेरी खोलता है। ``spacr-tutorial mask`` संख्या, स्लग या स्क्रीन से नामित एक पाठ खोलता है; ``--list`` पाठों को प्रिंट करता है और कुछ नहीं खोलता, और ``--print-url`` ब्राउज़र खोलने के बजाय पता प्रिंट करता है। किसी भी पाठ से मेल न खाने वाला नाम कोड 2 के साथ बाहर निकलता है और निकट मिलान सुझाता है।"
 
 msgid "Contents"
 msgstr "विषय-सूची"

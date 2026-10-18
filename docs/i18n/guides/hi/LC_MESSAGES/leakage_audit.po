@@ -105,8 +105,9 @@ msgstr "वर्गीकारक मूल्यांकन, अंशां
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "यह मॉड्यूल मॉडल-निरपेक्ष है: यह लेबल, संभावनाएँ, फ़ोल्ड ID और नमूना पथ लेता है। इसलिए डीप-लर्निंग क्रॉस-वैलिडेशन और भविष्य की पारंपरिक-ML पाइपलाइन एक ही मूल्यांकन संग्रह लिख सकती हैं और Qt वर्कबेंच एक स्थिर फ़ाइल प्रारूप दिखा सकता है।"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Result of auditing every cross-validation fold for leakage."
-msgstr ""
+msgstr "हर क्रॉस-वैलिडेशन फ़ोल्ड की रिसाव जाँच का परिणाम।"
 
 msgid "Parameters"
 msgstr "पैरामीटर"
@@ -210,13 +211,13 @@ msgstr "प्रति पथ वैकल्पिक वर्ग, हर प
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "वह पहचान स्तर जो फ़ोल्ड सीमा पार नहीं कर सकता -- ``none``, ``field``, ``well`` या ``plate``। कूप-समूहित विभाजन एक ही प्लेट को दोनों ओर होने देता है, लेकिन एक ही कूप को कभी नहीं।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
-msgstr "फ़ाइल सामग्री (CONTENT) की भी तुलना करें, ताकि अलग नाम वाली बाइट-समान प्रति पकड़ी जाए। हर फ़ाइल के लिए एक बार पढ़ना पड़ता है।"
+msgstr "फ़ाइल सामग्री की भी तुलना करें, ताकि अलग नाम वाली बाइट-समान प्रति का पता चले। हर फ़ाइल के लिए एक बार पढ़ना पड़ता है।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
-msgstr "असत्यापनीय (UNVERIFIABLE) को गंभीर मानें। अन्यथा अनुरोधित पहचान को एन्कोड न करने वाला फ़ाइल नाम, या हैश न हो सकने वाली फ़ाइल, केवल चेतावनी होती है -- इसलिए इसे False छोड़ने का अर्थ है कि साफ़ रिपोर्ट भी ऐसा रिसाव छिपा सकती है जिसकी कोई जाँच नहीं कर सका।"
+msgstr "असत्यापनीय नमूनों को गंभीर मानें। अन्यथा अनुरोधित पहचान को एन्कोड न करने वाला फ़ाइल नाम, या हैश न हो सकने वाली फ़ाइल, केवल चेतावनी होती है, इसलिए इसके False होने पर उत्तीर्ण रिपोर्ट में ऐसे नमूने शामिल हो सकते हैं जिनके रिसाव की जाँच नहीं हुई।"
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "``passed`` के False होने वाली रिपोर्ट लौटाने के बजाय :class:`LeakageError` उत्पन्न करें।"

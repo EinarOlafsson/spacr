@@ -105,8 +105,9 @@ msgstr "Mat á flokkurum, kvörðun og greining á leka milli skiptinga."
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Einingin er óháð líkani: hún tekur við merkjum, líkum, auðkennum hluta og slóðum sýna. Djúpnáms-víxlsannprófun og framtíðarvinnslukeðjur klassísks vélnáms geta því skrifað sama matspakka og Qt-vinnuborðið getur sýnt eitt stöðugt snið afurða."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Result of auditing every cross-validation fold for leakage."
-msgstr ""
+msgstr "Niðurstaða lekaúttektar á hverri brotskiptingu víxlprófunar."
 
 msgid "Parameters"
 msgstr "Færibreytur"
@@ -210,13 +211,13 @@ msgstr "valkvæður flokkur fyrir hverja slóð, eitt gildi á slóð. Aðeins n
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "auðkennisstig sem má ekki fara yfir mörk hluta -- ``none``, ``field``, ``well`` eða ``plate``. Skipting hópuð eftir brunnum leyfir sömu plötu báðum megin en aldrei sama brunn."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
-msgstr "bera einnig saman INNIHALD skráa, svo bætaeins afrit undir öðru nafni náist. Kostar einn lestur á skrá."
+msgstr "bera einnig saman innihald skráa, svo bætaeins afrit undir öðru nafni greinist. Kostar einn lestur á skrá."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
-msgstr "meðhöndla ÓSTAÐFESTANLEGT sem alvarlegt. Skráarheiti sem kóðar ekki umbeðið auðkenni, eða skrá sem ekki er hægt að reikna tætigildi fyrir, er annars aðeins viðvörun -- svo ef þetta er False getur hrein skýrsla samt falið leka sem enginn gat athugað."
+msgstr "meðhöndla sýni sem ekki er hægt að staðfesta sem alvarleg. Skráarheiti sem kóðar ekki umbeðið auðkenni, eða skrá sem ekki er hægt að reikna tætigildi fyrir, er annars aðeins viðvörun, svo ef þetta er False getur skýrsla sem stenst innihaldið sýni þar sem leki var ekki athugaður."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "kasta :class:`LeakageError` í stað þess að skila skýrslu þar sem ``passed`` er False."

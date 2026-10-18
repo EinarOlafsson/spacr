@@ -105,8 +105,9 @@ msgstr "Utvärdering, kalibrering och läckagediagnostik för uppdelningar av kl
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Modulen är modelloberoende: den tar emot etiketter, sannolikheter, veck-ID och provsökvägar. Korsvalidering med djupinlärning och framtida pipelines för klassisk maskininlärning kan därför skriva samma utvärderingspaket, och Qt-arbetsbänken kan visa ett enda stabilt artefaktformat."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Result of auditing every cross-validation fold for leakage."
-msgstr ""
+msgstr "Resultat av granskningen av varje korsvalideringsvikning med avseende på läckage."
 
 msgid "Parameters"
 msgstr "Parametrar"
@@ -210,13 +211,13 @@ msgstr "valfri klass per sökväg, ett värde per sökväg. Används bara för a
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "identitetsnivå som inte får korsa en veckgräns -- ``none``, ``field``, ``well`` eller ``plate``. En uppdelning grupperad per brunn tillåter samma platta på båda sidor men aldrig samma brunn."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
-msgstr "jämför också filernas INNEHÅLL, så att en byteidentisk kopia med ett annat namn upptäcks. Kostar en läsning per fil."
+msgstr "jämför också filernas innehåll, så att en byteidentisk kopia med ett annat namn upptäcks. Kostar en läsning per fil."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
-msgstr "behandla ICKE VERIFIERBART som kritiskt. Ett filnamn som inte kodar den begärda identiteten, eller en fil som inte kan hashas, är annars bara en varning -- så om detta lämnas False kan en ren rapport fortfarande dölja läckage som ingen kunde kontrollera."
+msgstr "behandla icke verifierbara prover som kritiska. Ett filnamn som inte kodar den begärda identiteten, eller en fil som inte kan hashas, är annars bara en varning, så om detta är False kan en godkänd rapport innehålla prover vars läckage inte kontrollerades."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "utlös :class:`LeakageError` i stället för att returnera en rapport vars ``passed`` är False."

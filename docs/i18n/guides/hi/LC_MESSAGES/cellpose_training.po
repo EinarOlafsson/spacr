@@ -37,9 +37,9 @@ msgstr "प्रशिक्षण छवियों को एक फ़ो�
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "हर मास्क की ऊँचाई और चौड़ाई उसकी छवि के समान होनी चाहिए। पूर्णांक ऑब्जेक्ट लेबल का उपयोग करें: पृष्ठभूमि के लिए शून्य और हर ऑब्जेक्ट के लिए अलग धनात्मक संख्या। मास्क फ़ाइल का नाम उसकी छवि के समान हो सकता है या एक्सटेंशन से पहले ``_masks`` जोड़ सकता है, जैसे ``field_01_masks.tif``। हर छवि के लिए एक मेल खाने वाला मास्क रखें।"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
-msgstr "प्रशिक्षण से पहले ऑब्जेक्ट सीमाओं की जाँच और सुधार के लिए मास्क बनाएँ का उपयोग करें। सत्यापन के लिए अलग फ़ील्ड रखें। ``train/images`` और ``train/masks`` वाले पुराने प्रोजेक्ट को स्रोत के रूप में चुनकर आप उसे दोबारा उपयोग कर सकते हैं।"
+msgstr "प्रशिक्षण से पहले ऑब्जेक्ट सीमाओं की जाँच और सुधार के लिए मास्क बनाएँ का उपयोग करें। सत्यापन के लिए अलग फ़ील्ड रखें। ``train/images`` और ``train/masks`` वाले प्रोजेक्ट को भी स्रोत के रूप में चुना जा सकता है।"
 
 msgid "Choose inputs and settings"
 msgstr "इनपुट और सेटिंग्स चुनें"

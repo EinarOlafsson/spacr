@@ -121,9 +121,9 @@ msgstr "这是一种正常的控制流结果，而不是流程失败。捕获宽
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "返回调用方工作线程是否有待处理的取消请求。"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
-msgstr "已请求取消时抛出 :class:`PipelineCancelled`。"
+msgstr "如果此线程的令牌已被取消，则抛出 :class:`PipelineCancelled`。"
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "在受管理的工作线程之外的调用有意不执行任何操作，因此同样的流程函数可以在 GUI、CLI、notebook 和测试中使用。"

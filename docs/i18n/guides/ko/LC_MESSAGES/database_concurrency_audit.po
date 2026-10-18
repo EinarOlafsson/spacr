@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -295,9 +295,9 @@ msgstr "요청한 저널 모드가 안전하지 않거나 지원되지 않을 �
 msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
 msgstr "파일 시스템이 허용하면 ``path`` 를 WAL로 전환합니다. 예외를 발생시키지 않습니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "This addresses issue #15 (\"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a read -- before writing. So each worker alternates read, write, read, write against one file."
-msgstr "이 기능이 존재하는 이유(이슈 #15, “measurements sometimes hangs”). 측정 모듈은 시야마다 작업자 하나를 실행하고, 모든 추가 작업은 pandas의 ``DataFrame.to_sql`` 을 거치는데, 이 함수는 쓰기 전에 ``has_table`` 탐색, 즉 읽기(READ)를 수행합니다. 따라서 각 작업자는 한 파일에 대해 읽기, 쓰기, 읽기, 쓰기를 번갈아 합니다."
+msgstr "이는 이슈 #15(“measurements sometimes hangs”)를 해결합니다. 측정 모듈은 시야마다 작업자 하나를 실행하고, 모든 추가 작업은 pandas의 ``DataFrame.to_sql`` 을 거치는데, 이 함수는 쓰기 전에 ``has_table`` 탐색, 즉 읽기를 수행합니다. 따라서 각 작업자는 한 파일에 대해 읽기, 쓰기, 읽기, 쓰기를 번갈아 합니다."
 
 msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
 msgstr "배포된 롤백 저널에서는 이 조합이 쓰기 작업을 굶깁니다. 읽기 작업은 문장이 실행되는 동안 SHARED 잠금을 보유하고, 쓰기 작업은 모든 SHARED 잠금이 사라져야 COMMIT할 수 있습니다. 작업자가 충분히 많으면 거의 항상 누군가 읽고 있으므로, 커밋하려는 작업자는 바쁨 제한 시간을 다 기다린 뒤 “database is locked” 를 발생시킵니다. 이 오류는 보통 다음 프로세스의 ``has_table`` 에서 나타나며, 이는 보고자의 트레이스백에 있던 문장입니다."
@@ -308,24 +308,24 @@ msgstr "바로 이 형태에서, 읽기 작업 하나가 열린 SELECT를 보유
 msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
 msgstr "journal_mode=delete    쓰기 대기 1.037 s journal_mode=wal       쓰기 대기 0.002 s"
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "WAL readers do not block a writer, which removes the starvation. WAL does not make two writers concurrent -- SQLite still serialises those -- so this fixes only readers blocking a writer, which is the case in the traceback."
-msgstr "WAL 읽기 작업은 쓰기 작업을 전혀 막지 않으므로 기아 현상이 사라집니다. 그렇다고 두 쓰기 작업(WRITERS)이 동시에 실행되는 것은 아니며(SQLite는 여전히 이를 직렬화합니다), 이 수정은 트레이스백이 있던 쪽인 ‘읽기가 쓰기를 막는’ 절반을 해결합니다."
+msgstr "WAL 읽기 작업은 쓰기 작업을 막지 않으므로 기아 현상이 사라집니다. WAL이 두 쓰기 작업을 동시에 실행되게 하지는 않으므로(SQLite는 여전히 이를 직렬화합니다), 이 수정은 트레이스백에 나타난 경우인 ‘읽기가 쓰기를 막는’ 문제만 해결합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The reverse direction is not a problem: in rollback-journal mode a writer holding RESERVED does not block readers; only its brief EXCLUSIVE commit does."
-msgstr "(이 메모의 첫 버전은 방향을 거꾸로 적어, 쓰기가 읽기를 막는다고 주장했습니다. 이를 증명하려고 작성한 테스트는 0.000 s를 측정하여 그 주장을 반박했습니다. 롤백 저널 모드에서 RESERVED를 보유한 쓰기 작업은 읽기 작업을 막지 않으며, 짧은 EXCLUSIVE 커밋만이 막습니다.)"
+msgstr "반대 방향은 문제가 되지 않습니다. 롤백 저널 모드에서 RESERVED를 보유한 쓰기 작업은 읽기 작업을 막지 않으며, 짧은 EXCLUSIVE 커밋만이 막습니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Called once when a database is opened for a run rather than per write: the journal mode is stored in the database file and persists, so setting it per connection has no further effect."
-msgstr "쓰기마다가 아니라 실행을 위해 데이터베이스를 열 때 한 번 호출합니다. 모드는 파일(FILE)의 속성이며 유지되므로, 연결마다 비용을 치러도 얻는 것이 없습니다."
+msgstr "쓰기마다가 아니라 실행을 위해 데이터베이스를 열 때 한 번 호출합니다. 저널 모드는 데이터베이스 파일에 저장되어 유지되므로, 연결마다 설정해도 추가 효과가 없습니다."
 
 msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
 msgstr "전환할 데이터베이스입니다. 아직 없는 파일은 연결이 생성하며, 이는 문제없습니다. 모드는 유지됩니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "the journal mode in force afterwards, or ``None`` when :func:`wal_is_safe_here` is ``False`` (nothing is changed) or the database could not be opened or queried."
-msgstr "이후 적용되는 저널 모드이며, 데이터베이스를 전혀 열 수 없으면 ``None`` 입니다."
+msgstr "이후 적용되는 저널 모드이며, :func:`wal_is_safe_here` 가 ``False`` 이거나(아무것도 변경되지 않음) 데이터베이스를 열거나 조회할 수 없으면 ``None`` 입니다."
 
 msgid "Best-effort filesystem type for ``path``, or None when unknowable."
 msgstr "``path`` 의 파일 시스템 유형에 대한 최선의 추정이며, 알 수 없으면 None입니다."
@@ -418,17 +418,17 @@ msgstr "잠금이 재시도 예산보다 오래 지속될 때 발생합니다."
 msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
 msgstr "쓰기 담당자가 관리하는 패킷 밖의 활성 트랜잭션 안에서 중첩을 요청할 때입니다. 대기 중 보조 함수의 트랜잭션은 해당 패킷 안에서 저장점을 사용합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Return whether ``path`` is on a filesystem where WAL is known to work."
-msgstr "``path`` 가 WAL이 올바르게 동작한다고 알려진 파일 시스템에 있습니까?"
+msgstr "``path`` 가 WAL이 동작한다고 알려진 파일 시스템에 있는지 반환합니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``True`` only when the filesystem type is identified and listed in ``WAL_SAFE_FILESYSTEMS``. Anything else -- a network type, an unrecognised type, or a path whose type :func:`filesystem_type` cannot determine (it returns ``None``) -- is ``False``."
-msgstr "확실히 식별된(POSITIVELY IDENTIFIED) 로컬 파일 시스템에만 ``True`` 입니다. 그 밖의 모든 경우, 즉 네트워크 유형, 인식되지 않는 유형, :func:`filesystem_type` 이 판단할 수 없는 플랫폼(``/proc/mounts`` 를 읽으므로 macOS와 Windows는 항상 ``None`` 을 반환함)은 ``False`` 입니다."
+msgstr "파일 시스템 유형이 식별되고 ``WAL_SAFE_FILESYSTEMS`` 에 나열된 경우에만 ``True`` 입니다. 그 밖의 모든 경우, 즉 네트워크 유형, 인식되지 않는 유형, :func:`filesystem_type` 이 유형을 판단할 수 없는 경로(``None`` 을 반환함)는 ``False`` 입니다."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "The default is ``False`` because the two errors differ in cost: a wrong ``False`` leaves the rollback journal and its lock contention in place, while a wrong ``True`` puts WAL shared memory on storage that cannot support it, which can corrupt the database."
-msgstr "이 비대칭이 핵심입니다. 잘못된 ``False`` 의 대가는 이 프로젝트가 이미 견디고 있는 잠금 경합이지만, 잘못된 ``True`` 의 대가는 이를 지원할 수 없는 저장소 위의 WAL 공유 메모리, 즉 손상된 데이터베이스입니다."
+msgstr "기본값이 ``False`` 인 이유는 두 오류의 비용이 다르기 때문입니다. 잘못된 ``False`` 는 롤백 저널과 그 잠금 경합을 그대로 남기지만, 잘못된 ``True`` 는 이를 지원할 수 없는 저장소에 WAL 공유 메모리를 두어 데이터베이스를 손상시킬 수 있습니다."
 
 msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."
 msgstr ":func:`filesystem_type` 으로 파일 시스템을 조회할 데이터베이스 파일(또는 그 디렉터리)입니다."

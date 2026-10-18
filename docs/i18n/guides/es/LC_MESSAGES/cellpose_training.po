@@ -37,9 +37,9 @@ msgstr "Coloque las imágenes de entrenamiento en una carpeta y sus máscaras en
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "Cada máscara debe tener la misma altura y anchura que su imagen. Use etiquetas de objeto enteras: cero para el fondo y un número positivo distinto para cada objeto. El nombre de un archivo de máscara puede coincidir con el de su imagen o añadir ``_masks`` antes de la extensión, como ``field_01_masks.tif``. Mantenga una sola máscara correspondiente por imagen."
 
-#, fuzzy
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
-msgstr "Use Crear máscaras para revisar y corregir los contornos de los objetos antes del entrenamiento. Reserve campos separados para la validación. Puede reutilizar un proyecto antiguo que contenga ``train/images`` y ``train/masks`` seleccionándolo como origen."
+msgstr "Use Crear máscaras para revisar y corregir los contornos de los objetos antes del entrenamiento. Reserve campos separados para la validación. También puede seleccionarse como origen un proyecto que contenga ``train/images`` y ``train/masks``."
 
 msgid "Choose inputs and settings"
 msgstr "Elegir entradas y configuración"
