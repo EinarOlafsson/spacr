@@ -1,0 +1,37 @@
+================================================================================
+SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
+================================================================================
+
+Status:    in progress — phase 1 (preparation); destructive phases after 1.5.1.5
+Requested: maintainer, 2026-10-18 (question tool, main session). Approved
+           steps: "Move features/data to HF", "Move tutorial media + deck
+           renders", "Build generated catalogs in CI", "Rewrite history
+           (filter-repo)" — all AFTER the 1.5.1.5 release is out.
+Owner:     Claude Home; Claude WS for tutorial media (docs/source/_extra/
+           tutorials, tools/tutorials).
+
+WHAT TO BUILD
+Every clone downloads a 10.4 GB pack (origin/nightly, 2026-10-18). The tracked
+tree holds features/data 4.1 GB (22,870 files), docs/source/_static/i18n
+182 MB (generated API catalogs), docs/source/_extra/tutorials 178 MB,
+tools/tutorials 146 MB, docs/source/_static/deck 85 MB, tools/readme_deck
+69 MB and spacr/resources 74 MB (packaged; stays).
+Phase 1 (now, non-destructive): inventory which features/data files tests,
+tools, workflows and code read; mirror features/data to the Hugging Face
+DATASET einarolafsson/spacr-evidence; plan phases 2-4 and measure the
+post-rewrite pack on a throwaway mirror.
+Phase 2: delete the movable features/data files from the tree, keep the
+keep-list (moved to tests/data where it is a fixture).
+Phase 3: tutorial media and deck renders fetched from HF at docs build;
+API i18n catalogs assembled in the docs CI job instead of committed.
+Phase 4: git filter-repo over all history, force-push main and nightly once,
+every session and worktree re-clones.
+
+ACCEPTANCE
+Fresh `git clone` of origin downloads at most 1.5 GB (pack), and the tracked
+tree of nightly is at most 600 MB with spacr/resources unchanged.
+features/data holds only files a test, tool, workflow or package reads; every
+removed file is byte-identical on the HF dataset at its original path.
+Docs CI builds API catalogs, tutorial media and the deck from pinned HF
+revisions; the published site is unchanged. The smallest relevant test
+cohort passes before and after each phase; no assertion is weakened.
