@@ -645,6 +645,23 @@ class HitsOpener:
         connect_investigation(hits, host_window)
         return hits
 
+    def press(self, _checked: bool = False) -> None:
+        """The Hits button: build the results panel in steps, then open.
+
+        The first press used to build the screen's whole results panel in
+        one go, a freeze of over a second. It is now built one step per
+        event-loop turn (see ``AppScreen._build_owed_part_in_steps``) and
+        the tab is raised when it is finished. With the panel built, or on
+        a screen that defers nothing, this is :meth:`open`.
+        """
+        steps = getattr(self.screen, "_build_owed_part_in_steps", None)
+        if callable(steps):
+            from .app_screen import _REGRESSION_RESULTS
+
+            if steps(_REGRESSION_RESULTS, self.open):
+                return
+        self.open()
+
     def open(self, _checked: bool = False) -> Optional[QWidget]:
         """Show the hit list, wherever this screen keeps it."""
         panel = results_panel(self.screen)
@@ -749,7 +766,8 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
                                       partial(BUILDERS[key], screen=screen)))
     install_extras(screen)
     try:
-        strip = FoldStrip([(o.key, o.open) for o in openers], header)
+        strip = FoldStrip([(o.key, getattr(o, "press", o.open))
+                           for o in openers], header)
         for opener in openers:
             button = strip.button_for(opener.key)
             restate_fold_button(button, opener.key)

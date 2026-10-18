@@ -1897,7 +1897,8 @@ class _BuiltOnFirstUse:
             return self
         values = screen.__dict__
         owed = values.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = values.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         try:
             return values[self.slot]
@@ -1907,7 +1908,8 @@ class _BuiltOnFirstUse:
     def __set__(self, screen, value) -> None:
         """Build the owed part first, so an assignment lands after it."""
         owed = screen.__dict__.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = screen.__dict__.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         screen.__dict__[self.slot] = value
 
@@ -1919,7 +1921,14 @@ class _BuiltOnFirstUse:
             raise AttributeError(self.name) from None
 
     def peek(self, screen):
-        """The value held now, WITHOUT building an owed part; else ``None``."""
+        """The value held now, WITHOUT building an owed part; else ``None``.
+
+        A part still being built in steps answers ``None`` as well: before
+        its last step it is not the finished part a reader would get.
+        """
+        stepping = screen.__dict__.get("_parts_stepping")
+        if stepping and self.part in stepping:
+            return None
         return screen.__dict__.get(self.slot)
 
 
@@ -7209,8 +7218,9 @@ class AppScreen(QWidget):
         return getattr(self, name, None)
 
     def _part_is_owed(self, part: str) -> bool:
-        """Whether ``part`` has been deferred and not built yet."""
-        return part in (self.__dict__.get("_parts_owed") or {})
+        """Whether ``part`` has been deferred and not finished yet."""
+        return (part in (self.__dict__.get("_parts_owed") or {})
+                or part in (self.__dict__.get("_parts_stepping") or {}))
 
     def _build_owed_part(self, part: str) -> bool:
         """Build ``part`` now if it is still owed.
@@ -7224,27 +7234,106 @@ class AppScreen(QWidget):
         fold strip adding the Hits tab, which came after that sweep), then
         the language pass and the polish, which reached the Hits tab too.
 
-        :returns: ``True`` when this call built it.
+        A part that :meth:`_build_owed_part_in_steps` has started is
+        finished here, in one go, so a reader never sees it half built.
+
+        :returns: ``True`` when this call built or finished it.
         """
-        owed = self.__dict__.get("_parts_owed") or {}
-        build = owed.pop(part, None)
-        if build is None:
-            return False
+        steps = (self.__dict__.get("_parts_stepping") or {}).pop(part, None)
+        if steps is None:
+            owed = self.__dict__.get("_parts_owed") or {}
+            build = owed.pop(part, None)
+            if build is None:
+                return False
+            steps = self._owed_part_steps(part, build)
         from .. import timing
 
         with timing.span("build deferred part", part):
-            root = build()
-            if root is not None:
-                self._clear_a_late_parts_surfaces(root)
-            waiting = (self.__dict__.get("_after_parts") or {}).pop(part, [])
-            for callback in waiting:
-                try:
-                    callback()
-                except Exception:                            # noqa: BLE001
-                    LOG.exception("could not finish a deferred %s", part)
-            if root is not None:
-                self._translate_a_late_part(root)
+            _run_to_the_end(steps)
         return True
+
+    def _owed_part_steps(self, part: str, build):
+        """Build ``part`` with ``build``, as a generator of event-loop steps.
+
+        ``build`` may return the part's root, or be a generator of its own
+        steps that returns it. The steps run back to back in
+        :meth:`_build_owed_part`, or one per event-loop turn in
+        :meth:`_build_owed_part_in_steps`; the order is the same either way.
+        """
+        import inspect
+
+        made = build()
+        if inspect.isgenerator(made):
+            root = yield from made
+        else:
+            root = made
+        if root is not None:
+            self._clear_a_late_parts_surfaces(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        if root is not None:
+            yield
+            self._translate_a_late_part(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        self._run_the_parts_callbacks(part, "_parts_then")
+
+    def _run_the_parts_callbacks(self, part: str, table: str) -> None:
+        """Run and forget the callbacks queued for ``part`` in ``table``."""
+        waiting = (self.__dict__.get(table) or {}).pop(part, [])
+        for callback in waiting:
+            try:
+                callback()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not finish a deferred %s", part)
+
+    def _build_owed_part_in_steps(self, part: str, then=None) -> bool:
+        """Build ``part`` one step per event-loop turn, then call ``then``.
+
+        For a click that needs a large deferred part: built in one go, its
+        construction, surface sweep and language pass were one freeze of
+        over a second. Each step is followed by a turn of the event loop. A
+        reader of any of the part's attributes in between finishes the
+        build at once (see :class:`_BuiltOnFirstUse`), so nothing ever sees
+        it half built, and the part counts as owed for as long as it runs.
+
+        :param part: the deferred part.
+        :param then: called once the part is finished, however it finished.
+        :returns: ``False`` when the part is not owed, in which case the
+            caller does its work now.
+        """
+        stepping = self.__dict__.get("_parts_stepping")
+        if stepping is None:
+            stepping = self.__dict__["_parts_stepping"] = {}
+        if part not in stepping:
+            build = (self.__dict__.get("_parts_owed") or {}).pop(part, None)
+            if build is None:
+                return False
+            stepping[part] = self._owed_part_steps(part, build)
+            QTimer.singleShot(0, self, partial(self._step_owed_part, part))
+        if then is not None:
+            thens = self.__dict__.get("_parts_then")
+            if thens is None:
+                thens = self.__dict__["_parts_then"] = {}
+            thens.setdefault(part, []).append(then)
+        return True
+
+    def _step_owed_part(self, part: str) -> None:
+        """Run the next step of ``part``, and queue the one after it."""
+        stepping = self.__dict__.get("_parts_stepping") or {}
+        steps = stepping.pop(part, None)
+        if steps is None:
+            return
+        from .. import timing
+
+        try:
+            with timing.span("build deferred part, a step", part):
+                next(steps)
+        except StopIteration:
+            return
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not build the deferred %s", part)
+            return
+        stepping[part] = steps
+        QTimer.singleShot(0, self, partial(self._step_owed_part, part))
 
     def _after_part_is_built(self, part: str, callback) -> bool:
         """Run ``callback`` once ``part`` is built, if it is still owed.
@@ -7383,6 +7472,11 @@ class AppScreen(QWidget):
         before constructing the panels, so opening the screen does not
         load their data libraries and a missing dependency leaves no
         partially constructed results widgets.
+
+        A generator of build steps: :meth:`_build_owed_part` runs them back
+        to back, and :meth:`_build_owed_part_in_steps` gives the event loop
+        a turn after each, so the Hits button's first press is not one
+        freeze of over a second.
         """
         try:
             from ..widgets.regression_results import RegressionResultsPanel
@@ -7394,10 +7488,15 @@ class AppScreen(QWidget):
                 MeasurementScanPanel)
             from ..widgets.sweep_panel import SweepPanel
             from ..widgets.cell_montage_view import CellMontageView
+            from importlib import import_module
+
+            import_module("..widgets.fast_plots", __package__)
+            yield
 
             self._results_panel = RegressionResultsPanel(
                 self._figures_card, external_volcano=True)
             self._results_panel.refit_requested.connect(self._on_refit)
+            yield
 
             self._figure_grid = FigureGridView(self._figures_card)
             self._figure_grid.figure_activated.connect(
@@ -7481,6 +7580,7 @@ class AppScreen(QWidget):
                 self._live_tile_menu)
             self._results_panel.table.key_selected.connect(
                 self._on_guide_selected)
+            yield
 
             self._sweep_runs = SweepRunsPanel(self._figures_card)
             self._sweep_runs.trial_activated.connect(self._show_trial)
@@ -7509,6 +7609,7 @@ class AppScreen(QWidget):
                                   "Picking a row in Runs re-points this "
                                   "at that run.")
 
+            yield
             self._scan_panel = MeasurementScanPanel(
                 frame_provider=self._scan_source_frame,
                 database_provider=self._attached_database_rows,
@@ -7541,6 +7642,7 @@ class AppScreen(QWidget):
                    "each measurement -- a measurement that passes alone "
                    "and fails across the scan is the one worth knowing "
                    "about.")
+            yield
             self._cell_montage = CellMontageView(
                 frame_provider=self._results_panel.results_frame,
                 results_provider=self._results_source_path,
@@ -7563,6 +7665,7 @@ class AppScreen(QWidget):
             self._results_tabs = left
             left.setCurrentWidget(self._results_page)
 
+            yield
             split = CollapsibleSplitter(Qt.Horizontal, self._figures_card)
             split.add_pane(left, "Results", mode=EDGE, stretch=1,
                            extent=780, fold_key="regression/Results")
