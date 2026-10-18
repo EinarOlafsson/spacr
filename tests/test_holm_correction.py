@@ -101,6 +101,21 @@ def test_other_methods_still_come_from_statsmodels():
               multipletests(values, method=method))
 
 
+def test_unknown_correction_preserves_the_backend_error_instead_of_using_holm():
+    """The optimized dispatch must not silently substitute a correction."""
+    values = np.array([0.01, 0.2, 0.5])
+    before = values.copy()
+    method = "holm_misspelled"
+
+    with pytest.raises(ValueError) as expected:
+        multipletests(values, method=method)
+    with pytest.raises(ValueError) as actual:
+        _multipletests(values, method=method)
+
+    assert str(actual.value) == str(expected.value)
+    np.testing.assert_array_equal(values, before)
+
+
 def test_the_public_holm_option_is_unchanged(quiet_statsmodels):
     values = np.array([0.001, np.nan, 0.02, 0.02, 0.9, 0.04])
     adjusted, rejected = adjust_p_values(values, method="holm")
