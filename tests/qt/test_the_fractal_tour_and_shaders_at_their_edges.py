@@ -177,7 +177,9 @@ def test_without_numba_the_weighted_blend_says_so(monkeypatch):
 
     with pytest.raises(RuntimeError, match="numba is required"):
         scratch._blend_weighted(1, 2, 3, 4)
-    assert builtins.__import__ is real_import
+    assert scratch.__dict__["__builtins__"] is not vars(builtins)
+    assert scratch.__dict__["__builtins__"]["__import__"] is refuse
+    assert builtins.__import__ is not refuse
     assert sys.modules.get("numba") is shared_numba
 
 
