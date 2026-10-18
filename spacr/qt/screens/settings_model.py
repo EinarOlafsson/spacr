@@ -9605,6 +9605,55 @@ class _SpinCommitInput(QObject):
         return False
 
 
+#: The module the Activation form asks which ``cam_type`` entries apply.
+_ATTRIBUTION_MODULE = "spacr.attribution"
+
+#: The one worker importing :data:`_ATTRIBUTION_MODULE`, once started.
+_ATTRIBUTION_IMPORT: List[threading.Thread] = []
+
+
+def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
+    """Import :data:`_ATTRIBUTION_MODULE` on a worker, once per process.
+
+    It imports torch, a second of the GUI thread the first time an
+    Activation page is built. The worker shortens the interpreter's switch
+    interval as other importing workers do, and holds the application's
+    heavy-import lock when the window has one, so it never imports torch
+    alongside the preloader.
+
+    :returns: the importing thread while it runs, or ``None`` when the
+        module is imported or its import has been tried.
+    """
+    if _ATTRIBUTION_MODULE in sys.modules:
+        return None
+    if _ATTRIBUTION_IMPORT:
+        thread = _ATTRIBUTION_IMPORT[0]
+        return thread if thread.is_alive() else None
+
+    def _work() -> None:
+        """Import the module, logging rather than raising a failure."""
+        import importlib
+        from contextlib import nullcontext
+
+        from ..gil_priority import responsive_gui
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        with responsive_gui(), (lock if lock is not None
+                                else nullcontext()):
+            try:
+                importlib.import_module(_ATTRIBUTION_MODULE)
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not import the attribution rules",
+                             exc_info=True)
+
+    thread = threading.Thread(target=_work, daemon=True,
+                              name="spacr-attribution-import")
+    _ATTRIBUTION_IMPORT.append(thread)
+    thread.start()
+    return thread
+
+
 class SettingsWidgets:
     """Container for the Qt widgets bound to a settings dict.
 
@@ -11423,6 +11472,9 @@ class SettingsWidgets:
         combo = self._built_control("cam_type")
         if not isinstance(combo, QComboBox):
             return
+        if _ATTRIBUTION_MODULE not in sys.modules:
+            self._grey_cam_types_once_imported(combo)
+            return
         try:
             from ...attribution import cam_type_applicability
         except Exception:                                    # noqa: BLE001
@@ -11449,6 +11501,44 @@ class SettingsWidgets:
                     "Not applicable to {model}: {reason}",
                     model=model_type or tr("this model"), reason=reason),
                 Qt.ToolTipRole)
+
+    def _grey_cam_types_once_imported(self, combo) -> None:
+        """Grey the ``cam_type`` menu once the attribution rules are imported.
+
+        The rules live in :mod:`spacr.attribution`, which imports torch: the
+        first Activation page froze for a second while it did. The import
+        runs on a worker (:func:`_import_attribution_off_the_gui_thread`)
+        and the menu is greyed when it has finished. Until then every entry
+        stays enabled, as when the rules cannot be imported at all.
+
+        :param combo: the ``cam_type`` menu; the poll is parented to it.
+        """
+        thread = _import_attribution_off_the_gui_thread()
+        if thread is None:
+            if _ATTRIBUTION_MODULE in sys.modules:
+                self._refresh_attribution_method_enablement()
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is None:
+            timer = QTimer(combo)
+            timer.setInterval(50)
+            timer.timeout.connect(self._after_the_attribution_import)
+            self._attribution_import_poll = timer
+        timer.start()
+
+    def _after_the_attribution_import(self) -> None:
+        """Stop polling and grey the menu once the worker has finished."""
+        thread = _ATTRIBUTION_IMPORT[0] if _ATTRIBUTION_IMPORT else None
+        if thread is not None and thread.is_alive():
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is not None:
+            timer.stop()
+        if _ATTRIBUTION_MODULE in sys.modules:
+            try:
+                self._refresh_attribution_method_enablement()
+            except RuntimeError:
+                pass
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
