@@ -690,6 +690,7 @@ class _MaskLoadWorker(QThread):
     def run(self) -> None:
         """Load the pair, retaining either the result or original exception."""
         try:
+            _wait_for_mask_writes()
             self.result = engine.load_image_and_mask(
                 self.folder, self.filename, **self.layout
             )
@@ -934,6 +935,7 @@ class _FolderJobWorker(QThread):
     def run(self) -> None:
         """Run the job, keeping its result or the exception it raised."""
         try:
+            _wait_for_mask_writes()
             self.result = self.job()
         except Exception as exc:
             self.error = exc
@@ -6122,6 +6124,141 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     request = result.request._replace(box=(x0, y0, x1, y1))
     return result._replace(request=request, labels=labels, overlay=None,
                            count=1, ghost=None, extents=None)
+
+
+_MASK_WRITES = threading.Condition()
+_MASK_WRITE_QUEUE: deque = deque()
+_MASK_WRITE_STATE: dict = {"thread": None, "running": None, "atexit": False}
+
+
+def _queue_mask_write(request, work) -> None:
+    """Queue ``work(request)`` on the mask writer thread.
+
+    Saves run one at a time in the order they were asked for, so two saves of
+    one file land in order. ``request["paths"]`` names the mask files the work
+    writes; readers wait on them with :func:`_wait_for_mask_writes`. The work's
+    return value goes to ``request["result"]`` and its exception to
+    ``request["error"]``; ``request["done"]`` is set when it ends, and
+    ``request["deliver"]``, when given, is then called with the request.
+
+    :param request: the captured save; plain data only.
+    :param work: a module-level function taking the request.
+    """
+    import atexit
+
+    request["paths"] = {os.path.abspath(path) for path in request.get("paths", ())}
+    request["done"] = threading.Event()
+    request.setdefault("error", None)
+    request.setdefault("result", None)
+    with _MASK_WRITES:
+        _MASK_WRITE_QUEUE.append((request, work))
+        thread = _MASK_WRITE_STATE["thread"]
+        if thread is None or not thread.is_alive():
+            thread = threading.Thread(target=_run_mask_writes,
+                                      name="spacr-mask-writer", daemon=True)
+            _MASK_WRITE_STATE["thread"] = thread
+            thread.start()
+        if not _MASK_WRITE_STATE["atexit"]:
+            _MASK_WRITE_STATE["atexit"] = True
+            atexit.register(_wait_for_mask_writes, None, 60.0)
+        _MASK_WRITES.notify_all()
+
+
+def _run_mask_writes() -> None:
+    """The mask writer thread: run queued saves in order, forever."""
+    while True:
+        with _MASK_WRITES:
+            while not _MASK_WRITE_QUEUE:
+                _MASK_WRITES.wait()
+            request, work = _MASK_WRITE_QUEUE.popleft()
+            _MASK_WRITE_STATE["running"] = request
+        try:
+            request["result"] = work(request)
+        except Exception as exc:
+            request["error"] = exc
+        finally:
+            with _MASK_WRITES:
+                _MASK_WRITE_STATE["running"] = None
+                _MASK_WRITES.notify_all()
+            request["done"].set()
+        deliver = request.get("deliver")
+        if deliver is not None:
+            try:
+                deliver(request)
+            except Exception:
+                LOG.debug("could not deliver a mask save", exc_info=True)
+
+
+def _mask_writes_pending(path=None) -> bool:
+    """Whether a queued or running save writes ``path`` (any file when None)."""
+    wanted = None if path is None else os.path.abspath(path)
+    with _MASK_WRITES:
+        requests = [item[0] for item in _MASK_WRITE_QUEUE]
+        if _MASK_WRITE_STATE["running"] is not None:
+            requests.append(_MASK_WRITE_STATE["running"])
+    return any(wanted is None or wanted in request["paths"] for request in requests)
+
+
+def _wait_for_mask_writes(path=None, timeout=None) -> bool:
+    """Wait until no queued or running save writes ``path`` (any file when None).
+
+    A reader calls this before it opens a mask, so it never reads the version
+    a save is about to replace; closing the screen and the interpreter's exit
+    call it for every file.
+
+    :param path: the mask file about to be read, or None for all of them.
+    :param timeout: longest wait in seconds, or None for no limit.
+    :returns: whether nothing is left writing ``path``.
+    """
+    import time as _time
+
+    deadline = None if timeout is None else _time.monotonic() + float(timeout)
+    while _mask_writes_pending(path):
+        with _MASK_WRITES:
+            left = None if deadline is None else deadline - _time.monotonic()
+            if left is not None and left <= 0:
+                return False
+            _MASK_WRITES.wait(0.05 if left is None else min(left, 0.05))
+    return True
+
+
+def _write_mask_request(request):
+    """Write one captured mask save on the writer thread.
+
+    :param request: what :meth:`MakeMasksScreen._save_mask` captured.
+    :returns: the path written; the object count as written goes to
+        ``request["objects"]``.
+    """
+    path = engine.save_mask(
+        request["folder"], request["filename"], request["mask"],
+        log=request["log"], preserve_ids=request["preserve_ids"],
+        lineage=request["lineage"], **request["layout"])
+    written = engine.canonical_labels(request["mask"],
+                                      preserve_ids=request["preserve_ids"])
+    request["objects"] = int(np.count_nonzero(np.unique(written)))
+    return path
+
+
+def _rewrite_lineage_request(request):
+    """Embed one lineage graph in every other saved mask of a sequence.
+
+    :param request: ``folder``, ``names``, ``lineage`` and ``layout``.
+    :returns: how many existing mask files could not be rewritten.
+    """
+    import tifffile
+
+    failed = 0
+    for name in request["names"]:
+        path = engine.mask_save_path(request["folder"], name, **request["layout"])
+        if not os.path.isfile(path):
+            continue
+        try:
+            engine.save_mask(request["folder"], name, tifffile.imread(path),
+                             preserve_ids=True, lineage=request["lineage"],
+                             **request["layout"])
+        except (OSError, ValueError):
+            failed += 1
+    return failed
 
 
 def _detect_puncta_snapshot(request):
@@ -12582,6 +12719,7 @@ class MakeMasksScreen(QWidget):
     _comparison_delivered = Signal(object)
     _uncertainty_delivered = Signal(object)
     _volume_measure_delivered = Signal(object)
+    _mask_write_delivered = Signal(object)
 
     _hide_judged = False
 
@@ -12656,6 +12794,7 @@ class MakeMasksScreen(QWidget):
         self._puncta_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
+        self._mask_write_delivered.connect(self._finish_mask_write)
         self._uncertainty_worker = None
         self._uncertainty_request = None
         self._uncertainty_pane = None
@@ -14711,6 +14850,7 @@ class MakeMasksScreen(QWidget):
         """
         if index == self._current_index and self._canvas.mask is not None:
             return np.array(self._canvas.mask, copy=True)
+        _wait_for_mask_writes(engine.mask_save_path(folder, name, **self._layout_kwargs()))
         _image, mask = engine.load_image_and_mask(folder, name,
                                                   **self._layout_kwargs())
         return mask
@@ -14891,6 +15031,7 @@ class MakeMasksScreen(QWidget):
                                           or self._roi_object_type()) >= 0:
                     done.append(name)
                 continue
+            _wait_for_mask_writes(engine.mask_save_path(folder, name, **self._layout_kwargs()))
             _image, mask = engine.load_image_and_mask(folder, name,
                                                       **self._layout_kwargs())
             masks = mask_io.import_rois(path, mask.shape, fmt, file_name=name)
@@ -16430,26 +16571,20 @@ class MakeMasksScreen(QWidget):
         The open frame is written by its own save. Pixels stay as saved, so
         reopening from any frame reads the same ancestry.
         """
-        import tifffile
-        from ..i18n import tr
-
         if not self._folder or self._lineage is None or not self._image_files:
             return
         current = self._image_files[self._current_index]
-        failed = 0
-        for name in self._image_files:
-            path = engine.mask_save_path(self._folder, name, **self._layout_kwargs())
-            if name == current or not os.path.isfile(path):
-                continue
-            try:
-                engine.save_mask(self._folder, name, tifffile.imread(path), preserve_ids=True,
-                                 lineage=self._lineage, **self._layout_kwargs())
-            except (OSError, ValueError):
-                failed += 1
-        if failed:
-            self._status_label.setText(tr(
-                "Lineage could not be rewritten in {n} mask file(s); those frames "
-                "update when they are saved.", n=failed))
+        layout = dict(self._layout_kwargs())
+        names = [name for name in self._image_files if name != current]
+        request = dict(
+            kind="lineage", folder=self._folder, names=names, layout=layout,
+            lineage=copy.deepcopy(self._lineage),
+            paths=[engine.mask_save_path(self._folder, name, **layout) for name in names],
+            deliver=self._deliver_mask_write)
+        self._track_mask_write(request)
+        _queue_mask_write(request, _rewrite_lineage_request)
+        if request["done"].wait(engine._MASK_SAVE_WAIT_SECONDS):
+            self._finish_mask_write(request)
 
     def _lineage_assignment_notice(self, before, state, chosen, replaced):
         """Say how a Time assignment changed another cell, so nothing changes unseen."""
@@ -22711,7 +22846,7 @@ class MakeMasksScreen(QWidget):
         if engine._is_volume_file(image_path):
             self._show_volume(self._folder, filename)
             return
-        if self._should_background_load(image_path):
+        if self._should_background_load(image_path) or _mask_writes_pending():
             request = (self._folder, filename, token)
             if self._load_worker is not None:
                 self._pending_load = request
@@ -22820,6 +22955,10 @@ class MakeMasksScreen(QWidget):
         if not self._volume_leave_ok() or not self._save_boxes_if_needed():
             event.ignore()
             return
+        _wait_for_mask_writes()
+        for request in list(getattr(self, "_mask_write_requests", ())):
+            if request["done"].wait(5):
+                self._finish_mask_write(request)
 
         if self._blind is not None:
             try:
@@ -22890,6 +23029,7 @@ class MakeMasksScreen(QWidget):
     def _load_pair(self, folder: str, filename: str, token: int) -> None:
         """Decode and apply a small pair synchronously."""
         try:
+            _wait_for_mask_writes()
             image, mask = engine.load_image_and_mask(
                 folder, filename, **self._layout_kwargs())
             metadata = engine.load_mask_metadata(folder, filename, **self._layout_kwargs())
@@ -23343,6 +23483,7 @@ class MakeMasksScreen(QWidget):
             self._note_curated(filename, n_objects=objects)
             path = engine.mask_save_path(self._folder, filename,
                                          **self._layout_kwargs())
+            _wait_for_mask_writes(path)
             self._save_puncta_measurements(path)
             self._export_vvvv_on_save()
             self._status_label.setText(
@@ -23350,6 +23491,8 @@ class MakeMasksScreen(QWidget):
             self._last_saved_mask = np.array(self._canvas.mask, copy=True)
             return path
         preserve_ids = self._canvas.retain_label_ids()
+        filename = self._image_files[self._current_index]
+        layout = dict(self._layout_kwargs())
         try:
             lineage = (engine.prune_lineage_frame(self._lineage, self._lineage_frame(),
                                                   self._canvas.mask)
@@ -23357,34 +23500,85 @@ class MakeMasksScreen(QWidget):
                        else None)
             preserve_ids = bool(preserve_ids or lineage is not None)
             self._validate_secondary_save()
-            path = engine.save_mask(
-                self._folder,
-                self._image_files[self._current_index],
-                self._canvas.mask,
-                log=self._log,
-                preserve_ids=preserve_ids,
-                lineage=lineage,
-                **self._layout_kwargs(),
-            )
+            path = engine.mask_save_path(self._folder, filename, **layout)
         except Exception as e:
             self._warn("Save failed", str(e))
             return None
-        edits = len(self._log) if self._log is not None else 0
-        note = f"  ({edits} edit(s) recorded)" if edits else ""
-        written = engine.canonical_labels(self._canvas.mask,
-                                          preserve_ids=preserve_ids)
-        objects = int(np.count_nonzero(np.unique(written)))
-        self._note_curated(self._image_files[self._current_index],
-                           n_objects=objects)
-        self._status_label.setText(f"Saved → {path}{note}")
-        self._save_puncta_measurements(path)
-        self._export_vvvv_on_save()
-        self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+        if self._log is not None and len(self._log) and not self._log.artifact:
+            self._log.artifact = path
+        mask = np.array(self._canvas.mask, copy=True)
+        request = dict(
+            kind="mask", folder=self._folder, filename=filename, mask=mask,
+            log=copy.deepcopy(self._log), preserve_ids=preserve_ids,
+            lineage=copy.deepcopy(lineage), layout=layout, paths=[path],
+            token=self._load_token,
+            edits=len(self._log) if self._log is not None else 0,
+            previous=(self._last_saved_mask, self._lineage_format, self._lineage_dirty),
+            deliver=self._deliver_mask_write)
+        self._last_saved_mask = np.array(mask, copy=True)
         self._lineage = lineage
         self._lineage_format = lineage is not None
         self._lineage_dirty = False
         self._refresh_lineage_rows()
+        self._track_mask_write(request)
+        _queue_mask_write(request, _write_mask_request)
+        if request["done"].wait(engine._MASK_SAVE_WAIT_SECONDS):
+            self._finish_mask_write(request)
+            if request["error"] is not None:
+                return None
         return path
+
+    def _track_mask_write(self, request) -> None:
+        """Remember a queued save until :meth:`_finish_mask_write` reports it."""
+        if not hasattr(self, "_mask_write_requests"):
+            self._mask_write_requests = []
+        self._mask_write_requests.append(request)
+
+    def _deliver_mask_write(self, request) -> None:
+        """Hand a finished save to the GUI thread; called on the writer thread."""
+        try:
+            self._mask_write_delivered.emit(request)
+        except RuntimeError:
+            pass
+
+    def _finish_mask_write(self, request) -> None:
+        """Report a finished save and run its follow-up steps, once, on the GUI thread.
+
+        A failed save of the field still on screen puts back the unsaved
+        state, so Save, and saving on navigation, try again.
+
+        :param request: the request :func:`_queue_mask_write` finished.
+        """
+        from ..i18n import tr
+
+        if request.get("finished"):
+            return
+        request["finished"] = True
+        pending = getattr(self, "_mask_write_requests", [])
+        pending[:] = [item for item in pending if item is not request]
+        if request["kind"] == "lineage":
+            failed = int(request["result"] or 0) if request["error"] is None else len(request["names"])
+            if failed:
+                self._status_label.setText(tr(
+                    "Lineage could not be rewritten in {n} mask file(s); those frames "
+                    "update when they are saved.", n=failed))
+            return
+        same = request["token"] == self._load_token
+        if request["error"] is not None:
+            if same:
+                (self._last_saved_mask, self._lineage_format,
+                 self._lineage_dirty) = request["previous"]
+                self._refresh_lineage_rows()
+            self._warn("Save failed", str(request["error"]))
+            return
+        path = request["result"]
+        edits = request["edits"]
+        note = f"  ({edits} edit(s) recorded)" if edits else ""
+        self._note_curated(request["filename"], n_objects=request["objects"])
+        self._status_label.setText(f"Saved → {path}{note}")
+        if same:
+            self._save_puncta_measurements(path)
+            self._export_vvvv_on_save()
 
     def _save_puncta_measurements(self, mask_path):
         """Save source-bound centre measurements only for an unchanged full detection.

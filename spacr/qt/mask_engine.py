@@ -2784,6 +2784,15 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
     return out.astype(np.uint16)
 
 
+_MASK_SAVE_WAIT_SECONDS: Optional[float] = 0.1
+"""How long Make Masks waits on the GUI thread for a mask save to land.
+
+A save written in this time is reported, and its follow-up steps run, as
+before; a slower one (3.1 s on a busy disk in lesson 14) finishes on the mask
+writer thread and reports when it lands. ``None`` waits for every save.
+"""
+
+
 def save_mask(folder: str, filename: str, mask: np.ndarray,
               log: Optional[CurationLog] = None,
               masks_dir: Optional[str] = None, *, preserve_ids: bool = False,

@@ -8,6 +8,7 @@ from __future__ import annotations
 import gc
 
 import os
+import sys
 from importlib.util import find_spec
 
 import pytest
@@ -765,6 +766,28 @@ def _skip_first_launch_tour():
 # (AppScreen stops its timer and drains its runners in closeEvent already;
 # a test that never closes the screen is the real gap) rather than by
 # reaching across the application again.
+
+
+@pytest.fixture(autouse=True)
+def _mask_saves_land_before_save_returns(monkeypatch):
+    """Make Masks saves finish before Save returns, unless a test says otherwise.
+
+    The app waits 0.1 s for a mask save and lets a slower one finish on the
+    mask writer thread (``mask_engine._MASK_SAVE_WAIT_SECONDS``). A test that
+    saves and then reads the file must not depend on how fast its runner's
+    disk is, so the wait is unlimited here; the writer tests set it back.
+    Any save still in flight is waited for before the next test starts.
+    """
+    try:
+        from spacr.qt import mask_engine
+    except Exception:
+        yield
+        return
+    monkeypatch.setattr(mask_engine, "_MASK_SAVE_WAIT_SECONDS", None)
+    yield
+    screens = sys.modules.get("spacr.qt.screens.make_masks")
+    if screens is not None:
+        screens._wait_for_mask_writes(timeout=30)
 
 
 @pytest.fixture(autouse=True)
