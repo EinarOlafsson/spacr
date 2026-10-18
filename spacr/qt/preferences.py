@@ -160,6 +160,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+import sys
 import threading
 
 from PySide6.QtCore import QSettings, Qt
@@ -756,9 +757,99 @@ def in_safe_mode() -> bool:
     return _SAFE_MODE
 
 
+#: This thread's open preference store, kept between reads. Opening a
+#: ``QSettings`` takes Qt's process-wide settings lock and checks the file on
+#: disk, and the backdrop tick, the dock's paint and every theme lookup read a
+#: preference: on a busy machine those openings were the late frames. One
+#: store per thread, because a ``QSettings`` is reentrant, not thread-safe.
+_STORE = threading.local()
+
+#: ``(format, scope) -> folder`` as last passed to ``QSettings.setPath``, and
+#: how many times one of them has changed. A kept store is reopened after a
+#: move, since the same arguments would now open a different file.
+_STORE_FOLDERS = {}
+_STORE_MOVES = [0]
+
+
+def _count_store_moves() -> None:
+    """Make ``QSettings.setPath`` count the moves a kept store must follow.
+
+    Idempotent. A call that names the folder already in place is not a move,
+    so portable mode, which repeats it on every open, keeps its store.
+    """
+    original = QSettings.setPath
+    if getattr(original, "_spacr_counts_moves", False):
+        return
+
+    def set_path(fmt, scope, path):
+        """Forward to Qt, counting a change of folder as a move."""
+        key = (fmt, scope)
+        if _STORE_FOLDERS.get(key) != str(path):
+            _STORE_FOLDERS[key] = str(path)
+            _STORE_MOVES[0] += 1
+        return original(fmt, scope, path)
+
+    set_path._spacr_counts_moves = True
+    QSettings.setPath = staticmethod(set_path)
+
+
+_count_store_moves()
+
+
+def _store_file_state(store):
+    """``(inode, size, mtime)`` of the file behind ``store``, or ``None``.
+
+    ``None`` means the store cannot be watched this way -- the Windows
+    registry, or the macOS preferences daemon, whose plist is not written
+    when another process changes a value -- so it is opened afresh for every
+    read, as it always was. A file not yet written answers ``()``.
+    """
+    try:
+        if (sys.platform in ("win32", "darwin")
+                and store.format() != QSettings.IniFormat):
+            return None
+        stat = os.stat(store.fileName())
+    except FileNotFoundError:
+        return ()
+    except Exception:                                        # noqa: BLE001
+        return None
+    return (stat.st_ino, stat.st_size, stat.st_mtime_ns)
+
+
+def _real_store() -> QSettings:
+    """This thread's preference store, reread when another process wrote it.
+
+    Every ``QSettings`` on one file in this process shares Qt's copy of it,
+    so a value set through any of them is already visible here. A write from
+    another process changes the file; that is checked on every call and
+    reloaded with ``sync``, which is what opening a new store would do.
+    """
+    args = _store_args(_ORG, _APP)
+    store = getattr(_STORE, "store", None)
+    if (store is None or _STORE.args != args
+            or _STORE.moves != _STORE_MOVES[0]
+            or type(store) is not QSettings):
+        store = QSettings(*args)
+        state = _store_file_state(store)
+        if state is None:
+            _STORE.store = None
+            return store
+        _STORE.store, _STORE.args = store, args
+        _STORE.moves, _STORE.state = _STORE_MOVES[0], state
+        return store
+    state = _store_file_state(store)
+    if state is None:
+        _STORE.store = None
+        return QSettings(*args)
+    if state != _STORE.state:
+        store.sync()
+        _STORE.state = _store_file_state(store)
+    return store
+
+
 def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
-    real = QSettings(*_store_args(_ORG, _APP))
+    real = _real_store()
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
 
 
