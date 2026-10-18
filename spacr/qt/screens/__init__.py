@@ -20,6 +20,8 @@ a QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain
 complete. Do not import it here merely for startup styling.
 """
 
+import contextlib
+
 #: Whether an ``AppScreen`` constructed now leaves each closed settings
 #: category unbuilt until it is opened. Here rather than on ``AppScreen``
 #: because the window sets it around EVERY screen it builds, Home included,
@@ -47,6 +49,29 @@ def _start_breathing_while_a_window_opens(started_at: float) -> None:
     global _a_window_is_opening_a_screen, _last_breath_at
     _a_window_is_opening_a_screen = True
     _last_breath_at = started_at
+
+
+@contextlib.contextmanager
+def _breathing_while_a_page_is_built():
+    """Take the window-open breaths while a page asked for by a click is built.
+
+    A module folded into another one is built when its button is pressed,
+    outside any window open, so its screens' construction ran without the
+    breaths the window gives a screen it opens, as one freeze: most of a
+    second for Make Masks' Cellpose workbench. Inside this block the same
+    breaths are taken, with user input held back as they always are. Inside
+    a window's own open the block changes nothing.
+    """
+    if _a_window_is_opening_a_screen:
+        yield
+        return
+    import time
+
+    _start_breathing_while_a_window_opens(time.perf_counter())
+    try:
+        yield
+    finally:
+        _stop_breathing_while_a_window_opens()
 
 
 def _stop_breathing_while_a_window_opens() -> None:

@@ -13469,23 +13469,25 @@ class MakeMasksScreen(QWidget):
             not fold. Pressing the same button again raises the page that is
             already there rather than building a second one.
         """
+        from .. import screens as screens_package
         from .map_barcodes import show_as_page, show_as_window
 
         host = FOLD_HOSTS.get(key, key)
-        screen = self.folded_screen(host)
-        if screen is None:
-            return None
-        title = fold_description(host)[0]
-        panel = self._fold_dialogs.get(host)
-        if panel is None:
-            panel = FoldedModulePanel(
-                host, screen, title, parent=self,
-                actions=self._fold_actions(host))
-            self._fold_dialogs[host] = panel
-        self.seed_folded(key)
-        if show_as_page(panel, self, title) is None:
-            panel.add_close_button()
-            show_as_window(panel, self, title)
+        with screens_package._breathing_while_a_page_is_built():
+            screen = self.folded_screen(host)
+            if screen is None:
+                return None
+            screens_package._breathe_while_a_window_opens()
+            title = fold_description(host)[0]
+            panel = self._fold_dialogs.get(host)
+            if panel is None:
+                panel = FoldedModulePanel(
+                    host, screen, title, actions=self._fold_actions(host))
+                self._fold_dialogs[host] = panel
+            self.seed_folded(key)
+            if show_as_page(panel, self, title) is None:
+                panel.add_close_button()
+                show_as_window(panel, self, title)
         panel.show()
         panel.raise_()
         return panel
