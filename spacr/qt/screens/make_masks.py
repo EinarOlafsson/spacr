@@ -6126,6 +6126,39 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
                            count=1, ghost=None, extents=None)
 
 
+def _detect_puncta_snapshot(request):
+    """Detect puncta in a captured field without reading any Qt object.
+
+    The parent mask file must still be the one validated on the GUI thread
+    before and after the run, and the source image must still be the one
+    whose digest was cached, exactly as the synchronous detect checked.
+
+    :param request: ``image``, ``source`` (the primary snapshot),
+        ``params`` and ``image_sha256`` captured on the GUI thread.
+    :returns: ``(labels, candidates)`` from :func:`cpu_modes.puncta`.
+    """
+    import hashlib
+    from ..gil_priority import responsive_gui
+    from ..i18n import tr
+
+    source = request['source']
+
+    def digest(path):
+        with open(path, 'rb') as stream:
+            return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+    if digest(source.path) != source.sha256:
+        raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+    with responsive_gui():
+        labels, candidates = cpu_modes.puncta(request['image'], source.labels,
+                                              request['params'], measurements=True)
+    if digest(source.image_path) != request['image_sha256']:
+        raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
+    if digest(source.path) != source.sha256:
+        raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+    return labels, candidates
+
+
 def _detect_cellpose_snapshot(request, models):
     """Prepare and segment a captured field without reading any Qt object.
 
@@ -12622,6 +12655,7 @@ class MakeMasksScreen(QWidget):
         self._label_time_edited = False
         self._detection_worker = None
         self._volume_detection_worker = None
+        self._puncta_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
         self._uncertainty_worker = None
@@ -15049,6 +15083,12 @@ class MakeMasksScreen(QWidget):
             self._detection_worker = None
             self._detection_request = None
             self._btn_cellpose.setEnabled(True)
+        if self._puncta_worker is not None:
+            self._puncta_worker.close(timeout=0)
+            self._puncta_worker = None
+            self._detection_request = None
+            self._btn_cellpose.setEnabled(True)
+            self._btn_otsu.setEnabled(True)
 
     def _build_tool_row(self) -> QWidget:
         """The bar above the image: TOOLS on the left, ANNOTATION on the right.
@@ -17472,6 +17512,25 @@ class MakeMasksScreen(QWidget):
         """Apply the object filter list to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
+    def _puncta_request(self, image) -> dict:
+        """Capture what a puncta detection reads, on the GUI thread.
+
+        :param image: the detector image.
+        :returns: the request :func:`_detect_puncta_snapshot` runs.
+        """
+        source = self._require_primary_source()
+        return dict(image=image, source=source, params=self._cpu_params(),
+                    image_sha256=self._puncta_native_cache[2])
+
+    def _keep_puncta_measurements(self, request, labels, candidates) -> None:
+        """Keep a finished puncta detection for the measurement export."""
+        source = request['source']
+        self._puncta_measurement_snapshot = dict(
+            image_path=source.image_path, image_sha256=request['image_sha256'],
+            parent=source.provenance(),
+            parameters=cpu_modes.provenance(cpu_modes.PUNCTA, request['params']),
+            labels=labels.copy(), candidates=candidates.copy())
+
     def _cpu_detect(self, image, method: str, otsu: dict) -> tuple:
         """Run the CPU method ``method`` on ``image``.
 
@@ -17488,26 +17547,9 @@ class MakeMasksScreen(QWidget):
             maxima for the propagation and None for everything else.
         """
         if method == cpu_modes.PUNCTA:
-            import hashlib
-            from ..i18n import tr
-            source = self._require_primary_source()
-            with open(source.path, 'rb') as stream:
-                if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
-                    raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
-            params = self._cpu_params()
-            image_sha256 = self._puncta_native_cache[2]
-            labels, candidates = cpu_modes.puncta(image, source.labels, params,
-                                                  measurements=True)
-            with open(source.image_path, 'rb') as stream:
-                if hashlib.file_digest(stream, 'sha256').hexdigest() != image_sha256:
-                    raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
-            with open(source.path, 'rb') as stream:
-                if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
-                    raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
-            self._puncta_measurement_snapshot = dict(
-                image_path=source.image_path, image_sha256=image_sha256,
-                parent=source.provenance(), parameters=cpu_modes.provenance(method, params),
-                labels=labels.copy(), candidates=candidates.copy())
+            request = self._puncta_request(image)
+            labels, candidates = _detect_puncta_snapshot(request)
+            self._keep_puncta_measurements(request, labels, candidates)
             return labels, None
         if method in organelle_modes.MODE_LABELS:
             return (organelle_modes.segment(
@@ -17771,17 +17813,81 @@ class MakeMasksScreen(QWidget):
             return
         mode = self._combine_mode.currentData()
         otsu = self._otsu_settings()
-        correction = otsu["correction"]
         method = canonical_magnifier_mode(
             getattr(self._magnifier, "mode", None))
         if method == cpu_modes.SECONDARY:
             otsu['fill_holes'] = self._secondary_fill_holes.isChecked()
+        if method == cpu_modes.PUNCTA:
+            self._start_puncta_detection(mode, otsu)
+            return
         try:
             detected, seeds = self._cpu_detect(self._detector_image(),
                                                method, otsu)
         except Exception as exc:
             self._warn("Detect failed", str(exc))
             return
+        self._apply_cpu_detection(method, mode, otsu, detected, seeds)
+
+    def _start_puncta_detection(self, mode, otsu) -> bool:
+        """Run the puncta detect on a worker; :meth:`_take_detection` applies it.
+
+        The CPU puncta pass takes about half a second on a lesson field, all
+        of it in Python with the interpreter lock held, so it runs the way
+        Object detection does: a snapshot, a background thread, and a result
+        discarded when the field or mask changed meanwhile.
+
+        :returns: whether a detection was started.
+        """
+        if self._detection_request is not None:
+            return False
+        try:
+            request = self._puncta_request(self._detector_image())
+        except Exception as exc:
+            self._warn("Detect failed", str(exc))
+            return False
+        request.update(puncta=True, token=self._load_token,
+                       image_reference=self._canvas.image,
+                       field_image=np.array(self._canvas.image, copy=True),
+                       mask=np.array(self._canvas.mask, copy=True),
+                       mode=mode, otsu=otsu)
+        self._detection_request = request
+        self._btn_cellpose.setEnabled(False)
+        self._btn_otsu.setEnabled(False)
+        if self._puncta_worker is None:
+            self._puncta_worker = _NewestRequestWorker(
+                _detect_puncta_snapshot, self._detection_done,
+                name='spacr-puncta-detection')
+        self._puncta_worker.submit(request)
+        return True
+
+    def _take_puncta_detection(self, request, result, error) -> None:
+        """Apply a finished puncta detection on the GUI thread, or discard it."""
+        from ..i18n import tr
+
+        self._btn_otsu.setEnabled(True)
+        if (request['token'] != self._load_token
+                or request['image_reference'] is not self._canvas.image
+                or self._canvas.mask is None
+                or not np.array_equal(request['field_image'], self._canvas.image,
+                                      equal_nan=True)
+                or not np.array_equal(request['mask'], self._canvas.mask)
+                or self._primary_selector.snapshot is not request['source']):
+            self._status_label.setText(tr(
+                "Detection result discarded because the field or mask changed. Run detection again to use the current field."))
+            return
+        if error is not None:
+            self._warn("Detect failed", str(error))
+            return
+        labels, candidates = result
+        self._keep_puncta_measurements(request, labels, candidates)
+        self._apply_cpu_detection(cpu_modes.PUNCTA, request['mode'],
+                                  request['otsu'], labels, None)
+
+    def _apply_cpu_detection(self, method, mode, otsu, detected, seeds) -> None:
+        """Fold a CPU detection into the mask as one undo step and ledger entry."""
+        from ..i18n import tr
+
+        correction = otsu["correction"]
         if method not in (cpu_modes.PROPAGATE, cpu_modes.SECONDARY, cpu_modes.PUNCTA):
             detected = detect_chain.finish(detected, self._detect_chain(),
                                            intensity=self._detector_image())
@@ -20742,6 +20848,9 @@ class MakeMasksScreen(QWidget):
             return
         self._detection_request = None
         self._btn_cellpose.setEnabled(True)
+        if request.get('puncta'):
+            self._take_puncta_detection(request, result, error)
+            return
         if request.get('volume'):
             self._take_volume_detection(request, result, error)
             return

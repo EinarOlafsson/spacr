@@ -1,9 +1,11 @@
 """The actual Make Masks mode detects, saves and binds native centre values."""
 import hashlib
 import json
+import threading
 from types import SimpleNamespace
 
 import numpy as np
+import pandas as pd
 import pytest
 import tifffile
 
@@ -136,6 +138,8 @@ def test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values(
         assert window._magnifier_context()['invert'] is False
         window._combine_mode.setCurrentIndex(window._combine_mode.findData('replace'))
         window._btn_otsu.click()
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+        assert window._btn_otsu.isEnabled()
         assert np.count_nonzero(np.unique(window._canvas.mask)) == (2 if has_spots else 0)
         assert window._canvas.preserve_ids
         window._btn_save.click()
@@ -177,6 +181,112 @@ def test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values(
         window._mag_mode.setCurrentIndex(window._mag_mode.findData(cpu_modes.SECONDARY))
         assert window._primary_selector.parent() is window._method_groups['secondary']
     finally:
+        window._magnifier.close()
+        window.close_folded()
+        window.close()
+
+
+def _open_puncta_field(qtbot, tmp_path, image, parents):
+    folder = tmp_path/'images'
+    folder.mkdir()
+    (folder/'masks').mkdir()
+    old = np.zeros(image.shape, dtype=np.uint16)
+    old[20:25, 20:25] = 1
+    parent_file = tmp_path/'parents.tif'
+    tifffile.imwrite(folder/'a.tif', image)
+    tifffile.imwrite(folder/'masks/a.tif', old)
+    tifffile.imwrite(parent_file, parents)
+    window = mm.MakeMasksScreen()
+    qtbot.addWidget(window)
+    window.show()
+    assert window._open_folder(str(folder))
+    qtbot.waitUntil(lambda: window._canvas.image is not None)
+    window._mag_mode.setCurrentIndex(window._mag_mode.findData(cpu_modes.PUNCTA))
+    window._primary_selector.path.setText(str(parent_file))
+    window._primary_selector._source_changed()
+    qtbot.waitUntil(lambda: window._primary_selector.snapshot is not None, timeout=10000)
+    return window, old
+
+
+@pytest.mark.parametrize('mode', ['replace', 'merge'])
+def test_puncta_detect_runs_off_the_gui_thread_with_the_synchronous_result(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch, mode):
+    """The detect button keeps the GUI thread free and changes nothing else."""
+    image, parents = field()
+    window, old = _open_puncta_field(qtbot, tmp_path, image, parents)
+    warnings = []
+    monkeypatch.setattr(window, '_warn', lambda *args: warnings.append(args))
+    try:
+        window._combine_mode.setCurrentIndex(window._combine_mode.findData(mode))
+        expected_labels, _ = window._cpu_detect(
+            window._detector_image(), cpu_modes.PUNCTA, window._otsu_settings())
+        expected_snapshot = window._puncta_measurement_snapshot
+        window._puncta_measurement_snapshot = None
+
+        threads, release = [], threading.Event()
+        real = cpu_modes.puncta
+
+        def recorded(*args, **kwargs):
+            threads.append(threading.get_ident())
+            release.wait(10)
+            return real(*args, **kwargs)
+
+        monkeypatch.setattr(cpu_modes, 'puncta', recorded)
+        window._btn_otsu.click()
+        qtbot.waitUntil(lambda: bool(threads), timeout=10000)
+        assert threads == [w for w in threads if w != threading.get_ident()]
+        assert not window._btn_otsu.isEnabled()
+        assert not window._btn_cellpose.isEnabled()
+        np.testing.assert_array_equal(window._canvas.mask, old)
+        release.set()
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+
+        assert window._btn_otsu.isEnabled() and window._btn_cellpose.isEnabled()
+        assert not warnings
+        combined = (mm.engine.canonical_labels(expected_labels, preserve_ids=True)
+                    if mode == 'replace'
+                    else mm.engine.combine_masks(old, expected_labels, mode))
+        np.testing.assert_array_equal(window._canvas.mask, combined)
+        snapshot = window._puncta_measurement_snapshot
+        assert snapshot.keys() == expected_snapshot.keys()
+        np.testing.assert_array_equal(snapshot['labels'], expected_snapshot['labels'])
+        pd.testing.assert_frame_equal(snapshot['candidates'],
+                                      expected_snapshot['candidates'], check_exact=True)
+        for key in set(expected_snapshot) - {'labels', 'candidates'}:
+            assert snapshot[key] == expected_snapshot[key]
+        window._on_undo()
+        np.testing.assert_array_equal(window._canvas.mask, old)
+    finally:
+        release.set()
+        window._magnifier.close()
+        window.close_folded()
+        window.close()
+
+
+def test_a_puncta_result_for_an_edited_mask_is_discarded(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    image, parents = field()
+    window, old = _open_puncta_field(qtbot, tmp_path, image, parents)
+    release = threading.Event()
+    real = cpu_modes.puncta
+
+    def held(*args, **kwargs):
+        release.wait(10)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(cpu_modes, 'puncta', held)
+    try:
+        window._btn_otsu.click()
+        edited = window._canvas.mask.copy()
+        edited[0, 0] = 7
+        window._canvas.mask = edited
+        release.set()
+        qtbot.waitUntil(lambda: window._detection_request is None, timeout=10000)
+        np.testing.assert_array_equal(window._canvas.mask, edited)
+        assert window._btn_otsu.isEnabled()
+        assert 'discarded' in window._status_label.text()
+    finally:
+        release.set()
         window._magnifier.close()
         window.close_folded()
         window.close()
