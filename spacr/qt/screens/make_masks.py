@@ -15970,6 +15970,7 @@ class MakeMasksScreen(QWidget):
     def _build_lineage_menu(self, menu):
         """Show a virtual cell table and compact name/division controls."""
         from ..i18n import tr
+        from ..widgets.sortable_table import install_sorting
 
         controls = QWidget(menu)
         controls.setObjectName("MakeMasksLineageControls")
@@ -15999,6 +16000,7 @@ class MakeMasksScreen(QWidget):
         self._lineage_table.setObjectName("MakeMasksLineageCells")
         self._lineage_model = _LineageTableModel(self)
         self._lineage_table.setModel(self._lineage_model)
+        install_sorting(self._lineage_table)
         self._lineage_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._lineage_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._lineage_table.verticalHeader().hide()
@@ -16031,11 +16033,15 @@ class MakeMasksScreen(QWidget):
         cells = (self._lineage or {}).get("cells", {})
         if self._selected_cell in cells:
             row = self._lineage_model.keys.index(self._selected_cell)
-            self._lineage_table.selectRow(row)
-            self._select_lineage_cell(self._lineage_model.index(row, 0))
+            index = self._lineage_table.model().mapFromSource(
+                self._lineage_model.index(row, 0))
+            self._lineage_table.selectRow(index.row())
+            self._select_lineage_cell(index)
 
     def _select_lineage_cell(self, index):
         """Choose a persistent cell segment for subsequent hover assignments."""
+        if index.model() is self._lineage_table.model():
+            index = self._lineage_table.model().mapToSource(index)
         if not index.isValid() or not 0 <= index.row() < len(self._lineage_model.keys):
             return
         self._selected_cell = self._lineage_model.keys[index.row()]

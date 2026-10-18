@@ -462,6 +462,49 @@ def test_virtual_cell_table_handles_ten_thousand_rows(screen):
     assert screen._canvas.selected_label == 10000
 
 
+def test_sorted_lineage_selection_and_refresh_keep_the_cell_identity(screen):
+    enable_time(screen)
+    frame = screen._lineage_frame()
+    state = engine.validate_lineage()
+    identities = [str(UUID(int=number)) for number in (1, 2, 3)]
+    for identity, name, label in zip(identities, ("Zulu", "Alpha", "Mike"),
+                                   (101, 303, 202)):
+        state["cells"][identity] = {
+            "name": name, "parent_uuid": None, "born_frame": frame,
+            "division_frame": None, "children": [], "label": label, "revision": 0}
+    screen._lineage = engine.validate_lineage(state)
+    screen._selected_cell = identities[0]
+    screen._refresh_lineage_rows()
+    table = screen._lineage_table
+    proxy = table.model()
+    assert proxy.sourceModel() is screen._lineage_model
+    table.sortByColumn(1, Qt.DescendingOrder)
+    assert [proxy.index(row, 1).data() for row in range(3)] == [303, 202, 101]
+    table.selectRow(1)
+    assert screen._selected_cell == identities[2]
+    assert screen._canvas.selected_label == 202
+    table.sortByColumn(0, Qt.AscendingOrder)
+    assert [proxy.index(row, 0).data() for row in range(3)] == ["Alpha", "Mike", "Zulu"]
+    table.selectRow(0)
+    selected = identities[1]
+    assert screen._selected_cell == selected
+    assert screen._label_name.text() == "Alpha"
+    assert screen._canvas.selected_label == 303
+    assert screen._canvas.assign_label_at((10, 10), screen._canvas.selected_label)
+    assert int(screen._canvas.mask[10, 10]) == 303
+    assert int(screen._canvas.mask[30, 30]) == 11
+    assert proxy.setData(proxy.index(0, 0), "Zzz", Qt.EditRole)
+    screen._refresh_lineage_rows()
+    assert [proxy.index(row, 0).data() for row in range(3)] == ["Mike", "Zulu", "Zzz"]
+    assert table.currentIndex().row() == 2
+    assert screen._selected_cell == selected
+    assert screen._label_name.text() == "Zzz"
+    assert screen._canvas.selected_label == 303
+    assert screen._lineage_model.keys == identities
+    assert [screen._lineage["cells"][key]["label"] for key in identities] == [101, 303, 202]
+    assert int(screen._canvas.mask[10, 10]) == 303
+
+
 def test_permuted_untracked_labels_keep_objects_and_persistent_identity(qtbot, screen):
     for index, filename in enumerate(screen._image_files):
         mask = np.zeros((40, 40), np.uint32)

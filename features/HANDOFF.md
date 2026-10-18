@@ -1,5 +1,7 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+> 2026-10-17 CODEX RESUMED (maintainer: "reinstate goal"). Claude's published 703/706/708 implementations and CI repairs are retained; do not repeat their integration. Codex owns only the missing 708 lineage-table sorting correction with source/proxy identity tests in this delivery. Claude Home retains its ongoing release CI coordination and Claude WS retains tutorials. Prior Codex trees and results are preserved; the obsolete pre-takeover documentation audit is intentionally stopped.
+
 > 2026-10-17 OWNERSHIP: Codex has stopped working on spaCR (maintainer). Claude Home now owns EVERY open item, including those Codex owned (release CI 43/288, 703, 706, 707 remaining corrections, 560, 655, 675, 686; tutorials 676 with Claude WS). Agents must not wait for Codex.
 
 
