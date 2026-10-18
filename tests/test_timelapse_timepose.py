@@ -1,8 +1,8 @@
-"""Timepose v1 as a Timelapse tracking option (item 711).
+"""The version-agnostic Timepose release loader and tracker (item 711).
 
-The release lives in a private Hugging Face repository, so every test here
-replaces the download and the network: a fake downloader writes small files
-whose sha256 the test pins, and a fake adapter stands in for the model. No
+No release is registered yet. A release lives in a Hugging Face repository,
+so every test here registers a fake one and replaces the download and the
+network: a fake downloader writes small files whose sha256 the test pins, and a fake adapter stands in for the model. No
 token, network or GPU is needed.
 """
 from __future__ import annotations
@@ -119,7 +119,7 @@ def test_the_backend_matches_the_trackastra_table(tmp_path, monkeypatch):
     src = tmp_path / "run" / "masks"
     src.mkdir(parents=True)
     images = np.random.default_rng(0).random((4, 32, 32, 2)).astype(np.float32)
-    stack = tl._timepose_track_cells(src=str(src), name="field1",
+    stack = tl._timepose_track_cells(src=str(src), name="field1", mode="timepose_test",
                                      batch_filenames=[f"f{t}.tif" for t in range(4)],
                                      object_type="cell", masks=masks, images=images,
                                      invert=True)
@@ -128,7 +128,7 @@ def test_the_backend_matches_the_trackastra_table(tmp_path, monkeypatch):
     assert sent["images"].shape == (4, 2, 32, 32)
     assert sent["invert"] is True
     assert np.array_equal(sent["masks"], masks)
-    table = pd.read_csv(tmp_path / "run" / "tracks" / "timepose_v1_tracks_cell_field1.csv")
+    table = pd.read_csv(tmp_path / "run" / "tracks" / "timepose_test_tracks_cell_field1.csv")
     expected = list(tl._relabelled_stack_to_tracks_df(np.asarray(stack)).columns)
     assert list(table.columns[:len(expected)]) == expected
     assert {"parent_track_id", "parent_track_id_source"} <= set(table.columns)
@@ -206,27 +206,14 @@ def test_a_verified_release_loads_through_its_adapter(release, tmp_path, monkeyp
             sys.modules.pop(name)
 
 
-def test_the_shipped_record_pins_every_file():
-    record = model_zoo._timepose_record("timepose_v1")
-    assert record["repo_id"] == "einarolafsson/timepose-v1"
-    assert len(record["revision"]) == 40
-    assert record["contract"] == model_zoo.TIMEPOSE_CONTRACT
-    assert record["weights"] in record["files"]
-    assert record["files"][record["weights"]] == record["sha256"]
-    assert all(len(sha) == 64 for sha in record["files"].values())
-    assert any(name.endswith("infer.py") for name in record["files"])
-    assert "scorecard" in str(record["metrics"]).lower()
-
-
-def test_it_is_alpha_and_a_timelapse_choice():
-    from spacr.settings import ALPHA_FEATURES, _is_alpha, timelapse_settings
+def test_no_release_is_offered_until_one_is_registered():
+    from spacr.settings import ALPHA_FEATURES
     from spacr.settings_spec import convert_settings_dict_for_gui
 
-    assert ALPHA_FEATURES[711]["choices"] == {"timelapse_mode": ("timepose_v1",)}
-    assert _is_alpha("choices", "timelapse_mode", "timepose_v1")
-    assert _is_alpha("models", "timepose_v1")
-    assert {"timepose_own_masks", "timepose_invert"} <= set(timelapse_settings)
-    assert not _is_alpha("choices", "timelapse_mode", "trackastra")
+    records = [r for r in model_zoo.BUNDLED_REMOTE_MODELS if r.get("kind") == "timepose"]
+    assert records == []
+    assert 711 not in ALPHA_FEATURES
     spec = convert_settings_dict_for_gui({"timelapse_mode": "trackastra"})
-    assert "timepose_v1" in spec["timelapse_mode"][1]
-    assert "trackastra" in spec["timelapse_mode"][1]
+    assert not [m for m in spec["timelapse_mode"][1] if str(m).startswith("timepose")]
+    with pytest.raises(model_zoo.ModelZooError):
+        model_zoo._timepose_record("timepose_v1")

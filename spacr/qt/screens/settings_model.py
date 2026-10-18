@@ -1386,7 +1386,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_mode", "trackastra_model", "trackastra_linking",
             "ultrack_max_distance", "ultrack_division_weight",
             "ultrack_contour_sigma", "ultrack_n_workers",
-            "timeflows_model", "timepose_own_masks", "timepose_invert",
+            "timeflows_model",
             "timelapse_displacement", "timelapse_memory",
             "t_track_backend", "t_link_threshold",
             "t_max_displacement_px", "t_max_displacement_um",

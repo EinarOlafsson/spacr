@@ -1786,9 +1786,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                     timelapse_remove_transient=timelapse_remove_transient,
                                     plot=settings['plot'],
                                     save=settings['save'],
-                                    mode=timelapse_mode,
-                                    own_masks=settings.get('timepose_own_masks', False),
-                                    invert=settings.get('timepose_invert', False))
+                                    mode=timelapse_mode)
 
                             elif timelapse_mode == 'sam2':
                                 mask_stack = _sam2_track_cells(

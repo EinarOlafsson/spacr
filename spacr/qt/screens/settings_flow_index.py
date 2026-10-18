@@ -1307,8 +1307,6 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'timelapse_objects',
     'timelapse_remove_transient',
     'timeout',
-    'timepose_invert',
-    'timepose_own_masks',
     'tolerance',
     'top_features',
     'total_channel',

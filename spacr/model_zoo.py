@@ -1297,73 +1297,6 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "though that benchmark is its held-out test set",
         ),
     },
-    {
-        "key": "timepose_v1",
-        "name": "timepose_v1",
-        "kind": "timepose",
-        "repo_id": "einarolafsson/timepose-v1",
-        "repo_type": "model",
-        "private": True,
-        "revision": "f6b2d539704da49317cefc8175cf959089447998",
-        "remote_name": "timepose_v1_segmentation.pt",
-        "uri": ("https://huggingface.co/einarolafsson/timepose-v1/resolve/"
-                "main/weights/timepose_v1_segmentation.pt"),
-        "weights": "weights/timepose_v1_segmentation.pt",
-        "sha256":
-            "c486822810b9af429c343665a91cfac104bbd2816786a51149232cb39725475d",
-        "size_bytes": 2453153489,
-        "entry": "timepose_v1.infer",
-        "contract": "spacr.timepose/1",
-        "files": {
-            "LICENSE":
-                "fa908286fef07e1e8acd05adcdcd7bbb8c7ca4c02f563a4722dad28b94ce0b49",
-            "run_config.json":
-                "b76120d4911f8aef9be41af6810c7a0978c8dbf02f56e26524d40a4d8a13df98",
-            "timepose_v1/__init__.py":
-                "25550c81c7f72111f34cf26a9229aca2243c0d1ac289b2fa292b88922514907b",
-            "timepose_v1/assoc_v2.py":
-                "e9ac86f8e459b5af9a6e3766b38f4370ee26e216df7b0163d099dcaeadc536cc",
-            "timepose_v1/association_time.py":
-                "30932da60bf0084978cd1e77dfe7da67273f88c0a80de3122ed4358b06640002",
-            "timepose_v1/event_crop_time.py":
-                "b1f0c03d92495294f1b2e35413ccc5536d5b90ca6b4dc0a599d460944cd9ec00",
-            "timepose_v1/flows_time.py":
-                "ea8d4633796e876ef8ed2d5e2a157d553b6dda6c4ccd26258492f0c3017837fd",
-            "timepose_v1/infer.py":
-                "302bddb95bf349f31cb7e8fb2de8f41c6f6a98e433e5391e71d0a333ec311f36",
-            "timepose_v1/model_time.py":
-                "e448a5e838607bb398337a07e86fe46388aac5c3b04ad327352ce10d715a5c59",
-            "timepose_v1/structured_association_time.py":
-                "ee17d4d402a6d71a9e49ab13331a1498bd71a30fa014f37805783871b860bd7d",
-            "timepose_v1/tiled_features.py":
-                "2bfacde9ce56900ef9943ba929f3e3a19cd73f0d8a403bedf9c7070a489647e9",
-            "timepose_v1/time_flag.py":
-                "0c7217d9ee541a86eb44a281015a58f3f7e5e7bf7553be09904e944fc34f74c2",
-            "weights/timepose_v1_features.pt":
-                "5a277a0e69dd5c694ed768709797553577b027f116d9455128b461119007051a",
-            "weights/timepose_v1_linker.pt":
-                "e10fe61a64dda254e25491958bbe9a2b3c321738fbae6d7ff689d96732e564dd",
-            "weights/timepose_v1_segmentation.pt":
-                "c486822810b9af429c343665a91cfac104bbd2816786a51149232cb39725475d",
-        },
-        "metrics": {'scorecard': 'available to authorised users on the '
-                                 'model page while it is private'},
-        "display_name": "Timepose v1 (alpha, private)",
-        "dataset": "2D time-lapse movies from public tracking datasets",
-        "versus_stock": "scorecard available to authorised users on the "
-                        "model page",
-        "trained_on": "2D time-lapse movies from public cell-tracking "
-                      "datasets (bacteria, yeast, nuclei, mammalian cells, "
-                      "epithelium)",
-        "trained_by": "spaCR (Olafsson lab)",
-        "notes": (
-            "alpha: hidden unless Show alpha features is on",
-            "private Hugging Face repository; needs a token of an account "
-            "with access",
-            "segments and tracks 2D time-lapse movies; a timelapse_mode "
-            "next to Trackastra",
-        ),
-    },
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -6105,7 +6038,7 @@ class _TimeposeAccessError(ModelZooError):
     """No Hugging Face token, or the token's account cannot read the repository."""
 
 
-def _timepose_record(key: str = "timepose_v1") -> Mapping[str, Any]:
+def _timepose_record(key: str) -> Mapping[str, Any]:
     """The :data:`BUNDLED_REMOTE_MODELS` record of a Timepose release.
 
     Every Timepose version is one record of kind ``timepose``: its repository,
@@ -6113,7 +6046,8 @@ def _timepose_record(key: str = "timepose_v1") -> Mapping[str, Any]:
     exposes ``load_model`` and ``segment_track_movie``. A new version needs
     only a new record.
 
-    :param key: the zoo key, also the ``timelapse_mode`` choice.
+    :param key: the zoo key, also the ``timelapse_mode`` choice it is
+        offered as.
     :raises ModelZooError: for a key that is not a Timepose release.
     """
     for record in BUNDLED_REMOTE_MODELS:
@@ -6159,7 +6093,7 @@ def _timepose_token(token: Optional[str] = None) -> Optional[str]:
     return get_token()
 
 
-def _timepose_files(key: str = "timepose_v1", dest: Any = None,
+def _timepose_files(key: str, dest: Any = None,
                     token: Optional[str] = None,
                     downloader: Optional[Callable[..., Any]] = None,
                     progress: Optional[Callable[[int, int], None]] = None
@@ -6241,7 +6175,7 @@ def _timepose_device(device: Any = None) -> str:
         return "cpu"
 
 
-def _load_timepose(key: str = "timepose_v1", device: Any = None,
+def _load_timepose(key: str, device: Any = None,
                    token: Optional[str] = None, dest: Any = None,
                    downloader: Optional[Callable[..., Any]] = None
                    ) -> Tuple[Any, Any]:

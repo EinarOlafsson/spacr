@@ -2,8 +2,8 @@
 TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
 ================================================================================
 
-Status:    built — 2026-10-18 (alpha, private HF repo). BLOCKED ON MAINTAINER
-           only for the flip to public and alpha removal at publication.
+Status:    open — 2026-10-18; v1 not shipped (maintainer). Waits for Timepose
+           v2: one network, final-epoch checkpoint, scored end to end.
 Requested: maintainer, 2026-10-18: "make sure trackstera and timepose v1 are
            included in timelapse and timepose needs to be uploaded to
            huggingface and it needs a scorecard". Visibility (maintainer,
@@ -34,7 +34,7 @@ ACCEPTANCE
   is out.
 
 NOTES
-2026-10-18 Built: timelapse_mode 'timepose_v1' (ALPHA_FEATURES 711: choice, model, timepose_own_masks/timepose_invert, preview note TimelapseTimeposeNote); Trackastra unchanged.
-2026-10-18 Private HF model repo einarolafsson/timepose-v1 holds stripped weights, adapter, 3-page card, README, checksums, run_config, provenance; spaCR pins the revision and every file's sha256 and downloads with the user's HF token.
-2026-10-18 Versions are zoo records of kind 'timepose' loaded through one adapter contract (spacr.timepose/1: load_model, segment_track_movie); v2 = new record + choice, no UI code. Numbers stay on the private card (non-disclosure rule supersedes a card JSON in spacr/resources/model_cards).
-2026-10-18 Remaining: BLOCKED ON MAINTAINER at publication: make the HF repo public, remove ALPHA_FEATURES[711], add the public card/binding.
+2026-10-18 v1 built (5de24ec15), then withdrawn by the maintainer: v1 was several separately trained weight files, and Timepose must be one network from one final checkpoint, so it is not shipped.
+2026-10-18 The private Hugging Face repo einarolafsson/timepose-v1 was deleted; the v1 choice, settings, alpha entry, zoo record and captions were removed (reviewed records archived).
+2026-10-18 Kept, unused: the version-agnostic loader (zoo kind 'timepose', contract spacr.timepose/1, pinned-sha256 download with the user's HF token, segment_track_movie -> masks/edges -> tracks), tested with mocks.
+2026-10-18 Remaining: Timepose v2 (one network, final epoch: e100 or v2's final), scored end to end on its own masks, then a zoo record, timelapse_mode choice and alpha entry; scorecard on the model page.

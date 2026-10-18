@@ -724,16 +724,15 @@ def _timepose_images(images):
 
 def _timepose_track_cells(src, name, batch_filenames, object_type, masks, images=None,
                           timelapse_remove_transient=False, plot=False, save=False,
-                          mode='timepose_v1', device='automatic', own_masks=False,
+                          mode='timepose', device='automatic', own_masks=False,
                           invert=False):
-    """Track objects with Timepose, an alpha temporal Cellpose-SAM tracker.
+    """Track objects with a Timepose release, a temporal Cellpose-SAM tracker.
 
     Timepose reads the movie and links the masks into tracks with divisions.
-    It is alpha: its weights sit in a private Hugging Face repository, so it
-    needs the token of an account with access, and its scorecard is shown to
-    authorised users on the model page. ``mode`` is the zoo key of the
-    release (``timepose_v1``); each release ships its own adapter, so a new
-    version is a new zoo record and choice, not new code here.
+    ``mode`` is the zoo key of a release of kind ``timepose``; each release
+    ships its own adapter (contract ``spacr.timepose/1``) and pinned files,
+    so a release is a zoo record, not new code here. A release in a private
+    Hugging Face repository needs the token of an account with access.
 
     :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``
         as ``<mode>_tracks_<object>_<name>.csv``, with the mother's track id
@@ -744,7 +743,7 @@ def _timepose_track_cells(src, name, batch_filenames, object_type, masks, images
     :param masks: (T, Y, X) integer label stack.
     :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required.
     :param timelapse_remove_transient: drop tracks not present in every frame.
-    :param mode: the Timepose release, a zoo key.
+    :param mode: the Timepose release, a zoo key of kind ``timepose``.
     :param device: 'automatic', 'cpu' or 'cuda'.
     :param own_masks: replace ``masks`` with Timepose's own segmentation.
     :param invert: invert intensities, for brightfield, phase or DIC movies.

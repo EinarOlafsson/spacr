@@ -14378,8 +14378,6 @@ SETTING_CONSUMERS = {
     'timelapse_mode': (('spacr.object', 'generate_cellpose_masks'), ('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'timelapse_objects': (('spacr.measure', 'measure_crop'), ('spacr.object', 'generate_cellpose_masks'), ('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'timelapse_remove_transient': (('spacr.object', 'generate_cellpose_masks'), ('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
-    'timepose_invert': (('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
-    'timepose_own_masks': (('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'tolerance': (('spacr.ml', 'minimum_cell_simulation'), ('spacr.settings', 'get_perform_regression_default_settings'),),
     'top_features': (('spacr.ml', 'generate_ml_scores'), ('spacr.ml', 'interpret_vision_model'), ('spacr.settings', 'set_default_analyze_screen'), ('spacr.settings', 'set_interpret_vision_model_defaults'), ('spacr.submodules', 'interpret_vision_model'),),
     'total_channel': (('spacr.core', 'preprocess_generate_masks'), ('spacr.diameter', 'channels_from_settings'), ('spacr.object', 'generate_cellpose_masks_sam'), ('spacr.object_roles', 'organelle_settings_view'), ('spacr.settings', 'organelle_measurement_caveats'), ('spacr.settings', 'set_analyze_invasion_defaults'), ('spacr.submodules', 'analyze_invasion'),),

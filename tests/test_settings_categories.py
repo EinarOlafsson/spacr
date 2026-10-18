@@ -349,8 +349,6 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
-    # item 711: Timepose v1 (alpha) tracking options
-    "timepose_own_masks", "timepose_invert",
     # item 631: the Measure RAM guard switch
     "ram_guard",
     "object_filters",
