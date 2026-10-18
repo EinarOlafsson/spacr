@@ -13,11 +13,14 @@ and a new item allocated where a deleted, still-wrapped object lived is torn
 down through that stale wrapper. The backdrop thread shares no buffer,
 image, palette or font with the table.
 
-The screen now re-filters once typing pauses, applies Enter, focus-out and
-an emptied box at once, never nests one render inside another, skips a
-render whose filter is already on screen, and leaves a destroyed table
-alone. These tests pin that, plus the frame hand-over the backdrop thread
-was suspected of: a shaded frame owns its pixels.
+The predictions grid is now a view over a model sized to the whole bundle
+once per load, whose cells Qt creates itself; typing only changes which
+rows a filter proxy lets through, so no cell is created from Python or
+deleted while filtering. The filter still waits for a pause in typing,
+applies Enter, focus-out and an emptied box at once, never nests one pass
+inside another, skips a filter already on screen, and leaves a destroyed
+view alone. These tests pin that, plus the frame hand-over the backdrop
+thread was suspected of: a shaded frame owns its pixels.
 """
 from __future__ import annotations
 
@@ -81,17 +84,28 @@ def screen(qtbot, qt_theme_applied, bundle_root):
 
 
 def _count_prediction_renders(screen, monkeypatch):
-    """Wrap ``_render_frame`` and count the renders of the predictions table."""
+    """Wrap the filter proxy and count the filter passes it is given."""
     calls = []
-    original = screen._render_frame
+    proxy = screen._prediction_view
+    original = proxy.set_accepted
 
-    def counting(table, frame, **kwargs):
-        if table is screen._predictions:
-            calls.append(len(frame))
-        return original(table, frame, **kwargs)
+    def counting(accepted, *, quiet=False):
+        if not quiet:
+            calls.append(sum(accepted))
+        return original(accepted, quiet=quiet)
 
-    monkeypatch.setattr(screen, "_render_frame", counting)
+    monkeypatch.setattr(proxy, "set_accepted", counting)
     return calls
+
+
+def _watch_source_rows(screen):
+    """Record every signal by which the source model could lose a row."""
+    seen = []
+    model = screen._prediction_rows.model
+    model.rowsRemoved.connect(lambda *_: seen.append("rowsRemoved"))
+    model.modelAboutToBeReset.connect(lambda: seen.append("reset"))
+    model.layoutChanged.connect(lambda *_: seen.append("layoutChanged"))
+    return seen
 
 
 def _expected_basenames(screen, text):
@@ -167,28 +181,67 @@ def test_an_emptied_box_restores_every_row_at_once(qtbot, screen):
 def test_a_request_during_a_render_runs_after_it_with_the_newest_filter(
         screen, monkeypatch):
     depth, peak, renders = [0], [0], []
-    original = screen._render_frame
+    proxy = screen._prediction_view
+    original = proxy.set_accepted
 
-    def interrupting(table, frame, **kwargs):
-        if table is not screen._predictions:
-            return original(table, frame, **kwargs)
+    def interrupting(accepted, *, quiet=False):
+        if quiet:
+            return original(accepted, quiet=quiet)
         depth[0] += 1
         peak[0] = max(peak[0], depth[0])
         try:
-            renders.append(len(frame))
+            renders.append(sum(accepted))
             if len(renders) == 1:
                 screen._prediction_filter.setText("plate1 c3")
                 screen._render_predictions()
-            return original(table, frame, **kwargs)
+            return original(accepted, quiet=quiet)
         finally:
             depth[0] -= 1
 
-    monkeypatch.setattr(screen, "_render_frame", interrupting)
+    monkeypatch.setattr(proxy, "set_accepted", interrupting)
     screen._prediction_filter.setText("plate2")
     screen._apply_prediction_filter()
-    assert peak[0] == 1, "a render ran inside another render"
+    assert peak[0] == 1, "a filter pass ran inside another pass"
     assert len(renders) == 2
     assert _shown_basenames(screen) == _expected_basenames(screen, "plate1 c3")
+
+
+def test_typing_never_removes_a_row_from_the_model_behind_the_grid(
+        qtbot, screen):
+    model = screen._prediction_rows.model
+    seen = _watch_source_rows(screen)
+    for text in ("r", "r5", "r5_", "r5_c", "r5_c2", "", "plate3", "xyz", ""):
+        screen._prediction_filter.setText(text)
+        screen._apply_prediction_filter()
+        assert model.rowCount() == ROWS
+    assert seen == []
+    assert screen._predictions.rowCount() == ROWS
+
+
+def test_the_grid_keeps_the_old_tables_behaviour(qtbot, screen):
+    table = screen._predictions
+    assert table.editTriggers() == table.EditTrigger.NoEditTriggers
+    assert table.selectionBehavior() == table.SelectionBehavior.SelectRows
+    assert table.alternatingRowColors()
+    assert table.verticalHeader().isHidden()
+    assert table.isSortingEnabled()
+    headers = [table.horizontalHeaderItem(c).text()
+               for c in range(table.columnCount())]
+    assert headers == [str(c) for c in screen.bundle["predictions"].columns]
+    model = screen._prediction_rows.model
+    flags = model.flags(model.index(0, 0))
+    assert not flags & Qt.ItemFlag.ItemIsEditable
+    column = headers.index("confidence")
+    table.sortByColumn(column, Qt.SortOrder.DescendingOrder)
+    values = [float(table.item(r, column).text())
+              for r in range(table.rowCount())]
+    assert values == sorted(values, reverse=True)
+    QTest.keyClicks(screen._prediction_filter, "plate2")
+    QTest.keyClick(screen._prediction_filter, Qt.Key_Return)
+    values = [float(table.item(r, column).text())
+              for r in range(table.rowCount())]
+    assert len(values) == len(_expected_basenames(screen, "plate2"))
+    assert values == sorted(values, reverse=True)
 
 
 def test_a_filter_pending_on_a_destroyed_screen_is_dropped(
@@ -197,12 +250,14 @@ def test_a_filter_pending_on_a_destroyed_screen_is_dropped(
     table = widget._predictions
     QTest.keyClicks(widget._prediction_filter, "r1")
     assert widget._filter_timer.isActive()
+    model = widget._prediction_rows.model
     render = widget._render_predictions
     apply = widget._apply_prediction_filter
     schedule = widget._schedule_prediction_filter
     draw = widget._render_frame
     shiboken6.delete(widget)
     assert not shiboken6.isValid(table)
+    assert not shiboken6.isValid(model)
     render()
     apply()
     schedule("r2")
@@ -222,6 +277,7 @@ def test_two_hundred_rapid_filter_changes_leave_the_view_on_the_last_filter(
     host.resize(1500, 950)
     host.show()
     renders = _count_prediction_renders(screen, monkeypatch)
+    seen = _watch_source_rows(screen)
     edit = screen._prediction_filter
     words = ["r5_c2", "plate2", "infected", "r1", "c1", "f3", "xyz",
              "plate1 r2", "_1", "PLATE3 R8"]
@@ -266,9 +322,10 @@ def test_two_hundred_rapid_filter_changes_leave_the_view_on_the_last_filter(
         QAccessible.setActive(was_active)
     assert edit.text() == "plate1 r5_c2"
     assert 0 < len(expected) < ROWS
+    assert seen == [], "filtering removed rows from the model behind the grid"
     assert len(renders) <= changes // 2, (
-        f"{len(renders)} rebuilds for {changes} filter changes: typing is "
-        "not being coalesced")
+        f"{len(renders)} filter passes for {changes} filter changes: typing "
+        "is not being coalesced")
 
 
 def test_a_shaded_field_frame_keeps_its_pixels_after_the_engine_moves_on(qapp):

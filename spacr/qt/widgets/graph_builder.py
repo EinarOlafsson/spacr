@@ -244,6 +244,7 @@ class ColumnWell(QWidget):
             self._columns = plottable_columns(frame)
             from .graph_spec import column_kinds
             self._kinds = column_kinds(frame)
+        self._rebuild_items()
         self._refilter()
 
     def columns(self) -> Tuple[str, ...]:
@@ -259,21 +260,31 @@ class ColumnWell(QWidget):
         :returns: the visible column names, in list order.
         """
         return [self._list.item(i).data(Qt.UserRole)
-                for i in range(self._list.count())]
+                for i in range(self._list.count())
+                if not self._list.item(i).isHidden()]
 
-    def _refilter(self) -> None:
-        """Re-list the columns matching the search box."""
-        needle = self._search.text().strip().lower()
+    def _rebuild_items(self) -> None:
+        """Rebuild one list item per offered column, hidden or not.
+
+        Called only when the offered columns change, never per keystroke.
+        """
         self._list.clear()
         for name in self._columns:
-            if needle and needle not in name.lower():
-                continue
             kind = self._kinds.get(name, "")
             item = QListWidgetItem(f"{name}   ·  {kind[:4]}")
             item.setData(Qt.UserRole, name)
             item.setToolTip(f"{name} — {kind}\nDrag onto a channel.")
             self._list.addItem(item)
-        shown = self._list.count()
+
+    def _refilter(self) -> None:
+        """Show the columns matching the search box, reusing the items."""
+        needle = self._search.text().strip().lower()
+        shown = 0
+        for row in range(self._list.count()):
+            item = self._list.item(row)
+            hide = bool(needle) and needle not in item.data(Qt.UserRole).lower()
+            item.setHidden(hide)
+            shown += not hide
         total = len(self._columns)
         self._count.setText(
             "no table loaded" if not total

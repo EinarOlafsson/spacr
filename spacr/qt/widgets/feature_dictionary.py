@@ -424,14 +424,22 @@ class FeatureDictionaryPanel(QWidget):
             self._hits = []
 
         self._list.blockSignals(True)
-        self._list.clear()
-        for hit in self._hits:
+        self._list.setCurrentRow(-1)
+        self._list.clearSelection()
+        for row, hit in enumerate(self._hits):
             doc = hit.doc
             where = object_type_summary(doc.object_types) if doc.object_types else doc.kind
-            item = QListWidgetItem(f"{doc.title}\n{doc.family} · {where}")
+            if row < self._list.count():
+                item = self._list.item(row)
+            else:
+                item = QListWidgetItem()
+                self._list.addItem(item)
+            item.setText(f"{doc.title}\n{doc.family} · {where}")
             item.setData(Qt.UserRole, doc.key)
             item.setToolTip(doc.description or "No definition.")
-            self._list.addItem(item)
+            item.setHidden(False)
+        for row in range(len(self._hits), self._list.count()):
+            self._hide_pooled_item(self._list.item(row))
         self._list.blockSignals(False)
 
         if self._hits:
@@ -447,6 +455,19 @@ class FeatureDictionaryPanel(QWidget):
             self._doc = None
             self._detail.setHtml(
                 "<p><i>No feature matches that search.</i></p>")
+
+    def _hide_pooled_item(self, item: QListWidgetItem) -> None:
+        """Blank and hide a pooled list item that no hit currently uses.
+
+        Items are recycled rather than deleted so a keystroke never destroys
+        Qt objects.
+
+        :param item: the surplus pooled item.
+        """
+        item.setText("")
+        item.setData(Qt.UserRole, None)
+        item.setToolTip("")
+        item.setHidden(True)
 
     def _on_row_changed(self, row: int) -> None:
         """Show the selected feature, unpinning the asked-about column if it moved.

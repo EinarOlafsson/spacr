@@ -514,7 +514,24 @@ class MeasureInputTable(QWidget):
     def _on_plate_changed(self, text: str) -> None:
         """Rename the plate every row's stem starts with."""
         self._table.plate = str(text) or 'drawn'
-        self._rebuild()
+        self._retitle_stems()
+        self.table_changed.emit()
+
+    def _retitle_stems(self) -> None:
+        """Refresh each row's "Written and measured as" tooltip in place.
+
+        Renaming the plate changes only that tooltip, so the grid keeps its
+        items rather than deleting and re-creating them on each keystroke.
+        """
+        for view_row in range(self._grid.rowCount()):
+            item = self._grid.item(view_row, 0)
+            if item is None:
+                continue
+            index = self._model_row(view_row)
+            if 0 <= index < len(self._table.rows):
+                item.setToolTip(
+                    f"Written and measured as "
+                    f"{self._table.rows[index].stem(self._table.plate)}")
 
     def _on_channels_changed(self, value: int) -> None:
         """Add or drop channel columns, keeping the files that still fit.
