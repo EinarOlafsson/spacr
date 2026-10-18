@@ -6204,9 +6204,13 @@ class MainWindow(QMainWindow):
     def _autosave_settings(self) -> bool:
         """Store the session and every open module's settings as drafts.
 
-        Nothing is written when nothing changed since the last autosave.
+        Nothing is written when nothing changed since the last autosave. The
+        settings are copied here and stored by the settings writer thread
+        (:func:`spacr.restart_state._write_later`), so a slow disk never
+        holds the GUI; a snapshot that fails to store is offered again on
+        the next tick.
 
-        :returns: whether anything was written.
+        :returns: whether a snapshot was handed to the writer.
         """
         import json
 
@@ -6223,13 +6227,26 @@ class MainWindow(QMainWindow):
             return False
         fingerprint = json.dumps([module, drafts], sort_keys=True,
                                  default=str)
-        if fingerprint == getattr(self, "_last_autosave", ""):
+        if fingerprint in (getattr(self, "_last_autosave", ""),
+                           getattr(self, "_autosave_queued", "")):
             return False
-        session_saved = restart_state._save_session(module, settings)
-        drafts_saved = restart_state._save_drafts(drafts)
-        if session_saved and drafts_saved:
-            self._last_autosave = fingerprint
-        return bool(session_saved or drafts_saved)
+        settings = restart_state._jsonable(settings)
+        drafts = restart_state._jsonable(drafts)
+        self._autosave_queued = fingerprint
+
+        def _write():
+            """Store this snapshot; a failure leaves it to the next tick."""
+            try:
+                session_saved = restart_state._save_session(module, settings)
+                drafts_saved = restart_state._save_drafts(drafts)
+                if session_saved and drafts_saved:
+                    self._last_autosave = fingerprint
+            finally:
+                if getattr(self, "_autosave_queued", "") == fingerprint:
+                    self._autosave_queued = ""
+
+        restart_state._write_later(_write)
+        return True
 
     def _end_session_cleanly(self) -> None:
         """Record where the user left off and drop the crash drafts."""
@@ -6238,6 +6255,7 @@ class MainWindow(QMainWindow):
         timer = getattr(self, "_settings_autosave_timer", None)
         if timer is not None:
             timer.stop()
+        restart_state._flush_writes()
         try:
             module, settings = self._current_session()
             if restart_state._save_session(module, settings) or not module:

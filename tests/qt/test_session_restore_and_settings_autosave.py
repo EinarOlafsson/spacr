@@ -27,6 +27,7 @@ def _own_state_dir(tmp_path, monkeypatch):
 
     monkeypatch.setattr(app_mod, "_OPEN_FRESH", [False])
     yield
+    restart_state._flush_writes()
     restart_state.discard()
     restart_state._clear_drafts()
 
@@ -158,9 +159,11 @@ def test_a_failed_autosave_retries_unchanged_settings(qtbot, monkeypatch, failed
 
     for kind, name in (("session", "_save_session"), ("drafts", "_save_drafts")):
         monkeypatch.setattr(restart_state, name, save(kind, getattr(restart_state, name)))
-    assert window._autosave_settings() is (failed != "both")
+    assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
     assert window._last_autosave == checkpoint
     assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
     assert counts == {"session": 2, "drafts": 2}
     assert window._autosave_settings() is False
     assert counts == {"session": 2, "drafts": 2}
@@ -209,3 +212,110 @@ def test_the_preferences_dialog_shows_and_saves_the_session_switch(
     switch.setChecked(False)
     dialog.findChild(QDialogButtonBox).accepted.emit()
     assert prefs._get_restore_session() is False
+
+
+def test_autosave_writes_on_the_writer_thread_not_the_gui_thread(qtbot, monkeypatch):
+    """A slow disk holds the writer, never the window (lesson 13: 1.2-4.4 s)."""
+    import threading
+
+    window = _window(qtbot, initial_app="regression")
+    window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.021})
+    threads = []
+    original = restart_state._save_drafts
+
+    def recorded(*args):
+        threads.append(threading.current_thread())
+        return original(*args)
+
+    monkeypatch.setattr(restart_state, "_save_drafts", recorded)
+    assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
+    assert threads and threading.main_thread() not in threads
+    assert {thread.name for thread in threads} == {"spacr-settings-writer"}
+    assert restart_state._take_drafts()["regression"]["fdr_alpha"] == 0.021
+
+
+def test_rapid_autosaves_store_only_the_newest_snapshot(qtbot, monkeypatch):
+    import threading
+
+    window = _window(qtbot, initial_app="regression")
+    started, release = threading.Event(), threading.Event()
+    written = []
+    original = restart_state._save_drafts
+
+    def held(drafts):
+        written.append(drafts["regression"]["fdr_alpha"])
+        started.set()
+        release.wait(10)
+        return original(drafts)
+
+    monkeypatch.setattr(restart_state, "_save_drafts", held)
+    try:
+        window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.011})
+        assert window._autosave_settings() is True
+        assert started.wait(10)
+        for value in (0.012, 0.013, 0.014):
+            window._screens["regression"].apply_settings_dict({"fdr_alpha": value})
+            assert window._autosave_settings() is True
+    finally:
+        release.set()
+    assert restart_state._flush_writes()
+    assert written == [0.011, 0.014]
+    assert restart_state._last_session()["settings"]["fdr_alpha"] == 0.014
+    assert restart_state._take_drafts()["regression"]["fdr_alpha"] == 0.014
+
+
+def test_a_clean_close_waits_for_the_last_queued_snapshot(qtbot, monkeypatch):
+    """The exit flush stores the newest snapshot before the drafts are dropped."""
+    import threading
+
+    window = _window(qtbot, initial_app="regression")
+    release = threading.Event()
+    order = []
+    save_session = restart_state._save_session
+    clear = restart_state._clear_drafts
+
+    def slow_session(*args):
+        release.wait(10)
+        order.append(("session", threading.current_thread().name, args[1]["fdr_alpha"]))
+        return save_session(*args)
+
+    def recorded_clear():
+        order.append(("clear", threading.current_thread().name, None))
+        return clear()
+
+    monkeypatch.setattr(restart_state, "_save_session", slow_session)
+    monkeypatch.setattr(restart_state, "_clear_drafts", recorded_clear)
+    window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.044})
+    assert window._autosave_settings() is True
+    threading.Timer(0.2, release.set).start()
+    window._end_session_cleanly()
+    assert order[0] == ("session", "spacr-settings-writer", 0.044)
+    assert order[-1][0] == "clear"
+    assert restart_state._take_drafts() == {}
+    assert restart_state._last_session()["settings"]["fdr_alpha"] == 0.044
+
+
+def test_a_write_that_raises_is_logged_and_the_snapshot_retried(qtbot, monkeypatch, caplog):
+    window = _window(qtbot, initial_app="regression")
+    window._screens["regression"].apply_settings_dict({"fdr_alpha": 0.055})
+    checkpoint = window._last_autosave
+    calls = []
+    original = restart_state._save_drafts
+
+    def flaky(drafts):
+        calls.append(1)
+        if len(calls) == 1:
+            raise OSError("disk went away")
+        return original(drafts)
+
+    monkeypatch.setattr(restart_state, "_save_drafts", flaky)
+    with caplog.at_level("WARNING", logger="spacr.restart_state"):
+        assert window._autosave_settings() is True
+        assert restart_state._flush_writes()
+    assert "disk went away" in caplog.text
+    assert window._last_autosave == checkpoint
+    assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
+    assert len(calls) == 2
+    assert restart_state._take_drafts()["regression"]["fdr_alpha"] == 0.055

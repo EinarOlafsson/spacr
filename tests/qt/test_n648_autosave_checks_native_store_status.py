@@ -51,12 +51,15 @@ def test_autosave_recovers_when_the_same_native_ini_path_becomes_writable(
         return _writer(real, safe_mode)
 
     monkeypatch.setattr(restart_state, "_store", store)
-    assert window._autosave_settings() is False
+    assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
+    assert stores
     assert all(real.status() == QSettings.AccessError for real in stores)
     assert window._last_autosave == checkpoint and not ini.exists()
     blocked.unlink()
     blocked.mkdir()
     assert window._autosave_settings() is True
+    assert restart_state._flush_writes()
     assert ini.is_file()
     durable = QSettings(str(ini), QSettings.IniFormat)
     durable.sync()

@@ -22,6 +22,8 @@ import json
 import logging
 import os
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence
@@ -369,6 +371,84 @@ def _save_drafts(drafts: Mapping[str, Mapping[str, Any]]) -> bool:
         "saved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "modules": modules,
     })
+
+
+_WRITES = threading.Condition()
+_WRITE_STATE: Dict[str, Any] = {"pending": None, "busy": False, "thread": None}
+
+
+def _write_later(job) -> None:
+    """Run ``job`` on the settings writer thread instead of the caller's.
+
+    Storing the session and the drafts ends in ``QSettings.sync``, which
+    rewrites the preference file; on a busy disk that held the GUI thread
+    for 1.2 to 4.4 seconds in lesson 13. Only the newest snapshot matters,
+    so a job still waiting when another arrives is replaced, not queued.
+    :func:`_flush_writes` waits for the writer before a clean exit.
+
+    :param job: a callable with no arguments; an exception it raises is
+        logged and the writer carries on.
+    """
+    with _WRITES:
+        _WRITE_STATE["pending"] = job
+        thread = _WRITE_STATE["thread"]
+        if thread is None or not thread.is_alive():
+            thread = threading.Thread(target=_run_writes,
+                                      name="spacr-settings-writer",
+                                      daemon=True)
+            _WRITE_STATE["thread"] = thread
+            thread.start()
+        _WRITES.notify_all()
+
+
+def _run_one_write(job) -> None:
+    """Run one queued write, logging rather than raising its failure."""
+    try:
+        job()
+    except Exception as exc:
+        LOG.warning("a settings write failed: %s", exc)
+
+
+def _run_writes() -> None:
+    """The writer thread: run the newest waiting job, then wait for the next."""
+    while True:
+        with _WRITES:
+            while _WRITE_STATE["pending"] is None:
+                _WRITES.wait()
+            job, _WRITE_STATE["pending"] = _WRITE_STATE["pending"], None
+            _WRITE_STATE["busy"] = True
+        try:
+            _run_one_write(job)
+        finally:
+            with _WRITES:
+                _WRITE_STATE["busy"] = False
+                _WRITES.notify_all()
+
+
+def _flush_writes(timeout: float = 30.0) -> bool:
+    """Wait until the writer has stored the newest snapshot.
+
+    A job that is still waiting once the writer has gone quiet runs on the
+    caller's thread, so nothing queued is lost at exit.
+
+    :param timeout: longest wait, in seconds, for a write in progress.
+    :returns: whether nothing is left waiting or running.
+    """
+    deadline = time.monotonic() + max(0.0, float(timeout))
+    with _WRITES:
+        while _WRITE_STATE["pending"] is not None or _WRITE_STATE["busy"]:
+            thread = _WRITE_STATE["thread"]
+            left = deadline - time.monotonic()
+            if left <= 0 or thread is None or not thread.is_alive():
+                break
+            _WRITES.wait(left)
+        job = None
+        if not _WRITE_STATE["busy"]:
+            job, _WRITE_STATE["pending"] = _WRITE_STATE["pending"], None
+        finished = not _WRITE_STATE["busy"]
+    if job is not None:
+        _run_one_write(job)
+    return finished
 
 
 def _take_drafts() -> Dict[str, Dict[str, Any]]:
