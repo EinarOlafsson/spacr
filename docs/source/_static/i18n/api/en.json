@@ -54383,7 +54383,7 @@
     },
     "spacr.qt.mask_engine.assign_tracked_object": {
       "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -54391,8 +54391,8 @@
         "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
         "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
       ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "Track a hovered object using a free local ID without stealing another track.\n\n:param mask: The current two-dimensional integer label mask.\n:param x: The hovered pixel column.\n:param y: The hovered pixel row.\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param cell_uuid: The persistent UUID of the segment to assign."
+      "source_sha256": "20e05c734d55af9cb86840fb3c2d4931357ba0bb47e9c770b91c721cf65a44db",
+      "text": "Give the hovered object the selected identity, letting one division branch continue it.\n\n:param mask: The current two-dimensional integer label mask.\n:param x: The hovered pixel column.\n:param y: The hovered pixel row.\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param cell_uuid: The persistent UUID of the segment to assign."
     },
     "spacr.qt.mask_engine.box_overlap": {
       "source_blocks_sha256": [

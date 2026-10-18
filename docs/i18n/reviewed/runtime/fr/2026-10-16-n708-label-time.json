@@ -380,25 +380,11 @@
       "translation": "L’image suivante n’a pas pu être chargée ; les modifications actuelles sont conservées. {error}"
     },
     {
-      "key": "The selected lineage cell already labels another object in this frame.",
-      "source": "The selected lineage cell already labels another object in this frame.",
-      "source_sha256": "5ff54dab0732f093c5743bd821f4321dfbe845f054115be6ac58f14eed6425da",
-      "table": "ui",
-      "translation": "La cellule sélectionnée dans la lignée étiquette déjà un autre objet dans cette image."
-    },
-    {
       "key": "This frame label already belongs to another lineage cell.",
       "source": "This frame label already belongs to another lineage cell.",
       "source_sha256": "03f3907b443c31aa79c797e17cd5dbe7793532a69d4aaf6acb7ffe794710d434",
       "table": "ui",
       "translation": "Cette étiquette d’image appartient déjà à une autre cellule de la lignée."
-    },
-    {
-      "key": "This object already belongs to another lineage cell.",
-      "source": "This object already belongs to another lineage cell.",
-      "source_sha256": "83740b6963008a6daf383468c35cfd9808ef0e115a82443ca2fa30ec875e6304",
-      "table": "ui",
-      "translation": "Cet objet appartient déjà à une autre cellule de la lignée."
     },
     {
       "key": "Time labelling requires a queue of 2D frames.",
