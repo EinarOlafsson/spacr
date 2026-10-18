@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-t17/release-candidate-append-hv300qhi",
-  "manifest_sha256": "f8fa1ab284f91b81914ecf2587d4d7cfe99d01aaa7b8de97ad56e1b82e72d09e",
+  "private_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-t17/release-candidate-append-w98115w6",
+  "manifest_sha256": "f229609951d9ca25e9d414a56bc7b5e3b30933e0ceeaea463f5a61e2d21ea120",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -259,8 +259,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "59a8e6c56bb8405713f7463948f826918ff7db54746fc423487a61fc3b77f847",
-      "bytes": 15654
+      "sha256": "ffb5197a130127517de99b6f5e542893f9f636400dff086efcd4891ca777c73f",
+      "bytes": 15652
     },
     {
       "path": "web/lesson_catalog.js",
@@ -274,7 +274,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "f632032ef3295e67aa7e7b067c184676415794e6d41810acdfd2afccb2e2c06c",
+      "sha256": "c7611f6f372c53bfe732408a628653a0b827f6f85d1b71a3d8d14c7d19236471",
       "bytes": 17258
     },
     {
@@ -484,8 +484,8 @@
     },
     {
       "path": "web/production/43_illumination/poster.jpg",
-      "sha256": "c61e07df57f39665743117ff842d3562ccaee419691c546795ccf7ff83183b8c",
-      "bytes": 774412
+      "sha256": "d43446892d0a3ca8b3ecb6ac242ff487e5a28c25d44d0af7ace9d5a79dffbd34",
+      "bytes": 783835
     },
     {
       "path": "web/production/44_data_manager/poster.jpg",
@@ -714,12 +714,12 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "f8fa1ab284f91b81914ecf2587d4d7cfe99d01aaa7b8de97ad56e1b82e72d09e",
-      "bytes": 1179445
+      "sha256": "f229609951d9ca25e9d414a56bc7b5e3b30933e0ceeaea463f5a61e2d21ea120",
+      "bytes": 1179454
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "cab840dd3d21b81d92e1256648174ccf3565f9360b5d895df6485b6df5e5b341",
+      "sha256": "72f528f07def01d81499bd07cddf9a17f8d6ce820bb69ad9d4e90fd08788e22e",
       "bytes": 127537
     },
     {
@@ -737,10 +737,10 @@
   "pages_tree_ready": true,
   "media_revision": {
     "repository": "datasets/einarolafsson/spacr-tutorials",
-    "branch": "n676-ws-23-agreement-20261018",
-    "tag": "n676-ws-23-agreement-20261018-verified",
-    "commit": "a8a564c90f2b3404dc1fa80bb885815a42709148",
-    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a8a564c90f2b3404dc1fa80bb885815a42709148"
+    "branch": "n676-ws-43-illumination-20261018",
+    "tag": "n676-ws-43-illumination-20261018-verified",
+    "commit": "b5a4a22608b64cc6780e12b40e0c49db0200cd7e",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b5a4a22608b64cc6780e12b40e0c49db0200cd7e"
   },
   "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }
