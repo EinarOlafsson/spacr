@@ -2572,9 +2572,32 @@ def compose_prc_column(df, columns=None):
         raise KeyError(
             f'cannot compose {PRC_KEY!r}: {missing} not in the frame. '
             f'Columns: {list(df.columns)}')
-    return (df[plate].astype(str).map(escape_filename_component)
-            + KEY_SEPARATOR + df[row].astype(str)
-            + KEY_SEPARATOR + df[column].astype(str))
+    parts = (df[plate], df[row], df[column])
+    if len(df) <= _PRC_CHUNK_ROWS:
+        return _compose_prc_chunk(*parts)
+    import pandas as pd
+
+    return pd.concat([
+        _compose_prc_chunk(*(part.iloc[start:start + _PRC_CHUNK_ROWS]
+                             for part in parts))
+        for start in range(0, len(df), _PRC_CHUNK_ROWS)])
+
+
+_PRC_CHUNK_ROWS = 50_000
+"""Rows composed per step by :func:`compose_prc_column`.
+
+Object-dtype concatenation is one C call that holds the interpreter lock
+for the whole column: 0.46 s on lesson 13's regression reads, with the
+window starved. Slices of this size keep each step to a few milliseconds
+and give the GUI thread the lock between them; the keys are the same.
+"""
+
+
+def _compose_prc_chunk(plate, row, column):
+    """``plate|row|column`` keys for one slice of the three key columns."""
+    return (plate.astype(str).map(escape_filename_component)
+            + KEY_SEPARATOR + row.astype(str)
+            + KEY_SEPARATOR + column.astype(str))
 
 
 
