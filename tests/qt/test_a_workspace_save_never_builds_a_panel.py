@@ -30,7 +30,8 @@ def screen(qtbot):
         workspace.clear_providers()
 
 
-def test_the_worker_thread_collects_without_building_the_panel(screen, capsys):
+def test_the_worker_thread_collects_without_building_the_panel(screen, capsys,
+                                                               qtbot):
     assert screen._part_is_owed(_REGRESSION_RESULTS)
     result = {}
 
@@ -41,7 +42,9 @@ def test_the_worker_thread_collects_without_building_the_panel(screen, capsys):
 
     thread = threading.Thread(target=worker)
     thread.start()
-    thread.join()
+    # The sections are read on the GUI thread, so this one keeps its event
+    # loop turning while the worker waits for them.
+    qtbot.waitUntil(lambda: not thread.is_alive(), timeout=15000)
     assert screen._part_is_owed(_REGRESSION_RESULTS)
     sections = result["doc"]["sections"]
     assert "regression:settings" in sections

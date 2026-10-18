@@ -13265,12 +13265,14 @@ class AppScreen(QWidget):
 
         The callable reads the attribute with :meth:`_if_built`, so asking for
         a section never builds a deferred panel. The run journal asks from the
-        worker thread that ran the pipeline, and a panel built there is a
-        widget created off the GUI thread; a panel that was never built has
-        no state to save.
+        worker thread that ran the pipeline, so the registry is given a
+        dispatcher that reads every section on the GUI thread and hands the
+        worker plain data; a panel that was never built has no state to save.
         """
         from ...workspace import register
+        from ..bridge import _install_the_workspace_dispatcher
 
+        _install_the_workspace_dispatcher()
         key = str(self.app_key)
         register(f"{key}:settings", lambda: self)
         register(f"{key}:databases", self._workspace_database_control)
