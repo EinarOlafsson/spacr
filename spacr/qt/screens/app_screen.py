@@ -2091,6 +2091,7 @@ class AppScreen(QWidget):
 
     error_explain_requested = Signal(str, str)
     remote_submit_requested = Signal(str, dict)
+    _example_fetch_moved = Signal(str, object, object)
 
     _ambient = None
     _ambient_applied = None
@@ -2232,6 +2233,9 @@ class AppScreen(QWidget):
         self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage",
                                     user_visible=False)
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
+        self._example_fetch_running = False
+        self._example_fetch_button = None
+        self._example_fetch_moved.connect(self._on_example_fetch_moved)
 
         self._usage_generation = 0
         self._usage_timer = QTimer(self)
@@ -5428,7 +5432,7 @@ class AppScreen(QWidget):
                                  "instant.")
             one.clicked.connect(
                 lambda _checked=False, _k=kind: self.load_the_example_screen(
-                    kind=_k))
+                    kind=_k, in_background=True))
             layout.addWidget(one)
             setattr(self, f"_example_{kind}_button", one)
 
@@ -5461,7 +5465,8 @@ class AppScreen(QWidget):
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
             "first time; cached afterwards, so pressing it again is instant.")
-        button.clicked.connect(lambda: self.load_the_example_screen())
+        button.clicked.connect(
+            lambda: self.load_the_example_screen(in_background=True))
         self._example_data_button = button
         section.add_prose(button, at_top=True)
 
@@ -6214,11 +6219,15 @@ class AppScreen(QWidget):
                 "settings": str(settings) if settings else ""}
 
     def load_the_example_screen(self, *, download: bool = True,
-                               kind=None) -> dict:
+                               kind=None, in_background: bool = False) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
 
         :param download: If ``True``, download files that are not already in
             the local cache.
+        :param in_background: check, download and verify the files on a
+            worker thread and fill the slots when they arrive, so the window
+            keeps painting through a download. The buttons use this; the
+            mapping is then empty and the slots fill on completion.
         :returns: A mapping of populated setting names to their file paths.
         """
         from ...example_data import ExampleDataError, fetch, missing
@@ -6226,6 +6235,9 @@ class AppScreen(QWidget):
         button = getattr(self, f"_example_{kind}_button", None) if kind else None
         if button is None:
             button = getattr(self, "_example_data_button", None)
+        if in_background:
+            self._fetch_the_example_screen_in_background(button, download, kind)
+            return {}
         absent = missing(kind=kind)
         if absent and button is not None:
             button.setEnabled(False)
@@ -6241,7 +6253,90 @@ class AppScreen(QWidget):
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
+        return self._put_the_example_screen_in(got)
 
+    #: Shortest gap between two download progress updates sent to the GUI
+    #: thread, in seconds. Each file's last update is always sent.
+    EXAMPLE_PROGRESS_INTERVAL_S = 0.1
+
+    def _fetch_the_example_screen_in_background(self, button, download,
+                                                kind) -> bool:
+        """Run :func:`spacr.example_data.fetch` through the screen's jobs.
+
+        The digest check, the download and the verification all read or
+        write tens of megabytes, which froze the window for most of a second
+        per file when they ran on the GUI thread. Progress reaches the button
+        at most every :attr:`EXAMPLE_PROGRESS_INTERVAL_S`, and each file's
+        final count always arrives.
+
+        :returns: whether a fetch was started; a second press while one runs
+            starts nothing.
+        """
+        if getattr(self, "_example_fetch_running", False):
+            return False
+        self._example_fetch_running = True
+        self._example_fetch_button = button
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+        last = {"at": None}
+        work = partial(self._fetch_the_example_screen, download, kind,
+                       partial(self._report_the_example_fetch, last))
+        return self._jobs.submit(work, self._on_the_example_screen_fetched)
+
+    def _report_the_example_fetch(self, last, name, seen, total) -> None:
+        """Send one progress update, unless the last was too recent.
+
+        Runs on the worker thread; it only emits a signal. Each file's final
+        count is always sent.
+        """
+        now = time.monotonic()
+        final = bool(total) and seen >= total
+        if (not final and last["at"] is not None
+                and now - last["at"] < float(self.EXAMPLE_PROGRESS_INTERVAL_S)):
+            return
+        last["at"] = now
+        try:
+            self._example_fetch_moved.emit(str(name), int(seen), int(total))
+        except RuntimeError:
+            pass
+
+    @staticmethod
+    def _fetch_the_example_screen(download, kind, report) -> tuple:
+        """Fetch on the worker thread; answer ``(fetched, error)``."""
+        from ...example_data import ExampleDataError, fetch
+
+        try:
+            return fetch(download=download, kind=kind, progress=report), ""
+        except ExampleDataError as error:
+            return None, str(error)
+        except Exception as error:
+            return None, str(error) or error.__class__.__name__
+
+    def _on_example_fetch_moved(self, name, seen, total) -> None:
+        """Show one coalesced download update on the pressed button."""
+        if not getattr(self, "_example_fetch_running", False) or not name:
+            return
+        self._say_the_download_is_moving(name, seen, total, pump=False)
+
+    def _on_the_example_screen_fetched(self, outcome) -> None:
+        """Restore the button and fill the slots from a background fetch."""
+        button = getattr(self, "_example_fetch_button", None)
+        self._example_fetch_button = None
+        self._example_fetch_running = False
+        got, error = outcome if isinstance(outcome, tuple) else (None, "")
+        try:
+            if got is None:
+                self._console.append_stdout(f"{error}\n")
+                return
+        finally:
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+        self._put_the_example_screen_in(got)
+
+    def _put_the_example_screen_in(self, got) -> dict:
+        """Pair a fetched example screen into Input Tables and say so."""
         table = self._settings_model._widgets.get("paired_data")
         added = 0
         if table is not None and hasattr(table, "add_paths_for_side"):
@@ -6257,12 +6352,20 @@ class AppScreen(QWidget):
         return {"counts": got.counts, "scores": got.scores,
                 "applied": added, "folder": got.folder}
 
-    def _say_the_download_is_moving(self, name, seen, total) -> None:
-        """Progress on the button itself, which is where the user is looking."""
+    def _say_the_download_is_moving(self, name, seen, total,
+                                    pump: bool = True) -> None:
+        """Progress on the button itself, which is where the user is looking.
+
+        :param pump: let the window paint, for a fetch on the GUI thread. A
+            background fetch's updates arrive through the event loop, so it
+            passes ``False``.
+        """
         button = getattr(self, "_example_data_button", None)
         if button is None or not total:
             return
         button.setText(f"{name} — {100 * seen // max(total, 1)}%")
+        if not pump:
+            return
         from PySide6.QtWidgets import QApplication
 
         QApplication.processEvents()

@@ -155,3 +155,70 @@ class TestItFailsOutLoud:
         # their own was being offered "the example screen", which names a
         # thing in the program rather than the thing they want.
         assert screen._example_data_button.text() == "Load test data…"
+
+
+class TestTheDownloadLeavesTheWindowFree:
+    """The buttons fetch on a worker thread, with coalesced progress.
+
+    Lesson 13 froze for most of a second per file while the example screen
+    downloaded, because the download, its digest check and the progress
+    pump all ran on the GUI thread.
+    """
+
+    @pytest.fixture
+    def flooding_fetch(self, monkeypatch, cached):
+        import threading
+
+        from spacr import example_data
+
+        real = example_data.fetch
+        calls = []
+
+        def fetch(*args, progress=None, **kwargs):
+            calls.append(threading.get_ident())
+            for seen in range(500):
+                progress("plate1_dv.csv", seen, 1000)
+            progress("plate1_dv.csv", 1000, 1000)
+            return real(*args, **kwargs)
+
+        monkeypatch.setattr(example_data, "fetch", fetch)
+        return calls
+
+    def test_the_fetch_runs_off_the_gui_thread(self, screen, flooding_fetch,
+                                               qtbot):
+        import threading
+
+        button = screen._example_data_button
+        button.click()
+
+        assert not button.isEnabled(), "the press did not mark the fetch"
+        qtbot.waitUntil(button.isEnabled, timeout=20000)
+        assert flooding_fetch and flooding_fetch[0] != threading.get_ident()
+        assert button.text() == "Load test data…"
+        pairs = (screen._settings_model.collect() or {}).get("paired_data")
+        assert len(pairs) == 4, pairs
+
+    def test_progress_is_coalesced_and_keeps_the_last_count(
+            self, screen, flooding_fetch, qtbot, monkeypatch):
+        shown = []
+        monkeypatch.setattr(screen, "EXAMPLE_PROGRESS_INTERVAL_S", 60.0)
+        monkeypatch.setattr(
+            screen, "_say_the_download_is_moving",
+            lambda name, seen, total, pump=True: shown.append(
+                (name, seen, total, pump)))
+
+        screen.load_the_example_screen(in_background=True)
+        qtbot.waitUntil(screen._example_data_button.isEnabled,
+                        timeout=20000)
+
+        assert len(shown) == 2, shown
+        assert shown[-1] == ("plate1_dv.csv", 1000, 1000, False)
+
+    def test_a_second_press_while_fetching_starts_nothing(
+            self, screen, flooding_fetch, qtbot):
+        screen.load_the_example_screen(in_background=True)
+        screen.load_the_example_screen(in_background=True)
+        qtbot.waitUntil(screen._example_data_button.isEnabled,
+                        timeout=20000)
+
+        assert len(flooding_fetch) == 1
