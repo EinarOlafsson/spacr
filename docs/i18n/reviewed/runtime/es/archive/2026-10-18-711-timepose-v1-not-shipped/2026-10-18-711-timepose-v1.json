@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review_method": "Direct translation of the two Timepose v1 (alpha) Timelapse settings and the preview note added for item 711. Preserve timelapse_mode, timepose_v1, spaCR, Timepose, Hugging Face, DIC and False.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timepose_invert",
+      "source": "Timepose invert",
+      "source_sha256": "74bdc242792900cf046acfe85fe6923266b4ee1a805d96680a303bce2795350d",
+      "translation": "Timepose invertir"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timepose_own_masks",
+      "source": "Timepose own masks",
+      "source_sha256": "4367b1b9ec6d42e8fdef472f48f69cab0ab3fc1fafc32dc7f5cd42c5f2ec2be7",
+      "translation": "Timepose máscaras propias"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_invert",
+      "source": "With timelapse_mode='timepose_v1', invert the image intensities before Timepose reads them. Turn on for brightfield, phase-contrast and DIC movies; leave off for fluorescence. Default False.",
+      "source_sha256": "ff107161f82b8c6e1017d359efa3d920e61a075df829d2beca777aadb716d66d",
+      "translation": "Con timelapse_mode='timepose_v1', invierte las intensidades de la imagen antes de que Timepose las lea. Actívelo para películas de campo claro, contraste de fase y DIC; déjelo desactivado para fluorescencia. Valor predeterminado False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_own_masks",
+      "source": "With timelapse_mode='timepose_v1', replace the masks spaCR segmented with Timepose's own segmentation before linking. Off links spaCR's masks. Default False.",
+      "source_sha256": "04c1d4704b2bb471d6e30e3921279da779850b19f80203b55186204cdd537c3f",
+      "translation": "Con timelapse_mode='timepose_v1', sustituye las máscaras que segmentó spaCR por la segmentación propia de Timepose antes de enlazar. Desactivado enlaza las máscaras de spaCR. Valor predeterminado False."
+    },
+    {
+      "table": "ui",
+      "key": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source_sha256": "3d007207093b0dbc637a8da1e99cc7257e9031eab3a98ad1aacb2d2bb83b8a32",
+      "translation": "Timepose v1 (alfa) rastrea en la ejecución completa de Timelapse. Establezca timelapse_mode en timepose_v1 en la configuración. Necesita una cuenta de Hugging Face con acceso a su modelo privado, por lo que esta vista previa no lo ofrece."
+    }
+  ]
+}

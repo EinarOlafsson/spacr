@@ -380,25 +380,11 @@
       "translation": "अगला फ़्रेम लोड नहीं किया जा सका; मौजूदा संपादन सुरक्षित हैं। {error}"
     },
     {
-      "key": "The selected lineage cell already labels another object in this frame.",
-      "source": "The selected lineage cell already labels another object in this frame.",
-      "source_sha256": "5ff54dab0732f093c5743bd821f4321dfbe845f054115be6ac58f14eed6425da",
-      "table": "ui",
-      "translation": "वंशावली की चुनी हुई कोशिका इस फ़्रेम में पहले से किसी अन्य ऑब्जेक्ट को लेबल करती है।"
-    },
-    {
       "key": "This frame label already belongs to another lineage cell.",
       "source": "This frame label already belongs to another lineage cell.",
       "source_sha256": "03f3907b443c31aa79c797e17cd5dbe7793532a69d4aaf6acb7ffe794710d434",
       "table": "ui",
       "translation": "इस फ़्रेम का लेबल पहले से वंशावली की किसी अन्य कोशिका का है।"
-    },
-    {
-      "key": "This object already belongs to another lineage cell.",
-      "source": "This object already belongs to another lineage cell.",
-      "source_sha256": "83740b6963008a6daf383468c35cfd9808ef0e115a82443ca2fa30ec875e6304",
-      "table": "ui",
-      "translation": "यह ऑब्जेक्ट पहले से वंशावली की किसी अन्य कोशिका का है।"
     },
     {
       "key": "Time labelling requires a queue of 2D frames.",

@@ -114,8 +114,9 @@ DEFAULT_CMAP = "viridis"
 #: The aggregation behind a tick is 487 ms and the spin box emits about every
 #: 50 ms while its arrow is held, so without this a drag queues a job per tick
 #: and the plate the user stopped on is drawn last, after every plate they
-#: passed through. Short enough that a single click still feels immediate.
-RECOMPUTE_COALESCE_MS = 120
+#: passed through. Long enough that typing a number is one recompute; Enter or
+#: leaving the field recomputes at once.
+RECOMPUTE_COALESCE_MS = 350
 
 #: Tables tried first when a database opens, in order of usefulness.
 PREFERRED_TABLES: Tuple[str, ...] = ("cell", "object", "nucleus", "pathogen",
@@ -804,6 +805,7 @@ class PlateViewScreen(LinkedView, QWidget):
             "(int) Wells with fewer objects than this are dropped. They are "
             "drawn blank, never as zero, and the number dropped is reported.")
         self._min_count_box.valueChanged.connect(self._on_view_changed)
+        self._min_count_box.editingFinished.connect(self._flush_recompute)
         opt_row.addWidget(self._min_count_box)
 
         opt_row.addStretch(1)
@@ -881,7 +883,9 @@ class PlateViewScreen(LinkedView, QWidget):
     def _update_controls(self) -> None:
         """Enable the pickers, Render and Export to match what is loaded.
 
-        Everything but Export needs a database and no job in flight; Export
+        The table and measurement pickers and Render need a database and no
+        job in flight; the plate, grouping, scale and min-objects fields stay
+        live while a recompute runs because the newest request wins. Export
         needs a rendered well grid, which is a different condition -- the CSV is
         of what is drawn, not of what could be drawn.
         """
@@ -890,10 +894,10 @@ class PlateViewScreen(LinkedView, QWidget):
         self._btn_render.setEnabled(ready and self._value_combo.count() > 0)
         self._table_combo.setEnabled(ready)
         self._value_combo.setEnabled(ready)
-        self._plate_combo.setEnabled(ready and self._plate_combo.count() > 0)
-        self._grouping_combo.setEnabled(ready)
-        self._scale_combo.setEnabled(ready)
-        self._min_count_box.setEnabled(ready)
+        self._plate_combo.setEnabled(has_db and self._plate_combo.count() > 0)
+        self._grouping_combo.setEnabled(has_db)
+        self._scale_combo.setEnabled(has_db)
+        self._min_count_box.setEnabled(has_db)
         self._btn_export.setEnabled(self._layout_df is not None
                                     and len(self._layout_df) > 0)
 
@@ -1084,6 +1088,12 @@ class PlateViewScreen(LinkedView, QWidget):
             self.recompute()
             return
         self._recompute_timer.start()
+
+    def _flush_recompute(self) -> None:
+        """Run a pending debounced recompute now (Enter or focus-out)."""
+        if self._recompute_timer.isActive():
+            self._recompute_timer.stop()
+            self.recompute()
 
     def render_plate(self) -> bool:
         """Read the chosen measurement and draw the plate.

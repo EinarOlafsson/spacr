@@ -258,7 +258,7 @@ def new_lineage_cell(state: Optional[dict], name: str, label: int,
 def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
                           frame: str, cell_uuid: str,
                           preferred_label: Optional[int] = None):
-    """Track a hovered object using a free local ID without stealing another track.
+    """Give the hovered object the selected identity, letting one division branch continue it.
 
     :param mask: The current two-dimensional integer label mask.
     :param x: The hovered pixel column.
@@ -282,14 +282,33 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
     if not original:
         return labels, result, 0, 0
     frame = os.path.abspath(frame)
+    cells = result["cells"]
+    selected = cells[cell_uuid]
     mapping = result["frames"].get(frame, {})
     assigned = mapping.get(str(original))
+    identity, retire = cell_uuid, None
     if assigned is not None and assigned != cell_uuid:
-        raise ValueError(tr("This object already belongs to another lineage cell."))
-    if any(identity == cell_uuid and int(local) != original and np.any(labels == int(local))
-           for local, identity in mapping.items()):
-        raise ValueError(tr("The selected lineage cell already labels another object in this frame."))
-    target = result["cells"][cell_uuid]["label"] if preferred_label is None else preferred_label
+        other = cells[assigned]
+        if other.get("parent_uuid") == cell_uuid or selected.get("parent_uuid") == assigned:
+            if other.get("parent_uuid") == cell_uuid:
+                mother, branch, claimed = selected, assigned, selected["name"]
+            else:
+                mother, branch = other, cell_uuid
+                claimed = mother["name"] if mother["name"] != selected["name"] else None
+            if any(child != branch and cells[child]["name"] == claimed
+                   for child in mother["children"]):
+                raise ValueError(tr(
+                    "{name} already continues through its other daughter; undo that "
+                    "first or select the other daughter.", name=mother["name"]))
+            identity = assigned
+        else:
+            retire = assigned
+    if any(value == identity and int(local) != original and np.any(labels == int(local))
+           for local, value in mapping.items()):
+        raise ValueError(tr(
+            "{name} already labels another object in this frame; one identity can "
+            "mark only one object per frame.", name=selected["name"]))
+    target = selected["label"] if preferred_label is None else preferred_label
     if isinstance(target, (bool, np.bool_)) or not isinstance(target, Integral) \
             or not 1 <= int(target) <= MAX_MASK_LABEL:
         raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
@@ -298,8 +317,21 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
         target = original
     if target == original and assigned == cell_uuid:
         return labels, result, original, original
+    if retire is not None:
+        result["frames"][frame] = {
+            key: value for key, value in mapping.items() if key != str(original)}
+    if identity != cell_uuid:
+        stamp = _next_lineage_revision(result)
+        cells[identity].update(name=selected["name"], label=int(target), revision=stamp)
     labels, _ = assign_object_label(labels, x, y, target)
-    result = assign_lineage_label(result, frame, target, cell_uuid, old_label=original)
+    result = assign_lineage_label(result, frame, target, identity, old_label=original)
+    if retire is not None:
+        cell = result["cells"][retire]
+        if not cell.get("parent_uuid") and not cell.get("children") and not any(
+                retire in frame_mapping.values() for frame_mapping in result["frames"].values()):
+            result["deleted_cells"][retire] = _next_lineage_revision(result)
+            del result["cells"][retire]
+            result = validate_lineage(result)
     return labels, result, original, target
 
 

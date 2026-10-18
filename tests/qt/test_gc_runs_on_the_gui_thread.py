@@ -264,3 +264,121 @@ def test_a_timer_that_cannot_be_stopped_still_uninstalls(monkeypatch, qapp):
         assert gc_policy.uninstall() is True
         assert gc_policy.is_installed() is False
         assert gc.isenabled() is True
+
+
+def _fake_app_with_lock(monkeypatch):
+    import types
+
+    lock = threading.Lock()
+    monkeypatch.setitem(sys.modules, "spacr.qt.app",
+                        types.SimpleNamespace(HEAVY_IMPORT_LOCK=lock))
+    return lock
+
+
+def test_the_tick_waits_while_a_heavy_import_holds_the_lock(monkeypatch):
+    """An import's half-built modules are frozen when it ends; sweeping them
+    on the GUI thread meanwhile is what dropped lesson 14's paint rate."""
+    from spacr import _gc
+
+    lock = _fake_app_with_lock(monkeypatch)
+    _gc._requested.clear()
+    gc.collect()
+    gc.set_threshold(1, 1, 1)
+    try:
+        gc_policy.install(None)
+        destroyed_on = []
+        with lock:
+            for _ in range(50):
+                _RecordsItsDestroyingThread(destroyed_on)
+            assert gc_policy.collect_once() == -1
+            assert gc_policy.collect_once() == -1
+            assert destroyed_on == []
+        assert gc_policy.collect_once() >= 0
+    finally:
+        gc.set_threshold(700, 10, 10)
+    assert destroyed_on, "the sweep never came once the import finished"
+
+
+def test_an_explicit_request_is_still_served_during_an_import(monkeypatch):
+    from spacr import _gc
+
+    lock = _fake_app_with_lock(monkeypatch)
+    gc_policy.install(None)
+    destroyed_on = []
+    with lock:
+        for _ in range(5):
+            _RecordsItsDestroyingThread(destroyed_on)
+        _gc._requested.set()
+        assert gc_policy.collect_once() == 2
+    assert len(destroyed_on) == 5
+    assert not _gc._requested.is_set()
+
+
+def test_the_tick_waits_while_a_pipeline_worker_is_busy(monkeypatch):
+    """A busy worker's garbage is swept once, after it finishes, not mid-run."""
+    from spacr import _gc
+    from spacr.qt import gil_priority
+
+    _gc._requested.clear()
+    gc.collect()
+    monkeypatch.setattr(gc_policy, "_busy_since", [None])
+    gc.set_threshold(1, 1, 1)
+    try:
+        gc_policy.install(None)
+        destroyed_on = []
+        gil_priority.claim()
+        try:
+            for _ in range(50):
+                _RecordsItsDestroyingThread(destroyed_on)
+            assert [gc_policy.collect_once() for _ in range(3)] == [-1, -1, -1]
+            assert destroyed_on == []
+        finally:
+            gil_priority.release()
+        assert gc_policy.collect_once() >= 0
+        assert len(destroyed_on) == 50
+    finally:
+        gc.set_threshold(700, 10, 10)
+
+
+def test_a_long_busy_run_still_gets_a_sweep(monkeypatch):
+    from spacr import _gc
+    from spacr.qt import gil_priority
+
+    _gc._requested.clear()
+    gc.collect()
+    clock = [1000.0]
+    monkeypatch.setattr(gc_policy.time, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(gc_policy, "_busy_since", [None])
+    gc.set_threshold(1, 1, 1)
+    try:
+        gc_policy.install(None)
+        destroyed_on = []
+        gil_priority.claim()
+        try:
+            for _ in range(5):
+                _RecordsItsDestroyingThread(destroyed_on)
+            assert gc_policy.collect_once() == -1
+            clock[0] += gc_policy._BUSY_DEFER_LIMIT_SECONDS + 1
+            assert gc_policy.collect_once() >= 0
+            assert len(destroyed_on) == 5
+        finally:
+            gil_priority.release()
+    finally:
+        gc.set_threshold(700, 10, 10)
+
+
+def test_an_explicit_request_is_served_while_a_worker_is_busy():
+    from spacr import _gc
+    from spacr.qt import gil_priority
+
+    gc_policy.install(None)
+    destroyed_on = []
+    gil_priority.claim()
+    try:
+        for _ in range(5):
+            _RecordsItsDestroyingThread(destroyed_on)
+        _gc._requested.set()
+        assert gc_policy.collect_once() == 2
+    finally:
+        gil_priority.release()
+    assert len(destroyed_on) == 5

@@ -667,6 +667,141 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     return _masks_to_masks_stack(masks_tracked)
 
 
+def _edges_to_tracked_stack(masks, edges):
+    """Relabel a (T, Y, X) stack from frame-to-frame links, one id per track branch.
+
+    A label linked to exactly one child keeps its track id in the next frame;
+    two or more children are daughters and each starts a new track whose
+    parent is the mother's track. Unlinked labels start new tracks.
+
+    :param masks: the (T, Y, X) label stack the links refer to.
+    :param edges: ``[t, parent_label, child_label]`` from frame t to t + 1.
+    :returns: ``(tracked, parents)``: the relabelled stack and
+        ``{daughter_track: mother_track}``.
+    :raises ValueError: when a child is linked from two parents.
+    """
+    masks = np.asarray(masks)
+    children, incoming = {}, {}
+    for t, parent, child in edges:
+        t, parent, child = int(t), int(parent), int(child)
+        children.setdefault((t, parent), []).append(child)
+        if (t + 1, child) in incoming:
+            raise ValueError(f'label {child} in frame {t + 1} has two parents')
+        incoming[(t + 1, child)] = parent
+    tracked = np.zeros(masks.shape, np.int32)
+    track_of, parents, next_id = {}, {}, 1
+    for t in range(masks.shape[0]):
+        labels = np.unique(masks[t])
+        labels = labels[labels > 0]
+        lut = {}
+        for label in labels.tolist():
+            parent = incoming.get((t, label))
+            if parent is not None and (t - 1, parent) in track_of \
+                    and len(children[(t - 1, parent)]) == 1:
+                track_of[(t, label)] = track_of[(t - 1, parent)]
+            else:
+                track_of[(t, label)] = next_id
+                if parent is not None and (t - 1, parent) in track_of:
+                    parents[next_id] = track_of[(t - 1, parent)]
+                next_id += 1
+            lut[label] = track_of[(t, label)]
+        if lut:
+            table = np.zeros(int(max(lut)) + 1, np.int32)
+            for label, track in lut.items():
+                table[label] = track
+            frame = masks[t]
+            tracked[t] = np.where(frame <= max(lut), table[np.minimum(frame, max(lut))], 0)
+    return tracked, parents
+
+
+def _timepose_images(images):
+    """Images as (T, C, Y, X) for Timepose from spaCR's (T, Y, X) or (T, Y, X, C)."""
+    images = np.asarray(images)
+    if images.ndim == 4 and images.shape[-1] <= 4 and images.shape[1] > 4:
+        images = np.moveaxis(images, -1, 1)
+    return images
+
+
+def _timepose_track_cells(src, name, batch_filenames, object_type, masks, images=None,
+                          timelapse_remove_transient=False, plot=False, save=False,
+                          mode='timepose', device='automatic', own_masks=False,
+                          invert=False):
+    """Track objects with a Timepose release, a temporal Cellpose-SAM tracker.
+
+    Timepose reads the movie and links the masks into tracks with divisions.
+    ``mode`` is the zoo key of a release of kind ``timepose``; each release
+    ships its own adapter (contract ``spacr.timepose/1``) and pinned files,
+    so a release is a zoo record, not new code here. A release in a private
+    Hugging Face repository needs the token of an account with access.
+
+    :param src: run folder; the tracks CSV lands in ``<dirname(src)>/tracks``
+        as ``<mode>_tracks_<object>_<name>.csv``, with the mother's track id
+        in ``parent_track_id`` (0 for none).
+    :param name: batch name used in the output filename.
+    :param batch_filenames: filenames of the frames, for the track visualiser.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle'.
+    :param masks: (T, Y, X) integer label stack.
+    :param images: (T, Y, X) or (T, Y, X, C) intensity stack; required.
+    :param timelapse_remove_transient: drop tracks not present in every frame.
+    :param mode: the Timepose release, a zoo key of kind ``timepose``.
+    :param device: 'automatic', 'cpu' or 'cuda'.
+    :param own_masks: replace ``masks`` with Timepose's own segmentation.
+    :param invert: invert intensities, for brightfield, phase or DIC movies.
+    :returns: the relabelled mask stack, ids consistent across frames.
+    :raises ValueError: no images, or mismatched shapes.
+    """
+    from .plot import _visualize_and_save_timelapse_stack_with_tracks
+    from .qt.i18n import tr
+    from .utils import _masks_to_masks_stack
+    from . import model_zoo
+
+    masks = np.asarray(masks)
+    if masks.ndim != 3:
+        raise ValueError(tr("Timepose needs a (T, Y, X) mask stack, got shape {shape}.",
+                            shape=masks.shape))
+    if masks.shape[0] < 2:
+        print(tr("Timepose: only {count} frame(s) for {object_type}; nothing to link.",
+                 count=masks.shape[0], object_type=object_type))
+        return _masks_to_masks_stack(masks)
+    if images is None:
+        raise ValueError(tr("timelapse_mode='{mode}' needs the image stack, not only the masks.",
+                            mode=mode))
+    images = _timepose_images(images)
+    if images.shape[0] != masks.shape[0] or images.shape[-2:] != masks.shape[-2:]:
+        raise ValueError(tr("images shape {images} does not match masks shape {masks}.",
+                            images=images.shape, masks=masks.shape))
+
+    adapter, model = model_zoo._load_timepose(mode, device=device)
+    result = adapter.segment_track_movie(model, images, invert=bool(invert),
+                                         masks=None if own_masks else masks.astype(np.int32))
+    masks_tracked, parents = _edges_to_tracked_stack(result['masks'], result['edges'])
+    tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if not tracks_df.empty:
+        tracks_df = _native_lineage_columns(tracks_df, parents, 'timepose')
+
+    if timelapse_remove_transient and not tracks_df.empty:
+        n_frames = masks_tracked.shape[0]
+        keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
+        kept_ids = set(keep[keep].index)
+        before = len(tracks_df)
+        tracks_df = tracks_df[tracks_df['track_id'].isin(kept_ids)].copy()
+        print(tr("Removed {count} objects that were not present in all frames",
+                 count=before - len(tracks_df)))
+        masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
+
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks')
+    os.makedirs(tracks_path, exist_ok=True)
+    tracks_df.to_csv(os.path.join(tracks_path, f'{mode}_tracks_{object_type}_{name}.csv'),
+                     index=False)
+
+    if plot or save:
+        _visualize_and_save_timelapse_stack_with_tracks(
+            masks_tracked, tracks_df, save, src, name, plot,
+            batch_filenames, object_type, mode)
+
+    return _masks_to_masks_stack(masks_tracked)
+
+
 def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, images=None,
                            timelapse_remove_transient=False, plot=False, save=False,
                            mode='timeflows', model_path=None, device=None,

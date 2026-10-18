@@ -5179,7 +5179,7 @@ API_ENTRIES = (
     ('spacr.qt.mask_engine.apply_filters', "Make Masks' filter list applied to one mask; ``(mask, removals)``."),
     ('spacr.qt.mask_engine.assign_lineage_label', 'Map an observed frame label to a persistent segment, or remove a mapping.'),
     ('spacr.qt.mask_engine.assign_object_label', 'Assign one explicit uint32 identity without joining different objects.'),
-    ('spacr.qt.mask_engine.assign_tracked_object', 'Track a hovered object using a free local ID without stealing another track.'),
+    ('spacr.qt.mask_engine.assign_tracked_object', 'Give the hovered object the selected identity, letting one division branch continue it.'),
     ('spacr.qt.mask_engine.box_overlap', 'Intersection over union of two ``(x0, y0, x1, y1)`` boxes.'),
     ('spacr.qt.mask_engine.canonical_labels', 'Return validated labels, retaining explicit uint32 identities.'),
     ('spacr.qt.mask_engine.canonical_property', '``name`` as the regionprop it means, or a ValueError naming the choices.'),

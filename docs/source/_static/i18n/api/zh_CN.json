@@ -24641,6 +24641,22 @@
         "86f9e92eded5f70634452fc7324dfc25925ac74d9d14fdd4c0de92e2ba8278eb"
       ]
     },
+    "spacr.example_archives.check_archive_sha256": {
+      "source_blocks_sha256": [
+        "1c482a4b42f567db07a06d42ffad1857829f89a5e6622c2c6f9e2a71a34e811a",
+        "be09eba9182be1dff0cfa1d10fcf4a02c9ebf875abade1293f68314d5f0a8240",
+        "3d789c35d31f641df8fac743fbe87568beeb4a134219f85d4d048fea9eb0756f",
+        "872fd6153d156a8610e7082541316bc92cbffd0e5fa571f35fd8774148662190"
+      ],
+      "source_sha256": "517a98fe139e056153d0bfa2a3839ef7fc053a13bebe6e287ca4b1f68bc3107a",
+      "text": "拒绝 SHA-256 与固定校验值不一致的压缩包。\n\n:param file_name: 压缩包在其仓库中的名称。\n:param digest: 收到的字节的十六进制 SHA-256 值。\n:raises IOError: 当 :data:`EXAMPLE_ARCHIVE_SHA256` 为 ``file_name`` 指定了另一个摘要值时。",
+      "translation_source_blocks_sha256": [
+        "1c482a4b42f567db07a06d42ffad1857829f89a5e6622c2c6f9e2a71a34e811a",
+        "be09eba9182be1dff0cfa1d10fcf4a02c9ebf875abade1293f68314d5f0a8240",
+        "3d789c35d31f641df8fac743fbe87568beeb4a134219f85d4d048fea9eb0756f",
+        "872fd6153d156a8610e7082541316bc92cbffd0e5fa571f35fd8774148662190"
+      ]
+    },
     "spacr.example_archives.download_archive": {
       "source_blocks_sha256": [
         "157d3cfe8f5ab555a710cbd3712ec9096ad0b9c2d8987dc43c64880708402c25",
@@ -86633,6 +86649,24 @@
         "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab"
       ]
     },
+    "spacr.qt.make_masks_demo.download_timelapse_example": {
+      "source_blocks_sha256": [
+        "0a8017e4adc028158c887a1c4a3645e45802ce689a2e4426eec66018a1f77257",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740"
+      ],
+      "source_sha256": "7dec67d2324b4e9035b41b9fbc087f3a647c59df5ecd34fe1e040c0463e2774d",
+      "text": "通过共用进度对话框下载一个延时摄影测试视频。\n\n:param parent: 进度对话框所属的部件。\n:param dest: 归档文件解包到的文件夹。\n:param on_done: 在 GUI 线程中以 ``on_done(result, error)`` 的形式调用，方式与 :func:`download_make_masks_example` 调用它相同。\n:param kind: ``yeast``、``bacteria`` 或 ``mammalian``。",
+      "translation_source_blocks_sha256": [
+        "0a8017e4adc028158c887a1c4a3645e45802ce689a2e4426eec66018a1f77257",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "65ba895240e439bc93d7f10eee9a8994fdc61069af1c1ea5d190a9853ebf90ab",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740"
+      ]
+    },
     "spacr.qt.make_masks_demo.fibsem_example_folder": {
       "source_blocks_sha256": [
         "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
@@ -86751,6 +86785,28 @@
         "a0ee89a4efc7e57417aacc21f331182a406b947daffdb5e59c52da5a85ad6f7a"
       ]
     },
+    "spacr.qt.make_masks_demo.load_the_timelapse_test_data": {
+      "source_blocks_sha256": [
+        "84096b855e2081c4deaee7ab2579184e556c73160e632558db523c13026e8cf7",
+        "afb7ccae6f1290349a4c46ae7f95b721af6068d8e786635721c6700682773d12",
+        "89f5ec77bb2f679bbe24883c9cd22399216829e92fbd55538ca8da5a43f39cc7",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "9bb8f925b495410ec396746367edd384678fe6a160bba3d7da860bbcf0d0ee35",
+        "eb5b652cb800da8a2a3bd0f5c4ab8e2fac7a4546d1bc6aca3a43df5adc2a8fba",
+        "8bc6e8810add314cb919a377036710e1c642d9ccecaede4770bb2d440585532e"
+      ],
+      "source_sha256": "53254b0c2f13efcbaea90f9e722d7365c8c116200190a812f1d212278227d847",
+      "text": "打开延时摄影测试视频，并加载其掩膜和细胞谱系。\n\n流程与 :func:`load_the_test_data` 相同：如果尚未缓存，则将 ``timelapse_<kind>`` 下载到 :func:`timelapse_example_folder`。已发布的掩膜只会复制一次到 ``masks/``，即编辑器读取和写入的文件夹，因此绝不会覆盖 ``ground_truth_masks/``。其内嵌谱系随第一帧一起打开，所以谱系菜单中会显示分裂信息，并且可以立即启用 Time。\n\n:param screen: 用于打开视频的 Make Masks 界面。\n:param kind: ``yeast``、``bacteria`` 或 ``mammalian``。\n:param ask: 在测试中替代 :func:`download_timelapse_example`。调用形式为 ``ask(screen, folder, on_done)``。\n:param folder: 在测试中替代 :func:`timelapse_example_folder`。\n:returns: 此调用是否打开了视频。",
+      "translation_source_blocks_sha256": [
+        "84096b855e2081c4deaee7ab2579184e556c73160e632558db523c13026e8cf7",
+        "afb7ccae6f1290349a4c46ae7f95b721af6068d8e786635721c6700682773d12",
+        "89f5ec77bb2f679bbe24883c9cd22399216829e92fbd55538ca8da5a43f39cc7",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "9bb8f925b495410ec396746367edd384678fe6a160bba3d7da860bbcf0d0ee35",
+        "eb5b652cb800da8a2a3bd0f5c4ab8e2fac7a4546d1bc6aca3a43df5adc2a8fba",
+        "8bc6e8810add314cb919a377036710e1c642d9ccecaede4770bb2d440585532e"
+      ]
+    },
     "spacr.qt.make_masks_demo.make_masks_example_folder": {
       "source_blocks_sha256": [
         "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
@@ -86793,6 +86849,24 @@
         "290d63dea811543e671a14efd6dcff4e76d618afea35473df7133bd5331a319e",
         "2b6fabf9654ae81b57d1fd9639ea30cd631fa7274c2b517d6c9a52e6e0c79fc7",
         "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ]
+    },
+    "spacr.qt.make_masks_demo.timelapse_example_folder": {
+      "source_blocks_sha256": [
+        "6586be272afcbd52419e8eb59925e72c0a3aa3f469c8bf042b8d25fd5ae338ca",
+        "cd81b6f90be376099c447d34dafbc3e1b13142eefca4b597c24d02790d3ba848",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+        "9e90576619ffb83bd825f3bbede9d00f492ec2a18c87963476b926906e0e475c"
+      ],
+      "source_sha256": "92ea6efc556b252bc53690764ebf3b37120183ccf05b89c84275a27a635348aa",
+      "text": "一个延时摄影测试视频的解压和缓存位置。\n\n``~/.cache/spacr/example_data/make_masks_timelapse_<kind>``，即 :data:`spacr.example_archives.EXAMPLE_SETS` 为 ``timelapse_<kind>`` 数据集指定的文件夹，因此 ``spacr-download`` 和菜单共用一个缓存。\n\n:param kind: ``yeast``、``bacteria`` 或 ``mammalian``。\n:returns: 该文件夹。此处不会创建它。\n:raises KeyError: 对于其他任何类型。",
+      "translation_source_blocks_sha256": [
+        "6586be272afcbd52419e8eb59925e72c0a3aa3f469c8bf042b8d25fd5ae338ca",
+        "cd81b6f90be376099c447d34dafbc3e1b13142eefca4b597c24d02790d3ba848",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+        "9e90576619ffb83bd825f3bbede9d00f492ec2a18c87963476b926906e0e475c"
       ]
     },
     "spacr.qt.mask_engine": {

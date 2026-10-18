@@ -42,6 +42,8 @@ from __future__ import annotations
 
 import gc
 import logging
+import sys
+import time
 from typing import Optional
 
 from .._gc import _requested
@@ -65,6 +67,60 @@ def is_installed() -> bool:
     return _timer is not None
 
 
+def _a_heavy_import_is_running() -> bool:
+    """Whether a background import holds :data:`spacr.qt.app.HEAVY_IMPORT_LOCK`.
+
+    Every heavy background import freezes what it built when it finishes
+    (:func:`spacr.qt.bridge._import_the_entry_module`,
+    :func:`spacr.qt.app._freeze_what_survived`), so a generational sweep in
+    the middle of one walks hundreds of thousands of new module objects for
+    nothing, on the GUI thread. Opening a Make Masks folder starts the
+    ``spacr.io`` import (torch and the rest); the timer's sweeps during it
+    took 330, 83, 421 and 101 ms on a 1994 x 1994 field, the paint drops of
+    lesson 14's restoration row. The automatic sweep waits until the lock is
+    free; an explicit request is still serviced.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+    try:
+        return bool(lock is not None and lock.locked())
+    except Exception:
+        return False
+
+
+_BUSY_DEFER_LIMIT_SECONDS = 60.0
+_busy_since: list = [None]
+
+
+def _defer_for_busy_workers() -> bool:
+    """Whether to skip this automatic sweep because a worker is busy.
+
+    While a pipeline or render worker holds a
+    :func:`spacr.qt.gil_priority.claim`, the GUI thread already competes
+    with it for the interpreter lock, and a generational sweep of what the
+    worker allocated lands as one long frame: 0.36 s in lesson 26 while the
+    worker was compiling with numba. The sweep waits until the last claim
+    is released and runs on the next tick. A run longer than
+    :data:`_BUSY_DEFER_LIMIT_SECONDS` still gets one, so a long run cannot
+    grow memory without bound.
+    """
+    try:
+        from .gil_priority import active
+        busy = bool(active())
+    except Exception:
+        busy = False
+    if not busy:
+        _busy_since[0] = None
+        return False
+    now = time.monotonic()
+    if _busy_since[0] is None:
+        _busy_since[0] = now
+    if now - _busy_since[0] < _BUSY_DEFER_LIMIT_SECONDS:
+        return True
+    _busy_since[0] = now
+    return False
+
+
 def collect_once() -> int:
     """Run at most one generation's collection, CPython's own policy.
 
@@ -84,6 +140,8 @@ def collect_once() -> int:
         _requested.clear()
         gc.collect()
         return 2
+    if _a_heavy_import_is_running() or _defer_for_busy_workers():
+        return -1
     thresholds = _saved_thresholds or gc.get_threshold()
     counts = gc.get_count()
     for generation in (2, 1, 0):

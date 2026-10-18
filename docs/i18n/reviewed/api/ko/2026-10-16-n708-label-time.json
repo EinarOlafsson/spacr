@@ -65,11 +65,11 @@
       "translation": "잘못된 레이블, 좌표 또는 이미 사용 중인 ID에 대해 발생합니다."
     },
     {
-      "context": "Track a hovered object using a free local ID without stealing another track.",
+      "context": "Give the hovered object the selected identity, letting one division branch continue it.",
       "label": "spacr.qt.mask_engine.assign_tracked_object#0",
-      "source": "Track a hovered object using a free local ID without stealing another track.",
-      "source_sha256": "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
-      "translation": "다른 추적을 차지하지 않고 사용 가능한 로컬 ID로 포인터 아래의 객체를 추적합니다."
+      "source": "Give the hovered object the selected identity, letting one division branch continue it.",
+      "source_sha256": "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
+      "translation": "포인터 아래의 객체에 선택한 식별자를 부여하여 분열의 한 가지가 그 식별자를 이어 가도록 합니다."
     },
     {
       "context": "Return validated labels, retaining explicit uint32 identities.",

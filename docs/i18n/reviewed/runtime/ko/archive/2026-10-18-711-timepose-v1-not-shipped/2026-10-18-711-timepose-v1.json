@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review_method": "Direct translation of the two Timepose v1 (alpha) Timelapse settings and the preview note added for item 711. Preserve timelapse_mode, timepose_v1, spaCR, Timepose, Hugging Face, DIC and False.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timepose_invert",
+      "source": "Timepose invert",
+      "source_sha256": "74bdc242792900cf046acfe85fe6923266b4ee1a805d96680a303bce2795350d",
+      "translation": "Timepose 반전"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timepose_own_masks",
+      "source": "Timepose own masks",
+      "source_sha256": "4367b1b9ec6d42e8fdef472f48f69cab0ab3fc1fafc32dc7f5cd42c5f2ec2be7",
+      "translation": "Timepose 자체 마스크"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_invert",
+      "source": "With timelapse_mode='timepose_v1', invert the image intensities before Timepose reads them. Turn on for brightfield, phase-contrast and DIC movies; leave off for fluorescence. Default False.",
+      "source_sha256": "ff107161f82b8c6e1017d359efa3d920e61a075df829d2beca777aadb716d66d",
+      "translation": "timelapse_mode='timepose_v1'일 때 Timepose가 이미지를 읽기 전에 이미지 강도를 반전합니다. 명시야, 위상차 및 DIC 영상에서는 켜고, 형광 영상에서는 끄십시오. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_own_masks",
+      "source": "With timelapse_mode='timepose_v1', replace the masks spaCR segmented with Timepose's own segmentation before linking. Off links spaCR's masks. Default False.",
+      "source_sha256": "04c1d4704b2bb471d6e30e3921279da779850b19f80203b55186204cdd537c3f",
+      "translation": "timelapse_mode='timepose_v1'일 때 연결하기 전에 spaCR이 분할한 마스크를 Timepose 자체 분할로 바꿉니다. 끄면 spaCR의 마스크를 연결합니다. 기본값 False."
+    },
+    {
+      "table": "ui",
+      "key": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source_sha256": "3d007207093b0dbc637a8da1e99cc7257e9031eab3a98ad1aacb2d2bb83b8a32",
+      "translation": "Timepose v1(알파)은 전체 Timelapse 실행에서 추적합니다. 설정에서 timelapse_mode를 timepose_v1로 지정하십시오. 비공개 모델에 접근 권한이 있는 Hugging Face 계정이 필요하므로 이 미리보기에서는 제공하지 않습니다."
+    }
+  ]
+}

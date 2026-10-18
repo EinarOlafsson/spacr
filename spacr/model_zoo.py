@@ -253,7 +253,7 @@ UNKNOWN = "unknown"
 PREFIXED_KINDS = tuple(_name for _name, _spec in _BACKEND_SPECS.items()
                        if _spec.prefix)
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3", "cellpose_dino", "mitonet") + PREFIXED_KINDS
+         "cellpose3", "cellpose_dino", "mitonet", "timepose") + PREFIXED_KINDS
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -4651,6 +4651,10 @@ def fetch(entry: ModelEntry, dest: Any,
     :raises DownloadCancelled: ``cancel()`` returned True.
     :raises ModelZooError: no URI, or no checksum with ``require_checksum``.
     """
+    if entry.kind == "timepose":
+        record = _timepose_record(entry.key)
+        folder = _timepose_files(entry.key, dest=Path(dest) / "timepose")
+        return folder / record["weights"]
     if not entry.uri:
         raise ModelZooError(
             f"{entry.name} has no uri to fetch it from (source={entry.source})")
@@ -6022,3 +6026,202 @@ def segment_mitonet(image: Any, weights: Any = None, *,
                              threshold=threshold,
                              centre_threshold=centre_threshold,
                              min_size=min_size)
+
+
+TIMEPOSE_CONTRACT = "spacr.timepose/1"
+_TIMEPOSE_VERIFIED: Dict[str, Tuple[int, int]] = {}
+_TIMEPOSE_MODELS: Dict[Tuple[str, str, str], Any] = {}
+_TIMEPOSE_LOCK = threading.Lock()
+
+
+class _TimeposeAccessError(ModelZooError):
+    """No Hugging Face token, or the token's account cannot read the repository."""
+
+
+def _timepose_record(key: str) -> Mapping[str, Any]:
+    """The :data:`BUNDLED_REMOTE_MODELS` record of a Timepose release.
+
+    Every Timepose version is one record of kind ``timepose``: its repository,
+    pinned revision, the sha256 of every file and the adapter module that
+    exposes ``load_model`` and ``segment_track_movie``. A new version needs
+    only a new record.
+
+    :param key: the zoo key, also the ``timelapse_mode`` choice it is
+        offered as.
+    :raises ModelZooError: for a key that is not a Timepose release.
+    """
+    for record in BUNDLED_REMOTE_MODELS:
+        if record.get("key") == key and record.get("kind") == "timepose":
+            return record
+    from .qt.i18n import tr
+    raise ModelZooError(tr("{key} is not a Timepose model in the model zoo.",
+                           key=key))
+
+
+def _timepose_verified(path: Path, sha256: str) -> bool:
+    """Whether ``path`` holds the pinned bytes, hashing each file once."""
+    try:
+        stat = path.stat()
+    except OSError:
+        return False
+    stamp = (int(stat.st_size), int(stat.st_mtime_ns))
+    if _TIMEPOSE_VERIFIED.get(str(path)) == stamp:
+        return True
+    if sha256_file(path) != sha256:
+        return False
+    _TIMEPOSE_VERIFIED[str(path)] = stamp
+    return True
+
+
+def _timepose_access_failure(error: BaseException) -> bool:
+    """Whether a Hugging Face error means no token or no access."""
+    if type(error).__name__ in ("GatedRepoError", "RepositoryNotFoundError",
+                                "LocalTokenNotFoundError"):
+        return True
+    response = getattr(error, "response", None)
+    return getattr(response, "status_code", None) in (401, 403, 404)
+
+
+def _timepose_token(token: Optional[str] = None) -> Optional[str]:
+    """The Hugging Face token: ``token``, else the one huggingface_hub finds."""
+    if token:
+        return token
+    try:
+        from huggingface_hub import get_token
+    except ImportError:
+        return os.environ.get("HF_TOKEN") or None
+    return get_token()
+
+
+def _timepose_files(key: str, dest: Any = None,
+                    token: Optional[str] = None,
+                    downloader: Optional[Callable[..., Any]] = None,
+                    progress: Optional[Callable[[int, int], None]] = None
+                    ) -> Path:
+    """Download a Timepose release once and verify every file against its pin.
+
+    The files go to ``<cache>/timepose/<key>/<revision>``. A file whose sha256
+    is not the pinned one is deleted and nothing is loaded from the release.
+
+    :param key: the zoo key.
+    :param dest: the cache root; spaCR's model cache by default.
+    :param token: a Hugging Face token; the logged-in one by default.
+    :param downloader: ``hf_hub_download``-compatible callable; tests pass a
+        fake one.
+    :param progress: ``fn(done_files, total_files)``.
+    :returns: the folder holding the verified release.
+    :raises _TimeposeAccessError: with no token, or no access to the private
+        repository.
+    :raises ChecksumMismatch: when a downloaded file is not the pinned one.
+    """
+    from .qt.i18n import tr
+    record = _timepose_record(key)
+    root = Path(dest).expanduser() if dest is not None else _model_cache_root() / "timepose"
+    folder = root / key / str(record["revision"])[:12]
+    files = dict(record["files"])
+    missing = [name for name, sha in sorted(files.items())
+               if not _timepose_verified(folder / name, sha)]
+    if not missing:
+        return folder
+    found = _timepose_token(token)
+    if downloader is None:
+        if not found:
+            raise _TimeposeAccessError(tr(
+                "{name} is in a private Hugging Face repository ({repo}). Sign "
+                "in with an account that has been given access: run `hf auth "
+                "login` or set HF_TOKEN, then run again.",
+                name=record.get("display_name", key), repo=record["repo_id"]))
+        from huggingface_hub import hf_hub_download
+        downloader = hf_hub_download
+    folder.mkdir(parents=True, exist_ok=True)
+    for done, name in enumerate(missing, 1):
+        try:
+            downloader(repo_id=record["repo_id"], filename=name,
+                       revision=record["revision"], repo_type="model",
+                       local_dir=str(folder), token=found)
+        except Exception as error:
+            if _timepose_access_failure(error):
+                raise _TimeposeAccessError(tr(
+                    "Your Hugging Face account cannot read {repo}, the private "
+                    "repository of {name}. Ask the spaCR maintainer for "
+                    "access, or choose another timelapse_mode.",
+                    name=record.get("display_name", key),
+                    repo=record["repo_id"])) from error
+            raise
+        path = folder / name
+        if not _timepose_verified(path, files[name]):
+            try:
+                path.unlink()
+            except OSError:
+                pass
+            raise ChecksumMismatch(tr(
+                "{file} of {name} does not match its pinned sha256 and was "
+                "deleted; nothing from this download was run.",
+                file=name, name=record.get("display_name", key)))
+        if progress is not None:
+            progress(done, len(missing))
+    return folder
+
+
+def _timepose_device(device: Any = None) -> str:
+    """``'cuda'`` when asked for or automatic with a GPU present, else ``'cpu'``."""
+    text = str(device or "automatic").lower()
+    if text not in ("automatic", "auto", "none"):
+        return text
+    try:
+        import torch
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except ImportError:
+        return "cpu"
+
+
+def _load_timepose(key: str, device: Any = None,
+                   token: Optional[str] = None, dest: Any = None,
+                   downloader: Optional[Callable[..., Any]] = None
+                   ) -> Tuple[Any, Any]:
+    """The adapter module and loaded model of a Timepose release.
+
+    The adapter ships with the weights and is imported only after every file
+    matched its pin. It must declare :data:`TIMEPOSE_CONTRACT` and expose
+    ``load_model(folder, device)`` and ``segment_track_movie(model, images,
+    invert=..., masks=...)``, which returns ``masks`` (T, Y, X) and ``edges``
+    ``[t, parent_label, child_label]``.
+
+    :returns: ``(adapter, model)``, cached per key, revision and device.
+    """
+    import importlib
+    import importlib.util
+    import sys
+
+    from .qt.i18n import tr
+    record = _timepose_record(key)
+    device = _timepose_device(device)
+    cache_key = (key, str(record["revision"]), device)
+    with _TIMEPOSE_LOCK:
+        if cache_key in _TIMEPOSE_MODELS:
+            return _TIMEPOSE_MODELS[cache_key]
+        folder = _timepose_files(key, dest=dest, token=token,
+                                 downloader=downloader)
+        package, _, module_name = str(record["entry"]).partition(".")
+        alias = f"_spacr_{key}_{str(record['revision'])[:12]}"
+        if alias not in sys.modules:
+            spec = importlib.util.spec_from_file_location(
+                alias, folder / package / "__init__.py",
+                submodule_search_locations=[str(folder / package)])
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[alias] = module
+            try:
+                spec.loader.exec_module(module)
+            except Exception:
+                sys.modules.pop(alias, None)
+                raise
+        adapter = (importlib.import_module(f"{alias}.{module_name}")
+                   if module_name else sys.modules[alias])
+        if getattr(adapter, "CONTRACT", None) != record["contract"]:
+            raise ModelZooError(tr(
+                "{name} does not provide the interface this spaCR expects "
+                "({contract}); update spaCR.", name=record.get("display_name", key),
+                contract=record["contract"]))
+        model = adapter.load_model(str(folder), device)
+        _TIMEPOSE_MODELS[cache_key] = (adapter, model)
+        return adapter, model

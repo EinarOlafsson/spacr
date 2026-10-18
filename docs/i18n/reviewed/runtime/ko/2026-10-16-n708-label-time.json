@@ -380,25 +380,11 @@
       "translation": "다음 프레임을 불러오지 못했습니다. 현재 편집 내용은 유지됩니다. {error}"
     },
     {
-      "key": "The selected lineage cell already labels another object in this frame.",
-      "source": "The selected lineage cell already labels another object in this frame.",
-      "source_sha256": "5ff54dab0732f093c5743bd821f4321dfbe845f054115be6ac58f14eed6425da",
-      "table": "ui",
-      "translation": "계보에서 선택한 세포는 이 프레임에서 이미 다른 객체에 레이블을 지정하고 있습니다."
-    },
-    {
       "key": "This frame label already belongs to another lineage cell.",
       "source": "This frame label already belongs to another lineage cell.",
       "source_sha256": "03f3907b443c31aa79c797e17cd5dbe7793532a69d4aaf6acb7ffe794710d434",
       "table": "ui",
       "translation": "이 프레임 레이블은 이미 계보의 다른 세포에 속합니다."
-    },
-    {
-      "key": "This object already belongs to another lineage cell.",
-      "source": "This object already belongs to another lineage cell.",
-      "source_sha256": "83740b6963008a6daf383468c35cfd9808ef0e115a82443ca2fa30ec875e6304",
-      "table": "ui",
-      "translation": "이 객체는 이미 계보의 다른 세포에 속합니다."
     },
     {
       "key": "Time labelling requires a queue of 2D frames.",

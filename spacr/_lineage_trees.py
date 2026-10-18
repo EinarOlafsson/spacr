@@ -445,7 +445,7 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
     known = set(explicit)
     if 'parent_track_id_source' in df:
         native = df['parent_track_id_source'].fillna('').isin(
-            ['ultrack', 'btrack', 'trackastra', 'sam2'])
+            ['ultrack', 'btrack', 'trackastra', 'sam2', 'timepose'])
         known.update(df.loc[native, 'track_id'].astype(int))
     hours = _lineage_hours_per_frame(df, frame_interval_s)
     min_cycle = None

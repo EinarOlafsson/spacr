@@ -19,12 +19,13 @@ from . import timing as _timing
 import traceback
 from typing import Dict, List, Optional, Tuple
 
-from PySide6.QtCore import (QEvent, QObject, Qt,
+from PySide6.QtCore import (QEvent, QObject, QSize, Qt,
                             QThread, Signal)
 from PySide6.QtGui import (QAction, QColor, QIcon, QKeySequence,
                            QPalette)
 from PySide6.QtWidgets import (
     QApplication,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -33,6 +34,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
+    QScrollArea,
     QStackedWidget,
     QStatusBar,
     QToolButton,
@@ -243,6 +245,103 @@ def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
     except Exception:
         LOG.debug("could not fit the window to its screen", exc_info=True)
         return False
+
+
+_ROOMY_SCREEN = (1500, 900)
+
+_CRAMPED_SCREENS = frozenset({
+    "batch", "data_manager", "dose_response", "foreign", "gate_editor",
+    "graph_builder", "investigate_hit", "plate_view", "power", "profiler",
+    "tabulate", "train_compare",
+})
+
+
+class _CrampedScroll(QScrollArea):
+    """A module screen's content, which scrolls only on a small screen.
+
+    At :data:`_ROOMY_SCREEN` logical pixels or more the content is laid out
+    in exactly the screen's rectangle, as it was before it was wrapped.
+    Smaller, it keeps at least its minimum size and scrolls, so a 1280 x 720
+    display reaches every control instead of squeezing them out of sight.
+    """
+
+    def __init__(self, content: QWidget, parent: QWidget):
+        """Hold ``content`` inside ``parent`` with no frame or background."""
+        super().__init__(parent)
+        self.setObjectName("CrampedScreenScroll")
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        self.setWidgetResizable(False)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.viewport().setAutoFillBackground(False)
+        self.setAutoFillBackground(False)
+        content.setAutoFillBackground(False)
+        self.setWidget(content)
+        self._fit_pending = False
+
+    def resizeEvent(self, event) -> None:
+        """Lay the content out again for the new size."""
+        super().resizeEvent(event)
+        self._fit_content()
+
+    def eventFilter(self, watched, event) -> bool:
+        """Refit when the content's minimum changes."""
+        if (watched is self.widget()
+                and event.type() == QEvent.Type.LayoutRequest):
+            self._queue_fit()
+        return super().eventFilter(watched, event)
+
+    def _queue_fit(self) -> None:
+        """Refit on the next turn of the event loop, once."""
+        if not self._fit_pending:
+            self._fit_pending = True
+            _after(0, self, self._fit_content)
+
+    def _fit_content(self) -> None:
+        """Fill the screen, or keep the content's minimum and scroll."""
+        self._fit_pending = False
+        content = self.widget()
+        if content is None:
+            return
+        size = self.size()
+        if (size.width() >= _ROOMY_SCREEN[0]
+                and size.height() >= _ROOMY_SCREEN[1]):
+            off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            self.setHorizontalScrollBarPolicy(off)
+            self.setVerticalScrollBarPolicy(off)
+            if content.size() != size:
+                content.resize(size)
+            return
+        need = content.minimumSizeHint().expandedTo(content.minimumSize())
+        bar = self.verticalScrollBar().sizeHint().width()
+        width, height = size.width(), size.height()
+        tall = need.height() > height
+        wide = need.width() > width - (bar if tall else 0)
+        tall = tall or need.height() > height - (bar if wide else 0)
+        room_w = width - (bar if tall else 0)
+        room_h = height - (bar if wide else 0)
+        as_needed = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        self.setHorizontalScrollBarPolicy(as_needed if wide else off)
+        self.setVerticalScrollBarPolicy(as_needed if tall else off)
+        target = QSize(max(room_w, need.width()), max(room_h, need.height()))
+        if content.size() != target:
+            content.resize(target)
+
+
+def _scroll_when_cramped(screen: QWidget) -> bool:
+    """Move ``screen``'s layout into a :class:`_CrampedScroll` inside it."""
+    layout = screen.layout()
+    if layout is None or screen.findChild(_CrampedScroll) is not None:
+        return False
+    content = QWidget()
+    content.setObjectName("CrampedScreenContent")
+    content.setLayout(layout)
+    outer = QVBoxLayout(screen)
+    outer.setContentsMargins(0, 0, 0, 0)
+    outer.setSpacing(0)
+    outer.addWidget(_CrampedScroll(content, screen))
+    return True
 
 
 def _show_at_launch(window) -> None:
@@ -6105,9 +6204,13 @@ class MainWindow(QMainWindow):
     def _autosave_settings(self) -> bool:
         """Store the session and every open module's settings as drafts.
 
-        Nothing is written when nothing changed since the last autosave.
+        Nothing is written when nothing changed since the last autosave. The
+        settings are copied here and stored by the settings writer thread
+        (:func:`spacr.restart_state._write_later`), so a slow disk never
+        holds the GUI; a snapshot that fails to store is offered again on
+        the next tick.
 
-        :returns: whether anything was written.
+        :returns: whether a snapshot was handed to the writer.
         """
         import json
 
@@ -6124,13 +6227,33 @@ class MainWindow(QMainWindow):
             return False
         fingerprint = json.dumps([module, drafts], sort_keys=True,
                                  default=str)
-        if fingerprint == getattr(self, "_last_autosave", ""):
+        if fingerprint in (getattr(self, "_last_autosave", ""),
+                           getattr(self, "_autosave_queued", "")):
             return False
-        session_saved = restart_state._save_session(module, settings)
-        drafts_saved = restart_state._save_drafts(drafts)
-        if session_saved and drafts_saved:
-            self._last_autosave = fingerprint
-        return bool(session_saved or drafts_saved)
+        settings = restart_state._jsonable(settings)
+        drafts = restart_state._jsonable(drafts)
+        self._autosave_queued = fingerprint
+        restart_state._write_later(functools.partial(
+            MainWindow._store_autosave, self, fingerprint, module, settings,
+            drafts))
+        return True
+
+    def _store_autosave(self, fingerprint, module, settings, drafts) -> None:
+        """Store one autosave snapshot on the settings writer thread.
+
+        A failure leaves :attr:`_last_autosave` unchanged, so the next tick
+        offers the same settings again.
+        """
+        from .. import restart_state
+
+        try:
+            session_saved = restart_state._save_session(module, settings)
+            drafts_saved = restart_state._save_drafts(drafts)
+            if session_saved and drafts_saved:
+                self._last_autosave = fingerprint
+        finally:
+            if getattr(self, "_autosave_queued", "") == fingerprint:
+                self._autosave_queued = ""
 
     def _end_session_cleanly(self) -> None:
         """Record where the user left off and drop the crash drafts."""
@@ -6139,6 +6262,7 @@ class MainWindow(QMainWindow):
         timer = getattr(self, "_settings_autosave_timer", None)
         if timer is not None:
             timer.stop()
+        restart_state._flush_writes()
         try:
             module, settings = self._current_session()
             if restart_state._save_session(module, settings) or not module:
@@ -7571,6 +7695,8 @@ class MainWindow(QMainWindow):
                 from .screens.map_barcodes import install_folds_on
 
                 install_folds_on(screen)
+                if key in _CRAMPED_SCREENS:
+                    _scroll_when_cramped(screen)
                 return screen
         finally:
             _screens_package._categories_wait_to_be_opened = waited
