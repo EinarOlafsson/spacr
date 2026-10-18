@@ -619,7 +619,8 @@ class PlateViewScreen(LinkedView, QWidget):
     job_finished = Signal(bool)
     #: private. Re-emitted from ``PipelineWorker.finished`` purely to hop
     #: back onto the GUI thread — see :meth:`_run_job`.
-    _job_settled = Signal(bool)
+    _job_settled = Signal(bool, int)
+    _job_failed = Signal(str, int)
 
     def __init__(self, parent=None, threaded: bool = True):
         """Build the screen, arm its drop zone and join the shared selection.
@@ -641,13 +642,16 @@ class PlateViewScreen(LinkedView, QWidget):
         self._filter_note = ""
         self._busy = False
         self._jobs: List[tuple] = []
-        self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
+        self._pending: List[Tuple[int, Dict[str, Any], Callable[[Any], None], str]] = []
+        self._next_job_id = 0
+        self._latest_job: Dict[str, int] = {}
         self._thread = None
         self._worker = None
         self._loading = False
         self.last_error: str = ""
 
         self._job_settled.connect(self._on_job_settled)
+        self._job_failed.connect(self._on_worker_error_text)
         self._recompute_timer = QTimer(self)
         self._recompute_timer.setSingleShot(True)
         self._recompute_timer.setInterval(RECOMPUTE_COALESCE_MS)
@@ -1203,7 +1207,8 @@ class PlateViewScreen(LinkedView, QWidget):
 
         return self._run_job(
             _job,
-            lambda result: self._draw_plate(result, min_count))
+            lambda result: self._draw_plate(result, min_count),
+            supersedes="recompute")
 
     def _draw_plate(self, result: Dict[str, Any], min_count: int) -> None:
         """Paint one worker-computed plate layout. GUI thread only."""
@@ -1341,7 +1346,8 @@ class PlateViewScreen(LinkedView, QWidget):
 
 
     def _run_job(self, fn: Callable[[], Any],
-                 on_done: Callable[[Any], None]) -> bool:
+                 on_done: Callable[[Any], None],
+                 supersedes: str = "") -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
 
         Mirrors ``DbBrowserScreen._run_job`` — one threading idiom for the
@@ -1360,6 +1366,11 @@ class PlateViewScreen(LinkedView, QWidget):
 
         With ``threaded=False`` the call runs inline and the same signals
         fire, so both paths behave identically from outside.
+
+        Every threaded job gets an id and is matched when it settles by that
+        id, never by arrival order. Jobs sharing a non-empty ``supersedes``
+        key are one stream of requests: only the newest is applied, and an
+        older one that settles later is dropped silently, errors included.
         """
         if not self._threaded:
             ok = True
@@ -1385,19 +1396,45 @@ class PlateViewScreen(LinkedView, QWidget):
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
-        self._pending.append((box, on_done))
-        worker.error.connect(self._on_worker_error_text)
-        worker.finished.connect(self._job_settled)
+        self._next_job_id += 1
+        job_id = self._next_job_id
+        if supersedes:
+            self._latest_job[supersedes] = job_id
+        self._pending.append((job_id, box, on_done, supersedes))
+        worker.error.connect(lambda text, _j=job_id: self._job_failed.emit(text, _j))
+        worker.finished.connect(lambda ok, _j=job_id: self._job_settled.emit(ok, _j))
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
         return True
 
-    def _on_job_settled(self, ok: bool) -> None:
-        """Finish the oldest in-flight job. Always on the GUI thread."""
-        self._busy = False
-        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+    def _is_stale(self, job_id: int) -> bool:
+        """True when a newer job of the same superseding stream exists."""
+        for jid, _box, _done, key in self._pending:
+            if jid == job_id:
+                return bool(key) and self._latest_job.get(key) != job_id
+        return False
+
+    def _any_current(self) -> bool:
+        """True while a job that is not superseded is still in flight."""
+        return any(not self._is_stale(item[0]) for item in self._pending)
+
+    def _on_job_settled(self, ok: bool, job_id: int = 0) -> None:
+        """Finish the in-flight job with this id. Always on the GUI thread."""
+        entry = None
+        stale = self._is_stale(job_id)
+        for i, item in enumerate(self._pending):
+            if item[0] == job_id:
+                entry = self._pending.pop(i)
+                break
+        if entry is None and self._pending and not job_id:
+            entry = self._pending.pop(0)
+        self._busy = self._any_current()
+        if entry is not None and stale:
+            self._update_controls()
+            return
+        _jid, box, on_done, _key = entry if entry else (0, {}, None, "")
         ok = bool(ok)
         if ok and on_done is not None:
             try:
@@ -1453,15 +1490,17 @@ class PlateViewScreen(LinkedView, QWidget):
         :param exc: the exception raised by the worker; its class name is used
             when it carries no message.
         """
-        self._busy = False
+        self._busy = self._any_current()
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
-    def _on_worker_error_text(self, text: str) -> None:
+    def _on_worker_error_text(self, text: str, job_id: int = 0) -> None:
         """Clear the busy flag and report a worker failure given as text.
 
         :param text: the worker's error output; only its last line is shown,
             which for a traceback is the exception itself.
         """
+        if job_id and self._is_stale(job_id):
+            return
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
-        self._busy = False
+        self._busy = self._any_current()
         self._set_status(f"Plate view failed: {line}", error=True)
