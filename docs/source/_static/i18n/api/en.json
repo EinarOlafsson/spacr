@@ -15219,6 +15219,16 @@
       "source_sha256": "15a25b7eebb7ff593a8d77e276b9fc657b4b5a782bf2f2cbbbcee41004f635cf",
       "text": "Whether this set is already unpacked under ``folder``.\n\nEvery marker has to match. A half-unpacked set -- a transfer that died\nbetween the images and the database -- is therefore reported as absent\nand is downloaded again.\n\n:param folder: the plate directory the set unpacks into."
     },
+    "spacr.example_archives.check_archive_sha256": {
+      "source_blocks_sha256": [
+        "1c482a4b42f567db07a06d42ffad1857829f89a5e6622c2c6f9e2a71a34e811a",
+        "be09eba9182be1dff0cfa1d10fcf4a02c9ebf875abade1293f68314d5f0a8240",
+        "3d789c35d31f641df8fac743fbe87568beeb4a134219f85d4d048fea9eb0756f",
+        "872fd6153d156a8610e7082541316bc92cbffd0e5fa571f35fd8774148662190"
+      ],
+      "source_sha256": "517a98fe139e056153d0bfa2a3839ef7fc053a13bebe6e287ca4b1f68bc3107a",
+      "text": "Refuse an archive whose SHA-256 differs from its pin.\n\n:param file_name: the archive's name in its repository.\n:param digest: the hex SHA-256 of the bytes that arrived.\n:raises IOError: when :data:`EXAMPLE_ARCHIVE_SHA256` pins ``file_name``\n    to another digest."
+    },
     "spacr.example_archives.download_archive": {
       "source_blocks_sha256": [
         "157d3cfe8f5ab555a710cbd3712ec9096ad0b9c2d8987dc43c64880708402c25",
@@ -53803,6 +53813,17 @@
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
       "text": "Fetch the TEM test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``,\n    as :func:`download_make_masks_example` calls it."
     },
+    "spacr.qt.make_masks_demo.download_timelapse_example": {
+      "source_blocks_sha256": [
+        "0a8017e4adc028158c887a1c4a3645e45802ce689a2e4426eec66018a1f77257",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740"
+      ],
+      "source_sha256": "7dec67d2324b4e9035b41b9fbc087f3a647c59df5ecd34fe1e040c0463e2774d",
+      "text": "Fetch one timelapse test movie behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``,\n    as :func:`download_make_masks_example` calls it.\n:param kind: ``yeast``, ``bacteria`` or ``mammalian``."
+    },
     "spacr.qt.make_masks_demo.fibsem_example_folder": {
       "source_blocks_sha256": [
         "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
@@ -53876,6 +53897,19 @@
       "source_sha256": "e7046c05e9fb32747bcc92ef239169b2b543fd9965d5ab79ccf63c94a2ba11fc",
       "text": "Open the test data in Make Masks, downloading it first when needed.\n\nA cached copy opens at once. Otherwise the button is disabled, the status\nline says a download is running, and the download runs on a worker thread\nbehind a progress dialog. When it finishes, the folder opens on its first\nimage by name. A failure is reported with the reason the downloader gave,\non the status line and, when there is a display to show one, in a warning.\n\n:param screen: the Make Masks screen to open the data in.\n:param ask: replaces :func:`download_make_masks_example`, for tests. It is\n    called as ``ask(screen, folder, on_done)``.\n:param folder: replaces :func:`make_masks_example_folder`, for tests.\n:returns: whether this call opened the data. ``False`` while a download is\n    still running, and after a failure."
     },
+    "spacr.qt.make_masks_demo.load_the_timelapse_test_data": {
+      "source_blocks_sha256": [
+        "84096b855e2081c4deaee7ab2579184e556c73160e632558db523c13026e8cf7",
+        "afb7ccae6f1290349a4c46ae7f95b721af6068d8e786635721c6700682773d12",
+        "89f5ec77bb2f679bbe24883c9cd22399216829e92fbd55538ca8da5a43f39cc7",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "9bb8f925b495410ec396746367edd384678fe6a160bba3d7da860bbcf0d0ee35",
+        "eb5b652cb800da8a2a3bd0f5c4ab8e2fac7a4546d1bc6aca3a43df5adc2a8fba",
+        "8bc6e8810add314cb919a377036710e1c642d9ccecaede4770bb2d440585532e"
+      ],
+      "source_sha256": "53254b0c2f13efcbaea90f9e722d7365c8c116200190a812f1d212278227d847",
+      "text": "Open a timelapse test movie with its masks and lineage loaded.\n\nThe same sequence as :func:`load_the_test_data`, downloading\n``timelapse_<kind>`` into :func:`timelapse_example_folder` when it is not\ncached. The published masks are copied once into ``masks/``, the folder\nthe editor reads and writes, so ``ground_truth_masks/`` is never\noverwritten. Their embedded lineage opens with the first frame, so the\ndivisions are on the lineage menu and Time can be switched on at once.\n\n:param screen: the Make Masks screen to open the movie in.\n:param kind: ``yeast``, ``bacteria`` or ``mammalian``.\n:param ask: replaces :func:`download_timelapse_example`, for tests. It is\n    called as ``ask(screen, folder, on_done)``.\n:param folder: replaces :func:`timelapse_example_folder`, for tests.\n:returns: whether this call opened the movie."
+    },
     "spacr.qt.make_masks_demo.make_masks_example_folder": {
       "source_blocks_sha256": [
         "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
@@ -53903,6 +53937,17 @@
       ],
       "source_sha256": "a1ff7f34c31bad425495831bda5c603b88544f4592f1fce0f08151f67f097eeb",
       "text": "Where the TEM test data is unpacked and cached.\n\n``~/.cache/spacr/example_data/make_masks_tem``, the folder\n:data:`spacr.example_archives.EXAMPLE_SETS` names for the ``tem`` set, so\n``spacr-download tem`` and the button share one cache.\n\n:returns: the folder. It is not created here."
+    },
+    "spacr.qt.make_masks_demo.timelapse_example_folder": {
+      "source_blocks_sha256": [
+        "6586be272afcbd52419e8eb59925e72c0a3aa3f469c8bf042b8d25fd5ae338ca",
+        "cd81b6f90be376099c447d34dafbc3e1b13142eefca4b597c24d02790d3ba848",
+        "4394e7ee12363d9c1e2b5a348c84a2ffbf5d8e531efe91e3341a46eee3ae6740",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8",
+        "9e90576619ffb83bd825f3bbede9d00f492ec2a18c87963476b926906e0e475c"
+      ],
+      "source_sha256": "92ea6efc556b252bc53690764ebf3b37120183ccf05b89c84275a27a635348aa",
+      "text": "Where one timelapse test movie is unpacked and cached.\n\n``~/.cache/spacr/example_data/make_masks_timelapse_<kind>``, the folder\n:data:`spacr.example_archives.EXAMPLE_SETS` names for the\n``timelapse_<kind>`` set, so ``spacr-download`` and the menu share one\ncache.\n\n:param kind: ``yeast``, ``bacteria`` or ``mammalian``.\n:returns: the folder. It is not created here.\n:raises KeyError: for any other kind."
     },
     "spacr.qt.mask_engine": {
       "source_blocks_sha256": [
