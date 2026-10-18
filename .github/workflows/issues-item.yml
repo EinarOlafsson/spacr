@@ -46,7 +46,7 @@ jobs:
               exit 0
             fi
             git add -- "$ITEM"
-            git commit -m "709: sync open issues [skip ci]"
+            git commit -m "709: sync open issues"
             if git push origin HEAD:nightly; then
               exit 0
             fi
