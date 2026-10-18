@@ -8143,6 +8143,14 @@ class _FilledOnRead(QTableWidget):
 
     _finish_reading = None
 
+    def __init__(self, *args) -> None:
+        """Build the grid with the shared three-state header sorting.
+
+        :param args: as for ``QTableWidget``.
+        """
+        super().__init__(*args)
+        install_sorting(self)
+
     def _finished(self) -> None:
         """Complete the owner's fill, when one is running."""
         finish = self._finish_reading
@@ -8222,7 +8230,6 @@ class ResultsTable(QWidget):
         self._filling = None
         self.table = _FilledOnRead(0, 0)
         self.table._finish_reading = self._finish_the_fill
-        install_sorting(self.table)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
