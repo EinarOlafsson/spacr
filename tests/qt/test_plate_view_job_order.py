@@ -103,6 +103,50 @@ def test_busy_holds_until_the_latest_job_settles(qtbot, held):
     assert screen.is_busy() is False
 
 
+def test_an_unknown_job_id_does_not_consume_pending_work(qtbot, held):
+    screen = pv.PlateViewScreen(threaded=True)
+    qtbot.addWidget(screen)
+    applied = []
+    _submit(screen, applied, 2)
+    pending = tuple(screen._pending)
+
+    screen._job_settled.emit(True, screen._next_job_id + 100)
+
+    assert tuple(screen._pending) == pending
+    assert applied == []
+    assert screen.is_busy() is True
+    _settle(held, 1)
+    qtbot.waitUntil(lambda: applied == [1], timeout=3000)
+    assert screen.is_busy() is False
+    _settle(held, 0)
+    assert applied == [1]
+    assert screen._pending == []
+
+
+def test_legacy_zero_id_settles_first_pending_job_and_keeps_current_busy(
+        qtbot, held):
+    screen = pv.PlateViewScreen(threaded=True)
+    qtbot.addWidget(screen)
+    applied = []
+    for value in ("first", "second"):
+        screen._run_job(lambda value=value: value, applied.append)
+    pending_ids = [entry[0] for entry in screen._pending]
+    for fn, box, _worker in held:
+        fn(box)
+
+    screen._job_settled.emit(True, 0)
+
+    assert applied == ["first"]
+    assert [entry[0] for entry in screen._pending] == pending_ids[1:]
+    assert screen.is_busy() is True
+
+    screen._job_settled.emit(True, 0)
+
+    assert applied == ["first", "second"]
+    assert screen._pending == []
+    assert screen.is_busy() is False
+
+
 @pytest.mark.parametrize("failed", (False, True))
 def test_a_worker_outliving_its_screen_drops_late_signals(qtbot, held, failed):
     """A real Qt worker signal is harmless after its target QObject is gone."""

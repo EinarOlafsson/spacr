@@ -1,16 +1,18 @@
 """Manual labels and serial wheel traversal of generic synthetic frames."""
 from __future__ import annotations
 
+import copy
 import threading
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import imageio.v2 as imageio
 import numpy as np
 import pytest
-from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
-from PySide6.QtGui import QMouseEvent, QWheelEvent
-from PySide6.QtWidgets import QDialog, QLabel, QWidget
+import tifffile
+from PySide6.QtCore import QEvent, QModelIndex, QPoint, QPointF, Qt
+from PySide6.QtGui import QCloseEvent, QMouseEvent, QValidator, QWheelEvent
+from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QWidget
 
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens import make_masks as mm
@@ -56,6 +58,316 @@ def enable_time(screen):
     screen._btn_label_time.setChecked(True)
     assert screen._time_label_enabled
     assert screen._canvas.mode == mm.MODE_LABEL_TIME
+
+
+def _edit_snapshot(screen):
+    """Capture the current editable transaction and the TIFFs it may save."""
+    canvas, history = screen._canvas, screen._history
+    return {
+        "pixels": (canvas.mask.dtype.str, canvas.mask.shape, canvas.mask.tobytes()),
+        "image": canvas.image.tobytes(),
+        "lineage": copy.deepcopy(screen._lineage),
+        "selection": (screen._selected_cell, canvas.selected_label),
+        "dirty": (screen._lineage_dirty, screen._label_time_edited, canvas.manual_ids),
+        "frame": (screen._folder, screen._current_index),
+        "undo": [(mask.dtype.str, mask.tobytes()) for mask in history._undo],
+        "redo": [(mask.dtype.str, mask.tobytes()) for mask in history._redo],
+        "lineage_undo": copy.deepcopy(list(history._lineage_undo)),
+        "lineage_redo": copy.deepcopy(list(history._lineage_redo)),
+        "files": {str(path): path.read_bytes() for path in Path(screen._folder).rglob("*.tif")},
+    }
+
+
+def test_blank_label_entry_keeps_the_previous_identity(screen):
+    screen._label_value.setText("321")
+    before = _edit_snapshot(screen)
+    screen._label_value.clear()
+    assert screen._label_value.validator().validate("", 0)[0] == QValidator.Intermediate
+    assert not screen._label_value.hasAcceptableInput()
+    assert screen._canvas.selected_label == 321
+    screen._label_value.editingFinished.emit()
+    assert screen._label_value.text() == "321"
+    assert _edit_snapshot(screen) == before
+
+
+def test_lineage_table_rejects_non_name_edits_and_invalid_selection(screen):
+    enable_time(screen)
+    screen._add_lineage_cell()
+    identity = screen._selected_cell
+    model = screen._lineage_model
+    before = _edit_snapshot(screen)
+    assert model.data(model.index(0, 0), Qt.ToolTipRole) == identity
+    assert model.data(model.index(0, 0), Qt.DecorationRole) is None
+    assert model.data(QModelIndex()) is None
+    assert not model.setData(QModelIndex(), "replacement")
+    assert not model.setData(model.index(0, 1), "42")
+    assert not model.setData(model.index(0, 0), "replacement", Qt.DisplayRole)
+    screen._select_lineage_cell(QModelIndex())
+    assert _edit_snapshot(screen) == before
+
+
+def test_lineage_rename_refusal_and_same_name_preserve_history(screen):
+    enable_time(screen)
+    assert not screen._rename_lineage_cell(None, "orphan")
+    screen._add_lineage_cell()
+    identity = screen._selected_cell
+    before = _edit_snapshot(screen)
+    model = screen._lineage_model
+    assert model.setData(model.index(0, 0), "1")
+    assert not model.setData(model.index(0, 0), "   ")
+    assert "nonempty name" in screen._status_label.text()
+    assert _edit_snapshot(screen) == before
+    screen._btn_label_time.click()
+    assert not (model.flags(model.index(0, 0)) & Qt.ItemIsEditable)
+    assert not screen._rename_lineage_cell(identity, "disabled edit")
+    assert _edit_snapshot(screen) == before
+
+
+@pytest.mark.parametrize("response", ["cancel", "blank_name", "blank_label", "same_label"])
+def test_refused_division_keeps_the_parent_and_every_saved_pixel(screen, monkeypatch, response):
+    enable_time(screen)
+    screen._add_lineage_cell()
+    parent = screen._selected_cell
+    assert screen._canvas.assign_label_at((10, 10), 1)
+    before = _edit_snapshot(screen)
+
+    def answer(dialog):
+        fields = dialog.findChildren(QLineEdit)
+        assert len(fields) == 4
+        if response == "cancel":
+            return QDialog.Rejected
+        if response == "blank_name":
+            fields[0].clear()
+        elif response == "blank_label":
+            fields[1].clear()
+        else:
+            fields[3].setText(fields[1].text())
+        return QDialog.Accepted
+
+    monkeypatch.setattr(QDialog, "exec", answer)
+    screen._divide_lineage_cell()
+    assert _edit_snapshot(screen) == before
+    assert screen._lineage["cells"][parent]["children"] == []
+    if response == "blank_label":
+        assert "invalid literal" in screen._status_label.text()
+    elif response != "cancel":
+        assert "distinct nonzero labels" in screen._status_label.text()
+
+
+def test_division_requires_a_selected_undivided_cell(screen, monkeypatch):
+    enable_time(screen)
+    before = _edit_snapshot(screen)
+    screen._divide_lineage_cell()
+    assert _edit_snapshot(screen) == before
+    screen._add_lineage_cell()
+    parent = screen._selected_cell
+    monkeypatch.setattr(QDialog, "exec", lambda dialog: QDialog.Accepted)
+    screen._divide_lineage_cell()
+    select(screen, parent)
+    before = _edit_snapshot(screen)
+    screen._divide_lineage_cell()
+    assert "has not already divided" in screen._status_label.text()
+    assert _edit_snapshot(screen) == before
+
+
+@pytest.mark.parametrize("point", [None, (-1, 10), (10, 40), (0, 0)])
+def test_empty_or_outside_label_assignments_preserve_the_transaction(screen, point):
+    enable_time(screen)
+    before = _edit_snapshot(screen)
+    assert screen._canvas.assign_label_at(point, 321)
+    assert _edit_snapshot(screen) == before
+
+
+@pytest.mark.parametrize("answer", [("-1", True), ("", True), ("321", False)])
+def test_numeric_label_dialog_rejects_invalid_or_cancelled_input(screen, monkeypatch, answer):
+    before = _edit_snapshot(screen)
+    monkeypatch.setattr(mm.QInputDialog, "getText", lambda *args, **kwargs: answer)
+    click_pixel(screen, (10, 10))
+    assert _edit_snapshot(screen) == before
+    if answer[1]:
+        assert "non-negative whole-number" in screen._status_label.text()
+
+
+def test_label_clicks_outside_or_on_background_never_open_the_dialog(screen, monkeypatch):
+    def unexpected(*args, **kwargs):
+        pytest.fail("an empty location opened the numeric label dialog")
+
+    monkeypatch.setattr(mm.QInputDialog, "getText", unexpected)
+    before = _edit_snapshot(screen)
+    click_pixel(screen, (0, 0))
+    canvas = screen._canvas
+    position = QPointF(-20, -20)
+    event = QMouseEvent(QEvent.MouseButtonPress, position, position,
+                        Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+    canvas.mousePressEvent(event)
+    canvas.mouseReleaseEvent(QMouseEvent(QEvent.MouseButtonRelease, position, position,
+                                        Qt.LeftButton, Qt.NoButton, Qt.NoModifier))
+    assert event.isAccepted()
+    assert _edit_snapshot(screen) == before
+
+
+def test_selected_maximum_label_wraps_to_a_free_local_id(screen):
+    assert screen._canvas.assign_label_at((10, 10), engine.MAX_MASK_LABEL)
+    assert screen._canvas.assign_label_at((30, 30), 1)
+    enable_time(screen)
+    screen._label_value.setText(str(engine.MAX_MASK_LABEL))
+    before_mask = screen._canvas.mask.copy()
+    screen._add_lineage_cell()
+    assert screen._canvas.selected_label == 2
+    assert screen._lineage["cells"][screen._selected_cell]["label"] == 2
+    np.testing.assert_array_equal(screen._canvas.mask, before_mask)
+    assert not screen._lineage["frames"].get(screen._lineage_frame())
+
+
+def test_time_click_can_remove_a_track_without_deleting_its_lineage(screen):
+    enable_time(screen)
+    click_pixel(screen, (10, 10))
+    identity, frame = screen._selected_cell, screen._lineage_frame()
+    assert screen._lineage["frames"][frame]["1"] == identity
+    before = screen._canvas.mask.copy()
+    screen._label_value.setText("0")
+    click_pixel(screen, (10, 10))
+    assert screen._canvas.mask[10, 10] == 0
+    assert "1" not in screen._lineage["frames"][frame]
+    assert identity in screen._lineage["cells"]
+    assert screen._label_value.text() == "0"
+    screen._on_undo()
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert screen._lineage["frames"][frame]["1"] == identity
+
+
+def test_conflicting_track_stops_the_wheel_queue_without_saving(screen):
+    enable_time(screen)
+    click_pixel(screen, (10, 10))
+    screen._add_lineage_cell()
+    click_pixel(screen, (30, 30))
+    before = _edit_snapshot(screen)
+    wheel(screen, 2, point=(10, 10))
+    assert not screen._label_time_queue
+    assert screen._load_worker is None
+    assert "already belongs to another lineage cell" in screen._status_label.text()
+    assert _edit_snapshot(screen) == before
+
+
+def test_time_only_navigation_and_dialogs_are_inert_in_ordinary_mode(screen, monkeypatch):
+    before = _edit_snapshot(screen)
+    screen._set_mode(mm.MODE_LABEL_TIME)
+    assert screen._canvas.mode == mm.MODE_EDIT_LABEL
+    screen._queue_label_time_step(2, (10, 10), 321)
+    assert not screen._label_time_queue and screen._load_worker is None
+    screen._set_mode(mm.MODE_BRUSH)
+    monkeypatch.setattr(mm.QInputDialog, "getText", lambda *args, **kwargs: pytest.fail("wrong tool opened dialog"))
+    screen._edit_label_at(10, 10, 7)
+    assert _edit_snapshot(screen) == before
+
+
+def test_failed_time_save_refuses_next_and_close_without_losing_the_edit(screen, monkeypatch):
+    enable_time(screen)
+    click_pixel(screen, (10, 10))
+    screen._set_mode(mm.MODE_EDIT_LABEL)
+    before = _edit_snapshot(screen)
+    warnings = []
+
+    def refuse(*args, **kwargs):
+        raise OSError("synthetic read-only mask folder")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(engine, "save_mask", refuse)
+        patch.setattr(screen, "_warn", lambda *args: warnings.append(args))
+        screen._on_next()
+        event = QCloseEvent()
+        screen.closeEvent(event)
+        assert not event.isAccepted()
+        assert _edit_snapshot(screen) == before
+    assert len(warnings) == 2
+    assert all("read-only mask folder" in str(warning) for warning in warnings)
+
+
+def test_time_enable_merges_later_lineage_and_skips_corrupt_metadata(screen):
+    folder = screen._folder
+    later_frame = str(Path(folder) / "frame_1.tif")
+    state, identity = engine.new_lineage_cell(None, "later cell", 41, later_frame)
+    later_mask = screen._canvas.mask.copy()
+    later_mask[later_mask == 7] = 41
+    engine.save_mask(folder, "frame_1.tif", later_mask, preserve_ids=True, lineage=state)
+    tifffile.imwrite(engine.mask_save_path(folder, "frame_2.tif"),
+                     screen._canvas.mask, description='{"spacr_mask":')
+    before = _edit_snapshot(screen)
+    enable_time(screen)
+    assert screen._lineage["cells"][identity]["name"] == "later cell"
+    assert screen._lineage_model.rowCount() == 1
+    assert screen._lineage_dirty
+    assert "1 mask file(s)" in screen._status_label.text()
+    assert "was skipped" in screen._status_label.text()
+    after = _edit_snapshot(screen)
+    for key in ("pixels", "image", "undo", "redo", "lineage_undo", "lineage_redo", "files"):
+        assert after[key] == before[key]
+    screen._btn_label_time.click()
+    screen._btn_label_time.click()
+    assert screen._lineage_model.rowCount() == 1
+    assert _edit_snapshot(screen) == after
+
+
+def test_conflicting_next_frame_metadata_keeps_the_current_transaction(qtbot, screen):
+    enable_time(screen)
+    click_pixel(screen, (10, 10))
+    assert screen._save_label_time_if_needed()
+    conflict = copy.deepcopy(screen._lineage)
+    frame = screen._lineage_frame()
+    other_identity = str(uuid4())
+    conflict["frame_ids"][frame] = other_identity
+    for cell in conflict["cells"].values():
+        if cell["born_frame"] == frame:
+            cell["born_frame_id"] = other_identity
+    engine.save_mask(screen._folder, "frame_1.tif", screen._canvas.mask,
+                     preserve_ids=True, lineage=conflict)
+    before = _edit_snapshot(screen)
+    wheel(screen, 2)
+    wait_idle(qtbot, screen)
+    assert "frame's identity" in screen._status_label.text()
+    assert "current edits are kept" in screen._status_label.text()
+    assert not screen._canvas.label_time_busy
+    assert _edit_snapshot(screen) == before
+
+
+def test_time_wheel_refuses_a_volume_without_changing_the_2d_frame(screen):
+    tifffile.imwrite(Path(screen._folder) / "frame_1.tif",
+                     np.ones((3, 40, 40), np.uint8), photometric="minisblack",
+                     metadata={"axes": "ZYX"})
+    enable_time(screen)
+    before = _edit_snapshot(screen)
+    wheel(screen, 2, point=(0, 0))
+    assert "requires a queue of 2D frames" in screen._status_label.text()
+    assert not screen._label_time_queue
+    assert screen._load_worker is None
+    assert _edit_snapshot(screen) == before
+
+
+def test_loading_time_frame_ignores_click_hover_and_redo(qtbot, screen, monkeypatch):
+    real_load = engine.load_image_and_mask
+    started, release = threading.Event(), threading.Event()
+
+    def delayed(folder, filename, **kwargs):
+        started.set()
+        assert release.wait(10)
+        return real_load(folder, filename, **kwargs)
+
+    monkeypatch.setattr(engine, "load_image_and_mask", delayed)
+    enable_time(screen)
+    try:
+        wheel(screen, 1)
+        qtbot.waitUntil(started.is_set, timeout=3000)
+        assert screen._canvas.label_time_busy
+        before = _edit_snapshot(screen)
+        click_pixel(screen, (30, 30))
+        hover(screen, (30, 30))
+        screen._on_redo()
+        assert _edit_snapshot(screen) == before
+    finally:
+        release.set()
+        wait_idle(qtbot, screen)
+    assert screen._current_index == 1
+    assert screen._canvas.mask[30, 30] == 11
 
 
 def test_label_controls_edit_zero_collision_and_undo(screen, monkeypatch):
