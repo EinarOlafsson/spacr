@@ -2,9 +2,8 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phase 1 (preparation); destructive phases after
-           1.5.1.5. HF upload BLOCKED ON MAINTAINER (visibility decision,
-           see HF DATASET below).
+Status:    in progress — phase 1 done (HF evidence mirror verified);
+           phases 2-4 wait for the 1.5.1.5 release.
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
@@ -30,9 +29,8 @@ Phase 3: tutorial media and deck renders from HF; API catalogs built in CI.
 Phase 4: git filter-repo over all history, one force-push, everyone re-clones.
 
 ACCEPTANCE
-Fresh `git clone` of origin downloads at most 1.25 GiB with the approved
-paths purged (measured on a mirror: 1.19 GiB), or at most 0.8 GiB if the
-maintainer also approves purging already-deleted folders (measured 744 MiB). The nightly tree is at most
+Fresh `git clone` of origin downloads at most 0.8 GiB (measured on a
+mirror with all sixteen purge paths: 744 MiB). The nightly tree is at most
 600 MB (measured after the same rewrite: 543 MB), spacr/resources unchanged.
 features/data keeps only files a test, tool, workflow or the package reads;
 every removed file is byte-identical on the HF dataset at its original path.
@@ -66,7 +64,7 @@ Writers that must change target in phase 2: compare_spotnet_ops.py,
 validate_arrayed_planner_pilot.py, verify_animation_gpu_parity.py (--out
 under features/data) write to scratch, then upload to the HF dataset.
 
-HF DATASET einarolafsson/spacr-evidence (not created yet)
+HF DATASET einarolafsson/spacr-evidence (PRIVATE, maintainer 2026-10-18)
 Staged byte-exact from git archive of bdc360004 in /mnt/wd4tb/scratch/
 repo-slim/hf-stage (22,870 files, 4,097,807,616 bytes) with a provenance
 README. Scan of every file, inside .gz/.zip and the joined .zip.part0*
@@ -75,14 +73,10 @@ sk-proj-ABCD..., xoxb-1234567890-..., hunter2hunter2; no private keys).
 Personal data present: the maintainer's two e-mail addresses, local home
 paths (111k hits) and the workstation hostname, /mnt and /nas_mnt paths,
 third-party addresses in licence and copyright text. All of it is already public in the GitHub repository.
-The upload was stopped by the session's PII safeguard. Maintainer decides:
-public (mirrors GitHub; phase 4 then removes it from GitHub only), private,
-or public after redacting paths/addresses. Then run
-  hf repo create einarolafsson/spacr-evidence --repo-type dataset [--private]
-  hf upload-large-folder einarolafsson/spacr-evidence --repo-type dataset \
-     /mnt/wd4tb/scratch/repo-slim/hf-stage
-and verify file count 22,871 (with README) and byte totals via
-HfApi.list_repo_tree(recursive=True, expand=True) against the staged list.
+Maintainer chose a private dataset. Uploaded with hf upload-large-folder
+(Hub revision a9971ff7634d); verified with list_repo_tree: 22,871 files
+(22,870 + README), 4,097,808,816 bytes, no missing, extra or size-mismatched
+path, sha256 of all 11,508 LFS files equal to the staged bytes.
 
 PHASE 2 — features/data out of the tree (Home, after 1.5.1.5)
 1. Verify the HF dataset matches the stage (count, size, sha256 per file).
@@ -138,14 +132,16 @@ API_DIR to tmp_path are unchanged.
 PHASE 4 — history rewrite (Home, after phases 2-3 are on main and nightly)
 Measured on /mnt/wd4tb/scratch/repo-slim/rewrite.git (bare clone of the
 mirror, heads and tags only; filter-repo 26 s, 1.7 GB RSS): 11.26 GiB ->
-744 MiB pack, nightly tree 543 MB. The first eight purge paths alone (the
-approved scope) give 1.19 GiB; the last eight are folders already deleted
-from the tree whose purge also drops them from old release tags, so they
-need a separate maintainer yes. Command, on a fresh mirror clone:
+744 MiB pack, nightly tree 543 MB. The first eight purge paths alone give
+1.19 GiB; the last eight are folders already deleted from the tree, whose
+purge also drops them from old release tags (maintainer: "Yes, purge them
+too", 2026-10-18). Command, on a fresh mirror clone:
   git clone --mirror git@github.com:EinarOlafsson/spacr.git spacr-rewrite.git
   cd spacr-rewrite.git
   git filter-repo --invert-paths --paths-from-file purge-paths.txt
-  git push --force --mirror  (heads and tags only; refs/pull are read-only)
+  git remote add origin git@github.com:EinarOlafsson/spacr.git
+  git push --force origin 'refs/heads/*:refs/heads/*' 'refs/tags/*:refs/tags/*'
+  (not --mirror: refs/pull/* are read-only on GitHub)
 purge-paths.txt: features/data/, docs/source/_static/i18n/,
 docs/source/_extra/tutorials/production/, .../examples/, .../catalog/,
 docs/source/_static/deck/, tools/readme_deck/images/,
@@ -174,4 +170,5 @@ Coordination checklist:
   _extra/tutorials switch to HF URLs before the rewrite.
 
 2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
-2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: maintainer HF visibility decision, then phases 2-4 after 1.5.1.5.
+2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: phases 2-4 after 1.5.1.5.
+2026-10-18 — Private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders, now in the phase 4 list (744 MiB measured).
