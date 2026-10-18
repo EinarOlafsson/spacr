@@ -696,3 +696,4 @@ Existing shipped behavior and verified results remain valid; relocation is sched
 2026-10-17 — Resumed after the updater (703). The lint now also covers item views, the MainWindow chrome (toolbars, dock, status bar, menus) and every Preferences tab:
 every focusable control has a QAccessible name and Tab is never trapped. The naming pass now names scroll areas and menus; no new strings.
 Remaining: the native screen-reader check above (BLOCKED ON MAINTAINER).
+2026-10-17 — Naming-pass freeze fixed (ab6c1c80e0b): names are written only when they change, arrival passes skip controls already named for the language, scroll-area fallback is bounded; tests/qt/test_655_accessibility_pass_cost.py.
