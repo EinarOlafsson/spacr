@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude); no human or native-speaker signoff",
+  "review_method": "Direct translation of the Annotate Suggest choice dialog and the revised Cancel tooltip for issue #152, reusing the terms of the reviewed Suggest records and the runtime catalog (image type filter, crop, annotations, round scores, measurement tables).",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest labels",
+      "source": "Suggest labels",
+      "source_sha256": "1f518c4f67c1a59fe9dda3e4057f2ee23f0c70dc4dd70d6894d5330ffb925619",
+      "translation": "Suggérer des étiquettes"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement tables to fit on",
+      "source": "Measurement tables to fit on",
+      "source_sha256": "6ad9b033be79c28cad4161d51268de4be57b87ac03f13da7a81a328fd66de285",
+      "translation": "Tables de mesures pour l’ajustement"
+    },
+    {
+      "table": "ui",
+      "key": "No single channel (shape, size)",
+      "source": "No single channel (shape, size)",
+      "source_sha256": "98f935232e0b912baf98e325ae91fc9359e0eead32741b026b0216f2ef896160",
+      "translation": "Aucun canal en particulier (forme, taille)"
+    },
+    {
+      "table": "ui",
+      "key": "Feature families",
+      "source": "Feature families",
+      "source_sha256": "7b08dc22f9daea47e2808e078d25c4131a6699fa4f761e5c45d906c4fa2fd381",
+      "translation": "Familles de caractéristiques"
+    },
+    {
+      "table": "ui",
+      "key": "Images to suggest for",
+      "source": "Images to suggest for",
+      "source_sha256": "32511eb763ee0b969dceec065f21a17ad570f5b5e4ea57010956a4344bc493ce",
+      "translation": "Images pour lesquelles suggérer"
+    },
+    {
+      "table": "ui",
+      "key": "Images on screen",
+      "source": "Images on screen",
+      "source_sha256": "94d3c36e4351a4c9c3bd38d3ee1ee202c4cbcae735be54987db5fecba2bc061c",
+      "translation": "Images à l’écran"
+    },
+    {
+      "table": "ui",
+      "key": "All images",
+      "source": "All images",
+      "source_sha256": "d322e189d62ee9c973f4484fb03e20d268b0699b8cfacee22193858c24afc968",
+      "translation": "Toutes les images"
+    },
+    {
+      "table": "ui",
+      "key": "Pages…",
+      "source": "Pages…",
+      "source_sha256": "87129c219f4f5d16a28bb3c51f09332a49b679b292eb8042e91cef2f11033507",
+      "translation": "Pages choisies…"
+    },
+    {
+      "table": "ui",
+      "key": "Page {n} ({count} images)",
+      "source": "Page {n} ({count} images)",
+      "source_sha256": "5ba3509191cdbddeb181f174cb572938500b3343b482711a03a1b4794d04e09f",
+      "translation": "Page n° {n} ({count} images)"
+    },
+    {
+      "table": "ui",
+      "key": "Suggest",
+      "source": "Suggest",
+      "source_sha256": "4effad823b048b0440dbeff42665f60a6ddec8e121c378966ed7c074a512c51f",
+      "translation": "Suggérer"
+    },
+    {
+      "table": "ui",
+      "key": "Choose tables, features and images…",
+      "source": "Choose tables, features and images…",
+      "source_sha256": "1a595ae8c48459e3e44fc53badfe6c11b7b27fc15406898517616c2a856e4291",
+      "translation": "Choisir les tables, les caractéristiques et les images…"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the measurement tables and feature classes the model is fitted on, and the images it writes suggestions onto: the images on screen, all images, or chosen pages.",
+      "source": "Choose the measurement tables and feature classes the model is fitted on, and the images it writes suggestions onto: the images on screen, all images, or chosen pages.",
+      "source_sha256": "a88682aea680ce62f748fdc17c74afdf8b8db22ead1096cf59132882aa9eae23",
+      "translation": "Choisissez les tables de mesures et les classes de caractéristiques sur lesquelles le modèle est ajusté, et les images sur lesquelles il écrit des suggestions : les images à l’écran, toutes les images ou les pages choisies."
+    },
+    {
+      "table": "ui",
+      "key": "Could not read the measurement tables: {why}",
+      "source": "Could not read the measurement tables: {why}",
+      "source_sha256": "25a55b26baec07a645c0d92320733c5369a69d915cea229d5648e5a97ef8b7fa",
+      "translation": "Impossible de lire les tables de mesures : {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions are put back, and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+      "source": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions are put back, and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+      "source_sha256": "60ace6cfce8c43a3da1255af84700bef7d5b7bb0991fad449db4862c7c4ce331",
+      "translation": "Arrêtez la génération de suggestions à l’étape suivante. Aucune nouvelle suggestion n’est écrite si l’exécution s’arrête avant l’étape d’écriture ; les suggestions précédentes sont rétablies et les scores de l’itération peuvent avoir été mis à jour. Vos annotations restent inchangées. Affiché uniquement pendant une exécution."
+    }
+  ]
+}

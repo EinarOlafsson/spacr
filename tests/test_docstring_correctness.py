@@ -2150,6 +2150,52 @@ def _validated_prior_701_callables(callables):
             if item.symbol in additions else item for item in callables]
 
 
+def _validated_prior_152_callables(callables):
+    """Validate round_features' optional channel and family selection.
+
+    Issue #152 (2026-10-18) lets a Suggest round choose its feature classes;
+    the two keyword-only parameters are checked here, then the historical
+    row is replayed so every older pin below is unchanged.
+    """
+    import json
+    root = pathlib.Path(__file__).resolve().parents[1]
+    fixture = json.loads((root / "tests/data/release_contracts"
+        / "152_round_features_api_changes_2026-10-18.json").read_text())
+    assert fixture["schema"] == 1
+    assert fixture["kind"] == "existing_callable_optional_parameter_changes"
+    assert fixture["item"] == "issue-152"
+    symbol = "spacr.active_learning.round_features"
+    assert set(fixture["changes"]) == {symbol}
+    change = fixture["changes"][symbol]
+    added = set(change["added_optional_parameters"])
+    assert added == {"channels", "families"}
+    item = next(item for item in callables if item.symbol == symbol)
+    actual = {
+        key: sorted(value) if isinstance(value, frozenset) else value
+        for key, value in vars(item).items() if key != "docstring"
+    }
+    assert actual == change["after"]
+    assert not added & item.required_parameters
+    assert added <= _documented_parameter_names(item.docstring)
+    tree = ast.parse((root / "spacr/active_learning.py").read_text())
+    declaration = next(node for node in tree.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "round_features")
+    assert [arg.arg for arg in declaration.args.kwonlyargs] == [
+        "channels", "families"]
+    assert all(isinstance(d, ast.Constant) and d.value is None
+               for d in declaration.args.kw_defaults)
+    prior = replace(item, parameters=item.parameters - added,
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - added))
+    prior_row = {
+        key: sorted(value) if isinstance(value, frozenset) else value
+        for key, value in vars(prior).items() if key != "docstring"
+    }
+    assert prior_row == change["before"]
+    return [prior if item.symbol == symbol else item for item in callables]
+
+
 def _validated_prior_708_callables(callables):
     """Validate the optional embedded-lineage input before replaying old pins."""
     import json
@@ -2300,6 +2346,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
+    callables = _validated_prior_152_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")

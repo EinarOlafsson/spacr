@@ -92,7 +92,9 @@
       "label": "spacr.active_learning.round_features#9",
       "source": "when no object table with features could be read.",
       "source_sha256": "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5",
-      "translation": "当没有物体表与特征可以阅读时。"
+      "translation": "当没有物体表与特征可以阅读时。",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "**Offsets are solved globally, never accumulated.** Chaining microscope image field-to-microscope image field shifts along a row of a 10x10 grid adds every pairwise error together, so the last microscope image field lands tens of pixels out with nothing in the output saying so. Instead every overlapping neighbour pair contributes one equation ``p_j - p_i = d_ij`` and the whole set is solved at once as a weighted least-squares problem over the pair graph (see :func:`solve_positions`). Redundant edges — the diagonal neighbours of a grid, the ``i``/``i+2`` pairs of a heavily-overlapped row — then *cancel* error instead of compounding it, and each microscope image field gets a **residual**: how far its solved position sits from what its own pairs asked for. A large residual is the signal that a microscope image field did not register, and it is written into the table rather than averaged away.",

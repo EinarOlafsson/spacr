@@ -1039,13 +1039,13 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "750e36de9893f80daf838fda778697fb247e391b1cf1e62082f7cc578e58a089",
         "9927ae21a825a35f4a4823a2c2e8b31dd081a64605efcedd996cc11baa3c1c75",
-        "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+        "eb8e87e40c1228638c7ed50f596036ffda96a54a09dfd4086c37b21dc675e7a0",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
       ],
-      "source_sha256": "8c911e80f2de11b9ac3f9ba4ad1fca7121dd3c448f67744d6c694c272359029d",
-      "text": "클래스, 웰, 플레이트 및 획득별 주석 범위를 요약합니다.\n\n실험 단위 간의 라벨 분배는 기계 학습 분류 모델이 인수 특정 염색, 초점 및 혼합을 넘어서 일반화 할 수 있는지 여부를 결정합니다. 마이크로 플레이트 샘플 위치 내에 집중된 라벨 세트는 따라서 개체 수준의 우연 분할 아래에서 최적의 성과를 얻을 수 있습니다.이 기능은 모델 훈련 또는 평가 전에 그러한 집중을 노출합니다.\n\n읽기 ``png_list`` 읽기만, 플러스 :data:`ROUND_TABLE` 그것이있을 때, 그래서 라벨은 또한 그들을 표면하는 활성 학습 라운드에 기인 할 수 있습니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 애플리케이션이 입력하는 열에 삽입됩니다.\n:param table: 추출 이미지 지역 테이블 (기본 ``png_list``)\n:param key: 라인 식별자 (기본 ``png_path``)\n:param image_type: 구조화된 데이터 이름에 대한 부분 문자열 필터로, Annotate 애플리케이션 뷰 자체의 필터와 일치합니다. 그 아래의 모든 개수( ``n_rows`` 포함)는 일치한 추출된 이미지 영역만을 대상으로 합니다 — 전체 테이블에서 가져온 분모는 분자와 분모를 서로 다른 두 모집단에 두게 됩니다. ``n_rows_unfiltered`` 는 전체 개수를 유지하며, 메모에 몇 개가 제외되었는지 표시됩니다.\n:returns: 주석이 하나 이상 있는 ``(plateID, rowID, columnID, class)`` 마다 한 행이며, ``n`` 과 ``share`` 를 포함합니다 — 그리고 전체 세부 분석이 ``attrs['spacr_annotation_coverage']`` 에 있습니다: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (클래스별) 및 ``notes``.\n:raises ValueError: 테이블에 그런 열이 없을 때 - 빈 결과는 \"nothing annotated yet\"로 읽을 것이며, 이는 다른 사실입니다.\n:raises FileNotFoundError: 데이터베이스가 없을 때",
+      "source_sha256": "bc1cacbba20167ee58f77511d97383acfe3dfef19586568712e40c57a6a879bc",
+      "text": "클래스, 웰, 플레이트 및 획득별 주석 범위를 요약합니다.\n\n실험 단위 간의 라벨 분배는 기계 학습 분류 모델이 인수 특정 염색, 초점 및 혼합을 넘어서 일반화 할 수 있는지 여부를 결정합니다. 마이크로 플레이트 샘플 위치 내에 집중된 라벨 세트는 따라서 개체 수준의 우연 분할 아래에서 최적의 성과를 얻을 수 있습니다.이 기능은 모델 훈련 또는 평가 전에 그러한 집중을 노출합니다.\n\n읽기 ``png_list`` 읽기만, 플러스 :data:`ROUND_TABLE` 그것이있을 때, 그래서 라벨은 또한 그들을 표면하는 활성 학습 라운드에 기인 할 수 있습니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 애플리케이션이 입력하는 열에 삽입됩니다.\n:param table: 추출 이미지 지역 테이블 (기본 ``png_list``)\n:param key: 라인 식별자 (기본 ``png_path``)\n:param image_type: 키에 대한 Annotate 뷰 자체의 필터로, 그리드가 읽는 방식대로 읽습니다(AND, OR, NOT, 대소문자를 구분하지 않는 용어). 그 아래의 모든 개수( ``n_rows`` 포함)는 일치한 추출된 이미지 영역만을 대상으로 합니다 — 전체 테이블에서 가져온 분모는 분자와 분모를 서로 다른 두 모집단에 두게 됩니다. ``n_rows_unfiltered`` 는 전체 개수를 유지하며, 메모에 몇 개가 제외되었는지 표시됩니다.\n:returns: 주석이 하나 이상 있는 ``(plateID, rowID, columnID, class)`` 마다 한 행이며, ``n`` 과 ``share`` 를 포함합니다 — 그리고 전체 세부 분석이 ``attrs['spacr_annotation_coverage']`` 에 있습니다: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (클래스별) 및 ``notes``.\n:raises ValueError: 테이블에 그런 열이 없을 때 - 빈 결과는 \"nothing annotated yet\"로 읽을 것이며, 이는 다른 사실입니다.\n:raises FileNotFoundError: 데이터베이스가 없을 때",
       "translation_source_blocks_sha256": [
         "d54694a4887e21db5eb04e4a3a384fde7165749260bccb2ecf019185dfd829a7",
         "016a691c17b5cdb8202315faff64adcf1e24c6d2f51f8dfa482a35d4c21a20b3",
@@ -1054,7 +1054,7 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "452d01891862e03c4baef3aa5158b052f77f8055547a50cb24a7269f35a6493b",
         "a506a1eed41c74aad9de41be6ae13e82bb8e2f562f5a9e10906d07c917af3612",
-        "29992052ca1ef7c848619617ff00cb5ec629bdd174c24b6d551deb718a2013e0",
+        "c94b39489853a58466988a4a8fa00ca57e8e201429ebd70ec2c87a49f016c8e9",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
@@ -1098,14 +1098,14 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
+        "0c12a9527a2ca7d996ce14b24151417f2d4ff407ab447992eaadc84f15e5e5ed",
         "30ffff94b1f25ce27a73ee3a1e7bb114ff46e8c9ac44a5b1c19a51a9eb4226ef",
         "3db974dd779fc492b98a7d7df944ad3f6fa527dfe29f46f6757c89378c676846",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
         "7419a19d554bce02dec446f36cef42c534cc0ede025b03f4455a4905083d35de"
       ],
-      "source_sha256": "6758ccbc340c4f93c2480edf6c49f98835305ac6313e29ff56117d0627776455",
-      "text": "주석 대기열을 만듭니다. 레이블이 없는 크롭을 불확실성이 가장 큰 것부터 나열합니다.\n\n읽기 ``png_list``만 읽고 추출 된 이미지 지역에 한 줄을 반환하는 것은 여전히 레이블을 기다리고 있으며, 추출된 이미지 지역이 가장 먼저 모델을 가르치는 것을 주문합니다.\n\n**지금 기록된 추출된 이미지 영역은 제외됩니다.** ``NULL`` in ``annotation_column``는 \"not looked at\"를 의미합니다; 다른 모든 것 — *포함* — 만약 열이 전혀 존재하지 않는다면, 아직 아무것도 기록되지 않았고, 추출된 모든 이미지 지역은 쿼드됩니다 (그렇게 말하는 메모와 함께).이것은 :mod:`spacr.agreement`과 동일한 퇴보 협약입니다.\n\n**목표 작업 목록은 기본적으로 다양하고, 그것은 무언가를 지불합니다.** ``diversity='well'`` 등급 추출 이미지 영역은 마이크로 플레이트 샘플 위치에 걸쳐 라운드 로빈을 다루고있다 : 위치 1은 여전히 가장 불확실한 추출 이미지 영역이지만 위치 2는 *다른* 잘 추출 된 이미지 지역이지만, 실행자 전체보다 물질적으로 덜 확실 할 수 있습니다. ``limit``은 마이크로 플레이트 샘플 위치의 수보다 작다면, 어노테이션 작업 목록에는 ``limit`` 마이크로플레이트 시료 위치의 각각에서 추출 된 이미지 영역과 나머지 영역에서 하나가 포함됩니다. ``diversity='none'`` 순 순서, ``'field'``/``'plate'`` 다른 층, 또는 ``group_columns=[…]`` 자신의 - 특징에서 계산 한 클러스터 ID를 포함하여, 이것은 더 철저한 다양화 이 거래는 특징 매트릭스를 필요로하지 않기 때문에.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 콜럼에서 Annotate 앱이 입력됩니다 (기본 ``'annotate'``).\n:param pred_column: 모델 점수 열(s)의 이름 또는 이름 목록. ``None`` (기본) 자동 탐지: ``pred_0, pred_1, …`` 스타일 클래스에 대 한 콜럼, 다른 ``pred``. 단일 콜롬은 바이너리 문제의 긍정적 인 클래스를 가능성으로 읽어집니다.\n:param table: 추출 된 이미지 영역을 포함하는 테이블 (기본 ``png_list``).\n:param key: 라인 식별자 (기본 ``png_path``)\n:param measure: ``'entropy'`` (기본), ``'least_confidence'``, ``'margin'``, 또는 호출 가능. 두 클래스에서 마지막 두 명은 동일한 순서를 제공합니다.\n:param limit: 이 많은 추출 된 이미지 지역의 대부분을 유지합니다.\n:param diversity: ``'well'`` (기본), ``'plate'``, ``'row'``, ``'column'``, ``'field'`` 또는 ``'none'``.\n:param group_columns: 명시적인 열을 위로 격리, ``diversity``를 위로.\n:param seed: 이 찢어지는 시드; ``None``은 순서대로 묶음을 깨고 결과가 재생 가능하다.\n:param image_type: ``png_path``에 밑줄 필터 - Annotate 응용 프로그램 보기의 자체 ``image_type`` 필터 (예 : ``'cell'``)와 일치합니다.\n:returns: DataFrame ``rank`` (1 기반), 구조 데이터 이름, ``uncertainty``, ``predicted_class``, 확률 열 및 추출 이미지 지역 메타 데이터 ``png_list``가 있습니다. 텅 비어있을 때 (동일한 열과 함께) 아무것도 기록 할 수 없습니다. 진단은 ``queue.attrs['spacr_active_learning']``에서 살아있다; :func:`format_queue_summary`으로 그들을 만드십시오.\n:raises ValueError: 테이블 또는 예측 열이 없을 때 - 둘 다 작업 목록을 구축 할 필요가 없다는 것을 의미하고, 추측은 확실하게 보이는 잘못된 순서를 생성 할 것입니다.\n:raises FileNotFoundError: 데이터베이스가 없을 때\n\n.. warning::\n   ``uncertainty``는 순위 점수가 아니라 캘리포니아 신뢰입니다. :data:`CALIBRATION_NOTE` 참조.",
+      "source_sha256": "7ebda6a05096e9c72c19c037746f7bd3d724438d3097d3c8151463b245979a04",
+      "text": "주석 대기열을 만듭니다. 레이블이 없는 크롭을 불확실성이 가장 큰 것부터 나열합니다.\n\n읽기 ``png_list``만 읽고 추출 된 이미지 지역에 한 줄을 반환하는 것은 여전히 레이블을 기다리고 있으며, 추출된 이미지 지역이 가장 먼저 모델을 가르치는 것을 주문합니다.\n\n**지금 기록된 추출된 이미지 영역은 제외됩니다.** ``NULL`` in ``annotation_column``는 \"not looked at\"를 의미합니다; 다른 모든 것 — *포함* — 만약 열이 전혀 존재하지 않는다면, 아직 아무것도 기록되지 않았고, 추출된 모든 이미지 지역은 쿼드됩니다 (그렇게 말하는 메모와 함께).이것은 :mod:`spacr.agreement`과 동일한 퇴보 협약입니다.\n\n**목표 작업 목록은 기본적으로 다양하고, 그것은 무언가를 지불합니다.** ``diversity='well'`` 등급 추출 이미지 영역은 마이크로 플레이트 샘플 위치에 걸쳐 라운드 로빈을 다루고있다 : 위치 1은 여전히 가장 불확실한 추출 이미지 영역이지만 위치 2는 *다른* 잘 추출 된 이미지 지역이지만, 실행자 전체보다 물질적으로 덜 확실 할 수 있습니다. ``limit``은 마이크로 플레이트 샘플 위치의 수보다 작다면, 어노테이션 작업 목록에는 ``limit`` 마이크로플레이트 시료 위치의 각각에서 추출 된 이미지 영역과 나머지 영역에서 하나가 포함됩니다. ``diversity='none'`` 순 순서, ``'field'``/``'plate'`` 다른 층, 또는 ``group_columns=[…]`` 자신의 - 특징에서 계산 한 클러스터 ID를 포함하여, 이것은 더 철저한 다양화 이 거래는 특징 매트릭스를 필요로하지 않기 때문에.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 콜럼에서 Annotate 앱이 입력됩니다 (기본 ``'annotate'``).\n:param pred_column: 모델 점수 열(s)의 이름 또는 이름 목록. ``None`` (기본) 자동 탐지: ``pred_0, pred_1, …`` 스타일 클래스에 대 한 콜럼, 다른 ``pred``. 단일 콜롬은 바이너리 문제의 긍정적 인 클래스를 가능성으로 읽어집니다.\n:param table: 추출 된 이미지 영역을 포함하는 테이블 (기본 ``png_list``).\n:param key: 라인 식별자 (기본 ``png_path``)\n:param measure: ``'entropy'`` (기본), ``'least_confidence'``, ``'margin'``, 또는 호출 가능. 두 클래스에서 마지막 두 명은 동일한 순서를 제공합니다.\n:param limit: 이 많은 추출 된 이미지 지역의 대부분을 유지합니다.\n:param diversity: ``'well'`` (기본), ``'plate'``, ``'row'``, ``'column'``, ``'field'`` 또는 ``'none'``.\n:param group_columns: 명시적인 열을 위로 격리, ``diversity``를 위로.\n:param seed: 이 찢어지는 시드; ``None``은 순서대로 묶음을 깨고 결과가 재생 가능하다.\n:param image_type: Annotate 뷰의 ``image_type`` 필터로 ``png_path`` 에 적용됩니다(예: ``'cell'`` 또는 ``'cell AND NOT pathogen'``). 그리드가 읽는 방식대로 읽습니다. AND, OR, NOT 과 괄호를 사용하며 각 용어는 대소문자를 구분하지 않고 비교합니다.\n:returns: DataFrame ``rank`` (1 기반), 구조 데이터 이름, ``uncertainty``, ``predicted_class``, 확률 열 및 추출 이미지 지역 메타 데이터 ``png_list``가 있습니다. 텅 비어있을 때 (동일한 열과 함께) 아무것도 기록 할 수 없습니다. 진단은 ``queue.attrs['spacr_active_learning']``에서 살아있다; :func:`format_queue_summary`으로 그들을 만드십시오.\n:raises ValueError: 테이블 또는 예측 열이 없을 때 - 둘 다 작업 목록을 구축 할 필요가 없다는 것을 의미하고, 추측은 확실하게 보이는 잘못된 순서를 생성 할 것입니다.\n:raises FileNotFoundError: 데이터베이스가 없을 때\n\n.. warning::\n   ``uncertainty``는 순위 점수가 아니라 캘리포니아 신뢰입니다. :data:`CALIBRATION_NOTE` 참조.",
       "translation_source_blocks_sha256": [
         "6a9525dc472316ce57ca82a96ab048c346b696b346f5da78d6cbd1d097fdc038",
         "f0b8c5ce932145dd058d7bea404a4b7b3357c25f4a6382c06fc6fd0ed4fba0e2",
@@ -1121,7 +1121,7 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "7b18cd8d589d17fcda749986eeb1501b7ad69fe26520bdacb3d4a60e7683d95d",
+        "63e460e87d3e2f0693f869b5fa42b27c0c9459f6a69583207fa57ceb3382c9b1",
         "86a02024ff7490e61340209a578550dd8db0c02d200b59f5b93e574f77933aa9",
         "06ddaec3cae5522a2175e192dae21721e450e664b9b89fe6f97a4a734ffbaa56",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
@@ -1141,11 +1141,11 @@
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
         "d862db52f9dfd39bce03280d81217d90ffb7329d6f04714aefb3675400b8efe6",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ],
-      "source_sha256": "d7231c91f09a37f517fcd1861a42b7a51fdad1ed84177d1d02f465d6c057b8de",
-      "text": "객체 키를 크롭 행으로 확인합니다. **호출자의 순서를 따릅니다**.\n\n데이터베이스의 절반은 :mod:`spacr.qt.linked_selection`에서 개체 라우팅 계약 : :data:`spacr.selection.OBJECT_KEY_COLUMNS` 구조화 된 데이터 이름으로 개체를 분산 또는 혼란 매트릭스 셀 이름, 그리고 Annotate 응용 프로그램 전망은 그것이 페이지에 추출 된 이미지 영역으로 그들을 변환해야합니다. Qt 애플리케이션 보기보다는 이곳에 붙어 있으므로 디스플레이 없이 테스트할 수 있으므로 두 번째 소비자는 ``'o5'`` 대 ``5`` 트래픽을 :func:`_object_label`에서 재현할 필요가 없습니다.\n\n입력 명령은 ``worst errors first``과 같은 우선 순위가 변하지 않도록 유지됩니다.\n\n``png_list``은 인구화 된 ``<type>_id`` 열 (:data:`PNG_ID_COLUMN_TYPES`)을 통해 개체 유형을 식별합니다, 그래서 핵 1과 병원체 1은 독립적으로 해결합니다. 무형화 된 구조화 된 데이터 이름은 추출 된 이미지 지역을 처음 맞추는 것을 선택합니다. 테이블이 개체 형식 열을 표시하지 않는 경우, 타입 된 검색은 적절하지 않은 구조화된 데이터 이름으로 돌아갑니다.\n\n탈출 된 메타 데이터 구성 요소는 암호화 된 형태와 원료 형태로 해결됩니다. :func:`spacr.selection.object_keys` A를 대표하는 ``fieldID`` 에서 ``'f_1'`` 그럼에도 불구하고 ``'f%5F1'``, 추출된 이미지 지역 테이블 열에서 수집된 구조화된 데이터 이름에는 원료 하위 점수가 포함되어 있습니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param keys: 또한 ``png_path``, ``prcfo`` 또는 ``file_name``가 수락되므로 추출 된 이미지 지역 테이블에서 작동하는 호출기 대신 측정 테이브는 번역 단계가 필요하지 않습니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param annotation_column: 또한 기존 라벨을 읽으십시오, 그래서 이미 기록 된 추출 된 이미지 지역은 흰색이 아닌 색상으로 회전합니다.\n:param timelapse: 열쇠는 시간점이 있습니다.\n:param image_type: 추출-사진-구역 키에 필터를 삽입합니다.\n:returns: ``[(png_path, annotation or None), …]`` 키의 순서에",
+      "source_sha256": "f64b7ab8717a72f564311eb69f7a8bf347db6c7ae707c0f7341b290982f030b6",
+      "text": "객체 키를 크롭 행으로 확인합니다. **호출자의 순서를 따릅니다**.\n\n데이터베이스의 절반은 :mod:`spacr.qt.linked_selection`에서 개체 라우팅 계약 : :data:`spacr.selection.OBJECT_KEY_COLUMNS` 구조화 된 데이터 이름으로 개체를 분산 또는 혼란 매트릭스 셀 이름, 그리고 Annotate 응용 프로그램 전망은 그것이 페이지에 추출 된 이미지 영역으로 그들을 변환해야합니다. Qt 애플리케이션 보기보다는 이곳에 붙어 있으므로 디스플레이 없이 테스트할 수 있으므로 두 번째 소비자는 ``'o5'`` 대 ``5`` 트래픽을 :func:`_object_label`에서 재현할 필요가 없습니다.\n\n입력 명령은 ``worst errors first``과 같은 우선 순위가 변하지 않도록 유지됩니다.\n\n``png_list``은 인구화 된 ``<type>_id`` 열 (:data:`PNG_ID_COLUMN_TYPES`)을 통해 개체 유형을 식별합니다, 그래서 핵 1과 병원체 1은 독립적으로 해결합니다. 무형화 된 구조화 된 데이터 이름은 추출 된 이미지 지역을 처음 맞추는 것을 선택합니다. 테이블이 개체 형식 열을 표시하지 않는 경우, 타입 된 검색은 적절하지 않은 구조화된 데이터 이름으로 돌아갑니다.\n\n탈출 된 메타 데이터 구성 요소는 암호화 된 형태와 원료 형태로 해결됩니다. :func:`spacr.selection.object_keys` A를 대표하는 ``fieldID`` 에서 ``'f_1'`` 그럼에도 불구하고 ``'f%5F1'``, 추출된 이미지 지역 테이블 열에서 수집된 구조화된 데이터 이름에는 원료 하위 점수가 포함되어 있습니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param keys: 또한 ``png_path``, ``prcfo`` 또는 ``file_name``가 수락되므로 추출 된 이미지 지역 테이블에서 작동하는 호출기 대신 측정 테이브는 번역 단계가 필요하지 않습니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param annotation_column: 또한 기존 라벨을 읽으십시오, 그래서 이미 기록 된 추출 된 이미지 지역은 흰색이 아닌 색상으로 회전합니다.\n:param timelapse: 열쇠는 시간점이 있습니다.\n:param image_type: 추출된 이미지 영역의 키에 대한 Annotate 이미지 필터로, 그리드가 읽는 방식대로 읽습니다(AND, OR, NOT, 대소문자를 구분하지 않는 용어).\n:returns: ``[(png_path, annotation or None), …]`` 키의 순서에",
       "translation_source_blocks_sha256": [
         "5430048bbfa86368363220fae110ebe8eb481c11a7b83dafe4a8b469cac78fb7",
         "da67a92aa443071a53265d33f04eb01a0c40920ff2c11ee682c66492a85d55d8",
@@ -1158,7 +1158,7 @@
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
         "cf3b2d22413e3e269a5b9e074ecd2d681923b311392f9f47c20f19a1722ac097",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ]
     },
@@ -1571,7 +1571,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "c4a49e34c74648bbeeaac2580ba68aebc6b7ae4f12411b494ee6c75cfc4c1e68",
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1588,8 +1588,8 @@
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "8e454e6390c0cf40214a75f58051d4d2ee497409af3a69e6aa5c7c0279ad3a2e"
       ],
-      "source_sha256": "5c0a2f87b2a2a444204a461bedaa7bb150107d7f9cd40bfefaa12120723cb287",
-      "text": "현재 레이블로 모델을 적합하고, 모든 크롭의 점수를 다시 매기고, 라운드를 기록합니다.\n\n퇴각이 없으면 작업 목록 순서는 여전히 새로운 라벨 중 하나를 앞두고 설정된 모델을 반영하므로 처음 몇 십 개의 라벨 후에 오래되었습니다.\n\n한 번의 호출은 루프가 필요로하는 다섯 가지를 만듭니다 :\n\n1. 각 레이블에 모델을 ``annotation_column``로 맞추고; 2. **grouped** held-out 분할에 점수, 그래서 숫자는 하나의 마이크로 플레이트 샘플 위치에서 온 190 라벨의 유물이 아닙니다; 3. 클래스 당 확률을 ``png_list``으로 :data:`ROUND_PRED_PREFIX` 열로 다시 작성합니다., :func:`build_queue`이 ``pred``보다 더 오래된 것을 선호한다. — 그래서 다음 작업 목록은 진정으로 다시 배열됩니다; 4. 라운드를 기록하고 :func:`learning_curve` 다른 포인트를 제공합니다; 5. 지금까지 곡선에 :class:`StoppingVerdict`을 반환합니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 라벨을 붙잡는 열.\n:param features: 특징 매트릭스는 추출-사진-구역 구조 데이터 이름에 의해 인덱스됩니다.그것은 :func:`round_features`로 측정 테이블에서 읽을 수 없습니다.\n:param model_type: ``'logistic_regression'`` (기본 - 그것은 20 라벨에서 행동하는 것입니다), ``'random_forest'`` 또는 ``'gradient_boosting'``.\n:param group_by: ``'well'`` (기본), ``'plate'``, ``'field'`` 또는 ``'none'``. 무언가를 공유하기를 거부합니다. 정확하게 일치하고 낮은 경우에; 다른 모든 것이 오류를 생성하는 방법에 알려지지 않은 ``diversity=`` :func:`build_queue`. 전략이 ``'none'``, 또는 추출 이미지-지역 테이블이 필요로하는 열 중 하나가 없을 때, 분할은 분열 된 우연한 하나이며 ``split_rule``는 ``NOT grouped``라고 말합니다. - 그것은 결코 그룹화를 주장하지 않습니다.\n:param holdout: 부분이 꺼져 나온다.\n:param seed: 그것은 분열과 적합성을 재생할 수 있게 만듭니다.\n:param min_labels: 이 많은 라벨 아래에 맞는 것을 거부합니다.\n:param round_index: 라운드 번호를 초과하십시오; :func:`next_round`로 지정됩니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param image_type: 추출-사진-구역 키에 필터를 삽입합니다.\n:param write_scores: 새로운 확률을 데이터베이스에 다시 입력합니다.\n:param save_model: joblib-dump 데이터베이스 옆에 붙어있는 모델.\n:param model_dir: 어디에 넣을 수 있습니까; ``<db dir>/active_learning``로 지정됩니다.\n:param write_card: 저장된 모델 옆에 모델 카드를 작성합니다.\n:param label_window: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param min_gain: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param measure: 라운드와 함께 기록, 다음 작업 목록을 위해.\n:param diversity: 마찬가지로\n:param balance: ``'none'`` (기본)는 추정치 자체의 ``class_weight='balanced'``에 불균형을 남기고; ``'downsample'``는 각 클래스를 그룹 분할 전에 가장 작은 크기로 줄입니다.\n\n    과체중 및 하락 샘플링은 동일한 추출 된 이미지 영역에서 다른 확률을 생성하고, :func:`spacr.suggest.suggest_from_scores`이 확률에 따라 종류, 그래서 라운드는 ``notes`` 및 모델 카드에 설정을 기록합니다.\n:param rejections: ``{crop key: rejected class}`` - 제안은 메모가 거부 (:func:`spacr.suggest.rejected_suggestions`). 두 클래스의 열에서 클래스를 거부하는 것은 클래스로 2의 예이며, 그것은 하나로 조정됩니다; 그 이후에 표시 된 추출 된 이미지 지역은 그것의 레이블에 남아 있으며, 다른 클래스는 거부를 레이블로 변환 할 수 없으며 대신 노트에 계산됩니다.\n:param synthetic_negatives: 얼마나 많은 기록되지 않은 추출 된 이미지 영역을 무작위로 인쇄하고 단 하나의 클래스만 기록되었을 때 부재 클래스로 적합합니다. ``None`` (기본) 대신, 이전과 같이 거부합니다.\n\n    우연한 점수는 주로 부정적이지 않으므로 결과는 분류가 아닌 순위입니다. 라운드 노트와 모델 카드는 얼마나 많은 합성 부정적인 것이 사용되었는지 기록합니다. 바이너리 클래스 1 및 2에만 정의 - :func:`_absent_binary_class`를 참조하십시오.\n:returns: a :class:`RoundResult`.\n:raises ValueError: 아래의 ``min_labels`` 라벨, 2개 이상의 클래스가 표시되거나 알려지지 않은 ``group_by``의 경우.",
+      "source_sha256": "a74925dd50ad41ac7120eab34cf450578d9f3b097f67b4feef6ebcfba49e5e0c",
+      "text": "현재 레이블로 모델을 적합하고, 모든 크롭의 점수를 다시 매기고, 라운드를 기록합니다.\n\n퇴각이 없으면 작업 목록 순서는 여전히 새로운 라벨 중 하나를 앞두고 설정된 모델을 반영하므로 처음 몇 십 개의 라벨 후에 오래되었습니다.\n\n한 번의 호출은 루프가 필요로하는 다섯 가지를 만듭니다 :\n\n1. 각 레이블에 모델을 ``annotation_column``로 맞추고; 2. **grouped** held-out 분할에 점수, 그래서 숫자는 하나의 마이크로 플레이트 샘플 위치에서 온 190 라벨의 유물이 아닙니다; 3. 클래스 당 확률을 ``png_list``으로 :data:`ROUND_PRED_PREFIX` 열로 다시 작성합니다., :func:`build_queue`이 ``pred``보다 더 오래된 것을 선호한다. — 그래서 다음 작업 목록은 진정으로 다시 배열됩니다; 4. 라운드를 기록하고 :func:`learning_curve` 다른 포인트를 제공합니다; 5. 지금까지 곡선에 :class:`StoppingVerdict`을 반환합니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param annotation_column: 라벨을 붙잡는 열.\n:param features: 특징 매트릭스는 추출-사진-구역 구조 데이터 이름에 의해 인덱스됩니다.그것은 :func:`round_features`로 측정 테이블에서 읽을 수 없습니다.\n:param model_type: ``'logistic_regression'`` (기본 - 그것은 20 라벨에서 행동하는 것입니다), ``'random_forest'`` 또는 ``'gradient_boosting'``.\n:param group_by: ``'well'`` (기본), ``'plate'``, ``'field'`` 또는 ``'none'``. 무언가를 공유하기를 거부합니다. 정확하게 일치하고 낮은 경우에; 다른 모든 것이 오류를 생성하는 방법에 알려지지 않은 ``diversity=`` :func:`build_queue`. 전략이 ``'none'``, 또는 추출 이미지-지역 테이블이 필요로하는 열 중 하나가 없을 때, 분할은 분열 된 우연한 하나이며 ``split_rule``는 ``NOT grouped``라고 말합니다. - 그것은 결코 그룹화를 주장하지 않습니다.\n:param holdout: 부분이 꺼져 나온다.\n:param seed: 그것은 분열과 적합성을 재생할 수 있게 만듭니다.\n:param min_labels: 이 많은 라벨 아래에 맞는 것을 거부합니다.\n:param round_index: 라운드 번호를 초과하십시오; :func:`next_round`로 지정됩니다.\n:param table: 사진 - 지역 테이블\n:param key: extracted-image-region 식별자 열.\n:param image_type: 추출된 이미지 영역의 키에 대한 Annotate 이미지 필터로, 그리드가 읽는 방식대로 읽습니다(AND, OR, NOT, 대소문자를 구분하지 않는 용어).\n:param write_scores: 새로운 확률을 데이터베이스에 다시 입력합니다.\n:param save_model: joblib-dump 데이터베이스 옆에 붙어있는 모델.\n:param model_dir: 어디에 넣을 수 있습니까; ``<db dir>/active_learning``로 지정됩니다.\n:param write_card: 저장된 모델 옆에 모델 카드를 작성합니다.\n:param label_window: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param min_gain: 그것은 :func:`should_stop`로 옮겨졌습니다.\n:param measure: 라운드와 함께 기록, 다음 작업 목록을 위해.\n:param diversity: 마찬가지로\n:param balance: ``'none'`` (기본)는 추정치 자체의 ``class_weight='balanced'``에 불균형을 남기고; ``'downsample'``는 각 클래스를 그룹 분할 전에 가장 작은 크기로 줄입니다.\n\n    과체중 및 하락 샘플링은 동일한 추출 된 이미지 영역에서 다른 확률을 생성하고, :func:`spacr.suggest.suggest_from_scores`이 확률에 따라 종류, 그래서 라운드는 ``notes`` 및 모델 카드에 설정을 기록합니다.\n:param rejections: ``{crop key: rejected class}`` - 제안은 메모가 거부 (:func:`spacr.suggest.rejected_suggestions`). 두 클래스의 열에서 클래스를 거부하는 것은 클래스로 2의 예이며, 그것은 하나로 조정됩니다; 그 이후에 표시 된 추출 된 이미지 지역은 그것의 레이블에 남아 있으며, 다른 클래스는 거부를 레이블로 변환 할 수 없으며 대신 노트에 계산됩니다.\n:param synthetic_negatives: 얼마나 많은 기록되지 않은 추출 된 이미지 영역을 무작위로 인쇄하고 단 하나의 클래스만 기록되었을 때 부재 클래스로 적합합니다. ``None`` (기본) 대신, 이전과 같이 거부합니다.\n\n    우연한 점수는 주로 부정적이지 않으므로 결과는 분류가 아닌 순위입니다. 라운드 노트와 모델 카드는 얼마나 많은 합성 부정적인 것이 사용되었는지 기록합니다. 바이너리 클래스 1 및 2에만 정의 - :func:`_absent_binary_class`를 참조하십시오.\n:returns: a :class:`RoundResult`.\n:raises ValueError: 아래의 ``min_labels`` 라벨, 2개 이상의 클래스가 표시되거나 알려지지 않은 ``group_by``의 경우.",
       "translation_source_blocks_sha256": [
         "951d883926b536a34e5cd0ebee5f02933b55e5828da6efc3a79435c417c21e65",
         "e4fcf0faf850f6bf6f649c7afe08a6e74907d17388393c016a51c4d9a6620b55",
@@ -1606,7 +1606,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "5d1c3c972e1ffc64511eb1eae159d667f9b6daf83948df53b888203ea49445ce",
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1631,25 +1631,29 @@
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "4018b583c775fc05733dfce234cb6f94a8448e3361f957cf66989a0a73ca0e4a",
         "42529e1520f6516ab9c106702830c241cf965efc52e64bb7c16dde2ca5939061",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "50cdd854a2adde80ccef5cb67792eacef83a6e781f992348ba774ca19940808f",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "a7972a1a00a26ce5a9a7b7342e3ccea30e2b327e11b9461bf0190b26cc4f5114"
       ],
-      "source_sha256": "8dfab3528887ae976b854dca42cb42786dc0f25ee6bb33657fd28ba4e1799e86",
-      "text": "모든 크롭의 측정 특징이며, ``png_path``로 인덱싱됩니다.\n\n특징 매트릭스는 응용 프로그램에서 시각 리트렌이 적합합니다. 측정 특징은 픽셀 대신 목적에 : Annotate의 내부에서 리트레이닝의 점은 초에 신선한 순위를 얻는 것입니다, 기계에서 메뉴터가 앉아있다, GPU 없이 응용 분야에서. CNN 리트레인은 *end*에서 수행 할 수있는 올바른 일입니다, 추출 된 이미지 영역의 두 페이지 사이가 아닙니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param table: ``png_path`` 및 ``prcfo``를 가진 추출 이미지 지역 테이블.\n:param key: 추출 이미지 지역 식별 열.\n:param tables: 개체 테이블에서 특징을 결합; 실종된 것은 벗어납니다.\n:param nuclei_limit: :func:`spacr.io._read_and_merge_data`로 전환하는 방법\n:param pathogen_limit: 똑같이\n:returns: 숫자 특징은 ``png_path``로 인덱스됩니다.\n:raises ValueError: 특징이 있는 객체 테이블이 읽을 수 없을 때.",
+      "source_sha256": "115a6b78c60744ea5dcf44bbc4d5d78525ea8de74aaad2cb82509bbb6fe1c013",
+      "text": "모든 크롭의 측정 특징이며, ``png_path``로 인덱싱됩니다.\n\n특징 매트릭스는 응용 프로그램에서 시각 리트렌이 적합합니다. 측정 특징은 픽셀 대신 목적에 : Annotate의 내부에서 리트레이닝의 점은 초에 신선한 순위를 얻는 것입니다, 기계에서 메뉴터가 앉아있다, GPU 없이 응용 분야에서. CNN 리트레인은 *end*에서 수행 할 수있는 올바른 일입니다, 추출 된 이미지 영역의 두 페이지 사이가 아닙니다.\n\n:param db_path: ``measurements.db`` 의 경로.\n:param table: ``png_path`` 및 ``prcfo``를 가진 추출 이미지 지역 테이블.\n:param key: 추출 이미지 지역 식별 열.\n:param tables: 특징을 가져올 객체 테이블입니다. 없는 테이블은 건너뛰며, ``None`` 은 추출된 이미지 영역이 보여 주는 객체 유형의 테이블을 뜻합니다. 영역 자체의 테이블(핵 영역이면 ``nucleus``)은 객체 자신의 행을, 상위 테이블(``cell`` 또는 ``cytoplasm``)은 객체가 들어 있는 세포의 행을, 그 밖의 테이블은 그 세포 안에 있는 행들의 평균을 제공합니다. 영역은 자체 테이블이 선택되어 있고 그 행이 있을 때, 또는 자체 테이블이 선택되지 않았다면 선택된 테이블 중 하나가 그 영역을 설명할 때 유지됩니다.\n:param nuclei_limit: 이 값보다 많은 핵을 가진 세포는 평균 핵 특징을 받지 않습니다. ``None`` 은 제한을 두지 않습니다.\n:param pathogen_limit: 이 값보다 많은 병원체를 가진 세포는 평균 병원체 특징을 받지 않습니다. ``None`` 은 제한을 두지 않습니다.\n:param channels: 이 채널 그룹의 특징만 유지합니다. ``channel_<n>`` 과, 단일 채널이 관여하지 않는 특징(면적, 모양)을 위한 ``none`` 이 있으며, ``None`` 은 모든 채널을 유지합니다.\n:param families: 이 특징 계열만 유지합니다. 이름은 :data:`spacr.feature_dict.FEATURE_FAMILIES` 에 있는 것(``intensity``, ``morphology``, ``texture`` 등)이며, ``None`` 은 모든 계열을 유지합니다.\n:returns: ``png_path`` 로 인덱싱된 수치 특징입니다.\n:raises ValueError: 객체 테이블을 하나도 읽을 수 없을 때, 채널과 계열 선택으로 특징 열이 하나도 남지 않을 때, 또는 추출된 이미지 영역과 측정된 객체가 있지만 어떤 영역도 객체와 일치하지 않을 때 발생합니다. 마지막 경우에는 영역 키와 객체 키를 하나씩 알려 줍니다.",
       "translation_source_blocks_sha256": [
         "d3bc87290a803f6dc7d1edeb34d177115eb2c80058e9653f6e9165263c2459a3",
         "be6bd319614c4e175d9733d38c7036d9b2f5cfaa3521c292992d4321245dd934",
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "5300d333528981fa26e142fb1bdfb7c18b52f53e8a0ea14cf607024afd5f1465",
         "7d9d21ae8dc0f391ffc61c27ecc5b17762bd0552c401aa7947787ec078a5c183",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "49610a01e2cddc5ab9704824421010a65ab0cabe0eebf676100f12098a70b093",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "5210bc81a275b5d62fb9ffbf5e6fcd0142a54b9742656b1c6c5f6a496da959b2"
       ]
     },
     "spacr.active_learning.should_stop": {
@@ -87566,7 +87570,7 @@
     },
     "spacr.qt.mask_engine.assign_tracked_object": {
       "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -87574,10 +87578,10 @@
         "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
         "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
       ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "다른 추적을 차지하지 않고 사용 가능한 로컬 ID로 포인터 아래의 객체를 추적합니다.\n\n:param mask: 현재의 2차원 정수 레이블 마스크.\n:param x: 마우스 포인터 아래 픽셀의 열.\n:param y: 마우스 포인터 아래 픽셀의 행.\n:param state: 복사하고 업데이트할 계보 그래프.\n:param frame: 이 프레임의 원본 이미지 경로.\n:param cell_uuid: 할당할 구간의 영구 UUID.",
+      "source_sha256": "20e05c734d55af9cb86840fb3c2d4931357ba0bb47e9c770b91c721cf65a44db",
+      "text": "포인터 아래의 객체에 선택한 식별자를 부여하여 분열의 한 가지가 그 식별자를 이어 가도록 합니다.\n\n:param mask: 현재의 2차원 정수 레이블 마스크.\n:param x: 마우스 포인터 아래 픽셀의 열.\n:param y: 마우스 포인터 아래 픽셀의 행.\n:param state: 복사하고 업데이트할 계보 그래프.\n:param frame: 이 프레임의 원본 이미지 경로.\n:param cell_uuid: 할당할 구간의 영구 UUID.",
       "translation_source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",

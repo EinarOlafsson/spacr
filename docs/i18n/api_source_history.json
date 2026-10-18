@@ -1,18 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43": {
-      "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
-        "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
-        "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
-        "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
-        "8b21db6858c1935107f8a275fb53edd6d9c9658296a6575b6e54a71221252c4d",
-        "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
-        "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
-      ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "Track a hovered object using a free local ID without stealing another track.\n\n:param mask: The current two-dimensional integer label mask.\n:param x: The hovered pixel column.\n:param y: The hovered pixel row.\n:param state: The lineage graph to copy and update.\n:param frame: The source image path for this frame.\n:param cell_uuid: The persistent UUID of the segment to assign."
-    }
-  }
+  "sources": {}
 }

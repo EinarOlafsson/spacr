@@ -325,8 +325,10 @@ def test_the_menu_offers_the_verdicts_only_when_there_is_something_to_judge(
     # and hung until its timeout.
     menu = widget._build_suggest_menu()
     assert menu is not None
-    assert len(menu.actions()) == 2, (
-        "with nothing outstanding the menu is the two scopes and no verdicts")
+    assert len(menu.actions()) == 3, (
+        "with nothing outstanding the menu is the choice dialog and the two "
+        "scopes, and no verdicts")
+    assert menu.actions()[0].objectName() == "AnnotateSuggestChoose"
 
     _annotate(db, [("/a.png", 1 + SUGGESTION_OFFSET),
                    ("/b.png", 2 + SUGGESTION_OFFSET)])

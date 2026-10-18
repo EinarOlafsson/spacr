@@ -36,7 +36,9 @@
       "label": "spacr.active_learning.annotation_coverage#7",
       "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
       "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
-      "translation": "filtro de substring no nome de dados estruturados, correspondendo ao próprio filtro do modo de exibição do aplicativo Annotate. Cada contagem abaixo dele, ``n_rows`` incluído, refere-se às regiões de imagem extraídas que corresponderam — um denominador retirado da tabela inteira colocaria o numerador e o denominador em duas populações diferentes. ``n_rows_unfiltered`` mantém o total, e uma nota diz quantos foram excluídos."
+      "translation": "filtro de substring no nome de dados estruturados, correspondendo ao próprio filtro do modo de exibição do aplicativo Annotate. Cada contagem abaixo dele, ``n_rows`` incluído, refere-se às regiões de imagem extraídas que corresponderam — um denominador retirado da tabela inteira colocaria o numerador e o denominador em duas populações diferentes. ``n_rows_unfiltered`` mantém o total, e uma nota diz quantos foram excluídos.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "when the table has no such column — an empty result would read as \"nothing annotated yet\", which is a different fact.",

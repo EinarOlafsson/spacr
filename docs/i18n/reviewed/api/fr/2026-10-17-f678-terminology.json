@@ -20,14 +20,18 @@
       "label": "spacr.active_learning.round_features#5",
       "source": "object tables to merge features from; missing ones are skipped.",
       "source_sha256": "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-      "translation": "tables d'objets à fusionner des caractéristiques de ; les parties manquantes sont ignorées."
+      "translation": "tables d'objets à fusionner des caractéristiques de ; les parties manquantes sont ignorées.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "when no object table with features could be read.",
       "label": "spacr.active_learning.round_features#9",
       "source": "when no object table with features could be read.",
       "source_sha256": "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5",
-      "translation": "quand aucune table objet avec des caractéristiques ne pouvait être lue."
+      "translation": "quand aucune table objet avec des caractéristiques ne pouvait être lue.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "write outcome: ``\"empty\"`` before pixels are written, ``\"complete\"`` when no tile read failed, or ``\"partial\"`` when at least one tile was skipped.",
