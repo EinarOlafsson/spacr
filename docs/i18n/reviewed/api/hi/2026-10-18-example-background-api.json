@@ -1,0 +1,29 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "check, download and verify the files on a background execution unit and fill the slots when they arrive, so the window keeps painting through a download. The buttons use this; the mapping is then empty and the slots fill on completion.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen#2",
+      "source": "check, download and verify the files on a worker thread and fill the slots when they arrive, so the window keeps painting through a download. The buttons use this; the mapping is then empty and the slots fill on completion.",
+      "source_sha256": "219da7ad429c0b493045d72574142cf2eea467ec1c1ab3be8b970b33fc4efab1",
+      "translation": "कार्यकर्ता थ्रेड पर फ़ाइलों की जाँच, डाउनलोड और सत्यापन करें तथा फ़ाइलें आने पर इनपुट फ़ील्ड भरें, ताकि डाउनलोड के दौरान विंडो दोबारा चित्रित होती रहे। बटन इसी मोड का उपयोग करते हैं; तब लौटाया गया मैपिंग खाली होता है और काम पूरा होने पर फ़ील्ड भरते हैं।"
+    },
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "retired": true,
+      "retired_reason": "Superseded by the independently reviewed published 40af1413c first-fold translation; original source, context and translation retained as review history.",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "किसी समेटे गए मॉड्यूल को पहली बार खोलने पर, इवेंट लूप के अलग चक्र में पृष्ठ-पट्टी बनती है। इसे बनाने से इस दृश्य की पूरी मुख्य सामग्री पट्टी पर आ जाती है, और Qt स्थानांतरित सामग्री के हर विजेट की शैली फिर लागू करता है। यह काम और पृष्ठ को पट्टी में जोड़ना मिलकर इंटरफ़ेस को एक बार रोक देते थे। दोनों चरणों के बीच इवेंट संसाधित करने से विंडो प्रतिक्रिया दे सकती है।"
+    },
+    {
+      "context": "A run whose plot state is remembered is drawn once, by the restore of that state, rather than drawn and then drawn again. A state first recorded while this call draws -- a workspace save reading the panel mid-draw -- holds what is being drawn and is not restored over it.",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame#2",
+      "source": "A run whose plot state is remembered is drawn once, by the restore of that state, rather than drawn and then drawn again. A state first recorded while this call draws -- a workspace save reading the panel mid-draw -- holds what is being drawn and is not restored over it.",
+      "source_sha256": "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12",
+      "translation": "जिस रन के प्लॉट की स्थिति सहेजी गई है, उसे उस स्थिति को बहाल करके एक बार चित्रित किया जाता है, पहले चित्रित करके फिर दोबारा नहीं। इस कॉल के चित्रण के दौरान पहली बार दर्ज स्थिति — जब कार्यक्षेत्र को सहेजने की प्रक्रिया चित्रण के बीच पैनल को पढ़ती है — में वही सामग्री होती है जो चित्रित हो रही है, और उसे उस सामग्री के ऊपर फिर से बहाल नहीं किया जाता।"
+    }
+  ],
+  "schema": 1
+}

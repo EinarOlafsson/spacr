@@ -99398,13 +99398,15 @@
       "source_blocks_sha256": [
         "703d9eaccc8c968e8c47c2126da9d3f739f03e4491366bb5b4ced7eaad993225",
         "bb775aff83e5c80b09ccc93ab7d9ebde2bd762bc334fc3bdf65a714058c444ea",
+        "219da7ad429c0b493045d72574142cf2eea467ec1c1ab3be8b970b33fc4efab1",
         "7ca1ec6ad4fb8a2509b18e7e79af2acb1f816431b335f4f866bdc18d4305f6fa"
       ],
-      "source_sha256": "88f2676cd8b0c4d8d97ccfdff28b8b9548d3063672ffa395a14b131b01baa602",
-      "text": "예제 화면을 붙이고 `count_data` 및 `score_data`를 채우십시오.\n\n:param download: ``True``의 경우, 이미 현지 캐시에 있지 않은 파일을 다운로드합니다.\n:returns: 그들의 파일 경로에 인구 설정 이름의 맵링.",
+      "source_sha256": "d78c4003d58bad2740043eeed85e251e8ae3e2c63dfef38b1187ba066bc05c16",
+      "text": "예제 화면을 붙이고 `count_data` 및 `score_data`를 채우십시오.\n\n:param download: ``True``의 경우, 이미 현지 캐시에 있지 않은 파일을 다운로드합니다.\n:param in_background: 작업자 스레드에서 파일을 확인하고 다운로드한 뒤 검증하며, 파일이 도착하면 입력란을 채워 다운로드 중에도 창이 계속 다시 그려지게 합니다. 버튼은 이 모드를 사용하므로 반환되는 매핑은 비어 있고, 완료되면 입력란이 채워집니다.\n:returns: 그들의 파일 경로에 인구 설정 이름의 맵링.",
       "translation_source_blocks_sha256": [
         "703d9eaccc8c968e8c47c2126da9d3f739f03e4491366bb5b4ced7eaad993225",
         "bb775aff83e5c80b09ccc93ab7d9ebde2bd762bc334fc3bdf65a714058c444ea",
+        "67e3274ca13b8e92c5376e327e9b41a2f0e82ae199ae4e7da4338d6164673447",
         "7ca1ec6ad4fb8a2509b18e7e79af2acb1f816431b335f4f866bdc18d4305f6fa"
       ]
     },
@@ -99682,14 +99684,14 @@
       "source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525",
-        "6d0960f86615b508076afdf00592ee7cf20dd813070e276fa59f1755d3fd8131"
+        "b08e3ad921582cd0cadb1a95ea4330d9f244c77e8a64c01d8287d0b4fb3f634e"
       ],
-      "source_sha256": "d3dfb740da01f93219760b4f0f3972c05c16c96f611da4ac1bdf1b6d09095aa6",
-      "text": "이 화면과 그 패널을 워크 공간 레지스트리로 입력합니다.\n\n속성을 반환하는 CALLABLES로 등록된 경우, `_results_panel`은 모듈이 변경되면 재구성되며, 캡처 된 참조는 삭제 된 C++ 커플에게 처리 세션 저널을 전달합니다.\n\n전화기는 :meth:`_if_built`로 속성을 읽으므로 섹션을 요청하면 결코 배제 패널을 구축하지 않습니다. 처리 세션 저널은 작업 흐름을 실행하는 배경 실행 단위에서 요청하고, 설치된 패널에는 주요 GUI 실행 경로에서 생성된 위젯이 있습니다.",
+      "source_sha256": "b8378764344e7c01d77ad42819a71fdf4dfee52af75ff64ecc5564f2f747b5a2",
+      "text": "이 화면과 그 패널을 워크 공간 레지스트리로 입력합니다.\n\n속성을 반환하는 CALLABLES로 등록된 경우, `_results_panel`은 모듈이 변경되면 재구성되며, 캡처 된 참조는 삭제 된 C++ 커플에게 처리 세션 저널을 전달합니다.\n\n호출 가능한 객체는 :meth:`_if_built` 로 속성을 읽으므로 섹션을 요청해도 생성이 지연된 패널을 새로 만들지 않습니다. 실행 저널은 처리 파이프라인을 실행한 작업자 스레드에서 요청하므로, 레지스트리에는 각 섹션을 GUI 스레드에서 읽고 작업자에게 일반 데이터를 전달하는 디스패처가 제공됩니다. 한 번도 생성되지 않은 패널에는 저장할 상태가 없습니다.",
       "translation_source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "d0c9150f91d5e7d90387ac9151a4413c3f57140e9ba387fbb3df6aeed37a8ed8",
-        "b943e18999cb0b6e48e63798f4cde4b910a0e1c88d13da03db29ba92fd747cee"
+        "91c06cf6fc36c257bea84a9c579245460a0a1fdede88796551f4f57bc7fba0b2"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
@@ -141535,13 +141537,15 @@
     "spacr.qt.widgets.fast_plots.ResultsTable.set_frame": {
       "source_blocks_sha256": [
         "41984a811b2e8fc2db257cddd0c7480292f8e1f89b2dcd3dc2c25f308c5828c5",
-        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854"
+        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+        "c0447c614a2e62ed4236f2b635817abb11b409828e4944efbdcb49e5084582a5"
       ],
-      "source_sha256": "4bc3d184a40f8b4c35a3bf05a364adea06f62960a658e22a7026297dd93681a6",
-      "text": "테이블을 채우고 계산 순서를 반환합니다.\n\n:param frame: 결과 테이블이며, 프레임의 행마다 표의 행 하나, 프레임의 열마다 열 하나입니다. ``None`` 이나 빈 프레임이면 \"Nothing to show.\" 를 표시합니다.",
+      "source_sha256": "43796a736e924fba529fb35ecb4d4e63bba0313ffb0080154be42249624fdf21",
+      "text": "테이블을 채우고 계산 순서를 반환합니다.\n\n:param frame: 결과 테이블이며, 프레임의 행마다 표의 행 하나, 프레임의 열마다 열 하나입니다. ``None`` 이나 빈 프레임이면 \"Nothing to show.\" 를 표시합니다.\n\n:attr:`fill_in_steps` 가 활성화되면 셀 수가 :attr:`FILL_STEP_CELLS` 를 초과하는 표를 이벤트 루프의 여러 차례에 걸쳐 채웁니다. 이 위젯이나 그 그리드의 ``item`` 을 통해 행을 읽을 때는 먼저 채우기를 완료합니다.",
       "translation_source_blocks_sha256": [
         "41984a811b2e8fc2db257cddd0c7480292f8e1f89b2dcd3dc2c25f308c5828c5",
-        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854"
+        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+        "c0447c614a2e62ed4236f2b635817abb11b409828e4944efbdcb49e5084582a5"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.show_keys": {
@@ -174095,13 +174099,15 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame": {
       "source_blocks_sha256": [
         "7cb2c15d9c0ce6060f5e96293361608934e12ff04f3aea14d5136c834efd59aa",
-        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03"
+        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03",
+        "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12"
       ],
-      "source_sha256": "2946bce358eba68f92b89f28fff78bcb6c47060277f008f9c6cd7585a3a0a505",
-      "text": "이미 충전된 요소 테이블을 표시합니다.\n\n:param frame: 계수 DataFrame 입니다. ``None`` 이거나 빈 프레임이면 상태 줄에 보고되고 ``False`` 를 반환합니다.",
+      "source_sha256": "7b6b6f6f7063f77de62b280d4cf926c2efa248971bf4b18955c5d1cc3a534d95",
+      "text": "이미 충전된 요소 테이블을 표시합니다.\n\n:param frame: 계수 DataFrame 입니다. ``None`` 이거나 빈 프레임이면 상태 줄에 보고되고 ``False`` 를 반환합니다.\n\n플롯 상태가 저장된 실행은 먼저 그리고 다시 그리는 대신, 그 상태를 복원하면서 한 번만 그립니다. 이 호출이 그리는 동안 처음 기록된 상태 — 작업 공간을 저장하면서 그리기 도중 패널을 읽은 경우 — 에는 현재 그리는 내용이 담겨 있으며, 그 내용 위에 다시 복원되지 않습니다.",
       "translation_source_blocks_sha256": [
         "7cb2c15d9c0ce6060f5e96293361608934e12ff04f3aea14d5136c834efd59aa",
-        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03"
+        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03",
+        "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_level": {
@@ -209755,12 +209761,14 @@
     "spacr.workspace.clear_providers": {
       "source_blocks_sha256": [
         "3dde59e8f445b4fececebc1a5b0115de280db9dded92d18646f894684ab5ecf5",
+        "72103a2cf4f14f194854ae4515457d271bcb1bf3bdfe5175679f3b6f520f500f",
         "3563841c1d603ae727df1878f8227cdc54c62aeb573da28e97851703db86308d"
       ],
-      "source_sha256": "e9917c897bf1103086d0a95bb23e89704cae39607589dff7325cccf80c03ee08",
-      "text": "모든 공급자를 제거하고 내장된 기본 사항을 복원합니다.\n\n이 재설정은 응용 프로그램 닫기 및 테스트 teardown 동안 상태를 처리합니다.",
+      "source_sha256": "c49a55dda5419ab5da58ebfe500c2d4278df5bde3302288edd083f698ba09583",
+      "text": "모든 공급자를 제거하고 내장된 기본 사항을 복원합니다.\n\nGUI 스레드 디스패처도 제거되며, 다음으로 등록하는 애플리케이션 화면이 이를 다시 설치합니다.\n\n이 재설정은 응용 프로그램 닫기 및 테스트 teardown 동안 상태를 처리합니다.",
       "translation_source_blocks_sha256": [
         "3dde59e8f445b4fececebc1a5b0115de280db9dded92d18646f894684ab5ecf5",
+        "6e9da2818d99b4c8acc119affb919554428ca62bbaeba8669d99c08bef646a06",
         "3563841c1d603ae727df1878f8227cdc54c62aeb573da28e97851703db86308d"
       ]
     },
@@ -210036,14 +210044,16 @@
       "source_blocks_sha256": [
         "aa93b9b0e75f5c931090e80b5595e34b35f52988d41c4a97a754466cfb9777fc",
         "96c1fd8c8680f16ff90ca9d998959ae5eaf3b4be556ca02e3e5328c2ec77f04b",
-        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b"
+        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b",
+        "7e60dc0c6f9ca2924bda2a367d55adf8838803968441bd8812d271f96774a9f4"
       ],
-      "source_sha256": "d4182bef98fd334220b69e01c61d4601ecd128a120c35b877673daebc4d33e92",
-      "text": "각 공급자에서 JSON-일치하는 상태 섹션 하나를 수집합니다.\n\n:param contributors: ``{name: provider-or-object}``. 호출 가능한 값은 호출됩니다; 다른 모든 것이 직접 사용됩니다.\n:returns: ``(sections, problems)``. 사용 가능 상태를 제거하거나 반환하지 않는 공급자는 ``problems``에 명시되어 있지 않습니다; 다른 섹션은 여전히 수집됩니다.",
+      "source_sha256": "da17a0e0495591f9a4a7e7c4902701c21fe9790221939736bee091e46aca5f7b",
+      "text": "각 공급자에서 JSON-일치하는 상태 섹션 하나를 수집합니다.\n\n:param contributors: ``{name: provider-or-object}``. 호출 가능한 값은 호출됩니다; 다른 모든 것이 직접 사용됩니다.\n:returns: ``(sections, problems)``. 사용 가능 상태를 제거하거나 반환하지 않는 공급자는 ``problems``에 명시되어 있지 않습니다; 다른 섹션은 여전히 수집됩니다.\n\n제공자는 GUI 의 위젯이며 실행 저널은 처리 파이프라인을 실행한 작업자 스레드에서 저장합니다. 따라서 GUI 가 디스패처(``_STATE_DISPATCHER``)를 설치한 경우, 각 제공자는 이를 통해 GUI 스레드에서 읽히고 일반적인 JSON 호환 복사본만 반환됩니다. 디스패처가 응답하지 못하면 섹션만 누락되며 실행 자체는 잃지 않습니다.",
       "translation_source_blocks_sha256": [
         "aa93b9b0e75f5c931090e80b5595e34b35f52988d41c4a97a754466cfb9777fc",
         "96c1fd8c8680f16ff90ca9d998959ae5eaf3b4be556ca02e3e5328c2ec77f04b",
-        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b"
+        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b",
+        "f8bf977dde24197b5ca4ab5d10e2fe304ba933e0478e5409f97691db220629bf"
       ]
     },
     "spacr.workspace.set_default_mode": {

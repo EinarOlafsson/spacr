@@ -75,6 +75,7 @@ concurrency:
 
 env:
   SPACR_TEST_COUNT_DIR: .test-counts
+  NUMBA_DISABLE_ERROR_MESSAGE_HIGHLIGHTING: '1'
 
 jobs:
   # THE NEWEST END of the dependency policy setup.py states: this job installs

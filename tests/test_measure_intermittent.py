@@ -367,13 +367,11 @@ def _write_one_field(args):
     which is the point — a worker that cannot write must not be quiet.
     """
     db_path, barrier, field = args
-    try:
-        barrier.wait(timeout=60)
-    except Exception:
-        pass                                  # a slow runner must not fail the test
+    barrier.wait(timeout=60)
     frame = pd.DataFrame({'object_label': [1, 2],
                           'file_name': [f'plate1_A0{field}_F001'] * 2})
     _append_to_measurements_db(db_path, 'cell', frame)
+    return os.getpid()
 
 
 @pytest.mark.slow
@@ -385,19 +383,32 @@ def test_four_processes_writing_a_fresh_db_lose_no_fields(tmp_path):
     what makes the create-table race near-certain rather than one-run-in-four:
     before the fix this lost rows in 30 of 30 trials.
 
-    Keep this in the serial slow shard. Running its manager and four-worker
-    pool inside every four-worker xdist cell creates a nested process fan-out;
-    Python 3.14's POSIX ``forkserver`` default makes every child a fresh,
-    import-heavy interpreter and can exhaust a hosted runner before the test
-    reports a result.
+    The ordinary Slow lane is serial; coverage also runs this test inside
+    its two-worker xdist batches. After a successful map, close and join the
+    pool gracefully so all four processes finish saving their coverage.
+    Pool's context-manager exit terminates them instead, which can interrupt
+    that save with coverage's SIGTERM handler and hang during the final join.
     """
     path = _fresh_db(tmp_path)
     fields = [1, 2, 3, 4]
 
     with mp.Manager() as manager:
         barrier = manager.Barrier(len(fields))
-        with mp.Pool(len(fields)) as pool:
-            pool.map(_write_one_field, [(path, barrier, f) for f in fields])
+        pool = mp.Pool(len(fields))
+        processes = tuple(pool._pool)
+        try:
+            writers = pool.map(_write_one_field,
+                               [(path, barrier, f) for f in fields])
+            pool.close()
+            pool.join()
+        except BaseException:
+            pool.terminate()
+            pool.join()
+            raise
+
+        assert len(set(writers)) == len(fields)
+        assert set(writers) == {process.pid for process in processes}
+        assert all(process.exitcode == 0 for process in processes)
 
     conn = sqlite3.connect(path)
     try:

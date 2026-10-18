@@ -99398,13 +99398,15 @@
       "source_blocks_sha256": [
         "703d9eaccc8c968e8c47c2126da9d3f739f03e4491366bb5b4ced7eaad993225",
         "bb775aff83e5c80b09ccc93ab7d9ebde2bd762bc334fc3bdf65a714058c444ea",
+        "219da7ad429c0b493045d72574142cf2eea467ec1c1ab3be8b970b33fc4efab1",
         "7ca1ec6ad4fb8a2509b18e7e79af2acb1f816431b335f4f866bdc18d4305f6fa"
       ],
-      "source_sha256": "88f2676cd8b0c4d8d97ccfdff28b8b9548d3063672ffa395a14b131b01baa602",
-      "text": "Holen Sie den Beispielbildschirm und füllen Sie `count_data` und `score_data`.\n\n:param download: Wenn ``True``, laden Sie Dateien herunter, die sich nicht bereits im lokalen Cache befinden.\n:returns: Ein Mapping von bevölkerten Einstellungsnamen zu ihren Dateipfaden.",
+      "source_sha256": "d78c4003d58bad2740043eeed85e251e8ae3e2c63dfef38b1187ba066bc05c16",
+      "text": "Holen Sie den Beispielbildschirm und füllen Sie `count_data` und `score_data`.\n\n:param download: Wenn ``True``, laden Sie Dateien herunter, die sich nicht bereits im lokalen Cache befinden.\n:param in_background: Die Dateien in einem Arbeitsthread prüfen, herunterladen und verifizieren und die Eingabefelder nach ihrem Eintreffen füllen, damit das Fenster während des Downloads weiter neu gezeichnet wird. Die Schaltflächen verwenden diesen Modus; die zurückgegebene Zuordnung ist dann leer, und die Felder werden nach Abschluss gefüllt.\n:returns: Ein Mapping von bevölkerten Einstellungsnamen zu ihren Dateipfaden.",
       "translation_source_blocks_sha256": [
         "703d9eaccc8c968e8c47c2126da9d3f739f03e4491366bb5b4ced7eaad993225",
         "bb775aff83e5c80b09ccc93ab7d9ebde2bd762bc334fc3bdf65a714058c444ea",
+        "67e3274ca13b8e92c5376e327e9b41a2f0e82ae199ae4e7da4338d6164673447",
         "7ca1ec6ad4fb8a2509b18e7e79af2acb1f816431b335f4f866bdc18d4305f6fa"
       ]
     },
@@ -99682,14 +99684,14 @@
       "source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525",
-        "6d0960f86615b508076afdf00592ee7cf20dd813070e276fa59f1755d3fd8131"
+        "b08e3ad921582cd0cadb1a95ea4330d9f244c77e8a64c01d8287d0b4fb3f634e"
       ],
-      "source_sha256": "d3dfb740da01f93219760b4f0f3972c05c16c96f611da4ac1bdf1b6d09095aa6",
-      "text": "Tragen Sie diesen Screening und seine Panels mit der Workspace Registry ein.\n\nRegistriert als CALLABLES Rückgabe des Attributs, nie als Widget: `_results_panel` wird wieder aufgebaut, wenn sich das Modul ändert, und eine aufgenommene Referenz würde einem Processing-Session Journal eine gelöschte C++ Peer übergeben.\n\nDas Callable liest das Attribut mit :meth:`_if_built`, so dass die Suche nach einem Abschnitt nie ein latentes Panel erstellt. Das Processing-Session Journal fragt von der Hintergrundausführungseinheit, die den Workflow ausgeführt hat, und ein dort gebautes Panel ist ein Widget, das vom Hauptpfad GUI erzeugt wurde; ein Panel, das nie gebaut wurde, hat keinen Zustand zu speichern.",
+      "source_sha256": "b8378764344e7c01d77ad42819a71fdf4dfee52af75ff64ecc5564f2f747b5a2",
+      "text": "Tragen Sie diesen Screening und seine Panels mit der Workspace Registry ein.\n\nRegistriert als CALLABLES Rückgabe des Attributs, nie als Widget: `_results_panel` wird wieder aufgebaut, wenn sich das Modul ändert, und eine aufgenommene Referenz würde einem Processing-Session Journal eine gelöschte C++ Peer übergeben.\n\nDas aufrufbare Objekt liest das Attribut mit :meth:`_if_built`, sodass die Abfrage eines Abschnitts niemals ein Panel erstellt, dessen Aufbau aufgeschoben wurde. Das Laufjournal fragt aus dem Arbeitsthread an, der die Verarbeitungspipeline ausgeführt hat. Deshalb erhält die Registrierung einen Dispatcher, der jeden Abschnitt im GUI-Thread liest und dem Arbeitsthread einfache Daten übergibt; ein nie erstelltes Panel hat keinen Zustand zu speichern.",
       "translation_source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "d0c9150f91d5e7d90387ac9151a4413c3f57140e9ba387fbb3df6aeed37a8ed8",
-        "b943e18999cb0b6e48e63798f4cde4b910a0e1c88d13da03db29ba92fd747cee"
+        "91c06cf6fc36c257bea84a9c579245460a0a1fdede88796551f4f57bc7fba0b2"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
@@ -141535,13 +141537,15 @@
     "spacr.qt.widgets.fast_plots.ResultsTable.set_frame": {
       "source_blocks_sha256": [
         "41984a811b2e8fc2db257cddd0c7480292f8e1f89b2dcd3dc2c25f308c5828c5",
-        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854"
+        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+        "c0447c614a2e62ed4236f2b635817abb11b409828e4944efbdcb49e5084582a5"
       ],
-      "source_sha256": "4bc3d184a40f8b4c35a3bf05a364adea06f62960a658e22a7026297dd93681a6",
-      "text": "Füllen Sie die Tabelle. Gibt die Zeilenanzahl zurück.\n\n:param frame: die Ergebnistabelle, eine Tabellenzeile pro Frame-Zeile und eine Spalte pro Frame-Spalte; ``None`` oder ein leerer Frame zeigt \"Nothing to show.\"",
+      "source_sha256": "43796a736e924fba529fb35ecb4d4e63bba0313ffb0080154be42249624fdf21",
+      "text": "Füllen Sie die Tabelle. Gibt die Zeilenanzahl zurück.\n\n:param frame: die Ergebnistabelle, eine Tabellenzeile pro Frame-Zeile und eine Spalte pro Frame-Spalte; ``None`` oder ein leerer Frame zeigt \"Nothing to show.\"\n\nWenn :attr:`fill_in_steps` aktiviert ist, wird eine Tabelle mit mehr als :attr:`FILL_STEP_CELLS` Zellen über mehrere Durchläufe der Ereignisschleife gefüllt; beim Lesen der Zeilen über dieses Widget oder über ``item`` seines Tabellenrasters wird das Füllen zuerst abgeschlossen.",
       "translation_source_blocks_sha256": [
         "41984a811b2e8fc2db257cddd0c7480292f8e1f89b2dcd3dc2c25f308c5828c5",
-        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854"
+        "d972e7b95171330efe49de973d7ead782dcd775d0c2332cbb035bb52e95ae854",
+        "c0447c614a2e62ed4236f2b635817abb11b409828e4944efbdcb49e5084582a5"
       ]
     },
     "spacr.qt.widgets.fast_plots.ResultsTable.show_keys": {
@@ -174095,13 +174099,15 @@
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame": {
       "source_blocks_sha256": [
         "7cb2c15d9c0ce6060f5e96293361608934e12ff04f3aea14d5136c834efd59aa",
-        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03"
+        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03",
+        "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12"
       ],
-      "source_sha256": "2946bce358eba68f92b89f28fff78bcb6c47060277f008f9c6cd7585a3a0a505",
-      "text": "Zeigt eine bereits geladene Koeffiziententabelle an.\n\n:param frame: der Koeffizienten-DataFrame; ``None`` oder ein leerer Frame wird in der Statuszeile gemeldet und gibt ``False`` zurück.",
+      "source_sha256": "7b6b6f6f7063f77de62b280d4cf926c2efa248971bf4b18955c5d1cc3a534d95",
+      "text": "Zeigt eine bereits geladene Koeffiziententabelle an.\n\n:param frame: der Koeffizienten-DataFrame; ``None`` oder ein leerer Frame wird in der Statuszeile gemeldet und gibt ``False`` zurück.\n\nEin Lauf mit gespeichertem Diagrammzustand wird beim Wiederherstellen dieses Zustands einmal gezeichnet, statt erst gezeichnet und anschließend erneut gezeichnet zu werden. Ein Zustand, der erstmals während des Zeichnens durch diesen Aufruf aufgezeichnet wird — wenn das Speichern des Arbeitsbereichs das Panel mitten im Zeichnen liest — enthält das gerade Gezeichnete und wird nicht darüber wiederhergestellt.",
       "translation_source_blocks_sha256": [
         "7cb2c15d9c0ce6060f5e96293361608934e12ff04f3aea14d5136c834efd59aa",
-        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03"
+        "f25fefc1b24f606949ba3b87d2b7aad7d1664b9e39c3c670eb3b58e9f48afa03",
+        "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_level": {
@@ -209755,12 +209761,14 @@
     "spacr.workspace.clear_providers": {
       "source_blocks_sha256": [
         "3dde59e8f445b4fececebc1a5b0115de280db9dded92d18646f894684ab5ecf5",
+        "72103a2cf4f14f194854ae4515457d271bcb1bf3bdfe5175679f3b6f520f500f",
         "3563841c1d603ae727df1878f8227cdc54c62aeb573da28e97851703db86308d"
       ],
-      "source_sha256": "e9917c897bf1103086d0a95bb23e89704cae39607589dff7325cccf80c03ee08",
-      "text": "Entfernen Sie alle Anbieter und wiederherstellen Sie die eingebauten Standardeinstellungen.\n\nDies setzt den Prozesszustand während der Applikationsabschaltung und des Testrisses zurück.",
+      "source_sha256": "c49a55dda5419ab5da58ebfe500c2d4278df5bde3302288edd083f698ba09583",
+      "text": "Entfernen Sie alle Anbieter und wiederherstellen Sie die eingebauten Standardeinstellungen.\n\nAuch der Dispatcher für den GUI-Thread wird entfernt; die nächste Anwendungsansicht, die sich registriert, installiert ihn erneut.\n\nDies setzt den Prozesszustand während der Applikationsabschaltung und des Testrisses zurück.",
       "translation_source_blocks_sha256": [
         "3dde59e8f445b4fececebc1a5b0115de280db9dded92d18646f894684ab5ecf5",
+        "6e9da2818d99b4c8acc119affb919554428ca62bbaeba8669d99c08bef646a06",
         "3563841c1d603ae727df1878f8227cdc54c62aeb573da28e97851703db86308d"
       ]
     },
@@ -210036,14 +210044,16 @@
       "source_blocks_sha256": [
         "aa93b9b0e75f5c931090e80b5595e34b35f52988d41c4a97a754466cfb9777fc",
         "96c1fd8c8680f16ff90ca9d998959ae5eaf3b4be556ca02e3e5328c2ec77f04b",
-        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b"
+        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b",
+        "7e60dc0c6f9ca2924bda2a367d55adf8838803968441bd8812d271f96774a9f4"
       ],
-      "source_sha256": "d4182bef98fd334220b69e01c61d4601ecd128a120c35b877673daebc4d33e92",
-      "text": "Sammeln Sie einen JSON-kompatiblen Zustand von jedem Anbieter.\n\n:param contributors: ``{name: provider-or-object}``. Ein aufrufbarer Wert wird aufgerufen; alles andere wird direkt verwendet.\n:returns: ``(sections, problems)``. Ein Anbieter, der keinen nutzbaren Zustand anhebt oder zurückgibt, wird ausgelassen und in ``problems`` beschrieben; weitere Abschnitte werden noch gesammelt.",
+      "source_sha256": "da17a0e0495591f9a4a7e7c4902701c21fe9790221939736bee091e46aca5f7b",
+      "text": "Sammeln Sie einen JSON-kompatiblen Zustand von jedem Anbieter.\n\n:param contributors: ``{name: provider-or-object}``. Ein aufrufbarer Wert wird aufgerufen; alles andere wird direkt verwendet.\n:returns: ``(sections, problems)``. Ein Anbieter, der keinen nutzbaren Zustand anhebt oder zurückgibt, wird ausgelassen und in ``problems`` beschrieben; weitere Abschnitte werden noch gesammelt.\n\nDie Anbieter sind Widgets in der GUI, und ein Laufjournal speichert aus dem Arbeitsthread, der die Verarbeitungspipeline ausgeführt hat. Wenn die GUI einen Dispatcher (``_STATE_DISPATCHER``) installiert hat, wird daher jeder Anbieter über ihn im GUI-Thread ausgelesen, und nur einfache JSON-kompatible Kopien werden zurückgegeben. Kann der Dispatcher nicht antworten, fehlen die Abschnitte; der Lauf geht dadurch niemals verloren.",
       "translation_source_blocks_sha256": [
         "aa93b9b0e75f5c931090e80b5595e34b35f52988d41c4a97a754466cfb9777fc",
         "96c1fd8c8680f16ff90ca9d998959ae5eaf3b4be556ca02e3e5328c2ec77f04b",
-        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b"
+        "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b",
+        "f8bf977dde24197b5ca4ab5d10e2fe304ba933e0478e5409f97691db220629bf"
       ]
     },
     "spacr.workspace.set_default_mode": {

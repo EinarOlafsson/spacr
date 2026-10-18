@@ -669,6 +669,8 @@
     {
       "context": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The processing-session journal asks from the background execution unit that ran the workflow, and a panel built there is a widget created off the main GUI execution path; a panel that was never built has no state to save.",
       "label": "spacr.qt.screens.app_screen.AppScreen.register_workspace#2",
+      "retired": true,
+      "retired_reason": "Superseded by c807dd99d GUI-dispatcher documentation for register_workspace; the old source, context and target remain as review history.",
       "source": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The run journal asks from the worker thread that ran the pipeline, and a panel built there is a widget created off the GUI thread; a panel that was never built has no state to save.",
       "source_sha256": "6d0960f86615b508076afdf00592ee7cf20dd813070e276fa59f1755d3fd8131",
       "translation": "Kallanlega viðfangið les eigindina með :meth:`_if_built`, svo beiðni um hluta smíðar aldrei spjald sem hefur verið frestað að smíða. Keyrsludagbókin sendir beiðnina úr vinnsluþræðinum sem keyrði vinnslukeðjuna, og spjald sem er smíðað þar er viðmótsgræja búin til utan GUI-þráðarins; spjald sem hefur aldrei verið smíðað hefur ekkert ástand til að vista."

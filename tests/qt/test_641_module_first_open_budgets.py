@@ -78,32 +78,72 @@ def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, 
             pass
 
 
-def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch):
+def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch, tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+
     from spacr.qt import preferences
 
+    real_settings = preferences.QSettings
+    args = (str(tmp_path / "preferences.ini"), real_settings.IniFormat)
+    seed = real_settings(*args)
+    seed.setValue(preferences._KEY_FONT_SCALE, 1.25)
+    seed.setValue(preferences._KEY_THEME, "light")
+    seed.setValue(preferences._KEY_SHOW_ALPHA_FEATURES, True)
+    seed.sync()
+    monkeypatch.setattr(preferences, "_store_args", lambda *_args: args)
+    monkeypatch.setattr(preferences, "_STORE", threading.local())
+    monkeypatch.setattr(preferences, "_SAFE_MODE", False)
     made = []
 
-    class Counting(preferences.QSettings):
+    class Counting(real_settings):
         def __init__(self, *args):
-            made.append(args)
             super().__init__(*args)
+            made.append((threading.get_ident(), id(self)))
 
     monkeypatch.setattr(preferences, "QSettings", Counting)
+    main_ident = threading.get_ident()
+    store = preferences._settings()
     for _ in range(50):
-        preferences.get_font_scale()
-        preferences.resolve_effective_theme()
-    outside = len(made)
-    made.clear()
-    with preferences._one_store():
+        assert preferences.get_font_scale() == 1.25
+        assert preferences.resolve_effective_theme() == "light"
+        assert preferences._get_show_alpha_features() is True
+        assert preferences._settings() is store
+    assert made == [(main_ident, id(store))]
+
+    def read_on_worker():
+        worker_store = preferences._settings()
         for _ in range(50):
-            preferences.get_font_scale()
-            preferences.resolve_effective_theme()
-            preferences._get_show_alpha_features()
-    # Since 576c055d4 each thread keeps its store open between reads, so the
-    # 100 reads outside the block open at most one store, and the 150 inside
-    # it reuse that store or open the block's single one.
-    assert outside <= 1
-    assert len(made) <= 1
+            assert preferences.get_font_scale() == 1.5
+            assert preferences.resolve_effective_theme() == "light"
+            assert preferences._get_show_alpha_features() is True
+            assert preferences._settings() is worker_store
+        return threading.get_ident(), id(worker_store)
+
+    with preferences._one_store() as shared:
+        assert shared is store
+        with preferences._one_store() as nested:
+            assert nested is store
+            preferences.set_font_scale(1.5)
+            assert preferences.get_font_scale() == 1.5
+        for _ in range(50):
+            assert preferences.get_font_scale() == 1.5
+            assert preferences.resolve_effective_theme() == "light"
+            assert preferences._get_show_alpha_features() is True
+            assert preferences._settings() is store
+        assert made == [(main_ident, id(store))]
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            worker_ident, worker_store_id = executor.submit(read_on_worker).result(
+                timeout=10)
+        assert worker_ident != main_ident
+        assert worker_store_id != id(store)
+        assert preferences._settings() is store
+
+    assert preferences._settings() is store
+    assert preferences.get_font_scale() == 1.5
+    assert preferences.resolve_effective_theme() == "light"
+    assert preferences._get_show_alpha_features() is True
+    assert made == [(main_ident, id(store)), (worker_ident, worker_store_id)]
 
 
 def test_the_window_opens_a_module_inside_one_store():

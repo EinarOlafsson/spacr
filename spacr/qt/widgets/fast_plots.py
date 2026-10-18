@@ -90,7 +90,7 @@ PYQTGRAPH_MISSING_MESSAGE = (
     "Everything else works without it: the run still produces every figure, "
     "and they appear on the grid above the console.")
 
-from PySide6.QtCore import QSizeF, Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QSizeF, Qt, QThread, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QHBoxLayout, QLabel, QPushButton, QSizePolicy,
@@ -115,6 +115,7 @@ PALETTE = (
 #: at 76 ms with matplotlib still absent from sys.modules -- so this costs a
 #: GUI module nothing.
 from ...figures.style import ROLES as _ROLES
+from .. import _after
 from .sortable_table import install_sorting, table_item
 
 HIGHLIGHT = _ROLES["highlight"]
@@ -8276,7 +8277,7 @@ class ResultsTable(QWidget):
         if (self.fill_in_steps
                 and len(frame) * len(columns) > self.FILL_STEP_CELLS):
             self._filling = steps
-            QTimer.singleShot(0, self, self._fill_a_step)
+            _after(0, self, self._fill_a_step)
             return len(frame)
         for _step in steps:
             pass
@@ -8316,7 +8317,7 @@ class ResultsTable(QWidget):
             return
         if self._filling is None:
             self._filling = steps
-            QTimer.singleShot(0, self, self._fill_a_step)
+            _after(0, self, self._fill_a_step)
 
     def _finish_the_fill(self) -> bool:
         """Complete a fill still running in steps; ``True`` if one was.

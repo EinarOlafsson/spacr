@@ -1,0 +1,27 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The processing-session journal asks from the background execution unit that ran the workflow, so the registry is given a dispatcher that reads every section on the main GUI execution path and hands the worker plain data; a panel that was never built has no state to save.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.register_workspace#2",
+      "source": "The callable reads the attribute with :meth:`_if_built`, so asking for a section never builds a deferred panel. The run journal asks from the worker thread that ran the pipeline, so the registry is given a dispatcher that reads every section on the GUI thread and hands the worker plain data; a panel that was never built has no state to save.",
+      "source_sha256": "b08e3ad921582cd0cadb1a95ea4330d9f244c77e8a64c01d8287d0b4fb3f634e",
+      "translation": "호출 가능한 객체는 :meth:`_if_built` 로 속성을 읽으므로 섹션을 요청해도 생성이 지연된 패널을 새로 만들지 않습니다. 실행 저널은 처리 파이프라인을 실행한 작업자 스레드에서 요청하므로, 레지스트리에는 각 섹션을 GUI 스레드에서 읽고 작업자에게 일반 데이터를 전달하는 디스패처가 제공됩니다. 한 번도 생성되지 않은 패널에는 저장할 상태가 없습니다."
+    },
+    {
+      "context": "The main GUI execution path dispatcher goes with them; the next application view to register installs it again.",
+      "label": "spacr.workspace.clear_providers#1",
+      "source": "The GUI-thread dispatcher goes with them; the next screen to register installs it again.",
+      "source_sha256": "72103a2cf4f14f194854ae4515457d271bcb1bf3bdfe5175679f3b6f520f500f",
+      "translation": "GUI 스레드 디스패처도 제거되며, 다음으로 등록하는 애플리케이션 화면이 이를 다시 설치합니다."
+    },
+    {
+      "context": "The providers are widgets in the GUI, and a processing-session journal saves from the background execution unit that ran the workflow. So when the GUI has installed a dispatcher (``_STATE_DISPATCHER``), every provider is read through it, on the main GUI execution path, and only the plain JSON-compatible copies come back. A dispatcher that cannot answer costs the sections, never the processing session.",
+      "label": "spacr.workspace.section_states#3",
+      "source": "The providers are widgets in the GUI, and a run journal saves from the worker thread that ran the pipeline. So when the GUI has installed a dispatcher (``_STATE_DISPATCHER``), every provider is read through it, on the GUI thread, and only the plain JSON-compatible copies come back. A dispatcher that cannot answer costs the sections, never the run.",
+      "source_sha256": "7e60dc0c6f9ca2924bda2a367d55adf8838803968441bd8812d271f96774a9f4",
+      "translation": "제공자는 GUI 의 위젯이며 실행 저널은 처리 파이프라인을 실행한 작업자 스레드에서 저장합니다. 따라서 GUI 가 디스패처(``_STATE_DISPATCHER``)를 설치한 경우, 각 제공자는 이를 통해 GUI 스레드에서 읽히고 일반적인 JSON 호환 복사본만 반환됩니다. 디스패처가 응답하지 못하면 섹션만 누락되며 실행 자체는 잃지 않습니다."
+    }
+  ],
+  "schema": 1
+}

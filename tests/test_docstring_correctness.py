@@ -2234,6 +2234,55 @@ def _validated_prior_699_callables(callables):
     return [prior if item.symbol == profile.symbol else item for item in callables]
 
 
+def _validated_prior_example_background_callables(callables):
+    """Validate the optional example-fetch mode before restoring the old row."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    fixture = json.loads((root / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())["example_background"]
+    symbol = "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen"
+    source_changes = fixture["source_changes"]
+    assert set(source_changes) == {
+        symbol, "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded",
+        "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame",
+    }
+    by_symbol = {item.symbol: item for item in callables}
+    assert all(by_symbol[key].docstring == change["after"]
+               for key, change in source_changes.items())
+    change = fixture["signature_change"]
+    assert change["symbol"] == symbol
+    assert change["added_optional_parameters"] == ["in_background"]
+    item = by_symbol[symbol]
+    actual = {key: sorted(value) if isinstance(value, frozenset) else value
+              for key, value in vars(item).items() if key != "docstring"}
+    assert actual == change["after"]
+    assert "in_background" not in item.required_parameters
+    assert "in_background" in _documented_parameter_names(item.docstring)
+    tree = ast.parse((root / "spacr/qt/screens/app_screen.py").read_text())
+    screen = next(node for node in tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == "AppScreen")
+    declaration = next(node for node in screen.body
+                       if isinstance(node, ast.FunctionDef)
+                       and node.name == "load_the_example_screen")
+    assert [arg.arg for arg in declaration.args.args] == ["self"]
+    assert not declaration.args.posonlyargs
+    assert [arg.arg for arg in declaration.args.kwonlyargs] == [
+        "download", "kind", "in_background"]
+    assert [ast.literal_eval(value) for value in declaration.args.kw_defaults] == [
+        True, None, False]
+    assert ast.literal_eval(declaration.args.kw_defaults[-1]) is False
+    assert ast.unparse(declaration.args.kwonlyargs[-1].annotation) == "bool"
+    assert ast.unparse(declaration.returns) == "dict"
+    prior = replace(item, parameters=item.parameters - {"in_background"},
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"in_background"}))
+    prior_row = {key: sorted(value) if isinstance(value, frozenset) else value
+                 for key, value in vars(prior).items() if key != "docstring"}
+    assert prior_row == change["before"]
+    return [prior if row.symbol == symbol else row for row in callables]
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2250,6 +2299,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                     list(_public_callables()), replay_dialog_signature=True))))
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
+    callables = _validated_prior_example_background_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")

@@ -68,6 +68,9 @@ concurrency:
   group: compat-matrix-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  NUMBA_DISABLE_ERROR_MESSAGE_HIGHLIGHTING: '1'
+
 jobs:
   # -------------------------------------------------------------------------
   # 1. Packaging metadata. Cheap, fast, blocking. No scientific stack.
