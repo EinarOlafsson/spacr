@@ -1935,6 +1935,36 @@ def _apply_uninstall_records(preview, selection, records, cleanup, machine):
     return {"ok": data.ok, "reports": [asdict(item) for item in reports], "cleanup": asdict(data)}
 
 
+def _desktop_processes():
+    """Process ids of running spaCR desktops, found by their module argument."""
+    try:
+        done = subprocess.run(["pgrep", "-f", "spacr[.]qt"], capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [int(pid) for pid in done.stdout.split() if pid.isdigit() and int(pid) != os.getpid()]
+
+
+_INSTALLER_ADMIN_PATHS = ("/Applications/spaCR.app", "/Library/Application Support/spaCR", "/usr/local/bin/spacr")
+
+
+def _installer_uninstall_apply(preview, categories, *, system=None):
+    """Remove every detected installation from the installer window, leaving protected app parts to its admin step.
+
+    The installer has no running desktop to hand over to, so a running spaCR refuses the removal rather than
+    being closed. Records needing administrator rights are reported, never removed here.
+    """
+    machine = system or _Machine(running_prefix="")
+    if system is None and _desktop_processes():
+        raise ValueError(tr("Quit spaCR before uninstalling it from the installer."))
+    selection = _uninstall_selection(preview, scope="all", categories=categories)
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=False)
+    protected = [record for record in records if record.needs_admin or record.layout == "macos-app"]
+    owned = [record for record in records if record not in protected]
+    outcome = _apply_uninstall_records(preview, selection, owned, cleanup, machine)
+    outcome["admin"] = [path for path in _INSTALLER_ADMIN_PATHS if os.path.lexists(path)] if protected else []
+    return outcome
+
+
 def _uninstall_binding(preview, selection):
     """Bind the exact displayed scope and selected categories into the existing shutdown lease."""
     return hashlib.sha256(json.dumps([preview, selection], sort_keys=True,
@@ -7849,6 +7879,11 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help=tr("copy the private managed Python outside this installation"))
     prepare_uninstall.add_argument("--install-root", required=True)
     prepare_uninstall.add_argument("--workdir", required=True)
+    uninstall_preview = commands.add_parser("uninstall-preview", help=tr("list every spaCR installation and its data for the installer window"))
+    uninstall_preview.add_argument("--output", required=True)
+    uninstall_apply = commands.add_parser("uninstall-apply", help=tr("remove every listed spaCR installation and the chosen data"))
+    uninstall_apply.add_argument("--preview", required=True)
+    uninstall_apply.add_argument("--categories", default="")
     metadata = commands.add_parser("installer-metadata", help=tr("preserve or restore installer-owned metadata"))
     metadata.add_argument("action", choices=("snapshot", "restore"))
     metadata.add_argument("--folder", required=True)
@@ -7877,6 +7912,32 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
             return 1
         print(json.dumps(outcome, sort_keys=True))
         return 0
+    if args.command == "uninstall-preview":
+        import uuid
+
+        preview = _uninstall_preview(uuid.uuid4().hex, system=_Machine(running_prefix=""))
+        descriptor = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(preview, handle, indent=2)
+        for row in preview["installations"]:
+            record = row["record"]
+            print(tr("{action}: {root} ({version})",
+                     action=tr("Remove") if row["selectable"] else tr("Kept"),
+                     root=record["root"], version=record["version"] or tr("Unknown")))
+        for row in preview["cleanup"]:
+            print(f"  [{row['category']}] {row['path']}")
+        return 0
+    if args.command == "uninstall-apply":
+        try:
+            with open(args.preview, encoding="utf-8") as handle:
+                preview = json.load(handle)
+            categories = [key for key in args.categories.split(",") if key]
+            outcome = _installer_uninstall_apply(preview, categories)
+        except Exception as error:
+            print(tr("Uninstall stopped: {error}", error=str(error)))
+            return 1
+        print(json.dumps(outcome, sort_keys=True))
+        return 0 if outcome["ok"] else 1
     if args.command == "installer-metadata":
         try:
             receipt = (_installer_metadata_snapshot(args.folder, args.paths or [])

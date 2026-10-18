@@ -222,6 +222,9 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
 @property(strong) NSProgressIndicator *progress;
 @property(strong) NSButton *install;
 @property(strong) NSButton *cancel;
+@property(strong) NSButton *uninstall;
+@property(strong) NSString *uninstallPreview;
+@property BOOL removed;
 @property(strong) NSMutableArray<NSButton *> *choices;
 @property(strong) NSArray<NSString *> *forwardedArguments;
 @property pid_t child;
@@ -277,6 +280,8 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     [self.window.contentView addSubview:scroll];
     self.cancel = [self button:tr(@"gui_close") frame:NSMakeRect(500, 20, 110, 36) action:@selector(cancel:)];
     self.install = [self button:tr(@"gui_install") frame:NSMakeRect(620, 20, 116, 36) action:@selector(install:)];
+    self.uninstall = [self button:tr(@"gui_uninstall") frame:NSMakeRect(24, 20, 200, 36) action:@selector(uninstall:)];
+    self.uninstall.toolTip = tr(@"gui_uninstall_title");
     [self.window makeKeyAndOrderFront:nil];
     if (@available(macOS 14.0, *)) {
         [NSApp activate];
@@ -294,7 +299,8 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     [self.log scrollRangeToVisible:NSMakeRange(self.log.textStorage.length, 0)];
 }
 - (void)setBusy:(BOOL)busy {
-    self.install.enabled = !busy;
+    self.install.enabled = !busy && !self.removed;
+    self.uninstall.enabled = !busy && !self.removed;
     for (NSButton *choice in self.choices) choice.enabled = !busy;
     self.cancel.title = tr(busy ? @"gui_cancel" : @"gui_close");
     self.cancel.enabled = YES;
@@ -374,6 +380,142 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
         int code = spacr_install_wait(process.pid);
         dispatch_async(dispatch_get_main_queue(), ^{ [self finished:code]; });
     });
+}
+- (NSString *)helperPython {
+    NSString *root = [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support/spaCR"];
+    NSFileManager *files = NSFileManager.defaultManager;
+    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    NSString *pythons = [root stringByAppendingPathComponent:@"python"];
+    for (NSString *name in [[files contentsOfDirectoryAtPath:pythons error:NULL] sortedArrayUsingSelector:@selector(compare:)])
+        [candidates addObject:[pythons stringByAppendingPathComponent:[name stringByAppendingPathComponent:@"bin/python3"]]];
+    [candidates addObject:[root stringByAppendingPathComponent:@"venv/bin/python"]];
+    if ([files fileExistsAtPath:@"/Library/Developer/CommandLineTools/usr/bin/python3"]
+            || [files fileExistsAtPath:@"/Applications/Xcode.app/Contents/Developer/usr/bin/python3"])
+        [candidates addObject:@"/usr/bin/python3"];
+    for (NSString *candidate in candidates)
+        if ([files isExecutableFileAtPath:candidate]) return candidate;
+    return nil;
+}
+- (void)runHelper:(NSArray<NSString *> *)arguments completion:(void (^)(int code, NSString *output))completion {
+    NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];
+    environment[@"SPACR_INSTALL_LANGUAGE"] = language;
+    NSMutableArray<NSString *> *entries = [NSMutableArray array];
+    for (NSString *key in environment) [entries addObject:[NSString stringWithFormat:@"%@=%@", key, environment[key]]];
+    char **argv = calloc(arguments.count + 1, sizeof(char *));
+    char **envp = calloc(entries.count + 1, sizeof(char *));
+    if (!argv || !envp) { free(argv); free(envp); completion(ENOMEM, @""); return; }
+    for (NSUInteger index = 0; index < arguments.count; ++index) argv[index] = (char *)arguments[index].UTF8String;
+    for (NSUInteger index = 0; index < entries.count; ++index) envp[index] = (char *)entries[index].UTF8String;
+    struct spacr_install_process process;
+    int error = spacr_install_spawn(argv, envp, &process);
+    free(argv); free(envp);
+    if (error) { completion(error, [NSString stringWithUTF8String:strerror(error)]); return; }
+    self.child = process.pid;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        NSMutableString *collected = [NSMutableString string];
+        char buffer[8192];
+        ssize_t count;
+        while ((count = read(process.output, buffer, sizeof(buffer))) != 0) {
+            if (count < 0) { if (errno == EINTR) continue; break; }
+            NSString *text = [[NSString alloc] initWithData:[NSData dataWithBytes:buffer length:(NSUInteger)count]
+                encoding:NSUTF8StringEncoding] ?: @"";
+            [collected appendString:text];
+            dispatch_sync(dispatch_get_main_queue(), ^{ [self appendLog:text]; });
+        }
+        close(process.output);
+        int code = spacr_install_wait(process.pid);
+        dispatch_async(dispatch_get_main_queue(), ^{ self.child = 0; completion(code, collected); });
+    });
+}
+- (void)uninstall:(id)sender {
+    (void)sender;
+    if (self.child > 0) return;
+    NSString *python = [self helperPython];
+    NSString *helper = @"/Library/Application Support/spaCR/verify_runtime.py";
+    [self setBusy:YES];
+    self.status.stringValue = tr(@"gui_uninstall_finding");
+    if (!python || ![NSFileManager.defaultManager fileExistsAtPath:helper]) {
+        [self appendLog:[tr(@"gui_uninstall_no_python") stringByAppendingString:@"\n"]];
+        [self confirmUninstall:nil python:nil];
+        return;
+    }
+    NSString *output = [NSTemporaryDirectory() stringByAppendingPathComponent:
+        [NSString stringWithFormat:@"spacr-uninstall-%@.json", NSUUID.UUID.UUIDString]];
+    [self runHelper:@[python, @"-I", helper, @"uninstall-preview", @"--output", output]
+         completion:^(int code, NSString *listing) {
+        if (code) { [self uninstallStopped]; return; }
+        self.uninstallPreview = output;
+        [self confirmUninstall:listing python:python];
+    }];
+}
+- (void)confirmUninstall:(NSString *)listing python:(NSString *)python {
+    NSArray *keys = @[@"caches", @"models", @"logs", @"settings", @"history", @"temporary", @"downloads", @"other"];
+    NSView *accessory = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 560, 360)];
+    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 560, 170)];
+    scroll.hasVerticalScroller = YES;
+    NSTextView *paths = [[NSTextView alloc] initWithFrame:scroll.bounds];
+    paths.editable = NO;
+    paths.font = [NSFont monospacedSystemFontOfSize:10 weight:NSFontWeightRegular];
+    paths.string = listing ?: @"";
+    scroll.documentView = paths;
+    [accessory addSubview:scroll];
+    NSMutableArray<NSButton *> *boxes = [NSMutableArray array];
+    for (NSUInteger index = 0; index < keys.count; ++index) {
+        NSButton *box = [NSButton checkboxWithTitle:tr([@"gui_category_" stringByAppendingString:keys[index]]) target:nil action:nil];
+        box.frame = NSMakeRect((index % 2) * 280, 330 - (index / 2) * 34, 276, 28);
+        box.state = NSControlStateValueOn;
+        box.enabled = python != nil;
+        box.identifier = keys[index];
+        [accessory addSubview:box];
+        [boxes addObject:box];
+    }
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = tr(@"gui_uninstall_title");
+    alert.informativeText = tr(@"gui_uninstall_explanation");
+    alert.accessoryView = accessory;
+    NSButton *confirm = [alert addButtonWithTitle:tr(@"gui_uninstall_confirm")];
+    confirm.keyEquivalent = @"";
+    NSButton *back = [alert addButtonWithTitle:tr(@"gui_cancel")];
+    back.keyEquivalent = @"\r";
+    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse response) {
+        if (response != NSAlertFirstButtonReturn) {
+            [self setBusy:NO];
+            self.status.stringValue = tr(@"gui_preserve");
+            return;
+        }
+        NSMutableArray<NSString *> *chosen = [NSMutableArray array];
+        for (NSButton *box in boxes) if (box.state == NSControlStateValueOn) [chosen addObject:box.identifier];
+        self.status.stringValue = tr(@"gui_uninstall_running");
+        if (!python) { [self removeApplication]; return; }
+        [self runHelper:@[python, @"-I", @"/Library/Application Support/spaCR/verify_runtime.py", @"uninstall-apply",
+                          @"--preview", self.uninstallPreview, @"--categories", [chosen componentsJoinedByString:@","]]
+             completion:^(int code, NSString *output) {
+            [NSFileManager.defaultManager removeItemAtPath:self.uninstallPreview error:NULL];
+            if (code) { [self uninstallStopped]; return; }
+            (void)output;
+            [self removeApplication];
+        }];
+    }];
+}
+- (void)removeApplication {
+    self.status.stringValue = tr(@"gui_uninstall_admin");
+    NSAppleScript *script = [[NSAppleScript alloc] initWithSource:
+        @"do shell script \"/bin/rm -f /usr/local/bin/spacr; /bin/rm -rf '/Applications/spaCR.app' '/Library/Application Support/spaCR'; "
+        @"/usr/sbin/pkgutil --forget com.einarolafsson.spacr.online >/dev/null 2>&1; exit 0\" with administrator privileges"];
+    NSDictionary *error = nil;
+    [script executeAndReturnError:&error];
+    if (error) {
+        [self appendLog:[NSString stringWithFormat:@"%@\n", error[NSAppleScriptErrorMessage] ?: tr(@"gui_uninstall_failed")]];
+        [self uninstallStopped];
+        return;
+    }
+    self.removed = YES;
+    [self setBusy:NO];
+    self.status.stringValue = tr(@"gui_uninstall_done");
+}
+- (void)uninstallStopped {
+    [self setBusy:NO];
+    self.status.stringValue = tr(@"gui_uninstall_failed");
 }
 - (void)cancel:(id)sender {
     (void)sender;
