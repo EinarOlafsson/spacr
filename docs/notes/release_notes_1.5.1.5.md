@@ -11,19 +11,35 @@
 - Gate Editor: the mode, plane and spin keys can be rebound, and a picker lets you choose between overlapping elements.
 - Model Zoo has a model card viewer with three pages (scores, training facts, about). Cards download from Hugging Face, are cached, and fall back to the bundled card when offline.
 - `spacr-tutorial` opens the online tutorials.
+- Object detection has a 3D switch. When on, 3D thresholds are used, and Cellpose runs in 3D or stitches 2D slices into 3D objects.
+- Make Masks measures the current 3D image.
+- Make Masks has an Edit Label action and a Time button. +Cell and +Daughter record division lineage, which is stored in 32-bit TIFF masks.
+- Anonymous error reports can be sent without a GitHub account. They are on by default and can be turned off in Preferences. spaCR AI is available to help with errors.
+- Updates download and stage in the background and ask once to Restart. Preferences > Performance > Uninstall... removes the current version or all versions.
+- Submit to cluster reads your `~/.ssh` config and handles logins that need a second factor.
+- Plaque model toxoplasma_plaque_v5.
 
 ### Improved
 
 - Updates stage replacement runtimes, check downloaded installers and verify the requested installed version before relaunch. User data and configured model/cache folders are protected; optional cleanup is off by default and offers a graphical folder preview. For the first upgrade from an older frozen Windows installation, use the new desktop installer before relying on the new in-app update path.
 - Saved workspaces retain selected databases, montage and graph settings, regression views and queued figures. Copied references are verified before restoration.
 - Installer and mask-editing messages are refreshed across the nine interface languages.
-- The well detector v3 is the default in the app, the README and the model cards. The plaque default is toxoplasma_plaque_v4.
+- The well detector v3 is the default in the app, the README and the model cards. The plaque default is toxoplasma_plaque_v5; v3 is recommended for Gel Doc wells.
 - Model cards use the ground-truth re-score of 2026-10-11 (object F1, precision, recall, AJI, Dice, with stock Cellpose-SAM for comparison). The README shows one score card per model.
 - Sixteen settings that accept a fixed list are now dropdowns, for example `spatial_platform`. Stored values are unchanged.
 - Regression: `dependent_variable` is a dropdown of the numeric columns in the score file, with a note when `pred` is missing (#144).
 - Measure reads a pasted list of plate folders as plates (#138, #139).
 - Classify: relative database paths in `src` work, and a missing database is reported with the full path searched (#143).
 - Mixed model: Stop is reported as a stop, the nested design is checked before the fit with the setting to change named, and optimiser fallbacks are handled (#145).
+- Magnification sets the default Cellpose diameter. A diameter of 0 and "auto" are the same.
+- Make Masks: each disconnected brush stroke is a new object. Hold Shift to continue an object across gaps; hold Alt to pan.
+- Accessibility names now cover lists, the main window and Preferences.
+- Wording in the app, docs and API is factual and reviewed in nine languages, and settings section titles are translated.
+- The GUI no longer freezes during the Regression example download and batch run, and Regression results open faster on first use.
+- Pages with folds open faster the first time.
+- Preference reads are kept open instead of being reopened.
+- Invasion and other long analyses no longer starve the GUI, because garbage collection is deferred to idle time.
+- Plate View applies only the newest recompute.
 - Mask screens render their field backgrounds more efficiently.
 - Preferences opens, applies and closes faster, and Apply, Keep and Revert no longer freeze the app.
 - Make Masks costs less per frame.
@@ -45,6 +61,9 @@
 - Module screens no longer stall every 2 s. The GPU is read through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.
 - Command palette: a key typed while the list is rebuilding is kept instead of crashing the app.
 - Regression panel: fixed a thread error.
+- Legacy PNG masks load in Make Masks.
+- The workspace is saved on the GUI thread.
+- Text is re-measured after a font change.
 - Make Masks: a linked image with no box ledger opens and saves without the "Cannot load box annotations" popup.
 - A source checkout or editable install reports its own version.
 - Wells named F01, F02 are read as wells, and class counts ignore the `.spacr_crop_format.json` file.
@@ -56,4 +75,5 @@ These appear only with Show alpha features on.
 - Own-DINO classifiers can be trained from a supplied teacher checkpoint and applied from their saved artifacts, using explicit channel order and saved input scaling. Predictions and features can be exported as tables.
 - MitoNet as a Make Masks backend for TEM images.
 - Spatial Mask Generation and Spatial Map Barcodes submodules, opened from the Spatial switches.
+- Embeddings use DINOv2 by default; Cell-DINO is available as a drop-in.
 - Other organisms stay behind Show alpha species; Toxoplasma is always shown.
