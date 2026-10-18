@@ -4972,13 +4972,6 @@
       "translation": "文件名分为 \"sets\" 的(孔 × 显微镜视野) - 每个文件中的一个输入. 订单是稳定的(字母分类),因此在相同文件夹上重新执行,产生相同的频道名称。"
     },
     {
-      "context": "True when we can extract channels from the filename or the folder — otherwise every file is treated as channel 1.",
-      "label": "spacr.qt.folder_metadata.assign_missing_fields#6",
-      "source": "True when we can extract channels from the filename or the folder — otherwise every file is treated as channel 1.",
-      "source_sha256": "93847ec835548b97147b575574cbaf108ea843533cb3ad6d9c6e7a732f49d811",
-      "translation": "True 当我们可以从文件名或文件夹中提取通道时,否则每个文件都会被视为通道1。"
-    },
-    {
       "context": "The defect is not specific to the preview. CPython runs an automatic collection whenever an allocation pushes a generation past its threshold, so the collection executes on the independent execution path that allocated most recently. A Cellpose pass allocates heavily in a background execution unit, so that worker is the likely independent execution path to execute the collection and therefore to destroy unrelated widgets the main GUI execution path released earlier. The resulting crash is timing-dependent, occurs away from the code that created the cycle, and names no file.",
       "label": "spacr.qt.gc_policy#3",
       "source": "The defect is not specific to the preview. CPython runs an automatic collection whenever an allocation pushes a generation past its threshold, so the collection runs on the thread that allocated most recently. A Cellpose pass allocates heavily in a worker thread, so that worker is the likely thread to run the collection and therefore to destroy unrelated widgets the GUI thread released earlier. The resulting crash is timing-dependent, occurs away from the code that created the cycle, and names no file.",
@@ -6631,13 +6624,6 @@
       "translation": "AUC 接近 0.5 与大 KS 的意思是,两种分布超越了预测的机会,而仍然是不同的 - 因此,一个看起来无用的特征,仅仅是 AUC 分离在分布或模式。"
     },
     {
-      "context": "**This uses a different rule from** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` treats a numeric column with twelve or fewer distinct values as a *category*. That rule is useful for choosing a slider or a list of selectable values. Feature ranking has a different goal: discrete values remain useful. Counts from 0 to 8 remain valid ranking features. The feature named ``pathogen_count`` is one example. A separation statistic works with a discrete count.",
-      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
-      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is perfectly happy on a discrete count.",
-      "source_sha256": "0dd2d823c0b03e40f2aada2a169678dbe394b3bf8db251389a8c90835fd6818f",
-      "translation": "**这是一个不同的规则,从** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` 将12个或更少的分数值的数字列视为 *分类*这个规则是有用的选择一个滑板或一个可选择的值列表。 属性排名有不同的目标:差异值仍然有用。 0 到 8 的计算仍然有效的排名特征。 ``pathogen_count`` 一个分离统计工作与一个差异计算。"
-    },
-    {
       "context": "when there is no usable class column, or when none of the features can be scored — each with the reason.",
       "label": "spacr.qt.widgets.feature_rank.rank_features#2",
       "source": "when there is no usable class column, or when none of the features can be scored — each with the reason.",
@@ -6832,13 +6818,6 @@
       "source": "And it WINDS DOWN. A backdrop eating cores while a segmentation runs is the opposite of what it is for, so `pause()` stops the render loop and leaves the last frame on screen. See :meth:`CpuFractalWidget.pause`.",
       "source_sha256": "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45",
       "translation": "它吹下来。 一个背面吃的核心,而一个分割运行是相反的它是什么,所以`pause()`停止了转折圈,并在应用程序视图上放弃了最后的框架。 看:meth:`CpuFractalWidget.pause`。"
-    },
-    {
-      "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
-      "label": "spacr.qt.widgets.gate_spec.ClusterCandidate#1",
-      "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
-      "source_sha256": "442d2e98bc2e4de92a950ca39b229864d8dc2e40d4d17069924431d8e19ef37b",
-      "translation": "切成数据而不是直接转向一个表格,以便搜索可测试,而无需 GUI 因此,召唤者决定什么 \"best\" 丝绸是盲目的,到多少被排除,所以一次运行,呼唤90%的板噪音,紧密集合其余的得分是美丽的,是无用的。"
     },
     {
       "context": "The feature string the current tile was built from.",
@@ -9681,13 +9660,6 @@
       "source": "Explain a spacr vision-model score by ranking which morphology / intensity features drive it.",
       "source_sha256": "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
       "translation": "通过排序来解释一个 spacr 视觉模型分数,该分数的 morphology / intensity 特征驱动它。"
-    },
-    {
-      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
-      "label": "spacr.submodules.interpret_vision_model#1",
-      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
-      "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
-      "translation": "加入每对象 CNN 预测(``score_column``)与 :func:`spacr.measure.measure_crop` 的 morphology + 强度测量,扩展跨分区特征比例(例如 ``nucleus_cell_area``),然后运行随机森林特征重要性,转变重要性和(可选) SHAP 在顶部特征上。"
     },
     {
       "context": "``src`` — folder containing ``measurements/measurements.db`` with both feature and score tables.",

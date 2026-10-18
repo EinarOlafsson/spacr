@@ -2515,13 +2515,6 @@
       "translation": "डेटा लोडर वर्कर गिनती।"
     },
     {
-      "context": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
-      "label": "spacr.io.generate_training_dataset#5",
-      "source": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
-      "source_sha256": "39de9db9f25ed972138e8e16dff096a6f2820f7dca88be6655984f453c88fe35",
-      "translation": "यदि एक स्तंभ में केवल एक एनोटेट किया गया मूल्य है (उदाहरण के लिए, केवल '1'), तो हम उस स्तंर के लिए गैर-एनोटेट पंक्तियों का उपयोग करके '<column>_random' वर्ग जोड़ते हैं (समान आकार के रूप में सकारात्मक)।"
-    },
-    {
       "context": "A missing `png_list` means no PNG folder was written, not that there is no data. The objects are still in the measurement table with the same well metadata the class rules select on, so that is read instead -- otherwise a project holding everything it needs reports \"0 classes\".",
       "label": "spacr.io.generate_training_dataset._load_png_table#2",
       "source": "A missing `png_list` means no PNG folder was written, not that there is no data. The objects are still in the measurement table with the same well metadata the class rules select on, so that is read instead -- otherwise a project holding everything it needs reports \"0 classes\".",
@@ -3761,13 +3754,6 @@
       "translation": "परिपक्वता एनोटेशन; ``\"alpha\"``, ``\"beta\"`` या ``\"stable\"`` का एक।"
     },
     {
-      "context": "*How many microplate sample positions, how many cells per well, and how good a machine-learning classification model do I need before a pooled CRISPR screening experiment can actually find its hits?*  You answer it by simulating screening experiments you know the truth for, fitting the model you would really use, and measuring how well the fit recovers the hits you planted.  :func:`scan_parameters` sweeps that loop over a design grid.",
-      "label": "spacr.power_model#5",
-      "source": "*How many wells, how many cells per well, and how good a classifier do I need before a pooled CRISPR screen can actually find its hits?*  You answer it by simulating screens you know the truth for, fitting the model you would really use, and measuring how well the fit recovers the hits you planted.  :func:`scan_parameters` sweeps that loop over a design grid.",
-      "source_sha256": "8eda05a3b80d10e594d1a3d4465a1ad32df0dd13369f86339eea35a9a824dc4b",
-      "translation": "*कितने वेल, प्रति वेल कितनी कोशिकाएँ, और कितना अच्छा एक मशीन-लर्निंग वर्गीकरण मॉडल की जरूरत है पहले एक संकलित CRISPR स्क्रीनिंग प्रयोग वास्तव में अपने हिट पा सकते हैं?* आप इसे सच्चाई के बारे में जानते हैं, मॉडल को फिट करने के लिए, और मापने के लिए कि कैसे फिट आप लगाए गए हिटों को पुनर्प्राप्त करता है. :func:`scan_parameters` यह एक डिजाइन नेटवर्क के माध्यम से घूमता है।"
-    },
-    {
       "context": "Evidence score: *``beta_g``*. Higher values mean that wells carrying more of a gene have more positive cells than cell count alone explains. The relation ``p >> n`` means that genes greatly outnumber wells. Therefore *``beta``* uses a **regularized horseshoe prior** (Piironen & Vehtari, *Electron. J. Statist.* 11(2), 2017). Heavy tails preserve genuine hits, a sharp zero spike shrinks non-hits, and a Student-t slab keeps the tails proper.",
       "label": "spacr.power_model#8",
       "source": "``beta_g`` is the evidence that gene *g* is a hit: higher means the wells carrying more of gene *g* had more positive cells than their cell count alone explains.  There are far more genes than wells (``p >> n``), so ``beta`` is given a **regularized horseshoe** prior (Piironen & Vehtari, *Electron. J. Statist.* 11(2), 2017) — heavy tails so genuine hits escape shrinkage, a sharp spike at zero so the hundreds of non-hits collapse onto it, and a Student-t slab so the tails stay proper.",
@@ -3941,13 +3927,6 @@
       "source": "QThread worker that streams chat completions from a ChatProvider so the UI stays responsive during long generations.",
       "source_sha256": "3d4ac8c0581ba3dac26dd5c0d7549b86ef6de60bd6bf595dffb81aa47554df1d",
       "translation": "QThread वर्कर जो एक चैट प्रदाता से चैट समापन प्रसारित करता है ताकि UI लंबी पीढ़ियों के लिए प्रतिक्रियाशील रहे।"
-    },
-    {
-      "context": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "label": "spacr.qt.ai.worker.StreamWorker.cancel#1",
-      "source": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "source_sha256": "ff75ca7dc44b20eeeb50e45e60a421ecffffbcb71ed1b162fb4c703222af5aaa",
-      "translation": "एक Python झंडा अकेले रखना पर्याप्त नहीं है - वर्कर को `for line in proc.stdout` इथेरेशन में अवरुद्ध किया जाता है जब तक कि उप-प्रक्रिया लिखता है या बंद नहीं होता. हम उप-प्रक्रिया को सीधे `provider.cancel_stream()` के माध्यम से समाप्त करते हैं; पाठक फिर एक खाली पढ़ने के साथ बाहर निकलता है और चलाता है() साफ-सफाई से पूरा होता है."
     },
     {
       "context": "The image-processing workflow (normalize / image data channel-filter / outline / colored border) and the SQLite-backed page fetch + background save worker are all Tk-free. The Qt application view wraps this with a QWidget UI.",
@@ -4903,7 +4882,7 @@
     },
     {
       "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
       "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
       "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
       "translation": "मॉड्यूल के पैनल, या ``None`` के लिए एक कुंजी इस स्क्रीन को लपेटता नहीं है. एक ही बटन दबाकर फिर से पृष्ठ जो पहले से ही वहां है उठाता है बजाय एक दूसरा बनाता है."
@@ -5903,13 +5882,6 @@
       "translation": "AUC लगभग 0.5 के साथ एक बड़ा KS का मतलब है कि दोनों वितरण उतना ही अधिक हैं जितना संभावना भविष्यवाणी करती है, जबकि अभी भी अलग-अलग हैं - इसलिए एक फ़ीचर जो AUC द्वारा अनावश्यक दिखती है, फैलाव या मॉडलिटी पर अलग होती है।"
     },
     {
-      "context": "**This uses a different rule from** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` treats a numeric column with twelve or fewer distinct values as a *category*. That rule is useful for choosing a slider or a list of selectable values. Feature ranking has a different goal: discrete values remain useful. Counts from 0 to 8 remain valid ranking features. The feature named ``pathogen_count`` is one example. A separation statistic works with a discrete count.",
-      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
-      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is perfectly happy on a discrete count.",
-      "source_sha256": "0dd2d823c0b03e40f2aada2a169678dbe394b3bf8db251389a8c90835fd6818f",
-      "translation": "**यह** ``column_kinds() == CONTINUOUS`` से एक अलग नियम का उपयोग करता है. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` एक *श्रेणी* के रूप में 12 या उससे कम अलग-अलग मूल्यों के साथ एक संख्यात्मक स्तंभ को संबोधित करती है. यह नियम एक स्लाइडर या चयन योग्य मूल्यों की एक सूची चुनने के लिए उपयोगी है. फ़ंक्शन रैंकिंग का एक अलग लक्ष्य है: विचलित मूल्यों का उपयोगी रहता है. 0 से 8 तक की गिनती वैध रेंकिंग विशेषताएं रहती हैं. फ़ीचर नामक ``pathogen_count`` एक उदाहरण है. एक अलगाव सांख्यिकीय एक विचलन संख्या के साथ काम करता है।"
-    },
-    {
       "context": "A tile that is always first and is not one of the run's figures.",
       "label": "spacr.qt.widgets.figure_grid_view.FigureGridView.set_pinned#0",
       "source": "A tile that is always first and is not one of the run's figures.",
@@ -6097,13 +6069,6 @@
       "source": "The first implementation chose the two axes that happened to face the camera.  That made the X/Y/Z plane buttons cosmetic: turning the view could make a gate land on a different plane from the blue aura.  The selected plane is now the source of truth.  A genuinely edge-on plane is refused because its two data dimensions collapse to one screen line and no inverse exists.",
       "source_sha256": "9eccac76b99ca346d944e145b14943d0fef75b734977a383a8b2f14f036778f6",
       "translation": "पहला कार्यान्वयन कैमरे का सामना करने के लिए दो ध्रुवों का चयन किया. यह X / Y / Z विमान बटन को कॉस्मेटिक बनाता है: दृश्य को बदलने से ब्लू ऑरा से एक अलग विमान पर डेटा-सेलेशन सीमा जमीन बना सकती है. चुना गया विमान अब सच्चाई का स्रोत है. एक वास्तव में किनारे पर विमान को अस्वीकार कर दिया जाता है क्योंकि इसके दो डेटा आयाम एक स्क्रीन लाइन में टूट जाते हैं और कोई विपरीत नहीं है."
-    },
-    {
-      "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
-      "label": "spacr.qt.widgets.gate_spec.ClusterCandidate#1",
-      "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
-      "source_sha256": "442d2e98bc2e4de92a950ca39b229864d8dc2e40d4d17069924431d8e19ef37b",
-      "translation": "डेटा के बजाय एक तालिका में सीधे रीडिंग के रूप में कट जाता है ताकि खोज GUI के बिना परीक्षण योग्य हो, और इसलिए कॉलर यह तय करता है कि \"best\" क्या मतलब है - यह क्या होना चाहिए, क्योंकि स्कोर उद्देश्य पर असहमत हैं. सिल्वेट कितना अंधे है, इसलिए एक रन जो प्लेट की 90 प्रतिशत शोर को बुलाती है और ठोस रूप से बाकी स्कोर्स सुंदर और बेकार है।"
     },
     {
       "context": "One panel for a clicked gene: its result record and its bundled annotation.",
@@ -8099,13 +8064,6 @@
       "source": "Explain a spacr vision-model score by ranking which morphology / intensity features drive it.",
       "source_sha256": "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
       "translation": "एक spacr दृष्टि मॉडल स्कोर को रैंकिंग के माध्यम से समझाएं जो मॉर्फोलॉजी / तीव्रता फ़ीचर इसे ड्राइव करती हैं।"
-    },
-    {
-      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
-      "label": "spacr.submodules.interpret_vision_model#1",
-      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
-      "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
-      "translation": "मर्फोलॉजी + तीव्रता के माप के साथ ``score_column`` के प्रति वस्तु CNN पूर्वानुमानों में शामिल हो जाता है, :func:`spacr.measure.measure_crop` से, क्रॉस-साझाकरण फ़ंक्शन अनुपात का विस्तार करता है (उदाहरण के लिए ``nucleus_cell_area``), फिर यादृच्छिक-मुद्रण महत्व और (वैकल्पिक रूप से) SHAP शीर्ष फ़ीचरों पर चलता है. इसके अलावा, विभाजन और छवि डेटा चैनल द्वारा महत्व को समूह किया जाता है ताकि आप जवाब दे सकें \"क्या मेरा मशीन-लर्निंग वर्गीकरण मॉडल रोगजनक या सेल को देखता है?"
     },
     {
       "context": "``src`` — folder containing ``measurements/measurements.db`` with both feature and score tables.",

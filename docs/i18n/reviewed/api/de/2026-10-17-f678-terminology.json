@@ -7073,7 +7073,7 @@
     },
     {
       "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
       "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
       "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
       "translation": "das Panel des Moduls, oder ``None`` für eine Taste, die dieser Bildschirm nicht faltet. Durch Drücken der gleichen Taste wird die Seite wieder erhöht, die bereits vorhanden ist, anstatt eine zweite zu bauen."
@@ -8414,13 +8414,6 @@
       "source": "the loaded table. Its columns are what the dialog offers a rule for, so a screen with nothing loaded offers nothing.",
       "source_sha256": "e11fd7f605a223f89f7ce2305a2644ff3f6bbfb9b89b5631cfec81f62a571175",
       "translation": "die geladene Tabelle. Ihre Spalten sind das, wofür der Dialog eine Regel bietet, so dass ein Bildschirm mit nichts geladen bietet nichts."
-    },
-    {
-      "context": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "label": "spacr.qt.widgets.ai_chat_panel#4",
-      "source": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "source_sha256": "d9175b353d3b948a72799dcc995fd21fbd60a3e9eedc3da47afe9f27d5dcb277",
-      "translation": "Das Streaming erfolgt in einem QThread via `spacr.qt.ai.worker.StreamWorker`. Die Worker-Referenz wird auf `self` gespeichert — wenn wir Python es fallen lassen, kann Qt niemals das fertige Signal liefern."
     },
     {
       "context": "AiToggleLabel — a clickable text label used in place of a QCheckBox for the \"AI\" switch that sits at the bottom-right of every AppScreen.",

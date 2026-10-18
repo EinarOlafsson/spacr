@@ -328,4 +328,4 @@ and archived. Includes the stale plaque_model_choices entry. Tutorials remain wi
 in nine locales had domain terms in the wrong sense (stain as smudge, well as "bien", epoch
 as era, seed as plant seed, label as Etikett...); fixed in reviewed records, new ones in
 2026-10-17-f678-terminology.json (AI technical review, no native-speaker signoff). Gates
-dye-stain-as-smudge + _REVIEWED_TERM_GATES (100 rules) block regressions. API MT prose still poor.
+dye-stain-as-smudge + _REVIEWED_TERM_GATES (99 rules) block regressions. API MT prose still poor.

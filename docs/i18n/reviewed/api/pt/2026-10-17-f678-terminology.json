@@ -2347,13 +2347,6 @@
       "translation": "Prepare o worker; chame :meth:`run` de um sinal ``started`` de QThread."
     },
     {
-      "context": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "label": "spacr.qt.ai.worker.StreamWorker.cancel#1",
-      "source": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "source_sha256": "ff75ca7dc44b20eeeb50e45e60a421ecffffbcb71ed1b162fb4c703222af5aaa",
-      "translation": "Definir um sinalizador Python sozinho não é suficiente o worker é bloqueado em uma iteração `for line in proc.stdout` até que o subprocesso seja gravado ou fechado. Terminamos o subprocesso diretamente via `provider.cancel_stream()`; o leitor então sai com uma leitura e execução vazias() concluídas de forma limpa."
-    },
-    {
       "context": "Callers must ALSO keep a Python reference to the worker until the stream truly finishes (see ConsolePanel._retire).",
       "label": "spacr.qt.ai.worker.make_stream_thread#2",
       "source": "Callers must ALSO keep a Python reference to the worker until the stream truly finishes (see ConsolePanel._retire).",
@@ -4350,7 +4343,7 @@
     },
     {
       "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
       "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
       "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
       "translation": "o painel do módulo, ou ``None`` para uma tecla esta tela não dobra. Pressionar o mesmo botão novamente levanta a página que já está lá em vez de construir uma segunda."
@@ -5560,13 +5553,6 @@
       "translation": "a tabela carregada. Suas colunas são para o que a caixa de diálogo oferece uma regra, então uma tela sem nada carregado não oferece nada."
     },
     {
-      "context": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "label": "spacr.qt.widgets.ai_chat_panel#4",
-      "source": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "source_sha256": "d9175b353d3b948a72799dcc995fd21fbd60a3e9eedc3da47afe9f27d5dcb277",
-      "translation": "A transmissão é feita em um QThread via `spacr.qt.ai.worker.StreamWorker`. A referência do worker é armazenada em `self` se deixarmos Python soltá-lo, Qt pode nunca entregar o sinal acabado."
-    },
-    {
       "context": "While a run is going",
       "label": "spacr.qt.widgets.ambient#17",
       "source": "While a run is going",
@@ -6160,13 +6146,6 @@
       "source": "The count of the least-populated class this feature was scored on.",
       "source_sha256": "2394254efea2c48c3209c3239729d1df5361ac5ace0fb77ecb35c0581ab7226e",
       "translation": "A contagem da classe menos povoada em que essa característica foi marcado."
-    },
-    {
-      "context": "**This uses a different rule from** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` treats a numeric column with twelve or fewer distinct values as a *category*. That rule is useful for choosing a slider or a list of selectable values. Feature ranking has a different goal: discrete values remain useful. Counts from 0 to 8 remain valid ranking features. The feature named ``pathogen_count`` is one example. A separation statistic works with a discrete count.",
-      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
-      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is perfectly happy on a discrete count.",
-      "source_sha256": "0dd2d823c0b03e40f2aada2a169678dbe394b3bf8db251389a8c90835fd6818f",
-      "translation": "**Isso usa uma regra diferente de** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` trata uma coluna numérica com doze ou menos valores distintos como uma *category*. Essa regra é útil para escolher um controle deslizante ou uma lista de valores selecionáveis. Classificação de características tem um objetivo diferente: valores discretos permanecem úteis. Contagens de 0 a 8 permanecem características de classificação válidos. A característica nomeada ``pathogen_count`` é um exemplo. Uma estatística de separação funciona com uma contagem discreta."
     },
     {
       "context": "Categorical by :func:`~spacr.qt.widgets.graph_spec.column_kinds`, with between two and :data:`MAX_CLASSES` levels, and **not floating point**. A class label is text, an integer code or a boolean; a float column with eleven distinct values is a measurement that happens to be coarse, and offering it as the class column would allow ranking every feature against a measurement such as ``cell_eccentricity``.",
@@ -8484,13 +8463,6 @@
       "source": "dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well distribution), ``summary`` (per-condition distribution), ``comparisons`` (pairwise ordered tests), ``chi_squared`` / ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and ``vacuole_key`` (the grouping actually used).",
       "source_sha256": "c22bcb6d8564d47a1ee5084141e2bdd17da7894d2be65b4821ed59a5c6178720",
       "translation": "mapeamento chave-valor com ``vacuoles`` (contagem por vacúolo), ``wells`` (distribuição da posição da amostra por microplaca), ``summary`` (distribuição por condição), ``comparisons`` (testes ordenados por pares), ``chi_squared`` / ``chi_squared_pairwise`` (testes de proporção de omnibus), ``figures`` e ``vacuole_key`` (o agrupamento realmente usado)."
-    },
-    {
-      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
-      "label": "spacr.submodules.interpret_vision_model#1",
-      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
-      "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
-      "translation": "Junta as previsões CNN por objeto (``score_column``) com as medições de morfologia + intensidade de :func:`spacr.measure.measure_crop`, expande as relações de características entre compartimentos (ex. ``nucleus_cell_area``), executa então a importância aleatória da característica da floresta, a importância da permutação e (opcionalmente) SHAP nas características superiores. Também agrupa a importância por compartimento e por canal de dados de imagem para que você possa responder: \"Meu modelo de classificação de aprendizado de máquina está olhando para o patógeno ou para a célula?\"."
     },
     {
       "context": "``src`` — folder containing ``measurements/measurements.db`` with both feature and score tables.",

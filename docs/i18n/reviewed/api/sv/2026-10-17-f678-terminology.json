@@ -4041,13 +4041,6 @@
       "translation": "städad brunnsram, eller ``None`` för att rensa."
     },
     {
-      "context": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screening experiment you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
-      "label": "spacr.qt.screens.power#1",
-      "source": "The science has been in the tree since the spaCRPower port landed: :mod:`spacr.power_simulate` builds a screen you know the truth for, and :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how well the fit recovered the hits you planted. What has never existed is the surface where a screener asks the question they actually have, which is not \"what is the AUROC of a design with well_abundance_factor_mu = 4.6\" but",
-      "source_sha256": "f891ade99b982bb50a7bb8a10edbb2944a3d73cc114092c4ce96c7ca2fb323de",
-      "translation": "Vetenskapen har funnits i trädet sedan spaCRPower-porten landade: :mod:`spacr.power_simulate` bygger ett screeningexperiment som du känner till sanningen för, och :mod:`spacr.power_model` passar hästsko-Poisson-modellen till den och visar hur väl passformen återfick träffarna du planterade. Vad som aldrig har existerat är ytan där en screeningforskare ställer frågan de faktiskt har, vilket inte är \"vad är AUROC av en design med well_abundance_factor_mu = 4.6\" men"
-    },
-    {
       "context": "QPainter rather than a matplotlib canvas: the plot is two axes, five points and a threshold line, and a FigureCanvas here would import matplotlib's Qt backend, own a timer and need the deleted-C++-object care :mod:`spacr.qt.widgets.umap_explorer` documents — for a drawing that is thirty lines of ``drawLine``.",
       "label": "spacr.qt.screens.power.PowerCurveView#1",
       "source": "QPainter rather than a matplotlib canvas: the plot is two axes, five points and a threshold line, and a FigureCanvas here would import matplotlib's Qt backend, own a timer and need the deleted-C++-object care :mod:`spacr.qt.widgets.umap_explorer` documents — for a drawing that is thirty lines of ``drawLine``.",
@@ -4914,13 +4907,6 @@
       "source": "The count of the least-populated class this feature was scored on.",
       "source_sha256": "2394254efea2c48c3209c3239729d1df5361ac5ace0fb77ecb35c0581ab7226e",
       "translation": "Räknandet av den minst befolkade klassen denna egenskap gjordes på."
-    },
-    {
-      "context": "**This uses a different rule from** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` treats a numeric column with twelve or fewer distinct values as a *category*. That rule is useful for choosing a slider or a list of selectable values. Feature ranking has a different goal: discrete values remain useful. Counts from 0 to 8 remain valid ranking features. The feature named ``pathogen_count`` is one example. A separation statistic works with a discrete count.",
-      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
-      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is perfectly happy on a discrete count.",
-      "source_sha256": "0dd2d823c0b03e40f2aada2a169678dbe394b3bf8db251389a8c90835fd6818f",
-      "translation": "**Detta använder en annan regel än** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` behandlar en numerisk kolumn med tolv eller färre olika värden som en *kategori*. Den regeln är användbar för att välja ett skjutreglage eller en lista med valbara värden. Feature ranking har ett annat mål: diskreta värden förblir användbara. Antal från 0 till 8 är giltiga egenskaper att rangordna. Egenskapen ``pathogen_count`` är ett exempel. En separationsstatistik fungerar med ett diskret antal."
     },
     {
       "context": "Shared bin edges and per-class counts, for drawing one feature.",

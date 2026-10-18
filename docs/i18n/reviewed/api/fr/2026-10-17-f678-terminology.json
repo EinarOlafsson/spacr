@@ -2571,13 +2571,6 @@
       "translation": "Préparez le worker; appelez :meth:`run` à partir d'un signal QThread de ``started``."
     },
     {
-      "context": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "label": "spacr.qt.ai.worker.StreamWorker.cancel#1",
-      "source": "Setting a Python flag alone isn't enough — the worker is blocked in a `for line in proc.stdout` iteration until the subprocess writes or closes. We terminate the subprocess directly via `provider.cancel_stream()`; the reader then exits with an empty read and run() completes cleanly.",
-      "source_sha256": "ff75ca7dc44b20eeeb50e45e60a421ecffffbcb71ed1b162fb4c703222af5aaa",
-      "translation": "Définir un drapeau Python seul ne suffit pas — le worker est bloqué dans une itération `for line in proc.stdout` jusqu'à ce que le sous-processus écrit ou ferme. Nous terminons le sous-processus directement via `provider.cancel_stream()`; le lecteur sort alors avec un lecture vide et exécute() se termine proprement."
-    },
-    {
       "context": "Callers must ALSO keep a Python reference to the worker until the stream truly finishes (see ConsolePanel._retire).",
       "label": "spacr.qt.ai.worker.make_stream_thread#2",
       "source": "Callers must ALSO keep a Python reference to the worker until the stream truly finishes (see ConsolePanel._retire).",
@@ -3944,7 +3937,7 @@
     },
     {
       "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
       "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
       "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
       "translation": "le panneau du module, ou ``None`` pour une clé, cet écran ne se replie pas. En appuyant à nouveau sur le même bouton, on soulève la page qui est déjà là plutôt que de construire une seconde."
@@ -4685,13 +4678,6 @@
       "translation": "Reprendre seulement si le travail est toujours en exécution et que le spinner était déjà dû avant que l'écran soit caché."
     },
     {
-      "context": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "label": "spacr.qt.widgets.ai_chat_panel#4",
-      "source": "Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`. The worker reference is stored on `self` — if we let Python drop it, Qt may never deliver the finished signal.",
-      "source_sha256": "d9175b353d3b948a72799dcc995fd21fbd60a3e9eedc3da47afe9f27d5dcb277",
-      "translation": "Le streaming est effectué dans un QThread via `spacr.qt.ai.worker.StreamWorker`. La référence du worker est stockée sur `self` — si nous laissons Python la déposer, Qt ne peut jamais délivrer le signal fini."
-    },
-    {
       "context": "While a run is going",
       "label": "spacr.qt.widgets.ambient#17",
       "source": "While a run is going",
@@ -5145,13 +5131,6 @@
       "source": "The count of the least-populated class this feature was scored on.",
       "source_sha256": "2394254efea2c48c3209c3239729d1df5361ac5ace0fb77ecb35c0581ab7226e",
       "translation": "Le nombre de la classe la moins peuplée sur laquelle cette caractéristique a été notée."
-    },
-    {
-      "context": "**This uses a different rule from** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` treats a numeric column with twelve or fewer distinct values as a *category*. That rule is useful for choosing a slider or a list of selectable values. Feature ranking has a different goal: discrete values remain useful. Counts from 0 to 8 remain valid ranking features. The feature named ``pathogen_count`` is one example. A separation statistic works with a discrete count.",
-      "label": "spacr.qt.widgets.feature_rank.candidate_features#1",
-      "source": "**Not** ``column_kinds() == CONTINUOUS``, and the difference matters. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` calls a numeric column with twelve or fewer distinct values a *category*, which is the right rule for deciding whether to offer a slider or a tick list — and the wrong one here, because ``pathogen_count`` runs 0–8 and is exactly the kind of feature a ranking exists to surface. A separation statistic is perfectly happy on a discrete count.",
-      "source_sha256": "0dd2d823c0b03e40f2aada2a169678dbe394b3bf8db251389a8c90835fd6818f",
-      "translation": "**Ceci utilise une règle différente de** ``column_kinds() == CONTINUOUS``. :func:`~spacr.qt.widgets.data_filter_panel.classify_columns` traite une colonne numérique avec douze valeurs distinctes ou moins comme une *category*. Cette règle est utile pour choisir un curseur ou une liste de valeurs sélectionnables. Le classement des caractéristiques a un but différent: les valeurs discrètes restent utiles. Les nombres de 0 à 8 restent valides. La caractéristique nommée ``pathogen_count`` en est un exemple. Une statistique de séparation fonctionne avec un nombre discret."
     },
     {
       "context": "Shared bin edges and per-class counts, for drawing one feature.",
@@ -7238,13 +7217,6 @@
       "source": "dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well distribution), ``summary`` (per-condition distribution), ``comparisons`` (pairwise ordered tests), ``chi_squared`` / ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and ``vacuole_key`` (the grouping actually used).",
       "source_sha256": "c22bcb6d8564d47a1ee5084141e2bdd17da7894d2be65b4821ed59a5c6178720",
       "translation": "mappage de la valeur clé avec ``vacuoles`` (comptes par vacuole), ``wells`` (distribution de la position de l'échantillon par microplaque), ``summary`` (disposition par condition), ``comparisons`` (tests ordonnés par paire), ``chi_squared`` / ``chi_squared_pairwise`` (tâches de proportion d'omnibus), ``figures`` et ``vacuole_key`` (groupement effectivement utilisé)."
-    },
-    {
-      "context": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by image data channel so you can answer \"is my machine-learning classification model looking at the pathogen or at the cell?\".",
-      "label": "spacr.submodules.interpret_vision_model#1",
-      "source": "Joins the per-object CNN predictions (``score_column``) with the morphology + intensity measurements from :func:`spacr.measure.measure_crop`, expands cross-compartment feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest feature importance, permutation importance and (optionally) SHAP on the top features. Also groups importance by compartment and by channel so you can answer \"is my classifier looking at the pathogen or at the cell?\".",
-      "source_sha256": "1e270697c9e063031c20a3dc79ca63c1bfccc02ac594d906ffa1eb168ba6d692",
-      "translation": "Joigne les prédictions par objet CNN (``score_column``) à la morphologie + mesures d'intensité de :func:`spacr.measure.measure_crop`, élargit les rapports des caractéristiques des compartiments (p. ex. ``nucleus_cell_area``), puis exécute l'importance des caractéristiques des forêts aléatoires, l' importance de la permutation et (facultativement) SHAP sur les caractéristiques supérieures."
     },
     {
       "context": "``src`` — folder containing ``measurements/measurements.db`` with both feature and score tables.",

@@ -1852,7 +1852,7 @@ _REVIEWED_TERM_GATES: Mapping[str, tuple[tuple[str, str, str], ...]] = {
          '\\bdyes?\\b',
          '污渍|污点|污染物'),
         ('channel-wrong-sense',
-         '(?s)^(?!.*\\b(?:slack|teams|chat|discord|webhook|release|conda)\\b).*\\bchannels?\\b',
+         '(?s)^(?!.*\\b(?:slack|teams|chat|discord|webhook|release|conda|television|tv|broadcast\\w*|radio|youtube)\\b).*\\bchannels?\\b',
          '频道|渠道'),
         ('epoch-wrong-sense',
          '\\bepochs?\\b',
@@ -1898,9 +1898,6 @@ _REVIEWED_TERM_GATES: Mapping[str, tuple[tuple[str, str, str], ...]] = {
         ('stain-wrong-sense',
          '\\b(counter)?stain(s|ed|ing)?\\b',
          '\\b[Mm]anch(a|as|ado|ada|ados|adas|ar)\\b'),
-        ('worker-wrong-sense',
-         '\\bworkers?\\b',
-         '\\b[Tt]rabalhador(es|a|as)?\\b'),
         ('vacuole-wrong-sense',
          '\\bvacuoles?\\b',
          '\\b[Vv](ácuos?|acúos?)\\b'),
@@ -2085,6 +2082,8 @@ _REVIEWED_TERM_GATES: Mapping[str, tuple[tuple[str, str, str], ...]] = {
          '\\b(récoltes?|avant la culture)\\b'),
     ),
 }
+
+
 
 
 

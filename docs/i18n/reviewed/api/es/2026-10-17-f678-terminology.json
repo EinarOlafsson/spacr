@@ -72,13 +72,6 @@
       "translation": "Ancho de la tesela en píxeles, 0 cuando se desconoce."
     },
     {
-      "context": "refuse any pair whose correction exceeds this many pixels. Defaults to a quarter of the smaller tile dimension.",
-      "label": "spacr.align.estimate_offsets#8",
-      "source": "refuse any pair whose correction exceeds this many pixels. Defaults to a quarter of the smaller tile dimension.",
-      "source_sha256": "a3cd5c3508cc8f19e6e616c98b14ab7685a42606dcdb7fb618550fc8100d34ef",
-      "translation": "rechazar cualquier par cuya corrección excede estos muchos píxeles. Por defecto a un cuarto de la dimensión de tesela más pequeña."
-    },
-    {
       "context": "how many tiles may be memory-mapped at once. A column strip faults in a whole row-major tile, so leaving every tile mapped would make the resident set the size of the input folder; 8 covers the neighbourhood being registered.",
       "label": "spacr.align.estimate_offsets#11",
       "source": "how many tiles may be memory-mapped at once. A column strip faults in a whole row-major tile, so leaving every tile mapped would make the resident set the size of the input folder; 8 covers the neighbourhood being registered.",
@@ -91,6 +84,13 @@
       "source": "no readable tiles at all.",
       "source_sha256": "a95fc12b8424aadd28bf947f99489882aed7d0a88f4925f48a3c4a90c7997d1a",
       "translation": "no hay teselas legibles en absoluto."
+    },
+    {
+      "context": "refuse any pair whose correction exceeds this many pixels. Defaults to a quarter of the smaller tile dimension.",
+      "label": "spacr.align.estimate_offsets#8",
+      "source": "refuse any pair whose correction exceeds this many pixels. Defaults to a quarter of the smaller tile dimension.",
+      "source_sha256": "a3cd5c3508cc8f19e6e616c98b14ab7685a42606dcdb7fb618550fc8100d34ef",
+      "translation": "rechazar cualquier par cuya corrección excede estos muchos píxeles. Por defecto a un cuarto de la dimensión de tesela más pequeña."
     },
     {
       "context": "Split tiles into one stitchable set per ``(plate, well)``.",
@@ -121,13 +121,6 @@
       "translation": "El identificador del objeto, la característica/metadata dividida, las descripciones de las características y los filtros son las implementaciones spaCR existentes:"
     },
     {
-      "context": "``var['n_missing']`` / ``var['frac_missing']`` -- per feature;",
-      "label": "spacr.anndata_export#9",
-      "source": "``var['n_missing']`` / ``var['frac_missing']`` -- per feature;",
-      "source_sha256": "a9c8f65e149a93a6acd7a9b1ea19b2daf589ed8a069fc1466efcd9e4c28b8fed",
-      "translation": "``var['n_missing']`` / ``var['frac_missing']`` -- por característica;"
-    },
-    {
       "context": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
       "label": "spacr.anndata_export#20",
       "source": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
@@ -140,6 +133,13 @@
       "source": ":func:`spacr.io._read_and_join_tables` takes six named columns off ``png_list`` -- the object id, ``png_path`` and the four field keys -- and drops the rest. The rest is every annotation column the Annotate app added and every score the classifier wrote, which for this export are among the most valuable columns in the database: without them ``obs`` has no label to train on, group by, or colour a UMAP with. They are re-attached by object key (:func:`_attach_png_labels`) *before* filtering, so a filter can name one -- \"export the cells I annotated as infected\" -- and they are separated into ``uns['spacr']['annotation_columns']`` and ``uns['spacr']['prediction_columns']`` using :mod:`spacr.agreement`'s own rule, which exists because a model's class column is indistinguishable *by shape* from an annotation pass.",
       "source_sha256": "946656fd528a0decb17a3dbaf94361f1c66ba04a08befa0b5a58defd1abf4afe",
       "translation": ":func:`spacr.io._read_and_join_tables` toma seis columnas nombradas de ``png_list`` -- el objeto id, ``png_path`` y los cuatro campos de visión de datos estructurados -- y deja caer el resto. El resto es cada columna de anotación que la aplicación Annotate añadió y cada puntuación que el modelo de clasificación de aprendizaje automático escribió, que para esta exportación se encuentran entre las columnas más valiosas de la base de datos: sin ellos ``obs`` no tiene etiqueta para entrenar, agrupar o colorear un UMAP con. Se vuelven a unir por identificador de objeto (:func:`_attach_png_labels`) *antes* filtrado, por lo que un filtro puede nombrar uno -- \"exportar las células que anoté como infectadas\" -- y se separan en ``uns['spacr']['annotation_columns']`` y ``uns['spacr']['prediction_columns']`` usando la propia regla de :mod:`spacr.agreement`, que existe porque la columna de clase de un modelo es indistinguible*por forma* de un pase de anotación."
+    },
+    {
+      "context": "``var['n_missing']`` / ``var['frac_missing']`` -- per feature;",
+      "label": "spacr.anndata_export#9",
+      "source": "``var['n_missing']`` / ``var['frac_missing']`` -- per feature;",
+      "source_sha256": "a9c8f65e149a93a6acd7a9b1ea19b2daf589ed8a069fc1466efcd9e4c28b8fed",
+      "translation": "``var['n_missing']`` / ``var['frac_missing']`` -- por característica;"
     },
     {
       "context": "tables to join for the default cell-anchored export.",
@@ -450,18 +450,18 @@
       "translation": "Comportamiento de las ejecuciones sin vigilancia:"
     },
     {
-      "context": "numeric feature DataFrame; metadata must not be included.",
-      "label": "spacr.batch_correction.correct_batch_effects#4",
-      "source": "numeric feature DataFrame; metadata must not be included.",
-      "source_sha256": "4ecd66b615d88a2298b7d77e8fb2b1cd69a06295e6b3f545571e270e92eb1538",
-      "translation": "DataFrame numérico de características; no se deben incluir metadatos."
-    },
-    {
       "context": "correct only the additive batch shift and leave each batch's dispersion alone. The right choice when laboratory microplates differ in offset but the assay's noise model is stable, and when rescaling a variance would manufacture significance.",
       "label": "spacr.batch_correction.correct_batch_effects#11",
       "source": "correct only the additive batch shift and leave each batch's dispersion alone. The right choice when plates differ in offset but the assay's noise model is stable, and when rescaling a variance would manufacture significance.",
       "source_sha256": "f68910b3ced025ec38ff899d9b6ce7cd7a82857daa4ee1b5e633959798faaf78",
       "translation": "corregir solo el desplazamiento aditivo por lote y dejar intacta la dispersión de cada lote. La elección correcta cuando las placas difieren en el desplazamiento pero el modelo de ruido del ensayo es estable, y cuando reescalar una varianza fabricaría significación."
+    },
+    {
+      "context": "numeric feature DataFrame; metadata must not be included.",
+      "label": "spacr.batch_correction.correct_batch_effects#4",
+      "source": "numeric feature DataFrame; metadata must not be included.",
+      "source_sha256": "4ecd66b615d88a2298b7d77e8fb2b1cd69a06295e6b3f545571e270e92eb1538",
+      "translation": "DataFrame numérico de características; no se deben incluir metadatos."
     },
     {
       "context": "numeric feature DataFrame.",
@@ -905,6 +905,13 @@
       "translation": "los nombres de las carpetas de las que el entrenamiento lee las clases, en orden de orden, cuando se conocen. Omitido, los nombres :func:`attach_per_class_columns` estampados en ``metrics`` se utilizan — que es lo que permite que la trama en vivo y el modelo de tarjeta nombre las clases sin cada ayudante tener que volver a entregar la lista."
     },
     {
+      "context": "Training epochs. Default ``10``.",
+      "label": "spacr.deep_spacr.model_knowledge_transfer#12",
+      "source": "Training epochs. Default ``10``.",
+      "source_sha256": "fc0ab691ff8dbc0720bd623a29ad37bc9e292d232ce2577a8e6856ab7baedab4",
+      "translation": "Épocas de entrenamiento. Predeterminado ``10``."
+    },
+    {
       "context": "Training DataLoader used during distillation.",
       "label": "spacr.deep_spacr.model_knowledge_transfer#3",
       "source": "Training DataLoader used during distillation.",
@@ -917,13 +924,6 @@
       "source": "Whether the student uses pretrained weights.",
       "source_sha256": "3c1d0d4a819a754070661c89071c9ef43e5946d2b35d65c8eefd672ec2f92aa1",
       "translation": "Si el estudiante utiliza pesos preentrenados."
-    },
-    {
-      "context": "Training epochs. Default ``10``.",
-      "label": "spacr.deep_spacr.model_knowledge_transfer#12",
-      "source": "Training epochs. Default ``10``.",
-      "source_sha256": "fc0ab691ff8dbc0720bd623a29ad37bc9e292d232ce2577a8e6856ab7baedab4",
-      "translation": "Épocas de entrenamiento. Predeterminado ``10``."
     },
     {
       "context": "Accepted and ignored. The loss is always :func:`spacr.utils.calculate_loss` with ``prefer_focal=True`` (gamma 2.0, alpha 1.0), so the reported ``loss`` is a focal loss and is not on the same scale as the train/validation loss that ``loss_type`` selected — for the same logits it read 0.49 where plain cross-entropy read 0.95.",
@@ -1619,18 +1619,18 @@
       "translation": "matriz pocillo por gen de :func:`prepare_long_gene_data`."
     },
     {
-      "context": "Let ``n`` be the number of microplate sample positions and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` raises ``ValueError`` rather than being pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
-      "label": "spacr.guide_permutation.guide_freedman_lane_test#2",
-      "source": "Let ``n`` be the number of wells and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` raises ``ValueError`` rather than being pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
-      "source_sha256": "228b862ebd9c1ec04c538b460b6968a2bf8b54f043627361b030297e26cac815",
-      "translation": "Deja que ``n`` sea el número de posiciones de muestra de microplaca y ``G`` el número del guía. Para el pocillo ``i``, ``y_i`` es el fenotipo y ``x_ig`` es la fracción de lectura de la guía ``g``. ``Z`` es el diseño de molestia ``n x q``: columnas indicadoras para el bloque (normalmente ``plateID``) y para cada columna en ``nuisance_columns`` (normalmente ``rowID`` y ``columnID``). Un rango deficiente ``Z`` eleva ``ValueError`` en lugar de ser pseudo-invertido, porque una base de molestia que no se puede invertir es una pregunta de diseño, no numérica."
-    },
-    {
       "context": "well-by-guide matrix of finite, non-negative guide fractions. Its index defines the well order and its columns name the tested guides.",
       "label": "spacr.guide_permutation.guide_freedman_lane_test#16",
       "source": "well-by-guide matrix of finite, non-negative guide fractions. Its index defines the well order and its columns name the tested guides.",
       "source_sha256": "cbb555031a2ac861d5fc841740851bab24534a82f9f7bcfdeb9f315f75b04342",
       "translation": "matriz pozo-por-guía de fracciones guía finitas, no negativas. Su índice define el orden del pozo y sus columnas nombran las guías probadas."
+    },
+    {
+      "context": "Let ``n`` be the number of microplate sample positions and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` raises ``ValueError`` rather than being pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#2",
+      "source": "Let ``n`` be the number of wells and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` raises ``ValueError`` rather than being pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
+      "source_sha256": "228b862ebd9c1ec04c538b460b6968a2bf8b54f043627361b030297e26cac815",
+      "translation": "Deja que ``n`` sea el número de posiciones de muestra de microplaca y ``G`` el número del guía. Para el pocillo ``i``, ``y_i`` es el fenotipo y ``x_ig`` es la fracción de lectura de la guía ``g``. ``Z`` es el diseño de molestia ``n x q``: columnas indicadoras para el bloque (normalmente ``plateID``) y para cada columna en ``nuisance_columns`` (normalmente ``rowID`` y ``columnID``). Un rango deficiente ``Z`` eleva ``ValueError`` en lugar de ser pseudo-invertido, porque una base de molestia que no se puede invertir es una pregunta de diseño, no numérica."
     },
     {
       "context": "zero-filled well-by-guide fraction matrix.",
@@ -1829,18 +1829,18 @@
       "translation": "Ejes inferidos de los nombres de archivo de una carpeta, y los tokens dejados sin resolver."
     },
     {
-      "context": "give each tile its own microscope field of view number instead.",
-      "label": "spacr.image_import.apply_import#9",
-      "source": "give each tile its own field number instead.",
-      "source_sha256": "4b00f4d973016589974be5903e5ae9a6b2ebdca2a7d91baab0caf836e7257022",
-      "translation": "dar a cada tesela su propio campo de visión del microscopio número en su lugar."
-    },
-    {
       "context": "With both off, the first tile written under a microscope field of view's name is kept and every later tile with the same name is skipped with a reason, rather than written over it.",
       "label": "spacr.image_import.apply_import#11",
       "source": "With both off, the first tile written under a field's name is kept and every later tile with the same name is skipped with a reason, rather than written over it.",
       "source_sha256": "3a3bb5a44c36f44074821c8822b1491f109b74ee50b941b387b5059617d67525",
       "translation": "Con ambos apagados, la primera tesela escrita bajo el nombre de un campo de visión del microscopio se mantiene y cada tesela posterior con el mismo nombre se salta con una razón, en lugar de escribir sobre ella."
+    },
+    {
+      "context": "give each tile its own microscope field of view number instead.",
+      "label": "spacr.image_import.apply_import#9",
+      "source": "give each tile its own field number instead.",
+      "source_sha256": "4b00f4d973016589974be5903e5ae9a6b2ebdca2a7d91baab0caf836e7257022",
+      "translation": "dar a cada tesela su propio campo de visión del microscopio número en su lugar."
     },
     {
       "context": "answers for axes the names cannot name.",
@@ -2074,13 +2074,6 @@
       "translation": "identidad de adquisición mantenida intacta a través del límite permanente entrenamiento/prueba. Por defecto ``well``. ``cell`` es la opción por objeto con más fugas; el legado ``none`` lo alias."
     },
     {
-      "context": "Fraction of the train split to hold out.",
-      "label": "spacr.io.generate_loaders#8",
-      "source": "Fraction of the train split to hold out.",
-      "source_sha256": "2e39a499266d14cd82051efa836896fd267da479f1af26658c89853c298e4df1",
-      "translation": "Fracción de la división de entrenamiento que se reserva."
-    },
-    {
       "context": "One of ``CLASS_BALANCE_MODES``. ``'none'`` (default) leaves sampling untouched; the sampler modes attach a ``WeightedRandomSampler`` to the train loader only. The skew is reported either way.",
       "label": "spacr.io.generate_loaders#14",
       "source": "One of ``CLASS_BALANCE_MODES``. ``'none'`` (default) leaves sampling untouched; the sampler modes attach a ``WeightedRandomSampler`` to the train loader only. The skew is reported either way.",
@@ -2093,6 +2086,13 @@
       "source": "Reproducible train/validation split and loader order.",
       "source_sha256": "b8abae911a94a03f90ed4adcf65770a638f979063cdb07c8648530f620954b4e",
       "translation": "Orden de reparto de entrenamiento/validación reproducible y cargador."
+    },
+    {
+      "context": "Fraction of the train split to hold out.",
+      "label": "spacr.io.generate_loaders#8",
+      "source": "Fraction of the train split to hold out.",
+      "source_sha256": "2e39a499266d14cd82051efa836896fd267da479f1af26658c89853c298e4df1",
+      "translation": "Fracción de la división de entrenamiento que se reserva."
     },
     {
       "context": "``cv_group_by``: acquisition identity kept intact across the train/test boundary. Default ``'well'``.",
@@ -2704,6 +2704,13 @@
       "translation": "Una célula contiene varios puntos y no todos decodifican idénticamente: un punto fuera de foco, un punto compartido con un vecino, y una segunda perturbación genuina todos se ven iguales en esta etapa. Así que una célula se asigna sólo cuando sus lecturas AGREE -- ``min_fraction`` de al menos ``min_reads`` debe llevar el mismo código de barras -- y de lo contrario se deja sin firmar."
     },
     {
+      "context": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every cell that met the bar.",
+      "label": "spacr.ops_sbs.assign_reads_to_cells#10",
+      "source": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every cell that met the bar.",
+      "source_sha256": "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e",
+      "translation": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` por cada célula que se encontró con la barra."
+    },
+    {
       "context": "The defaults (``min_reads=2``, ``min_fraction=0.6``) are conservative. A single read cannot be checked against anything, and a single mis-called base would silently hand a cell the wrong perturbation. A cell with no barcode costs statistical detection sensitivity; a cell with the WRONG barcode moves a real phenotype onto another guide's average and is not recoverable downstream, because nothing later can tell it happened.",
       "label": "spacr.ops_sbs.assign_reads_to_cells#2",
       "source": "The defaults (``min_reads=2``, ``min_fraction=0.6``) are conservative. A single read cannot be checked against anything, and a single mis-called base would silently hand a cell the wrong perturbation. A cell with no barcode costs statistical power; a cell with the WRONG barcode moves a real phenotype onto another guide's average and is not recoverable downstream, because nothing later can tell it happened.",
@@ -2723,13 +2730,6 @@
       "source": "how many reads a cell needs before it may be assigned.",
       "source_sha256": "93a2c59d88ed26e628a60ac19d5cc5d7b7c5080076d46143660fe7257671d11d",
       "translation": "cuántos leen las necesidades de una célula antes de que pueda ser asignada."
-    },
-    {
-      "context": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every cell that met the bar.",
-      "label": "spacr.ops_sbs.assign_reads_to_cells#10",
-      "source": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` for every cell that met the bar.",
-      "source_sha256": "c1e21e9f6bf783ae0091c78edfbe172bb2a43be7295f0c84a65fa07bc96e0c8e",
-      "translation": "``{label: {\"barcode\", \"reads\", \"agreeing\", \"fraction\", \"quality\"}}`` por cada célula que se encontró con la barra."
     },
     {
       "context": "The correction is fitted from the data rather than from a calibration file, because it depends on the stain, the filters and the exposure -- which are properties of the run, not of the instrument. For each image data channel, the spots where that image data channel dominates are found, and their mean vector becomes that image data channel's axis; the matrix of those axes, inverted, maps observed intensity back onto base identity.",
@@ -2970,18 +2970,18 @@
       "translation": "Ejemplo trabajado: dos posiciones de muestra de microplaca, dos genes, gen ``B`` dominando el pocillo ``w2``"
     },
     {
-      "context": "A pooled Toxoplasma CRISPR screening experiment has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the machine-learning classification model called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many microplate sample positions, this many cells per well and a machine-learning classification model at 0.80/0.12, would I actually find a hit?\". That is a statistical detection sensitivity analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
-      "label": "spacr.power_simulate#3",
-      "source": "A pooled Toxoplasma CRISPR screen has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the classifier called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many wells, this many cells per well and a classifier at 0.80/0.12, would I actually find a hit?\". That is a power analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
-      "source_sha256": "2e234c090e1cfd1bf737b8f17a05229ed2aa698fda82d239daf1a275740fd843",
-      "translation": "Un experimento de cribado de Toxoplasma CRISPR agrupado tiene tres capas ruidosas apiladas una encima de la otra — cuyos genotipos acabaron en qué pozo, cuántas células de un pozo vieron el microscopio y qué tan bien las llamó el modelo de clasificación de aprendizaje automático, y cuántas leen cada genograma que salió del grupo de amplicones. La pregunta que un cribador tiene que responder *antes* pasando el tiempo en el microscopio es \"con esta biblioteca, estas muchas posiciones de muestra de microplacas, estas tantas células por pozo y un modelo de calificación de aprendizaje mecánico en 0,80/0,12, encontraría realmente un éxito?\". Eso es un análisis de sensibilidad de detección estadística, y sólo es responsible por simulación porque ninguna capa es tratable analíticamente una vez que los otros dos se apilan en él."
-    },
-    {
       "context": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the machine-learning classification model's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such microplate sample positions is what an analyst does by hand, and it costs microplate sample positions — so which way the trade comes out is a thing to simulate rather than assert.",
       "label": "spacr.power_simulate#20",
       "source": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the classifier's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such wells is what an analyst does by hand, and it costs wells — so which way the trade comes out is a thing to simulate rather than assert.",
       "source_sha256": "83250df0eb28502b73f92508c92911473b6c18a6452901bc7e2303f9f37b93a7",
       "translation": "**El abandono de muy pocas células de imágenes** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). Un pozo donde el microscopio encontró tres células entra en el ajuste como una observación junto a un pozo con cuatrocientas. Su fracción positiva sólo puede ser 0, 1/3, 2/3 o 1, y su error estándar es varias veces la brecha de señal del modelo de clasificación de aprendizaje automático. El desplazamiento de Poisson lo detiene dominando la escala del ajuste; no detiene su covariable lectura-fracción siendo emparejado con el ruido. La eliminación de tales posiciones de muestra de microplaca es lo que un analista hace a mano, y cuesta posiciones de la muestra de Microplaca — por lo que la manera en que el comercio sale es una cosa para simular en lugar de afirmar."
+    },
+    {
+      "context": "A pooled Toxoplasma CRISPR screening experiment has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the machine-learning classification model called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many microplate sample positions, this many cells per well and a machine-learning classification model at 0.80/0.12, would I actually find a hit?\". That is a statistical detection sensitivity analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "label": "spacr.power_simulate#3",
+      "source": "A pooled Toxoplasma CRISPR screen has three noisy layers stacked on top of each other — which genotypes landed in which well, how many of a well's cells the microscope saw and how well the classifier called them, and how many reads each genotype got out of the amplicon pool. The question a screener has to answer *before* spending the microscope time is \"with this library, this many wells, this many cells per well and a classifier at 0.80/0.12, would I actually find a hit?\". That is a power analysis, and it is only answerable by simulation because no layer is analytically tractable once the other two are stacked on it.",
+      "source_sha256": "2e234c090e1cfd1bf737b8f17a05229ed2aa698fda82d239daf1a275740fd843",
+      "translation": "Un experimento de cribado de Toxoplasma CRISPR agrupado tiene tres capas ruidosas apiladas una encima de la otra — cuyos genotipos acabaron en qué pozo, cuántas células de un pozo vieron el microscopio y qué tan bien las llamó el modelo de clasificación de aprendizaje automático, y cuántas leen cada genograma que salió del grupo de amplicones. La pregunta que un cribador tiene que responder *antes* pasando el tiempo en el microscopio es \"con esta biblioteca, estas muchas posiciones de muestra de microplacas, estas tantas células por pozo y un modelo de calificación de aprendizaje mecánico en 0,80/0,12, encontraría realmente un éxito?\". Eso es un análisis de sensibilidad de detección estadística, y sólo es responsible por simulación porque ninguna capa es tratable analíticamente una vez que los otros dos se apilan en él."
     },
     {
       "context": "That product is used as a Bernoulli probability. R's ``rbinom`` returns ``NA`` for ``prob > 1`` with a warning, and the ``NA`` propagates into every downstream count. Clipping keeps the run alive, but it means the realised genes-per-microplate sample position is *below* the requested ``well_abundance_factor_mu`` for the affected genes, so the warning carries the clip count and the worst offender.",
@@ -3061,18 +3061,18 @@
       "translation": "El desmezclado espectral es lo primero. Con ``unmix`` encendido, se estima una matriz de sangrado a través de las posiciones de muestra de microplacas de control de tinción única que nombra ``unmix_controls`` y cada campo de visión del microscopio en bruto no se mezcla en todos sus canales de datos de imagen antes de la corrección de iluminación, el PSF y la cadena; la matriz une el mismo registro. La medición estima su propio campo de vista sobre los canales de información de imagen medidos y desmixa cada campo visual del microscopio antes de sus ganchos de preprocesamiento, registrando la matriz en los ajustes guardados de la sesión de procesamiento y ``measurements/bleed_through.json``."
     },
     {
-      "context": "the AI console that owns the conversation. Taken from ``parent`` when not given, so the screen opening this does not have to know about the button.",
-      "label": "spacr.qt.ai.issue_preview.IssuePreviewDialog#3",
-      "source": "the AI console that owns the conversation. Taken from ``parent`` when not given, so the screen opening this does not have to know about the button.",
-      "source_sha256": "bec5a7443af5b0fb37d58439cb3777d177e6828ff4480d4546e689fb986e344b",
-      "translation": "la consola AI que es propietaria de la conversación. Tomada de ``parent`` cuando no se da, por lo que la pantalla que se abre esto no tiene que saber acerca del botón."
-    },
-    {
       "context": "the console that owns the AI conversation; taken from the parent when not given, so the screen opening this need not know about the button.",
       "label": "spacr.qt.ai.issue_preview.IssuePreviewDialog#10",
       "source": "the console that owns the AI conversation; taken from the parent when not given, so the screen opening this need not know about the button.",
       "source_sha256": "d2c82b270e8495ef63dc046c2b8a9042e2e52c663c2e875356b161cf10f232b5",
       "translation": "la consola que posee la conversación de IA; tomada del padre cuando no se da, por lo que la pantalla que abre esto no necesita saber acerca del botón."
+    },
+    {
+      "context": "the AI console that owns the conversation. Taken from ``parent`` when not given, so the screen opening this does not have to know about the button.",
+      "label": "spacr.qt.ai.issue_preview.IssuePreviewDialog#3",
+      "source": "the AI console that owns the conversation. Taken from ``parent`` when not given, so the screen opening this does not have to know about the button.",
+      "source_sha256": "bec5a7443af5b0fb37d58439cb3777d177e6828ff4480d4546e689fb986e344b",
+      "translation": "la consola AI que es propietaria de la conversación. Tomada de ``parent`` cuando no se da, por lo que la pantalla que se abre esto no tiene que saber acerca del botón."
     },
     {
       "context": "A bounded five-second join used to let the screen disappear while the daemon independent execution path still owned a live SQLite connection.  That is unsafe at application shutdown: CPython can finalize the sqlite extension while the independent execution path is still inside it.  SQLite already bounds lock waits with its 30-second connection timeout, so a requested blocking stop waits for the independent execution path to close its cursor and connection completely.",
@@ -3320,18 +3320,18 @@
       "translation": "Suelta todas las respuestas recordadas para las pruebas y para una nueva ejecución."
     },
     {
-      "context": "which module is executing, for the journal and for routing output back to the right screen.",
-      "label": "spacr.qt.bridge.PipelineWorker#9",
-      "source": "which module is running, for the journal and for routing output back to the right screen.",
-      "source_sha256": "ec886c9cd1429fa268fd32b74b130ecdfca4c981c46314cac18f6f595781ecd6",
-      "translation": "qué módulo se está ejecutando, para el diario y para enrutar la salida de vuelta a la pantalla derecha."
-    },
-    {
       "context": "whether to record the run in the journal.",
       "label": "spacr.qt.bridge.PipelineWorker#10",
       "source": "whether to record the run in the journal.",
       "source_sha256": "2a154538978d5981c8b81c84ab15b12c87a76e2121247f74841dce144fda7218",
       "translation": "si registrar la ejecución en el diario."
+    },
+    {
+      "context": "which module is executing, for the journal and for routing output back to the right screen.",
+      "label": "spacr.qt.bridge.PipelineWorker#9",
+      "source": "which module is running, for the journal and for routing output back to the right screen.",
+      "source_sha256": "ec886c9cd1429fa268fd32b74b130ecdfca4c981c46314cac18f6f595781ecd6",
+      "translation": "qué módulo se está ejecutando, para el diario y para enrutar la salida de vuelta a la pantalla derecha."
     },
     {
       "context": "How long this run has been going, in seconds.",
@@ -3453,18 +3453,18 @@
       "translation": "Región de imagen extraída PNGs no son imágenes ordinarias. Cualquier cosa que spaCR escribiera antes de la corrección BGR tiene la primera tinción en el canal de datos de imagen *blue*, y una región de imagen extraída de un canal de 16 bits abierta con ``convert('RGB')`` se corta en blanco sólido por PIL. Ambos se corrigen por :func:`spacr.qt.annotate_engine.load_crop_image`, que es por lo tanto el único cargador utilizado aquí, por lo que una vista previa hover muestra los mismos colores que la cuadrícula de anotación."
     },
     {
-      "context": "Dropping a ``*.csv`` file → treat as a settings CSV and call the screen's ``apply_settings_dict`` (imports settings, doesn't overwrite the source folder).",
-      "label": "spacr.qt.dnd#6",
-      "source": "Dropping a ``*.csv`` file → treat as a settings CSV and call the screen's ``apply_settings_dict`` (imports settings, doesn't overwrite the source folder).",
-      "source_sha256": "09c1142a5e48b409325f8c258dee0b5b12059626bff0d8e36c198e6fb74ab00f",
-      "translation": "Abandonar un archivo ``*.csv`` → tratar como una configuración CSV y llamar a la pantalla ``apply_settings_dict`` (importa la configuración, no sobrescribe la carpeta fuente)."
-    },
-    {
       "context": ":func:`_route_drop` joins them, and keeps concurrent drops on one screen in the order the user made them.",
       "label": "spacr.qt.dnd#13",
       "source": ":func:`_route_drop` joins them, and keeps concurrent drops on one screen in the order the user made them.",
       "source_sha256": "32ac899ecf1616e65854a1ef8a93fcffa12e9d40a89bcef9d4e34c40369ec5b8",
       "translation": ":func:`_route_drop` se une a ellos, y mantiene las gotas concurrentes en una pantalla en el orden en que el usuario las hizo."
+    },
+    {
+      "context": "Dropping a ``*.csv`` file → treat as a settings CSV and call the screen's ``apply_settings_dict`` (imports settings, doesn't overwrite the source folder).",
+      "label": "spacr.qt.dnd#6",
+      "source": "Dropping a ``*.csv`` file → treat as a settings CSV and call the screen's ``apply_settings_dict`` (imports settings, doesn't overwrite the source folder).",
+      "source_sha256": "09c1142a5e48b409325f8c258dee0b5b12059626bff0d8e36c198e6fb74ab00f",
+      "translation": "Abandonar un archivo ``*.csv`` → tratar como una configuración CSV y llamar a la pantalla ``apply_settings_dict`` (importa la configuración, no sobrescribe la carpeta fuente)."
     },
     {
       "context": "Subclasses implement: can_accept(path)          — is this path good to go? apply(path, screen)       — wire it into the screen. And optionally override: suggest_alternatives(p)   — return nearby folders that DO fit. error_message(p)          — return the \"why not?\" string. accepts_multiple()        — True if multi-folder drops make sense.",
@@ -4132,20 +4132,6 @@
       "translation": "Dibuja los rectángulos de la tesela, o la pista de estado vacío."
     },
     {
-      "context": "**current** — an *extra* white ring outside it on the single tile the next click or keystroke will hit",
-      "label": "spacr.qt.screens.annotate#7",
-      "source": "**current** — an *extra* white ring outside it on the single tile the next click or keystroke will hit",
-      "source_sha256": "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
-      "translation": "**current** — un anillo blanco *extra* fuera de él en la única tesela el siguiente clic o pulsación de la tecla pulsará"
-    },
-    {
-      "context": "The cursor and the keyboard move the same current tile: entering a tile makes it current, and an arrow key moves it away. There is no second \"hovered\" highlight that could point somewhere else.",
-      "label": "spacr.qt.screens.annotate#8",
-      "source": "The cursor and the keyboard move the same current tile: entering a tile makes it current, and an arrow key moves it away. There is no second \"hovered\" highlight that could point somewhere else.",
-      "source_sha256": "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
-      "translation": "El cursor y el teclado mueven la misma tesela actual: entrar en una tesela la hace actual, y una tecla de flecha lo aleja. No hay segundo \"hovered\" resaltado que podría apuntar a otro lugar."
-    },
-    {
       "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "label": "spacr.qt.screens.annotate#10",
       "source": "A suggestion is judged, not relabelled. A crop Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the key legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
@@ -4165,6 +4151,20 @@
       "source": "Annotator Agreement is folded onto this screen's masthead rather than carrying a tile of its own: κ between annotation columns is a question about the labels this screen writes, asked by the person who wrote them while the crops are still in front of them. The button is that module's own icon, lit on hover in its maturity colour, and it opens the agreement screen itself as a PAGE beside the grid rather than a window over it — a window is the last resort for a fold, and nothing here needs one. See :data:`FOLDED_APPS`.",
       "source_sha256": "6859d4eda1bcd96d85890dc539fd093fa459e59ce59688f6ebb86ab9bc5aef61",
       "translation": "Annotator Agreement es doblado en el cabezal de esta vista de aplicación en lugar de llevar un mosaico propio: κ entre columnas de anotación es una pregunta sobre las etiquetas que esta vista escribe, preguntada por la persona que las escribió mientras las regiones de imagen extraídas todavía están delante de ellos. El botón es el icono propio de ese módulo, encendido en hover en su color de madurez, y se abre la vista de la aplicación de acuerdo como una PAGE al lado de la cuadrícula en vez de una ventana sobre ella — una ventana es el último recurso para un pliegue, y nada aquí necesita uno. Ver :data:`FOLDED_APPS`."
+    },
+    {
+      "context": "**current** — an *extra* white ring outside it on the single tile the next click or keystroke will hit",
+      "label": "spacr.qt.screens.annotate#7",
+      "source": "**current** — an *extra* white ring outside it on the single tile the next click or keystroke will hit",
+      "source_sha256": "53574eb95ed47eb357d3539beb3a89a30729b0ad08279acbeb578d50b6778b84",
+      "translation": "**current** — un anillo blanco *extra* fuera de él en la única tesela el siguiente clic o pulsación de la tecla pulsará"
+    },
+    {
+      "context": "The cursor and the keyboard move the same current tile: entering a tile makes it current, and an arrow key moves it away. There is no second \"hovered\" highlight that could point somewhere else.",
+      "label": "spacr.qt.screens.annotate#8",
+      "source": "The cursor and the keyboard move the same current tile: entering a tile makes it current, and an arrow key moves it away. There is no second \"hovered\" highlight that could point somewhere else.",
+      "source_sha256": "22d3da6b0ce573ea4c94ec13ce6ba7f7047b339762bf019d79995ccb84c4d0da",
+      "translation": "El cursor y el teclado mueven la misma tesela actual: entrar en una tesela la hace actual, y una tecla de flecha lo aleja. No hay segundo \"hovered\" resaltado que podría apuntar a otro lugar."
     },
     {
       "context": "The one tile wearing the white ring — mouse and keyboard agree.",
@@ -5077,18 +5077,18 @@
       "translation": "Un módulo plegado, como era toda la pantalla, además de lo que añade el host."
     },
     {
-      "context": "Wrap one folded module's screen with a title and its actions.",
-      "label": "spacr.qt.screens.make_masks.FoldedModulePanel#8",
-      "source": "Wrap one folded module's screen with a title and its actions.",
-      "source_sha256": "7db33af267f51f35444ca36312bc3c7ecb2895f3933d48153e2e02af085c7714",
-      "translation": "Envuelve la pantalla de un módulo plegado con un título y sus acciones."
-    },
-    {
       "context": "the screen to wrap.",
       "label": "spacr.qt.screens.make_masks.FoldedModulePanel#10",
       "source": "the screen to wrap.",
       "source_sha256": "c0a9de9c463be7a7baa01d7b0eadc702604734fb2401ad2bf01c6a84c5ae5a5d",
       "translation": "la pantalla para envolver."
+    },
+    {
+      "context": "Wrap one folded module's screen with a title and its actions.",
+      "label": "spacr.qt.screens.make_masks.FoldedModulePanel#8",
+      "source": "Wrap one folded module's screen with a title and its actions.",
+      "source_sha256": "7db33af267f51f35444ca36312bc3c7ecb2895f3933d48153e2e02af085c7714",
+      "translation": "Envuelve la pantalla de un módulo plegado con un título y sus acciones."
     },
     {
       "context": "the screen, or ``None`` for a key this screen does not fold.",
@@ -5113,7 +5113,7 @@
     },
     {
       "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
-      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
       "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
       "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
       "translation": "el panel del módulo, o ``None`` para una tecla esta pantalla no se pliega. Pulsando el mismo botón de nuevo levanta la página que ya está allí en lugar de construir una segunda."
@@ -7513,6 +7513,13 @@
       "translation": "Una clase para cada pestaña, incluyendo Home. Solía haber dos —una densa fila de iconos al lado de un nombre para Home y una carta alta que llevaba la descripción de una línea de la aplicación en todas partes— y la diferencia hizo que la primera pestaña se leyera como una lista y el resto como un lanzador. La descripción se ha ido con ellos: era una tercera copia de una oración ya en la punta de la herramienta y en la barra de sugerencias al pie de la página, y tres líneas de 11 px gris debajo de cada mosaico es lo que hizo que los mosaicos fueran lo suficientemente pequeños como para necesitar dos tamaños en primer lugar."
     },
     {
+      "context": "tile height in pixels.",
+      "label": "spacr.qt.widgets.home.AppTile#10",
+      "source": "tile height in pixels.",
+      "source_sha256": "575cfc01e946ee84c23432dd947a49587fe6316bfdce256231fab38797117322",
+      "translation": "altura del mosaico en píxeles."
+    },
+    {
       "context": "Deliberately **not** an :class:`HTile` subclass. ``HTile`` is a horizontal row whose name and description live in a ``QLabel`` stack beside the button's own icon; this is a vertical stack with the icon drawn as a child label. It has its own object name, ``AppTile``, so the stylesheet can give it a height floor without giving one to every horizontal tile in the app.",
       "label": "spacr.qt.widgets.home.AppTile#2",
       "source": "Deliberately **not** an :class:`HTile` subclass. ``HTile`` is a horizontal row whose name and description live in a ``QLabel`` stack beside the button's own icon; this is a vertical stack with the icon drawn as a child label. It has its own object name, ``AppTile``, so the stylesheet can give it a height floor without giving one to every horizontal tile in the app.",
@@ -7525,13 +7532,6 @@
       "source": "tile width in pixels.",
       "source_sha256": "fe3c2f514690e14c00940c4ade840c6dcf98c8b6ed25d92b622e69642f9bbdb2",
       "translation": "ancho del mosaico en píxeles."
-    },
-    {
-      "context": "tile height in pixels.",
-      "label": "spacr.qt.widgets.home.AppTile#10",
-      "source": "tile height in pixels.",
-      "source_sha256": "575cfc01e946ee84c23432dd947a49587fe6316bfdce256231fab38797117322",
-      "translation": "altura del mosaico en píxeles."
     },
     {
       "context": "At least the tile height, more if a child somehow needs it.",
@@ -7765,18 +7765,18 @@
       "translation": "El lado del conteo no cambia. Sólo la respuesta varía entre estas ejecuciones, que es lo que las hace comparables en la pestaña Runs; las guías de cada posición de muestra de microplaca son las mismas guías."
     },
     {
-      "context": "how each measurement combines and what happens to a cell with no children. ``policy.primary`` is the anchor and defaults to :data:`DEFAULT_ANCHOR`.",
-      "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#5",
-      "source": "how each measurement combines and what happens to a cell with no children. ``policy.primary`` is the anchor and defaults to :data:`DEFAULT_ANCHOR`.",
-      "source_sha256": "b4510bd68f4bd9bd0939cb7eb83cfbda43c1cb4d8eddbaa95fca08e5b42b21a0",
-      "translation": "cómo se combina cada medición y lo que le sucede a una célula sin hijos. ``policy.primary`` es el ancla y por defecto :data:`DEFAULT_ANCHOR`."
-    },
-    {
       "context": "the anchor is not one row per cell, or carries no object label.",
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#14",
       "source": "the anchor is not one row per cell, or carries no object label.",
       "source_sha256": "d0caefccf9a9a381f44e292e66d6efb560beea52e37c1d83c33707d3ce9e77be",
       "translation": "el ancla no es una fila por célula, o no lleva ninguna etiqueta de objeto."
+    },
+    {
+      "context": "how each measurement combines and what happens to a cell with no children. ``policy.primary`` is the anchor and defaults to :data:`DEFAULT_ANCHOR`.",
+      "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases#5",
+      "source": "how each measurement combines and what happens to a cell with no children. ``policy.primary`` is the anchor and defaults to :data:`DEFAULT_ANCHOR`.",
+      "source_sha256": "b4510bd68f4bd9bd0939cb7eb83cfbda43c1cb4d8eddbaa95fca08e5b42b21a0",
+      "translation": "cómo se combina cada medición y lo que le sucede a una célula sin hijos. ``policy.primary`` es el ancla y por defecto :data:`DEFAULT_ANCHOR`."
     },
     {
       "context": "One helper serves every screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
@@ -7842,18 +7842,18 @@
       "translation": "**Un pozo no se puntúa con tres objetos.** Por debajo de los objetos :data:`DEFAULT_MIN_WELL_OBJECTS` la mediana es demasiado ruidosa para una comparación a través de posiciones de muestra microplaca para significar cualquier cosa, por lo que el pozo aparece en el marco del pozo con ``well_scored = False`` y una razón diciendo cuántos objetos tenía. Es **nunca cayó silenciosamente y nunca anotó en silencio** — un pozo de baja n excluido sin una palabra es cómo un pozo vacío se convierte en una fila no notable."
     },
     {
-      "context": "per feature, the robust centre used (the median, or the MCD centre's coordinate).",
-      "label": "spacr.qt.widgets.outlier_model.OutlierResult#9",
-      "source": "per feature, the robust centre used (the median, or the MCD centre's coordinate).",
-      "source_sha256": "e996e4c0050aecfac4eba22d196d705abee0677531c2ea0da2cdd1668e838a0f",
-      "translation": "por característica, el centro robusto utilizado (la mediana o la coordinación del centro MCD)."
-    },
-    {
       "context": "per feature, ``(low, high)`` for :data:`METHOD_IQR`.",
       "label": "spacr.qt.widgets.outlier_model.OutlierResult#11",
       "source": "per feature, ``(low, high)`` for :data:`METHOD_IQR`.",
       "source_sha256": "b543e614b12c939ea2e1abe4ad993178fa86c3f888b5189382b961e7d1b0e366",
       "translation": "por característica, ``(low, high)`` para :data:`METHOD_IQR`."
+    },
+    {
+      "context": "per feature, the robust centre used (the median, or the MCD centre's coordinate).",
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult#9",
+      "source": "per feature, the robust centre used (the median, or the MCD centre's coordinate).",
+      "source_sha256": "e996e4c0050aecfac4eba22d196d705abee0677531c2ea0da2cdd1668e838a0f",
+      "translation": "por característica, el centro robusto utilizado (la mediana o la coordinación del centro MCD)."
     },
     {
       "context": "Deliberately the input count: a length that shrank with the flags would make ``len(result)`` mean something different for a clean plate and a ruined one.",
@@ -8402,6 +8402,13 @@
       "translation": "Mosaico cuadrado grande con un icono y una leyenda debajo."
     },
     {
+      "context": "the tile's edge, in pixels.",
+      "label": "spacr.qt.widgets.tile.Tile#13",
+      "source": "the tile's edge, in pixels.",
+      "source_sha256": "0e765d4d38e22ae15f2f197230e0e232f465f6a0a43335fef3871576ffa4f479",
+      "translation": "el borde del mosaico, en píxeles."
+    },
+    {
       "context": "optional QIcon to render inside the tile.",
       "label": "spacr.qt.widgets.tile.Tile#3",
       "source": "optional QIcon to render inside the tile.",
@@ -8428,13 +8435,6 @@
       "source": "Build a square tile: an icon over its label.",
       "source_sha256": "b2bf6f99bf955502626c14f7ed9e41d8f77db072a1369d9159de831d3b281a8a",
       "translation": "Construir un mosaico cuadrado: un icono sobre su etiqueta."
-    },
-    {
-      "context": "the tile's edge, in pixels.",
-      "label": "spacr.qt.widgets.tile.Tile#13",
-      "source": "the tile's edge, in pixels.",
-      "source_sha256": "0e765d4d38e22ae15f2f197230e0e232f465f6a0a43335fef3871576ffa4f479",
-      "translation": "el borde del mosaico, en píxeles."
     },
     {
       "context": "The tile's text label as passed to the constructor.",
@@ -8913,6 +8913,13 @@
       "translation": "qué volver cuando no hay ejecución abierta y nada ha sido sembrado."
     },
     {
+      "context": "the run to read.",
+      "label": "spacr.runctx.read_run_resources#1",
+      "source": "the run to read.",
+      "source_sha256": "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+      "translation": "la ejecución que se va a leer."
+    },
+    {
       "context": "use this id instead of minting one — for a resumed run, or a distributed worker continuing its parent's run.",
       "label": "spacr.runctx.run_context#4",
       "source": "use this id instead of minting one — for a resumed run, or a distributed worker continuing its parent's run.",
@@ -9284,6 +9291,13 @@
       "translation": "El ensayo de invasión rojo/verde tiñe dos veces. Antes de la permeabilización, un anticuerpo sólo alcanza los parásitos todavía **fuera** de la célula huésped, por lo que estos son positivos en ambos canales de datos de imagen; las células se permeabilizan entonces y un segundo anticuerpo tiñe **todos** los parásitos, de modo que un parásito positivo sólo en el canal de datos postpermeabilizatorio estaba dentro. Por lo tanto:"
     },
     {
+      "context": "``outside_channel`` / ``total_channel`` — the pre- and post-permeabilisation stain image data channels.",
+      "label": "spacr.submodules.analyze_invasion#14",
+      "source": "``outside_channel`` / ``total_channel`` — the pre- and post-permeabilisation stain channels.",
+      "source_sha256": "20fc263ee53bc8c2a814d0d3d158a0154b573e52e0585f28f87d2000311aa4dd",
+      "translation": "``outside_channel`` / ``total_channel`` — los canales de datos de imagen de tinción pre y postpermeabilización."
+    },
+    {
       "context": "**attached / outside** = present in the outside-stain image data channel;",
       "label": "spacr.submodules.analyze_invasion#2",
       "source": "**attached / outside** = present in the outside-stain channel;",
@@ -9303,13 +9317,6 @@
       "source": "**Controls take precedence over the automatic method.** ``control_wells`` names wells whose parasites are known to carry no outside stain; the threshold is then a high quantile of that negative distribution (``control_quantile``), the control wells are excluded from the results, and ``threshold_source`` says ``'control'`` so the report cannot be mistaken for an automatic run.",
       "source_sha256": "6f057b75a245b5d165e3465d5dcaf4c1d9ec5e4f6c10aa6da3e1514d2824b865",
       "translation": "**Los controles prevalecen sobre el método automático.** ``control_wells`` nombra posiciones de muestra microplaca cuyos parásitos no llevan tinción exterior; el umbral es entonces un cuantil alto de esa distribución negativa (``control_quantile``), las posiciones de la muestra micro placa de control se excluyen de los resultados, y ``threshold_source`` dice ``'control'`` por lo que el informe no puede confundirse con una ejecución automática."
-    },
-    {
-      "context": "``outside_channel`` / ``total_channel`` — the pre- and post-permeabilisation stain image data channels.",
-      "label": "spacr.submodules.analyze_invasion#14",
-      "source": "``outside_channel`` / ``total_channel`` — the pre- and post-permeabilisation stain channels.",
-      "source_sha256": "20fc263ee53bc8c2a814d0d3d158a0154b573e52e0585f28f87d2000311aa4dd",
-      "translation": "``outside_channel`` / ``total_channel`` — los canales de datos de imagen de tinción pre y postpermeabilización."
     },
     {
       "context": "key-value mapping with ``vacuoles`` (per-vacuole counts), ``wells`` (per-microplate sample position distribution), ``summary`` (per-condition distribution), ``comparisons`` (pairwise ordered tests), ``chi_squared`` / ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and ``vacuole_key`` (the grouping actually used).",
@@ -9452,18 +9459,18 @@
       "translation": "Cada ronda se aplica :func:`sudoku` a células no reclamadas y elimina asignaciones aceptadas. El procesamiento se detiene cuando una ronda no asigna células. Debido a que este procedimiento codicioso es sensible al orden, ``claimed_by_round`` se mantiene en el informe; :mod:`spacr.annotation_validation` evalúa la sensibilidad al orden de clasificación."
     },
     {
-      "context": "one row per feature, with ``gain``, ``permutation`` and ``shap`` columns where each was computed.",
-      "label": "spacr.surrogate.SurrogateResult#3",
-      "source": "one row per feature, with ``gain``, ``permutation`` and ``shap`` columns where each was computed.",
-      "source_sha256": "15a20a101924968f335f111a3265c3326d612a1afec49afb15652a05126b1361",
-      "translation": "una fila por característica, con columnas ``gain``, ``permutation`` y ``shap`` donde se calculó cada una."
-    },
-    {
       "context": "seed shared by grouped splitting, estimator fitting, and permutation importance so the run can be reproduced.",
       "label": "spacr.surrogate.SurrogateResult#11",
       "source": "seed shared by grouped splitting, estimator fitting, and permutation importance so the run can be reproduced.",
       "source_sha256": "a5558796dd0cdf03edbdb05236a224dd0410e6800057ba71fc9b1b72296e30ff",
       "translation": "semilla compartida por la división agrupada, ajuste del estimador, y la importancia de la permutación para que la ejecución pueda ser reproducida."
+    },
+    {
+      "context": "one row per feature, with ``gain``, ``permutation`` and ``shap`` columns where each was computed.",
+      "label": "spacr.surrogate.SurrogateResult#3",
+      "source": "one row per feature, with ``gain``, ``permutation`` and ``shap`` columns where each was computed.",
+      "source_sha256": "15a20a101924968f335f111a3265c3326d612a1afec49afb15652a05126b1361",
+      "translation": "una fila por característica, con columnas ``gain``, ``permutation`` y ``shap`` donde se calculó cada una."
     },
     {
       "context": "``'permutation'``, ``'shap'`` or ``'gain'``. Falls back to whichever was computed, rather than throwing, so a run without SHAP still reports something.",
@@ -9529,6 +9536,20 @@
       "translation": "contador de parada temprana, llevado por lo que una ejecución reanudada no olvida lo cerca que estaba de detenerse."
     },
     {
+      "context": "**Train and validation are never silently mixed.** Every series label carries run, split and fold, and :func:`plot_curves` annotates the axes when more than one split is on it. A train curve above a validation curve is the definition of overfitting, not evidence that one run beat another.",
+      "label": "spacr.train_compare#10",
+      "source": "**Train and validation are never silently mixed.** Every series label carries run, split and fold, and :func:`plot_curves` annotates the axes when more than one split is on it. A train curve above a validation curve is the definition of overfitting, not evidence that one run beat another.",
+      "source_sha256": "5e1f84b2e5cda459f74f533248bc089fa6c3db96f2b052789ab60befff341b86",
+      "translation": "**El entrenamiento y la validación nunca se mezclan silenciosamente.** Cada etiqueta de la serie lleva ejecución, división y pliegue, y :func:`plot_curves` anota los ejes cuando hay más de una división en él. Una curva de entrenamiento por encima de una curva de validación es la definición de sobreajuste, no evidencia de que una ejecución le gane a otra."
+    },
+    {
+      "context": "See Also: :func:`spacr.run_journal.diff_runs` — the two-run provenance diff whose bucketing this module reuses and generalises to N runs.",
+      "label": "spacr.train_compare#19",
+      "source": "See Also: :func:`spacr.run_journal.diff_runs` — the two-run provenance diff whose bucketing this module reuses and generalises to N runs.",
+      "source_sha256": "37c02b8ec6eca016314564c47808c4d5ab1c1a0568fa3186d911ad4c71ae2db4",
+      "translation": "Véase también: :func:`spacr.run_journal.diff_runs` — el diff de procedencia de dos ejecuciones cuyo cubo de este módulo reutiliza y generaliza a N ejecuciones."
+    },
+    {
       "context": ":func:`spacr.deep_spacr.train_model` evaluates train (and validation, when a validation loader exists) at the end of every epoch and hands the metric key-value mappings to :func:`spacr.io._save_progress`, which appends them to two CSVs in the processing session's ``dst`` folder",
       "label": "spacr.train_compare#4",
       "source": ":func:`spacr.deep_spacr.train_model` evaluates train (and validation, when a validation loader exists) at the end of every epoch and hands the metric dicts to :func:`spacr.io._save_progress`, which appends them to two CSVs in the run's ``dst`` folder",
@@ -9548,20 +9569,6 @@
       "source": "**Runs of different length are never aligned.** Each series is plotted over its own epoch axis. Truncating a 60-epoch run to match a 25-epoch neighbour invents a result (\"B never got better\") and padding invents a different one; the legend shows the run lengths instead.",
       "source_sha256": "541930bd8deee1c6f250e653a85927598d182921ded99f0b0b12e8a259234d35",
       "translation": "**Runes de diferente longitud nunca están alineados.** Cada serie está trazada sobre su propio eje de época. Truncar una ejecución de 60 epoch para igualar a un vecino de 25 epoche inventa un resultado (\"B never got better\") y el relleno inventa una diferente; la leyenda muestra las longitudes de ejecución en su lugar."
-    },
-    {
-      "context": "**Train and validation are never silently mixed.** Every series label carries run, split and fold, and :func:`plot_curves` annotates the axes when more than one split is on it. A train curve above a validation curve is the definition of overfitting, not evidence that one run beat another.",
-      "label": "spacr.train_compare#10",
-      "source": "**Train and validation are never silently mixed.** Every series label carries run, split and fold, and :func:`plot_curves` annotates the axes when more than one split is on it. A train curve above a validation curve is the definition of overfitting, not evidence that one run beat another.",
-      "source_sha256": "5e1f84b2e5cda459f74f533248bc089fa6c3db96f2b052789ab60befff341b86",
-      "translation": "**El entrenamiento y la validación nunca se mezclan silenciosamente.** Cada etiqueta de la serie lleva ejecución, división y pliegue, y :func:`plot_curves` anota los ejes cuando hay más de una división en él. Una curva de entrenamiento por encima de una curva de validación es la definición de sobreajuste, no evidencia de que una ejecución le gane a otra."
-    },
-    {
-      "context": "See Also: :func:`spacr.run_journal.diff_runs` — the two-run provenance diff whose bucketing this module reuses and generalises to N runs.",
-      "label": "spacr.train_compare#19",
-      "source": "See Also: :func:`spacr.run_journal.diff_runs` — the two-run provenance diff whose bucketing this module reuses and generalises to N runs.",
-      "source_sha256": "37c02b8ec6eca016314564c47808c4d5ab1c1a0568fa3186d911ad4c71ae2db4",
-      "translation": "Véase también: :func:`spacr.run_journal.diff_runs` — el diff de procedencia de dos ejecuciones cuyo cubo de este módulo reutiliza y generaliza a N ejecuciones."
     },
     {
       "context": "source training processing sessions in comparison order.",
