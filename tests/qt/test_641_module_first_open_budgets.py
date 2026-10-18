@@ -99,8 +99,11 @@ def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch):
             preferences.get_font_scale()
             preferences.resolve_effective_theme()
             preferences._get_show_alpha_features()
-    assert outside >= 100
-    assert len(made) == 1
+    # Since 576c055d4 each thread keeps its store open between reads, so the
+    # 100 reads outside the block open at most one store, and the 150 inside
+    # it reuse that store or open the block's single one.
+    assert outside <= 1
+    assert len(made) <= 1
 
 
 def test_the_window_opens_a_module_inside_one_store():
