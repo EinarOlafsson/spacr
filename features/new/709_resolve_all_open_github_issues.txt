@@ -1,0 +1,37 @@
+================================================================================
+RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
+================================================================================
+
+Status:    OPEN — 4 open GitHub issues
+Requested: maintainer, 2026-10-18 — "make an item that resolves all GitHub
+           issues and gets reactivated every time issues are added, currently
+           there are 4"
+Owner:     Claude Home
+
+WHAT TO BUILD
+Fix every open issue on github.com/EinarOlafsson/spacr with tests, one commit
+per issue whose body says "Fixes #N". Nightly is not the default branch, so
+also comment on the issue with the fix commit, and close it once the fix is on
+nightly and verified, naming the commit and when it reaches a release.
+Where an issue needs a product decision, build the clear parts and put the
+open decision to the maintainer.
+
+This item never finishes for good. The workflow .github/workflows/issues-item.yml
+runs on every issue opened, reopened, closed, deleted or transferred (and on
+demand), and tools/sync_open_issues_item.py rewrites the Status line and the
+block below from the GitHub API, then commits only this file to nightly. With
+no open issues the Status reads DONE; a new issue turns it back to OPEN.
+
+ACCEPTANCE
+Every issue in the block below is fixed on nightly with tests and closed.
+The block and Status match the GitHub issue list (pull requests excluded);
+running the tool twice changes nothing.
+
+--- OPEN ISSUES (auto) ---
+#146 pathogen_diameter=0 fails settings validation; 0 should be treated as "auto" (jak18015, 2026-10-13)
+#147 In-app assistant: tool approval required but no approval prompt is shown (jak18015, 2026-10-13)
+#150 Settings validator rejects float diameters (cell/nucleus/pathogen_diameter) (jak18015, 2026-10-15)
+#152 annotate app suggestions (EinarOlafsson, 2026-10-16)
+--- END OPEN ISSUES ---
+
+2026-10-18 — Registered with the sync tool and the issues workflow; four issues open (#146, #147, #150, #152).
