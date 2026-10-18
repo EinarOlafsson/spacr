@@ -1527,6 +1527,36 @@ def _classify_column_by_column(df, fields, value_column, extracellular_class):
     return df
 
 
+def _assert_dtype_block_bound(frame):
+    """Require one NumPy block per dtype, allowing each extension its own block."""
+    numpy_dtypes = [dtype for dtype in frame.dtypes
+                    if isinstance(dtype, np.dtype)]
+    numpy_blocks = [block for block in frame._mgr.blocks
+                    if isinstance(block.dtype, np.dtype)]
+    assert len(numpy_blocks) == len(set(numpy_dtypes)), "fragmented NumPy columns"
+    extension_columns = len(frame.columns) - len(numpy_dtypes)
+    assert len(frame._mgr.blocks) <= len(set(numpy_dtypes)) + extension_columns
+
+
+@pytest.mark.parametrize("with_extensions", [False, True])
+def test_the_block_bound_rejects_fragmented_numpy_columns(with_extensions):
+    frame = pd.DataFrame()
+    if with_extensions:
+        frame["first_name"] = pd.Series(["a", "b"], dtype="string")
+        frame["second_name"] = pd.Series(["c", "d"], dtype="string")
+    frame["first_value"] = np.array([1.0, 2.0])
+    frame["second_value"] = np.array([3.0, 4.0])
+
+    assert not frame._mgr.is_consolidated()
+    with pytest.raises(AssertionError, match="fragmented NumPy columns"):
+        _assert_dtype_block_bound(frame)
+
+    consolidated = frame.copy(deep=True)
+    pd.testing.assert_frame_equal(consolidated, frame, check_exact=True)
+    assert consolidated._mgr.is_consolidated()
+    _assert_dtype_block_bound(consolidated)
+
+
 @pytest.mark.parametrize("extracellular_class", ["attached", "classify"])
 def test_classification_matches_the_column_by_column_build(extracellular_class):
     """One-step column building gives the same frame, consolidated."""
@@ -1567,11 +1597,11 @@ def test_classification_matches_the_column_by_column_build(extracellular_class):
     pd.testing.assert_frame_equal(result, expected, check_exact=True)
     assert list(result.columns) == list(expected.columns)
     assert result._mgr.is_consolidated()
-    assert len(result._mgr.blocks) <= result.dtypes.astype(str).nunique()
+    _assert_dtype_block_bound(result)
 
 
 def test_the_parasite_table_comes_back_consolidated(tmp_path):
-    """No fragmentation warning on the way, and one block per dtype at the end."""
+    """No fragmentation warning, with consolidatable NumPy columns combined."""
     import warnings
 
     from spacr.submodules import analyze_invasion
@@ -1585,7 +1615,7 @@ def test_the_parasite_table_comes_back_consolidated(tmp_path):
         out = analyze_invasion(settings_for(src))
     parasites = out["parasites"]
     assert parasites._mgr.is_consolidated()
-    assert len(parasites._mgr.blocks) <= parasites.dtypes.astype(str).nunique()
+    _assert_dtype_block_bound(parasites)
     assert list(parasites.columns[-4:]) == [
         "is_outside", "invasion_class", "is_outside_low_threshold",
         "is_outside_high_threshold"]
