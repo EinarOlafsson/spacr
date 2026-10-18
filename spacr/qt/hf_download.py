@@ -30,7 +30,8 @@ from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
 from ..example_archives import (                              # noqa: F401
     ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
     EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
-    _download_one, _list_files, example_plate_folder, expand_measure_arrays,
+    _download_one, _list_files, check_archive_sha256, example_plate_folder,
+    expand_measure_arrays,
     explain_download_failure, extract_example_archive,
     make_the_example_paths_absolute)
 
@@ -565,10 +566,13 @@ class _TarExampleWorker(QObject):
             target = self._dest / archive_name
             self._dest.mkdir(parents=True, exist_ok=True)
 
+            import hashlib
+
             response = requests.get(url, stream=True, timeout=30)
             response.raise_for_status()
             expected = _content_length(response)
             written = 0
+            digest = hashlib.sha256()
             with tempfile.TemporaryDirectory(prefix=".spacr-archive-",
                                              dir=target.parent) as staging:
                 part = Path(staging) / (target.name + ".part")
@@ -580,6 +584,7 @@ class _TarExampleWorker(QObject):
                         if not chunk:
                             continue
                         handle.write(chunk)
+                        digest.update(chunk)
                         written += len(chunk)
                         if expected:
                             self.progress.emit(
@@ -589,6 +594,7 @@ class _TarExampleWorker(QObject):
                     raise IOError(
                         f"the download stopped early: {written} bytes of "
                         f"{expected}. Nothing was unpacked.")
+                check_archive_sha256(archive_name, digest.hexdigest())
                 part.replace(target)
 
             self.info.emit("Unpacking…")

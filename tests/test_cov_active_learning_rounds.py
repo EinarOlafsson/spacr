@@ -188,6 +188,37 @@ def test_round_features_drops_a_crop_with_no_measured_object(project):
     assert "/crops/cell_png/plate1_r9_c9_f1_o1.png" not in features.index
 
 
+def test_child_crop_keys_reject_missing_parents_without_changing_valid_rows():
+    """Malformed child identities cannot borrow another object's features."""
+    field = "p1_r1_c1_f1"
+    crops = pd.DataFrame({
+        "prcfo": [f"{field}_o7", f"{field}_o99", "",
+                  f"{field}_o11", f"{field}_o12", f"{field}_o13"],
+        "file_name": [f"{field}_7.png", f"{field}_7_99.png",
+                      f"{field}_7_1.png", np.nan, "orphan.png",
+                      f"{field}_multi_13.png"],
+        "cell_id": [7, None, None, None, None, None],
+        "nucleus_id": [None, 99, 1, 11, 12, 13],
+    }, index=[17, 4, 88, 2, 73, 9])
+    before = crops.copy(deep=True)
+
+    result = al._crop_feature_keys(crops)
+
+    expected = pd.Series([f"{field}_o7", f"{field}_o7",
+                          None, None, None, None], index=crops.index,
+                         dtype=object)
+    pd.testing.assert_series_equal(result, expected)
+    pd.testing.assert_frame_equal(crops, before)
+
+
+def test_mismatch_diagnostics_sample_distinct_present_keys_with_a_limit():
+    """Missing or repeated identities must not crowd useful error examples."""
+    values = [None, np.nan, "cell7", "cell7", "cell9", "cell12", "cell18"]
+
+    assert al._key_samples(iter(values), n=3) == "'cell7', 'cell9', 'cell12'"
+    assert al._key_samples([None, np.nan]) == "none"
+
+
 def test_round_features_refuses_a_crop_table_with_no_prcfo(tmp_path):
     """Without prcfo there is no way to say which object a crop shows."""
     db = str(tmp_path / "measurements.db")

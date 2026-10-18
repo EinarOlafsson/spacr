@@ -1,18 +1,21 @@
 """Fully-offline tests for ``spacr.qt.ai.providers`` and ``spacr.qt.ai.worker``.
 
 The three providers shell out to a vendor CLI rather than talking HTTP,
-so the transport boundary here is :func:`subprocess.Popen`. Every test
+so the transport boundary here is :func:`subprocess.Popen`. Transport tests
 below either
 
 * replaces ``providers.subprocess.Popen`` with a recorder and asserts the
   EXACT argv / env / stdin that WOULD have been executed, or
 * spawns a tiny ``sys.executable -c`` child (no network, milliseconds).
 
+Result parsing and allowance formatting also use controlled local inputs.
+
 Nothing here touches the network, and no test spawns a real ``claude`` /
 ``codex`` / ``gemini`` binary even when one happens to be on PATH.
 """
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -353,6 +356,97 @@ def test_claude_argv_explicit_model_beats_speed_setting(monkeypatch, speed):
                            "--output-format", "json"]
     assert "haiku" not in rec["argv"]
     assert "--append-system-prompt" not in rec["argv"]   # no system given
+
+
+def test_claude_empty_rules_resume_does_not_allow_tools(monkeypatch):
+    from spacr.qt.ai.providers import ClaudeCliProvider
+
+    rec = _install_fake_popen(monkeypatch, _FakeProc([]))
+    provider = ClaudeCliProvider()
+    assert provider.allow_once([], "session-1") == []
+    messages = [{"role": "user", "content": "continue"}]
+
+    assert list(provider.stream_chat(messages, model="sonnet")) == []
+    assert rec["argv"] == [
+        "claude", "-p", "continue", "--resume", "session-1",
+        "--model", "sonnet", "--output-format", "json",
+    ]
+
+    assert list(provider.stream_chat(messages, model="sonnet")) == []
+    assert rec["argv"] == [
+        "claude", "-p", "User:\ncontinue", "--model", "sonnet",
+        "--output-format", "json",
+    ]
+
+
+def test_claude_blank_result_preserves_original_failure(monkeypatch):
+    from spacr.qt.ai import providers
+
+    failure = providers.ProviderFailed(
+        "claude", 7, "original transport failure", "claude auth login")
+
+    def failed_stream(argv, **kwargs):
+        yield json.dumps({"type": "result", "result": " \t ",
+                          "is_error": True}) + "\n"
+        raise failure
+
+    monkeypatch.setattr(providers, "_stream_process", failed_stream)
+    provider = providers.ClaudeCliProvider()
+    with pytest.raises(providers.ProviderFailed) as caught:
+        list(provider.stream_chat([{"role": "user", "content": "q"}],
+                                  model="sonnet"))
+    assert caught.value is failure
+    assert caught.value.exit_status == 7
+    assert caught.value.output_tail == "original transport failure"
+
+
+@pytest.mark.parametrize("line", [
+    pytest.param("{not valid JSON\n", id="malformed-json"),
+    pytest.param(json.dumps({"type": "system", "session_id": "unrelated",
+                            "permission_denials": [], "result": "status"})
+                 + "\n", id="non-result-json"),
+])
+def test_claude_non_result_lines_preserve_reply_metadata(monkeypatch, line):
+    from spacr.qt.ai.providers import ClaudeCliProvider
+
+    denials = [{"tool_name": "Read", "tool_input": {"file_path": "notes.txt"}}]
+    result = json.dumps({"type": "result", "result": "reply",
+                         "session_id": "reply-session",
+                         "permission_denials": denials}) + "\n"
+    _install_fake_popen(monkeypatch, _FakeProc([result, line]))
+    provider = ClaudeCliProvider()
+
+    assert list(provider.stream_chat([{"role": "user", "content": "q"}],
+                                     model="sonnet")) == ["reply\n", line]
+    assert provider.last_session_id == "reply-session"
+    assert provider.last_permission_denials == denials
+
+
+def test_local_reset_today_omits_weekday(monkeypatch):
+    import datetime as datetime_module
+
+    from spacr import crashreport
+    from spacr.qt.ai.providers import local_reset_time
+
+    class FrozenDateTime(datetime_module.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            if tz is None:
+                return reset.astimezone().replace(tzinfo=None)
+            return reset.astimezone(tz)
+
+    reset = FrozenDateTime(2026, 10, 18, 12, 30,
+                           tzinfo=datetime_module.timezone.utc)
+
+    def unexpected_default():
+        pytest.fail("An explicit reset time must not use the default reset")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(datetime_module, "datetime", FrozenDateTime)
+        patch.setattr(crashreport, "next_reset_utc", unexpected_default)
+        actual = local_reset_time(reset)
+
+    assert actual == reset.astimezone().strftime("%H:%M")
 
 
 def test_codex_argv_uses_exec_subcommand(monkeypatch, speed):

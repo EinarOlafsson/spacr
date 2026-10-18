@@ -40,7 +40,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
 from ..example_archives import (EXAMPLE_ARCHIVES, FIBSEM_EXAMPLE_REPO,
-                                TEM_EXAMPLE_REPO)
+                                TEM_EXAMPLE_REPO,
+                                TIMELAPSE_BACTERIA_EXAMPLE_REPO,
+                                TIMELAPSE_MAMMALIAN_EXAMPLE_REPO,
+                                TIMELAPSE_YEAST_EXAMPLE_REPO,
+                                example_set_folder)
 from .hf_download import (
     DownloadResult,
     _TarExampleWorker,
@@ -71,6 +75,10 @@ __all__ = [
     "make_masks_example_folder",
     "open_the_test_data",
     "tem_example_folder",
+    "TIMELAPSE_EXAMPLE_REPOS",
+    "download_timelapse_example",
+    "load_the_timelapse_test_data",
+    "timelapse_example_folder",
 ]
 
 #: The Hugging Face dataset repository the ten fields are published in.
@@ -91,6 +99,16 @@ TEM_EXAMPLE_ARCHIVE = EXAMPLE_ARCHIVES[TEM_EXAMPLE_REPO]
 FIBSEM_EXAMPLE_ARCHIVE = EXAMPLE_ARCHIVES[FIBSEM_EXAMPLE_REPO]
 
 FIBSEM_VOLUME = "hela_fibsem.tif"
+
+#: The three timelapse test movies, by kind: one public movie each of budding
+#: yeast, bacteria and mammalian cells, with masks in every frame and their
+#: lineage embedded in the mask TIFFs. Each kind is also the
+#: ``spacr-download timelapse_<kind>`` example set.
+TIMELAPSE_EXAMPLE_REPOS = {
+    "yeast": TIMELAPSE_YEAST_EXAMPLE_REPO,
+    "bacteria": TIMELAPSE_BACTERIA_EXAMPLE_REPO,
+    "mammalian": TIMELAPSE_MAMMALIAN_EXAMPLE_REPO,
+}
 
 #: The file in the dataset that lists what a complete copy contains. It is the
 #: LAST member of the archive, so a transfer that died part-way leaves no
@@ -138,6 +156,23 @@ def fibsem_example_folder() -> Path:
     """
     return (Path.home() / ".cache" / "spacr" / "example_data"
             / "make_masks_fibsem")
+
+
+def timelapse_example_folder(kind: str) -> Path:
+    """Where one timelapse test movie is unpacked and cached.
+
+    ``~/.cache/spacr/example_data/make_masks_timelapse_<kind>``, the folder
+    :data:`spacr.example_archives.EXAMPLE_SETS` names for the
+    ``timelapse_<kind>`` set, so ``spacr-download`` and the menu share one
+    cache.
+
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    :returns: the folder. It is not created here.
+    :raises KeyError: for any other kind.
+    """
+    if kind not in TIMELAPSE_EXAMPLE_REPOS:
+        raise KeyError(kind)
+    return example_set_folder(f"timelapse_{kind}")
 
 
 def listed_files(folder) -> List[str]:
@@ -219,6 +254,24 @@ def download_fibsem_example(parent, dest, on_done: Callable[
         parent, Path(dest), on_done,
         worker_factory=_FibsemTarWorker,
         title=tr("Downloading the Make Masks FIB-SEM test data"))
+
+
+def download_timelapse_example(parent, dest, on_done: Callable[
+        [Optional[DownloadResult], str], None], kind: str) -> None:
+    """Fetch one timelapse test movie behind the shared progress dialog.
+
+    :param parent: the widget the progress dialog belongs to.
+    :param dest: the folder the archive unpacks into.
+    :param on_done: called on the GUI thread as ``on_done(result, error)``,
+        as :func:`download_make_masks_example` calls it.
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    """
+    repo = TIMELAPSE_EXAMPLE_REPOS[kind]
+    worker = type("_TimelapseTarWorker", (_TarExampleWorker,),
+                  {"repo": repo, "archive": EXAMPLE_ARCHIVES[repo]})
+    download_toxo_mito_demo(
+        parent, Path(dest), on_done, worker_factory=worker,
+        title=tr("Downloading the Make Masks timelapse test data"))
 
 
 def download_tem_example(parent, dest, on_done: Callable[
@@ -341,6 +394,55 @@ def load_the_fibsem_test_data(screen, *, with_masks=False, ask=None,
                          else download_fibsem_example,
                          opener=lambda target, chosen: _open_fibsem(
                              target, chosen, with_masks))
+
+
+def load_the_timelapse_test_data(screen, kind: str, *, ask=None,
+                                 folder=None) -> bool:
+    """Open a timelapse test movie with its masks and lineage loaded.
+
+    The same sequence as :func:`load_the_test_data`, downloading
+    ``timelapse_<kind>`` into :func:`timelapse_example_folder` when it is not
+    cached. The published masks are copied once into ``masks/``, the folder
+    the editor reads and writes, so ``ground_truth_masks/`` is never
+    overwritten. Their embedded lineage opens with the first frame, so the
+    divisions are on the lineage menu and Time can be switched on at once.
+
+    :param screen: the Make Masks screen to open the movie in.
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    :param ask: replaces :func:`download_timelapse_example`, for tests. It is
+        called as ``ask(screen, folder, on_done)``.
+    :param folder: replaces :func:`timelapse_example_folder`, for tests.
+    :returns: whether this call opened the movie.
+    """
+    folder = (Path(folder) if folder is not None
+              else timelapse_example_folder(kind))
+    download = ask if ask is not None else (
+        lambda parent, dest, on_done: download_timelapse_example(
+            parent, dest, on_done, kind))
+    return _load_example(screen, folder, download, opener=_open_timelapse)
+
+
+def _open_timelapse(screen, folder) -> bool:
+    """Open an unpacked timelapse movie on its first frame, masks loaded."""
+    import shutil
+
+    folder = Path(folder)
+    if not is_present(folder):
+        screen._warn(
+            tr("Test data not loaded"),
+            tr("The downloaded test data is incomplete: {path}",
+               path=str(folder)))
+        return False
+    masks = folder / "masks"
+    masks.mkdir(parents=True, exist_ok=True)
+    for truth in sorted((folder / "ground_truth_masks").glob("*.tif")):
+        if not (masks / truth.name).exists():
+            shutil.copyfile(truth, masks / truth.name)
+    if not screen._open_folder(str(folder), masks_dir=str(masks)):
+        return False
+    _say(screen, tr("Timelapse test data opened with its lineage. Turn on Time "
+                    "to follow cells and divisions across frames."))
+    return True
 
 
 def _open_fibsem(screen, folder, with_masks: bool) -> bool:

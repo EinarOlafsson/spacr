@@ -2415,7 +2415,7 @@ def _image_type_mask(paths: Sequence[Any],
     where, params = parse_image_type(str(image_type))
     if not where:
         return np.ones(len(values), dtype=bool)
-    con = sqlite3.connect(":memory:")
+    con = sqlite3.connect(":memory:", timeout=30.0)
     try:
         con.execute("CREATE TABLE crops (i INTEGER, png_path TEXT)")
         con.executemany("INSERT INTO crops VALUES (?, ?)", enumerate(values))

@@ -1788,6 +1788,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **figure_workspace_arrivals}
+    # 2026-10-18 item 712: the timelapse test movies' download, folder and
+    # loader in make_masks_demo and the archive checksum pin in
+    # example_archives; one named contract.
+    timelapse_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "712_timelapse_test_data_api_arrivals_2026-10-18.json").read_text())
+    assert set(timelapse_arrivals) == {
+        "spacr.example_archives.check_archive_sha256",
+        *("spacr.qt.make_masks_demo." + name for name in (
+            "download_timelapse_example", "load_the_timelapse_test_data",
+            "timelapse_example_folder")),
+    }
+    assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
+    assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
     help_changes = json.loads((ROOT / "tests/data/release_contracts"
         / "411_help_api_changes_2026-10-18.json").read_text())
     help_arrivals = help_changes["added"]
@@ -1809,6 +1823,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert docs[publication_key].startswith(
         help_changes["changed"][publication_key]["before"] + "\n\n")
     zoo_arrivals = {**zoo_arrivals, **help_arrivals}
+    approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+    assert set(approval_preferences_arrivals) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences_arrivals} == (
+        approval_preferences_arrivals
+    )
+    assert not approval_preferences_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "

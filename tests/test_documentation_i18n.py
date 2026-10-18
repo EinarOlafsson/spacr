@@ -3531,6 +3531,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
         ("708_label_time_api_arrivals_2026-10-16.json", 13),
         ("561_classifier_api_arrivals_2026-10-15.json", 19),
         ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+        ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text())
@@ -3562,6 +3563,24 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert docs[publication_key].startswith(
         help_changes["changed"][publication_key]["before"] + "\n\n")
     zoo_arrivals = {**zoo_arrivals, **help_arrivals}
+    approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+    assert set(approval_preferences_arrivals) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences_arrivals} == (
+        approval_preferences_arrivals
+    )
+    assert not approval_preferences_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text())
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"

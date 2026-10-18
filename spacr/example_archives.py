@@ -24,6 +24,7 @@ sizes before anything is fetched.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import socket
@@ -45,6 +46,7 @@ __all__ = [
     "DATASET_SUB",
     "DOSE_EXAMPLE_REPO",
     "EXAMPLE_ARCHIVES",
+    "EXAMPLE_ARCHIVE_SHA256",
     "EXAMPLE_SETS",
     "ExampleSet",
     "HIT_EXAMPLE_REPO",
@@ -59,6 +61,10 @@ __all__ = [
     "SETTINGS_REPO",
     "STITCH_EXAMPLE_REPO",
     "TEM_EXAMPLE_REPO",
+    "TIMELAPSE_BACTERIA_EXAMPLE_REPO",
+    "TIMELAPSE_MAMMALIAN_EXAMPLE_REPO",
+    "TIMELAPSE_YEAST_EXAMPLE_REPO",
+    "check_archive_sha256",
     "download_archive",
     "example_plate_folder",
     "example_set",
@@ -166,6 +172,14 @@ TEM_EXAMPLE_REPO = "einarolafsson/spacr-example-tem"
 
 FIBSEM_EXAMPLE_REPO = "einarolafsson/spacr-example-fibsem"
 
+#: Make Masks' timelapse test data: one public movie each of budding yeast,
+#: bacteria and mammalian cells, with ground-truth masks in every frame and
+#: the published lineage embedded in the mask TIFFs, for Time mode and the
+#: lineage tools. See ``tools/build_timelapse_example_datasets.py``.
+TIMELAPSE_YEAST_EXAMPLE_REPO = "einarolafsson/spacr-example-timelapse-yeast"
+TIMELAPSE_BACTERIA_EXAMPLE_REPO = "einarolafsson/spacr-example-timelapse-bacteria"
+TIMELAPSE_MAMMALIAN_EXAMPLE_REPO = "einarolafsson/spacr-example-timelapse-mammalian"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -229,7 +243,38 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     READS_EXAMPLE_REPO: "spacr-example-reads.tar",
     TEM_EXAMPLE_REPO: "spacr-example-tem.tar",
     FIBSEM_EXAMPLE_REPO: "spacr-example-fibsem.tar",
+    TIMELAPSE_YEAST_EXAMPLE_REPO: "spacr-example-timelapse-yeast.tar",
+    TIMELAPSE_BACTERIA_EXAMPLE_REPO: "spacr-example-timelapse-bacteria.tar",
+    TIMELAPSE_MAMMALIAN_EXAMPLE_REPO: "spacr-example-timelapse-mammalian.tar",
 }
+
+#: The SHA-256 each pinned archive must have, keyed by archive name.
+#:
+#: A download whose bytes hash differently is refused before anything is
+#: unpacked, so a republished or corrupted archive is never mistaken for the
+#: one the tests and the dataset cards describe. Archives absent here are
+#: checked for length only, as they always were.
+EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
+    "spacr-example-timelapse-yeast.tar": "4dd911e6d075e7cf7e2f7d750374aa9543c906119fe6f06cbcdf195afaef6de0",
+    "spacr-example-timelapse-bacteria.tar": "39072dce56dff12ef73cac13700f25a32f36a9c67fa590a6079d90e53e2cc928",
+    "spacr-example-timelapse-mammalian.tar": "2261aa6f2e0877fec3fab51ab9a9c075a61fe34844106a547005ef154fad7bb5",
+}
+
+
+def check_archive_sha256(file_name: str, digest: str) -> None:
+    """Refuse an archive whose SHA-256 differs from its pin.
+
+    :param file_name: the archive's name in its repository.
+    :param digest: the hex SHA-256 of the bytes that arrived.
+    :raises IOError: when :data:`EXAMPLE_ARCHIVE_SHA256` pins ``file_name``
+        to another digest.
+    """
+    expected = EXAMPLE_ARCHIVE_SHA256.get(Path(file_name).name)
+    if expected is not None and digest != expected:
+        raise IOError(
+            f"the download of {file_name} does not match its published "
+            f"checksum (SHA-256 {digest}, expected {expected}). Nothing was "
+            "unpacked.")
 
 
 @dataclass(frozen=True)
@@ -459,6 +504,39 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         folder="make_masks_fibsem",
         in_default=False,
     ),
+    ExampleSet(
+        key="timelapse_yeast",
+        repo=TIMELAPSE_YEAST_EXAMPLE_REPO,
+        summary="Make Masks timelapse test data, yeast: a budding "
+                "S. cerevisiae colony with masks in every frame and its "
+                "mother-bud lineage (CC BY 4.0).",
+        bytes=69_672_960,
+        markers=("manifest.csv", "ground_truth_masks/*.tif"),
+        folder="make_masks_timelapse_yeast",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="timelapse_bacteria",
+        repo=TIMELAPSE_BACTERIA_EXAMPLE_REPO,
+        summary="Make Masks timelapse test data, bacteria: a dividing "
+                "C. glutamicum microcolony with masks in every frame and its "
+                "lineage (CC BY 4.0).",
+        bytes=55_777_280,
+        markers=("manifest.csv", "ground_truth_masks/*.tif"),
+        folder="make_masks_timelapse_bacteria",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="timelapse_mammalian",
+        repo=TIMELAPSE_MAMMALIAN_EXAMPLE_REPO,
+        summary="Make Masks timelapse test data, mammalian: migrating and "
+                "dividing T98G cells with masks in every frame and their "
+                "lineage (CC BY 4.0).",
+        bytes=78_018_560,
+        markers=("manifest.csv", "ground_truth_masks/*.tif"),
+        folder="make_masks_timelapse_mammalian",
+        in_default=False,
+    ),
 )
 
 
@@ -620,6 +698,7 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
     resp.raise_for_status()
     expected = _content_length(resp)
     written = 0
+    digest = hashlib.sha256()
     try:
         with tempfile.NamedTemporaryFile(mode="wb", dir=dst.parent,
                                          prefix="." + dst.name + ".",
@@ -628,6 +707,7 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
             for chunk in resp.iter_content(chunk_size=chunk_size):
                 if chunk:
                     fh.write(chunk)
+                    digest.update(chunk)
                     written += len(chunk)
                     if progress is not None:
                         progress(written, expected)
@@ -636,6 +716,7 @@ def download_archive(repo_id: str, file_name: str, dest_dir: Path, *,
                 f"Truncated download for {file_name}: wrote {written} "
                 f"bytes but the server declared {expected}."
             )
+        check_archive_sha256(file_name, digest.hexdigest())
         os.replace(part, dst)
     except BaseException:
         if part is not None:
