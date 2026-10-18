@@ -30,8 +30,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QDesktopServices, QDragEnterEvent, QDropEvent
+from shiboken6 import isValid
 from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -106,6 +107,12 @@ LINK_SOURCE = "classifier_evaluation"
 #: to look at the top twelve is how a click becomes a two-second freeze.
 LIST_PREVIEW = 200
 
+#: Milliseconds the prediction filter waits after the last keystroke before
+#: it re-renders. Each re-render deletes and rebuilds up to 2,000 rows of
+#: table items; typing ``r5_c2`` used to do that five times in a row, and one
+#: of those teardowns is where lesson 39 segfaulted on the capture host.
+_FILTER_DELAY_MS = 250
+
 APP_KEY = "classifier_evaluation"
 APP_NAME = "Classifier Evaluation"
 APP_SECTION = "Core"
@@ -148,6 +155,16 @@ class _DropPathEdit(QLineEdit):
             event.acceptProposedAction()
         else:
             event.ignore()
+
+
+def _alive(obj: Any) -> bool:
+    """Whether ``obj`` exists and its C++ half has not been destroyed.
+
+    :param obj: a Qt object, or ``None``.
+    :returns: ``False`` for ``None`` and for a wrapper whose C++ object is
+        gone, ``True`` otherwise.
+    """
+    return obj is not None and isValid(obj)
 
 
 def _item(value: Any) -> QTableWidgetItem:
@@ -219,6 +236,11 @@ class ClassifierEvaluationScreen(QWidget):
         #: the counts matrix the cells are read out of, for tests and for the
         #: ranking line.
         self._counts = pd.DataFrame()
+        self._rendering_predictions = False
+        self._predictions_stale = False
+        self._bundle_serial = 0
+        self._shown_predictions: Optional[tuple] = None
+        self._search_text: Optional[tuple] = None
         self._build_ui()
         self._set_status(
             tr("Choose or drop a classifier run folder, then select Scan.")
@@ -299,8 +321,18 @@ class ClassifierEvaluationScreen(QWidget):
             tr("Plate, well, class, filename…")
         )
         self._prediction_filter.setClearButtonEnabled(True)
+        self._filter_timer = QTimer(self)
+        self._filter_timer.setSingleShot(True)
+        self._filter_timer.setInterval(_FILTER_DELAY_MS)
+        self._filter_timer.timeout.connect(self._render_predictions)
         self._prediction_filter.textChanged.connect(
-            self._render_predictions,
+            self._schedule_prediction_filter,
+        )
+        self._prediction_filter.returnPressed.connect(
+            self._apply_prediction_filter,
+        )
+        self._prediction_filter.editingFinished.connect(
+            self._apply_prediction_filter,
         )
         filter_row.addWidget(self._prediction_filter, 1)
         predictions_layout.addLayout(filter_row)
@@ -546,6 +578,8 @@ class ClassifierEvaluationScreen(QWidget):
         self._finish_busy()
         self.last_error = self._pending_error
         self.bundle = self._pending_bundle if ok else None
+        self._bundle_serial += 1
+        self._search_text = None
         if self.bundle is None:
             self._clear_bundle()
             self._set_status(
@@ -588,7 +622,13 @@ class ClassifierEvaluationScreen(QWidget):
         include_index: bool = False,
         row_limit: Optional[int] = None,
     ) -> None:
-        """Render a dataframe without mutating it."""
+        """Render a dataframe without mutating it.
+
+        A table whose C++ half is already gone is left alone: a filter that
+        was waiting when the screen closed must not clear a deleted table.
+        """
+        if not _alive(table):
+            return
         shown = frame if row_limit is None else frame.head(row_limit)
         columns = list(shown.columns)
         if include_index:
@@ -611,24 +651,97 @@ class ClassifierEvaluationScreen(QWidget):
             header.setSectionResizeMode(len(columns) - 1, QHeaderView.Stretch)
         table.setSortingEnabled(True)
 
-    def _render_predictions(self, *_args) -> None:
-        """Filter and render at most 2,000 OOF rows."""
-        if self.bundle is None:
-            self._render_frame(self._predictions, pd.DataFrame())
+    def _schedule_prediction_filter(self, text: str = "") -> None:
+        """Re-filter once typing pauses, or at once when the box is emptied.
+
+        Every keystroke restarts the wait, so typing ``r5_c2`` rebuilds the
+        table once instead of five times, and the rebuild reads the box when
+        it runs: the newest filter always wins. Emptying the box (its clear
+        button, or Ctrl+A then Backspace) is one deliberate action and
+        restores every row at once.
+
+        :param text: the filter as ``textChanged`` reports it.
+        """
+        if not str(text or "").strip():
+            self._apply_prediction_filter()
             return
-        frame = self.bundle["predictions"]
-        terms = [
-            term.casefold()
-            for term in self._prediction_filter.text().split()
-            if term
-        ]
+        if _alive(self._filter_timer):
+            self._filter_timer.start()
+
+    def _apply_prediction_filter(self) -> None:
+        """Apply the filter now: Enter, leaving the box, or an emptied box."""
+        timer = getattr(self, "_filter_timer", None)
+        if _alive(timer):
+            timer.stop()
+        self._render_predictions()
+
+    def _render_predictions(self, *_args) -> None:
+        """Filter and render at most 2,000 OOF rows, one render at a time.
+
+        A request that arrives while a render is running is not nested
+        inside it, where it would clear the table the outer render is still
+        filling; it marks the table stale, and the running render makes one
+        more pass afterwards that reads the filter as it is by then. A
+        request for the filter already on screen does nothing, so Enter
+        after the pause, or leaving the box, does not rebuild the table a
+        second time.
+        """
+        if self._rendering_predictions:
+            self._predictions_stale = True
+            return
+        if not (_alive(self) and _alive(self._predictions)
+                and _alive(self._prediction_filter)):
+            return
+        timer = getattr(self, "_filter_timer", None)
+        self._rendering_predictions = True
+        try:
+            self._predictions_stale = True
+            while self._predictions_stale:
+                self._predictions_stale = False
+                if not (_alive(self._predictions)
+                        and _alive(self._prediction_filter)):
+                    return
+                if _alive(timer):
+                    timer.stop()
+                self._show_filtered_predictions()
+        finally:
+            self._rendering_predictions = False
+
+    def _show_filtered_predictions(self) -> None:
+        """Render the rows the filter box selects, unless they are on screen."""
+        if self.bundle is None:
+            frame, terms = pd.DataFrame(), ()
+        else:
+            frame = self.bundle["predictions"]
+            terms = tuple(
+                term.casefold()
+                for term in self._prediction_filter.text().split()
+                if term
+            )
+        key = (self._bundle_serial, terms)
+        if key == self._shown_predictions:
+            return
         if terms and not frame.empty:
-            text = frame.astype(str).agg(" ".join, axis=1).str.casefold()
+            text = self._prediction_search_text(frame)
             mask = pd.Series(True, index=frame.index)
             for term in terms:
                 mask &= text.str.contains(term, regex=False, na=False)
             frame = frame.loc[mask]
         self._render_frame(self._predictions, frame, row_limit=2000)
+        self._shown_predictions = key
+
+    def _prediction_search_text(self, frame: pd.DataFrame) -> pd.Series:
+        """Each prediction row as one case-folded string, built once a bundle.
+
+        :param frame: the loaded out-of-fold table.
+        :returns: the searchable text of each row, on ``frame``'s index.
+        """
+        cached = self._search_text
+        if cached is not None and cached[0] is frame:
+            return cached[1]
+        text = frame.astype(str).agg(" ".join, axis=1).str.casefold()
+        self._search_text = (frame, text)
+        return text
 
     def _render_confusion(self, summary: Dict[str, Any]) -> None:
         """Draw the matrix in COUNTS, and say the ranking out loud.
@@ -907,7 +1020,8 @@ class ClassifierEvaluationScreen(QWidget):
         self._jobs = prune_job_pairs(self._jobs, self.sender())
 
     def closeEvent(self, event) -> None:
-        """Drain scan/load workers before Qt destroys this screen.
+        """Drain scan/load workers and drop a waiting filter before Qt
+        destroys this screen.
 
         A job left running here outlives its owner but stays in the
         process-wide run registry, which ``MainWindow.closeEvent`` reads to
@@ -918,6 +1032,8 @@ class ClassifierEvaluationScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if _alive(self._filter_timer):
+            self._filter_timer.stop()
         for thread, worker in list(self._jobs):
             if worker is not None:
                 try:
@@ -931,6 +1047,9 @@ class ClassifierEvaluationScreen(QWidget):
     def _clear_bundle(self) -> None:
         """Clear all views and disable bundle actions."""
         self.bundle = None
+        self._bundle_serial += 1
+        self._shown_predictions = None
+        self._search_text = None
         self._counts = pd.DataFrame()
         self._overview.clear()
         self._leakage.clear()
