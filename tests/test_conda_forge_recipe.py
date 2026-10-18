@@ -38,6 +38,25 @@ CONDA_APPLICATION_DEPENDENCIES = {
 }
 
 
+#: Split by complementary markers in setup.py, and left out of the recipe on
+#: purpose: the recipe's own comment gives the reason.
+OMITTED_MARKED_SPLITS = {"numba", "llvmlite"}
+
+#: Every platform and Python the package claims, for deciding whether a
+#: marker split covers all of them.
+_ENVIRONMENTS = [
+    {"sys_platform": platform, "platform_system": system, "platform_machine": machine,
+     "python_version": python, "python_full_version": python + ".0",
+     "os_name": "nt" if platform == "win32" else "posix",
+     "implementation_name": "cpython", "platform_python_implementation": "CPython"}
+    for platform, system, machines in (("linux", "Linux", ("x86_64", "aarch64")),
+                                       ("darwin", "Darwin", ("x86_64", "arm64")),
+                                       ("win32", "Windows", ("AMD64", "ARM64")))
+    for machine in machines
+    for python in ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
+]
+
+
 def _normalise(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
@@ -57,11 +76,24 @@ def _core_dependency_names() -> set[str]:
             # to express the marker. Listing it would make a Windows-only
             # toast library a hard runtime dependency on Linux and macOS,
             # where it does not build.
-            return {
-                _normalise(Requirement(requirement).name)
-                for requirement in requirements
-                if not Requirement(requirement).marker
-            }
+            #
+            # A NAME SPLIT INTO COMPLEMENTARY MARKERS IS STILL A CORE
+            # DEPENDENCY when the halves together cover every platform and
+            # Python: numpy and opencv carry an Intel-Mac ceiling for pip's
+            # torch 2.2.2 and are needed everywhere, so the recipe lists the
+            # unconditional range. numba and llvmlite are split the same way
+            # and omitted from the recipe on purpose (see its comment).
+            parsed = [Requirement(requirement) for requirement in requirements]
+            names = {_normalise(r.name) for r in parsed if not r.marker}
+            split = {}
+            for r in parsed:
+                if r.marker:
+                    split.setdefault(_normalise(r.name), []).append(r.marker)
+            names.update(
+                name for name, markers in split.items()
+                if name not in OMITTED_MARKED_SPLITS
+                and all(any(m.evaluate(env) for m in markers) for env in _ENVIRONMENTS))
+            return names
     raise AssertionError("setup.py has no literal dependencies assignment")
 
 
