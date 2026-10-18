@@ -7928,9 +7928,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
             json.dump(preview, handle, indent=2)
         for row in preview["installations"]:
             record = row["record"]
-            print(tr("{action}: {root} ({version})",
-                     action=tr("Remove") if row["selectable"] else tr("Kept"),
-                     root=record["root"], version=record["version"] or tr("Unknown")))
+            action = tr("Remove") if row["selectable"] else tr("Kept")
+            print(f"{action}: {record['root']} ({record['version'] or tr('Unknown')})")
         for row in preview["cleanup"]:
             print(f"  [{row['category']}] {row['path']}")
         return 0
