@@ -121,8 +121,18 @@ EOF
 chmod 755 "$SCRIPTS/postinstall"
 
 python3 "$SIGNING_HELPER" sign-app "$APP"
+# Installer relocates a relocatable bundle to any copy with the same bundle
+# identifier that Spotlight knows of -- a backup, a Downloads copy, a second
+# drive -- and leaves /Applications/spaCR.app old or missing. Pin it.
+COMPONENTS="$WORK/components.plist"
+pkgbuild --analyze --root "$ROOT" "$COMPONENTS"
+count="$(python3 -c 'import plistlib,sys; print(len(plistlib.load(open(sys.argv[1],"rb"))))' "$COMPONENTS")"
+for ((index = 0; index < count; index++)); do
+    plutil -replace "$index.BundleIsRelocatable" -bool NO "$COMPONENTS"
+done
 pkgbuild \
     --root "$ROOT" \
+    --component-plist "$COMPONENTS" \
     --scripts "$SCRIPTS" \
     --identifier "com.einarolafsson.spacr.online" \
     --version "$VERSION" \
