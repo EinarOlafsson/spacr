@@ -527,3 +527,4 @@ data/candidate_1514_b51_installed_screen_diagnostic_2026-10-15/ and
 data/candidate_1514_b51_cprofile_diagnostic_2026-10-15/. Original real-display,
 frozen-platform and representative pipeline acceptance remain open.
 2026-10-18 — macOS launch cost: style sheets named "Segoe UI", missing on macOS, so Qt populated every font alias at startup (120-780 ms per launch on the Intel MacBook). theme.QSS_FONT_FAMILY names Segoe UI on Windows only; theme and console sheets use it. 1560 theme/font/console checks pass on macOS (one pre-existing nightly failure: fill_ai_entry(saved=) after 87911b7bc).
+2026-10-18 — Claude Home integrated db91df334 into nightly: theme.QSS_FONT_FAMILY names Segoe UI on Windows only, removing the macOS font-alias scan at launch.
