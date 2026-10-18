@@ -374,3 +374,6 @@ redundant now that reports go through the relay and spaCR AI (free) is on):
 - Two new installer-dialog captions carry AI-reviewed records in nine
   languages (no native-speaker signoff); captions of the removed pages are
   retired from the reviewed records and catalogs.
+
+2026-10-18 (maintainer): spaCR AI never says an answer is saved or cached; a reused answer renders exactly like a fresh one (same text, heading, styling, no badge or status line). The cache, counters and metadata stay internal; the privacy statement of 30-day saved-answer retention stays.
+- Done: console heading "spaCR AI (saved answer)" and its tr() string removed, nine reviewed records archived under docs/i18n/retired/runtime and retired. Relay unchanged (cached flag is internal; no relay deploy needed).

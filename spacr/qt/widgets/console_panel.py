@@ -2310,8 +2310,8 @@ class ConsolePanel(QWidget):
             dots.hide()
         return block
 
-    def fill_ai_entry(self, block: Optional["_StdoutBlock"], text: str,
-                      saved: bool = False) -> "_StdoutBlock":
+    def fill_ai_entry(self, block: Optional["_StdoutBlock"],
+                      text: str) -> "_StdoutBlock":
         """Put spaCR AI's answer (or why there is none) into its entry.
 
         The working dots stop and the answer replaces them, its Markdown
@@ -2320,8 +2320,6 @@ class ConsolePanel(QWidget):
 
         :param block: what :meth:`begin_ai_entry` returned, or ``None``.
         :param text: the answer or the one-line note to show.
-        :param saved: the answer was given before and is reused; the
-            heading then reads "spaCR AI (saved answer)", same teal.
         :returns: the block now showing it.
         """
         try:
@@ -2332,13 +2330,6 @@ class ConsolePanel(QWidget):
                 raise RuntimeError("the entry is gone")
         except RuntimeError:
             block = self.begin_ai_entry(thinking=False)
-        if saved:
-            try:
-                bar = getattr(block, "_ai_bar", None)
-                if bar is not None:
-                    bar._label.setText(tr("spaCR AI (saved answer)"))
-            except RuntimeError:
-                pass
         block.show_markdown(text)
         block.show()
         self._scroll_to_bottom()

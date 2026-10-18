@@ -9958,7 +9958,7 @@ class AppScreen(QWidget):
             self._ai_report_entry = None
             self._console.fill_ai_entry(
                 self._console.begin_ai_entry(thinking=False),
-                saved["text"], saved=True)
+                saved["text"])
         elif explain:
             self._ai_report_entry = self._console.begin_ai_entry()
 
@@ -10153,8 +10153,7 @@ class AppScreen(QWidget):
                     light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
                         "tier") == "light" else ""
                     self._console.fill_ai_entry(
-                        entry, explanation["text"] + light,
-                        saved=bool(explanation.get("saved")))
+                        entry, explanation["text"] + light)
                 elif refused == "quota":
                     self._console.fill_ai_entry(entry, tr(
                         "spaCR AI: today's free AI is used up, so this error is "

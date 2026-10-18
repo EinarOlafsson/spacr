@@ -175,18 +175,25 @@ def test_the_entry_opens_again_when_the_console_was_cleared(
     assert again.property("consoleContextKind") == "spacr_ai"
 
 
-def test_a_repeated_error_shows_the_saved_answer_without_thinking(
+def test_a_repeated_error_looks_like_a_fresh_answer_without_thinking(
         qtbot, qt_theme_applied, relay, monkeypatch):
     from spacr.qt.widgets.console_panel import _TopicBar, _WorkingDots
 
-    _refused_mask_run(qtbot, monkeypatch, relay)
+    first = _refused_mask_run(qtbot, monkeypatch, relay)
+    if isinstance(first, tuple):
+        first = first[0]
+    fresh_block = _ai_blocks(first)[0]
+    fresh_entries = _entries(first)
+    fresh_bar = fresh_entries[fresh_entries.index(fresh_block) - 1]
     assert len(relay.calls_to("/diagnose")) == 1
     screen, jobs = _refused_mask_run(qtbot, monkeypatch, relay, hold_ai=True)
     block = _ai_blocks(screen)[0]
     entries = _entries(screen)
     bar = entries[entries.index(block) - 1]
+    assert bar.text() == fresh_bar.text()
     assert isinstance(bar, _TopicBar)
-    assert bar.text() == "spaCR AI (saved answer)"
+    assert bar.text() == "spaCR AI"
+    assert "saved" not in bar.text().lower()
     assert not bar.findChild(_WorkingDots)._timer.isActive()
     assert block.isVisibleTo(screen)
     assert block.toPlainText().startswith("What happened")
