@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Optional, Callable
 
-from PySide6.QtCore import Qt, QSize, Signal
+from PySide6.QtCore import QEvent, Qt, QSize, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QLabel,
@@ -63,21 +63,21 @@ class _WrappedLabel(QLabel):
         super().setText(text)
         self.setFixedSize(self._wrap_width, self._wrapped_height())
 
-    def changeEvent(self, event) -> None:
-        """Re-measure the wrapped height when the font or style changes.
+    def event(self, event: QEvent) -> bool:
+        """Remeasure after Qt applies the font or style used to paint the text.
 
-        A larger interface font wraps the same sentence onto more lines; the
-        fixed height is recomputed here rather than waiting for a new text.
-
-        :param event: the Qt change event.
+        :param event: the event delivered by Qt.
+        :returns: whether the base label handled the event.
         """
-        super().changeEvent(event)
-        from PySide6.QtCore import QEvent
-
-        if event.type() in (QEvent.FontChange, QEvent.StyleChange):
-            height = self._wrapped_height()
-            if self.height() != height:
-                self.setFixedSize(self._wrap_width, height)
+        handled = super().event(event)
+        if hasattr(self, "_wrap_width") and event.type() in (
+            QEvent.FontChange, QEvent.ApplicationFontChange,
+            QEvent.StyleChange, QEvent.Polish,
+        ):
+            size = QSize(self._wrap_width, self._wrapped_height())
+            if size != self.size():
+                self.setFixedSize(size)
+        return handled
 
 
 class EmptyState(QWidget):

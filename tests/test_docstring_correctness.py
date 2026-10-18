@@ -2808,6 +2808,35 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.docless_variant_count == item.constructor_prose_variant_count == 0
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == lineage_sources[symbol]
+    help_changes = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text())
+    help_arrivals = help_changes["added"]
+    press_symbol = "spacr.qt.screens.regression.HitsOpener.press"
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        press_symbol,
+    }
+    assert help_arrivals.keys() & by_symbol.keys() == {press_symbol}
+    press = by_symbol[press_symbol]
+    assert press.parameters == press.accepted_documented_parameters == {"_checked"}
+    assert not press.required_parameters and not press.accepts_arbitrary_keywords
+    assert press.category == "method" and press.exposure == "autoapi"
+    assert press.variant_count == 1
+    assert press.docless_variant_count == press.constructor_prose_variant_count == 0
+    assert press.docstring == help_arrivals[press_symbol]
+    regression_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
+        / "spacr/qt/screens/regression.py").read_text())
+    hits_class = next(node for node in regression_tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "HitsOpener")
+    press_node = next(node for node in hits_class.body
+        if isinstance(node, ast.FunctionDef) and node.name == "press")
+    assert [arg.arg for arg in press_node.args.args] == ["self", "_checked"]
+    assert not press_node.args.posonlyargs and not press_node.args.kwonlyargs
+    assert len(press_node.args.defaults) == 1
+    assert ast.literal_eval(press_node.args.defaults[0]) is False
+    assert not help_arrivals.keys() & contract_arrivals
+    contract_arrivals |= help_arrivals.keys()
     assert contract_arrivals & by_symbol.keys()
     callables = [item for item in callables if item.symbol not in contract_arrivals]
     by_symbol = {item.symbol: item for item in callables}
@@ -4568,6 +4597,24 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in ssh_additions} == ssh_additions
     assert not ssh_additions.keys() & (zoo_additions.keys() | late_additions.keys())
     zoo_additions = {**zoo_additions, **late_additions, **ssh_additions}
+    help_changes = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text())
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & zoo_additions.keys()
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_additions = {**zoo_additions, **help_arrivals}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4975,6 +5022,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+    contract_callables |= help_arrivals.keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     assert len(prior - pipeline_callables) == 9652
@@ -5036,6 +5084,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+    arrival_callables |= help_arrivals.keys()
     arrival_callables &= rendered_documented_callables.keys()
     assert len(rendered_documented_callables.keys() - yolo_callables
                - volume_callables - arrival_callables) == 9975

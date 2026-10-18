@@ -536,6 +536,45 @@ def test_no_caption_is_cut_off(app_key, locale, scale, qtbot, at_font_scale,
         f"KNOWN_OFFENDERS")
 
 
+def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(
+        qtbot, at_font_scale):
+    """An existing empty card follows both larger and smaller painted fonts."""
+    from spacr.qt.widgets.empty_state import EmptyState
+
+    at_font_scale(1.0)
+    panel = EmptyState(subtitle=(
+        "Drop a folder of images anywhere on this window or type a path "
+        "into the Source field below. Use Load test data when available, "
+        "or open Pipeline overviews on Home to choose a walkthrough."))
+    qtbot.addWidget(panel)
+    panel.show()
+    qtbot.waitExposed(panel)
+    settle(qtbot, panel)
+    label = panel.findChild(QLabel, "SubtitleSmall")
+    assert label is not None
+    original_height = label.height()
+    assert _fits(label) == ""
+
+    at_font_scale(2.0)
+    settle(qtbot, panel)
+    large_height = label.height()
+    assert large_height > original_height
+    assert label.width() == 560
+    assert _fits(label) == ""
+
+    label.setText(label.text() + " " + label.text())
+    settle(qtbot, panel)
+    assert label.height() > large_height
+    assert _fits(label) == ""
+    long_height = label.height()
+
+    at_font_scale(1.0)
+    settle(qtbot, panel)
+    assert label.height() < long_height
+    assert label.width() == 560
+    assert _fits(label) == ""
+
+
 @pytest.mark.parametrize("scale,reported",
                          [(1.0, False), (FONT_SCALE_MAX, True)])
 def test_the_scale_axis_can_actually_fail(scale, reported, qtbot,

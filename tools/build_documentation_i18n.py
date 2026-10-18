@@ -2971,6 +2971,20 @@ API_TRANSLATION_CONTEXT.update({
     "Fold-to-fold sd for a ``'mean'`` series, else ``None``.":
         "Standard deviation across folds for a ``'mean'`` series; otherwise "
         "``None``.",
+    (
+        "The first press used to build the screen's whole results panel in "
+        "one go, a freeze of over a second. It is now built one step per "
+        "event-loop turn (see ``AppScreen._build_owed_part_in_steps``) and "
+        "the tab is raised when it is finished. With the panel built, or on "
+        "a screen that defers nothing, this is :meth:`open`."
+    ): (
+        "The first press used to build the application view's whole results "
+        "panel in one go, a freeze of over a second. It is now built one "
+        "step per event-loop turn (see ``AppScreen._build_owed_part_in_steps``) "
+        "and the tab is brought to the front when construction is finished. "
+        "With the panel built, or on an application view that defers nothing, "
+        "this is :meth:`open`."
+    ),
 })
 
 # The project summary is the first prose a reader sees on GitHub and contains

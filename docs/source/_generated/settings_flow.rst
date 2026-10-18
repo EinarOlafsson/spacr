@@ -2875,7 +2875,7 @@ channels
 |         ``_watch_vendor_channels`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         :py:func:`~spacr._v1_v2_bridge.v2_channels_from_settings` **-- reads it**
+|         ``v2_channels_from_settings`` **-- reads it**
 |         ``_watch_folder_and_analyse``
 |             ``_watch_measure_recipe``
 |                 ``_watch_measure_settings`` **-- reads it**
@@ -5981,7 +5981,7 @@ do_3D
 -----
 
 | ``_stardist_volume_batch`` **-- reads it**
-| :py:func:`~spacr._segmentation_backends.eval` **-- reads it**
+| ``eval`` **-- reads it**
 
 Read by ``_stardist_volume_batch``, ``eval``.
 
@@ -23311,7 +23311,7 @@ stitch_threshold
 
 (float) - Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.
 
-| :py:func:`~spacr._segmentation_backends.eval` **-- reads it**
+| ``eval`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.io.preprocess_img_data`

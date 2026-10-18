@@ -92123,6 +92123,16 @@
         "79e658bf59a154381c07842010369a484ff50e7c97d696d01ddb427f407075a2"
       ]
     },
+    "spacr.qt.preferences._count_store_moves.set_path": {
+      "source_blocks_sha256": [
+        "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17"
+      ],
+      "source_sha256": "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17",
+      "text": "转发给 Qt，并将文件夹更改计为一次迁移。",
+      "translation_source_blocks_sha256": [
+        "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17"
+      ]
+    },
     "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
       "source_blocks_sha256": [
         "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
@@ -115767,6 +115777,18 @@
         "cc9fd1217ca4a633a3a14ab4187426de933f11318b681cbcfb96714cbb3dcef4"
       ]
     },
+    "spacr.qt.screens.regression.HitsOpener.press": {
+      "source_blocks_sha256": [
+        "c20b7ec45c2710e7f8d29a51d30349d20c28b16ce04f92064d251429c080628c",
+        "857116d8fdcdc68c132028c8881967782f78f87171f3dacb24b879c354c64976"
+      ],
+      "source_sha256": "d77c713d8fd9a5ce03aec7505ceaeccf1040fc0d015e4163a8e204d3831cdefa",
+      "text": "Hits 按钮：分步构建结果面板，然后打开。\n\n以前首次按下按钮时，会一次性构建该屏幕的整个结果面板，导致界面卡顿超过一秒。现在，每轮事件循环只构建一个步骤（参见 ``AppScreen._build_owed_part_in_steps``），完成后将该选项卡置于前台。如果面板已经构建，或该屏幕没有延迟构建的内容，则调用 :meth:`open`。",
+      "translation_source_blocks_sha256": [
+        "c20b7ec45c2710e7f8d29a51d30349d20c28b16ce04f92064d251429c080628c",
+        "05eb1892e2d9ff62ffa1e359e944a662e877397a90c9d647b6a34ef064cf247b"
+      ]
+    },
     "spacr.qt.screens.regression.build_methods_export": {
       "source_blocks_sha256": [
         "6e0cc98392e550bcedc440f1caec5c026cd9d52050144b877ae6514467989acd",
@@ -115915,12 +115937,14 @@
     },
     "spacr.qt.screens.regression.open_publication_figure": {
       "source_blocks_sha256": [
-        "ea8449f2cd932c781870c56b7fba990f2377a043a07b19f3b17791edc0c440a4"
+        "ea8449f2cd932c781870c56b7fba990f2377a043a07b19f3b17791edc0c440a4",
+        "fe081dcd55adb42959cb31e080af57d9af513443df0c68cff4c996a207af90be"
       ],
-      "source_sha256": "ea8449f2cd932c781870c56b7fba990f2377a043a07b19f3b17791edc0c440a4",
-      "text": "创建火山探测器从 ``screen`` 的结果面板中种植。",
+      "source_sha256": "9de3b423bd65bb07b6d76bda7bcd56da1b14744de7519604501714e14aaf801e",
+      "text": "创建火山探测器从 ``screen`` 的结果面板中种植。\n\n只有已构建的面板才会被读取。某个页面在从未显示过的面板中找不到运行记录时，在此处构建面板曾使第一个 Volcano Explorer 页面卡顿近一秒。",
       "translation_source_blocks_sha256": [
-        "ea8449f2cd932c781870c56b7fba990f2377a043a07b19f3b17791edc0c440a4"
+        "ea8449f2cd932c781870c56b7fba990f2377a043a07b19f3b17791edc0c440a4",
+        "fe081dcd55adb42959cb31e080af57d9af513443df0c68cff4c996a207af90be"
       ]
     },
     "spacr.qt.screens.regression.project_path": {
@@ -117005,6 +117029,16 @@
       "text": "设置所选目录；取消则保持现有设置不变。",
       "translation_source_blocks_sha256": [
         "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b"
+      ]
+    },
+    "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work": {
+      "source_blocks_sha256": [
+        "4c8f45aa51aee6c1a88297ee544d8e9a31d81f2406f51afa70235fcea51ba33b"
+      ],
+      "source_sha256": "4c8f45aa51aee6c1a88297ee544d8e9a31d81f2406f51afa70235fcea51ba33b",
+      "text": "导入模块；发生错误时记录日志，而不抛出异常。",
+      "translation_source_blocks_sha256": [
+        "4131662ff54c60251d3bb50adc6aa2ff7b0cb3fcebc307e9c62e0d9d1f30235c"
       ]
     },
     "spacr.qt.screens.settings_model._run_measurement_migration.emit": {

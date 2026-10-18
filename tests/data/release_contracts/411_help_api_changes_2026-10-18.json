@@ -1,0 +1,13 @@
+{
+  "added": {
+    "spacr.qt.preferences._count_store_moves.set_path": "Forward to Qt, counting a change of folder as a move.",
+    "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work": "Import the module, logging rather than raising a failure.",
+    "spacr.qt.screens.regression.HitsOpener.press": "The Hits button: build the results panel in steps, then open.\n\nThe first press used to build the screen's whole results panel in\none go, a freeze of over a second. It is now built one step per\nevent-loop turn (see ``AppScreen._build_owed_part_in_steps``) and\nthe tab is raised when it is finished. With the panel built, or on\na screen that defers nothing, this is :meth:`open`."
+  },
+  "changed": {
+    "spacr.qt.screens.regression.open_publication_figure": {
+      "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+      "after": "Build the Volcano Explorer seeded from ``screen``'s results panel.\n\nThe panel is read only if it has been built. Building it here, for a\npage that finds no run in a panel that was never shown, froze the first\nVolcano Explorer page for most of a second."
+    }
+  }
+}

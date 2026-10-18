@@ -520,11 +520,14 @@ def load_mask_metadata(folder: str, filename: str,
         path = next((candidate for candidate in candidates if os.path.isfile(candidate)), path)
     if not os.path.isfile(path):
         return {}
-    if not is_seg_bundle(filename) and os.path.splitext(path)[1].lower() not in (".tif", ".tiff"):
-        return {}
     if is_seg_bundle(filename):
         metadata = read_seg_bundle(path).get("spacr_mask", {})
     else:
+        with open(path, "rb") as source:
+            byte_order = source.read(2)
+        if not path.lower().endswith((".tif", ".tiff")) and byte_order not in (
+                b"II", b"MM", b"EP"):
+            return {}
         with tifffile.TiffFile(path) as handle:
             description = handle.pages[0].description or ""
         try:

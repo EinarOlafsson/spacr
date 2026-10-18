@@ -37,6 +37,11 @@ from pathlib import Path
 from functools import lru_cache
 from typing import Dict, List, Optional, Set, Tuple
 
+try:
+    from api_visibility import public_symbol
+except ModuleNotFoundError:
+    from tools.api_visibility import public_symbol
+
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "spacr"
 OUTPUT = ROOT / "docs" / "settings_flow.json"
@@ -914,12 +919,12 @@ def _link(qualname: str) -> str:
     ``:py:func:`~name``` renders as the short name and links to the full one,
     which is what keeps a deep tree readable: the reader wants
     ``_normalize_img_batch``, not ``spacr.io._normalize_img_batch``, on every
-    line. AutoAPI publishes the target, and a private function has no page --
-    so those are left as plain text rather than emitted as a link Sphinx will
-    warn about and the reader will find broken.
+    line. The shared documentation policy keeps unpublished functions and
+    modules as plain text, preserving links to deliberately published
+    services in private modules.
     """
     leaf = qualname.rsplit(".", 1)[-1]
-    if leaf.startswith("_"):
+    if not public_symbol(qualname):
         return f"``{leaf}``"
     return f":py:func:`~{qualname}`"
 

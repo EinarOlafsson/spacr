@@ -1582,6 +1582,20 @@ def test_hard_tail_contexts_retain_the_complete_semantic_contract(
     assert all(fragment in matches[0] for fragment in required_fragments)
 
 
+def test_hits_tab_context_preserves_gui_raise_meaning():
+    import build_documentation_i18n as builder
+
+    changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())
+    source = builder.translatable_blocks(changes["added"][
+        "spacr.qt.screens.regression.HitsOpener.press"])[0][1]
+    contextual = builder._api_translation_source(source)
+    assert "the tab is brought to the front when construction is finished" in contextual
+    assert "exception" not in contextual
+    assert "one step per event-loop turn" in contextual
+    assert builder._syntax_preserved(source, contextual)
+
+
 def test_docstring_reflow_preserves_rst_roles_fields_and_inline_code():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 
@@ -3527,6 +3541,27 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
             | home_ui_arrivals.keys() | volume_arrivals.keys()
         )
         zoo_arrivals = {**zoo_arrivals, **arrivals}
+    help_changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text())
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_arrivals = {**zoo_arrivals, **help_arrivals}
     retirement = json.loads((ROOT / "tests/data/release_contracts"
         / "700_retired_setup_api_inverse_2026-10-15.json").read_text())
     assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"

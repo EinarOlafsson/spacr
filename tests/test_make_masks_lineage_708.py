@@ -129,6 +129,49 @@ def test_empty_time_graph_forces_uint32_without_requiring_any_cell(tmp_path):
     assert engine.load_mask_metadata(str(tmp_path), "frame.tif")["preserve_ids"]
 
 
+@pytest.mark.parametrize("mask_suffix", [".tif", ".png"])
+@pytest.mark.parametrize("bigtiff", [False, True])
+@pytest.mark.parametrize("byteorder", ["<", ">"])
+def test_png_source_finds_metadata_in_the_selected_tiff_content(
+        tmp_path, mask_suffix, bigtiff, byteorder):
+    masks = tmp_path / "masks"
+    masks.mkdir()
+    path = masks / ("frame" + mask_suffix)
+    metadata = {"schema": "spacr.mask/v1", "preserve_ids": True}
+    write_tiff(path, np.ones((4, 4), np.uint32), metadata=None,
+               description=json.dumps({"spacr_mask": metadata}),
+               bigtiff=bigtiff, byteorder=byteorder)
+    before = path.read_bytes()
+    assert engine.load_mask_metadata(str(tmp_path), "frame.png") == metadata
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("mask_name, data", [
+    ("frame.tif", b"not a TIFF"),
+    ("frame.tif", b"II+\x00\x04\x00\x00\x00"),
+    ("frame.png", b"II+\x00\x04\x00\x00\x00"),
+])
+def test_damaged_selected_tiff_metadata_is_not_treated_as_absent(
+        tmp_path, mask_name, data):
+    masks = tmp_path / "masks"
+    masks.mkdir()
+    path = masks / mask_name
+    path.write_bytes(data)
+    with pytest.raises(tifffile.TiffFileError):
+        engine.load_mask_metadata(str(tmp_path), "frame.png")
+    assert path.read_bytes() == data
+
+
+def test_malformed_embedded_metadata_in_a_png_named_tiff_is_refused(tmp_path):
+    masks = tmp_path / "masks"
+    masks.mkdir()
+    path = masks / "frame.png"
+    write_tiff(path, np.ones((4, 4), np.uint16), metadata=None,
+               description='{"spacr_mask": broken}')
+    with pytest.raises(ValueError, match="embedded mask metadata"):
+        engine.load_mask_metadata(str(tmp_path), "frame.png")
+
+
 def test_atomic_write_failure_and_overflow_keep_previous_tiff(tmp_path, monkeypatch):
     _, image = _field(tmp_path)
     mask = np.ones(image.shape, np.uint32)

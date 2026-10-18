@@ -163,6 +163,21 @@ def test_a_private_reader_is_named_but_not_linked(data, flow):
     assert ":py:func:`~spacr.io._normalize_img_batch`" not in page
 
 
+def test_unpublished_backend_volume_readers_are_named_without_broken_links(data, flow):
+    page = flow.rst_for(data, keys=["stitch_threshold"])
+    assert "| ``eval`` **-- reads it**" in page
+    assert ":py:func:`~spacr._segmentation_backends.eval`" not in page
+    assert ":py:func:`~spacr.qt.screens.make_masks.cellpose_detect_volume`" in page
+
+
+def test_published_services_in_private_modules_keep_their_flow_links(flow):
+    name = "spacr._parascape.install_parascape"
+    data = {"reads": {"source": [{"function": name}]},
+            "edges": [], "receivers": [name]}
+    page = flow.rst_for(data, keys=["source"])
+    assert f"| :py:func:`~{name}` **-- reads it**" in page
+
+
 def test_each_setting_has_an_anchor_to_arrive_at(data, flow):
     """A reader coming from a tooltip lands on that setting, not the top."""
     page = flow.rst_for(data, keys=["cell_channel", "nucleus_channel"])
