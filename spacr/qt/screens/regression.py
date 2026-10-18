@@ -445,8 +445,14 @@ def _results_panel_if_built(screen):
 def open_publication_figure(host_window: Optional[QWidget] = None,
                             screen: Optional[QWidget] = None
                             ) -> Optional[QWidget]:
-    """Build the Volcano Explorer seeded from ``screen``'s results panel."""
-    return build_publication_figure(results_panel(screen), host_window)
+    """Build the Volcano Explorer seeded from ``screen``'s results panel.
+
+    The panel is read only if it has been built. Building it here, for a
+    page that finds no run in a panel that was never shown, froze the first
+    Volcano Explorer page for most of a second.
+    """
+    return build_publication_figure(_results_panel_if_built(screen),
+                                    host_window)
 
 
 #: One builder per folded module that opens a WINDOW. Each takes the main
