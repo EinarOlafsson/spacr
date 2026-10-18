@@ -3549,7 +3549,7 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
         column set) when there are fewer than two groups.
     """
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import _multipletests
     from .sp_stats import choose_p_adjust_method
 
     columns = ['group1', 'group2', 'test', 'n1', 'n2',
@@ -3620,7 +3620,7 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
     finite = results_df['p_value'].notna()
     results_df['p_value_adj'] = np.nan
     if finite.any():
-        results_df.loc[finite, 'p_value_adj'] = multipletests(
+        results_df.loc[finite, 'p_value_adj'] = _multipletests(
             results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
             method=method
         )[1]
@@ -4903,7 +4903,7 @@ def _invasion_compare_conditions(wells, group_column, min_wells=2,
         column set) when there are fewer than two conditions.
     """
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import _multipletests
     from .sp_stats import choose_p_adjust_method
 
     columns = ['group1', 'group2', 'test', 'unit_of_replication',
@@ -4984,7 +4984,7 @@ def _invasion_compare_conditions(wells, group_column, min_wells=2,
     finite = results_df['p_value'].notna()
     results_df['p_value_adj'] = np.nan
     if finite.any():
-        results_df.loc[finite, 'p_value_adj'] = multipletests(
+        results_df.loc[finite, 'p_value_adj'] = _multipletests(
             results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
             method=method
         )[1]
