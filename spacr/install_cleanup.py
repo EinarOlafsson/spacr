@@ -1425,6 +1425,11 @@ def _process_started(pid):
         if not handle:
             return "" if ctypes.get_last_error() == 87 else None
         try:
+            status = wintypes.DWORD()
+            if not kernel.GetExitCodeProcess(handle, ctypes.byref(status)):
+                return None
+            if status.value != 259:
+                return ""
             times = [wintypes.FILETIME() for _ in range(4)]
             if not kernel.GetProcessTimes(handle, *[ctypes.byref(item) for item in times]):
                 return None
