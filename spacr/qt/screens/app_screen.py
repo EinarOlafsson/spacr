@@ -1453,6 +1453,29 @@ def _resume_the_fractal(screen) -> int:
     return resumed
 
 
+class _FloorObserver(QObject):
+    """Hand the runtime viewport's watched events to its ``_observe``.
+
+    The viewport is a ``QScrollArea``, which installs itself on its content,
+    so an ``eventFilter`` override there was asked about every paint of the
+    content on every field frame.
+    """
+
+    def __init__(self, react, parent=None) -> None:
+        """Keep ``react``, called with ``(watched, event)``."""
+        super().__init__(parent)
+        self._react = react
+
+    def eventFilter(self, watched, event):          # noqa: N802 - Qt name
+        """Ask ``react``; nothing is consumed unless it says so."""
+        return bool(self._react(watched, event))
+
+
+#: What the runtime viewport's floor follows.
+_FLOOR_KINDS = frozenset((QEvent.LayoutRequest, QEvent.ShowToParent,
+                          QEvent.HideToParent, QEvent.Resize))
+
+
 class _RuntimeViewport(QScrollArea):
     """Keep runtime controls usable when their minimum height exceeds the viewport.
 
@@ -1474,17 +1497,23 @@ class _RuntimeViewport(QScrollArea):
         self.setFrameShape(QScrollArea.NoFrame)
         self.setWidgetResizable(True)
         self.setWidget(content)
-        self.viewport().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        self._observer = _FloorObserver(self._observe, self)
+        _watch_object_events(self.viewport(), self._observer, _FLOOR_KINDS)
 
     def _watch_splitter(self, splitter):
         """Observe pane changes without changing collapse or drag ownership.
 
         :param splitter: the registered runtime pane splitter.
         """
+        from ..gil_priority import _watch_object_events
+
         self._split = splitter
-        splitter.installEventFilter(self)
+        _watch_object_events(splitter, self._observer, _FLOOR_KINDS)
         for index in range(splitter.count()):
-            splitter.widget(index).installEventFilter(self)
+            _watch_object_events(splitter.widget(index), self._observer,
+                                 _FLOOR_KINDS)
         splitter.pane_toggled.connect(self._queue_floor)
         self._queue_floor()
 
@@ -1496,18 +1525,21 @@ class _RuntimeViewport(QScrollArea):
         if not self._floor_timer.isActive():
             self._floor_timer.start(0)
 
-    def eventFilter(self, watched, event):
+    def _observe(self, watched, event) -> bool:
         """Revisit minima after wrapping, visibility, and viewport width changes.
+
+        Not an ``eventFilter`` override: the scroll area installs itself on
+        its content, and an override would be asked about every paint of it.
 
         :param watched: the pane, splitter, or viewport receiving the event.
         :param event: the actual Qt event.
-        :returns: the inherited event-filter result.
+        :returns: False; nothing is consumed.
         """
         if event.type() in (QEvent.LayoutRequest, QEvent.ShowToParent,
                             QEvent.HideToParent) or (
                 watched is self.viewport() and event.type() == QEvent.Resize):
             self._queue_floor()
-        return super().eventFilter(watched, event)
+        return False
 
     def _sync_floor(self):
         """Let scrolling absorb genuine overflow instead of shrinking controls."""
@@ -8964,13 +8996,15 @@ class AppScreen(QWidget):
         hosts = (getattr(self, "_runtime_wrap", None),
                  getattr(self, "_body_splitter", None),
                  self)
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
         watcher = _LateCaptionTranslator(self)
         self._late_caption_watcher = watcher
         for host in hosts:
             if host is None:
                 continue
-            host.removeEventFilter(watcher)
-            host.installEventFilter(watcher)
+            _stop_watching_object_events(host, watcher)
+            _watch_object_events(host, watcher, (QEvent.ChildAdded,))
             QTimer.singleShot(0, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:

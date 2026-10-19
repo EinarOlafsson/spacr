@@ -56,6 +56,7 @@ from PySide6.QtWidgets import (
     QAccessibleWidget, QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout,
     QWidget,
 )
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..i18n import tr
 from ..theme import active_palette
@@ -276,7 +277,9 @@ class Dock(QWidget):
         for key, name, desc, section in rows:
             if section and section != current:
                 header = SectionHeader(section)
-                header.installEventFilter(self)
+                _watch_object_events(header, self, (
+                    QEvent.Type.Enter, QEvent.Type.Leave,
+                    QEvent.Type.MouseButtonRelease))
                 column.addWidget(header)
                 self._headers[section] = header
                 self._section_rows.setdefault(section, [])

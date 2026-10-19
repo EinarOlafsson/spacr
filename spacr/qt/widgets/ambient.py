@@ -230,6 +230,7 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
                                QSizePolicy, QSplitterHandle, QStyle,
                                QStyleOption, QTabBar, QTextEdit, QWidget)
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -11520,8 +11521,8 @@ class AmbientWidget(QWidget):
         watched = self._watched() if self._watched is not None else None
         if window is not None and window is not watched:
             if watched is not None:
-                watched.removeEventFilter(self)
-            window.installEventFilter(self)
+                _stop_watching_object_events(watched, self)
+            _watch_object_events(window, self, _FILTERED_EVENTS)
             self._watched = weakref.ref(window)
         self._follow_screen()
         self._sync_run_state()
@@ -11697,7 +11698,7 @@ class AmbientWidget(QWidget):
         """Track the parent's geometry and sit below its other children."""
         parent = self.parent()
         if isinstance(parent, QWidget):
-            parent.installEventFilter(self)
+            _watch_object_events(parent, self, _FILTERED_EVENTS)
             self.setGeometry(parent.rect())
         self.lower()
 

@@ -33,6 +33,7 @@ from PySide6.QtCore import (
     QEasingCurve, QEvent, QPoint, QPropertyAnimation, Qt, QTimer, Signal,
 )
 from PySide6.QtWidgets import QWidget
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 
 class EdgeDrawer(QWidget):
@@ -127,7 +128,7 @@ class EdgeDrawer(QWidget):
         self._trigger = _EdgeTrigger(host, self)
         self._trigger.show()
 
-        host.installEventFilter(self)
+        _watch_object_events(host, self, (QEvent.Resize,))
         self.setAttribute(Qt.WA_Hover, True)
 
     def _owns_panel(self) -> bool:

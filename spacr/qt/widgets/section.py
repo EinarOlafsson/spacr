@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..i18n import tr
 from ..theme import ALPHA_MARK, SPACING, STAGE_LABEL, STAGE_NOTE
@@ -248,7 +249,9 @@ class Section(QFrame):
         self._header.setCheckable(True)
         self._header.setChecked(False)
         self._header.setCursor(Qt.PointingHandCursor)
-        self._header.installEventFilter(self)
+        _watch_object_events(self._header, self, (
+            QEvent.ToolTip, QEvent.FontChange, QEvent.StyleChange,
+            QEvent.Polish))
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._sync_header_minimum()
         self._header.clicked.connect(self._on_toggle)
