@@ -104,6 +104,24 @@ def test_windows_generated_catalog_is_bom_encoded_before_use():
     )
 
 
+def test_powershell_scripts_never_start_a_line_with_an_operator():
+    """PowerShell ends a statement at a newline unless the line before ends
+    with an operator, so a line that begins with ``-or`` or ``-and`` is a
+    parse error that stops the whole script before it runs."""
+    leading = re.compile(
+        r"^\s+-(?:or|and|xor|not|eq|ne|lt|le|gt|ge|like|notlike|match|notmatch"
+        r"|contains|notcontains|in|notin)\b",
+        re.IGNORECASE,
+    )
+    offenders = [
+        f"{path.relative_to(ROOT)}:{number}"
+        for path in sorted((ROOT / "packaging").rglob("*.ps1"))
+        for number, line in enumerate(_text(path).splitlines(), 1)
+        if leading.match(line)
+    ]
+    assert offenders == []
+
+
 def test_bootstraps_use_tls_and_select_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
