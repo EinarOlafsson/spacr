@@ -9353,10 +9353,14 @@ class AppScreen(QWidget):
         :meth:`spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`.
         """
         console = getattr(self, "_console", None)
-        if console is None:
+        warm = getattr(console, "warm_notice_glyphs", None)
+        if not callable(warm):
             return
         try:
-            console.warm_notice_glyphs()
+            from shiboken6 import isValid
+            if isinstance(console, QObject) and not isValid(console):
+                return
+            warm()
         except RuntimeError:
             pass
 
