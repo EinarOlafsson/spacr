@@ -29,22 +29,44 @@ lease_gone() {
     case "$( (LC_ALL=C; export LC_ALL; kill -0 "$1") 2>&1 )" in *"No such process"*) return 0 ;; esac
     return 1
 }
+lease_group_live_member() {
+    listing="$(ps -A -o pid=,ppid=,pgid=,uid= 2>/dev/null)" || { echo unknown; return 0; }
+    [ -n "$listing" ] || { echo unknown; return 0; }
+    printf '%s\n' "$listing" | awk -v group="$1" -v me="$$" -v uid="$(id -u)" '
+        { pid[NR] = $1; parent[$1] = $2; pg[$1] = $3; owner[$1] = $4 }
+        END {
+            for (p = me; p != "" && p != 0 && !(p in mine); p = parent[p]) mine[p] = 1
+            for (i = 1; i <= NR; i++) {
+                p = pid[i]
+                if (pg[p] != group || owner[p] != uid || (p in mine)) continue
+                for (q = parent[p]; q != "" && q != 0 && q != 1; q = parent[q]) if (q == me) break
+                if (q == me) continue
+                print p; exit
+            }
+        }'
+}
 lease_owner_dead() {
     [ -d "$1" ] && [ ! -L "$1" ] && [ -f "$1/owner" ] && [ ! -L "$1/owner" ] || return 1
     [ -O "$1" ] && [ -O "$1/owner" ] || return 1
     [ "$(ls -A "$1")" = "owner" ] || return 1
-    ! grep -qvE '^(pid|started|host|pidns)=' "$1/owner" || return 1
+    ! grep -qvE '^(pid|started|host|pidns|pgid)=' "$1/owner" || return 1
     for key in pid started host pidns; do
         [ "$(grep -c "^$key=" "$1/owner")" = 1 ] || return 1
     done
+    [ "$(grep -c '^pgid=' "$1/owner")" -le 1 ] || return 1
     pid="$(lease_field "$1" pid)"; started="$(lease_field "$1" started)"
     case "$pid" in ''|0*|*[!0-9]*) return 1 ;; esac
     [ -n "$started" ] && [ "$(lease_field "$1" host)" = "$(uname -n)" ] || return 1
     namespace="$(lease_namespace)"
     [ "$namespace" != unknown ] && [ "$(lease_field "$1" pidns)" = "$namespace" ] || return 1
-    lease_gone "$pid" && return 0
-    now="$(lease_started "$pid")"
-    [ -n "$now" ] && [ "${now%%:*}" = "${started%%:*}" ] && [ "$now" != "$started" ]
+    if ! lease_gone "$pid"; then
+        now="$(lease_started "$pid")"
+        [ -n "$now" ] && [ "${now%%:*}" = "${started%%:*}" ] && [ "$now" != "$started" ] || return 1
+    fi
+    group="$(lease_field "$1" pgid)"
+    [ -z "$group" ] && return 0
+    case "$group" in 0*|*[!0-9]*) return 1 ;; esac
+    [ -z "$(lease_group_live_member "$group")" ]
 }
 if { [ -e "$LOCK_DIR" ] || [ -L "$LOCK_DIR" ]; } && ! lease_owner_dead "$LOCK_DIR"; then
     spacr_say already_running

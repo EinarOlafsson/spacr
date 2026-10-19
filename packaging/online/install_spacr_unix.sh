@@ -546,6 +546,7 @@ SPACR_RUNTIME_LEASE_ID=""
 SPACR_INSTALLER_STATUS_LEASE=""
 SPACR_INSTALLER_STATUS_LEASE_ID=""
 SPACR_INSTALLER_RETAIN_LEASE=0
+SPACR_ABANDONED_OWNERS=()
 # GNU stat first, then BSD stat: PLATFORM alone does not say which one is on
 # PATH (Homebrew's gnubin puts GNU stat first on a Mac).
 spacr_installer_lease_identity() {
@@ -584,35 +585,70 @@ spacr_pid_namespace() {
     if [[ "$(uname -s)" == "Linux" ]]; then readlink "/proc/$$/ns/pid" 2>/dev/null || printf 'unknown\n'; fi
     return 0
 }
+# The process group a lease records, when the system names one. Children of
+# a killed installer (uv, its log tee) keep that group after the installer
+# itself is gone, so a lease that recorded a group stays live while any
+# member owned by this user survives, other than this installer's own
+# ancestors and descendants. A lease that recorded no group is judged by its
+# pid alone, as before.
+spacr_process_group() {
+    ps -o pgid= -p "$1" 2>/dev/null | tr -d ' \t' || true
+}
+spacr_group_live_member() {
+    local listing
+    listing="$(ps -A -o pid=,ppid=,pgid=,uid= 2>/dev/null)" || { printf 'unknown\n'; return 0; }
+    [[ -n "$listing" ]] || { printf 'unknown\n'; return 0; }
+    awk -v group="$1" -v me="$$" -v uid="$(id -u)" '
+        { pid[NR] = $1; parent[$1] = $2; pg[$1] = $3; owner[$1] = $4 }
+        END {
+            for (p = me; p != "" && p != 0 && !(p in mine); p = parent[p]) mine[p] = 1
+            for (i = 1; i <= NR; i++) {
+                p = pid[i]
+                if (pg[p] != group || owner[p] != uid || (p in mine)) continue
+                for (q = parent[p]; q != "" && q != 0 && q != 1; q = parent[q]) if (q == me) break
+                if (q == me) continue
+                print p; exit
+            }
+        }' <<< "$listing"
+}
 spacr_lease_field() {
     [[ -f "$1/owner" ]] || return 0
     sed -n "s/^$2=//p" "$1/owner" 2>/dev/null | head -n 1 || true
 }
 spacr_stamp_installer_lease() {
+    local group
+    group="$(spacr_process_group "$$")"
     printf 'pid=%s\nstarted=%s\nhost=%s\npidns=%s\n' "$$" "$(spacr_process_started "$$")" "$(uname -n)" \
         "$(spacr_pid_namespace)" > "$1/owner"
+    if [[ "$group" =~ ^[1-9][0-9]*$ ]]; then printf 'pgid=%s\n' "$group" >> "$1/owner"; fi
 }
 spacr_lease_owner_dead() {
-    local lease="$1" key pid started now namespace
+    local lease="$1" key pid started now namespace group
     [[ -d "$lease" && ! -L "$lease" && -f "$lease/owner" && ! -L "$lease/owner" ]] || return 1
     [[ -O "$lease" && -O "$lease/owner" ]] || return 1
     [[ "$(ls -A "$lease")" == "owner" ]] || return 1
-    grep -qvE '^(pid|started|host|pidns)=' "$lease/owner" && return 1
+    grep -qvE '^(pid|started|host|pidns|pgid)=' "$lease/owner" && return 1
     for key in pid started host pidns; do
         [[ "$(grep -c "^$key=" "$lease/owner")" == "1" ]] || return 1
     done
+    [[ "$(grep -c '^pgid=' "$lease/owner")" -le 1 ]] || return 1
     pid="$(spacr_lease_field "$lease" pid)"
     started="$(spacr_lease_field "$lease" started)"
     [[ "$pid" =~ ^[1-9][0-9]*$ && "$pid" != "$$" && -n "$started" ]] || return 1
     [[ "$(spacr_lease_field "$lease" host)" == "$(uname -n)" ]] || return 1
     namespace="$(spacr_pid_namespace)"
     [[ "$namespace" != "unknown" && "$(spacr_lease_field "$lease" pidns)" == "$namespace" ]] || return 1
-    spacr_process_gone "$pid" && return 0
-    now="$(spacr_process_started "$pid")"
-    [[ -n "$now" && "${now%%:*}" == "${started%%:*}" && "$now" != "$started" ]]
+    if ! spacr_process_gone "$pid"; then
+        now="$(spacr_process_started "$pid")"
+        [[ -n "$now" && "${now%%:*}" == "${started%%:*}" && "$now" != "$started" ]] || return 1
+    fi
+    group="$(spacr_lease_field "$lease" pgid)"
+    [[ -z "$group" ]] && return 0
+    [[ "$group" =~ ^[1-9][0-9]*$ ]] || return 1
+    [[ -z "$(spacr_group_live_member "$group")" ]]
 }
 spacr_take_installer_lease() {
-    local lease="$1" pid
+    local lease="$1" pid member
     if (umask 077; mkdir "$lease") 2>/dev/null; then
         spacr_stamp_installer_lease "$lease"
         return 0
@@ -620,6 +656,7 @@ spacr_take_installer_lease() {
     if spacr_lease_owner_dead "$lease" && (umask 077; mkdir "$lease.takeover") 2>/dev/null; then
         spacr_stamp_installer_lease "$lease.takeover"
         if spacr_lease_owner_dead "$lease"; then
+            SPACR_ABANDONED_OWNERS+=("$(spacr_lease_field "$lease" pid)")
             rm -f "$lease/owner"
             if rmdir "$lease" 2>/dev/null && (umask 077; mkdir "$lease") 2>/dev/null; then
                 spacr_stamp_installer_lease "$lease"
@@ -634,6 +671,11 @@ spacr_take_installer_lease() {
     fi
     spacr_say already_running >&2
     pid="$(spacr_lease_field "$lease" pid)"
+    if [[ -n "$pid" ]] && spacr_process_gone "$pid"; then
+        member="$(spacr_lease_field "$lease" pgid)"
+        [[ -n "$member" ]] && member="$(spacr_group_live_member "$member")"
+        [[ "$member" =~ ^[0-9]+$ ]] && pid="$member"
+    fi
     if [[ -n "$pid" ]]; then spacr_say lease_held "$lease" "$pid" >&2; else spacr_say lease_held_unknown "$lease" >&2; fi
     return 1
 }
@@ -699,6 +741,21 @@ spacr_acquire_installer_lease() {
         fi
         SPACR_INSTALLER_STATUS_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_STATUS_LEASE")"
     fi
+    spacr_remove_abandoned_staging
+}
+# A killed installer leaves its staging runtime behind. It is removed only
+# for an owner whose leases this installer just took over -- pid and group
+# provably gone -- and only now that this installer holds every lease.
+spacr_remove_abandoned_staging() {
+    local owner
+    for owner in "${SPACR_ABANDONED_OWNERS[@]+"${SPACR_ABANDONED_OWNERS[@]}"}"; do
+        [[ "$owner" =~ ^[1-9][0-9]*$ && "$owner" != "$$" ]] || continue
+        spacr_process_gone "$owner" || continue
+        if [[ -d "$INSTALL_ROOT/.venv-staging-$owner" && ! -L "$INSTALL_ROOT/.venv-staging-$owner" ]]; then
+            rm -rf "$INSTALL_ROOT/.venv-staging-$owner" && spacr_say staging_removed "$INSTALL_ROOT/.venv-staging-$owner" >&2
+        fi
+        rm -f "$INSTALL_ROOT/.install-profile-staging-$owner.json"
+    done
 }
 spacr_acquire_installer_lease
 # @SPACR_INSTALLER_LEASE_END@

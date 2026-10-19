@@ -65,7 +65,7 @@ def test_a_new_lease_records_its_owner(tmp_path):
     result = _take(tmp_path, lease)
     assert result.returncode == 0, result.stderr
     fields = dict(line.split("=", 1) for line in (lease / "owner").read_text().splitlines())
-    assert set(fields) == {"pid", "started", "host", "pidns"} and fields["host"] == platform.node()
+    assert set(fields) - {"pgid"} == {"pid", "started", "host", "pidns"} and fields["host"] == platform.node()
     assert fields["pid"].isdigit() and fields["started"].startswith(KIND + ":")
     assert fields["pidns"] == ic._pid_namespace()
 
@@ -274,7 +274,8 @@ def test_a_signal_the_system_refuses_is_not_proof_that_a_process_is_gone(monkeyp
 def test_an_open_windows_lease_file_is_never_taken_over(tmp_path, monkeypatch):
     pid, started = _ended_pid()
     lease = tmp_path / ".app.spacr-installer-lock"
-    lease.write_text(ic._lease_owner_text().replace(f"pid={os.getpid()}", f"pid={pid}"))
+    record = "".join(line + "\n" for line in ic._lease_owner_text().splitlines() if not line.startswith("pgid="))
+    lease.write_text(record.replace(f"pid={os.getpid()}", f"pid={pid}"))
     assert ic._lease_owner_dead(str(lease)) is True
     monkeypatch.setattr(ic, "_lease_file_in_use", lambda path: True)
     assert ic._lease_owner_dead(str(lease)) is False

@@ -1474,6 +1474,40 @@ def _pid_namespace():
         return "unknown"
 
 
+def _process_group_live_member(group):
+    """A process still in ``group`` owned by this user, other than this process's ancestors and descendants.
+
+    Children of a killed installer keep its process group after the installer itself is gone. Returns that
+    member's pid, "unknown" when the process table cannot be read, or "" when the group is empty.
+    """
+    try:
+        done = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,pgid=,uid="], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C"))
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+    rows = [line.split() for line in done.stdout.splitlines()]
+    rows = [row for row in rows if len(row) == 4 and all(item.isdigit() for item in row)]
+    if done.returncode != 0 or not rows:
+        return "unknown"
+    parent = {row[0]: row[1] for row in rows}
+    me = str(os.getpid())
+    lineage, item = set(), me
+    while item and item not in lineage and item != "0":
+        lineage.add(item)
+        item = parent.get(item, "")
+    uid = str(os.geteuid())
+    for pid, _, pgid, owner in rows:
+        if pgid != str(group) or owner != uid or pid in lineage:
+            continue
+        ancestor, seen = parent.get(pid, ""), set()
+        while ancestor and ancestor not in ("0", "1", me) and ancestor not in seen:
+            seen.add(ancestor)
+            ancestor = parent.get(ancestor, "")
+        if ancestor != me:
+            return pid
+    return ""
+
+
 def _lease_host():
     """This computer's name as the installers record it: COMPUTERNAME on Windows, ``uname -n`` elsewhere."""
     import platform
@@ -1495,6 +1529,10 @@ def _lease_owner_text():
         text = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
         if os.name != "nt":
             text += f"pidns={_pid_namespace()}\n"
+            try:
+                text += f"pgid={os.getpgrp()}\n"
+            except OSError:
+                pass
         _OWN_LEASE_RECORD[pid] = text
     return _OWN_LEASE_RECORD[pid]
 
@@ -1553,6 +1591,8 @@ def _lease_owner_dead(path):
         return False
     fields = _lease_fields(text)
     expected = _lease_fields(_lease_owner_text())
+    expected.pop("pgid", None)
+    group = fields.pop("pgid", None)
     if (set(fields) != set(expected) or not fields["started"] or fields["host"] != expected["host"]
             or fields.get("pidns") != expected.get("pidns") or expected.get("pidns") == "unknown"):
         return False
@@ -1562,12 +1602,15 @@ def _lease_owner_dead(path):
         return False
     if pid <= 0 or pid == os.getpid():
         return False
-    if _process_gone(pid):
+    if not _process_gone(pid):
+        now = _process_started(pid)
+        if not now or now.partition(":")[0] != fields["started"].partition(":")[0] or now == fields["started"]:
+            return False
+    if group is None:
         return True
-    now = _process_started(pid)
-    if not now or now.partition(":")[0] != fields["started"].partition(":")[0]:
+    if not group.isdigit() or int(group) <= 0:
         return False
-    return now != fields["started"]
+    return _process_group_live_member(group) == ""
 
 
 def _lease_held_message(path):

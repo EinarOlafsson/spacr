@@ -224,6 +224,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
 @property(strong) NSButton *cancel;
 @property(strong) NSButton *uninstall;
 @property(strong) NSString *uninstallPreview;
+@property(strong) NSString *stagedPython;
 @property BOOL removed;
 @property(strong) NSMutableArray<NSButton *> *choices;
 @property(strong) NSArray<NSString *> *forwardedArguments;
@@ -396,6 +397,26 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
         if ([files isExecutableFileAtPath:candidate]) return candidate;
     return nil;
 }
+- (NSString *)stageOutsideRuntime:(NSString *)python {
+    NSString *root = [[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support/spaCR"]
+        stringByResolvingSymlinksInPath];
+    NSString *real = [python stringByResolvingSymlinksInPath];
+    if (![real hasPrefix:[root stringByAppendingString:@"/"]]) return python;
+    NSString *home = [[real stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+    NSString *copy = [NSTemporaryDirectory() stringByAppendingPathComponent:
+        [NSString stringWithFormat:@"spacr-uninstall-python-%@", NSUUID.UUID.UUIDString]];
+    NSError *error = nil;
+    if (![NSFileManager.defaultManager copyItemAtPath:home toPath:copy error:&error]) {
+        [self appendLog:[NSString stringWithFormat:@"%@\n", error.localizedDescription ?: @""]];
+        return nil;
+    }
+    self.stagedPython = copy;
+    return [copy stringByAppendingPathComponent:[@"bin" stringByAppendingPathComponent:real.lastPathComponent]];
+}
+- (void)removeStagedPython {
+    if (self.stagedPython) [NSFileManager.defaultManager removeItemAtPath:self.stagedPython error:NULL];
+    self.stagedPython = nil;
+}
 - (void)runHelper:(NSArray<NSString *> *)arguments completion:(void (^)(int code, NSString *output))completion {
     NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];
     environment[@"SPACR_INSTALL_LANGUAGE"] = language;
@@ -431,6 +452,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     (void)sender;
     if (self.child > 0) return;
     NSString *python = [self helperPython];
+    if (python) python = [self stageOutsideRuntime:python];
     NSString *helper = @"/Library/Application Support/spaCR/verify_runtime.py";
     [self setBusy:YES];
     self.status.stringValue = tr(@"gui_uninstall_finding");
@@ -479,6 +501,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
     back.keyEquivalent = @"\r";
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse response) {
         if (response != NSAlertFirstButtonReturn) {
+            [self removeStagedPython];
             [self setBusy:NO];
             self.status.stringValue = tr(@"gui_preserve");
             return;
@@ -511,10 +534,12 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
         return;
     }
     self.removed = YES;
+    [self removeStagedPython];
     [self setBusy:NO];
     self.status.stringValue = tr(@"gui_uninstall_done");
 }
 - (void)uninstallStopped {
+    [self removeStagedPython];
     [self setBusy:NO];
     self.status.stringValue = tr(@"gui_uninstall_failed");
 }
