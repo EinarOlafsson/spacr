@@ -409,11 +409,13 @@ def build_methods_export(host_window: Optional[QWidget] = None,
     which supplies the provenance summary and the segmentation verdict,
     and the results folder, which supplies the hit statistics. The other
     two -- the run journal and the classifier checkpoint -- are the user's
-    to name, and every one of them is optional on that screen.
+    to name, and every one of them is optional on that screen. The results
+    panel is read only if it has been built; building it here froze the
+    first Methods & Results page for most of a second.
     """
     from .methods_export import MethodsExportScreen
 
-    panel = results_panel(screen)
+    panel = _results_panel_if_built(screen)
     return MethodsExportScreen(project=project_path(screen),
                                results_folder=_run_folder(panel))
 
