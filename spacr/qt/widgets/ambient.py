@@ -661,6 +661,21 @@ FIELD_FPS = 60
 #: ``tests/qt/test_the_field_keeps_moving_during_a_run_20261013.py``.
 _RUN_FPS = 30
 MIN_FPS = 1
+
+#: GUI-thread time, in ms, a field frame may take during a run before the
+#: next one waits. Over the field every widget on screen repaints with each
+#: frame; at 3840x2105 that is 17-28 ms idle and a median 39 ms during
+#: lesson 13's run, where every return to Python then also waits for the
+#: pipeline's hold on the interpreter lock. Idle frames are never held back.
+_FRAME_BUDGET_MS = 20.0
+
+#: The share of the GUI thread a frame over :data:`_FRAME_BUDGET_MS` may
+#: keep: the next tick waits until the frame's own cost has been matched by
+#: free time, so input, the console and progress get the rest. The field's
+#: clock is wall time, so it moves at the same speed in fewer steps; frames
+#: within budget keep the normal rate. During lesson 13's run this cut the
+#: GUI thread's time in gaps over 50 ms by 14% and gaps over 200 ms by 41%.
+_OVER_BUDGET_SHARE = 0.5
 MAX_FPS = 60
 
 #: The ordinary application installs a backdrop on every live screen.  Its
@@ -11062,6 +11077,9 @@ class AmbientWidget(QWidget):
         due = now + period if due is None else due + period
         if due < now - period or due > now + 1.25 * period:
             due = now + period
+        spent = self.__dict__.get("_frame_cost_ms", 0.0)
+        if self._run_paced and spent > _FRAME_BUDGET_MS:
+            due = max(due, now + spent * (1.0 / _OVER_BUDGET_SHARE - 1.0))
         self._tick_due = due
         interval = max(1, int(round(due - now)))
         self._tick_interval = interval
@@ -11779,7 +11797,9 @@ class AmbientWidget(QWidget):
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
+                started = time.perf_counter()
                 self.repaint()
+                self._frame_cost_ms = (time.perf_counter() - started) * 1000.0
             producer._wake.set()
         else:
             self.update()
