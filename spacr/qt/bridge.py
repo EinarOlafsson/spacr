@@ -2348,13 +2348,15 @@ def _import_pyplot_without_pinning_callers() -> None:
     method that started a job and :func:`make_thread` itself, with the
     worker, thread and run handle in their locals. Left alone, those
     objects outlive their owners and are destroyed from inside a later
-    garbage collection. One young-generation sweep here, before any worker
-    exists, frees the cycles while nothing Qt is held (about 20 ms, once
-    per process).
+    garbage collection. One sweep here, through :func:`spacr._gc.collect`
+    on the GUI thread and before any worker exists, frees the cycles while
+    nothing Qt is held (well under a second, once per process).
     """
     import matplotlib.pyplot  # noqa: F401
 
-    gc.collect(0)
+    from .. import _gc
+
+    _gc.collect()
 
 
 def make_thread(
