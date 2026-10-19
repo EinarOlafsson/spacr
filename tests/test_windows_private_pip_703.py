@@ -463,6 +463,45 @@ def handshake_plan(runtime):
     return plan
 
 
+def test_a_message_replaced_while_it_is_read_is_read_again(runtime, monkeypatch):
+    """Found natively 2026-10-19: the relaunched desktop replaces launch-result.json ("starting", then "ready")
+    while the helper polls it; a replace between lstat and open rolled a verified update back."""
+    plan = handshake_plan(runtime)
+    helper = cleanup._WindowsPipHandshake(plan)
+    helper._write('readiness.json', 'ready')
+    other = runtime.helper / 'other.json'
+    other.write_text('{}')
+    real = cleanup.os.lstat
+    replaced = {'left': 2}
+
+    def lstat(path, *args, **kwargs):
+        if str(path).endswith('readiness.json') and replaced['left']:
+            replaced['left'] -= 1
+            return real(other)
+        return real(path, *args, **kwargs)
+
+    monkeypatch.setattr(cleanup.os, 'lstat', lstat)
+    assert helper._read('readiness.json')['state'] == 'ready'
+    replaced['left'] = 1000
+    with pytest.raises(ValueError, match='invalid frozen updater readiness message'):
+        helper._read('readiness.json')
+
+
+def test_the_venv_launchers_child_is_the_launched_desktop(monkeypatch):
+    """A Windows venv's Scripts\\pythonw.exe runs the interpreter as its child, which acknowledges the launch."""
+    launcher = types.SimpleNamespace(pid=7000, poll=lambda: None)
+    monkeypatch.setattr(cleanup, '_windows_children', lambda pid: [(7001, 'filetime:2')] if pid == 7000 else [])
+    monkeypatch.setattr(cleanup.os, 'name', 'nt')
+    try:
+        assert cleanup._launched_desktop(launcher, 7000)
+        assert cleanup._launched_desktop(launcher, 7001)
+        assert not cleanup._launched_desktop(launcher, 7002)
+        assert not cleanup._launched_desktop(launcher, True)
+        assert not cleanup._launched_desktop(types.SimpleNamespace(pid=7000, poll=lambda: 0), 7001)
+    finally:
+        monkeypatch.undo()
+
+
 def test_windows_handshake_authenticates_readiness_approval_and_real_exit(runtime):
     plan = handshake_plan(runtime)
     original = snapshot(runtime.prefix)
@@ -516,7 +555,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
         original_open = cleanup.os.open
         def replace_at_open(checked, flags, *args, **kwargs):
             if Path(checked) == path:
-                path.rename(path.with_suffix('.original'))
+                os.replace(path, path.with_suffix('.original'))
                 path.write_text(path.with_suffix('.original').read_text())
             return original_open(checked, flags, *args, **kwargs)
         monkeypatch.setattr(cleanup.os, 'open', replace_at_open)

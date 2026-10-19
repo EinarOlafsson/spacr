@@ -4998,6 +4998,22 @@ def _coordinate_native_update(plan, handshake, operation, *, check, launch, wait
             raise
 
 
+def _launched_desktop(process, pid):
+    """Whether ``pid`` is the desktop this updater launched.
+
+    On Windows a virtual environment's ``Scripts\\pythonw.exe`` is a launcher that runs
+    the interpreter as its direct child, so the acknowledging process is that child;
+    it is accepted only while the launcher itself still runs, so its id cannot be reused.
+    """
+    if pid == process.pid:
+        return True
+    if (os.name != "nt" or isinstance(pid, bool) or not isinstance(pid, int)
+            or process.poll() is not None):
+        return False
+    children = _windows_children(process.pid)
+    return bool(children) and pid in {int(child[0]) for child in children}
+
+
 def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=None):
     """Launch the exact updated executable and wait for its verified main window.
 
@@ -5028,7 +5044,7 @@ def _launch_updated_desktop(plan, argv, version, root, *, frozen=False, spawn=No
                     if (actual.get("version") != expected["version"]
                             or actual.get("executable") != expected["executable"]
                             or not _inside(actual.get("module", ""), expected["root"])
-                            or (process is not None and actual.get("pid") != process.pid)):
+                            or (process is not None and not _launched_desktop(process, actual.get("pid")))):
                         raise RuntimeError(tr("the new desktop acknowledgment does not match its update"))
                     if process is not None and process.poll() is not None:
                         raise RuntimeError(tr("the updated application exited before its main window was ready"))
@@ -6610,24 +6626,38 @@ class _WindowsPipHandshake(_FrozenUpdateHandshake):
             bound, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
     def _read(self, name):
-        """Reject linked, foreign-writable or replaced messages before decoding bounded authenticated JSON."""
+        """Reject linked, foreign-writable or replaced messages before decoding bounded authenticated JSON.
+
+        Every message is published by an atomic replace, and a relaunched desktop
+        replaces ``launch-result.json`` ("starting", then "ready") while the helper
+        polls it. A message replaced between the checks and the open is read again
+        from the start, a bounded number of times; a file that keeps changing is refused.
+        """
         _windows_pip_private_directory(self.root)
         path = os.path.join(self.root, name)
-        try:
-            before = os.lstat(path)
-        except FileNotFoundError:
-            return None
-        if (not stat.S_ISREG(before.st_mode)
-                or getattr(before, "st_file_attributes", 0) & 0x400 or before.st_size > 8192):
-            raise ValueError("invalid frozen updater readiness message")
-        _windows_pip_private_access(path)
-        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
-        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
-            details = os.fstat(stream.fileno())
-            if (not stat.S_ISREG(details.st_mode) or details.st_size > 8192
-                    or (details.st_dev, details.st_ino) != (before.st_dev, before.st_ino)):
+        for _attempt in range(20):
+            try:
+                before = os.lstat(path)
+            except FileNotFoundError:
+                return None
+            if (not stat.S_ISREG(before.st_mode)
+                    or getattr(before, "st_file_attributes", 0) & 0x400 or before.st_size > 8192):
                 raise ValueError("invalid frozen updater readiness message")
-            message = json.loads(stream.read(8193))
+            _windows_pip_private_access(path)
+            try:
+                descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+            except FileNotFoundError:
+                continue
+            with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+                details = os.fstat(stream.fileno())
+                if (details.st_dev, details.st_ino) != (before.st_dev, before.st_ino):
+                    continue
+                if not stat.S_ISREG(details.st_mode) or details.st_size > 8192:
+                    raise ValueError("invalid frozen updater readiness message")
+                message = json.loads(stream.read(8193))
+            break
+        else:
+            raise ValueError("invalid frozen updater readiness message")
         if not isinstance(message, dict) or message.get("binding") != self.binding:
             raise ValueError("frozen updater readiness belongs to a different plan")
         return message
