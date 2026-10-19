@@ -2,8 +2,11 @@
 
 ### Upgrading
 
-- On macOS with spaCR 1.5.1.0 or older, install the 1.5.1.5 `.pkg` from the [releases page](https://github.com/EinarOlafsson/spacr/releases) instead of using Help > Check for updates. The updater in those versions can remove the user runtime and then stop before installing. The new `.pkg` restores a working installation.
-- On an Intel Mac, an in-app update to 1.5.1.4 can leave spaCR reporting "Numpy is not available". Updating to 1.5.1.5 repairs it.
+On macOS, how to reach 1.5.1.5 depends on the version you have:
+
+- 1.5.0.8, 1.5.0.9 and 1.5.1.0: install the 1.5.1.5 `.pkg` from the [releases page](https://github.com/EinarOlafsson/spacr/releases). Do not use Help > Check for updates: the updater in these versions removes the user runtime and then stops before installing. The `.pkg` restores a working installation.
+- 1.5.0.1: install the `.pkg`. Its in-app update cannot run.
+- 1.5.0.4 to 1.5.0.7 and 1.5.1.2 to 1.5.1.4: Help > Check for updates works. On an Intel Mac, an update that lands on 1.5.1.4 reports "Numpy is not available"; updating to 1.5.1.5 repairs it.
 
 ### New
 
