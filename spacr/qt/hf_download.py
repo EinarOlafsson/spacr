@@ -23,11 +23,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
                                QProgressBar, QProgressDialog,
                                QPushButton, QVBoxLayout, QWidget)
 
+from . import _after
 from .bridge import drain_thread
 from ..example_archives import (                              # noqa: F401
     ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
@@ -298,6 +299,23 @@ class _DownloadDialog(QDialog):
 _LIVE_DOWNLOADS: set = set()
 
 
+def _callback_owner(owner):
+    """The object whose destruction should cancel a download's callback.
+
+    The caller's widget when it still exists, so a callback that updates
+    that widget is dropped with it rather than run against a deleted one;
+    otherwise the application, so the callback still runs.
+
+    :param owner: the widget that started the download, or ``None``.
+    :returns: a live ``QObject``.
+    """
+    from shiboken6 import isValid
+
+    if isinstance(owner, QObject) and isValid(owner):
+        return owner
+    return QCoreApplication.instance()
+
+
 class _DownloadKeeper(QObject):
     """Hold one download's thread and worker until the thread has stopped.
 
@@ -506,16 +524,13 @@ class _HFDownloadUI(QObject):
             except Exception:
                 pass
         on_done = self._on_done
+        bound = _callback_owner(self._owner)
         self.deleteLater()
         if ok:
-            QTimer.singleShot(
-                0,
-                lambda: on_done(DownloadResult(
-                    dataset_path=Path(ds),
-                    settings_path=Path(st)), ""),
-            )
+            _after(0, bound, lambda: on_done(DownloadResult(
+                dataset_path=Path(ds), settings_path=Path(st)), ""))
         else:
-            QTimer.singleShot(0, lambda: on_done(None, err))
+            _after(0, bound, lambda: on_done(None, err))
 
 
 

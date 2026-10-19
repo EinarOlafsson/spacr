@@ -3011,6 +3011,19 @@ def _time_monotonic() -> float:
 
 
 
+def _a_modal_dialog_is_open() -> bool:
+    """Whether a modal dialog is open in this application right now.
+
+    Asks Qt directly rather than through this module's ``QApplication``
+    name, which tests replace with stand-ins.
+
+    :returns: ``True`` while a modal dialog is open.
+    """
+    from PySide6.QtWidgets import QApplication as _Application
+
+    return _Application.activeModalWidget() is not None
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -5422,6 +5435,8 @@ class MainWindow(QMainWindow):
                 return
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
+            if _a_modal_dialog_is_open():
+                return
             self._frozen_update_timer.stop()
             self._hide_update_progress()
             message = tr(
@@ -6694,6 +6709,41 @@ class MainWindow(QMainWindow):
             return
         self.rebuild_app_screen(key, values)
 
+    def _after_the_modal_closes(self, name: str, *args) -> None:
+        """Call method ``name`` with ``args`` once no modal dialog is open.
+
+        Rebuilding a screen while a modal dialog is open can reparent or
+        delete the dialog's parent inside its own ``exec()``; on macOS that
+        crashed in AppKit's modal cleanup. One timer owned by this window
+        looks every 200 ms, so a pending call is dropped if the window goes
+        first. The call is kept as a method name rather than a closure over
+        this window, so the timer never holds the window's last reference.
+
+        :param name: the name of a method of this window.
+        :param args: positional arguments for that method.
+        """
+        from PySide6.QtCore import QTimer
+
+        pending = self.__dict__.setdefault("_calls_after_modal", [])
+        pending.append((name, args))
+        timer = self.__dict__.get("_modal_watch_timer")
+        if timer is None:
+            timer = QTimer(self)
+            timer.setInterval(200)
+            timer.timeout.connect(self._run_when_no_modal)
+            self._modal_watch_timer = timer
+        if not timer.isActive():
+            timer.start()
+
+    def _run_when_no_modal(self) -> None:
+        """Make the calls kept by ``_after_the_modal_closes`` once no modal is open."""
+        if _a_modal_dialog_is_open():
+            return
+        self._modal_watch_timer.stop()
+        pending, self._calls_after_modal = self._calls_after_modal, []
+        for name, args in pending:
+            getattr(self, name)(*args)
+
     def rebuild_app_screen(self, key: str, values=None) -> None:
         """Build ``key``'s screen again, carrying ``values`` across.
 
@@ -6714,6 +6764,9 @@ class MainWindow(QMainWindow):
 
         from .screens.app_screen import AppScreen
 
+        if _a_modal_dialog_is_open():
+            self._after_the_modal_closes("rebuild_app_screen", key, values)
+            return
         gc.unfreeze()
         old = self._screens.get(key)
         old_preset_owned = {}
