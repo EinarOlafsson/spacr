@@ -10804,6 +10804,9 @@ class _VolumeStage(QWidget):
         self._layer_rows = {}
         self._render_cache = {}
         self._render_serial = 0
+        # Requests older than the floor are cancelled; the newest shown one is never replaced by an older one.
+        self._render_floor = self._shown_serial = 0
+        self._render_turning = None
         self._view_signature = None
         self._settle_timer = None
         self._show_grid = False
@@ -10982,6 +10985,7 @@ class _VolumeStage(QWidget):
         self._shown = {}
         self._selected = 0
         self._render_serial += 1
+        self._render_floor = self._render_serial
         self._renderer.drop_waiting()
         if self._layers is not None:
             self._layers.unsubscribe(self._on_layer_event)
@@ -12112,10 +12116,17 @@ class _VolumeStage(QWidget):
                            for position, axis in enumerate(session.axes))
         self._render_serial += 1
         serial = self._render_serial
+        # While the view turns, a newer interactive request of the same content
+        # leaves the one being drawn to finish, so a slow (CPU) renderer still
+        # shows frames during a drag instead of starting over at every move.
+        turning = (session, self._version) if quality == 'interactive' else None
+        if turning is None or turning != self._render_turning:
+            self._render_floor = serial
+        self._render_turning = turning
         return _RenderRequest(serial=serial, quality=quality, layers=snapshot, steps=steps,
                               rays=rays, rect=(x0, x1, y0, y1), version=self._version,
                               highlight=int(self._selected), cache=self._render_cache,
-                              cancelled=lambda: self._render_serial != serial,
+                              cancelled=lambda: self._render_floor > serial,
                               session=session, backend=backend, scale=scale,
                               voxel_size=voxel_size, lens=self._lens(steps))
 
@@ -12176,8 +12187,9 @@ class _VolumeStage(QWidget):
             return
         if result is None:
             return
-        if request.serial != self._render_serial:
+        if request.serial < self._render_floor or request.serial <= self._shown_serial:
             return
+        self._shown_serial = request.serial
         rgb, picked = result
         self._render_state = SimpleNamespace(rgb=rgb, picked=picked, rect=request.rect,
                                              quality=request.quality, steps=request.steps,
