@@ -97,10 +97,20 @@ class _CloseDrain(QObject):
     """
 
     def __init__(self, screen):
+        """Parent the filter to ``screen`` so it goes when the screen does.
+
+        :param screen: the BatchScreen to watch.
+        """
         super().__init__(screen)
         self._screen = screen
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt name
+        """Drain the screen's jobs on its close event; never consume the event.
+
+        :param watched: the object the event was sent to.
+        :param event: the event.
+        :returns: ``False``, so the close carries on as usual.
+        """
         if event.type() == QEvent.Close and watched is self._screen:
             self._screen._drain_jobs()
         return False
