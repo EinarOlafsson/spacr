@@ -51,6 +51,30 @@ from ..theme import active_palette, button_accent_text, font_px
 ELIDE_ABOVE_PX = 120
 
 
+def _show_focus_ring(label) -> None:
+    """Show ``label``'s keyboard-focus outline in its paint layer, or hide it.
+
+    The outline used to be drawn by a Python ``paintEvent`` that every frame
+    of the window's field re-entered, focused or not.
+    """
+    from ..gil_priority import _blank_layer_pixmap, _show_paint_layer
+
+    if not label.hasFocus():
+        _show_paint_layer(label, "_focus_layer", None)
+        return
+    pixmap = _blank_layer_pixmap(label)
+    painter = QPainter(pixmap)
+    try:
+        width, colour = label._strong_focus_ring or (
+            2, label.palette().color(QPalette.Highlight))
+        painter.setPen(QPen(QColor(colour), width))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRect(label.rect().adjusted(1, 1, -1, -1))
+    finally:
+        painter.end()
+    _show_paint_layer(label, "_focus_layer", pixmap)
+
+
 class AiToggleLabel(QLabel):
     """Clickable text label that behaves like a QCheckBox toggle.
 
@@ -128,23 +152,7 @@ class AiToggleLabel(QLabel):
 
             self._strong_focus_ring = _strong_focus_style()
             self._refresh_style()
-
-    def paintEvent(self, event):
-        """Paint the label and its cached outline while it has keyboard focus.
-
-        :param event: paint request, passed to QLabel before drawing the outline.
-        """
-        super().paintEvent(event)
-        if self.hasFocus():
-            painter = QPainter(self)
-            try:
-                width, colour = self._strong_focus_ring or (
-                    2, self.palette().color(QPalette.Highlight))
-                painter.setPen(QPen(QColor(colour), width))
-                painter.setBrush(Qt.NoBrush)
-                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
-            finally:
-                painter.end()
+            _show_focus_ring(self)
 
     def focusInEvent(self, event):
         """Repaint the outline when keyboard focus enters the toggle.
@@ -152,6 +160,7 @@ class AiToggleLabel(QLabel):
         :param event: focus-entry event, forwarded to QLabel.
         """
         super().focusInEvent(event)
+        _show_focus_ring(self)
         self.update()
 
     def focusOutEvent(self, event):
@@ -160,6 +169,7 @@ class AiToggleLabel(QLabel):
         :param event: focus-exit event, forwarded to QLabel.
         """
         super().focusOutEvent(event)
+        _show_focus_ring(self)
         self.update()
 
     def keyPressEvent(self, event):
@@ -230,6 +240,8 @@ class AiToggleLabel(QLabel):
         """
         super().resizeEvent(event)
         self._apply_elision()
+        if self.__dict__.get("_focus_layer") is not None:
+            _show_focus_ring(self)
 
     def _apply_elision(self) -> None:
         """Show the full text when it fits, an elided one when it does not."""

@@ -78996,14 +78996,6 @@
       "source_sha256": "4a073f16db787bd81ae6e38017b04bf941de7976eb2be4312cbd94af553d8910",
       "text": "Flip the toggle on left-click; forward other buttons to Qt.\n\n:param event: the mouse press; only its button is read, and a\n    left-button press is consumed."
     },
-    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent": {
-      "source_blocks_sha256": [
-        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
-        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
-      ],
-      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
-      "text": "Paint the label and its cached outline while it has keyboard focus.\n\n:param event: paint request, passed to QLabel before drawing the outline."
-    },
     "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.resizeEvent": {
       "source_blocks_sha256": [
         "6c4cc0155da9a806c82bd0380fd647017b9ca48faf0c2b9d8054ee28109d8af1",
@@ -91972,15 +91964,6 @@
       ],
       "source_sha256": "d012a2b6e7a9fca5641729563dbefc254a8661fbb95066da444ffa121edf3b2e",
       "text": "One folded module, drawn as its own icon and nothing else.\n\n:param key: the module this button opens. Also read for the name,\n    description and maturity stage, so it must be a real registry key\n    rather than a caption.\n:param parent: parent widget.\n:param checkable: whether the button is a SWITCH rather than a press.\n    True for a fold whose workflow is implemented by settings on the host\n    module -- Timelapse rides on Mask Generation, because tracking\n    extends the segmentation run -- so the button stays active while that\n    workflow is enabled and its callback receives the new state. False,\n    the default, is a plain click that opens a module.\nBuild one fold button: a module's icon, with its name in the tooltip.\n\nThe icon is resolved through the application's own lookup rather than by\nfilename, because a module that BORROWS another's picture is resolved\nwrongly by filename alone -- the Cellpose Workbench button drew a\ndumbbell, since ``train_cellpose.png`` exists and is the training glyph\nwhile the override sends that key to the cell outline. Every other\nborrower had the same fault. With no icon at all the button falls back\nto the module's initial rather than to an empty square.\n\nThe release stage rides as a Qt property so the stylesheet can select on\nit, set before the first polish so the first paint is already the right\ncolour, and the name and summary are stored as canonical English so a\nlanguage switch retranslates rather than translating a translation.\n\n:param key: the module this button opens.\n:param parent: parent widget, or ``None``.\n:param checkable: make it a toggle rather than a one-shot button."
-    },
-    "spacr.qt.widgets.fold_strip.FoldButton.paintEvent": {
-      "source_blocks_sha256": [
-        "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
-        "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
-        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
-      ],
-      "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
-      "text": "Draw the folded module's icon, and its maturity as a rim colour.\n\nThe colour carries information, so it is drawn rather than left to a\nstylesheet: alpha and beta modules are marked, and a reader who\ncannot distinguish the hues still gets the tooltip.\n\n:param event: the Qt paint event."
     },
     "spacr.qt.widgets.fold_strip.FoldButton.set_stage": {
       "source_blocks_sha256": [

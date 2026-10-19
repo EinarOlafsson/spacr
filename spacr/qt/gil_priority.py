@@ -665,6 +665,62 @@ def _watch_object_events(watched, watcher, kinds) -> bool:
     return True
 
 
+def _show_paint_layer(owner, attribute: str, pixmap) -> None:
+    """Show ``pixmap`` over ``owner`` in a plain child label, or hide it.
+
+    A widget that drew a decoration in a Python ``paintEvent`` was asked
+    for it on every frame of the window's field, a re-entry into Python
+    each time. Drawn once into a pixmap and shown by a ``QLabel`` with no
+    Python methods, it is painted by Qt alone, after the owner's own paint
+    as the ``paintEvent`` drew it, and with the same pixels: an opaque
+    colour drawn with coverage onto a transparent pixmap and then blended
+    onto the owner is the same 8-bit sum as drawing it on the owner.
+
+    :param owner: the widget the decoration belongs to.
+    :param attribute: where on ``owner`` the label is kept.
+    :param pixmap: the decoration at ``owner``'s size and pixel ratio, or
+        ``None`` to hide it.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLabel
+
+    layer = owner.__dict__.get(attribute)
+    if pixmap is None or pixmap.isNull():
+        if layer is not None:
+            layer.hide()
+        return
+    if layer is None:
+        layer = QLabel(owner)
+        layer.setObjectName("spacrPaintLayer")
+        layer.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        layer.setFocusPolicy(Qt.NoFocus)
+        layer.setStyleSheet("QLabel#spacrPaintLayer { background: transparent;"
+                            " border: none; padding: 0px; margin: 0px; }")
+        layer.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        layer.setContentsMargins(0, 0, 0, 0)
+        layer.setAccessibleName("")
+        owner.__dict__[attribute] = layer
+    layer.setGeometry(owner.rect())
+    layer.setPixmap(pixmap)
+    layer.raise_()
+    layer.show()
+
+
+def _blank_layer_pixmap(owner):
+    """A transparent pixmap at ``owner``'s size and pixel ratio."""
+    import math
+
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QPixmap
+
+    ratio = owner.devicePixelRatioF()
+    pixmap = QPixmap(max(1, math.ceil(owner.width() * ratio)),
+                     max(1, math.ceil(owner.height() * ratio)))
+    pixmap.setDevicePixelRatio(ratio)
+    pixmap.fill(Qt.transparent)
+    return pixmap
+
+
 def _stop_watching_object_events(watched, watcher) -> bool:
     """Undo :func:`_watch_object_events`; ``True`` if it was watching."""
     if watched is None or watcher is None:
