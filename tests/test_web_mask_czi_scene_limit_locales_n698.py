@@ -16,7 +16,7 @@ def test_actual_czi_scene_limit_translation(legacy, monkeypatch, language):
     before = array.copy()
     expected_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language
                      / '2026-10-15-web-czi-scene-limit.json')
-    expected = json.loads(expected_path.read_text())['records'][0]['translation']
+    expected = json.loads(expected_path.read_text(encoding='utf-8'))['records'][0]['translation']
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setattr(convert, '_legacy_czi_series', lambda *args: pytest.fail(
         'Scene expansion ran before the localized limit refusal'))

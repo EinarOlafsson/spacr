@@ -19,7 +19,7 @@ def test_installed_own_dino_classifier_refusals(checkpoint, monkeypatch, tmp_pat
                    else '2026-10-15-f561-classifier-ui-runtime-home-b.json')
     review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime'
                    / language / review_file)
-    reviews = json.loads(review_path.read_text())['records']
+    reviews = json.loads(review_path.read_text(encoding='utf-8'))['records']
     source = ('Own-DINO classifier settings, checkpoint or input are incompatible.'
               if boundary == 'invalid' else 'Classifier training stopped.')
     expected = next(r['translation'] for r in reviews if r['source'] == source)
