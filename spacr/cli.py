@@ -1201,7 +1201,7 @@ def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
                                for k, v in values.items()},
                               out, indent=2, sort_keys=True)
             mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
-            with staged.open("rb") as stream:
+            with staged.open("r+b") as stream:
                 os.fsync(stream.fileno())
             staged.chmod(mode)
             prepared.append((staged, target))

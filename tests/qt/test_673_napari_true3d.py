@@ -361,6 +361,35 @@ def test_the_render_runs_off_the_gui_thread_and_stale_results_are_dropped(view, 
     assert old.cancelled()
 
 
+def test_a_cpu_drag_shows_frames_while_the_view_still_turns(view, qtbot):
+    """2026-10-19 macOS acceptance: every mouse move cancelled the CPU frame
+    being drawn, so a drag showed no new picture until the mouse stopped."""
+    stage = view
+    stage._backend_box.setCurrentIndex(stage._backend_box.findData("cpu"))
+    _wait_render(stage, qtbot)
+    frame = (np.zeros((2, 2, 3), np.uint8), np.zeros((2, 2), np.int64))
+    drawing = stage._render_request("interactive")
+    newer = stage._render_request("interactive")
+    assert not drawing.cancelled()
+    stage._take_render((drawing, frame, None))
+    assert stage._render_state.rgb is frame[0]
+
+    stage._take_render((newer, (frame[0].copy(), frame[1]), None))
+    shown = stage._render_state
+    stage._take_render((drawing, frame, None))
+    assert stage._render_state is shown, "an older frame never replaces a newer one"
+
+    turning = stage._render_request("interactive")
+    stage._version += 1
+    stage._render_request("interactive")
+    assert turning.cancelled(), "changed content cancels the frame being drawn"
+    turning = stage._render_request("interactive")
+    settled = stage._render_request("preview")
+    assert turning.cancelled() and not settled.cancelled()
+    stage._take_render((turning, frame, None))
+    assert stage._render_state is shown
+
+
 def test_renderer_modes_hidden_layers_and_label_opacity():
     labels = _spheres()
     image = labels.astype(np.float32) * 100

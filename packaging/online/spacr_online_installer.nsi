@@ -57,8 +57,8 @@ Function .onInit
   ; user can still untick this component to require the smaller CPU wheel.
   SectionSetFlags ${SecGpu} ${SF_SELECTED}
   SectionSetFlags ${SecWithoutWgpu} 0
-  StrCpy $ConsentShareValue 0
-  StrCpy $ConsentIssuesValue 0
+  StrCpy $ConsentShareValue 1
+  StrCpy $ConsentIssuesValue 1
   StrCpy $ConsentCollectedValue 0
 FunctionEnd
 
@@ -68,12 +68,14 @@ Function ConsentPage
   ${If} $0 == error
     Abort
   ${EndIf}
-  ${NSD_CreateLabel} 0 0 100% 58u "Privacy choices$\r$\nAnonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences > AI > AI Error report. See the terms of use, Sections 5.6-5.7 and 6."
+  ${NSD_CreateLabel} 0 0 100% 12u "Privacy choices"
   Pop $0
-  ${NSD_CreateCheckbox} 0 66u 100% 12u "Include redacted diagnostic logs in report previews (off by default)"
+  ${NSD_CreateCheckbox} 0 20u 100% 12u "Include redacted diagnostic logs in report previews"
   Pop $ConsentShare
-  ${NSD_CreateCheckbox} 0 84u 100% 12u "Enable the public GitHub issue-report action (off by default)"
+  ${NSD_Check} $ConsentShare
+  ${NSD_CreateCheckbox} 0 38u 100% 12u "Enable the public GitHub issue-report action"
   Pop $ConsentIssues
+  ${NSD_Check} $ConsentIssues
   nsDialogs::Show
 FunctionEnd
 

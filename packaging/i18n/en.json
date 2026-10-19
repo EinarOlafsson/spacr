@@ -65,7 +65,6 @@
   "old_install_same": "That is the same version this installer carries.",
   "old_copy_not_removed": "Installation stopped: an older spaCR could not be removed (see above). Close any running spaCR and run the installer again.",
   "gui_explanation": "Install private Python and spaCR dependencies in this window. No Terminal answers or administrator password are needed for this user runtime.",
-  "gui_public_reports": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
   "gui_share_diagnostics": "Include redacted diagnostic logs in report previews",
   "gui_report_issues": "Enable the public GitHub issue-report action",
   "gui_preserve": "Your existing data, models, caches and preferences are kept. No optional cleanup is selected.",

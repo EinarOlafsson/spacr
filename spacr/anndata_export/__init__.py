@@ -1569,7 +1569,7 @@ def _write_h5ad_atomic(adata: Any, path: Union[str, os.PathLike],
     with tempfile.TemporaryDirectory(prefix=".anndata-", dir=os.path.dirname(path)) as folder:
         pending = os.path.join(folder, "pending.h5ad")
         adata.write_h5ad(pending, **kwargs)
-        with open(pending, "rb") as handle:
+        with open(pending, "r+b") as handle:
             os.fsync(handle.fileno())
         os.replace(pending, path)
 

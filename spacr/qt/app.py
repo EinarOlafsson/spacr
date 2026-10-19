@@ -3024,6 +3024,36 @@ def _a_modal_dialog_is_open() -> bool:
     return _Application.activeModalWidget() is not None
 
 
+def _end_the_event_loop(app) -> None:
+    """End the session after the main window accepted its close.
+
+    On macOS ``quit()`` asks Cocoa to terminate. When a termination is
+    already under way -- Dock Quit, logging out, an Apple Event -- Cocoa
+    closes the main window, this runs inside it, and the second terminate
+    makes AppKit call ``exit()`` while Python still runs: PySide then
+    crashes in its static destructors (seen on every such quit on
+    2026-10-19). ``exit(0)`` only leaves the event loop, so ``exec`` returns
+    and Python shuts down normally, once however often this is reached.
+    Other platforms keep ``quit()``.
+
+    :param app: the application.
+    """
+    leave = getattr(app, "exit", None) if sys.platform == "darwin" else None
+    if leave is None:
+        app.quit()
+        return
+    if getattr(app, "_spacr_leaving", False):
+        return
+    try:
+        app._spacr_leaving = True
+    except AttributeError:
+        pass
+    close_all = getattr(app, "closeAllWindows", None)
+    if close_all is not None:
+        close_all()
+    leave(0)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -4999,6 +5029,19 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "check", check, self._on_update_check_done)
 
+    def _prune_retained_runtime_copies(self) -> None:
+        """Keep one rollback copy of this runtime once the window is up, on a background thread.
+
+        Each update keeps the runtime it replaced (about 3 GB); this launch has confirmed the new one,
+        so older committed copies go. See :func:`spacr.install_cleanup._prune_runtime_transactions`.
+        """
+        if self._closing:
+            return
+        import threading
+
+        threading.Thread(target=_prune_retained_runtime_copies_quietly, name="spacr-runtime-prune",
+                         daemon=True).start()
+
     def _maybe_show_whats_new(self) -> None:
         """Show what changed when this launch runs a newer version than the last.
 
@@ -5327,7 +5370,7 @@ class MainWindow(QMainWindow):
             if plan.get("handshake"):
                 try:
                     handshake_type = (install_cleanup._WindowsPipHandshake
-                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
+                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
                                       else install_cleanup._FrozenUpdateHandshake)
                     handshake_type(plan).cancel()
                 except Exception:
@@ -5341,14 +5384,14 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
             from PySide6.QtWidgets import QProgressDialog
 
             self._frozen_update_plan = plan
             try:
                 handshake_type = (install_cleanup._WindowsPipHandshake
-                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
+                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
                                   else install_cleanup._FrozenUpdateHandshake)
                 self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:
@@ -5709,7 +5752,7 @@ class MainWindow(QMainWindow):
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
-                app.quit()
+                _end_the_event_loop(app)
 
     _UPDATE_WORKER_WAIT_MS = 5000
 
@@ -8254,15 +8297,54 @@ def _module_source_mentions_pyside(original, module) -> bool:
     return original(module)
 
 
-def _start_settings_prewarm() -> threading.Thread:
+_HEAVY_WARM_GATE = threading.Event()
+_HEAVY_WARM_AFTER_HOME_MS = 1500
+_HEAVY_WARM_FROM = "spacr.settings_advisor"
+
+
+def _open_the_heavy_warm_after_home() -> None:
+    """Let the warm thread import the numerical stack once Home is usable.
+
+    Home must come up without pandas, scipy, matplotlib or scikit-image, so
+    the warm holds those back till Home reports it is painted and then has
+    been left alone for a moment. With timing off there is no Home record, so
+    a fixed delay after launch stands in for it; the thread also starts them
+    anyway after its own timeout.
+    """
+    from PySide6.QtCore import QTimer
+
+    if _timing.ENABLED:
+        _timing.subscribe_readiness(_open_the_heavy_warm_on_home)
+    else:
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS * 2, _HEAVY_WARM_GATE.set)
+
+
+def _open_the_heavy_warm_on_home(entry: dict) -> None:
+    """Open the warm gate a moment after Home's readiness record arrives."""
+    from PySide6.QtCore import QTimer
+
+    if entry.get("detail") == "__home__":
+        _timing.unsubscribe_readiness(_open_the_heavy_warm_on_home)
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS, _HEAVY_WARM_GATE.set)
+
+
+def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
     Settings imports reach ``path_probe`` through the file-list widgets.
     Its process-wide signal source must outlive the temporary import thread
     and deliver redraw callbacks on the GUI thread. Only its lightweight
     initialization runs here; the slow settings imports remain background work.
+
+    :param wait_for_home: hold the numerical stack back till
+        :func:`_open_the_heavy_warm_after_home` opens the gate; the default
+        imports everything at once, for callers that join the thread.
     """
+    global _HEAVY_WARM_GATE
     _importlib.import_module("spacr.qt.path_probe")
+    gate = _HEAVY_WARM_GATE = threading.Event()
+    if not wait_for_home:
+        gate.set()
 
     def warm():
         """Import the remaining settings dependencies without building widgets."""
@@ -8273,11 +8355,6 @@ def _start_settings_prewarm() -> threading.Thread:
     def _warm_the_settings_imports():
         """Import each module, logging rather than raising a failure."""
         try:
-            try:
-                from .widgets.ambient import _import_numba
-                _import_numba()
-            except ImportError:
-                LOG.debug("numba is not available to prewarm", exc_info=True)
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
                         "spacr.qt.imagery", "spacr.settings_advisor",
@@ -8285,6 +8362,14 @@ def _start_settings_prewarm() -> threading.Thread:
                         "matplotlib.figure", "matplotlib.font_manager",
                         "skimage.data", "skimage.draw", "skimage.filters",
                         "skimage.measure", "skimage.morphology"):
+                if mod == _HEAVY_WARM_FROM:
+                    gate.wait(60)
+                    try:
+                        from .widgets.ambient import _import_numba
+                        _import_numba()
+                    except ImportError:
+                        LOG.debug("numba is not available to prewarm",
+                                  exc_info=True)
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
@@ -8400,6 +8485,19 @@ def _register_the_glyph_font() -> None:
 
 
 _ICON_WARM_AFTER_MS = 1500
+
+
+def _prune_retained_runtime_copies_quietly() -> None:
+    """Prune older retained update copies off the GUI thread; a failure only leaves them in place."""
+    try:
+        from spacr.install_cleanup import _prune_runtime_transactions_after_launch
+
+        _prune_runtime_transactions_after_launch()
+    except Exception:                                            # noqa: BLE001
+        LOG.debug("Retained runtime copies were not pruned", exc_info=True)
+
+#: Delay before older retained update copies are pruned: well after the window is confirmed up.
+_RETAINED_RUNTIME_PRUNE_AFTER_MS = 60_000
 
 
 def _start_icon_prewarm() -> Optional[threading.Thread]:
@@ -8670,12 +8768,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
         _warm_the_preferences(win)
         _start_the_font_cache_in_a_child()
-        _start_settings_prewarm()
+        _start_settings_prewarm(wait_for_home=True)
+        _open_the_heavy_warm_after_home()
         from PySide6.QtCore import QTimer
 
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, win._maybe_show_whats_new)
+        QTimer.singleShot(_RETAINED_RUNTIME_PRUNE_AFTER_MS, win._prune_retained_runtime_copies)
         win._start_the_screen_prewarm()
 
     def _drain_ai():

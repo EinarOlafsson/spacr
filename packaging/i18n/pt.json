@@ -65,7 +65,6 @@
   "old_install_same": "É a mesma versão que este instalador traz.",
   "old_copy_not_removed": "Instalação interrompida: não foi possível remover um spaCR mais antigo (veja acima). Feche qualquer spaCR em execução e execute o instalador novamente.",
   "gui_explanation": "Instale Python privado e as dependências do spaCR nesta janela. Este ambiente do utilizador não exige respostas no Terminal nem palavra-passe de administrador.",
-  "gui_public_reports": "Os relatórios de erro anonimizados estão ativados por predefinição. O relay do spaCR regista-os como issues públicas do GitHub, sem necessidade de conta, e nunca incluem caminhos, nomes, endereços IP, e-mails, tokens, registos, imagens nem o seu conteúdo. O spaCR AI (gratuito) também está ativado por predefinição. Pode desativar os relatórios em Preferências → AI → AI Error report. Os detalhes constam dos termos de utilização, secções 5.6–5.7 e 6.",
   "gui_share_diagnostics": "Incluir registos de diagnóstico sem dados sensíveis nas pré-visualizações",
   "gui_report_issues": "Ativar o envio de problemas públicos para o GitHub",
   "gui_preserve": "Os dados, modelos, caches e preferências existentes são preservados. Não está selecionada qualquer limpeza opcional.",

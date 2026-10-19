@@ -6,10 +6,15 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+needs_bash = pytest.mark.skipif(sys.platform == "win32" or shutil.which("bash") is None,
+                                reason="runs the POSIX shell installer through bash")
 
 ROOT = Path(__file__).resolve().parents[1]
 ONLINE = ROOT / "packaging" / "online"
@@ -223,9 +228,10 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
         assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
-    assert nsis.count("off by default") >= 2
-    assert "public GitHub issues by spaCR" in nsis
-    assert "AI Error report" in nsis
+    assert "off by default" not in nsis
+    assert "public GitHub issues by spaCR" not in nsis
+    assert "${NSD_Check} $ConsentShare" in nsis and "${NSD_Check} $ConsentIssues" in nsis
+    assert "StrCpy $ConsentShareValue 1" in nsis and "StrCpy $ConsentIssuesValue 1" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis
 
 
@@ -407,6 +413,7 @@ def test_embedded_unix_catalog_preserves_markers_and_is_idempotent(
 @pytest.mark.parametrize(
     "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 )
+@needs_bash
 def test_unix_dry_run_detects_every_installer_language(
     language, tmp_path
 ):
@@ -560,6 +567,7 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "install-online.sh" not in postinstall
 
 
+@needs_bash
 def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     installer = _standalone_unix_installer(tmp_path)
     subprocess.run(["bash", "-n", str(installer)], check=True)
@@ -590,6 +598,7 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     assert not (tmp_path / "spacr").exists()
 
 
+@needs_bash
 def test_unix_dry_run_uses_plain_core_package_without_an_override(tmp_path):
     """The rendered release installer pins core spaCR without a Qt extra."""
     installer = _standalone_unix_installer(tmp_path)
@@ -616,6 +625,7 @@ def test_unix_dry_run_uses_plain_core_package_without_an_override(tmp_path):
         ("macos", "x86_64", 1, "auto"),
     ),
 )
+@needs_bash
 def test_unix_backend_default_is_auto_on_every_supported_platform(
     tmp_path, platform_name, machine, nvidia_status, expected
 ):

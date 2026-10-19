@@ -853,13 +853,44 @@ def test_no_helper_starts_without_a_python_that_survives_the_removal(tmp_path):
     assert spawned == []
 
 
-def test_legacy_windows_runtime_does_not_enter_unverified_native_setup(tmp_path):
+def test_windows_online_runtime_stages_through_its_own_uv(tmp_path, monkeypatch):
     box = Box(tmp_path / "box")
     root, machine, records = _running_desktop(box, "windows")
+    (root / "install-profile.json").unlink()
+    base = root / "python" / "cpython-3.12.11-windows-x86_64-none"
+    owner = "S-1-5-21-1-2-3-1001"
+    monkeypatch.setattr(ic, "_windows_pip_acl", lambda _path: {
+        "owner": owner, "user": owner, "has_dacl": True,
+        "rules": [{"sid": owner, "type": 0, "rights": 0x1f01ff, "propagation": 0}]})
+    monkeypatch.setattr(ic.sys, "prefix", str(root / "venv"))
+    monkeypatch.setattr(ic.sys, "base_prefix", str(base))
+    monkeypatch.setattr(ic, "_run", lambda argv, **kw: (0, json.dumps({
+        "python": argv[0], "prefix": str(base), "base_prefix": str(base),
+        "stdlib": str(base / "Lib"), "os_name": "nt"})))
+    spawned = []
+
+    plan = ic.start_update_helper(records, "9.9.9", workdir=str(tmp_path / "h"),
+                                  system=machine, spawn=lambda *args: spawned.append(args))
+
+    assert plan["error"] is None, plan["error"]
+    assert plan["adapter"] == "windows-online-uv-v1" and plan["fetch"] is None
+    assert plan["install"][0] == str(root / "bootstrap" / "uv.exe")
+    assert "spacr==9.9.9" in plan["install"]
+    assert plan["relaunch"] == [str(root / "venv" / "Scripts" / "pythonw.exe"), "-I", "-m", "spacr.qt"]
+    assert plan["command"][0] == str(base / "python.exe") and len(spawned) == 1
+    assert root.is_dir()
+
+
+def test_unknown_windows_layout_still_refuses_to_stage(tmp_path):
+    box = Box(tmp_path / "box")
+    root, machine, records = _running_desktop(box, "windows")
+    records = [ic.replace(record, layout="windows-unknown") if record.running else record
+               for record in records]
 
     plan = ic.start_update_helper(records, "9.9.9", workdir=str(tmp_path / "h"),
                                   system=machine, spawn=lambda *args: None)
 
+    assert plan.get("adapter") != "windows-online-uv-v1"
     assert plan["command"] is None and plan["fetch"] is None
     assert plan["install"] is None and plan["relaunch"] is None
     assert "cannot stage a verified update" in plan["error"]

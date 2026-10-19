@@ -91,6 +91,22 @@ def test_children_are_unknown_off_windows():
     assert ic._owner_children_live(1, STARTED) is None
 
 
+@pytest.mark.skipif(ic.os.name != "nt", reason="reads the real Windows process table")
+def test_an_exited_process_still_referenced_by_a_handle_is_gone():
+    """Found natively 2026-10-19: a killed update helper whose process object stayed alive (another process
+    still held a handle to it) kept its runtime lease forever, because OpenProcess and GetProcessTimes succeed
+    on an exited process. Its exit code decides."""
+    import subprocess
+    import sys
+
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait(timeout=60)
+    assert ic._process_started(child.pid) == ""
+    assert ic._process_gone(child.pid) is True
+    assert ic._process_started(ic.os.getpid()).startswith("filetime:")
+    assert ic._process_gone(ic.os.getpid()) is False
+
+
 def test_the_powershell_installer_follows_the_same_rule():
     source = WINDOWS.read_text(encoding="utf-8")
     assert "function Enable-SpacrInstallerJob" in source and "$null = Enable-SpacrInstallerJob" in source

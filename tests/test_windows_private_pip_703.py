@@ -28,8 +28,23 @@ def acl():
 
 
 def snapshot(prefix):
-    return {str(path.relative_to(prefix)): path.read_bytes()
+    return {path.relative_to(prefix).as_posix(): path.read_bytes()
             for path in prefix.rglob('*') if path.is_file()}
+
+
+@pytest.fixture
+def symlinks(tmp_path):
+    """Skip a case that must create a symbolic link where this Windows account may not (WinError 1314)."""
+    def require():
+        probe = tmp_path / 'symlink-probe'
+        try:
+            probe.symlink_to(tmp_path, target_is_directory=True)
+        except OSError as error:
+            if getattr(error, 'winerror', None) == 1314:
+                pytest.skip('creating a symbolic link needs a privilege this Windows account lacks')
+            raise
+        probe.unlink()
+    return require
 
 
 @pytest.fixture
@@ -124,6 +139,7 @@ def test_unproven_windows_acl_refuses_before_mutation(runtime, monkeypatch, defe
     {'sid': 'S-1-1-0', 'type': 0, 'rights': 0x120089, 'propagation': 0},
     {'sid': 'S-1-5-32-544', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0},
     {'sid': 'S-1-1-0', 'type': 1, 'rights': 0x1f01ff, 'propagation': 0},
+    {'sid': 'S-1-3-4', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0},
 ])
 def test_non_writable_foreign_or_trusted_acl_rules_are_supported(runtime, monkeypatch, rule):
     evidence = acl()
@@ -133,7 +149,7 @@ def test_non_writable_foreign_or_trusted_acl_rules_are_supported(runtime, monkey
 
 
 @pytest.mark.parametrize('defect', ['conda', 'system_site', 'editable', 'link', 'inside_helper', 'wrong_running', 'missing_pythonw'])
-def test_unsupported_environment_is_not_replaced(runtime, defect):
+def test_unsupported_environment_is_not_replaced(runtime, defect, symlinks):
     before = snapshot(runtime.prefix)
     if defect == 'conda':
         (runtime.prefix / 'conda-meta').mkdir()
@@ -142,6 +158,7 @@ def test_unsupported_environment_is_not_replaced(runtime, defect):
     elif defect == 'editable':
         (runtime.prefix / 'editable.egg-link').write_text('/outside/source')
     elif defect == 'link':
+        symlinks()
         (runtime.prefix / 'outside').symlink_to(runtime.base, target_is_directory=True)
     elif defect == 'inside_helper':
         runtime.helper = runtime.prefix / 'updater'
@@ -446,6 +463,45 @@ def handshake_plan(runtime):
     return plan
 
 
+def test_a_message_replaced_while_it_is_read_is_read_again(runtime, monkeypatch):
+    """Found natively 2026-10-19: the relaunched desktop replaces launch-result.json ("starting", then "ready")
+    while the helper polls it; a replace between lstat and open rolled a verified update back."""
+    plan = handshake_plan(runtime)
+    helper = cleanup._WindowsPipHandshake(plan)
+    helper._write('readiness.json', 'ready')
+    other = runtime.helper / 'other.json'
+    other.write_text('{}')
+    real = cleanup.os.lstat
+    replaced = {'left': 2}
+
+    def lstat(path, *args, **kwargs):
+        if str(path).endswith('readiness.json') and replaced['left']:
+            replaced['left'] -= 1
+            return real(other)
+        return real(path, *args, **kwargs)
+
+    monkeypatch.setattr(cleanup.os, 'lstat', lstat)
+    assert helper._read('readiness.json')['state'] == 'ready'
+    replaced['left'] = 1000
+    with pytest.raises(ValueError, match='invalid frozen updater readiness message'):
+        helper._read('readiness.json')
+
+
+def test_the_venv_launchers_child_is_the_launched_desktop(monkeypatch):
+    """A Windows venv's Scripts\\pythonw.exe runs the interpreter as its child, which acknowledges the launch."""
+    launcher = types.SimpleNamespace(pid=7000, poll=lambda: None)
+    monkeypatch.setattr(cleanup, '_windows_children', lambda pid: [(7001, 'filetime:2')] if pid == 7000 else [])
+    monkeypatch.setattr(cleanup.os, 'name', 'nt')
+    try:
+        assert cleanup._launched_desktop(launcher, 7000)
+        assert cleanup._launched_desktop(launcher, 7001)
+        assert not cleanup._launched_desktop(launcher, 7002)
+        assert not cleanup._launched_desktop(launcher, True)
+        assert not cleanup._launched_desktop(types.SimpleNamespace(pid=7000, poll=lambda: 0), 7001)
+    finally:
+        monkeypatch.undo()
+
+
 def test_windows_handshake_authenticates_readiness_approval_and_real_exit(runtime):
     plan = handshake_plan(runtime)
     original = snapshot(runtime.prefix)
@@ -467,7 +523,7 @@ def test_windows_handshake_authenticates_readiness_approval_and_real_exit(runtim
 
 
 @pytest.mark.parametrize('failure', ['cancelled', 'expired', 'foreign_binding', 'symlink', 'oversized', 'foreign_acl', 'replaced'])
-def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monkeypatch, failure):
+def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monkeypatch, failure, symlinks):
     plan = handshake_plan(runtime)
     helper = cleanup._WindowsPipHandshake(plan)
     helper.ready()
@@ -482,6 +538,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
         contents['binding'] = 'foreign'
         path.write_text(json.dumps(contents))
     elif failure == 'symlink':
+        symlinks()
         outside = runtime.helper.parent / 'foreign.json'
         path.rename(outside)
         path.symlink_to(outside)
@@ -498,7 +555,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
         original_open = cleanup.os.open
         def replace_at_open(checked, flags, *args, **kwargs):
             if Path(checked) == path:
-                path.rename(path.with_suffix('.original'))
+                os.replace(path, path.with_suffix('.original'))
                 path.write_text(path.with_suffix('.original').read_text())
             return original_open(checked, flags, *args, **kwargs)
         monkeypatch.setattr(cleanup.os, 'open', replace_at_open)

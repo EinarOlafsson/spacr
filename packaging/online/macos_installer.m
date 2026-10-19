@@ -248,14 +248,13 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
 }
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     (void)notification;
-    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 760, 610)
+    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 760, 546)
         styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
         backing:NSBackingStoreBuffered defer:NO];
     self.window.title = tr(@"installer_title");
     self.window.delegate = self;
     [self.window center];
-    [self label:tr(@"gui_explanation") frame:NSMakeRect(24, 548, 712, 44)];
-    [self label:tr(@"gui_public_reports") frame:NSMakeRect(24, 476, 712, 64)];
+    [self label:tr(@"gui_explanation") frame:NSMakeRect(24, 484, 712, 44)];
     self.choices = [NSMutableArray array];
     NSArray *keys = @[@"nsis_gpu", @"gui_share_diagnostics", @"gui_report_issues", @"without_wgpu"];
     for (NSUInteger index = 0; index < keys.count; ++index) {
@@ -263,7 +262,7 @@ static NSString *tr(NSString *key) { return messages[key] ?: key; }
         choice.frame = NSMakeRect(24, 428 - index * 44, 712, 40);
         [(NSCell *)choice.cell setWraps:YES];
         choice.toolTip = choice.title;
-        choice.state = index == 0 ? NSControlStateValueOn : NSControlStateValueOff;
+        choice.state = index < 3 ? NSControlStateValueOn : NSControlStateValueOff;
         [self.window.contentView addSubview:choice];
         [self.choices addObject:choice];
     }

@@ -12,6 +12,9 @@ from tests.test_macos_runtime_transaction_703 import (
     _installer, _snapshot, _wheel, installation,
 )
 
+pytestmark = pytest.mark.skipif(
+    os.name == "nt", reason="drives the POSIX runtime transaction: bin/python, symlinks and an atomic exchange")
+
 
 @pytest.mark.parametrize("decision", ["restart", "cancel", "changed-runtime"])
 def test_restart_is_offered_only_after_real_staged_install_and_verification(

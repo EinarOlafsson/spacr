@@ -3,10 +3,15 @@ import json
 import os
 from pathlib import Path
 import select
+import shutil
 import stat
 import subprocess
+import sys
 
 import pytest
+
+needs_bash = pytest.mark.skipif(sys.platform == "win32" or shutil.which("bash") is None,
+                                reason="drives the POSIX shell installer through bash")
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,6 +63,7 @@ def owner(tmp_path):
             process.communicate('release\n', timeout=10)
 
 
+@needs_bash
 def test_second_real_installer_cannot_mutate_an_owned_root(tmp_path, owner):
     root = tmp_path / 'private application'
     first = owner(root)
@@ -76,6 +82,7 @@ def test_second_real_installer_cannot_mutate_an_owned_root(tmp_path, owner):
     assert (root / 'verified').read_text() == 'installed'
 
 
+@needs_bash
 def test_real_exit_rollback_remains_exclusive_until_original_runtime_is_restored(tmp_path, owner):
     root = tmp_path / 'application'
     (root / 'venv').mkdir(parents=True)
@@ -121,6 +128,7 @@ exit 7
     assert not (root / '.venv.spacr-update-lock').exists()
 
 
+@needs_bash
 def test_different_roots_can_install_concurrently(tmp_path, owner):
     first = owner(tmp_path / 'first')
     root = tmp_path / 'second'
@@ -131,6 +139,7 @@ def test_different_roots_can_install_concurrently(tmp_path, owner):
 
 
 @pytest.mark.parametrize('existing', ['outside', 'runtime'])
+@needs_bash
 def test_existing_or_interrupted_lease_is_not_stolen_or_changed(tmp_path, existing):
     root = tmp_path / 'application'
     root.mkdir()
@@ -148,6 +157,7 @@ def test_existing_or_interrupted_lease_is_not_stolen_or_changed(tmp_path, existi
         assert not (root.parent / ('.' + root.name + '.spacr-installer-lock')).exists()
 
 
+@needs_bash
 def test_path_alias_cannot_bypass_current_root_lease(tmp_path, owner):
     root = tmp_path / 'actual application'
     first = owner(root)
@@ -159,6 +169,7 @@ def test_path_alias_cannot_bypass_current_root_lease(tmp_path, owner):
     assert not (root / 'mutation').exists()
 
 
+@needs_bash
 def test_cleanup_does_not_remove_a_replaced_lease(tmp_path, owner):
     root = tmp_path / 'application'
     first = owner(root)
@@ -172,6 +183,7 @@ def test_cleanup_does_not_remove_a_replaced_lease(tmp_path, owner):
     assert retained.is_dir()
 
 
+@needs_bash
 def test_failed_recovery_retains_both_leases_for_explicit_resolution(tmp_path):
     root = tmp_path / 'application'
     result = _run(_script(tmp_path, 'SPACR_INSTALLER_RETAIN_LEASE=1\nexit 9\n'), tmp_path, root)
@@ -207,6 +219,7 @@ def test_windows_wrapper_acquires_exclusive_handles_before_logging_and_cleans_ow
     assert 'if (-not $RetainWorkDir) {\n            Remove-Item -LiteralPath $Lease.Path' in source
 
 
+@needs_bash
 def test_busy_refusal_reuses_actual_existing_installer_locales():
     for language in ['en', 'sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr']:
         values = json.loads((ROOT / 'packaging/i18n' / (language + '.json')).read_text())
@@ -232,6 +245,7 @@ def _identity_function():
 
 
 @pytest.mark.parametrize('flavor', ['gnu', 'bsd'])
+@needs_bash
 def test_lease_identity_uses_whichever_stat_is_on_path(tmp_path, flavor):
     """These drivers pin PLATFORM=linux; on a Mac the stat on PATH is BSD's, and Homebrew's gnubin can put
     GNU's first there. The identity must come from whichever one answers."""

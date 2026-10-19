@@ -5748,6 +5748,11 @@ def _flow_graphics_preflight():
     child keeps the CPU renderer. The probe runs in a child so a driver
     crash during context creation cannot take the application down.
     ``SPACR_NO_GL`` (safe mode, crash recovery) keeps it without probing.
+
+    macOS is never probed. Its OpenGL stops at 4.1, so the 4.3 context can
+    only fail, and creating one at start-up preceded three WindowServer
+    watchdog kills ("Display not ready") on an Intel Iris Mac running
+    macOS 26 on 2026-10-19.
     """
     global _FLOW_GRAPHICS_PROBE
     import importlib.util
@@ -5755,7 +5760,8 @@ def _flow_graphics_preflight():
 
     with _FLOW_GRAPHICS_PROBE_LOCK:
         if _FLOW_GRAPHICS_PROBE is None and (
-                os.environ.get("SPACR_NO_GL")
+                sys.platform == "darwin"
+                or os.environ.get("SPACR_NO_GL")
                 or importlib.util.find_spec("moderngl") is None):
             _FLOW_GRAPHICS_PROBE = False
         if _FLOW_GRAPHICS_PROBE is None:

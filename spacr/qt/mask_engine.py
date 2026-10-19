@@ -2868,7 +2868,7 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
             write_tiff(temporary, labels, metadata=None, description=description,
                        bigtiff=labels.nbytes + len(description) >= 2**32 - 2**25,
                        **resolution)
-            with open(temporary, "rb") as handle:
+            with open(temporary, "r+b") as handle:
                 os.fsync(handle.fileno())
             if os.path.isfile(save_path):
                 os.chmod(temporary, stat.S_IMODE(os.stat(save_path).st_mode))
