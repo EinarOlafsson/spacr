@@ -121,6 +121,7 @@ class FilmStrip(QScrollArea):
         self._row.addStretch(1)
         self.setWidget(self._body)
         self._cells: List[QLabel] = []
+        self._ring: Optional[tuple] = None
 
     def set_frames(self, frames: Sequence[QPixmap]) -> None:
         """Replace the strip. Cheap to call: the pixmaps are already made.
@@ -134,6 +135,7 @@ class FilmStrip(QScrollArea):
             if widget is not None:
                 widget.deleteLater()
         self._cells = []
+        self._ring = None
 
         for index, pixmap in enumerate(frames):
             cell = QLabel()
@@ -149,13 +151,22 @@ class FilmStrip(QScrollArea):
     def highlight(self, index: int) -> None:
         """Ring the frame the movie is on, so the two views agree.
 
+        Only the cells whose ring changes get a new style sheet: restyling
+        every thumbnail on each step of a playing movie re-polished the
+        whole strip once a frame.
+
         :param index: zero-based index of the frame to ring; every other cell
             loses its ring, and an index outside the strip rings none.
         """
         from ..theme import active_palette
 
         accent = active_palette().get("accent", "#4a9eff")
+        ring = (int(index), accent)
+        previous, self._ring = self._ring, ring
         for i, cell in enumerate(self._cells):
+            if (previous is not None and previous[1] == accent
+                    and i not in (previous[0], ring[0])):
+                continue
             cell.setStyleSheet(
                 f"border: 2px solid {accent};" if i == index
                 else "border: 2px solid transparent;")

@@ -1531,6 +1531,24 @@ class _ZoomView(QGraphicsView):
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
         self._message = ""
 
+    def _show_frame(self, pixmap: QPixmap) -> None:
+        """Show the next frame of the same field, keeping zoom and pan.
+
+        A frame the size of the one on show replaces the picture of the
+        item already in the scene, so scrubbing or playing a movie neither
+        rebuilds the scene nor refits it on every step, and a user zoomed
+        into one cell stays on that cell while the movie plays. A frame of
+        another size is a new field and goes through :meth:`set_pixmap`.
+
+        :param pixmap: the frame to show.
+        """
+        item = self._pixmap_item
+        if item is None or item.pixmap().size() != pixmap.size():
+            self.set_pixmap(pixmap)
+            return
+        if item.pixmap().cacheKey() != pixmap.cacheKey():
+            item.setPixmap(pixmap)
+
     def show_message(self, text: str) -> None:
         """Say ``text`` where a picture would be, and hold no picture.
 
