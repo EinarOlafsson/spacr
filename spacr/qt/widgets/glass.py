@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QTextEdit, QWidget)
 
 from ..gil_priority import (_stop_watching_application_events,
+                            _watch_object_events,
                             _watch_application_events)
 
 LOG = logging.getLogger("spacr.qt.glass")
@@ -426,7 +427,11 @@ class _ResizeByEdge(QObject):
         window.setMouseTracking(True)
         for child in window.findChildren(QWidget):
             child.setMouseTracking(True)
-        window.installEventFilter(self)
+        _watch_object_events(window, self, (
+            QEvent.Resize, QEvent.Hide, QEvent.WindowDeactivate,
+            QEvent.WindowStateChange, QEvent.Type.MouseMove,
+            QEvent.Type.MouseButtonRelease, QEvent.Type.MouseButtonPress,
+            QEvent.Type.Leave))
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         """Resize from a corner or edge and highlight that edge in blue.

@@ -330,7 +330,9 @@ class ChainingBar(QFrame):
 
         self._show_filter = _ShowFilter(self._on_screen_shown, self)
         try:
-            screen.installEventFilter(self._show_filter)
+            from .gil_priority import _watch_object_events
+
+            _watch_object_events(screen, self._show_filter, (QEvent.Show,))
         except Exception:
             LOG.exception("could not watch %s for show events", self.app_key)
 

@@ -244,5 +244,4 @@ class ApiHelpLabel(QLabel):
         if self._help_filter is None:
             from ..screens.settings_model import _ApiTooltipFilter
             self._help_filter = _ApiTooltipFilter(self)
-        self.removeEventFilter(self._help_filter)
-        self.installEventFilter(self._help_filter)
+        self._help_filter.watch(self)

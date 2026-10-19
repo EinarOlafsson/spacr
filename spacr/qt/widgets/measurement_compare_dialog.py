@@ -903,8 +903,7 @@ class MeasurementComparePanel(QWidget):
                 self._heading_filter = _ApiTooltipFilter(self)
             label.setProperty("apiTooltipHtml", label.toolTip())
             label.setProperty("apiTooltipDisplayRole", "tooltip")
-            label.removeEventFilter(self._heading_filter)
-            label.installEventFilter(self._heading_filter)
+            self._heading_filter.watch(label)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not install the hover tooltip", exc_info=True)
         self.headings[str(field)] = label

@@ -4782,6 +4782,22 @@ def _is_self_labelling(widget) -> bool:
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
+    #: Every event type :meth:`eventFilter` acts on.
+    KINDS = (QEvent.Enter, QEvent.Leave, QEvent.ToolTip)
+
+    def watch(self, widget) -> None:
+        """Hear ``widget``'s hover and tooltip events, once, never a paint."""
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+        _stop_watching_object_events(widget, self)
+        _watch_object_events(widget, self, self.KINDS)
+
+    def unwatch(self, widget) -> None:
+        """Stop hearing ``widget``."""
+        from ..gil_priority import _stop_watching_object_events
+
+        _stop_watching_object_events(widget, self)
+
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
         """Show the API help popup instead of Qt's own tooltip.
 
@@ -6607,11 +6623,10 @@ def install_api_tooltips(
             widget.setProperty("apiTooltipHtml", "")
             widget.setProperty("apiTooltipDisplayRole", "metadata")
             widget.setToolTip("")
-            widget.removeEventFilter(event_filter)
+            event_filter.unwatch(widget)
             continue
         if label is None:
-            widget.removeEventFilter(event_filter)
-            widget.installEventFilter(event_filter)
+            event_filter.watch(widget)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -6625,12 +6640,11 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
 
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
-        widget.removeEventFilter(event_filter)
+        event_filter.unwatch(widget)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
@@ -9602,8 +9616,12 @@ class _SpinCommitInput(QObject):
         """Watch ``widget`` and its line edit for the events this filter handles."""
         super().__init__(widget)
         self._widget = widget
-        widget.installEventFilter(self)
-        widget.lineEdit().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        kinds = (QEvent.KeyPress, QEvent.InputMethod, QEvent.KeyRelease,
+                 QEvent.MouseButtonPress, QEvent.Wheel, QEvent.FocusOut)
+        _watch_object_events(widget, self, kinds)
+        _watch_object_events(widget.lineEdit(), self, kinds)
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
         """Remember input kind before Qt emits synchronous valueChanged."""
@@ -12915,10 +12933,9 @@ def retarget_field_tooltips(root: QWidget) -> int:
         if pending:
             label.setEnabled(field.isEnabled())
             _note_on_label(label, pending)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
         field.setToolTip("")
         field.setProperty("apiTooltipDisplayRole", "metadata")
-        field.removeEventFilter(event_filter)
+        event_filter.unwatch(field)
         moved += 1
     return moved

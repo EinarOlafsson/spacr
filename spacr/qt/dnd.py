@@ -154,8 +154,11 @@ def install_dropzone(target: QWidget, handler: DropHandler,
 
     target._dnd_handler = handler
     target._dnd_screen = screen
+    from .gil_priority import _watch_object_events
+
     f = _DropzoneFilter(target)
-    target.installEventFilter(f)
+    _watch_object_events(target, f,
+                         (QEvent.DragEnter, QEvent.DragMove, QEvent.Drop))
 
 
 def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:

@@ -104,7 +104,10 @@ class Folder:
         heading.unsetCursor()
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
-        heading.installEventFilter(self._filter)
+        from ..gil_priority import _watch_object_events
+
+        _watch_object_events(heading, self._filter,
+                             (QEvent.MouseButtonRelease,))
         heading.setProperty("i18nSkipText", True)
         heading.retranslate_dynamic_content = self._retranslate
         self._repaint()

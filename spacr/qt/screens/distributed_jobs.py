@@ -495,8 +495,7 @@ class ExecutionProfileDialog(QDialog):
             from .settings_model import _ApiTooltipFilter
             filter_ = _ApiTooltipFilter(self)
             self._api_tooltip_filter = filter_
-        label.removeEventFilter(filter_)
-        label.installEventFilter(filter_)
+        filter_.watch(label)
 
     def _sync_backend(self, *_args) -> None:
         """Show only controls meaningful to the selected backend."""
