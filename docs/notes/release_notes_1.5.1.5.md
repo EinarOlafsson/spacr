@@ -1,5 +1,10 @@
 ## spaCR 1.5.1.5
 
+### Upgrading
+
+- On macOS with spaCR 1.5.1.0 or older, install the 1.5.1.5 `.pkg` from the [releases page](https://github.com/EinarOlafsson/spacr/releases) instead of using Help > Check for updates. The updater in those versions can remove the user runtime and then stop before installing. The new `.pkg` restores a working installation.
+- On an Intel Mac, an in-app update to 1.5.1.4 can leave spaCR reporting "Numpy is not available". Updating to 1.5.1.5 repairs it.
+
 ### New
 
 - Make Masks opens 3D images in the same view as 2D ones. A slice slider and the Z wheel move through the stack, and the view can be Default, Orthogonal or True 3D. Draw and edit masks on any slice and delete objects; edited volumes are saved as whole sections.
