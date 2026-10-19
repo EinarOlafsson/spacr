@@ -219,8 +219,8 @@ function Test-SpacrLeaseOwnerDead {
     }
     $Tree = $Fields["tree"]
     if ($Fields.ContainsKey("tree")) { $Fields.Remove("tree") }
-    if ($Fields.Count -ne 3 -or -not $Fields.ContainsKey("pid") -or -not $Fields.ContainsKey("started")
-            -or $Fields["host"] -ne $env:COMPUTERNAME -or -not $Fields["started"]) { return $false }
+    if ($Fields.Count -ne 3 -or -not $Fields.ContainsKey("pid") -or -not $Fields.ContainsKey("started") -or
+            $Fields["host"] -ne $env:COMPUTERNAME -or -not $Fields["started"]) { return $false }
     $OwnerId = 0
     if (-not [int]::TryParse($Fields["pid"], [ref]$OwnerId) -or $OwnerId -le 0 -or $OwnerId -eq $PID) { return $false }
     $Now = Get-SpacrProcessStarted $OwnerId
@@ -282,8 +282,8 @@ function Open-SpacrInstallerLease {
             }
             $Owner = Get-SpacrLeaseOwner $LeasePath
             $OwnerId = 0
-            if ($Owner -and [int]::TryParse($Owner, [ref]$OwnerId) -and ((Get-SpacrProcessStarted $OwnerId) -eq "")
-                    -and (Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }
+            if ($Owner -and [int]::TryParse($Owner, [ref]$OwnerId) -and ((Get-SpacrProcessStarted $OwnerId) -eq "") -and
+                    (Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }
             if ($Owner) {
                 throw ((Get-SpacrInstallerMessage "already_running") + " " + (Get-SpacrInstallerMessage "lease_held" @($LeasePath, $Owner)))
             }
