@@ -546,8 +546,10 @@ SPACR_RUNTIME_LEASE_ID=""
 SPACR_INSTALLER_STATUS_LEASE=""
 SPACR_INSTALLER_STATUS_LEASE_ID=""
 SPACR_INSTALLER_RETAIN_LEASE=0
+# GNU stat first, then BSD stat: PLATFORM alone does not say which one is on
+# PATH (Homebrew's gnubin puts GNU stat first on a Mac).
 spacr_installer_lease_identity() {
-    if [[ "$PLATFORM" == "macos" ]]; then stat -f '%d:%i' "$1"; else stat -c '%d:%i' "$1"; fi
+    stat -c '%d:%i' "$1" 2>/dev/null || stat -f '%d:%i' "$1"
 }
 # Each lease records its owner: pid, start stamp, host and (Linux) pid
 # namespace. A later installer takes a lease over only when it is this
