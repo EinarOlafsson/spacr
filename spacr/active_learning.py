@@ -2492,7 +2492,7 @@ def _crop_object_keys(crops: pd.DataFrame) -> pd.DataFrame:
             continue
         filled = crops[column].notna().to_numpy()
         if "cell_id" in crops.columns:
-            filled &= crops["cell_id"].isna().to_numpy()
+            filled = filled & crops["cell_id"].isna().to_numpy()
         for i in np.flatnonzero(filled):
             types[i] = mode
     names = (crops["file_name"] if "file_name" in crops.columns

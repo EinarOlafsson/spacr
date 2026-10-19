@@ -361,6 +361,14 @@ class _PredictionTable(QTableView):
     :param parent: Qt parent.
     """
 
+    def setModel(self, model) -> None:  # noqa: N802
+        """Show ``model`` with the shared three-state header sorting.
+
+        :param model: the filter model over the bundle's prediction rows.
+        """
+        super().setModel(model)
+        install_sorting(self)
+
     def rowCount(self) -> int:  # noqa: N802
         """Rows on screen.
 
@@ -600,7 +608,6 @@ class ClassifierEvaluationScreen(QWidget):
         """
         table = _PredictionTable(self)
         table.setModel(self._prediction_view)
-        install_sorting(table)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
         table.setAlternatingRowColors(True)

@@ -180,18 +180,21 @@ def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
     assert manifest["output_hashes"] == {}
 
 
+def _shown_modules(screen):
+    return [screen._table.item(row, 1).text()
+            for row in screen._visible_rows()]
+
+
 def test_search_and_filters_are_combined(screen):
     screen._search.setText("adamw scores.csv")
-    assert screen._table.rowCount() == 1
-    assert screen._table.item(0, 1).text() == "classify"
+    assert _shown_modules(screen) == ["classify"]
 
     screen._status_filter.setCurrentIndex(
         screen._status_filter.findData("failed")
     )
-    assert screen._table.rowCount() == 0
+    assert _shown_modules(screen) == []
     screen._search.clear()
-    assert screen._table.rowCount() == 1
-    assert screen._table.item(0, 1).text() == "measure"
+    assert _shown_modules(screen) == ["measure"]
 
 
 def test_load_settings_emits_exact_module_and_settings(screen, qtbot):
