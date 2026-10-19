@@ -4311,6 +4311,19 @@ def _process_tree_activity(pid):
     return total
 
 
+def _heartbeat_loop(handshake, measure, stop, interval):
+    """Sample activity every ``interval`` seconds and record progress whenever it moved."""
+    previous = measure()
+    while not stop.wait(interval):
+        current = measure()
+        if current is not None and previous is not None and current != previous:
+            try:
+                handshake.progress()
+            except (OSError, ValueError):
+                pass
+        previous = current
+
+
 @contextmanager
 def _preparation_heartbeat(plan, *, windows=False, interval=30.0, activity=None, channel=None):
     """Record progress while this helper or its children are doing work, for as long as the block runs.
@@ -4336,20 +4349,8 @@ def _preparation_heartbeat(plan, *, windows=False, interval=30.0, activity=None,
         return
     measure = activity or (lambda: _process_tree_activity(os.getpid()))
     stop = threading.Event()
-
-    def beat():
-        """Sample activity and record progress whenever it moved."""
-        previous = measure()
-        while not stop.wait(interval):
-            current = measure()
-            if current is not None and previous is not None and current != previous:
-                try:
-                    handshake.progress()
-                except (OSError, ValueError):
-                    pass
-            previous = current
-
-    worker = threading.Thread(target=beat, name="spacr-update-heartbeat", daemon=True)
+    worker = threading.Thread(target=_heartbeat_loop, args=(handshake, measure, stop, interval),
+                              name="spacr-update-heartbeat", daemon=True)
     worker.start()
     try:
         yield
