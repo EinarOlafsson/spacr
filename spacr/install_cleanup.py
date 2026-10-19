@@ -6344,7 +6344,12 @@ def _windows_pip_private_directory(path):
 
 
 def _windows_pip_private_access(path, *, system_owner=False, owner_sid=None, private_read=False):
-    """Require a non-null trusted-owner ACL without foreign file or descendant write grants."""
+    """Require a non-null trusted-owner ACL without foreign file or descendant write grants.
+
+    OWNER RIGHTS (S-1-3-4) grants only to the object's owner, which is already
+    required to be trusted; Python 3.12.4 and later give every ``mkdtemp`` and
+    ``mkdir(mode=0o700)`` folder on Windows exactly that owner-only ACL.
+    """
     evidence = _windows_pip_acl(path)
     user = evidence.get("user") if owner_sid is None else owner_sid
     rules = evidence.get("rules")
@@ -6353,7 +6358,7 @@ def _windows_pip_private_access(path, *, system_owner=False, owner_sid=None, pri
             or evidence.get("has_dacl") is not True
             or not isinstance(rules, list) or not rules):
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
-    permitted = {user, "S-1-5-18", "S-1-5-32-544"}
+    permitted = {user, "S-1-5-18", "S-1-5-32-544", "S-1-3-4"}
     write_mask = 0xF01F01FF if private_read else 0x500D0156
     for rule in rules:
         if (not isinstance(rule, dict) or rule.get("type") not in (0, 1)

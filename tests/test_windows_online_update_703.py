@@ -29,7 +29,7 @@ def acl():
 
 
 def snapshot(prefix):
-    return {str(path.relative_to(prefix)): path.read_bytes()
+    return {path.relative_to(prefix).as_posix(): path.read_bytes()
             for path in prefix.rglob('*') if path.is_file()}
 
 
@@ -96,6 +96,19 @@ def test_an_online_root_stages_with_its_own_uv_and_detaches_on_the_base_python(o
     assert plan['relaunch'] == [str(online.scripts / 'pythonw.exe'), '-I', '-m', 'spacr.qt']
     assert plan['fetch'] is None and len(spawned) == 1 and len(probes) == 1
     assert snapshot(online.venv) == before
+
+
+def test_an_owner_only_mkdtemp_acl_is_private(monkeypatch):
+    """Python 3.12.4+ gives mkdtemp folders SYSTEM, Administrators and OWNER RIGHTS; found natively 2026-10-19."""
+    evidence = {'owner': USER, 'user': USER, 'has_dacl': True,
+                'rules': [{'sid': 'S-1-5-18', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0},
+                          {'sid': 'S-1-5-32-544', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0},
+                          {'sid': 'S-1-3-4', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0}]}
+    monkeypatch.setattr(cleanup, '_windows_pip_acl', lambda _path: evidence)
+    cleanup._windows_pip_private_access('updater folder')
+    evidence['rules'].append({'sid': 'S-1-5-11', 'type': 0, 'rights': 0x1f01ff, 'propagation': 0})
+    with pytest.raises(ValueError):
+        cleanup._windows_pip_private_access('updater folder')
 
 
 @pytest.mark.parametrize('without_wgpu', [False, True])
@@ -271,9 +284,12 @@ def test_pruning_removes_a_link_inside_a_copy_without_entering_it(online, tmp_pa
     keep.write_text('must survive')
     old = _recovery(online.root, 'a', 'committed', 1_000)
     _recovery(online.root, 'b', 'committed', 2_000)
-    try:
-        (old / 'previous' / 'link').symlink_to(keep.parent, target_is_directory=True)
-    except OSError:
-        pytest.skip('creating a directory link needs a privilege this host lacks')
+    link = old / 'previous' / 'link'
+    if os.name == 'nt':
+        import _winapi
+
+        _winapi.CreateJunction(str(keep.parent), str(link))
+    else:
+        link.symlink_to(keep.parent, target_is_directory=True)
     cleanup._prune_windows_online_recovery(str(online.root))
     assert not old.exists() and keep.read_text() == 'must survive'
