@@ -3724,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Öppna undermappen masks i Source. Varje bild har en mask-TIFF med samma filnamnsstam. Granska figurerna bredvid originalbilderna och var uppmärksam på missade objekt och sammanfogade celler. Flödespanelen visar de riktningar modellen använder för segmenteringen.",
+          "narration": "Undermappen masks i Source innehåller en mask-TIFF med samma filnamnsstam för varje bild. Granska figurerna bredvid originalbilderna och var uppmärksam på missade objekt och sammanfogade celler. Flödespanelen visar de riktningar modellen använder för segmenteringen.",
           "focus": [
             1000,
             450,
@@ -3735,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå på Live preview och välj en bild med bildväljaren. Öppna Live settings och kontrollera reglagen för kanal och normalisering. Fäll ihop Console och System för att ge förhandsvisningen mer plats vid behov.",
+          "narration": "Fäll ihop de andra resultatkorten för att ge förhandsvisningen mer plats. Slå på Live preview och välj en bild med bildväljaren. Bläddra till den medföljande exempelbilden.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Jämför förhandsvisningen med den sparade batchmasken. Förhandsvisningen och Apply använder olika bearbetningsvägar i det här exemplet, så de kan ge olika gränser och antal. Granska de sparade TIFF-filerna när du avgör om batchens utdata duger för mätning.",
+          "narration": "Kontrollera kanal och normalisering i Live settings och kör sedan förhandsvisningen. Förhandsvisningen och Apply bearbetar dessa bilder olika, så gränser och antal kan skilja sig. Granska de sparade TIFF-filerna när du avgör om batchens utdata duger för mätning.",
           "focus": [
             1000,
             1160,
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Använd mushjulet för att förstora ett område på båda förhandsvisningsytorna. Granska objekt som ligger an mot varandra och svaga gränser, och zooma sedan ut för att kontrollera hela synfältet.",
+          "narration": "Använd mushjulet för att förstora ett område på båda förhandsvisningsytorna. Granska objekt som ligger an mot varandra och svaga gränser i den förstorade vyn.",
           "focus": [
             1010,
             1280,
@@ -3794,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
