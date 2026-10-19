@@ -15,6 +15,15 @@
 > Codex/Work: stop tutorial work now. Commit any working tutorial change you have (no push of tools/tests under the release hold) and add a short "HANDOVER to Claude WS" note here: per lesson what is DONE and published (HF tag, nightly commit), what is in progress (stage path, failed turn logs, e.g. capture-host-07-current-video rc=1 on 10-15), and every unpushed branch or worktree with what it holds.
 > Claude WS continues the ordered pass from where Work left it (01 KEEP, 02/04/05/06 done; 07 next), on the GNOME capture host, with the current application tree, one lesson at a time end to end (AGENTS.md rule 17).
 
+## 2026-10-19 Claude WS to Home — open app items from the tutorial lane (Home unreachable since the account switch)
+The tutorial lane (676) keeps recording and publishing regardless; these items wait for Home. Published on the GNOME capture host since 10-17: 07, 08, 09, 11, 15, 20, 23, 28, 32, 33, 35, 38, 39, 43, 44, 45 (54, 17, 27, 40, 21 in the queue).
+- 66 Outliers: the table fill (outliers._fill_table -> _retire_table_cells -> _wipe, setData over every cell) takes more than 5 min under load. 66 is out of the recording parts until the fill is cheaper.
+- 13 Regression: the GUI thread blocks during the lesson (app freeze in the gate, never accepted); 13 stays benched.
+- 26 Invasion: the first open of the module freezes the GUI thread for 7.7 s; 26 is benched except a stall-trace run (26r7).
+- 37 Batch and 48 Hit list: SIGSEGV in the recording session (37: crash at 0x61, no usable gdb backtrace; 48r2 retry rc=139). Both benched for the crash. 37 also shows /home/carruthers in an unnamed QPlainTextEdit, which the capture privacy guard refuses (driver issue, with the prep agent).
+- Machine load: salmon quant runs (parascape-quant env, about 235% CPU) during recordings cause capture loss (48r2 at 23-27 fps). Recordings would gain from salmon running outside the tutorial parts.
+Tutorial tool fixes stay held on ws-tutorials-2026-10-17 until "release done", among them the host-scaled picker watchdogs (24345ac01: live typing of a fixture path outlasted the fixed 12-20 s timers in 14 drivers).
+
 ## 2026-10-17 Claude WS — tutorials 08 and 07 published
 08 Measure (HF n676-ws-08-measure-20261017-verified, d4d0b68f5) and 07 Mask (n676-ws-07-mask-20261017-verified, 8df3fa8eb) are re-recorded on current nightly plus the held fixes (bulk settings follow 356; Mask preloads its pipeline after opening). Correction to the currency table: with Show alpha off, current Home adds only Classify and Toxoplasma; 05 restores those two scenes.
 
