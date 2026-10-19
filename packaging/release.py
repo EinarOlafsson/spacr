@@ -410,7 +410,8 @@ def bump_release(
     citation_path.write_text(citation_text, encoding="utf-8")
     if package_version_path is not None:
         package_version_path.write_text(updated_package, encoding="utf-8")
-    restamp_info_deck(setup_path.parent, new)
+    for step in BUMP_ARTEFACT_STEPS:
+        step(setup_path.parent, new)
     # The images are pushed by the release this bump starts; a tree without
     # the README (a test fixture, an sdist) has no pages to update.
     if (setup_path.parent / "README.rst").is_file():
@@ -527,6 +528,55 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.stamp_title(deck, version)
+
+
+#: Modules ``tools/build_readme_images.py`` needs to draw; ``--check`` needs
+#: none of them.
+README_IMAGE_MODULES = ("fontTools", "brotli", "uharfbuzz", "yaml")
+
+
+def rebuild_readme_images(root: Path, version: str) -> bool:
+    """Redraw the README's images after :func:`restamp_info_deck`.
+
+    The README's cover is drawn from the deck's title slide, so a bump that
+    restamped the slide and left the README alone shipped a cover with the
+    old version, which the release CI's README check then refused. Like the
+    deck, a tree without the tool or the README is left alone, and a
+    missing drawing module, or a failed build, is reported rather than
+    allowed to stop the release.
+
+    :param root: the repository root.
+    :param version: the release being bumped to; unused, kept for the step
+        signature.
+    :returns: whether the images were rebuilt.
+    """
+    import importlib.util
+    import subprocess
+
+    del version
+    tool = root / "tools" / "build_readme_images.py"
+    if not tool.is_file() or not (root / "README.rst").is_file():
+        return False
+    missing = [name for name in README_IMAGE_MODULES
+               if importlib.util.find_spec(name) is None]
+    if missing:
+        print(f"README images: {', '.join(missing)} not installed here; run "
+              f"python tools/build_readme_images.py where they are.",
+              file=sys.stderr)
+        return False
+    result = subprocess.run([sys.executable, str(tool)], cwd=str(root),
+                            capture_output=True, text=True)
+    if result.returncode:
+        print(f"README images: tools/build_readme_images.py failed "
+              f"({result.returncode}); run it by hand.\n{result.stderr[-2000:]}",
+              file=sys.stderr)
+        return False
+    return True
+
+
+#: What :func:`bump_release` regenerates after writing the new version, in
+#: order: the deck's title slide, then the README images drawn from it.
+BUMP_ARTEFACT_STEPS = (restamp_info_deck, rebuild_readme_images)
 
 
 def offline_bundle_name(version: str, platform: str, torch_backend: str) -> str:
