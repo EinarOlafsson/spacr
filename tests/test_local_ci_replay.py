@@ -299,7 +299,7 @@ def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, t
         assert process.returncode == 130, stdout
         receipt = json.loads((output / "result.json").read_text(encoding="utf-8"))
         assert receipt["exit_code"] == 130 and receipt["cleanup_complete"] is True
-        status = Path(f"/proc/{marker.read_text(encoding="utf-8")}/status")
+        status = Path(f"/proc/{marker.read_text(encoding='utf-8')}/status")
         assert not status.exists() or "State:\tZ" in status.read_text(encoding="utf-8")
     finally:
         if process.poll() is None:
