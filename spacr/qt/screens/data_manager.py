@@ -117,6 +117,22 @@ register_widget_qss("DataManager", _data_manager_qss, replace=True)
 
 
 
+def _disconnect_quietly(signal, slot) -> None:
+    """Disconnect ``slot`` from ``signal``; nothing if it is already gone.
+
+    The screen's path-probe follower is a closure, so Qt cannot drop it when
+    the screen is destroyed without a ``closeEvent``; this runs from
+    ``destroyed`` and makes sure the process-wide signal stops calling it.
+
+    :param signal: the bound signal.
+    :param slot: the callable connected to it.
+    """
+    try:
+        signal.disconnect(slot)
+    except (RuntimeError, TypeError):
+        pass
+
+
 class ConfirmDeleteDialog(QDialog):
     """Confirmation dialog shown before a prune plan deletes any files.
 
@@ -968,6 +984,9 @@ class DataManagerScreen(QWidget):
 
         self._path_probe_redraw = redraw
         path_probe.probes.answered.connect(redraw)
+        self.destroyed.connect(
+            lambda *_args, slot=redraw: _disconnect_quietly(
+                path_probe.probes.answered, slot))
 
 
     def selected_kinds(self) -> List[str]:

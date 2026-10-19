@@ -2134,13 +2134,12 @@ def _import_the_entry_module(name: str) -> None:
     """
     app_module = sys.modules.get("spacr.qt.app")
     lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
-    gc_was_enabled = gc.isenabled()
-    with responsive_gui():
+    from .gc_policy import _automatic_collection_paused
+
+    with responsive_gui(), _automatic_collection_paused():
         if lock is not None:
             lock.acquire()
         try:
-            if gc_was_enabled:
-                gc.disable()
             _open_torch_libraries()
             importlib.import_module(name)
             torch = sys.modules.get("torch")
@@ -2151,8 +2150,6 @@ def _import_the_entry_module(name: str) -> None:
                       exc_info=True)
         finally:
             gc.freeze()
-            if gc_was_enabled:
-                gc.enable()
             if lock is not None:
                 lock.release()
 
@@ -2398,17 +2395,14 @@ def make_thread(
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     if capture_figures and "matplotlib.pyplot" not in sys.modules:
-        gc_was_enabled = gc.isenabled()
+        from .gc_policy import _automatic_collection_paused
+
         try:
-            if gc_was_enabled:
-                gc.disable()
-            _import_pyplot_without_pinning_callers()
+            with _automatic_collection_paused():
+                _import_pyplot_without_pinning_callers()
         except Exception:              # noqa: BLE001
             LOG.debug("matplotlib.pyplot could not be pre-imported",
                       exc_info=True)
-        finally:
-            if gc_was_enabled:
-                gc.enable()
     thread = QThread()
     _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)

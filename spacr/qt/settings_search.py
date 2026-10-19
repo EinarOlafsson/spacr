@@ -448,7 +448,7 @@ class SettingsSearchBar(QWidget):
         section.setVisible(True)
         self._revealed = str(key)
         self._mark(field)
-        QTimer.singleShot(0, lambda: self._scroll_to(field))
+        QTimer.singleShot(0, self, lambda: self._scroll_to(field))
         return True
 
     def revealed_key(self) -> str:

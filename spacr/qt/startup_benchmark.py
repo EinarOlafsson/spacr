@@ -414,6 +414,7 @@ class BenchmarkController(QObject):
         timing.cancel_interactive(detail=str(detail))
         QTimer.singleShot(
             SETTLE_MS,
+            self,
             lambda: self._record_error(
                 detail,
                 f"no painted usable state within {self._armed_timeout_s:.1f} seconds",

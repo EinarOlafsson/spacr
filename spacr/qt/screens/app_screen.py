@@ -1037,7 +1037,7 @@ class _LateCaptionTranslator(QObject):
         """
         if event.type() != QEvent.ChildAdded:
             return False
-        QTimer.singleShot(0, partial(self._on_arrivals_in, watched))
+        QTimer.singleShot(0, self, partial(self._on_arrivals_in, watched))
         return False
 
     #: Marks a child this filter has already run its pass over. A Qt
@@ -9005,7 +9005,7 @@ class AppScreen(QWidget):
                 continue
             _stop_watching_object_events(host, watcher)
             _watch_object_events(host, watcher, (QEvent.ChildAdded,))
-            QTimer.singleShot(0, partial(watcher._on_arrivals_in, host))
+            QTimer.singleShot(0, watcher, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:
         """The prompt the category strip falls back to, in the UI language.
@@ -9685,6 +9685,7 @@ class AppScreen(QWidget):
         self._btn_copy_console.setText(tr("Copied"))
         QTimer.singleShot(
             1200,
+            self,
             lambda: self._btn_copy_console.setText(tr("Copy console")))
         try:
             self.statusBar().showMessage(

@@ -228,7 +228,7 @@ class _SemanticButtonFilter(QObject):
         settles against the state the button had a moment ago.
         """
         QTimer.singleShot(
-            0, lambda target=button: self._settle_after_handler(target))
+            0, self, lambda target=button: self._settle_after_handler(target))
 
     @staticmethod
     def _settle_after_handler(button: QPushButton) -> None:

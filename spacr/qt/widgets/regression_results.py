@@ -3444,7 +3444,8 @@ class RegressionResultsPanel(QWidget):
         from PySide6.QtCore import QTimer
 
         self.set_level("grna" if guide_of(str(key)) else "gene")
-        QTimer.singleShot(0, lambda k=str(key): self.table.select_key(k))
+        QTimer.singleShot(
+            0, self, lambda k=str(key): self.table.select_key(k))
         self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
                  f"so the point you clicked has a row.")
 

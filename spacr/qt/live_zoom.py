@@ -740,7 +740,7 @@ class ColumnTextScale(QObject):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("a column widget refused its text size",
                               exc_info=True)
-        QTimer.singleShot(0, lambda: self._refit(root))
+        QTimer.singleShot(0, self, lambda: self._refit(root))
         return True
 
     @staticmethod

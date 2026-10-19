@@ -707,7 +707,7 @@ class DockEdge(QWidget):
         if self._pressed_x is None:
             from .ambient import field_ripple_for_widget
 
-            QTimer.singleShot(0, partial(
+            QTimer.singleShot(0, self, partial(
                 field_ripple_for_widget, self if collapsed else self._dock,
                 edge="right"))
 

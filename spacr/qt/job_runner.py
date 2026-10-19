@@ -209,13 +209,30 @@ class JobRunner(QObject):
         self._jobs[job_id] = (thread, worker)
         self._pending[job_id] = (box, on_done, self._generation)
         worker.error.connect(self._on_worker_error_text)
-        worker.finished.connect(
-            lambda ok, jid=job_id: self._relay(jid, ok))
+        worker._spacr_job_id = job_id
+        worker.finished.connect(self._worker_finished)
         thread.finished.connect(self._retire_finished_jobs)
         self._set_busy(True)
         thread.start()
         return True
 
+
+    def _worker_finished(self, ok: bool) -> None:
+        """Settle the job whose worker just finished. Always on the GUI thread.
+
+        A bound method of this runner rather than a lambda: Qt then queues
+        the call onto the runner's thread and drops the connection when the
+        runner is destroyed, so a parked worker that finishes after its
+        screen has gone reaches nothing, instead of a callable that calls
+        into a deleted runner from the worker thread.
+
+        :param ok: whether the job's function returned normally.
+        """
+        worker = self.sender()
+        job_id = getattr(worker, "_spacr_job_id", None)
+        if job_id is None:
+            return
+        self._on_settled(job_id, ok)
 
     def _relay(self, job_id: int, ok: bool) -> None:
         """Re-emit a worker-thread completion as a GUI-thread call.

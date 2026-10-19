@@ -35,7 +35,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QBrush, QKeyEvent
 from PySide6.QtWidgets import (
-    QDialog, QLineEdit, QListView, QMainWindow, QVBoxLayout,
+    QApplication, QDialog, QLineEdit, QListView, QMainWindow, QVBoxLayout,
 )
 from shiboken6 import isValid
 
@@ -647,7 +647,24 @@ class CommandPalette(QDialog):
         cmd: Optional[Command] = item.data(Qt.UserRole)
         if cmd is None:
             return
+        modal = QApplication.activeModalWidget() is self
         self.accept()
+        if modal:
+            self._pending_command = cmd
+            return
+        self._run_command(cmd)
+
+    def _run_command(self, cmd: "Command") -> None:
+        """Run one command, logging rather than raising its failure.
+
+        Called straight away when the palette is not in its own ``exec()``,
+        and by :func:`spacr.qt.shortcuts._open_palette` after ``exec()`` has
+        returned when it is: a command that opens a dialog, rebuilds a screen
+        or quits must not run inside a modal session that is already ending,
+        which is what crashed in AppKit's modal cleanup on macOS.
+
+        :param cmd: the command to run.
+        """
         try:
             cmd.action()
         except Exception as e:

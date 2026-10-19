@@ -907,7 +907,7 @@ class HelpSearchField(QLineEdit):
             return
         kind = item.data(MORE_ROLE)
         if kind:
-            QTimer.singleShot(0, partial(self._show_more, str(kind)))
+            QTimer.singleShot(0, self, partial(self._show_more, str(kind)))
             return
         entry = item.data(ENTRY_ROLE)
         if entry is None:

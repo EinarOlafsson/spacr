@@ -9275,6 +9275,7 @@ class _FrameProducer:
         self._stop = threading.Event()
         self._wake = threading.Event()
         self.doorbell = None
+        self._doorbell_lock = threading.Lock()
         self.tick_driven = False
         self.urgent = False
         self._thread: Optional[threading.Thread] = None
@@ -9297,6 +9298,21 @@ class _FrameProducer:
         _LIVE_PRODUCERS.add(self)
         self._thread.start()
 
+    def _ring_doorbell(self) -> None:
+        """Ask the GUI thread to repaint, unless the doorbell has been taken.
+
+        Rung under the doorbell lock that :meth:`stop` takes to drop it, so
+        the shading thread never emits on a doorbell the widget has let go.
+        """
+        with self._doorbell_lock:
+            bell = self.doorbell
+            if bell is None:
+                return
+            try:
+                bell.objectNameChanged.emit("")
+            except RuntimeError:
+                self.doorbell = None
+
     def stop(self) -> None:
         """Ask the thread to finish the frame it is on and exit, then wait
         up to :data:`PRODUCER_JOIN_S` for it.
@@ -9308,6 +9324,8 @@ class _FrameProducer:
         restarted (:meth:`AmbientWidget._start_producer` builds a new one), so
         there is nothing to gain by forgetting it.
         """
+        with self._doorbell_lock:
+            self.doorbell = None
         self._stop.set()
         self._wake.set()
         thread = self._thread
@@ -9382,12 +9400,8 @@ class _FrameProducer:
                 if image is not None:
                     self.publish(image, composed)
                     self.frames_shaded += 1
-                    if (woken and self.doorbell is not None
-                            and (urgent or not self.tick_driven)):
-                        try:
-                            self.doorbell.objectNameChanged.emit("")
-                        except RuntimeError:
-                            pass
+                    if woken and (urgent or not self.tick_driven):
+                        self._ring_doorbell()
                 if woken:
                     woken_at = started
                 if self.tick_driven:
@@ -9520,6 +9534,21 @@ def _retire_shading_on_quit(app) -> None:
         _QUIT_HOOKED[0] = app
     except (RuntimeError, TypeError, AttributeError):
         pass
+
+
+def _repaint_if_alive(owner) -> None:
+    """Repaint the field a weak reference points at, if it still exists.
+
+    The shading thread's doorbell can ring after the widget's C++ half has
+    gone and before its producer is stopped, so the queued call checks both.
+
+    :param owner: a weak reference to the :class:`AmbientWidget`.
+    """
+    from shiboken6 import isValid
+
+    widget = owner()
+    if widget is not None and isValid(widget):
+        widget.repaint()
 
 
 def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
@@ -10487,9 +10516,9 @@ class AmbientWidget(QWidget):
             lambda: owner()._on_tick()
             if owner() is not None and vars(owner()).get("_timer") is timer
             else timer.stop())
-        self._doorbell = QObject(self)
+        self._doorbell = QObject()
         self._doorbell.objectNameChanged.connect(
-            lambda _name: owner().repaint() if owner() is not None else None,
+            lambda _name: _repaint_if_alive(owner),
             Qt.QueuedConnection)
         self._watched: Optional[weakref.ReferenceType] = None
 

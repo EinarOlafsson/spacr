@@ -5708,7 +5708,17 @@ class MainWindow(QMainWindow):
         if notice is None:
             self._tour_timer.start(500)
         else:
-            notice.finished.connect(lambda _result: self._tour_timer.start(500))
+            notice.finished.connect(self._resume_the_tour)
+
+    def _resume_the_tour(self, _result=None) -> None:
+        """Start the tour once the anonymous-report notice has closed.
+
+        A bound method rather than a lambda, so Qt drops the connection if
+        this window goes before the notice does.
+
+        :param _result: the notice's dialog result; unused.
+        """
+        self._tour_timer.start(500)
 
     def _maybe_offer_installation_cache_review(self):
         """Offer default-off cache choices once per installed release/profile.
@@ -8588,7 +8598,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if update_launch is not None:
         from PySide6.QtCore import QTimer
 
-        QTimer.singleShot(0, lambda: win._after_the_startup_sequence(
+        QTimer.singleShot(0, win, lambda: win._after_the_startup_sequence(
             lambda: _finish_update_launch(update_launch)
             if win.isVisible() and not win._closing else None))
 

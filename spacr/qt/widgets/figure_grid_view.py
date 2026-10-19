@@ -1012,7 +1012,7 @@ class FigureGridView(QScrollArea):
             return False
         self._collapsed.discard(key)
         self._relayout()
-        QTimer.singleShot(0, lambda: self._scroll_section_to_top(key))
+        QTimer.singleShot(0, self, lambda: self._scroll_section_to_top(key))
         return True
 
     def _relayout(self) -> None:

@@ -21,6 +21,7 @@ from functools import partial
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from shiboken6 import isValid
 from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
                                QFrame, QLabel, QPushButton, QScrollArea,
                                QSizePolicy, QTabBar, QTableWidget,
@@ -2882,7 +2883,7 @@ class _SpatialPanelLifecycle(QObject):
             if panel is not None:
                 panel._shutdown()
         elif event.type() == QEvent.Close and watched.isVisible():
-            QTimer.singleShot(0, lambda: self._check_closed(watched))
+            QTimer.singleShot(0, self, lambda: self._check_closed(watched))
         elif event.type() == QEvent.Show:
             panel = self._panel()
             if panel is not None:
@@ -2893,7 +2894,8 @@ class _SpatialPanelLifecycle(QObject):
         """Shut the panel down if its window really ended up hidden."""
         panel = self._panel()
         try:
-            if panel is not None and not watched.isVisible():
+            if (panel is not None and isValid(watched)
+                    and not watched.isVisible()):
                 panel._shutdown()
         except RuntimeError:
             pass

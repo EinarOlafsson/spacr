@@ -112,7 +112,7 @@ def show_tab(dialog: QWidget, object_name: str, label: str = "") -> bool:
         return False
     _unfold_around(page)
     if label:
-        QTimer.singleShot(0, lambda: reveal_row(page, label))
+        QTimer.singleShot(0, page, lambda: reveal_row(page, label))
     return True
 
 

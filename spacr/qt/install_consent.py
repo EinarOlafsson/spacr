@@ -760,12 +760,14 @@ class _UninstallCoordinator(QObject):
         if worker.operation == "preview":
             self.progress.hide()
             dialog = _UninstallDialog(worker.result, self.window)
+            self._open_dialog = dialog
             try:
                 if dialog.exec() != QDialog.Accepted or self.stopped.is_set():
                     self.cancel()
                     return
                 choice = dialog.choices()
             finally:
+                self._open_dialog = None
                 dialog.deleteLater()
             from spacr import install_cleanup
 
@@ -814,6 +816,11 @@ class _UninstallCoordinator(QObject):
 
     def approve_close(self):
         """Approve only the coordinator's own accepted shutdown; ordinary closing cancels uninstall."""
+        dialog = getattr(self, "_open_dialog", None)
+        if dialog is not None:
+            self.close_after_cancel = True
+            dialog.reject()
+            return False
         if not self.closing_for_uninstall:
             waiting = self.worker is not None
             self.close_after_cancel = waiting

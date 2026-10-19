@@ -1969,7 +1969,7 @@ class ConsolePanel(QWidget):
                 continue
             widget.setVisible(not folded)
         self._follow_output = False
-        QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
+        QTimer.singleShot(0, self, lambda: self._scroll_widget_to_top(bar))
 
     def _scroll_widget_to_top(self, bar) -> None:
         """Scroll the console so a widget sits at the top of the viewport.

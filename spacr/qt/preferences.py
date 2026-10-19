@@ -11639,7 +11639,9 @@ class PreferencesDialog:
 
             window = parent.window() if parent is not None else None
             dlg.reject()
-            QTimer.singleShot(0, lambda: _open_uninstall(window))
+            QTimer.singleShot(
+                0, window if window is not None else dlg,
+                lambda: _open_uninstall(window))
 
         uninstall_button.clicked.connect(_open_spacr_uninstall)
         performance.addRow(tr("Uninstall"), uninstall_button)
