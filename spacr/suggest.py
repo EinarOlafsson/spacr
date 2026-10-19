@@ -22,12 +22,10 @@ Rules that protect the annotations
    when the model is confident, not on a re-run. A human's labels are the
    ground truth the model was fitted on; losing one silently would cost hours
    and would not be noticed until a run came out wrong.
-3. Every suggestion carries its probability, and the reviewer sets the floor.
-   By default every unannotated crop gets a suggestion, sorted most-confident
-   first. Annotate's "Suggestion model" window then moves a decision
-   threshold, a "confident only" band or per-class minimum probabilities over
-   the cached probabilities, which adds and removes suggestions without
-   fitting again.
+3. There is no confidence floor; the order carries the uncertainty. Every
+   unannotated crop gets a suggestion, sorted most-confident first, and the
+   reviewer stops where they stop agreeing. A threshold would make that
+   decision with an arbitrary number.
 4. A judgement is recorded, not inferred. Confirming a suggestion turns it into
    an ordinary label and rejecting one clears it -- and both are written down
    beside the column, in ``<column>_verdict``, as the class that was confirmed
@@ -171,9 +169,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
         example of the other class (:func:`rejected_suggestions`); it is only
         not proposed.
     :returns: a :class:`Suggestions`; its frame is empty when nothing has been
-        scored, and ``note`` says why. Besides the columns
-        :class:`Suggestions` names, the frame holds one ``p_<class>`` column
-        per class with that class's probability.
+        scored, and ``note`` says why.
     """
     from .active_learning import as_probabilities
 
