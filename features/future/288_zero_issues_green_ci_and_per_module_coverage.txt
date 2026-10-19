@@ -5865,3 +5865,4 @@ Whole N43/F288 and release acceptance remain OPEN.
 N43 continues all fixes required for green release CI, retaining the existing coverage gates and ratchets; this deferral does not waive checks or mark F288 complete.
 2026-10-19 — coverage ratchet: tests for layers gather paths, object Timepose dispatch, timelapse Timepose tracking and model_zoo Timepose release plumbing (tests/test_cov_288_*_20261019.py); active_learning follows.
 2026-10-19 — spacr/qt/app.py ratchet (CI 39245216287, 154 vs 139 uncovered): tests/qt/test_cov_288_app_20261019.py covers 115 of CI's 154 missing statements and 28 of 54 branches; next hosted coverage run confirms.
+2026-10-19 — qt/screens/classifier_evaluation.py and qt/widgets/ambient.py ratchet (CI 39245216287): tests/qt/test_cov_288_classifier_evaluation_20261019.py and test_cov_288_ambient_20261019.py hit every CI-missing statement and branch; next hosted coverage run confirms.
