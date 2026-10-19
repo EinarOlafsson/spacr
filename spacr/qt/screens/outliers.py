@@ -117,7 +117,7 @@ _METHOD_LABELS = (
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+from ..widgets.sortable_table import (SortableTableItem, _spare_items, _spare_table_item,
                                       install_sorting, table_item)
 from ..app_catalog import declared_app, register_declared
 
@@ -629,15 +629,57 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     ``str``. Booleans render as ``yes`` / ``no``, because ``True`` in a column
     called ``outlier`` reads as a header rather than a value at a glance.
     """
-    _retire_table_cells(table, headers=True)
-    table.setRowCount(len(frame))
-    table.setColumnCount(len(frame.columns))
-    table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
-    for column, name in enumerate(frame.columns):
-        values = frame[name].tolist()
-        for row, value in enumerate(values):
-            table.setItem(row, column,
-                          _spare_table_item(table, _cell(value)))
+    rows, columns = len(frame), len(frame.columns)
+    sorting = table.isSortingEnabled()
+    table.setSortingEnabled(False)
+    table.setUpdatesEnabled(False)
+    try:
+        # Rewrite the cells that are already there instead of wiping, taking and re-inserting every one: a scan of a
+        # 280-column table refills 140 000 cells, and the per-cell wipe (itemData, one setData per role, takeItem,
+        # setItem) took minutes with the ambient field painting. No item is deleted: surplus cells are wiped and kept
+        # as spares, exactly as before.
+        had_rows, had_columns = table.rowCount(), table.columnCount()
+        table.clearSelection()
+        if columns < had_columns or rows < had_rows:
+            # The shape shrinks (an all-features scan, then one feature: 140 000 cells become a few hundred). Items are
+            # never deleted: the surplus ones are TAKEN out and kept as spares. Every cell of this table is created
+            # by this function and carries only its text and sort key, both rewritten when a spare is reused, so no
+            # per-cell wipe (itemData + setData per role) is needed. That wipe took minutes under the ambient painting.
+            spare = _spare_items(table)
+            table.model().blockSignals(True)
+            try:
+                for row in range(had_rows):
+                    for column in range(had_columns):
+                        if row >= rows or column >= columns:
+                            item = table.takeItem(row, column)
+                            if item is not None:
+                                spare.append(item)
+            finally:
+                table.model().blockSignals(False)
+        table.setColumnCount(columns)
+        table.setRowCount(rows)
+        table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
+        model = table.model()
+        model.blockSignals(True)                              # one dataChanged at the end, not one per cell
+        try:
+            for column, name in enumerate(frame.columns):
+                values = frame[name].tolist()
+                for row, value in enumerate(values):
+                    text = _cell(value)
+                    item = table.item(row, column) if row < had_rows and column < had_columns else None
+                    if item is None:
+                        table.setItem(row, column, _spare_table_item(table, text))
+                    else:
+                        item.setText(text)
+                        if isinstance(item, SortableTableItem):
+                            item._init_sort_key(text)
+        finally:
+            model.blockSignals(False)
+        if rows and columns:
+            model.dataChanged.emit(model.index(0, 0), model.index(rows - 1, columns - 1))
+    finally:
+        table.setUpdatesEnabled(True)
+        table.setSortingEnabled(sorting)
 
 
 def _cell(value) -> str:
