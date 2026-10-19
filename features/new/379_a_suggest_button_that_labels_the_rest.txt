@@ -388,5 +388,7 @@ live threshold updates (suggestion counts change, no retraining) and a
 synthetic imbalanced set on which the minority class is suggested; tutorial
 driver objectNames keep working.
 
-2026-10-19 -- reopened with R1-R5 above; implementation in progress.
+2026-10-19 -- reopened with R1-R5 above.
+2026-10-19 -- R4 root cause: boosted trees kept sklearn's 20-row leaf, so ~15 training rows (10+10 labels, downsampled, 25% held out) grew no split and every crop got the prior; leaf now n/10 (2-20), class_weight=balanced, Suggest reweights instead of downsampling (61ff982e6).
+2026-10-19 -- R1-R3, R5 built: progress bar, Order control, Suggestion model window with CV scorecard + baseline, live thresholds; 9-locale records (see #152 commit). Remaining: maintainer confirmation on #152, tutorial lesson re-record for the new toolbar controls (spacr-d7).
 
