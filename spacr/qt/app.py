@@ -5327,7 +5327,7 @@ class MainWindow(QMainWindow):
             if plan.get("handshake"):
                 try:
                     handshake_type = (install_cleanup._WindowsPipHandshake
-                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
+                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
                                       else install_cleanup._FrozenUpdateHandshake)
                     handshake_type(plan).cancel()
                 except Exception:
@@ -5341,14 +5341,14 @@ class MainWindow(QMainWindow):
                    error=self._removal_reason_text(
                        str(plan.get("error")))))
             return
-        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
             from PySide6.QtCore import QTimer
             from PySide6.QtWidgets import QProgressDialog
 
             self._frozen_update_plan = plan
             try:
                 handshake_type = (install_cleanup._WindowsPipHandshake
-                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-frozen-nsis-v1"}
+                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
                                   else install_cleanup._FrozenUpdateHandshake)
                 self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:

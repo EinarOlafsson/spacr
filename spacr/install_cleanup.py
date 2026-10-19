@@ -6398,13 +6398,19 @@ def _windows_pip_commands(record, version, workdir, machine):
     return [console, "-I", "-m", "pip", "install", "--upgrade", "spacr==" + version], [python, "-I", "-m", "spacr.qt"]
 
 
-def _windows_pip_helper(record, module, plan_path, machine):
-    """Verify the current base interpreter outside the runtime before detaching it."""
+def _windows_pip_helper(record, module, plan_path, machine, *, base=None):
+    """Verify the current base interpreter outside the runtime before detaching it.
+
+    :param base: the resolved base interpreter folder; ``sys.base_prefix`` when
+        ``None``. A uv-managed runtime names its interpreter through a minor-version
+        junction, so its caller resolves and confines it first.
+    """
     if machine.platform != "windows":
         raise ValueError(tr(_PRIVATE_PIP_UPDATE_ERROR))
     prefix = os.path.realpath(record.root)
     _windows_pip_private_directory(os.path.dirname(module))
-    base = _installer_metadata_folder(sys.base_prefix, "untrusted_windows_base_interpreter", windows=True)
+    base = _installer_metadata_folder(sys.base_prefix if base is None else base,
+                                      "untrusted_windows_base_interpreter", windows=True)
     python = os.path.join(base, "python.exe")
     if (not os.path.isfile(python) or os.path.islink(python)
             or _inside(base, prefix) or _inside(os.path.realpath(python), prefix)):
@@ -6686,6 +6692,32 @@ print(json.dumps({'verified': True, 'scripts': changed}))
     return receipt
 
 
+def _windows_relocatable_scripts(staged):
+    """Prove a uv runtime survives its rename: relocatable, and no file in Scripts names the staging path."""
+    configuration = os.path.join(staged, "pyvenv.cfg")
+    with open(configuration, encoding="utf-8") as handle:
+        settings = {key.strip().lower(): value.strip().lower()
+                    for key, separator, value in (line.partition("=") for line in handle) if separator}
+    if settings.get("relocatable") != "true":
+        raise ValueError("windows_entrypoint_verification_failed")
+    tokens = set()
+    for spelling in {staged, os.path.realpath(staged)}:
+        for form in {spelling, spelling.replace("\\", "/"), spelling.lower(), spelling.replace("\\", "/").lower()}:
+            tokens.update({form.encode("utf-8"), form.encode("utf-16-le")})
+    checked = 0
+    with os.scandir(os.path.join(staged, "Scripts")) as entries:
+        for entry in entries:
+            details = entry.stat(follow_symlinks=False)
+            if not stat.S_ISREG(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400:
+                raise ValueError("windows_entrypoint_verification_failed")
+            with open(entry.path, "rb") as stream:
+                payload = stream.read()
+            if any(token in payload or token in payload.lower() for token in tokens):
+                raise ValueError("windows_entrypoint_verification_failed")
+            checked += 1
+    return {"verified": True, "relocatable": True, "scripts": checked}
+
+
 def _windows_pip_tree(prefix):
     """Read complete runtime identity and reject every linked or reparse payload before use."""
     _installer_metadata_folder(prefix, "untrusted_windows_runtime_directory", windows=True)
@@ -6701,8 +6733,14 @@ def _windows_pip_transition(path, identity, inventory):
 
 
 def _windows_pip_transaction(record, version, install, *, machine, runner=None, activate=None,
-                             before_activate=None):
-    """Stage a Windows venv and retain its original through journaled, non-atomic replacement."""
+                             before_activate=None, uv_tool=False, without_wgpu=False):
+    """Stage a Windows venv and retain its original through journaled, non-atomic replacement.
+
+    :param uv_tool: the runtime is a relocatable uv environment made by the online
+        installer; ``install`` is its bundled uv command, retargeted to the staged copy.
+    :param without_wgpu: the saved installation choice omits wgpu, so uv's sole
+        missing-wgpu diagnostic is accepted.
+    """
     runner = runner or _run
     prefix = _windows_pip_private_directory(record.root)
     parent = _windows_pip_private_directory(os.path.dirname(prefix))
@@ -6727,7 +6765,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         staged = os.path.join(root, "staged")
         previous = os.path.join(root, "previous")
         details = os.stat(prefix, follow_symlinks=False)
-        state = {"schema": 1, "family": "windows-private-pip", "prefix": prefix,
+        state = {"schema": 1, "family": "windows-online-uv" if uv_tool else "windows-private-pip", "prefix": prefix,
                  "rollback_runtime": previous, "staged_runtime": staged,
                  "requested_version": version, "old_identity": [details.st_dev, details.st_ino],
                  "old_inventory": _windows_pip_tree(prefix), "state": "staging"}
@@ -6735,13 +6773,29 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         shutil.copytree(prefix, staged)
         _windows_pip_private_directory(staged)
         python = os.path.join(staged, "Scripts", "python.exe")
-        if install != [os.path.join(prefix, "Scripts", "python.exe"), "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]:
-            raise ValueError("the package command does not target this private runtime")
-        code, output = runner([python, *install[1:]])
+        if uv_tool:
+            command = list(install)
+            position = command.index("--python") + 1 if "--python" in command else 0
+            if (not position or command[1:4] != ["pip", "install", "--upgrade"]
+                    or "spacr==" + str(version) not in command
+                    or os.path.normcase(command[position]) != os.path.normcase(os.path.join(prefix, "Scripts", "python.exe"))):
+                raise ValueError("the package command does not target this private runtime")
+            command[position] = python
+            check_command = [command[0], "pip", "check", "--python", python]
+            if "--cache-dir" in command:
+                check_command.extend(["--cache-dir", command[command.index("--cache-dir") + 1]])
+            if without_wgpu:
+                check_command.extend(["--color", "never"])
+        else:
+            if install != [os.path.join(prefix, "Scripts", "python.exe"), "-I", "-m", "pip", "install", "--upgrade", "spacr==" + str(version)]:
+                raise ValueError("the package command does not target this private runtime")
+            command = [python, *install[1:]]
+            check_command = [python, "-I", "-m", "pip", "check"]
+        code, output = runner(command)
         if code:
             raise RuntimeError(output)
-        code, checked = runner([python, "-I", "-m", "pip", "check"])
-        if code:
+        code, checked = runner(check_command)
+        if code and not (uv_tool and without_wgpu and _only_saved_wgpu_omission(code, checked)):
             raise RuntimeError(checked)
         _windows_pip_tree(staged)
         for directory, _folders, files in os.walk(staged):
@@ -6755,7 +6809,8 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
                 original = os.stat(os.path.join(prefix, relative), follow_symlinks=False)
                 if (details.st_size == prior["size"] and int(details.st_mtime) == int(original.st_mtime)
                         and _macos_digest(path) != prior["sha256"]):
-                    os.utime(path, ns=(details.st_atime_ns, (int(original.st_mtime) + 2) * 1_000_000_000), follow_symlinks=False)
+                    os.utime(path, ns=(details.st_atime_ns, (int(original.st_mtime) + 2) * 1_000_000_000),
+                             **({"follow_symlinks": False} if os.utime in os.supports_follow_symlinks else {}))
                     if int(os.stat(path).st_mtime) == int(original.st_mtime):
                         raise OSError(errno.EIO, os.strerror(errno.EIO), path)
         code, observed = runner(_runtime_identity_command(python, version, prefix=staged, previous_version=record.version))
@@ -6771,7 +6826,8 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         code, checked = runner([python, "-I", "-B", "-c", "import spacr.qt"])
         if code:
             raise RuntimeError(checked)
-        state["entrypoints"] = _windows_pip_scripts(staged, prefix, runner)
+        state["entrypoints"] = (_windows_relocatable_scripts(staged) if uv_tool
+                                else _windows_pip_scripts(staged, prefix, runner))
         details = os.stat(staged, follow_symlinks=False)
         state.update(new_identity=[details.st_dev, details.st_ino], new_inventory=_windows_pip_tree(staged), state="ready")
         _runtime_recovery_journal(root, state)
@@ -6877,6 +6933,196 @@ def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
                                     before_activate=prepared,
                                     activate=lambda observed: _launch_updated_desktop(
                                         plan, relaunch, observed, record.root, spawn=spawn))
+
+
+_WINDOWS_ONLINE_RESOLVER_GUARDS = ("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
+
+
+def _windows_online_update_record(records, *, system=None, strict=False):
+    """The running Windows online installation's record, or None elsewhere."""
+    machine = system or _Machine()
+    if machine.platform != "windows" or getattr(sys, "frozen", False):
+        return None
+    candidates = [record for record in records if record.kind == "installer"
+                  and record.running and record.platform == "windows"
+                  and record.layout == "windows-online"]
+    if strict and len(candidates) != 1:
+        raise ValueError("the running Windows online installation is ambiguous or unavailable")
+    return candidates[0] if candidates else None
+
+
+def _windows_online_commands(record, version, workdir, desktop_prefix, desktop_executable):
+    """Bind the online installer's own uv, private runtime and saved choices to one update.
+
+    :param record: the running online installation.
+    :param version: the exact release to stage.
+    :param workdir: the updater's private folder, outside the installation.
+    :param desktop_prefix: ``sys.prefix`` of the desktop that requested the update.
+    :param desktop_executable: the interpreter that runs that desktop.
+    :returns: the staged uv install command and the relaunch command.
+    """
+    from importlib import import_module
+    from pathlib import Path
+
+    profiles = import_module("spacr.install_profile")
+    refusal = tr("This installation cannot stage a verified update. Nothing was changed.")
+    if (record.kind != "installer" or record.layout != "windows-online"
+            or record.platform != "windows" or not record.running or not record.python):
+        raise ValueError(refusal)
+    root = _windows_pip_private_directory(record.root)
+    prefix = _windows_pip_private_directory(os.path.join(root, "venv"))
+    scripts = os.path.join(prefix, "Scripts")
+    python = os.path.join(scripts, "python.exe")
+    windowed = os.path.join(scripts, "pythonw.exe")
+    uv = os.path.join(root, "bootstrap", "uv.exe")
+
+    def normalize(path):
+        """Compare Windows paths by their resolved, case-folded spelling."""
+        return os.path.normcase(os.path.realpath(path))
+
+    executable = os.path.abspath(desktop_executable or "")
+    if (normalize(record.python) != normalize(python)
+            or normalize(desktop_prefix or "") != normalize(prefix)
+            or normalize(os.path.dirname(executable)) != normalize(scripts)
+            or os.path.basename(executable).lower() not in {"python.exe", "pythonw.exe"}
+            or any(not os.path.isfile(path) or os.path.islink(path) for path in (uv, python, windowed, executable))
+            or _inside(os.path.realpath(workdir), root)):
+        raise ValueError(refusal)
+    profile_path = Path(root) / "install-profile.json"
+    profile = profiles.read_profile(profile_path)
+    if profile_path.exists() and (profile is None or not isinstance(profile.get("without_wgpu", False), bool)):
+        raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+    version = _runtime_requested_version(version)
+    install = [uv, "pip", "install", "--upgrade", "--cache-dir", os.path.join(root, "cache"), "--python", python]
+    if profile:
+        install.extend(["--torch-backend", profile["requested_backend"]])
+        if profile.get("without_wgpu") is True:
+            try:
+                no_wgpu_override = profiles.no_wgpu_override
+            except AttributeError as error:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved.")) from error
+            override = no_wgpu_override(profile, Path(workdir) / "no-wgpu-override.txt")
+            if override is None:
+                raise ValueError(tr("The saved choice to install without wgpu could not be preserved."))
+            install.extend(["--override", str(override)])
+    install.extend(["spacr==" + version, *_WINDOWS_ONLINE_RESOLVER_GUARDS])
+    return install, [windowed, "-I", "-m", "spacr.qt"]
+
+
+def _windows_online_helper(record, module, plan_path, machine):
+    """Detach the updater on the installation's own uv-managed Python, outside the runtime it replaces."""
+    root = os.path.realpath(record.root)
+    prefix = os.path.join(root, "venv")
+    base = os.path.realpath(sys.base_prefix)
+    if (os.path.normcase(os.path.realpath(sys.prefix)) != os.path.normcase(prefix)
+            or not _inside(base, os.path.join(root, "python")) or _inside(base, prefix)):
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    return _windows_pip_helper(replace(record, root=prefix), module, plan_path, machine, base=base)
+
+
+def _remove_runtime_copy(path):
+    """Delete a retired runtime copy; a link or junction inside it is removed as a link, never entered."""
+    with os.scandir(path) as entries:
+        for entry in entries:
+            details = entry.stat(follow_symlinks=False)
+            attributes = getattr(details, "st_file_attributes", 0)
+            if stat.S_ISLNK(details.st_mode) or attributes & 0x400:
+                if attributes & 0x10:
+                    os.rmdir(entry.path)
+                else:
+                    os.unlink(entry.path)
+            elif stat.S_ISDIR(details.st_mode):
+                _remove_runtime_copy(entry.path)
+            else:
+                if attributes & 0x1:
+                    os.chmod(entry.path, stat.S_IWRITE)
+                os.unlink(entry.path)
+    os.rmdir(path)
+
+
+def _prune_windows_online_recovery(root):
+    """Keep only the newest committed online-runtime recovery copy beside the runtime.
+
+    Only folders this adapter made, holding a committed ``windows-online-uv``
+    journal for this runtime, are candidates; links are never followed, and any
+    folder that cannot be read is kept.
+
+    :returns: the folders removed.
+    """
+    root = os.path.realpath(root)
+    prefix = os.path.join(root, "venv")
+    committed = []
+    with os.scandir(root) as entries:
+        for entry in entries:
+            if not entry.name.startswith(".spacr-windows-update-"):
+                continue
+            details = entry.stat(follow_symlinks=False)
+            if not stat.S_ISDIR(details.st_mode) or getattr(details, "st_file_attributes", 0) & 0x400:
+                continue
+            journal = os.path.join(entry.path, "transaction.json")
+            try:
+                with open(journal, encoding="utf-8") as handle:
+                    state = json.load(handle)
+                stamp = os.stat(journal, follow_symlinks=False).st_mtime_ns
+            except (OSError, ValueError):
+                continue
+            if (isinstance(state, dict) and state.get("family") == "windows-online-uv"
+                    and state.get("state") == "committed"
+                    and os.path.normcase(str(state.get("prefix", ""))) == os.path.normcase(prefix)):
+                committed.append((stamp, entry.path))
+    removed = []
+    for _stamp, path in sorted(committed)[:-1]:
+        try:
+            _remove_runtime_copy(path)
+            removed.append(path)
+        except OSError:
+            pass
+    return removed
+
+
+def _run_windows_online_update(plan, machine, *, wait=None, run=None, spawn=None):
+    """Carry out an approved Windows online update with the installation's own uv.
+
+    The desktop identity recorded when the update was requested is rechecked after
+    shutdown; uv or Python found on PATH is never substituted.
+    """
+    records = [_record_from_json(data) for data in plan["records"]]
+    record = _windows_online_update_record(records, system=machine, strict=True)
+    desktop = plan.get("desktop") or {}
+    if record is None or plan.get("frozen_application"):
+        raise ValueError(tr("This installation cannot stage a verified update. Nothing was changed."))
+    install, relaunch = _windows_online_commands(record, plan["version"], plan["workdir"],
+                                                 desktop.get("prefix"), desktop.get("executable"))
+    if plan.get("fetch") is not None or plan.get("install") != install or plan.get("relaunch") != relaunch:
+        raise ValueError("the Windows online update commands differ from the approved installation")
+    runtime = replace(record, root=os.path.join(os.path.realpath(record.root), "venv"))
+    runner = run or _run
+    current = _retiring_runtime_identity(runtime.root)
+    if current is None:
+        raise ValueError("previous_runtime_identity_unverified")
+    if _runtime_version_compare(runtime.python, current["version"], plan["version"], runner) > 0:
+        raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+    handshake = _WindowsPipHandshake(plan)
+    handshake.check()
+
+    def prepared():
+        """Offer Restart only after the staged runtime passes its checks."""
+        handshake.ready()
+        handshake.wait_for_shutdown(wait)
+        if _windows_online_commands(record, plan["version"], plan["workdir"], desktop.get("prefix"),
+                                    desktop.get("executable")) != (install, relaunch):
+            raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
+        if _retiring_runtime_identity(runtime.root) != current:
+            raise ValueError("previous_runtime_identity_unverified")
+
+    observed, output = _windows_pip_transaction(
+        runtime, plan["version"], install, machine=machine, runner=runner, before_activate=prepared,
+        uv_tool=True, without_wgpu="--override" in install,
+        activate=lambda version: _launch_updated_desktop(plan, relaunch, version, runtime.root, spawn=spawn))
+    pruned = _prune_windows_online_recovery(record.root)
+    if pruned:
+        output += "\nRemoved older recovery copies: " + ", ".join(pruned)
+    return observed, output
 
 
 _PRIVATE_PIP_UPDATE_ERROR = "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."
@@ -7584,6 +7830,22 @@ def start_update_helper(records: Sequence[InstallRecord], version: str, *,
             plan["command"] = [running.python, "-I", module, "run-plan", plan_path]
         except (OSError, ValueError) as error:
             plan["error"] = f"could not prepare the macOS environment update: {error}. Nothing was removed."
+    elif _windows_online_update_record(records, system=machine) is not None:
+        plan["adapter"] = "windows-online-uv-v1"
+        plan["steps"] = ["wait", "upgrade", "verify", "relaunch"]
+        plan["handshake"] = {"schema": 1, "token": os.urandom(32).hex(),
+                             "expires": time.time() + _FROZEN_PREPARATION_SECONDS}
+        plan["desktop"] = {"prefix": machine.running_prefix, "executable": machine.executable}
+        try:
+            running = _windows_online_update_record(records, system=machine, strict=True)
+            plan["install"], plan["relaunch"] = _windows_online_commands(
+                running, str(version), workdir, machine.running_prefix, machine.executable)
+            _WindowsPipHandshake(plan)
+            with open(__file__, "rb") as source, open(module, "wb") as copy:
+                copy.write(source.read())
+            plan["command"], environment = _windows_online_helper(running, module, plan_path, machine)
+        except (OSError, ValueError) as error:
+            plan["error"] = f"could not prepare the Windows environment update: {error}. Nothing was removed."
     elif (plan["frozen_application"] and running.layout == "linux-deb"
           and machine.platform == "linux"):
         plan["adapter"] = "linux-deb-v1"
@@ -7823,15 +8085,19 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return code
 
     planned_records = [_record_from_json(data) for data in plan["records"]]
-    if plan.get("adapter") in {"macos-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
+    if plan.get("adapter") in {"macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1"}:
         try:
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
+                         else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
                          else _run_macos_online_update)
             observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
-            lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1" else str(error))
+            lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1"
+                         else f"Windows environment update stopped: {error}" if plan["adapter"] == "windows-online-uv-v1"
+                         else str(error))
             try:
-                (_WindowsPipHandshake if plan["adapter"] == "pip-private-windows-v1" else _FrozenUpdateHandshake)(plan).failed(error)
+                (_WindowsPipHandshake if plan["adapter"] in {"pip-private-windows-v1", "windows-online-uv-v1"}
+                 else _FrozenUpdateHandshake)(plan).failed(error)
             except Exception:
                 lines.append("The update error could not be published to the readiness channel.")
             return _finish(6)
