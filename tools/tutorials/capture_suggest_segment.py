@@ -46,7 +46,7 @@ def main():
     captures.mkdir()
 
     from capture_annotate import record_suggest_judgement
-    from capture_policy import configure_appearance, verify_fresh_start
+    from capture_policy import configure_appearance, verify_fresh_start, warm_gui_imports
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QApplication, QDialogButtonBox, QMenu
@@ -70,6 +70,7 @@ def main():
     _use_open_sans(app)
     preferences.apply_preferences_to_app(app)
     window = MainWindow()
+    warm_gui_imports()
     window.resize(3840, 2160)
     window.show()
     app.processEvents()
