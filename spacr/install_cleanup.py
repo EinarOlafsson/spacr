@@ -2212,6 +2212,21 @@ def _uninstall_preview(operation_id, *, system=None):
             identity, reason = [], "unverified"
         cleanup.append({"category": category, "path": path, "identity": identity,
                         "selectable": not reason, "reason": reason})
+    listed = {row["path"] for row in cleanup}
+    for record in records:
+        if record.kind != "installer":
+            continue
+        for path in _runtime_transaction_folders(record.root):
+            if path in listed:
+                continue
+            try:
+                identity = _uninstall_path_state(path)
+                reason = ""
+            except (OSError, ValueError):
+                identity, reason = [], "unverified"
+            cleanup.append({"category": "temporary", "path": path, "identity": identity,
+                            "selectable": not reason, "reason": reason})
+            listed.add(path)
     registry = machine.registry
     if registry is not None and (registry.values(_SETTINGS_REGISTRY_KEY) or registry.subkeys(_SETTINGS_REGISTRY_KEY)):
         cleanup.append({"category": "settings", "path": "registry:" + _SETTINGS_REGISTRY_KEY,
@@ -5436,6 +5451,169 @@ def _runtime_recovery_journal(root, state):
             os.unlink(temporary)
 
 
+#: Retained runtime transactions, by journal family: (folder prefix, schema, rollback child).
+_RUNTIME_TRANSACTIONS = {
+    "posix-runtime": (".spacr-runtime-update-", 2, "runtime"),
+    "windows-private-pip": (".spacr-windows-update-", 1, "previous"),
+}
+
+
+def _runtime_transaction_folders(parent):
+    """Retained update transaction folders directly inside ``parent``, as plain directories only.
+
+    A link, a reparse point, another user's folder or anything but a directory is never returned.
+    """
+    prefixes = tuple(prefix for prefix, _schema, _child in _RUNTIME_TRANSACTIONS.values())
+    try:
+        names = sorted(os.listdir(parent))
+    except OSError:
+        return []
+    found = []
+    for name in names:
+        if not name.startswith(prefixes):
+            continue
+        path = os.path.join(parent, name)
+        try:
+            details = os.lstat(path)
+        except OSError:
+            continue
+        if (stat.S_ISLNK(details.st_mode) or not stat.S_ISDIR(details.st_mode)
+                or getattr(details, "st_file_attributes", 0) & 0x400
+                or (os.name != "nt" and details.st_uid != os.geteuid())):
+            continue
+        found.append(path)
+    return found
+
+
+def _runtime_transaction_journal(path, prefix, family):
+    """The journal of one retained transaction for ``prefix``, or None when it is not exactly that."""
+    marker, schema, child = _RUNTIME_TRANSACTIONS[family]
+    if not os.path.basename(path).startswith(marker):
+        return None
+    journal = os.path.join(path, "transaction.json")
+    try:
+        if os.path.islink(journal):
+            return None
+        descriptor = os.open(journal, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        with os.fdopen(descriptor, encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(details.st_mode) or details.st_size > 64 * 1024 * 1024
+                    or (os.name != "nt" and details.st_uid != os.geteuid())):
+                return None
+            state = json.load(stream)
+    except (OSError, ValueError, UnicodeDecodeError):
+        return None
+    if (not isinstance(state, dict) or state.get("schema") != schema or state.get("family") != family
+            or state.get("prefix") != prefix or state.get("rollback_runtime") != os.path.join(path, child)):
+        return None
+    return state, details.st_mtime_ns
+
+
+def _folder_size(path):
+    """Bytes under ``path`` counted from its entries themselves, never through a link."""
+    total = 0
+    for directory, folders, files in os.walk(path, followlinks=False):
+        for name in folders + files:
+            try:
+                total += os.lstat(os.path.join(directory, name)).st_size
+            except OSError:
+                pass
+    return total
+
+
+def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
+    """Remove retained update copies of ``prefix`` except the newest committed one.
+
+    Every update keeps the runtime it replaced as a rollback copy, about 3 GB, and nothing removed the older
+    ones. Only a copy whose journal says "committed" is removed; one rolling back, awaiting launch
+    confirmation, unknown or unreadable is kept, as is the newest committed one. With ``live`` the copies
+    are pruned only when the newest transaction of all is committed and its new runtime is the one now
+    installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
+    runtime's own folder is touched and no link is followed.
+
+    :param prefix: the runtime directory the transactions replaced.
+    :param family: "posix-runtime" or "windows-private-pip".
+    :param live: check the newest transaction against the installed runtime first.
+    :param inventory: the content inventory of ``prefix``, computed when needed if omitted.
+    :returns: ``(path, bytes)`` for each removed copy.
+    """
+    import logging
+
+    log = logging.getLogger("spacr.install_cleanup")
+    prefix = os.path.realpath(prefix)
+    parent = os.path.dirname(prefix)
+    journals = []
+    for path in _runtime_transaction_folders(parent):
+        found = _runtime_transaction_journal(path, prefix, family)
+        if found is not None:
+            journals.append((found[1], path, found[0]))
+    journals.sort(key=lambda row: (row[0], row[1]))
+    committed = [row for row in journals if row[2].get("state") == "committed"]
+    if len(committed) < 2:
+        return []
+    if live:
+        newest_state = journals[-1][2]
+        if newest_state.get("state") != "committed":
+            return []
+        try:
+            details = os.stat(prefix, follow_symlinks=False)
+        except OSError:
+            return []
+        if [details.st_dev, details.st_ino] != newest_state.get("new_identity"):
+            return []
+        if inventory is None:
+            measure = _runtime_recovery_inventory if family == "posix-runtime" else _windows_pip_tree
+            try:
+                inventory = measure(prefix)
+            except (OSError, ValueError):
+                return []
+        if inventory != newest_state.get("new_inventory"):
+            return []
+    removed = []
+    for _mtime, path, _state in committed[:-1]:
+        try:
+            details = os.lstat(path)
+            if (stat.S_ISLNK(details.st_mode) or not stat.S_ISDIR(details.st_mode)
+                    or os.path.dirname(os.path.realpath(path)) != parent):
+                continue
+            size = _folder_size(path)
+            shutil.rmtree(path)
+        except OSError as error:
+            log.warning("Could not remove the retained update copy %s: %s", path, error)
+            continue
+        log.info("Removed the retained update copy %s (%.1f MB)", path, size / 1e6)
+        removed.append((path, size))
+    return removed
+
+
+def _prune_runtime_transactions_after_launch(prefix=None):
+    """After a launch whose main window is up, keep only the newest retained copy of this runtime.
+
+    Runs off the GUI thread. The runtime lease is taken for the duration; when an update holds it, nothing
+    is done.
+
+    :param prefix: the running runtime; this interpreter's own when omitted.
+    :returns: ``(path, bytes)`` for each removed copy.
+    """
+    prefix = os.path.realpath(prefix or sys.prefix)
+    family = "windows-private-pip" if os.name == "nt" else "posix-runtime"
+    parent = os.path.dirname(prefix)
+    if not any(_runtime_transaction_journal(path, prefix, family) for path in _runtime_transaction_folders(parent)):
+        return []
+    lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
+    try:
+        _take_lease_dir(lock)
+    except OSError:
+        return []
+    try:
+        return _prune_runtime_transactions(prefix, family, live=True)
+    finally:
+        try:
+            _release_lease_dir(lock)
+        except OSError:
+            pass
+
+
 def _only_saved_wgpu_omission(code, output):
     """Recognize only uv's sole missing spaCR-to-wgpu dependency diagnostic.
 
@@ -5486,6 +5664,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         record = replace(record, version=current["version"])
         if _runtime_version_compare(record.python, record.version, version, runner) > 0:
             raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+        _prune_runtime_transactions(prefix, "posix-runtime")
         transaction = tempfile.mkdtemp(prefix=".spacr-runtime-update-", dir=parent)
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
@@ -6795,6 +6974,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         record = replace(record, version=old["version"])
         if _runtime_version_compare(record.python, record.version, version, runner) > 0:
             raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
+        _prune_runtime_transactions(prefix, "windows-private-pip")
         root = tempfile.mkdtemp(prefix=".spacr-windows-update-", dir=parent)
         _windows_pip_private_directory(root)
         staged = os.path.join(root, "staged")

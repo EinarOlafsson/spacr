@@ -4999,6 +4999,27 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "check", check, self._on_update_check_done)
 
+    def _prune_retained_runtime_copies(self) -> None:
+        """Keep one rollback copy of this runtime once the window is up, on a background thread.
+
+        Each update keeps the runtime it replaced (about 3 GB); this launch has confirmed the new one,
+        so older committed copies go. See :func:`spacr.install_cleanup._prune_runtime_transactions`.
+        """
+        if self._closing:
+            return
+        import threading
+
+        def prune():
+            """Prune off the GUI thread; a failure only leaves the copies in place."""
+            try:
+                from spacr.install_cleanup import _prune_runtime_transactions_after_launch
+
+                _prune_runtime_transactions_after_launch()
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("Retained runtime copies were not pruned", exc_info=True)
+
+        threading.Thread(target=prune, name="spacr-runtime-prune", daemon=True).start()
+
     def _maybe_show_whats_new(self) -> None:
         """Show what changed when this launch runs a newer version than the last.
 
@@ -8401,6 +8422,9 @@ def _register_the_glyph_font() -> None:
 
 _ICON_WARM_AFTER_MS = 1500
 
+#: Delay before older retained update copies are pruned: well after the window is confirmed up.
+_RETAINED_RUNTIME_PRUNE_AFTER_MS = 60_000
+
 
 def _start_icon_prewarm() -> Optional[threading.Thread]:
     """Re-ink the bundled app icons on a worker thread, for the active theme.
@@ -8676,6 +8700,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, win._maybe_show_whats_new)
+        QTimer.singleShot(_RETAINED_RUNTIME_PRUNE_AFTER_MS, win._prune_retained_runtime_copies)
         win._start_the_screen_prewarm()
 
     def _drain_ai():
