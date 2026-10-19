@@ -9382,6 +9382,28 @@ class _FrameProducer:
 #: leaves this set only once its thread has ended and nothing else keeps it.
 _LIVE_PRODUCERS: "weakref.WeakSet[_FrameProducer]" = weakref.WeakSet()
 
+#: Every backdrop and every spaceout fractal built in this process. The run
+#: policy reads these instead of walking ``QApplication.allWidgets()``: that
+#: walk wraps every widget of a 3840x2160 window in Python on each job
+#: change, and it was a fifth of the GUI thread's samples in the seconds
+#: after lesson 13's run ended.
+_LIVE_AMBIENT_WIDGETS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+_LIVE_SPACEOUT_FRACTALS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+
+
+def _still_alive(widgets) -> list:
+    """The widgets of a registry whose Qt object still exists."""
+    from shiboken6 import isValid
+
+    found = []
+    for widget in list(widgets):
+        try:
+            if isValid(widget):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
+
 #: Set once the application is quitting: no backdrop starts a shading thread
 #: (and with it a graphics context) after that.
 _SHADING_RETIRED = [False]
@@ -10264,6 +10286,7 @@ class AmbientWidget(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
+        _LIVE_AMBIENT_WIDGETS.add(self)
         #: Corner radius the backdrop is clipped to; 0 leaves it square.
         #:
         #: A backdrop normally fills a rectangular screen and wants no
@@ -12256,6 +12279,7 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
     )
     widget._spaceout_controls = controls
     widget._spaceout_built_from = _built_from(values)
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     return widget
 
 
@@ -12268,6 +12292,11 @@ def _place_the_spaceout_fractal(widget, host) -> None:
     host.installEventFilter(_FractalTracksItsHost(widget, host))
 
 
+def _live_ambient_widgets() -> list:
+    """Every backdrop widget whose Qt object still exists."""
+    return _still_alive(_LIVE_AMBIENT_WIDGETS)
+
+
 def _live_spaceout_fractals() -> list:
     """Every spaceout backdrop currently parented to something."""
     from PySide6.QtWidgets import QApplication
@@ -12275,7 +12304,7 @@ def _live_spaceout_fractals() -> list:
     if QApplication.instance() is None:
         return []
     found = []
-    for widget in QApplication.allWidgets():
+    for widget in _still_alive(_LIVE_SPACEOUT_FRACTALS):
         try:
             if (getattr(widget, "_spaceout_built_from", None) is not None
                     and widget.parentWidget() is not None):
@@ -12628,7 +12657,7 @@ class _AnimationResourcePolicy(QObject):
         """Push the current decision to every live animation."""
         app = QApplication.instance()
         if app is not None:
-            for widget in list(app.allWidgets()):
+            for widget in _live_ambient_widgets():
                 if isinstance(widget, AmbientWidget):
                     try:
                         widget._sync_run_state()

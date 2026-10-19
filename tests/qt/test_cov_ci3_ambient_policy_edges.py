@@ -305,7 +305,7 @@ def test_applying_skips_a_widget_whose_object_is_gone(monkeypatch, qapp):
 
     dead._sync_run_state = sync
     monkeypatch.setattr(ambient, "AmbientWidget", Dead)
-    monkeypatch.setattr(type(qapp), "allWidgets", staticmethod(lambda: widgets))
+    monkeypatch.setattr(ambient, "_live_ambient_widgets", lambda: widgets)
     monkeypatch.setattr(ambient, "_live_spaceout_fractals", lambda: [])
     policy = ambient._AnimationResourcePolicy()
     emitted = []
