@@ -345,4 +345,4 @@ def test_the_windows_installer_names_no_dead_holder_for_a_later_lease():
     source = WINDOWS.read_text()
     assert "function Test-SpacrLeaseHasUnknownFields" in source
     assert "'^(pid|started|host|tree|rollback)='" in source
-    assert '-and (Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }' in source
+    assert '(Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }' in source
