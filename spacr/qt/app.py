@@ -3024,6 +3024,36 @@ def _a_modal_dialog_is_open() -> bool:
     return _Application.activeModalWidget() is not None
 
 
+def _end_the_event_loop(app) -> None:
+    """End the session after the main window accepted its close.
+
+    On macOS ``quit()`` asks Cocoa to terminate. When a termination is
+    already under way -- Dock Quit, logging out, an Apple Event -- Cocoa
+    closes the main window, this runs inside it, and the second terminate
+    makes AppKit call ``exit()`` while Python still runs: PySide then
+    crashes in its static destructors (seen on every such quit on
+    2026-10-19). ``exit(0)`` only leaves the event loop, so ``exec`` returns
+    and Python shuts down normally, once however often this is reached.
+    Other platforms keep ``quit()``.
+
+    :param app: the application.
+    """
+    leave = getattr(app, "exit", None) if sys.platform == "darwin" else None
+    if leave is None:
+        app.quit()
+        return
+    if getattr(app, "_spacr_leaving", False):
+        return
+    try:
+        app._spacr_leaving = True
+    except AttributeError:
+        pass
+    close_all = getattr(app, "closeAllWindows", None)
+    if close_all is not None:
+        close_all()
+    leave(0)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -5722,7 +5752,7 @@ class MainWindow(QMainWindow):
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
-                app.quit()
+                _end_the_event_loop(app)
 
     _UPDATE_WORKER_WAIT_MS = 5000
 

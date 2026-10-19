@@ -176,6 +176,27 @@ def test_only_an_accepted_close_ends_the_session(win, monkeypatch):
     assert quits == ["quit"]
 
 
+def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(win, monkeypatch):
+    """2026-10-19 macOS acceptance: Dock Quit or logout closes the window from
+    inside Cocoa's terminate; a second terminate from ``quit()`` made AppKit
+    call ``exit()`` and PySide crashed in its static destructors."""
+    calls = []
+    monkeypatch.setattr(app_mod.sys, "platform", "darwin")
+    application = types.SimpleNamespace(
+        quit=lambda: calls.append("quit"),
+        closeAllWindows=lambda: calls.append("close all"),
+        exit=lambda code: calls.append(("exit", code)))
+    monkeypatch.setattr(app_mod, "QApplication",
+                        types.SimpleNamespace(instance=lambda: application))
+
+    win.closeEvent(_RefusedClose())
+    assert calls == []
+
+    win.closeEvent(QCloseEvent())
+    win.closeEvent(QCloseEvent())
+    assert calls == ["close all", ("exit", 0)], "the loop is left once"
+
+
 def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
     """A scroll the backdrop did not use must keep travelling.
 
