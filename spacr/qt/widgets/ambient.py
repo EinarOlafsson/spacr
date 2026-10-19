@@ -5374,6 +5374,49 @@ def _ready_subpixel_scatter():
     return _SUBPIXEL_SCATTER
 
 
+def _numba_cache_directory():
+    """A writable per-user folder for compiled kernels, or ``None``.
+
+    ``NUMBA_CACHE_DIR`` wins when the user set it; otherwise the folder is
+    ``numba`` under spaCR's cache location, never beside the package source,
+    so frozen and read-only installs work. An unwritable folder means no
+    cache, silently.
+    """
+    import os
+    from pathlib import Path
+
+    try:
+        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
+        if configured:
+            folder = Path(configured).expanduser()
+        else:
+            from ...logging_util import _spacr_home
+            folder = _spacr_home() / "cache" / "numba"
+        folder.mkdir(parents=True, exist_ok=True)
+        if not os.access(folder, os.W_OK):
+            return None
+        os.environ["NUMBA_CACHE_DIR"] = str(folder)
+        import sys
+        if "numba.core.config" in sys.modules:
+            sys.modules["numba.core.config"].CACHE_DIR = str(folder)
+        return folder
+    except Exception:
+        return None
+
+
+def _compiled_kernel(function):
+    """``function`` as a nogil numba kernel, cached on disk when it can be."""
+    cached = _numba_cache_directory() is not None
+    from numba import njit
+
+    if cached:
+        try:
+            return njit(nogil=True, cache=True)(function)
+        except Exception:
+            pass
+    return njit(nogil=True, cache=False)(function)
+
+
 def _warm_packed_scatter():
     """Compile once using tiny owned CPU arrays, without Qt or package writes.
 
@@ -5389,14 +5432,12 @@ def _warm_packed_scatter():
             _PACKED_SCATTER_STARTED = False
         return
     try:
-        from numba import njit
-
         np = _numpy()
         flat = np.zeros(1, dtype=np.uint32)
         coordinates = np.zeros(1, dtype=np.int32)
         intensity = np.zeros(1, dtype=np.uint8)
         lookup = np.arange(256, dtype=np.uint32)
-        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel = _compiled_kernel(_scatter_packed_grains)
         kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
                1, 1, True)
         if not getattr(kernel, 'nopython_signatures', ()):
@@ -5404,7 +5445,7 @@ def _warm_packed_scatter():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER = kernel
         try:
-            subpixel = njit(nogil=True, cache=False)(_scatter_subpixel_grains)
+            subpixel = _compiled_kernel(_scatter_subpixel_grains)
             subpixel(flat, np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32),
                      np.zeros(1, dtype=np.float32), lookup, 1, 1, True,
                      np.zeros(16, dtype=np.float64))
@@ -5414,7 +5455,7 @@ def _warm_packed_scatter():
         except Exception:
             pass
         try:
-            blender = njit(nogil=True, cache=False)(_blend_colored_words)
+            blender = _compiled_kernel(_blend_colored_words)
             blender(flat, flat.copy(), 1)
             if getattr(blender, 'nopython_signatures', ()):
                 with _PACKED_SCATTER_LOCK:
@@ -5422,7 +5463,7 @@ def _warm_packed_scatter():
         except Exception:
             pass
         try:
-            colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
+            colored = _compiled_kernel(_scatter_colored_grains)
             table = lookup
             colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
                     np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
@@ -5572,10 +5613,8 @@ class _SatinCompiler:
                 self.started = False
             return
         try:
-            from numba import njit
-
             np = _numpy()
-            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            kernel = _compiled_kernel(_warp_satin_columns)
             source = np.zeros((1, 1), dtype=np.uint32)
             coordinates = np.zeros(1, dtype=np.int32)
             kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
