@@ -151,10 +151,6 @@ class FilmStrip(QScrollArea):
     def highlight(self, index: int) -> None:
         """Ring the frame the movie is on, so the two views agree.
 
-        Only the cells whose ring changes get a new style sheet: restyling
-        every thumbnail on each step of a playing movie re-polished the
-        whole strip once a frame.
-
         :param index: zero-based index of the frame to ring; every other cell
             loses its ring, and an index outside the strip rings none.
         """
