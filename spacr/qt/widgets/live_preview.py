@@ -3095,7 +3095,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         columns = self._set_table_columns(sets)
         table.blockSignals(True)
         try:
-            table.clear()
+            _retire_table_cells(table, headers=True)
             table.setRowCount(len(sets))
             table.setColumnCount(len(columns))
             table.setHorizontalHeaderLabels(
@@ -3121,7 +3121,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                         iter(image_set.channels), None)
                     planes = len(image_set.planes.get(key) or ()) or 1
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
-                    item = table_item(text)
+                    item = _spare_table_item(table, text)
                     item.setToolTip(str(image_set.path(key)))
                     item.setData(Qt.UserRole, str(image_set.path(key)))
                     if plane is not None:
@@ -5798,7 +5798,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QFormLayout, QGroupBox, QScrollArea,
 )
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 
 class LiveSettingsDialog(QDialog):

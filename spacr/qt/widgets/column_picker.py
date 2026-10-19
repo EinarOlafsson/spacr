@@ -91,7 +91,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from .toggle import Toggle
-from .sortable_table import install_sorting, tree_item
+from .sortable_table import _reuse_tree_items, install_sorting
 
 __all__ = [
     "ColumnPickerButton",
@@ -810,7 +810,7 @@ class ColumnPickerDialog(QDialog):
 
     def _begin_table(self, table: str) -> None:
         """Say a table is being read, without claiming to know anything."""
-        self._column_tree.clear()
+        _reuse_tree_items(self._column_tree, 0)
         self._columns = []
         self._count_btn.setEnabled(False)
         if table and self._reader is not None:
@@ -835,7 +835,7 @@ class ColumnPickerDialog(QDialog):
         """Put a :func:`read_table` result on screen. GUI thread only."""
         payload = payload or {}
         table = payload.get("table") or ""
-        self._column_tree.clear()
+        _reuse_tree_items(self._column_tree, 0)
         self._columns = []
         self._summary.setText("")
         self._count_btn.setEnabled(False)
@@ -853,8 +853,10 @@ class ColumnPickerDialog(QDialog):
             return
         self._set_banner("")
         self._columns = info
-        for col_name, decl in info:
-            tree_item(self._column_tree, [col_name, decl or "—", ""])
+        for (col_name, decl), item in zip(
+                info, _reuse_tree_items(self._column_tree, len(info))):
+            for column, text in enumerate((col_name, decl or "—", "")):
+                item.setText(column, text)
         rows = payload.get("rows")
         shown = f"≈ {rows:,} rows (estimate)" if rows is not None else "row count unknown"
         self._summary.setText(f"{len(info)} columns · {shown}")

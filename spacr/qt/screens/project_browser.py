@@ -63,7 +63,8 @@ from .. import path_probe
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _reuse_list_items,
+                                      _spare_table_item, install_sorting)
 from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.project_browser")
@@ -324,16 +325,16 @@ class ProjectBrowserScreen(QWidget):
 
     def _refresh_root_list(self) -> None:
         """Rebuild the list of scanned root folders."""
-        self._root_list.clear()
-        for path in self._roots:
-            self._root_list.addItem(QListWidgetItem(path))
+        items = _reuse_list_items(self._root_list, len(self._roots))
+        for item, path in zip(items, self._roots):
+            item.setText(path)
 
     def rescan(self) -> None:
         """Walk the search folders again, off the GUI thread."""
         roots = list(self._roots)
         if not roots:
             self._summaries = ()
-            self._table.setRowCount(0)
+            _retire_table_cells(self._table)
             self._detail.setPlainText("")
             self._status.setText("Add a folder to search for projects.")
             self.scanned.emit(0)
@@ -400,6 +401,7 @@ class ProjectBrowserScreen(QWidget):
         from ...data_manager import human_bytes
 
         self._table.setSortingEnabled(False)
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(self._summaries))
         for row, summary in enumerate(self._summaries):
             cells = (
@@ -412,7 +414,7 @@ class ProjectBrowserScreen(QWidget):
                 summary.note(),
             )
             for column, text in enumerate(cells):
-                item = table_item(str(text))
+                item = _spare_table_item(self._table, str(text))
                 if column == 0:
                     item.setToolTip(summary.root)
                     item.setData(Qt.UserRole, summary.root)

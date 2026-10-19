@@ -28,7 +28,7 @@ from ...classify_classes import (
 )
 from ..i18n import set_translatable_text
 from ..theme import SPACING, apply_close_mark, register_widget_qss
-from .sortable_table import install_sorting, tree_item
+from .sortable_table import _reuse_tree_items, install_sorting
 
 LOG = logging.getLogger("spacr.qt.class_editor")
 
@@ -511,16 +511,16 @@ class ClassEditorWidget(QWidget):
         """
         self._rebuild_chips()
         self.table.blockSignals(True)
-        self.table.clear()
-        for rule in self._rules:
+        items = _reuse_tree_items(self.table, len(self._rules))
+        for rule, item in zip(self._rules, items):
             if rule.random_complement:
                 labels = [rule.name, "the rest, at random", ""]
             else:
                 labels = [rule.name, "" if rule.value is None else str(rule.value),
                           rule.column]
-            item = tree_item(labels)
+            for column, text in enumerate(labels):
+                item.setText(column, text)
             item.setFlags(item.flags() | Qt.ItemIsEditable)
-            self.table.addTopLevelItem(item)
         self.table.blockSignals(False)
         self._emit()
 

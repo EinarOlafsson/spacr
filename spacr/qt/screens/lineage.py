@@ -41,7 +41,8 @@ from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette, mark_surface
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import install_test_data_button
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import (
+    _reuse_list_items, _reuse_tree_items, install_sorting)
 from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
@@ -247,8 +248,8 @@ class LineageScreen(LinkedView, QWidget):
         except lin.LineageError as exc:
             self._forest = ()
             self._orphans = pd.DataFrame()
-            self.tree.clear()
-            self.orphan_list.clear()
+            _reuse_tree_items(self.tree, 0)
+            _reuse_list_items(self.orphan_list, 0)
             self.summary.setText(str(exc))
             self.status.setText("Nothing to show.")
             return
@@ -269,28 +270,36 @@ class LineageScreen(LinkedView, QWidget):
         Capped at ``TREE_LIMIT`` roots: a plate's worth of cells would take
         longer to build than to read.
         """
-        self.tree.clear()
-        for root in self._forest[:TREE_LIMIT]:
-            self.tree.addTopLevelItem(self._item(root))
+        roots = self._forest[:TREE_LIMIT]
+        rows = _reuse_tree_items(self.tree, len(roots))
+        for item, root in zip(rows, roots):
+            self._item(root, item)
 
-    def _item(self, node: "lin.LineageNode") -> QTreeWidgetItem:
-        """One node and its descendants as tree items.
+    def _item(self, node: "lin.LineageNode",
+              item: QTreeWidgetItem) -> QTreeWidgetItem:
+        """Write one node and its descendants into a tree item.
+
+        The item and any children it already has are rewritten in place, so a
+        reload deletes no item.
 
         The key is stashed on the item rather than re-derived from the label
         text: a label is for reading and a key is for matching, and the two
         have drifted apart in this codebase before.
         """
         inside = {t: n for t, n in node.counts().items() if t != node.table}
-        item = tree_item([
+        texts = [
             f"{node.table} {node.label}",
             ", ".join(f"{n} {t}" for t, n in sorted(inside.items())),
             node.key,
-        ])
+        ]
+        for column, text in enumerate(texts):
+            item.setText(column, text)
         item.setData(0, _KEY_ROLE, node.key)
         item.setData(0, _ID_ROLE, node.node_id)
         item.setToolTip(0, node.describe())
-        for child in node.children:
-            item.addChild(self._item(child))
+        kids = _reuse_tree_items(item, len(node.children))
+        for kid, child in zip(kids, node.children):
+            self._item(child, kid)
         return item
 
     def _fill_orphans(self) -> None:
@@ -301,21 +310,21 @@ class LineageScreen(LinkedView, QWidget):
         naming every object with that label in the field. An empty list says so
         in words rather than being left blank.
         """
-        self.orphan_list.clear()
         if self._orphans.empty:
-            self.orphan_list.addItem(QListWidgetItem(
-                "(none — every child names a parent that exists)"))
+            only = _reuse_list_items(self.orphan_list, 1)[0]
+            only.setData(Qt.DisplayRole,
+                         "(none — every child names a parent that exists)")
             return
-        for _index, row in self._orphans.iterrows():
+        rows = _reuse_list_items(self.orphan_list, len(self._orphans))
+        for item, (_index, row) in zip(rows, self._orphans.iterrows()):
             key = lin.node_key(row, str(row.get("table") or "") or None)
             claimed = str(row.get("parent_id") or "")
             text = (f"{row['table']} {row[lin.schema.OBJECT_LABEL_KEY]} → "
                     + (f"cell {claimed} (missing)" if claimed
                        else "no cell_id at all"))
-            item = QListWidgetItem(text)
+            item.setText(text)
             item.setData(_KEY_ROLE, key)
             item.setToolTip(key)
-            self.orphan_list.addItem(item)
 
     def _on_job_failed(self, message: str) -> None:
         """Show a failed load on the status line, in the error colour.

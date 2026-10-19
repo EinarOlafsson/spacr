@@ -6951,12 +6951,13 @@ class _CloudBrowserDialog(QDialog):
         import threading
 
         from ..i18n import tr
+        from ..widgets.sortable_table import _reuse_list_items
 
         self._request += 1
         request = self._request
         address = self.location()
         options = self.options()
-        self.entries.clear()
+        _reuse_list_items(self.entries, 0)
         self.details.setPlainText(tr("Reading…"))
         signals = self._signals
 
@@ -6987,16 +6988,15 @@ class _CloudBrowserDialog(QDialog):
 
     def _show_listing(self, request, entries, text) -> None:
         """Show a finished listing, unless a newer one was asked for."""
-        from PySide6.QtWidgets import QListWidgetItem
+        from ..widgets.sortable_table import _reuse_list_items
 
         if request != self._request:
             return
-        self.entries.clear()
-        for name, kind, size in entries:
+        items = _reuse_list_items(self.entries, len(entries))
+        for item, (name, kind, size) in zip(items, entries):
             label = f"{name}/" if kind == "folder" else f"{name}  ({size} B)"
-            item = QListWidgetItem(label)
+            item.setText(label)
             item.setData(Qt.UserRole, name)
-            self.entries.addItem(item)
         self.details.setPlainText(str(text or ""))
 
 

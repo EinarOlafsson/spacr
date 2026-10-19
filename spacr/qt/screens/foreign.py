@@ -86,7 +86,7 @@ from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting
+from ..widgets.sortable_table import _reuse_list_items, install_sorting
 
 __all__ = [
     "NAMING_AUTO",
@@ -696,11 +696,12 @@ class ForeignScreen(QWidget):
 
     def _refresh_mask_list(self) -> None:
         """Rebuild the list of mask sets added so far."""
-        self._mask_list.clear()
-        for name, folder in self.mask_folders().items():
-            item = QListWidgetItem(f"{object_label(name)}  →  {folder}")
+        folders = self.mask_folders()
+        for item, (name, folder) in zip(
+                _reuse_list_items(self._mask_list, len(folders)),
+                folders.items()):
+            item.setText(f"{object_label(name)}  →  {folder}")
             item.setData(Qt.UserRole, name)
-            self._mask_list.addItem(item)
         self._refill_object_box()
 
     def _refill_object_box(self) -> None:

@@ -68,8 +68,9 @@ from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
-from ..widgets.sortable_table import (SortableProxyModel, install_sorting,
-                                      table_item)
+from ..widgets.sortable_table import (SortableProxyModel, _retire_table_cells,
+                                      _reuse_list_items, _spare_table_item,
+                                      install_sorting, table_item)
 
 LOG = logging.getLogger(__name__)
 
@@ -187,9 +188,10 @@ def _cell_text(value: Any) -> str:
     return str(value)
 
 
-def _item(value: Any) -> QTableWidgetItem:
-    """Return a read-only table item."""
-    item = table_item(_cell_text(value))
+def _item(value: Any, table: Optional[QTableWidget] = None) -> QTableWidgetItem:
+    """Return a read-only table item, reusing ``table``'s spare cells if given."""
+    item = (table_item(_cell_text(value)) if table is None
+            else _spare_table_item(table, _cell_text(value)))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -889,17 +891,17 @@ class ClassifierEvaluationScreen(QWidget):
         if include_index:
             columns = [shown.index.name or "true_class", *columns]
         table.setSortingEnabled(False)
-        table.clear()
+        _retire_table_cells(table, headers=True)
         table.setColumnCount(len(columns))
         table.setHorizontalHeaderLabels([str(column) for column in columns])
         table.setRowCount(len(shown))
         for row, (index, values) in enumerate(shown.iterrows()):
             offset = 0
             if include_index:
-                table.setItem(row, 0, _item(index))
+                table.setItem(row, 0, _item(index, table))
                 offset = 1
             for column, value in enumerate(values):
-                table.setItem(row, column + offset, _item(value))
+                table.setItem(row, column + offset, _item(value, table))
         header = table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         if columns:
@@ -1160,27 +1162,27 @@ class ClassifierEvaluationScreen(QWidget):
     def _fill_list(self, listing: QListWidget, frame: pd.DataFrame,
                    threshold: float) -> None:
         """Show the head of one ordered list, and say when it is a head."""
-        listing.clear()
         if frame.empty:
-            listing.addItem(QListWidgetItem(tr("(none)")))
+            _reuse_list_items(listing, 1)[0].setText(tr("(none)"))
             return
         try:
             column = cx.object_key_column(frame)
         except cx.ConfusionError:
             column = None
         shown = frame.head(LIST_PREVIEW)
-        for _index, values in shown.iterrows():
+        more = len(frame) > len(shown)
+        items = _reuse_list_items(listing, len(shown) + (1 if more else 0))
+        for item, (_index, values) in zip(items, shown.iterrows()):
             name = (str(values.get("basename") or values.get(column or "", ""))
                     if column else "")
             confidence = values.get(cx.CONFIDENCE_COLUMN)
             text = f"{float(confidence):.3f}  {name}" if pd.notna(
                 confidence) else f"    ?    {name}"
-            item = QListWidgetItem(text)
+            item.setText(text)
             item.setToolTip(str(values.get(column or "", name)))
-            listing.addItem(item)
-        if len(frame) > len(shown):
-            listing.addItem(QListWidgetItem(
-                f"… {len(frame) - len(shown)} {tr('more; open them to see all')}"))
+        if more:
+            items[-1].setText(
+                f"… {len(frame) - len(shown)} {tr('more; open them to see all')}")
 
     def _on_threshold_changed(self, _value: float) -> None:
         """Re-split the open cell where "sure" now starts."""
@@ -1261,7 +1263,7 @@ class ClassifierEvaluationScreen(QWidget):
             "Click a cell of the matrix to see the objects it counted."))
         self._cell_breakdown.setText("")
         for listing in (self._high_list, self._low_list):
-            listing.clear()
+            _reuse_list_items(listing, 0)
         for button in (self._high_open, self._low_open):
             button.setEnabled(False)
             button.setText(tr("Open in Annotate"))

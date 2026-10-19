@@ -114,7 +114,9 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _reuse_list_items, _spare_table_item, install_sorting,
+)
 from ..app_catalog import declared_app, register_declared
 
 #: Object names of the hit-scoring option (item 570). It ships as an alpha
@@ -923,13 +925,13 @@ class ControlChartScreen(QWidget):
         column = self._control_column.currentText()
         wanted = self._selected_levels()
         self._levels.blockSignals(True)
-        self._levels.clear()
         levels: List[str] = []
         if column and column in frame.columns:
             levels = sorted({str(v) for v in frame[column].dropna().unique()})
-            for level in levels[:200]:
-                item = QListWidgetItem(level, self._levels)
-                item.setSelected(level in wanted)
+        for level, item in zip(levels[:200], _reuse_list_items(
+                self._levels, len(levels[:200]))):
+            item.setText(level)
+            item.setSelected(level in wanted)
         self._levels.blockSignals(False)
         for box in (self._positive, self._negative):
             previous = box.currentText()
@@ -1063,7 +1065,7 @@ class ControlChartScreen(QWidget):
         frame = self._frame
         if frame is None or not self._hit_score.isChecked():
             self._hit_result = None
-            self.hit_table.setRowCount(0)
+            _retire_table_cells(self.hit_table)
             self.hit_summary.setText(tr(
                 "Turn on hit scoring and name the negative control."))
             return
@@ -1092,6 +1094,7 @@ class ControlChartScreen(QWidget):
         self.hit_summary.setText(result.report())
         shown = hits.head(_MAX_HIT_ROWS)
         self.hit_table.setSortingEnabled(False)
+        _retire_table_cells(self.hit_table)
         self.hit_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_HIT_COLUMNS):
@@ -1102,7 +1105,8 @@ class ControlChartScreen(QWidget):
                             f"{value:.3g}")
                 else:
                     text = "" if value is None else str(value)
-                self.hit_table.setItem(row, column, table_item(text))
+                self.hit_table.setItem(
+                    row, column, _spare_table_item(self.hit_table, text))
         self.hit_table.setSortingEnabled(True)
         self.hit_table.resizeColumnsToContents()
         self._recompute_chemistry()
@@ -1113,7 +1117,7 @@ class ControlChartScreen(QWidget):
         :param message: the reason.
         """
         self._hit_result = None
-        self.hit_table.setRowCount(0)
+        _retire_table_cells(self.hit_table)
         self.hit_summary.setText(message)
         self._recompute_chemistry()
 
@@ -1340,11 +1344,12 @@ class ControlChartScreen(QWidget):
         self.anomaly_table.setSortingEnabled(False)
         self.anomaly_figure.patch.set_alpha(0.0)
         if result is None:
-            self.anomaly_table.setRowCount(0)
+            _retire_table_cells(self.anomaly_table)
             self.anomaly_figure.clear()
             self.anomaly_canvas.draw_idle()
             return
         shown = result.ranked_wells().head(_MAX_HIT_ROWS)
+        _retire_table_cells(self.anomaly_table)
         self.anomaly_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_ANOMALY_COLUMNS):
@@ -1362,7 +1367,8 @@ class ControlChartScreen(QWidget):
                     text = f"{value:.3g}"
                 else:
                     text = str(value)
-                self.anomaly_table.setItem(row, column, table_item(text))
+                self.anomaly_table.setItem(
+                    row, column, _spare_table_item(self.anomaly_table, text))
         self.anomaly_table.setSortingEnabled(True)
         self.anomaly_table.resizeColumnsToContents()
         _draw_anomaly_review(self.anomaly_figure, result)
@@ -1488,7 +1494,7 @@ class ControlChartScreen(QWidget):
         self.chem_figure.patch.set_alpha(0.0)
         if chemistry is None:
             self.chem_figure.clear()
-            self.sar_table.setRowCount(0)
+            _retire_table_cells(self.sar_table)
         else:
             _draw_hit_structures(self.chem_figure, chemistry)
             from ...figures.bundle import _register_figure_data
@@ -1504,6 +1510,7 @@ class ControlChartScreen(QWidget):
         """
         shown = sar.head(_MAX_HIT_ROWS)
         self.sar_table.setSortingEnabled(False)
+        _retire_table_cells(self.sar_table)
         self.sar_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_SAR_COLUMNS):
@@ -1517,7 +1524,8 @@ class ControlChartScreen(QWidget):
                     text = f"{value:.3g}"
                 else:
                     text = str(value)
-                self.sar_table.setItem(row, column, table_item(text))
+                self.sar_table.setItem(
+                    row, column, _spare_table_item(self.sar_table, text))
         self.sar_table.setSortingEnabled(True)
         self.sar_table.resizeColumnsToContents()
 
@@ -1542,6 +1550,7 @@ class ControlChartScreen(QWidget):
 
         :param result: the computed chart.
         """
+        _retire_table_cells(self.violations)
         self.violations.setRowCount(len(result.violations))
         for row, violation in enumerate(result.violations):
             for column, text in enumerate((
@@ -1549,7 +1558,8 @@ class ControlChartScreen(QWidget):
                     ", ".join(violation.plates),
                     RULE_DETECTS[violation.rule],
                     violation.describe())):
-                self.violations.setItem(row, column, table_item(text))
+                self.violations.setItem(
+                    row, column, _spare_table_item(self.violations, text))
         self.violations.resizeColumnsToContents()
 
     def _show_refusal(self, message: str) -> None:
@@ -1557,7 +1567,7 @@ class ControlChartScreen(QWidget):
         self._result = None
         self.canvas.set_result(None, message=message)
         self.report.setPlainText(message)
-        self.violations.setRowCount(0)
+        _retire_table_cells(self.violations)
         self.failed.emit(message)
 
     def _on_job_failed(self, message: str) -> None:

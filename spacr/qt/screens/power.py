@@ -113,7 +113,8 @@ from ..widgets.power_design import (
     wells_grid,
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from .app_screen import ModuleHeader
 
 __all__ = [
@@ -1135,7 +1136,7 @@ class PowerScreen(QWidget):
         except Exception as exc:
             self._plan_summary.setText(
                 tr("Could not read the pilot: {error}", error=exc))
-            self._plan_table.setRowCount(0)
+            _retire_table_cells(self._plan_table)
             return None
         effect = self._plan_effect.value()
         paired = self._plan_paired.isChecked()
@@ -1155,7 +1156,7 @@ class PowerScreen(QWidget):
         except ValueError as exc:
             self._plan_summary.setText(
                 tr("Could not plan the design: {error}", error=exc))
-            self._plan_table.setRowCount(0)
+            _retire_table_cells(self._plan_table)
             return None
         variances = tr(
             "Mean {mean:.4g}; variance between replicates {rep}, wells "
@@ -1220,14 +1221,15 @@ class PowerScreen(QWidget):
         :param designs: the design table, cheapest first.
         :param summary: the summary line under the form.
         """
-        self._plan_table.setRowCount(0)
+        _retire_table_cells(self._plan_table)
         self._plan_table.setRowCount(min(10, len(designs)))
         for row, design in enumerate(designs.head(10).itertuples()):
             for col, text in enumerate((
                     str(design.replicates), str(design.wells),
                     str(design.fields), f"{design.power:.3f}",
                     f"{design.cost:.4g}")):
-                self._plan_table.setItem(row, col, table_item(text))
+                self._plan_table.setItem(
+                    row, col, _spare_table_item(self._plan_table, text))
         self._plan_summary.setText(summary)
 
     def _validate_arrayed_plan(self, plan):
@@ -1718,6 +1720,7 @@ class PowerScreen(QWidget):
             for _, row in wells.iterrows():
                 rows.append((f"{spec.cells_per_well:g}",
                              f"{row['value']:g}", row))
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(rows))
         for index, (cell_text, well_text, row) in enumerate(rows):
             values = [
@@ -1732,7 +1735,7 @@ class PowerScreen(QWidget):
                 str(int(row["n_failed"])),
             ]
             for column, text in enumerate(values):
-                item = table_item(text)
+                item = _spare_table_item(self._table, text)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(index, column, item)
 

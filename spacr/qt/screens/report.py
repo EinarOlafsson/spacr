@@ -50,6 +50,7 @@ from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.measurements_example import install_test_data_button
+from ..widgets.sortable_table import _reuse_list_items
 
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
 
@@ -402,9 +403,10 @@ class ReportScreen(QWidget):
 
     def _render_sections(self) -> None:
         """Fill the section list — found in normal text, missing greyed."""
-        self._sections.clear()
-        self._verdict.setText("")
         report = self._report
+        sections = list(report.sections) if report is not None else []
+        items = _reuse_list_items(self._sections, len(sections))
+        self._verdict.setText("")
         if report is None:
             return
         palette = active_palette()
@@ -412,14 +414,14 @@ class ReportScreen(QWidget):
                              palette["fg_muted"])
         self._verdict.setStyleSheet(f"color: {colour}; font-weight: 600;")
         self._verdict.setText(report.status_detail)
-        for section in report.sections:
+        for item, section in zip(items, sections):
             if section.status == rep.STATUS_MISSING:
                 text = f"{section.title} — not available"
             elif section.status == rep.STATUS_PROBLEM:
                 text = f"{section.title} — needs attention"
             else:
                 text = section.title
-            item = QListWidgetItem(text)
+            item.setText(text)
             item.setData(Qt.UserRole, section.key)
             item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             if section.status == rep.STATUS_MISSING:
@@ -429,7 +431,6 @@ class ReportScreen(QWidget):
                     "what was looked for and not found.")
             elif section.status == rep.STATUS_PROBLEM:
                 item.setForeground(_brush(active_palette()["error"]))
-            self._sections.addItem(item)
 
 
     def generate(self) -> bool:

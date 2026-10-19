@@ -59,7 +59,9 @@ from .pivot_spec import (
     WELL_HIERARCHY, PivotError, PivotResult, PivotSpec, format_value, pivot,
 )
 from .toggle import Toggle
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _reuse_list_items,
+    _spare_items, _spare_table_item, _wipe)
 
 LOG = logging.getLogger("spacr.qt.pivot")
 
@@ -172,9 +174,8 @@ class DropWell(QWidget):
         wanted = tuple(str(c) for c in columns if c)
         if wanted == self.columns():
             return
-        self._list.clear()
-        for name in wanted:
-            self._add(name)
+        for name, item in zip(wanted, _reuse_list_items(self._list, len(wanted))):
+            self._fill_item(item, name)
         self.changed.emit()
 
     def clear(self) -> None:
@@ -187,10 +188,20 @@ class DropWell(QWidget):
         :param name: the column name; also stored on the item, so the well can
             be read back without parsing its labels.
         """
-        item = QListWidgetItem(name)
+        item = _spare_items(self._list).pop() if _spare_items(self._list) else QListWidgetItem()
+        self._fill_item(item, name)
+        self._list.addItem(item)
+
+    @staticmethod
+    def _fill_item(item, name: str) -> None:
+        """Write one column's text, key and tooltip onto a well item.
+
+        :param item: the list item to write.
+        :param name: the column name.
+        """
+        item.setText(name)
         item.setData(Qt.UserRole, name)
         item.setToolTip(f"{name}\nDelete or double-click to remove it.")
-        self._list.addItem(item)
 
     def _on_dropped(self, name: str) -> None:
         """Accept a dropped column, unless the well already holds it.
@@ -211,7 +222,8 @@ class DropWell(QWidget):
             can change between the request and its delivery.
         """
         if 0 <= row < self._list.count():
-            self._list.takeItem(row)
+            _wipe(self._list, self._list.item(row))
+            _spare_items(self._list).append(self._list.takeItem(row))
             self.changed.emit()
 
 
@@ -355,7 +367,7 @@ class PivotTable(QTableWidget):
         :param result: the pivot result, or None to clear.
         """
         self._result = result
-        self.clear()
+        _retire_table_cells(self, headers=True)
         self._truncated = 0
         if result is None:
             self.setRowCount(0)
@@ -373,7 +385,7 @@ class PivotTable(QTableWidget):
 
         if result.n_cells > MAX_RENDERED_CELLS:
             self._truncated = result.n_cells
-            note = table_item(
+            note = _spare_table_item(self,
                 f"{result.n_cells:,} cells is past the {MAX_RENDERED_CELLS:,} "
                 f"this grid draws — narrow the axes, or export the CSV.")
             self.setRowCount(1)
@@ -387,11 +399,11 @@ class PivotTable(QTableWidget):
         for r in range(n_rows):
             for i, key in enumerate(key_columns):
                 text = (result.row_levels[r][i] if result.row_keys else "all")
-                item = table_item(str(text))
+                item = _spare_table_item(self, str(text))
                 item.setToolTip(f"{key} = {text}")
                 self.setItem(r, i, item)
             for c in range(n_cols):
-                item = table_item(self._body_text(result, r, c))
+                item = _spare_table_item(self, self._body_text(result, r, c))
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 item.setToolTip(self._tooltip(result, r, c))
                 smallest = self._smallest_n(result, r, c)

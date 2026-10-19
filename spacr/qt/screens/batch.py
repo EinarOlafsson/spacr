@@ -58,7 +58,9 @@ from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (SORT_KEY_ROLE, _spare_items,
+                                      _spare_table_item, install_sorting,
+                                      table_item)
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
 
@@ -817,6 +819,12 @@ class BatchScreen(QWidget):
         user picked.
         """
         jobs = self._queue.jobs
+        spare = _spare_items(self._table)
+        for row in range(len(jobs), self._table.rowCount()):
+            for col in range(self._table.columnCount()):
+                tail = self._table.takeItem(row, col)
+                if tail is not None:
+                    spare.append(tail)
         self._table.setRowCount(len(jobs))
         for row, job in enumerate(jobs):
             cells = (
@@ -832,7 +840,17 @@ class BatchScreen(QWidget):
             for col, text in enumerate(cells):
                 key = (job.elapsed_s if col == COLUMNS.index("Time")
                        else None)
-                item = table_item(text, key=key)
+                item = self._table.item(row, col)
+                fresh = item is None
+                if fresh:
+                    item = _spare_table_item(self._table, text)
+                else:
+                    item.setData(Qt.ForegroundRole, None)
+                    item.setData(Qt.ToolTipRole, None)
+                    item.setData(Qt.UserRole, None)
+                item.setData(SORT_KEY_ROLE,
+                             None if key is None else float(key))
+                item.setText(text)
                 if col == COLUMNS.index("Status"):
                     palette = active_palette()
                     colour = palette.get(
@@ -845,7 +863,8 @@ class BatchScreen(QWidget):
                     item.setToolTip(job.error)
                 if col == 0:
                     item.setData(Qt.UserRole, job.id)
-                self._table.setItem(row, col, item)
+                if fresh:
+                    self._table.setItem(row, col, item)
 
     def _refresh_running_row(self) -> None:
         """Tick the elapsed cell of the running job, and only that cell."""
@@ -855,9 +874,13 @@ class BatchScreen(QWidget):
             row = self._row_of_job(job.id)
             if row < 0:
                 continue
-            self._table.setItem(row, COLUMNS.index("Time"),
-                                table_item(bt.fmt_duration(job.elapsed_s),
-                                           key=job.elapsed_s))
+            cell = self._table.item(row, COLUMNS.index("Time"))
+            if cell is None:
+                self._table.setItem(row, COLUMNS.index("Time"), table_item(
+                    bt.fmt_duration(job.elapsed_s), key=job.elapsed_s))
+            else:
+                cell.setData(SORT_KEY_ROLE, float(job.elapsed_s))
+                cell.setText(bt.fmt_duration(job.elapsed_s))
             if self._table.currentRow() == row:
                 self._load_log(job)
 

@@ -57,7 +57,9 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_items,
+    _spare_table_item)
 from .segmentation_views import (
     CELLPROB, FLOWS, MASKS, OVERLAY, VIEWS, SegmentationViews,
     picture_name_of, render_cellprob, render_labels,
@@ -3043,7 +3045,7 @@ class ContributeDialog(QDialog):
         if row < 0:
             return
         path = self._paths.pop(row)
-        self.image_list.takeItem(row)
+        _spare_items(self.image_list).append(self.image_list.takeItem(row))
         page = self._pages.pop(str(path), None)
         self._images.pop(str(path), None)
         self._pending.discard(str(path))
@@ -5032,6 +5034,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._filling_table = True
         self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(self._annotations))
         growth = self._growth_values()
         for row, a in enumerate(self._annotations):
@@ -5044,7 +5047,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                      str(well["count"]) if well else "",
                      f"{well['mean_area']:.0f}" if well else "")
             for column, text in enumerate(cells):
-                item = table_item(text)
+                item = _spare_table_item(self._table, text)
                 item.setData(Qt.UserRole, row)
                 item.setToolTip(text)
                 if column != CONDITION_COLUMN:
@@ -5055,12 +5058,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 self._table.setItem(row, column, item)
             for column, key in enumerate(("estimated_pixels_per_um", "estimated_formation_hours", "estimation_source"), 12):
                 value = growth.get(row, {}).get(key)
-                item = table_item("" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
+                item = _spare_table_item(self._table, "" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
                 item.setData(Qt.UserRole, row)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(tr("Experimental suggestion; measured values are retained. See the reference and assumptions below."))
                 self._table.setItem(row, column, item)
-            ok = table_item("")
+            ok = _spare_table_item(self._table, "")
             ok.setData(Qt.UserRole, row)
             ok.setFlags((ok.flags() | Qt.ItemIsUserCheckable)
                         & ~Qt.ItemIsEditable)
@@ -5073,7 +5076,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                 (PIXELS_PER_UM_COLUMN, "pixels_per_um"),
                                 (FORMATION_HOURS_COLUMN, "formation_hours")):
                 value = values[key]
-                item = table_item("" if value is None else f"{value:.8g}")
+                item = _spare_table_item(self._table, "" if value is None else f"{value:.8g}")
                 item.setData(Qt.UserRole, row)
                 if column == WELL_DIAMETER_COLUMN:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -5122,9 +5125,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._selected = None
         self._batch = []
         self._filling_table = True
-        self._table.setRowCount(0)
+        _retire_table_cells(self._table)
         self._filling_table = False
-        self._plaque_table.setRowCount(0)
+        _retire_table_cells(self._plaque_table)
         self._tabs.setTabText(1, tr("Plaques"))
         self._well_view.set_image(None)
         self._well_view.ruler.clear()
@@ -5394,6 +5397,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         rows = self.plaque_table_rows()
         self._plaque_table.blockSignals(True)
         self._plaque_table.setSortingEnabled(False)
+        _retire_table_cells(self._plaque_table)
         self._plaque_table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, key in enumerate(PLAQUE_KEYS):
@@ -5404,7 +5408,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     text = f"{value:.2f}" if abs(value) < 100 else f"{value:.0f}"
                 else:
                     text = str(value)
-                self._plaque_table.setItem(r, c, table_item(text))
+                self._plaque_table.setItem(r, c, _spare_table_item(self._plaque_table, text))
         self._plaque_table.setSortingEnabled(True)
         self._plaque_table.blockSignals(False)
         self._tabs.setTabText(1, tr("Plaques ({n})", n=len(rows)))

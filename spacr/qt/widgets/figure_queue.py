@@ -49,6 +49,7 @@ from ..job_runner import JobRunner
 from ..theme import active_palette
 from .flash import FLASH_MS, Flash
 from .live_preview import _ZoomView
+from .sortable_table import _spare_items, _wipe
 
 LOG = logging.getLogger("spacr.qt.figure_queue")
 
@@ -1375,8 +1376,7 @@ class FigureQueue(QWidget):
         if pixmap is not None:
             self._cache_pixmap(idx, pixmap)
 
-        item = QListWidgetItem(f"#{idx + 1}")
-        item.setTextAlignment(Qt.AlignCenter)
+        item = self._figure_item(f"#{idx + 1}")
         if pixmap is not None and not pixmap.isNull():
             item.setIcon(self._thumb_icon(pixmap, decoded))
         self._list.addItem(item)
@@ -1517,8 +1517,7 @@ class FigureQueue(QWidget):
             self._runs = [{"label": row["label"], "start": row["start"]} for row in runs]
             self._count = len(rows)
             for index in range(self._count):
-                item = QListWidgetItem(f"#{index + 1}")
-                item.setTextAlignment(Qt.AlignCenter)
+                item = self._figure_item(f"#{index + 1}")
                 reader = QImageReader(paths[index])
                 if reader.canRead():
                     ratio = device_ratio(self._list)
@@ -1832,12 +1831,34 @@ class FigureQueue(QWidget):
         """True while a crisp vector-page render has not been delivered yet."""
         return self._jobs.is_busy()
 
+    def _figure_item(self, text: str) -> QListWidgetItem:
+        """A list item for one figure, from the kept ones when there are any.
+
+        :param text: the label to show.
+        :returns: a centred item not yet in the list.
+        """
+        spare = _spare_items(self._list)
+        item = spare.pop() if spare else QListWidgetItem()
+        item.setText(text)
+        item.setTextAlignment(Qt.AlignCenter)
+        return item
+
+    def _retire_list_items(self) -> None:
+        """Empty the list, keeping its items for reuse instead of deleting them."""
+        spare = _spare_items(self._list)
+        self._list.clearSelection()
+        self._list.setCurrentItem(None)
+        while self._list.count():
+            last = self._list.count() - 1
+            _wipe(self._list, self._list.item(last))
+            spare.append(self._list.takeItem(last))
+
     def clear(self) -> None:
         """Drop everything and delete the temp dir."""
         self._shutdown_jobs()
         self._show_raster()
         _close_pyplot_figures(self._figures.values())
-        self._list.clear()
+        self._retire_list_items()
         self._ram.clear()
         self._ram_last_used.clear()
         self._ram_bytes.clear()

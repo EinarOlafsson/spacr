@@ -90,7 +90,8 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      register_widget_qss)
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_table_item, install_sorting, table_item)
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
 
@@ -115,9 +116,10 @@ _ROW_HEADERS = ("field", "A objects", "B objects", "Δ", "ARI", "matched",
 _PARAM_HEADERS = ("parameter", "A", "B", "reaches the model?")
 
 
-def _cell(text: str) -> QTableWidgetItem:
-    """A read-only table cell."""
-    item = table_item(text)
+def _cell(text: str, table=None) -> QTableWidgetItem:
+    """A read-only table cell, rewritten from ``table``'s spare cells if any."""
+    item = (_spare_table_item(table, text) if table is not None
+            else table_item(text))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -773,8 +775,8 @@ class ModelCompareScreen(QWidget):
         never left beside another model's numbers.
         """
         self._report = None
-        self._param_table.setRowCount(0)
-        self._row_table.setRowCount(0)
+        _retire_table_cells(self._param_table)
+        _retire_table_cells(self._row_table)
         self._summary.setText("")
         self._warnings.setText("")
         self._warnings.setVisible(False)
@@ -825,10 +827,11 @@ class ModelCompareScreen(QWidget):
                          f"no — {reason}"])
 
         table = self._param_table
+        _retire_table_cells(table)
         table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, text in enumerate(row):
-                item = _cell(text)
+                item = _cell(text, table)
                 if row[3].startswith("no"):
                     item.setForeground(_brush(active_palette()["warning"]))
                     item.setToolTip(row[3])
@@ -848,6 +851,7 @@ class ModelCompareScreen(QWidget):
         """
         table = self._row_table
         table.blockSignals(True)
+        _retire_table_cells(table)
         table.setRowCount(len(report.comparisons))
         for r, c in enumerate(report.comparisons):
             cells = (
@@ -866,7 +870,7 @@ class ModelCompareScreen(QWidget):
                 c.qc_b.severity if c.qc_b else "-",
             )
             for col, text in enumerate(cells):
-                item = _cell(text)
+                item = _cell(text, table)
                 item.setToolTip(c.note)
                 table.setItem(r, col, item)
         table.blockSignals(False)

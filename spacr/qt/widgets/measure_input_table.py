@@ -37,7 +37,9 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _reuse_list_items,
+    _spare_table_item)
 from ...object_roles import ORGANELLE_ROLES, organelle_label
 
 #: What the regex box starts with. It reads the shape hand-drawn exports
@@ -451,14 +453,14 @@ class MeasureInputTable(QWidget):
 
         self._grid.blockSignals(True)
         self._grid.setSortingEnabled(False)
-        self._grid.clear()
+        _retire_table_cells(self._grid, headers=True)
         self._grid.setColumnCount(len(headings))
         self._grid.setHorizontalHeaderLabels(headings)
         self._grid.setRowCount(len(self._table.rows))
         for index, row in enumerate(self._table.rows):
             for column, text in enumerate(
                     (row.label, row.well, str(row.field))):
-                item = table_item(str(text))
+                item = _spare_table_item(self._grid, str(text))
                 item.setData(Qt.UserRole, index)
                 if column == 0:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -471,7 +473,8 @@ class MeasureInputTable(QWidget):
                     path = row.channels.get(int(key.split(':', 1)[1]))
                 else:
                     path = row.masks.get(key)
-                item = table_item(
+                item = _spare_table_item(
+                    self._grid,
                     _basename(path) if path else "double-click to browse")
                 item.setData(Qt.UserRole, index)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -488,9 +491,9 @@ class MeasureInputTable(QWidget):
         self._grid.setSortingEnabled(True)
         self._grid.blockSignals(False)
 
-        self._left_over.clear()
-        for path, reason in self._unassigned:
-            self._left_over.addItem(f"{_basename(path)} -- {reason}")
+        shown = _reuse_list_items(self._left_over, len(self._unassigned))
+        for item, (path, reason) in zip(shown, self._unassigned):
+            item.setText(f"{_basename(path)} -- {reason}")
         self._left_over_caption.setText(
             "Nothing was left over." if not self._unassigned
             else f"{len(self._unassigned)} file(s) went nowhere:")

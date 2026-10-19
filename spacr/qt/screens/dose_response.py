@@ -114,7 +114,9 @@ TABLE_COLUMNS = (
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_table_item, install_sorting, table_item,
+)
 from ..app_catalog import declared_app, register_declared
 
 #: Substrings that make a column the first guess for the dose axis. A
@@ -632,7 +634,7 @@ class DoseResponseScreen(QWidget):
         self._selectivity = {}
         self._synergy = {}
         self.fit_button.setEnabled(bool(doses and responses))
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self.report.setPlainText("")
         self._draw(None)
         if not doses:
@@ -983,6 +985,7 @@ class DoseResponseScreen(QWidget):
         self._synergy = dict(synergy)
         self._set = result
         rows = result.table()
+        _retire_table_cells(self.table)
         self.table.setRowCount(len(rows))
         for row in range(len(rows)):
             record = rows.iloc[row]
@@ -996,7 +999,7 @@ class DoseResponseScreen(QWidget):
                 text = _format(value)
                 if key == "note" and len(text) > NOTE_WIDTH:
                     text = text[:NOTE_WIDTH].rstrip() + "…"
-                item = table_item(text)
+                item = _spare_table_item(self.table, text)
                 if status != STATUS_FITTED:
                     item.setToolTip(str(record["note"]))
                 if column == 0:

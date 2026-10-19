@@ -77,6 +77,7 @@ from .app_catalog import declared_app, register_declared
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from .theme import close_mark_button, font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
+from .widgets.sortable_table import _reuse_list_items
 
 LOG = logging.getLogger(__name__)
 
@@ -638,16 +639,16 @@ class LayerListWidget(QListWidget):
         """Rebuild every row from the model."""
         self._syncing = True
         try:
-            self.clear()
-            for layer in reversed(list(self._stack)):
-                item = QListWidgetItem(layer.name)
+            layers = list(reversed(list(self._stack)))
+            for item, layer in zip(_reuse_list_items(self, len(layers)),
+                                   layers):
+                item.setText(layer.name)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable
                               | Qt.ItemIsEditable)
                 item.setCheckState(Qt.Checked if layer.visible
                                    else Qt.Unchecked)
                 item.setData(Qt.UserRole, layer.name)
                 item.setToolTip(layer.describe())
-                self.addItem(item)
             selected = self._stack.selected
             if selected is not None:
                 row = len(self._stack) - 1 - self._stack.index(selected)

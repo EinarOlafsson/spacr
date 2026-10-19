@@ -129,7 +129,8 @@ APP_TRANSLATIONS = (
 )
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import (
+    _reuse_tree_items, install_sorting)
 
 #: The table's columns, so the drawing code and the tests cannot disagree.
 COLUMNS = ("#", "Gene", "Name", "Effect", "95% CI", "p", "q", "Guides",
@@ -499,24 +500,26 @@ class HitListScreen(QWidget):
         """Redraw the table from a list."""
         from ...hits import FLAG_MEANING
 
-        self._table.clear()
-        for hit in hit_list:
+        hits = list(hit_list)
+        rows = _reuse_tree_items(self._table, len(hits))
+        for item, hit in zip(rows, hits):
             interval = ("—" if math.isnan(hit.ci_low)
                         else f"{hit.ci_low:.3g} … {hit.ci_high:.3g}")
             agreement = ("—" if math.isnan(hit.agreement)
                          else f"{hit.agreement:.0%}")
-            item = tree_item([
+            texts = [
                 str(hit.rank), hit.gene, hit.name, _number(hit.effect),
                 interval, _number(hit.p_value), _number(hit.q_value),
                 f"{hit.n_agree}/{hit.n_guides}", agreement,
                 hit.condition or "—", ", ".join(hit.flags) or "",
-            ])
+            ]
+            for column, text in enumerate(texts):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, hit.gene)
             if hit.flags:
                 item.setToolTip(len(COLUMNS) - 1, "\n".join(
                     f"{flag}: {FLAG_MEANING.get(flag, flag)}"
                     for flag in hit.flags))
-            self._table.addTopLevelItem(item)
 
 
     def export(self, path: str, fmt: str = "csv") -> str:

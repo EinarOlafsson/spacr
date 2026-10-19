@@ -74,7 +74,7 @@ APP_TRANSLATIONS = _ROW.translations
 
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import _reuse_tree_items, install_sorting
 
 #: Column layouts, so the tests and the drawing code cannot disagree.
 _SETTINGS_COLUMNS = ("Setting", "A", "B", "Change")
@@ -439,7 +439,7 @@ class RunCompareScreen(QWidget):
     def _clear_tables(self) -> None:
         """Empty the three result tables while retaining journal evidence."""
         for tree in (self._settings_tree, self._counts_tree, self._hits_tree):
-            tree.clear()
+            _reuse_tree_items(tree, 0)
         for index, label in enumerate(("Settings", "Counts", "Hits")):
             self._tabs.setTabText(index, label)
 
@@ -501,67 +501,93 @@ def _tree(columns: Tuple[str, ...]) -> QTreeWidget:
     return tree
 
 
+def _put(item: QTreeWidgetItem, texts) -> QTreeWidgetItem:
+    """Write ``texts`` into ``item``'s columns, one per column.
+
+    :param item: a wiped, reused tree item.
+    :param texts: the cell strings, left to right.
+    :returns: ``item``.
+    """
+    for column, text in enumerate(texts):
+        item.setText(column, text)
+    return item
+
+
+def _leaves(parent: QTreeWidgetItem, rows) -> None:
+    """Write ``rows`` (lists of cell texts) as ``parent``'s childless children.
+
+    :param parent: the group row.
+    :param rows: one list of cell strings per child.
+    """
+    for child, texts in zip(_reuse_tree_items(parent, len(rows)), rows):
+        _reuse_tree_items(child, 0)
+        _put(child, texts)
+
+
 def _fill_settings(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the settings diff, one top-level row per category."""
-    tree.clear()
     diff = comparison.settings
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if diff.identical and not diff.include_same:
-        tree.addTopLevelItem(tree_item(["No setting changed.", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, ["No setting changed.", "", "", ""])
         return
-    for block in diff.categories:
-        header = tree_item([
+    headers = _reuse_tree_items(tree, len(diff.categories))
+    for header, block in zip(headers, diff.categories):
+        _put(header, [
             block.category,
             "", "",
             f"{len(block)} changed, {block.n_same} unchanged",
         ])
-        tree.addTopLevelItem(header)
-        for row in block.rows + block.same:
-            header.addChild(tree_item([
-                row.key, _render(row.a_val), _render(row.b_val), row.kind,
-            ]))
+        _leaves(header, [
+            [row.key, _render(row.a_val), _render(row.b_val), row.kind]
+            for row in block.rows + block.same])
         header.setExpanded(bool(block.rows))
 
 
 def _fill_counts(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the count diff: overall, then one group per plate."""
-    tree.clear()
     diff = comparison.counts
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if not diff.available:
-        tree.addTopLevelItem(tree_item([diff.note or "No counts.",
-                                        "", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, [diff.note or "No counts.", "", "", "", ""])
         return
     groups: List[Tuple[str, Tuple[Any, ...]]] = [("Overall", diff.overall())]
     groups += [(f"Plate {plate}", diff.for_plate(plate))
                for plate in diff.plates]
-    for label, rows in groups:
-        if not rows:
-            continue
+    groups = [(label, rows) for label, rows in groups if rows]
+    headers = _reuse_tree_items(tree, len(groups))
+    for header, (label, rows) in zip(headers, groups):
         moved = sum(1 for row in rows if row.changed)
-        header = tree_item([label, "", "", "",
-                            f"{moved} of {len(rows)} moved"])
-        tree.addTopLevelItem(header)
+        _put(header, [label, "", "", "",
+                      f"{moved} of {len(rows)} moved"])
+        cells = []
         for row in rows:
             pct = "—" if row.pct is None else f"{row.pct:+.1f}%"
             delta = "—" if row.delta is None else f"{row.delta:+,}"
-            header.addChild(tree_item([
-                row.metric, _number(row.a), _number(row.b), delta, pct,
-            ]))
+            cells.append([row.metric, _number(row.a), _number(row.b),
+                          delta, pct])
+        _leaves(header, cells)
         header.setExpanded(True)
 
 
 def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the hit-list diff: appeared, vanished, then rank churn."""
-    tree.clear()
     diff = comparison.hits
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if not diff.available:
-        tree.addTopLevelItem(tree_item([diff.note or "No hit list.",
-                                        "", "", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, [diff.note or "No hit list.", "", "", "", "", ""])
         return
     groups = (
         ("Appeared", diff.appeared),
@@ -569,19 +595,20 @@ def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
         ("Changed rank", diff.moved),
         ("Held rank", diff.held),
     )
-    for label, changes in groups:
-        if not changes:
-            continue
-        header = tree_item([label, "", "", str(len(changes)), "", ""])
-        tree.addTopLevelItem(header)
+    groups = [(label, changes) for label, changes in groups if changes]
+    headers = _reuse_tree_items(tree, len(groups))
+    for header, (label, changes) in zip(headers, groups):
+        _put(header, [label, "", "", str(len(changes)), "", ""])
+        cells = []
         for change in changes:
             move = ("—" if change.rank_delta is None
                     else f"{-change.rank_delta:+d}")
-            header.addChild(tree_item([
+            cells.append([
                 change.key,
                 _number(change.a_rank), _number(change.b_rank), move,
                 _score(change.a_score), _score(change.b_score),
-            ]))
+            ])
+        _leaves(header, cells)
         header.setExpanded(label != "Held rank")
 
 

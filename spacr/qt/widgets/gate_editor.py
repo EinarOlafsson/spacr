@@ -67,7 +67,7 @@ from .gate_spec import (
 from .toggle import Toggle
 from .volume_view import rotate_about_world, trackball, view_axes
 from ..i18n import tr
-from .sortable_table import install_sorting, tree_item
+from .sortable_table import _reuse_tree_items, install_sorting
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
@@ -3993,12 +3993,41 @@ class GateTree(QWidget):
 
     def _rebuild(self, current: str) -> None:
         """Rebuild every row from the gates and their counts."""
-        self.tree.clear()
         if self._frame is None:
+            _reuse_tree_items(self.tree, 0)
             return
         stats, unavailable = self._gate_stats()
-        items: Dict[str, QTreeWidgetItem] = {}
+        known: set = set()
+        roots: list = []
+        children: Dict[str, list] = {}
         for gate in self._gates.order():
+            if gate.parent and gate.parent in known:
+                children.setdefault(gate.parent, []).append(gate)
+            else:
+                roots.append(gate)
+            known.add(gate.name)
+        items: Dict[str, QTreeWidgetItem] = {}
+        self._fill_gate_rows(roots, self.tree, children, stats, unavailable,
+                             items)
+        self.tree.expandAll()
+        if current in items:
+            self.tree.setCurrentItem(items[current])
+
+    def _fill_gate_rows(self, gates, parent, children, stats, unavailable,
+                        items) -> None:
+        """Rewrite ``parent``'s child rows for ``gates``, then theirs.
+
+        Rows are the tree's own items, rewritten in place rather than
+        rebuilt, so a refresh deletes none of them.
+
+        :param gates: the gates that are ``parent``'s children, in order.
+        :param parent: the tree, or the item of the parent gate.
+        :param children: gate name to its child gates.
+        :param stats: gate name to its counts.
+        :param unavailable: gate name to why it does not apply.
+        :param items: filled with gate name to its item.
+        """
+        for gate, item in zip(gates, _reuse_tree_items(parent, len(gates))):
             stat = stats.get(gate.name)
             labels = [gate.name, "", "", ""]
             if stat is not None:
@@ -4007,7 +4036,8 @@ class GateTree(QWidget):
                           f"{100.0 * stat.of_total:.1f}%"]
             elif gate.name in unavailable:
                 labels = [gate.name, self.UNAVAILABLE, "", ""]
-            item = tree_item(labels)
+            for column, text in enumerate(labels):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
                                else Qt.Checked)
@@ -4021,15 +4051,9 @@ class GateTree(QWidget):
                 item.setToolTip(1, reason)
             else:
                 item.setToolTip(0, gate.describe())
-            parent_item = items.get(gate.parent) if gate.parent else None
-            if parent_item is None:
-                self.tree.addTopLevelItem(item)
-            else:
-                parent_item.addChild(item)
             items[gate.name] = item
-        self.tree.expandAll()
-        if current in items:
-            self.tree.setCurrentItem(items[current])
+            self._fill_gate_rows(children.get(gate.name, []), item, children,
+                                 stats, unavailable, items)
 
     def _colour_for(self, name: str) -> str:
         """The gate's colour, asked of whoever is drawing it.

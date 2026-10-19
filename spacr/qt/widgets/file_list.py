@@ -35,7 +35,9 @@ from PySide6.QtWidgets import (
 )
 from .. import path_probe
 from ..i18n import tr
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (_retire_table_cells, _spare_items,
+                             _spare_table_item, _wipe,
+                             install_sorting, table_item)
 
 LOG = logging.getLogger(__name__)
 
@@ -819,6 +821,7 @@ class PairedFileTableWidget(QWidget):
             self._refresh_status(message)
             return message
         self.table.blockSignals(True)
+        self._park_row(index)
         self.table.removeRow(index)
         self.table.blockSignals(False)
         target = self._first_row_without_database()
@@ -886,21 +889,32 @@ class PairedFileTableWidget(QWidget):
         column = self.SIDE_COLUMNS["database"]
         replaced = self._cell(row, column)
         self.table.blockSignals(True)
-        self.table.setItem(row, column, self._database_item(database))
+        existing = self.table.item(row, column)
+        if existing is None:
+            self.table.setItem(row, column, self._database_item(database))
+        else:
+            self._database_item(database, existing)
         self.table.blockSignals(False)
         if replaced and replaced != database:
             self._pinned.pop(replaced, None)
         self._pinned[database] = self._anchor_for_row(row)
         return replaced if replaced != database else ""
 
-    @staticmethod
-    def _database_item(value: str) -> QTableWidgetItem:
+    def _database_item(self, value: str, item=None) -> QTableWidgetItem:
         """One table cell holding a database path.
 
         :param value: the path.
+        :param item: a cell to rewrite in place instead of making one.
         :returns: the cell.
         """
-        item = table_item(str(value))
+        if item is None:
+            item = _spare_table_item(self.table, str(value), make=table_item)
+        else:
+            item.setText(str(value))
+            if hasattr(item, "_init_sort_key"):
+                item._init_sort_key(str(value))
+            item.setData(Qt.ForegroundRole, None)
+            item.setData(Qt.ToolTipRole, None)
         if value and not path_probe.exists(str(value), wait=True):
             item.setForeground(Qt.red)
             item.setToolTip(f"{value}\n\nThis database is not on disk right "
@@ -1095,7 +1109,7 @@ class PairedFileTableWidget(QWidget):
             if column == self.SIDE_COLUMNS["database"]:
                 item = self._database_item(value)
             else:
-                item = table_item(str(value))
+                item = _spare_table_item(self.table, str(value), make=table_item)
             if column == self.RULE_COLUMN:
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(index, column, item)
@@ -1110,7 +1124,7 @@ class PairedFileTableWidget(QWidget):
         :param value: the rows, as the settings dict carries them.
         """
         self.table.blockSignals(True)
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         for row in value or []:
             if isinstance(row, dict):
                 self._append_row(row)
@@ -1189,6 +1203,22 @@ class PairedFileTableWidget(QWidget):
         self._rebuild_sides()
         self._repropose(typed)
 
+    def _park_row(self, row: int) -> None:
+        """Take a row's cells out and keep them for reuse, so removing it deletes none.
+
+        :param row: the row about to be removed.
+        """
+        spare = _spare_items(self.table)
+        blocked = self.table.blockSignals(True)
+        try:
+            for column in range(self.table.columnCount()):
+                item = self.table.item(row, column)
+                if item is not None:
+                    _wipe(self.table, item)
+                    spare.append(self.table.takeItem(row, column))
+        finally:
+            self.table.blockSignals(blocked)
+
     def _remove(self) -> None:
         """Remove the selected row."""
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
@@ -1197,6 +1227,7 @@ class PairedFileTableWidget(QWidget):
         for row in rows:
             self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
                              None)
+            self._park_row(row)
             self.table.removeRow(row)
         if rows:
             self._repropose_after_a_change(typed)
@@ -1388,7 +1419,7 @@ class FilePathListWidget(QWidget):
         """
         self._pending_path_drops.clear()
         before = self.paths()
-        self._list.clear()
+        self._retire_items()
         paths = self._coerce(value)
         for path in (paths[-1:] if self._single else paths):
             self._append(path)
@@ -1460,7 +1491,7 @@ class FilePathListWidget(QWidget):
             chosen = os.path.abspath(os.path.expanduser(incoming[-1]))
             if chosen == (self.paths() or [None])[0]:
                 return 0
-            self._list.clear()
+            self._retire_items()
             self._append(chosen)
             self._refresh_hint()
             self.value_changed.emit()
@@ -1507,7 +1538,9 @@ class FilePathListWidget(QWidget):
         resolved = os.path.abspath(os.path.expanduser(str(path)))
         if resolved in set(self.paths()):
             return False
-        item = QListWidgetItem(self._display_text(resolved))
+        spare = _spare_items(self._list)
+        item = spare.pop() if spare else QListWidgetItem()
+        item.setText(self._display_text(resolved))
         item.setData(Qt.UserRole, resolved)
         if path_probe.exists(resolved):
             item.setToolTip(resolved)
@@ -1524,6 +1557,20 @@ class FilePathListWidget(QWidget):
         name = os.path.basename(path)
         return f"{parent}/{name}" if parent else name
 
+    def _retire_items(self, row=None) -> None:
+        """Take rows out of the list and keep their items, deleting none.
+
+        :param row: the one row to take out; every row when omitted.
+        """
+        spare = _spare_items(self._list)
+        if row is None:
+            self._list.clearSelection()
+            self._list.setCurrentItem(None)
+        rows = range(self._list.count() - 1, -1, -1) if row is None else (row,)
+        for index in rows:
+            _wipe(self._list, self._list.item(index))
+            spare.append(self._list.takeItem(index))
+
     def remove_selected(self) -> None:
         """Drop the selected paths.
 
@@ -1533,7 +1580,7 @@ class FilePathListWidget(QWidget):
         rows = sorted((self._list.row(item) for item in self._list.selectedItems()),
                       reverse=True)
         for row in rows:
-            self._list.takeItem(row)
+            self._retire_items(row)
         if rows:
             self._refresh_hint()
             self.value_changed.emit()
@@ -1543,7 +1590,7 @@ class FilePathListWidget(QWidget):
         """Drop every path, and say so only if there was anything to drop."""
         self._pending_path_drops.clear()
         if self._list.count():
-            self._list.clear()
+            self._retire_items()
             self._refresh_hint()
             self.value_changed.emit()
             self.contents_changed.emit()

@@ -20,7 +20,8 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (_retire_table_cells, _spare_table_item,
+                             install_sorting, table_item)
 
 __all__ = ()
 
@@ -231,7 +232,7 @@ class _CalibrationPreview(QDialog):
 
     def _clear(self):
         """Empty the gains table."""
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self._reports = []
 
     def _check_current(self):
@@ -306,7 +307,7 @@ class _CalibrationPreview(QDialog):
                                  f'{gain:.8g}', f"{values['reference_statistic'][channel]:.8g}",
                                  str(values['n_reference_fields'])]
                         for column, value in enumerate(cells):
-                            item = table_item(value)
+                            item = _spare_table_item(self.table, value, make=table_item)
                             item.setToolTip(value)
                             self.table.setItem(row, column, item)
             self.status.setText(tr('Preview complete. No images or measurements were changed.'))

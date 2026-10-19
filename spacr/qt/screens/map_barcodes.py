@@ -30,7 +30,8 @@ from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
 from ..i18n import tr
 from ..theme import install_close_marks
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_items, _spare_table_item, install_sorting)
 from ..widgets.fold_strip import FoldStrip
 
 LOG = logging.getLogger(__name__)
@@ -2467,6 +2468,11 @@ class BarcodeSearchPanel(QWidget):
             ABSENT: palette.get("fg_muted"),
             INDETERMINATE: palette.get("warning"),
         }
+        for row in range(len(findings), self.findings.rowCount()):
+            for column in range(self.findings.columnCount()):
+                cell = self.findings.takeItem(row, column)
+                if cell is not None:
+                    _spare_items(self.findings).append(cell)
         self.findings.setRowCount(len(findings))
         for row, finding in enumerate(findings):
             cells = (
@@ -2483,7 +2489,7 @@ class BarcodeSearchPanel(QWidget):
             for column, text in enumerate(cells):
                 item = self.findings.item(row, column)
                 if item is None:
-                    item = table_item()
+                    item = _spare_table_item(self.findings)
                     self.findings.setItem(row, column, item)
                 item.setText(str(text))
                 item.setToolTip(str(finding.reason))
@@ -2654,7 +2660,7 @@ class BarcodeSearchPanel(QWidget):
         self._proposal = None
         self._changes = ()
         self._reads_shown = 0
-        self.findings.setRowCount(0)
+        _retire_table_cells(self.findings)
         self.proposal_label.setText("")
         self.reads.clear()
 

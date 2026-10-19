@@ -7733,6 +7733,7 @@ class _PluginCataloguePage:
         :returns: True when the read started, False while another job is busy.
         """
         from .i18n import tr
+        from .widgets.sortable_table import _retire_table_cells
 
         if self._job is not None:
             return False
@@ -7740,7 +7741,7 @@ class _PluginCataloguePage:
         _set_plugin_catalogue(source)
         self._job = _PluginCatalogueJob(None, source or None, None)
         self._rows = []
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self.status.setText(tr("Working…"))
         self._sync_buttons()
         self._job.start()
@@ -7750,14 +7751,15 @@ class _PluginCataloguePage:
     def _show_rows(self, rows):
         """Render a previously fetched catalogue snapshot on the GUI thread."""
         from .i18n import tr
-        from .widgets.sortable_table import _settle_sorting, table_item
+        from .widgets.sortable_table import (
+            _retire_table_cells, _settle_sorting, _spare_table_item)
 
         self._rows = rows
         kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
                   "incompatible": tr("incompatible")}
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self.table.setRowCount(len(self._rows))
         for index, row in enumerate(self._rows):
             values = (kinds.get(row["kind"], row["kind"]), row["name"],
@@ -7765,7 +7767,7 @@ class _PluginCataloguePage:
                       states.get(row["status"], row["status"]),
                       row["author"], row["licence"])
             for column, value in enumerate(values):
-                item = table_item(str(value))
+                item = _spare_table_item(self.table, str(value))
                 item.setData(Qt.UserRole, row["key"])
                 item.setToolTip(row["summary"] or row["name"])
                 self.table.setItem(index, column, item)

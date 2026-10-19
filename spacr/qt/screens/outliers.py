@@ -117,7 +117,8 @@ _METHOD_LABELS = (
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from ..app_catalog import declared_app, register_declared
 
 #: What the one threshold spinbox means under each method: label, tooltip,
@@ -628,14 +629,15 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     ``str``. Booleans render as ``yes`` / ``no``, because ``True`` in a column
     called ``outlier`` reads as a header rather than a value at a glance.
     """
-    table.clear()
+    _retire_table_cells(table, headers=True)
     table.setRowCount(len(frame))
     table.setColumnCount(len(frame.columns))
     table.setHorizontalHeaderLabels([str(c) for c in frame.columns])
     for column, name in enumerate(frame.columns):
         values = frame[name].tolist()
         for row, value in enumerate(values):
-            table.setItem(row, column, table_item(_cell(value)))
+            table.setItem(row, column,
+                          _spare_table_item(table, _cell(value)))
 
 
 def _cell(value) -> str:
