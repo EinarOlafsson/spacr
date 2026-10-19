@@ -1745,14 +1745,7 @@ class _SuggestModelDialog(QDialog):
         scroll.setWidget(body)
         outer.addWidget(scroll, 1)
 
-        def section(text):
-            """A bold heading between sections."""
-            label = QLabel(text, body)
-            font = label.font()
-            font.setBold(True)
-            label.setFont(font)
-            layout.addWidget(label)
-
+        section = partial(_bold_heading, body, layout)
         section(tr("Model"))
         self._summary = QLabel(body)
         self._summary.setObjectName("AnnotateSuggestModelSummary")
@@ -3119,35 +3112,73 @@ def _sort_rows(rows, mode: str,
     """
     rows = list(rows)
     if mode in ("class_last", "class_first"):
-        unlabelled_rank = 1 if mode == "class_last" else -1
-
-        def by_class(row):
-            """Answers by class, each class's suggestions after its answers."""
-            value = row[1]
-            try:
-                value = int(value)
-            except (TypeError, ValueError):
-                return (unlabelled_rank, 0, 0)
-            if value <= 0:
-                return (unlabelled_rank, 0, 0)
-            if value > SUGGESTION_OFFSET:
-                return (0, value - SUGGESTION_OFFSET, 1)
-            return (0, value, 0)
-
-        return sorted(rows, key=by_class)
+        return sorted(rows, key=partial(
+            _class_sort_key, 1 if mode == "class_last" else -1))
     if mode in ("probability_high", "probability_low"):
-        scores = confidences or {}
-        sign = -1.0 if mode == "probability_high" else 1.0
-
-        def by_probability(row):
-            """Scored crops by probability, unscored ones after them."""
-            p = scores.get(str(row[0]))
-            if p is None:
-                return (1, 0.0)
-            return (0, sign * float(p))
-
-        return sorted(rows, key=by_probability)
+        return sorted(rows, key=partial(
+            _probability_sort_key, confidences or {},
+            -1.0 if mode == "probability_high" else 1.0))
     return rows
+
+
+def _class_sort_key(unlabelled_rank: int, row) -> tuple:
+    """Answers by class, each class's suggestions after its answers.
+
+    :param unlabelled_rank: 1 puts unlabelled crops last, -1 first.
+    :param row: a ``(png_path, annotation)`` pair.
+    :returns: the sort key.
+    """
+    value = row[1]
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return (unlabelled_rank, 0, 0)
+    if value <= 0:
+        return (unlabelled_rank, 0, 0)
+    if value > SUGGESTION_OFFSET:
+        return (0, value - SUGGESTION_OFFSET, 1)
+    return (0, value, 0)
+
+
+def _probability_sort_key(scores: Dict[str, float], sign: float, row) -> tuple:
+    """Scored crops by probability, unscored ones after them.
+
+    :param scores: ``{png_path: probability}``.
+    :param sign: -1 for highest first, 1 for lowest first.
+    :param row: a ``(png_path, annotation)`` pair.
+    :returns: the sort key.
+    """
+    p = scores.get(str(row[0]))
+    if p is None:
+        return (1, 0.0)
+    return (0, sign * float(p))
+
+
+def _stored_suggestion(value) -> Optional[int]:
+    """The column value a suggested class is stored as, or None."""
+    return None if value is None else int(value) + SUGGESTION_OFFSET
+
+
+def _replaceable(value) -> bool:
+    """Whether a crop's value is empty or a suggestion a threshold may change."""
+    try:
+        return value is None or int(value) > SUGGESTION_OFFSET
+    except (TypeError, ValueError):
+        return False
+
+
+def _bold_heading(parent, layout, text: str) -> None:
+    """Add a bold section heading to ``layout``.
+
+    :param parent: the label's parent widget.
+    :param layout: the layout to add it to.
+    :param text: the heading.
+    """
+    label = QLabel(text, parent)
+    font = label.font()
+    font.setBold(True)
+    label.setFont(font)
+    layout.addWidget(label)
 
 
 def _sorted_total(outcome: dict, s: AnnotateSettings, mode: str) -> dict:
@@ -7544,31 +7575,20 @@ class AnnotateScreen(QWidget):
 
         :param changes: ``{png_path: class or None}``.
         """
-        def stored(value):
-            """The column value a suggested class is stored as."""
-            return None if value is None else int(value) + SUGGESTION_OFFSET
-
-        def replaceable(value):
-            """Whether a crop's value is empty or a suggestion."""
-            try:
-                return value is None or int(value) > SUGGESTION_OFFSET
-            except (TypeError, ValueError):
-                return False
-
         for slot, (path, value) in enumerate(list(self._page_paths)):
             path = str(path)
             if path not in changes or path in self._pending_updates:
                 continue
-            if not replaceable(value):
+            if not _replaceable(value):
                 continue
             before = self._judge_contribution(slot)
-            self._page_paths[slot] = (path, stored(changes[path]))
+            self._page_paths[slot] = (path, _stored_suggestion(changes[path]))
             self._account_judgement(before, self._judge_contribution(slot))
             self._repaint_slot(slot)
         if self._filtered_rows is not None:
             self._filtered_rows = [
-                (p, stored(changes[str(p)]))
-                if str(p) in changes and replaceable(v) else (p, v)
+                (p, _stored_suggestion(changes[str(p)]))
+                if str(p) in changes and _replaceable(v) else (p, v)
                 for p, v in self._filtered_rows]
 
     def _suggestion_tip(self, slot: int) -> str:
