@@ -31,7 +31,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..hidpi import follow_device_ratio, logical_size, scaled_for
+from ..hidpi import device_ratio, follow_device_ratio, logical_size, scaled_for
 
 #: Below this, a cell is too small to read anything in.
 MIN_CELL_PX = 220
@@ -468,19 +468,29 @@ class _FigureCell(QFrame):
         return self._pixmap.width() / self._pixmap.height()
 
     def fit_to(self, width: int) -> None:
-        """Scale the figure into ``width`` LOGICAL px, keeping its shape."""
+        """Scale the figure into ``width`` LOGICAL px, keeping its shape.
+
+        A tile already drawn at this width and pixel density is left as it
+        is: a relayout that only adds a figure would otherwise smooth-scale
+        every figure already on the grid again.
+        """
         if self._pixmap.isNull() or width <= 0:
             return
         self._fit_width = int(width)
+        fitted = (self._fit_width, device_ratio(self._image))
+        if getattr(self, "_fitted", None) == fitted:
+            return
         scaled = scaled_for(
             self._pixmap, self._image,
             QSize(width, int(width / max(self.aspect(), 0.05))))
         self._image.setPixmap(scaled)
         self._image.setFixedHeight(logical_size(scaled).height())
+        self._fitted = fitted
 
     def _refit(self) -> None:
         """Draw the figure again at the width it was last fitted to."""
         if self._fit_width > 0:
+            self._fitted = None
             self.fit_to(self._fit_width)
 
     def _request_menu(self, point) -> None:
@@ -805,23 +815,37 @@ class FigureGridView(QScrollArea):
             ``(label, start, count)`` entries describing runs. Panel lettering
             restarts within each section.
         """
-        self.clear()
+        reusable = {}
+        for cell in self._cells:
+            reusable.setdefault(getattr(cell, "_reuse_key", None), []).append(cell)
         titles = list(titles or [])
         self._sections = list(sections or [])
         starts = {start: label for label, start, _count in self._sections}
         letter_at = 0
+        cells = []
         for index, pixmap in enumerate(pixmaps):
             if index in starts:
                 letter_at = 0
             if pixmap is None or pixmap.isNull():
                 continue
             title = titles[index] if index < len(titles) else ""
-            cell = _FigureCell(index, pixmap, title, self._body,
-                               letter=_letter_for(letter_at))
+            letter = _letter_for(letter_at)
             letter_at += 1
+            key = (index, pixmap.cacheKey(), title, letter)
+            kept = reusable.get(key)
+            if kept:
+                cells.append(kept.pop())
+                continue
+            cell = _FigureCell(index, pixmap, title, self._body, letter=letter)
+            cell._reuse_key = key
             cell.clicked.connect(self.figure_activated)
             cell.menu_requested.connect(self.figure_menu_requested)
-            self._cells.append(cell)
+            cells.append(cell)
+        kept_ids = set(map(id, cells))
+        for cell in self._cells:
+            if id(cell) not in kept_ids:
+                self._discard(cell)
+        self._cells = cells
         self._relayout()
         return len(self._cells)
 
