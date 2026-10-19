@@ -228,9 +228,10 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
         assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
-    assert nsis.count("off by default") >= 2
-    assert "public GitHub issues by spaCR" in nsis
-    assert "AI Error report" in nsis
+    assert "off by default" not in nsis
+    assert "public GitHub issues by spaCR" not in nsis
+    assert "${NSD_Check} $ConsentShare" in nsis and "${NSD_Check} $ConsentIssues" in nsis
+    assert "StrCpy $ConsentShareValue 1" in nsis and "StrCpy $ConsentIssuesValue 1" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis
 
 

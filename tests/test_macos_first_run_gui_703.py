@@ -110,12 +110,12 @@ def test_user_helper_forwards_gui_choices_without_terminal_or_hidden_relaunch(tm
     assert ('ready_opening' in result.stdout) == (installer_exit == 0)
 
 
-def test_gui_has_default_off_consent_bounded_log_and_cpu_choice():
+def test_gui_has_default_on_consent_bounded_log_and_cpu_choice():
     gui = (ONLINE / 'macos_installer.m').read_text()
     launcher = (ONLINE / 'macos_launcher.c').read_text()
     builder = (ONLINE / 'build_macos_online.sh').read_text()
     assert 'Terminal' not in launcher and 'osascript' not in launcher
-    assert 'index == 0 ? NSControlStateValueOn : NSControlStateValueOff' in gui
+    assert 'index < 3 ? NSControlStateValueOn : NSControlStateValueOff' in gui
     assert '--share-diagnostics' in gui and '--report-issues' in gui and '--sign-in-now' not in gui and 'gui_account_setup' not in gui
     assert '@"auto" : @"cpu"' in gui
     assert 'self.child > 0' in gui and 'NSTerminateCancel' in gui
@@ -139,7 +139,7 @@ def test_all_window_keys_have_nine_locale_translations():
     named = set(re.findall(r'@"(gui_[a-z_]+)"', window)) - {'gui_category_'}
     categories = re.search(r'NSArray \*keys = @\[(@"caches".*?)\];', window).group(1)
     named |= {'gui_category_' + key for key in re.findall(r'@"([a-z]+)"', categories)}
-    assert keys == named and len(keys) == 30
+    assert keys == named and len(keys) == 29
     for language, table in catalogs.items():
         assert keys <= table.keys()
         if language != 'en':

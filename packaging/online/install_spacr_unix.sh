@@ -390,13 +390,13 @@ spacr_linux_gui_install() {
     title="$(spacr_say installer_title)"
     local wgpu_default=FALSE
     if [[ "${WITHOUT_WGPU:-0}" == "1" ]]; then wgpu_default=TRUE; fi
-    intro="$(spacr_say gui_explanation)"$'\n\n'"$(spacr_say gui_public_reports)"$'\n\n'"$(spacr_say gui_preserve)"
+    intro="$(spacr_say gui_explanation)"$'\n\n'"$(spacr_say gui_preserve)"
     if ! choices="$(zenity --list --checklist --hide-header --width=760 --height=520 \
         --title="$title" --text="$intro" --ok-label="$(spacr_say gui_install)" \
         --cancel-label="$(spacr_say gui_cancel)" \
         --column="" --column="" --column="" --hide-column=2 --print-column=2 --separator='|' \
-        FALSE diagnostics "$(spacr_say gui_share_diagnostics)" \
-        FALSE issues "$(spacr_say gui_report_issues)" \
+        TRUE diagnostics "$(spacr_say gui_share_diagnostics)" \
+        TRUE issues "$(spacr_say gui_report_issues)" \
         "$wgpu_default" without_wgpu "$(spacr_say without_wgpu)")"; then
         return 130
     fi

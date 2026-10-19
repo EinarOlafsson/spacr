@@ -131,7 +131,7 @@ def test_macos_window_has_an_unchecked_without_wgpu_choice():
     assert '@"--without-wgpu"' in flags
     assert keys.split(",").index(' @"without_wgpu"') == (
         flags.split(",").index(' @"--without-wgpu"') + 1)
-    assert "index == 0 ? NSControlStateValueOn : NSControlStateValueOff" in source
+    assert "index < 3 ? NSControlStateValueOn : NSControlStateValueOff" in source
 
 
 def test_every_installer_locale_has_the_new_keys():

@@ -65,7 +65,6 @@
   "old_install_same": "这与本安装程序所含版本相同。",
   "old_copy_not_removed": "安装已停止：无法删除旧版 spaCR（见上文）。请关闭所有正在运行的 spaCR，然后重新运行安装程序。",
   "gui_explanation": "在此窗口中安装私有 Python 和 spaCR 依赖。此用户运行环境无需在“终端”中回答问题，也无需管理员密码。",
-  "gui_public_reports": "匿名错误报告默认开启。它们由 spaCR 的中继以公开 GitHub issue 的形式提交，无需账户，且绝不包含路径、名称、IP 地址、电子邮件、令牌、日志、图像或您的内容。spaCR AI（免费）同样默认开启。可在“偏好设置”→ AI → AI Error report 中关闭报告。详情见使用条款第 5.6–5.7 节和第 6 节。",
   "gui_share_diagnostics": "在报告预览中包含脱敏的诊断日志",
   "gui_report_issues": "启用公开 GitHub 问题报告操作",
   "gui_preserve": "保留现有数据、模型、缓存和偏好设置。未选择任何可选清理。",
