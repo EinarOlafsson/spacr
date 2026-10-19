@@ -3711,8 +3711,10 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     split_rule = split_provenance.summary()
     notes.append(split_rule)
 
-    model = _build_round_model(model_type, int(seed), len(class_values))
-    model.fit(x[train_idx], y[train_idx])
+    model = _build_round_model(model_type, int(seed), len(class_values),
+                               n_samples=len(train_idx))
+    with _few_threads(len(train_idx)):
+        model.fit(x[train_idx], y[train_idx])
     test_probs = _predict_proba(model, x[test_idx], len(class_values))
     report = holdout_report(y[test_idx], test_probs,
                             [str(v) for v in class_values])
@@ -3828,7 +3830,8 @@ def _model_reweights(model_type: str) -> bool:
     """
     name = str(model_type).lower().replace("-", "_")
     return name in ("logistic_regression", "logistic", "lr",
-                    "random_forest", "rf")
+                    "random_forest", "rf", "gradient_boosting",
+                    "hist_gradient_boosting", "gb")
 
 
 def _rejections_as_labels(rejections: Mapping[Any, Any],
@@ -3916,8 +3919,54 @@ def _downsample_to_smallest(index, labels: List[Any], seed: int):
     return index[keep], [labels[i] for i in keep], dropped
 
 
-def _build_round_model(model_type: str, seed: int, n_classes: int):
-    """The estimator a round fits. Small-data-first, no torch, no GPU."""
+def _leaf_size(n_samples: Optional[int]) -> int:
+    """The smallest leaf a boosted tree may grow on ``n_samples`` rows.
+
+    scikit-learn's default of 20 rows per leaf needs 40 training rows before
+    a tree can make a single split. Annotate fits on a few dozen labels, and
+    a fit with no split predicts the training prior for every crop: every
+    suggestion then comes out as the same class (issue #152). The leaf is
+    therefore a tenth of the rows, between 2 and 20.
+
+    :param n_samples: the training rows, or None for the library default.
+    :returns: the ``min_samples_leaf`` to use.
+    """
+    if n_samples is None:
+        return 20
+    return int(max(2, min(20, int(n_samples) // 10)))
+
+
+def _few_threads(n_rows: int):
+    """Fit small sets on two threads: a pool of every core costs more than it saves.
+
+    On a few hundred labels each boosting iteration takes microseconds, and
+    waking a thread per core for it is what makes the fit slow, more so on a
+    machine that is busy with other work.
+
+    :param n_rows: the training rows.
+    :returns: a context manager.
+    """
+    import contextlib
+
+    if n_rows > 20000:
+        return contextlib.nullcontext()
+    try:
+        from threadpoolctl import threadpool_limits
+    except ImportError:
+        return contextlib.nullcontext()
+    return threadpool_limits(limits=2)
+
+
+def _build_round_model(model_type: str, seed: int, n_classes: int,
+                       n_samples: Optional[int] = None):
+    """The estimator a round fits. Small-data-first, no torch, no GPU.
+
+    :param model_type: the estimator name.
+    :param seed: the random state.
+    :param n_classes: how many classes the fit sees.
+    :param n_samples: the training rows; sizes the boosted trees' leaves
+        (:func:`_leaf_size`).
+    """
     name = str(model_type).lower().replace("-", "_")
     if name in ("logistic_regression", "logistic", "lr"):
         from sklearn.linear_model import LogisticRegression
@@ -3934,7 +3983,9 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
                                       n_jobs=-1, class_weight="balanced")
     if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
         from sklearn.ensemble import HistGradientBoostingClassifier
-        return HistGradientBoostingClassifier(random_state=seed)
+        return HistGradientBoostingClassifier(
+            random_state=seed, class_weight="balanced",
+            min_samples_leaf=_leaf_size(n_samples))
     if name in ("xgboost", "xgb"):
         try:
             from xgboost import XGBClassifier
