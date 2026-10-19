@@ -80,15 +80,29 @@ def test_every_reader_reports_missing_without_a_project(reader):
 # The bounded walk
 
 
-def test_the_walk_gives_up_rather_than_costing_more_than_the_check(tmp_path):
-    """A project folder can hold a hundred thousand crops."""
-    for index in range(6):
-        (tmp_path / f"crop_{index}.png").write_bytes(b"")
+def test_the_walk_gives_up_rather_than_costing_more_than_the_check(
+        tmp_path, monkeypatch):
+    """A project folder can hold a hundred thousand crops.
+
+    ``os.walk`` lists a folder in the file system's own order, so the test
+    fixes the order: the file looked for comes after more files than the
+    limit allows, and the walk must stop before reaching it.
+    """
+    crops = [f"crop_{index}.png" for index in range(6)]
+    for crop in crops:
+        (tmp_path / crop).write_bytes(b"")
     (tmp_path / "leakage.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(
+        os, "walk",
+        lambda root: iter([(str(tmp_path), [], crops + ["leakage.json"])]))
 
     path, mtime = qc._newest_under(str(tmp_path), "leakage.json", limit=2)
 
     assert (path, mtime) == ("", 0.0)
+
+    path, mtime = qc._newest_under(str(tmp_path), "leakage.json", limit=7)
+
+    assert path == str(tmp_path / "leakage.json") and mtime > 0.0
 
 
 def test_a_file_that_cannot_be_stat_ed_is_skipped(tmp_path, monkeypatch):
