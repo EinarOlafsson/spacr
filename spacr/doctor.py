@@ -1485,7 +1485,7 @@ def check_3d_backends(ctx: Context) -> Result:
 
     version = _distribution_version("wgpu")
     _expected, why_not = _wgpu_expected()
-    opengl = find_spec("vispy") is not None
+    opengl = find_spec("vispy") is not None and find_spec("OpenGL") is not None
     fallback = tr("OpenGL (VisPy), then the CPU") if opengl else tr("the CPU")
     label = tr("3D backends")
     details: List[str] = [tr("OpenGL (VisPy): available") if opengl else

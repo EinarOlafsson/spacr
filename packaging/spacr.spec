@@ -70,6 +70,8 @@ hiddenimports += [
     # selects PySide6 and VisPy's default desktop GL2 implementation.
     "vispy", "vispy.app.backends._pyside6",
     "vispy.gloo.gl.gl2", "vispy.gloo.gl._gl2",
+    "OpenGL", "OpenGL.GL", "OpenGL.platform.win32", "OpenGL.platform.glx",
+    "OpenGL.platform.darwin", "OpenGL.arrays.numpymodule",
     "torch", "torchvision",
     "matplotlib.backends.backend_qtagg",
     "matplotlib.backends.backend_agg",
