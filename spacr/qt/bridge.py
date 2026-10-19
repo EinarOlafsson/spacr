@@ -767,7 +767,7 @@ class RunRegistry(QObject):
         """
         return list(self._handles)
 
-    def of_kind(self, *kinds: str) -> List[RunHandle]:
+    def _of_kind(self, *kinds: str) -> List[RunHandle]:
         """Registered handles of the given kinds, in registration order.
 
         A handle that names no kind counts as an analysis, so an unknown job

@@ -82,18 +82,18 @@ def test_after_a_first_launch_with_its_dialogs_only_a_real_analysis_blocks(
     housekeeping, _worker = bridge.make_thread(lambda _s: None, {}, app_key="home journal",
                                                journal=False, user_visible=False)
     try:
-        assert bridge.registry().of_kind("housekeeping")
+        assert bridge.registry()._of_kind("housekeeping")
         assert _check(window, answers) == "asked"
     finally:
         housekeeping.start()
-        qtbot.waitUntil(lambda: not bridge.registry().of_kind("housekeeping"), timeout=10000)
+        qtbot.waitUntil(lambda: not bridge.registry()._of_kind("housekeeping"), timeout=10000)
     thread, release = _analysis(qtbot)
     try:
         assert "active analyses" in _check(window, answers)
     finally:
         release.set()
         thread.wait(10000)
-    qtbot.waitUntil(lambda: not bridge.registry().of_kind("analysis"), timeout=10000)
+    qtbot.waitUntil(lambda: not bridge.registry()._of_kind("analysis"), timeout=10000)
     assert _check(window, answers) == "asked"
 
 
