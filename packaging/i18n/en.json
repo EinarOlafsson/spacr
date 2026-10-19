@@ -103,6 +103,6 @@
   "gui_category_downloads": "Downloads",
   "gui_category_other": "Other spaCR data",
   "lease_held": "%s is held by spaCR installer process %s. Wait for it to finish; if it stopped during a rollback, follow its installation log before retrying.",
-  "lease_held_unknown": "%s was left by an earlier spaCR installer that did not record its owner. Close every spaCR installer, then remove that folder and retry.",
+  "lease_held_unknown": "%s was left by an earlier spaCR installer that did not record its owner. Close every spaCR installer, then remove it and retry.",
   "lease_cleared": "Removed a lock left by an interrupted spaCR installation whose process has ended: %s"
 }

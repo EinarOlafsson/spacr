@@ -103,6 +103,6 @@
   "gui_category_downloads": "Nedladdningar",
   "gui_category_other": "Övriga spaCR-data",
   "lease_held": "%s hålls av spaCR-installationsprocessen %s. Vänta tills den är klar; om den stoppades under en återställning, följ dess installationslogg innan du försöker igen.",
-  "lease_held_unknown": "%s lämnades av ett tidigare spaCR-installationsprogram som inte registrerade sin ägare. Stäng alla spaCR-installationsprogram, ta sedan bort mappen och försök igen.",
+  "lease_held_unknown": "%s lämnades av ett tidigare spaCR-installationsprogram som inte registrerade sin ägare. Stäng alla spaCR-installationsprogram, ta sedan bort den och försök igen.",
   "lease_cleared": "Tog bort ett lås som lämnats av en avbruten spaCR-installation vars process har avslutats: %s"
 }

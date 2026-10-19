@@ -1,0 +1,21 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Another spaCR installation holds {path} (process {pid}). Wait for it to finish; if it has stopped and left a rollback, follow the installer log first.",
+      "source": "Another spaCR installation holds {path} (process {pid}). Wait for it to finish; if it has stopped and left a rollback, follow the installer log first.",
+      "source_sha256": "b3f647429a7f0d3350aca2fe8116dd4c3e463a0ddaa9310d8546c2efbe8747c6",
+      "table": "ui",
+      "translation": "कोई दूसरा spaCR इंस्टॉलेशन {path} को रोके हुए है (प्रक्रिया {pid})। इसके पूरा होने की प्रतीक्षा करें; यदि यह रुक गया है और कोई रोलबैक छोड़ गया है, तो पहले इंस्टॉलर लॉग का पालन करें।"
+    },
+    {
+      "key": "Another spaCR installation holds {path}. Wait for it to finish, or remove that folder once no spaCR installer is running.",
+      "source": "Another spaCR installation holds {path}. Wait for it to finish, or remove that folder once no spaCR installer is running.",
+      "source_sha256": "84488869656464049472ea027233705ff03c37f91a5163ea95343d08edc32bd8",
+      "table": "ui",
+      "translation": "कोई दूसरा spaCR इंस्टॉलेशन {path} को रोके हुए है। इसके पूरा होने की प्रतीक्षा करें, या जब कोई spaCR इंस्टॉलर न चल रहा हो तब उस फ़ोल्डर को हटा दें।"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}
