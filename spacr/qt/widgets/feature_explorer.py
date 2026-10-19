@@ -50,7 +50,8 @@ from .collapsible_splitter import CollapsibleSplitter
 from .toggle import Toggle
 from .graph_builder import (_canvas_class, _page_surface_axes,
                             categorical_colours)
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 LOG = logging.getLogger("spacr.qt.feature_explorer")
 
@@ -311,7 +312,7 @@ class FeatureExplorerPanel(QWidget):
         """Forget every visual and selected part of the previous ranking."""
         self._result = None
         self.table.clearSelection()
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self._figure.clear()
         self._figure.patch.set_alpha(0.0)
         self._canvas.draw_idle()
@@ -333,6 +334,7 @@ class FeatureExplorerPanel(QWidget):
         palette = active_palette()
         signals_were_blocked = self.table.blockSignals(True)
         try:
+            _retire_table_cells(self.table)
             self.table.setRowCount(len(result.scores))
             for row, score in enumerate(result.scores):
                 cells = [
@@ -344,7 +346,7 @@ class FeatureExplorerPanel(QWidget):
                     f"{score.smallest_class:,}",
                 ]
                 for column, text in enumerate(cells):
-                    item = table_item(text)
+                    item = _spare_table_item(self.table, text)
                     item.setData(Qt.UserRole, score.feature)
                     item.setToolTip(score.describe())
                     if score.is_shape_not_shift:

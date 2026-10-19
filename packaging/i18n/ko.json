@@ -101,5 +101,9 @@
   "gui_category_history": "기록",
   "gui_category_temporary": "임시 파일",
   "gui_category_downloads": "다운로드",
-  "gui_category_other": "기타 spaCR 데이터"
+  "gui_category_other": "기타 spaCR 데이터",
+  "lease_held": "%s은(는) spaCR 설치 프로세스 %s이(가) 사용 중입니다. 완료될 때까지 기다리십시오. 롤백 중에 멈췄다면 다시 시도하기 전에 설치 로그를 따르십시오.",
+  "lease_held_unknown": "%s은(는) 이 버전이 확인할 수 없는 spaCR 설치 프로그램이 사용 중입니다. 실행 중인 spaCR 설치 프로그램이 없으면 해당 항목을 제거하고 다시 시도하십시오.",
+  "lease_cleared": "프로세스가 종료된 중단된 spaCR 설치가 남긴 잠금을 제거했습니다: %s",
+  "staging_removed": "중단된 spaCR 설치가 남긴 준비용 런타임을 제거했습니다: %s"
 }

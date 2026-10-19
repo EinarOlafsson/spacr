@@ -100,7 +100,8 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from ...logging_util import _spacr_home
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
@@ -721,7 +722,7 @@ class ModelZooScreen(QWidget):
         sorting = table.isSortingEnabled()
         table.setSortingEnabled(False)
         table.blockSignals(True)
-        table.setRowCount(0)
+        _retire_table_cells(table)
         table.setRowCount(len(self._groups))
         for r, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(table)
@@ -817,7 +818,15 @@ class ModelZooScreen(QWidget):
         table.setSortingEnabled(False)
         cells = (stem, entry.kind, entry.trained_on, _status_of(entry))
         for c, text in enumerate(cells):
-            item = _cell(str(text))
+            item = table.item(row, c)
+            fresh = item is None
+            if fresh:
+                item = _spare_table_item(table, str(text), make=_cell)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            else:
+                item.setData(Qt.ForegroundRole, None)
+                item.setData(Qt.UserRole, None)
+                item.setText(str(text))
             if c == 0:
                 item.setData(Qt.UserRole, group)
             if c == 2 and not entry.provenance_known:
@@ -825,7 +834,8 @@ class ModelZooScreen(QWidget):
             if c == 3 and "unverified" in str(text):
                 item.setForeground(_brush(active_palette()["warning"]))
             item.setToolTip(_tooltip_for(entry))
-            table.setItem(row, c, item)
+            if fresh:
+                table.setItem(row, c, item)
         table.setSortingEnabled(sorting)
 
     def _version_picked(self, group: int, index: int) -> None:
@@ -1296,12 +1306,14 @@ class ModelZooScreen(QWidget):
         self._result = result
         table = self._bench_table
         table.blockSignals(True)
+        _retire_table_cells(table)
         table.setRowCount(len(result.rows))
         for r, row in enumerate(result.rows):
             cells = (row.field, str(row.n_objects), row.severity,
                      ", ".join(row.flags) if row.flags else "-")
             for c, text in enumerate(cells):
-                item = _cell(text)
+                item = _spare_table_item(table, text, make=_cell)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(row.note)
                 if row.severity == "fail":
                     item.setForeground(_brush(active_palette()["error"]))

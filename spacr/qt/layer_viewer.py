@@ -41,8 +41,8 @@ import logging
 from typing import Any, Dict, Optional, Sequence
 
 import numpy as np
-from PySide6.QtCore import QPoint, Qt, Signal
-from PySide6.QtGui import QPainter
+from PySide6.QtCore import QPoint, QRect, Qt, Signal
+from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QFileDialog,
@@ -77,6 +77,7 @@ from .app_catalog import declared_app, register_declared
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from .theme import close_mark_button, font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
+from .widgets.sortable_table import _reuse_list_items
 
 LOG = logging.getLogger(__name__)
 
@@ -327,6 +328,8 @@ class LayerCanvas(QFrame):
         self._depth: Dict[str, float] = {}
         self._drag: Optional[QPoint] = None
         self._tool: Optional[CanvasTool] = None
+        self._picture = None
+        self._picture_canvas: Optional[Canvas] = None
         self._stack.subscribe(self._on_layers_changed)
 
     @property
@@ -351,7 +354,7 @@ class LayerCanvas(QFrame):
         self._stack = stack
         self._stack.subscribe(self._on_layers_changed)
         self._canvas = None
-        self.update()
+        self._redraw()
 
     def detach(self) -> None:
         """Stop listening to the model. Call from ``closeEvent``."""
@@ -359,8 +362,85 @@ class LayerCanvas(QFrame):
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
         """Redraw for a stack that has gained, lost or reordered a layer."""
-        if event.kind in LayerEvent.REPAINT:
-            self.update()
+        if event.kind in LayerEvent.REPAINT and not self._patch(event):
+            self._redraw()
+
+    def _patch(self, event: LayerEvent) -> bool:
+        """Composite again only the canvas pixels a brush dab changed.
+
+        A dab tells its layer the box of data it wrote. The canvas rows and
+        columns that sample that box are composited again and drawn into the
+        kept picture, and only that rectangle is repainted, so a stroke over
+        a 2048 px field does not recomposite the whole canvas for each dab.
+
+        :param event: the stack's change notice.
+        :returns: False when the whole picture has to be composited again.
+        """
+        picture, canvas = self._picture, self._picture_canvas
+        box = getattr(event.layer, "_painted_box", None)
+        if (event.kind != "data" or event.detail != "paint" or box is None
+                or picture is None or canvas is None
+                or canvas is not self._canvas):
+            return False
+        spans: Dict[int, slice] = {}
+        vectors = event.layer._sample_vectors(canvas)
+        for (role, index, _ok), (low, high) in zip(vectors, box):
+            if role == 2:
+                if not low <= int(index) < high:
+                    return True
+                continue
+            hit = np.flatnonzero((index >= low) & (index < high))
+            if not hit.size:
+                return True
+            spans[role] = slice(int(hit[0]), int(hit[-1]) + 1)
+        rows = spans.get(0, slice(None))
+        cols = spans.get(1, slice(None))
+        piece = self._stack._render_uint8_gathered(canvas, rows, cols)
+        if piece is None:
+            return False
+        top = rows.indices(canvas.shape[0])[0]
+        left = cols.indices(canvas.shape[1])[0]
+        height, width = piece.shape[:2]
+        piece = np.ascontiguousarray(piece)
+        image = QImage(piece.data, width, height, 3 * width,
+                       QImage.Format_RGB888)
+        painter = QPainter(picture)
+        try:
+            painter.drawImage(left, top, image)
+        finally:
+            painter.end()
+        self.update(QRect(left + 1, top + 1, width, height))
+        return True
+
+    def _redraw(self) -> None:
+        """Composite the stack again at the next paint, and ask for it.
+
+        Every other paint blits the picture kept by :meth:`_composited`.
+        """
+        self._picture = None
+        self.update()
+
+    def _composited(self, canvas: Canvas):
+        """The stack composited through ``canvas``, made once per change.
+
+        The window repaints everything over its animated backdrop on every
+        backdrop frame, and compositing the stack took about 150 ms at
+        1920x1080, so Curate painted at 6 to 8 frames a second while
+        nothing on it changed. The picture is kept until the stack reports
+        change, or the world window is another one (pan, zoom, resize,
+        depth or plane); a brush dab redraws only its box (:meth:`_patch`).
+
+        :param canvas: the world window being painted.
+        :returns: the pixmap to draw.
+        """
+        if self._picture is None or self._picture_canvas is not canvas:
+            rgb = np.ascontiguousarray(self._stack.render_uint8(canvas),
+                                       dtype=np.uint8)
+            height, width = rgb.shape[:2]
+            self._picture = QPixmap.fromImage(QImage(
+                rgb.data, width, height, 3 * width, QImage.Format_RGB888))
+            self._picture_canvas = canvas
+        return self._picture
 
     @property
     def tool(self) -> Optional[CanvasTool]:
@@ -473,10 +553,7 @@ class LayerCanvas(QFrame):
                 painter.drawText(self.rect(), Qt.AlignCenter,
                                  "No layers yet")
                 return
-            from .widgets.live_preview import numpy_to_qpixmap
-            pixmap = numpy_to_qpixmap(self._stack.render_uint8(canvas),
-                                      normalise=False)
-            painter.drawPixmap(1, 1, pixmap)
+            painter.drawPixmap(1, 1, self._composited(canvas))
         except Exception:
             LOG.exception("Could not paint the layer canvas")
         finally:
@@ -638,16 +715,16 @@ class LayerListWidget(QListWidget):
         """Rebuild every row from the model."""
         self._syncing = True
         try:
-            self.clear()
-            for layer in reversed(list(self._stack)):
-                item = QListWidgetItem(layer.name)
+            layers = list(reversed(list(self._stack)))
+            for item, layer in zip(_reuse_list_items(self, len(layers)),
+                                   layers):
+                item.setText(layer.name)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable
                               | Qt.ItemIsEditable)
                 item.setCheckState(Qt.Checked if layer.visible
                                    else Qt.Unchecked)
                 item.setData(Qt.UserRole, layer.name)
                 item.setToolTip(layer.describe())
-                self.addItem(item)
             selected = self._stack.selected
             if selected is not None:
                 row = len(self._stack) - 1 - self._stack.index(selected)

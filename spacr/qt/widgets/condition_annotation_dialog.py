@@ -47,7 +47,7 @@ from ...condition_annotations import new_definition, preview, table_identity
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import RADIUS, SPACING, register_widget_qss
-from .sortable_table import install_sorting
+from .sortable_table import _reuse_list_items, _spare_items, _wipe, install_sorting
 
 
 def _condition_qss(palette, opacity=None):
@@ -162,9 +162,14 @@ class _TemplateParts(QListWidget):
             item.setSizeHint(size)
         self.changed.emit()
 
-    def _append_part(self, part, row=None):
-        """Add one column or fixed-text part, at ``row`` or at the end."""
-        item = QListWidgetItem("{" + part.get("column", "") + "}" if part["kind"] == "column" else part.get("text", ""))
+    def _fill_part(self, item, part):
+        """Write one part's text, data, flags, tooltip and size onto ``item``.
+
+        :param item: a new or wiped list item.
+        :param part: the part dict.
+        :returns: the same item.
+        """
+        item.setText("{" + part.get("column", "") + "}" if part["kind"] == "column" else part.get("text", ""))
         item.setData(Qt.UserRole, part["kind"])
         self._next_token += 1
         item.setData(Qt.UserRole + 2, self._next_token)
@@ -177,9 +182,23 @@ class _TemplateParts(QListWidget):
             item.setToolTip(tr("Column value. Drag to reorder or select and remove this token."))
         item.setSizeHint(QSize(max(48, self.fontMetrics().horizontalAdvance(item.text()) + 24),
                                self.fontMetrics().height() + 18))
+        return item
+
+    def _append_part(self, part, row=None):
+        """Add one column or fixed-text part, at ``row`` or at the end."""
+        item = self._fill_part(QListWidgetItem(), part)
         self.insertItem(self.count() if row is None else row, item)
         self.changed.emit()
         return item
+
+    def _set_parts(self, parts):
+        """Show ``parts`` by rewriting the items already listed, deleting none.
+
+        :param parts: the part dicts in order.
+        """
+        for item, part in zip(_reuse_list_items(self, len(parts)), parts):
+            self._fill_part(item, part)
+        self.changed.emit()
 
     def _parts(self):
         """The parts in their shown order, as dicts."""
@@ -266,6 +285,20 @@ class _TemplateParts(QListWidget):
             self.changed.emit()
         else:
             super().dropEvent(event)
+
+
+def _park_row(view, row):
+    """Take a row out of ``view`` and keep its item for reuse, deleting nothing.
+
+    :param view: the list widget.
+    :param row: the row to remove.
+    """
+    blocked = view.blockSignals(True)
+    try:
+        _wipe(view, view.item(row))
+    finally:
+        view.blockSignals(blocked)
+    _spare_items(view).append(view.takeItem(row))
 
 
 def _display(value):
@@ -623,13 +656,16 @@ class ConditionBox(QFrame):
         if self.manual_rows and self.match_mode.currentData() == "criteria" and all(
                 not row.value.text() and row.operator.currentData() == "contains" for row in self.criteria):
             self.match_mode.setCurrentIndex(self.match_mode.findData("manual"))
-        self.rows.clear()
-        for token in self.manual_rows[:200]:
+        shown = self.manual_rows[:200]
+        more = len(self.manual_rows) > 200
+        items = _reuse_list_items(self.rows, len(shown) + int(more))
+        for token, item in zip(shown, items):
             text = self.source_model.row_summary(token) if token in self.source_model.locations else token
-            item = QListWidgetItem(text, self.rows)
+            item.setText(text)
             item.setData(Qt.UserRole, token)
-        if len(self.manual_rows) > 200:
-            item = QListWidgetItem(tr("Showing 200 of {count:,} manual rows", count=len(self.manual_rows)), self.rows)
+        if more:
+            item = items[-1]
+            item.setText(tr("Showing 200 of {count:,} manual rows", count=len(self.manual_rows)))
             item.setFlags(Qt.NoItemFlags)
 
     def add_mime_rows(self, mime):
@@ -1175,7 +1211,7 @@ class ConditionAnnotationDialog(QDialog):
     def _remove_template_part(self):
         """Remove only the selected token."""
         if self.template_parts.currentRow() >= 0:
-            self.template_parts.takeItem(self.template_parts.currentRow())
+            _park_row(self.template_parts, self.template_parts.currentRow())
             self._template_changed()
 
     def _move_template_part(self, direction):
@@ -1233,8 +1269,9 @@ class ConditionAnnotationDialog(QDialog):
         self.combine_available.clear()
         available = [str(c) for c in self.frame.columns] + [c["column"] for c in self._columns[:self._active_column]]
         self.combine_available.addItems(available)
-        self.combine_inputs.clear()
-        self.combine_inputs.addItems(item.get("columns", []))
+        inputs = list(item.get("columns", []))
+        for entry, text in zip(_reuse_list_items(self.combine_inputs, len(inputs)), inputs):
+            entry.setText(text)
         self.combine_separator.setText(item.get("separator", "_"))
         self.extract_source.clear()
         self.extract_source.addItems(available)
@@ -1245,11 +1282,10 @@ class ConditionAnnotationDialog(QDialog):
         self.extract_source.setCurrentText(item.get("metadata_column", preferred))
         self.extract_pattern.setText(item.get("pattern", ""))
         self.extract_group.setCurrentText(str(item.get("group", 1)))
-        self.template_palette.clear()
-        self.template_palette.addItems(available)
+        for entry, text in zip(_reuse_list_items(self.template_palette, len(available)), available):
+            entry.setText(text)
         self.template_palette.setCurrentRow(0)
         self.template_parts.allowed_columns = set(available)
-        self.template_parts.clear()
         parts = item.get("parts", [])
         if kind == "combine":
             parts = []
@@ -1257,8 +1293,7 @@ class ConditionAnnotationDialog(QDialog):
                 if index:
                     parts.append({"kind": "text", "text": item.get("separator", "_")})
                 parts.append({"kind": "column", "column": name})
-        for part in parts:
-            self.template_parts._append_part(part)
+        self.template_parts._set_parts(parts)
         self._composition_legacy = kind == "combine"
         for condition in item.get("conditions", []):
             self.add_box(condition)
@@ -1358,7 +1393,7 @@ class ConditionAnnotationDialog(QDialog):
         """Remove the selected combination component."""
         row = self.combine_inputs.currentRow()
         if row >= 0:
-            self.combine_inputs.takeItem(row)
+            _park_row(self.combine_inputs, row)
             self._changed()
 
     def _move_combine_input(self, direction):

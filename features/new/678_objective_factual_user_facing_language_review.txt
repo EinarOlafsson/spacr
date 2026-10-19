@@ -329,3 +329,7 @@ in nine locales had domain terms in the wrong sense (stain as smudge, well as "b
 as era, seed as plant seed, label as Etikett...); fixed in reviewed records, new ones in
 2026-10-17-f678-terminology.json (AI technical review, no native-speaker signoff). Gates
 dye-stain-as-smudge + _REVIEWED_TERM_GATES (99 rules) block regressions. API MT prose still poor.
+
+2026-10-19 — API MT-prose pass on the most-viewed pages. No view analytics exist, so pages were ranked by in-app Help links (setting_api_targets) plus docs references; the top eight module pages (core, settings, psf_pipeline, object, validate, deep_spacr, submodules, io: 349 symbols, 1,553 translatable blocks) are now fully reviewed in all nine locales.
+New direct AI-reviewed records: de 1093, es 1123, fr 1101, hi 1095, is 806, ko 848, pt 1131, sv 1125, zh_CN 840 (2026-10-19-678-most-linked-api-pages.json, no native-speaker signoff). Whole-API reviewed coverage is now 32-46% of 46,370 blocks per locale.
+Remaining: the other API pages (next by rank: ml, hyperparam, utils, plot, seg_qc) are still machine-translated.

@@ -624,6 +624,10 @@ class RunHandle(QObject):
         #: seconds, so without this Home flashes "<module> usage - running"
         #: on and off for as long as a module screen is open.
         self.user_visible = bool(getattr(worker, "user_visible", True))
+        #: "analysis" for a run that writes results (see
+        #: :attr:`blocks_shutdown`), "housekeeping" for read-only UI work.
+        #: The update check refuses only while an analysis is registered.
+        self.kind = "analysis" if self.blocks_shutdown else "housekeeping"
         worker.line_ready.connect(self._on_line)
 
     @property
@@ -763,6 +767,19 @@ class RunRegistry(QObject):
         """
         return list(self._handles)
 
+    def _of_kind(self, *kinds: str) -> List[RunHandle]:
+        """Registered handles of the given kinds, in registration order.
+
+        A handle that names no kind counts as an analysis, so an unknown job
+        is never mistaken for housekeeping.
+
+        :param kinds: "analysis", "housekeeping", "package_install",
+            "model_download" or "external".
+        :returns: the matching handles, started or not.
+        """
+        return [handle for handle in self._handles
+                if getattr(handle, "kind", "analysis") in kinds]
+
     def is_busy(self) -> bool:
         """Whether any run is still registered.
 
@@ -860,6 +877,7 @@ class _ExternalJobHandle(QObject):
         refuse to close the window.
     :param user_visible: whether the job is shown to the user at all.
     :param stop_on_quit: whether closing spaCR cancels the job.
+    :param kind: "package_install", "model_download" or "external".
     :param parent: parent object, or ``None``.
     """
 
@@ -867,7 +885,7 @@ class _ExternalJobHandle(QObject):
 
     def __init__(self, app_key: str, cancel: Optional[Callable[[str], Any]] = None,
                  *, blocks_shutdown: bool = False, user_visible: bool = True,
-                 stop_on_quit: bool = True, parent=None):
+                 stop_on_quit: bool = True, kind: str = "external", parent=None):
         """Describe one running external job.
 
         :param app_key: what the job is called.
@@ -875,10 +893,12 @@ class _ExternalJobHandle(QObject):
         :param blocks_shutdown: whether it vetoes closing the window.
         :param user_visible: whether it is listed.
         :param stop_on_quit: whether closing spaCR cancels it.
+        :param kind: what the job is, for the update check.
         :param parent: parent object, or ``None``.
         """
         super().__init__(parent)
         self.app_key = app_key or "job"
+        self.kind = str(kind or "external")
         self.worker = None
         self.thread = None
         self.worker_count = 1
@@ -949,8 +969,8 @@ def _track_external_job(app_key: str,
 
     :param app_key: what the job is called in the Jobs window.
     :param cancel: called with the reason on Cancel, or ``None``.
-    :param options: ``blocks_shutdown``, ``user_visible`` and
-        ``stop_on_quit`` for the handle.
+    :param options: ``blocks_shutdown``, ``user_visible``,
+        ``stop_on_quit`` and ``kind`` for the handle.
     :returns: the registered handle.
     """
     reg = registry()
@@ -2114,13 +2134,12 @@ def _import_the_entry_module(name: str) -> None:
     """
     app_module = sys.modules.get("spacr.qt.app")
     lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
-    gc_was_enabled = gc.isenabled()
-    with responsive_gui():
+    from .gc_policy import _automatic_collection_paused
+
+    with responsive_gui(), _automatic_collection_paused():
         if lock is not None:
             lock.acquire()
         try:
-            if gc_was_enabled:
-                gc.disable()
             _open_torch_libraries()
             importlib.import_module(name)
             torch = sys.modules.get("torch")
@@ -2131,8 +2150,6 @@ def _import_the_entry_module(name: str) -> None:
                       exc_info=True)
         finally:
             gc.freeze()
-            if gc_was_enabled:
-                gc.enable()
             if lock is not None:
                 lock.release()
 
@@ -2316,6 +2333,24 @@ def _install_the_workspace_dispatcher() -> bool:
     return True
 
 
+def _import_pyplot_without_pinning_callers() -> None:
+    """Import ``matplotlib.pyplot`` and free the cycles the import leaves.
+
+    Building pyplot's mathtext grammar raises and catches hundreds of
+    pyparsing exceptions. Each traceback is a reference cycle whose frames
+    reach, through ``f_back``, every frame above the import: the screen
+    method that started a job and :func:`make_thread` itself, with the
+    worker, thread and run handle in their locals. Left alone, those
+    objects outlive their owners and are destroyed from inside a later
+    garbage collection. One young-generation sweep here, before any worker
+    exists, frees the cycles while nothing Qt is held (about 20 ms, once
+    per process).
+    """
+    import matplotlib.pyplot  # noqa: F401
+
+    gc.collect(0)
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
@@ -2360,17 +2395,14 @@ def make_thread(
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     if capture_figures and "matplotlib.pyplot" not in sys.modules:
-        gc_was_enabled = gc.isenabled()
+        from .gc_policy import _automatic_collection_paused
+
         try:
-            if gc_was_enabled:
-                gc.disable()
-            import matplotlib.pyplot  # noqa: F401
+            with _automatic_collection_paused():
+                _import_pyplot_without_pinning_callers()
         except Exception:              # noqa: BLE001
             LOG.debug("matplotlib.pyplot could not be pre-imported",
                       exc_info=True)
-        finally:
-            if gc_was_enabled:
-                gc.enable()
     thread = QThread()
     _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)

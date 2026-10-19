@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from .i18n import tr
+from . import _after
 
 LOG = logging.getLogger("spacr.qt.preferences_navigation")
 
@@ -112,7 +113,7 @@ def show_tab(dialog: QWidget, object_name: str, label: str = "") -> bool:
         return False
     _unfold_around(page)
     if label:
-        QTimer.singleShot(0, lambda: reveal_row(page, label))
+        _after(0, page, lambda: reveal_row(page, label))
     return True
 
 

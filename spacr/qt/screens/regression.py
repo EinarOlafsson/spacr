@@ -413,7 +413,7 @@ def build_methods_export(host_window: Optional[QWidget] = None,
     """
     from .methods_export import MethodsExportScreen
 
-    panel = results_panel(screen)
+    panel = _results_panel_if_built(screen)
     return MethodsExportScreen(project=project_path(screen),
                                results_folder=_run_folder(panel))
 

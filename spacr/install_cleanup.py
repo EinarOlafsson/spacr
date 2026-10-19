@@ -1404,6 +1404,401 @@ def _reason(exc: BaseException, reason_on_denied: str) -> str:
     return str(getattr(exc, "strerror", "") or exc)
 
 
+_LEASE_OWNER = "owner"
+_LEASE_ROLLBACK = "rollback"
+
+
+def _process_started(pid):
+    """A start stamp for ``pid`` that no clock step, locale or time zone changes; None when it cannot be read.
+
+    Linux reads the start tick from ``/proc/<pid>/stat``; other POSIX systems read ``ps -o lstart=`` in the C
+    locale and UTC; Windows reads the creation FILETIME and answers "" when no such process exists. A missing
+    POSIX process is decided by :func:`_process_gone`, never by an unreadable stamp.
+    """
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        handle = kernel.OpenProcess(0x1000, False, int(pid))
+        if not handle:
+            return "" if ctypes.get_last_error() == 87 else None
+        try:
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if not kernel.GetProcessTimes(handle, *[ctypes.byref(item) for item in times]):
+                return None
+            return "filetime:" + str((times[0].dwHighDateTime << 32) | times[0].dwLowDateTime)
+        finally:
+            kernel.CloseHandle(handle)
+    try:
+        pid = int(pid)
+    except (TypeError, ValueError):
+        return None
+    if sys.platform.startswith("linux"):
+        try:
+            with open(f"/proc/{pid}/stat", encoding="utf-8", errors="replace") as handle:
+                ticks = handle.read().rsplit(")", 1)[1].split()[19]
+        except (OSError, IndexError):
+            return None
+        return "ticks:" + ticks if ticks.isdigit() else None
+    try:
+        done = subprocess.run(["ps", "-o", "lstart=", "-p", str(pid)], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C", TZ="UTC0"))
+    except (OSError, subprocess.SubprocessError):
+        return None
+    text = " ".join(done.stdout.split())
+    return "lstart:" + text if done.returncode == 0 and text else None
+
+
+def _process_gone(pid):
+    """True only when the system says no process has ``pid``; a process it will not signal counts as present."""
+    if os.name == "nt":
+        return _process_started(pid) == ""
+    try:
+        os.kill(int(pid), 0)
+    except ProcessLookupError:
+        return True
+    except (OSError, ValueError):
+        return False
+    return False
+
+
+def _pid_namespace():
+    """The pid namespace this process sees on Linux, "unknown" when it cannot be read, and "" elsewhere."""
+    if not sys.platform.startswith("linux"):
+        return ""
+    try:
+        return os.readlink("/proc/self/ns/pid")
+    except OSError:
+        return "unknown"
+
+
+def _process_group_live_member(group):
+    """A process still in ``group`` owned by this user, other than this process's ancestors and descendants.
+
+    Children of a killed installer keep its process group after the installer itself is gone. Returns that
+    member's pid, "unknown" when the process table cannot be read, or "" when the group is empty.
+    """
+    try:
+        done = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,pgid=,uid="], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C"))
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+    rows = [line.split() for line in done.stdout.splitlines()]
+    rows = [row for row in rows if len(row) == 4 and all(item.isdigit() for item in row)]
+    if done.returncode != 0 or not rows:
+        return "unknown"
+    parent = {row[0]: row[1] for row in rows}
+    me = str(os.getpid())
+    lineage, item = set(), me
+    while item and item not in lineage and item != "0":
+        lineage.add(item)
+        item = parent.get(item, "")
+    uid = str(os.geteuid())
+    for pid, _, pgid, owner in rows:
+        if pgid != str(group) or owner != uid or pid in lineage:
+            continue
+        ancestor, seen = parent.get(pid, ""), set()
+        while ancestor and ancestor not in ("0", "1", me) and ancestor not in seen:
+            seen.add(ancestor)
+            ancestor = parent.get(ancestor, "")
+        if ancestor != me:
+            return pid
+    return ""
+
+
+def _windows_children(pid):
+    """The live children of ``pid`` as (pid, start stamp) pairs, or None when the process table cannot be read.
+
+    Windows keeps a dead parent's id in its children's records, so a killed installer's pip or uv still names
+    it. A child whose start cannot be read makes the answer unknown.
+    """
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        """PROCESSENTRY32W."""
+
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+                    ("th32DefaultHeapID", ctypes.c_size_t), ("th32ModuleID", wintypes.DWORD),
+                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+                    ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD),
+                    ("szExeFile", ctypes.c_wchar * 260)]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    snapshot = kernel.CreateToolhelp32Snapshot(0x2, 0)
+    if snapshot in (None, 0, ctypes.c_void_p(-1).value):
+        return None
+    try:
+        entry = Entry()
+        entry.dwSize = ctypes.sizeof(Entry)
+        children = []
+        more = kernel.Process32FirstW(snapshot, ctypes.byref(entry))
+        if not more:
+            return None
+        while more:
+            if entry.th32ParentProcessID == int(pid) and entry.th32ProcessID != int(pid):
+                children.append(int(entry.th32ProcessID))
+            more = kernel.Process32NextW(snapshot, ctypes.byref(entry))
+        if ctypes.get_last_error() != 18:
+            return None
+    finally:
+        kernel.CloseHandle(snapshot)
+    found = []
+    for child in children:
+        stamp = _process_started(child)
+        if stamp is None:
+            return None
+        if stamp:
+            found.append((child, stamp))
+    return found
+
+
+def _owner_children_live(pid, started):
+    """Whether a process the lease's owner started still runs: True, False, or None when that is unknown.
+
+    Only a child created at or after the owner's own start counts; a child of an earlier process that held the
+    same id is older than the owner. Stamps of another kind make the answer unknown.
+    """
+    children = _windows_children(pid)
+    if children is None:
+        return None
+    kind, _, value = started.partition(":")
+    if kind != "filetime" or not value.isdigit():
+        return None
+    for _child, stamp in children:
+        child_kind, _, child_value = stamp.partition(":")
+        if child_kind != kind or not child_value.isdigit():
+            return None
+        if int(child_value) >= int(value):
+            return True
+    return False
+
+
+def _lease_host():
+    """This computer's name as the installers record it: COMPUTERNAME on Windows, ``uname -n`` elsewhere."""
+    import platform
+
+    return os.environ.get("COMPUTERNAME", "") if os.name == "nt" else platform.node()
+
+
+_OWN_LEASE_RECORD = {}
+
+
+def _lease_owner_text():
+    """The owner record a new lease carries, measured once per process.
+
+    Process id, start stamp and host everywhere, plus the pid namespace on POSIX, so a lease written inside a
+    container that shares this host name is never judged by pids it cannot see. Windows records tree=1: the
+    lease stays live while a process the owner started still runs, since Windows does not end a killed
+    installer's pip or uv with it.
+    """
+    pid = os.getpid()
+    if pid not in _OWN_LEASE_RECORD:
+        text = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
+        if os.name == "nt":
+            text += "tree=1\n"
+        else:
+            text += f"pidns={_pid_namespace()}\n"
+            try:
+                text += f"pgid={os.getpgrp()}\n"
+            except OSError:
+                pass
+        _OWN_LEASE_RECORD[pid] = text
+    return _OWN_LEASE_RECORD[pid]
+
+
+def _lease_fields(text):
+    """The key=value lines of a lease record."""
+    return dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
+
+
+def _lease_file_in_use(path):
+    """On Windows, whether another handle holds the lease file open; POSIX has no such lock and answers False."""
+    if os.name != "nt":
+        return False
+    import ctypes
+    from ctypes import wintypes
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateFileW.restype = wintypes.HANDLE
+    kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+                                   wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    handle = kernel.CreateFileW(path, 0x80000000, 0, None, 3, 0x80, None)
+    if handle in (None, 0, ctypes.c_void_p(-1).value):
+        return True
+    kernel.CloseHandle(handle)
+    return False
+
+
+def _lease_owner_dead(path):
+    """True only when a lease's recorded owner is provably gone and the lease holds nothing else.
+
+    The record must be this user's, written in this host's format with this host name and pid namespace, and
+    its process must be absent or carry another start stamp of the same kind. A rollback marker, a journal,
+    any unknown file, an open lease file, another user's or another host's or container's lease, an unreadable
+    process, or a lease from a version that recorded no owner is never treated as abandoned.
+    """
+    try:
+        if os.path.islink(path):
+            return False
+        if os.path.isdir(path):
+            if os.listdir(path) != [_LEASE_OWNER]:
+                return False
+            record = os.path.join(path, _LEASE_OWNER)
+            if os.path.islink(record) or not os.path.isfile(record):
+                return False
+        elif os.path.isfile(path):
+            record = path
+            if _lease_file_in_use(path):
+                return False
+        else:
+            return False
+        if os.name != "nt" and any(os.lstat(item).st_uid != os.geteuid() for item in (path, record)):
+            return False
+        with open(record, encoding="utf-8") as handle:
+            text = handle.read(4096)
+    except (OSError, UnicodeDecodeError):
+        return False
+    fields = _lease_fields(text)
+    expected = _lease_fields(_lease_owner_text())
+    expected.pop("pgid", None)
+    expected.pop("tree", None)
+    group = fields.pop("pgid", None)
+    tree = fields.pop("tree", None)
+    if (set(fields) != set(expected) or not fields["started"] or fields["host"] != expected["host"]
+            or fields.get("pidns") != expected.get("pidns") or expected.get("pidns") == "unknown"):
+        return False
+    try:
+        pid = int(fields["pid"])
+    except ValueError:
+        return False
+    if pid <= 0 or pid == os.getpid():
+        return False
+    if not _process_gone(pid):
+        now = _process_started(pid)
+        if not now or now.partition(":")[0] != fields["started"].partition(":")[0] or now == fields["started"]:
+            return False
+    if tree is not None:
+        if tree != "1" or group is not None:
+            return False
+        return _owner_children_live(pid, fields["started"]) is False
+    if group is None:
+        return True
+    if not group.isdigit() or int(group) <= 0:
+        return False
+    return _process_group_live_member(group) == ""
+
+
+_LEASE_KNOWN_FIELDS = frozenset({"pid", "started", "host", "pidns", "pgid", "tree", "rollback"})
+
+
+def _lease_held_message(path):
+    """A refusal naming the lease and, when recorded, its owning process.
+
+    A lease with fields a later installer added, whose pid is gone, names no holder: this version cannot check
+    it, and the dead pid holds nothing.
+    """
+    owner = os.path.join(path, _LEASE_OWNER) if os.path.isdir(path) else path
+    try:
+        with open(owner, encoding="utf-8") as handle:
+            fields = _lease_fields(handle.read(4096))
+    except (OSError, UnicodeDecodeError):
+        fields = {}
+    pid = fields.get("pid")
+    if pid and set(fields) - _LEASE_KNOWN_FIELDS and pid.isdigit() and _process_gone(int(pid)):
+        pid = None
+    if pid:
+        return tr("Another spaCR installation holds {path} (process {pid}). Wait for it to finish; "
+                  "if it has stopped and left a rollback, follow the installer log first.", path=path, pid=pid)
+    return tr("Another spaCR installation holds {path}. Wait for it to finish, or remove that folder once "
+              "no spaCR installer is running.", path=path)
+
+
+@contextmanager
+def _lease_takeover(path):
+    """Let one installer at a time replace an abandoned lease; a second one judging the same lease refuses.
+
+    The guard is a sibling directory stamped with its owner. Under it the caller judges the lease again, so a
+    lease another installer has just taken over is never replaced.
+    """
+    guard = path + ".takeover"
+    try:
+        os.mkdir(guard, 0o700)
+    except FileExistsError:
+        raise FileExistsError(errno.EEXIST, _lease_held_message(guard), guard) from None
+    try:
+        with open(os.path.join(guard, _LEASE_OWNER), "x", encoding="utf-8") as handle:
+            handle.write(_lease_owner_text())
+        yield
+    finally:
+        try:
+            _release_lease_dir(guard)
+        except OSError:
+            pass
+
+
+def _take_lease_dir(path):
+    """Create a directory lease stamped with its owner, replacing only a provably abandoned one."""
+    try:
+        os.mkdir(path, 0o700)
+    except FileExistsError:
+        if not _lease_owner_dead(path):
+            raise FileExistsError(errno.EEXIST, _lease_held_message(path), path) from None
+        with _lease_takeover(path):
+            if not _lease_owner_dead(path):
+                raise FileExistsError(errno.EEXIST, _lease_held_message(path), path) from None
+            os.unlink(os.path.join(path, _LEASE_OWNER))
+            os.rmdir(path)
+            os.mkdir(path, 0o700)
+    descriptor = os.open(os.path.join(path, _LEASE_OWNER), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        handle.write(_lease_owner_text())
+    return os.stat(path, follow_symlinks=False)
+
+
+def _take_lease_file(path):
+    """Create a Windows file lease stamped with its owner and kept open, replacing only an abandoned one."""
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        if not _lease_owner_dead(path):
+            raise
+        with _lease_takeover(path):
+            if not _lease_owner_dead(path):
+                raise
+            os.unlink(path)
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        os.write(descriptor, _lease_owner_text().encode("utf-8"))
+    except OSError:
+        os.close(descriptor)
+        raise
+    return descriptor
+
+
+def _release_lease_dir(path):
+    """Remove a directory lease this process owns: its owner record, then the directory."""
+    try:
+        os.unlink(os.path.join(path, _LEASE_OWNER))
+    except FileNotFoundError:
+        pass
+    os.rmdir(path)
+
+
+def _retain_lease_dir(path, reason):
+    """Mark a lease that must outlive its owner because a rollback still needs resolving."""
+    try:
+        with open(os.path.join(path, _LEASE_ROLLBACK), "w", encoding="utf-8") as handle:
+            handle.write(str(reason) + "\n")
+    except OSError:
+        pass
+
+
 class _RemovalLeaseUnavailable(OSError):
     """Removal was refused before mutation because its transaction leases could not be acquired."""
 
@@ -1428,11 +1823,10 @@ def _removal_transaction_lease(record, machine):
             descriptor = None
             try:
                 if machine.platform == "windows":
-                    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                    descriptor = _take_lease_file(path)
                     identity = os.fstat(descriptor)
                 else:
-                    os.mkdir(path, 0o700)
-                    identity = os.lstat(path)
+                    identity = _take_lease_dir(path)
             except OSError as error:
                 if descriptor is not None:
                     os.close(descriptor)
@@ -1451,7 +1845,7 @@ def _removal_transaction_lease(record, machine):
                     if matches:
                         os.unlink(path)
                 elif matches:
-                    os.rmdir(path)
+                    _release_lease_dir(path)
             except OSError:
                 pass
             finally:
@@ -4963,7 +5357,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
     if state.get("state") == "launch_unconfirmed" and pid != state.get("launch_pid"):
         raise ValueError(tr("recovery requires the unconfirmed desktop process identity"))
     lock = os.path.join(os.path.dirname(prefix), "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     try:
         if not (wait or _wait_for_exit)(pid):
             raise RuntimeError("spaCR did not close; both runtimes remain unchanged")
@@ -5009,7 +5403,7 @@ def _recover_runtime_update(transaction, pid, *, machine=None, runner=None, wait
         _runtime_recovery_journal(root, state)
         return state
     finally:
-        os.rmdir(lock)
+        _release_lease_dir(lock)
 
 
 def _runtime_recovery_journal(root, state):
@@ -5065,7 +5459,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
     _runtime_staging_allowed(prefix, machine)
     parent = os.path.dirname(prefix)
     lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     transaction = None
     exchanged = False
     committed = False
@@ -5226,7 +5620,9 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         if transaction and not committed and not exchanged:
             shutil.rmtree(transaction, ignore_errors=True)
         if not exchanged or committed:
-            os.rmdir(lock)
+            _release_lease_dir(lock)
+        else:
+            _retain_lease_dir(lock, "runtime exchange not committed")
 
 
 def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
@@ -6311,8 +6707,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
     prefix = _windows_pip_private_directory(record.root)
     parent = _windows_pip_private_directory(os.path.dirname(prefix))
     lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
-    os.mkdir(lock, 0o700)
-    lease = os.stat(lock, follow_symlinks=False)
+    lease = _take_lease_dir(lock)
     root = None
     state = None
     retired = False
@@ -6437,10 +6832,15 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
             _runtime_recovery_journal(root, state)
         raise
     finally:
-        if safe_release:
+        try:
             current = os.stat(lock, follow_symlinks=False)
-            if (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
-                os.rmdir(lock)
+        except FileNotFoundError:
+            current = None
+        if current is not None and (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
+            if safe_release:
+                _release_lease_dir(lock)
+            else:
+                _retain_lease_dir(lock, "windows runtime rollback requires review")
 
 
 def _run_windows_pip_update(plan, machine, *, wait=None, run=None, spawn=None):
@@ -6999,7 +7399,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
     os.makedirs(lock_parent, mode=0o700, exist_ok=True)
     _windows_pip_private_directory(lock_parent)
     lock = os.path.join(lock_parent, hashlib.sha256(os.path.normcase(root).encode()).hexdigest())
-    os.mkdir(lock, 0o700)
+    _take_lease_dir(lock)
     retained = False
     try:
         _windows_pip_private_directory(lock)
@@ -7075,7 +7475,7 @@ def _run_windows_frozen_update(plan, machine, *, download=None, install=None, ru
                         result.flush()
                         os.fsync(result.fileno())
                     os.unlink(journal)
-                os.rmdir(lock)
+                _release_lease_dir(lock)
             except OSError:
                 pass
 

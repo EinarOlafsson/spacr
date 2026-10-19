@@ -230,6 +230,7 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
                                QSizePolicy, QSplitterHandle, QStyle,
                                QStyleOption, QTabBar, QTextEdit, QWidget)
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -661,6 +662,21 @@ FIELD_FPS = 60
 #: ``tests/qt/test_the_field_keeps_moving_during_a_run_20261013.py``.
 _RUN_FPS = 30
 MIN_FPS = 1
+
+#: GUI-thread time, in ms, a field frame may take during a run before the
+#: next one waits. Over the field every widget on screen repaints with each
+#: frame; at 3840x2105 that is 17-28 ms idle and a median 39 ms during
+#: lesson 13's run, where every return to Python then also waits for the
+#: pipeline's hold on the interpreter lock. Idle frames are never held back.
+_FRAME_BUDGET_MS = 20.0
+
+#: The share of the GUI thread a frame over :data:`_FRAME_BUDGET_MS` may
+#: keep: the next tick waits until the frame's own cost has been matched by
+#: free time, so input, the console and progress get the rest. The field's
+#: clock is wall time, so it moves at the same speed in fewer steps; frames
+#: within budget keep the normal rate. During lesson 13's run this cut the
+#: GUI thread's time in gaps over 50 ms by 14% and gaps over 200 ms by 41%.
+_OVER_BUDGET_SHARE = 0.5
 MAX_FPS = 60
 
 #: The ordinary application installs a backdrop on every live screen.  Its
@@ -5374,6 +5390,64 @@ def _ready_subpixel_scatter():
     return _SUBPIXEL_SCATTER
 
 
+_NUMBA_IMPORT_LOCK = threading.Lock()
+
+
+def _import_numba():
+    """Import numba once at a time, so two first importers cannot interleave.
+
+    The start-up warm thread and the kernel warmup thread can both be the
+    first to import it; numba imports itself in a cycle, and two threads
+    inside that cycle can see a half-initialised package.
+    """
+    with _NUMBA_IMPORT_LOCK:
+        import numba
+        return numba
+
+
+def _numba_cache_directory():
+    """A writable per-user folder for compiled kernels, or ``None``.
+
+    ``NUMBA_CACHE_DIR`` wins when the user set it; otherwise the folder is
+    ``numba`` under spaCR's cache location, never beside the package source,
+    so frozen and read-only installs work. An unwritable folder means no
+    cache, silently.
+    """
+    import os
+    from pathlib import Path
+
+    try:
+        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
+        if configured:
+            folder = Path(configured).expanduser()
+        else:
+            from ...logging_util import _spacr_home
+            folder = _spacr_home() / "cache" / "numba"
+        folder.mkdir(parents=True, exist_ok=True)
+        if not os.access(folder, os.W_OK):
+            return None
+        os.environ["NUMBA_CACHE_DIR"] = str(folder)
+        import sys
+        if "numba.core.config" in sys.modules:
+            sys.modules["numba.core.config"].CACHE_DIR = str(folder)
+        return folder
+    except Exception:
+        return None
+
+
+def _compiled_kernel(function):
+    """``function`` as a nogil numba kernel, cached on disk when it can be."""
+    cached = _numba_cache_directory() is not None
+    njit = _import_numba().njit
+
+    if cached:
+        try:
+            return njit(nogil=True, cache=True)(function)
+        except Exception:
+            pass
+    return njit(nogil=True, cache=False)(function)
+
+
 def _warm_packed_scatter():
     """Compile once using tiny owned CPU arrays, without Qt or package writes.
 
@@ -5389,14 +5463,12 @@ def _warm_packed_scatter():
             _PACKED_SCATTER_STARTED = False
         return
     try:
-        from numba import njit
-
         np = _numpy()
         flat = np.zeros(1, dtype=np.uint32)
         coordinates = np.zeros(1, dtype=np.int32)
         intensity = np.zeros(1, dtype=np.uint8)
         lookup = np.arange(256, dtype=np.uint32)
-        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel = _compiled_kernel(_scatter_packed_grains)
         kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
                1, 1, True)
         if not getattr(kernel, 'nopython_signatures', ()):
@@ -5404,7 +5476,7 @@ def _warm_packed_scatter():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER = kernel
         try:
-            subpixel = njit(nogil=True, cache=False)(_scatter_subpixel_grains)
+            subpixel = _compiled_kernel(_scatter_subpixel_grains)
             subpixel(flat, np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32),
                      np.zeros(1, dtype=np.float32), lookup, 1, 1, True,
                      np.zeros(16, dtype=np.float64))
@@ -5414,7 +5486,7 @@ def _warm_packed_scatter():
         except Exception:
             pass
         try:
-            blender = njit(nogil=True, cache=False)(_blend_colored_words)
+            blender = _compiled_kernel(_blend_colored_words)
             blender(flat, flat.copy(), 1)
             if getattr(blender, 'nopython_signatures', ()):
                 with _PACKED_SCATTER_LOCK:
@@ -5422,7 +5494,7 @@ def _warm_packed_scatter():
         except Exception:
             pass
         try:
-            colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
+            colored = _compiled_kernel(_scatter_colored_grains)
             table = lookup
             colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
                     np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
@@ -5572,10 +5644,8 @@ class _SatinCompiler:
                 self.started = False
             return
         try:
-            from numba import njit
-
             np = _numpy()
-            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            kernel = _compiled_kernel(_warp_satin_columns)
             source = np.zeros((1, 1), dtype=np.uint32)
             coordinates = np.zeros(1, dtype=np.int32)
             kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
@@ -9205,6 +9275,7 @@ class _FrameProducer:
         self._stop = threading.Event()
         self._wake = threading.Event()
         self.doorbell = None
+        self._doorbell_lock = threading.Lock()
         self.tick_driven = False
         self.urgent = False
         self._thread: Optional[threading.Thread] = None
@@ -9227,6 +9298,21 @@ class _FrameProducer:
         _LIVE_PRODUCERS.add(self)
         self._thread.start()
 
+    def _ring_doorbell(self) -> None:
+        """Ask the GUI thread to repaint, unless the doorbell has been taken.
+
+        Rung under the doorbell lock that :meth:`stop` takes to drop it, so
+        the shading thread never emits on a doorbell the widget has let go.
+        """
+        with self._doorbell_lock:
+            bell = self.doorbell
+            if bell is None:
+                return
+            try:
+                bell.objectNameChanged.emit("")
+            except RuntimeError:
+                self.doorbell = None
+
     def stop(self) -> None:
         """Ask the thread to finish the frame it is on and exit, then wait
         up to :data:`PRODUCER_JOIN_S` for it.
@@ -9238,6 +9324,8 @@ class _FrameProducer:
         restarted (:meth:`AmbientWidget._start_producer` builds a new one), so
         there is nothing to gain by forgetting it.
         """
+        with self._doorbell_lock:
+            self.doorbell = None
         self._stop.set()
         self._wake.set()
         thread = self._thread
@@ -9312,12 +9400,8 @@ class _FrameProducer:
                 if image is not None:
                     self.publish(image, composed)
                     self.frames_shaded += 1
-                    if (woken and self.doorbell is not None
-                            and (urgent or not self.tick_driven)):
-                        try:
-                            self.doorbell.objectNameChanged.emit("")
-                        except RuntimeError:
-                            pass
+                    if woken and (urgent or not self.tick_driven):
+                        self._ring_doorbell()
                 if woken:
                     woken_at = started
                 if self.tick_driven:
@@ -9342,6 +9426,28 @@ class _FrameProducer:
 #: A running thread holds its producer through its target, so a producer
 #: leaves this set only once its thread has ended and nothing else keeps it.
 _LIVE_PRODUCERS: "weakref.WeakSet[_FrameProducer]" = weakref.WeakSet()
+
+#: Every backdrop and every spaceout fractal built in this process. The run
+#: policy reads these instead of walking ``QApplication.allWidgets()``: that
+#: walk wraps every widget of a 3840x2160 window in Python on each job
+#: change, and it was a fifth of the GUI thread's samples in the seconds
+#: after lesson 13's run ended.
+_LIVE_AMBIENT_WIDGETS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+_LIVE_SPACEOUT_FRACTALS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+
+
+def _still_alive(widgets) -> list:
+    """The widgets of a registry whose Qt object still exists."""
+    from shiboken6 import isValid
+
+    found = []
+    for widget in list(widgets):
+        try:
+            if isValid(widget):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
 
 #: Set once the application is quitting: no backdrop starts a shading thread
 #: (and with it a graphics context) after that.
@@ -9428,6 +9534,21 @@ def _retire_shading_on_quit(app) -> None:
         _QUIT_HOOKED[0] = app
     except (RuntimeError, TypeError, AttributeError):
         pass
+
+
+def _repaint_if_alive(owner) -> None:
+    """Repaint the field a weak reference points at, if it still exists.
+
+    The shading thread's doorbell can ring after the widget's C++ half has
+    gone and before its producer is stopped, so the queued call checks both.
+
+    :param owner: a weak reference to the :class:`AmbientWidget`.
+    """
+    from shiboken6 import isValid
+
+    widget = owner()
+    if widget is not None and isValid(widget):
+        widget.repaint()
 
 
 def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
@@ -10225,6 +10346,7 @@ class AmbientWidget(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
+        _LIVE_AMBIENT_WIDGETS.add(self)
         #: Corner radius the backdrop is clipped to; 0 leaves it square.
         #:
         #: A backdrop normally fills a rectangular screen and wants no
@@ -10394,9 +10516,9 @@ class AmbientWidget(QWidget):
             lambda: owner()._on_tick()
             if owner() is not None and vars(owner()).get("_timer") is timer
             else timer.stop())
-        self._doorbell = QObject(self)
+        self._doorbell = QObject()
         self._doorbell.objectNameChanged.connect(
-            lambda _name: owner().repaint() if owner() is not None else None,
+            lambda _name: _repaint_if_alive(owner),
             Qt.QueuedConnection)
         self._watched: Optional[weakref.ReferenceType] = None
 
@@ -11000,6 +11122,9 @@ class AmbientWidget(QWidget):
         due = now + period if due is None else due + period
         if due < now - period or due > now + 1.25 * period:
             due = now + period
+        spent = self.__dict__.get("_frame_cost_ms", 0.0)
+        if self._run_paced and spent > _FRAME_BUDGET_MS:
+            due = max(due, now + spent * (1.0 / _OVER_BUDGET_SHARE - 1.0))
         self._tick_due = due
         interval = max(1, int(round(due - now)))
         self._tick_interval = interval
@@ -11425,8 +11550,8 @@ class AmbientWidget(QWidget):
         watched = self._watched() if self._watched is not None else None
         if window is not None and window is not watched:
             if watched is not None:
-                watched.removeEventFilter(self)
-            window.installEventFilter(self)
+                _stop_watching_object_events(watched, self)
+            _watch_object_events(window, self, _FILTERED_EVENTS)
             self._watched = weakref.ref(window)
         self._follow_screen()
         self._sync_run_state()
@@ -11602,7 +11727,7 @@ class AmbientWidget(QWidget):
         """Track the parent's geometry and sit below its other children."""
         parent = self.parent()
         if isinstance(parent, QWidget):
-            parent.installEventFilter(self)
+            _watch_object_events(parent, self, _FILTERED_EVENTS)
             self.setGeometry(parent.rect())
         self.lower()
 
@@ -11717,7 +11842,9 @@ class AmbientWidget(QWidget):
         if producer is not None and producer.tick_driven and producer.is_alive():
             fresh = producer.latest()
             if fresh is None or fresh is not self._last_frame:
+                started = time.perf_counter()
                 self.repaint()
+                self._frame_cost_ms = (time.perf_counter() - started) * 1000.0
             producer._wake.set()
         else:
             self.update()
@@ -12217,16 +12344,23 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
     )
     widget._spaceout_controls = controls
     widget._spaceout_built_from = _built_from(values)
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     return widget
 
 
 def _place_the_spaceout_fractal(widget, host) -> None:
     """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     widget.setParent(host)
     widget.setGeometry(host.rect())
     widget.lower()
     widget.show()
     host.installEventFilter(_FractalTracksItsHost(widget, host))
+
+
+def _live_ambient_widgets() -> list:
+    """Every backdrop widget whose Qt object still exists."""
+    return _still_alive(_LIVE_AMBIENT_WIDGETS)
 
 
 def _live_spaceout_fractals() -> list:
@@ -12236,7 +12370,7 @@ def _live_spaceout_fractals() -> list:
     if QApplication.instance() is None:
         return []
     found = []
-    for widget in QApplication.allWidgets():
+    for widget in _still_alive(_LIVE_SPACEOUT_FRACTALS):
         try:
             if (getattr(widget, "_spaceout_built_from", None) is not None
                     and widget.parentWidget() is not None):
@@ -12589,7 +12723,7 @@ class _AnimationResourcePolicy(QObject):
         """Push the current decision to every live animation."""
         app = QApplication.instance()
         if app is not None:
-            for widget in list(app.allWidgets()):
+            for widget in _live_ambient_widgets():
                 if isinstance(widget, AmbientWidget):
                     try:
                         widget._sync_run_state()

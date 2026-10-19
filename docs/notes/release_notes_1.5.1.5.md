@@ -1,5 +1,15 @@
 ## spaCR 1.5.1.5
 
+### Upgrading
+
+On macOS, how to reach 1.5.1.5 depends on the version you have:
+
+- 1.5.0.8, 1.5.0.9 and 1.5.1.0: install the 1.5.1.5 `.pkg` from the [releases page](https://github.com/EinarOlafsson/spacr/releases). Do not use Help > Check for updates: the updater in these versions removes the user runtime and then stops before installing. The `.pkg` restores a working installation.
+- 1.5.0.1: install the `.pkg`. Its in-app update cannot run.
+- 1.5.0.4 to 1.5.0.7 and 1.5.1.2 to 1.5.1.4: Help > Check for updates works. On an Intel Mac, an update that lands on 1.5.1.4 reports "Numpy is not available"; updating to 1.5.1.5 repairs it.
+
+On every platform, a new install of 1.5.1.3 or 1.5.1.4, or an update to either, now installs PySide6 6.12.0, which can crash spaCR. 1.5.1.5 excludes 6.12.0, so updating to 1.5.1.5 replaces it.
+
 ### New
 
 - Make Masks opens 3D images in the same view as 2D ones. A slice slider and the Z wheel move through the stack, and the view can be Default, Orthogonal or True 3D. Draw and edit masks on any slice and delete objects; edited volumes are saved as whole sections.
@@ -43,6 +53,11 @@
 - Mask screens render their field backgrounds more efficiently.
 - Preferences opens, applies and closes faster, and Apply, Keep and Revert no longer freeze the app.
 - Make Masks costs less per frame.
+- Make Masks timelapse: the Track preview keeps each frame's pictures, so scrubbing and playback no longer slow the window, and zoom and pan stay put while the movie plays.
+- Curate keeps its picture between repaints and redraws only the area a brush stroke changes.
+- The Methods & Results page and Regression open faster; the libraries they need are loaded in the background at startup.
+- Dropping a large folder on Make Masks keeps the window responsive: the folder is walked faster, and the report, regex editor and metadata table are built in small steps.
+- Switching between Essentials and All settings no longer pauses the app while the choice is saved.
 - Every saved mask records its field's size, and a mask of a different size is never reused.
 - The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface text are translated into nine languages.
 - Apptainer (SIF) images are published with each release, after the Docker images.
@@ -67,6 +82,9 @@
 - Make Masks: a linked image with no box ledger opens and saves without the "Cannot load box annotations" popup.
 - A source checkout or editable install reports its own version.
 - Wells named F01, F02 are read as wells, and class counts ignore the `.spacr_crop_format.json` file.
+- Fixed crashes after Delete selected in Curate's track list and when choosing a folder in Data Manager. Lists, tables and trees now reuse their rows when they redraw.
+- Fixed a crash during garbage collection after the first job of a session.
+- Installer: an interrupted install no longer blocks later installs as "already running". A lock is taken over only when its installer is provably gone, including the rest of its process group on macOS and Linux and the processes it started on Windows. The message names the lock and the process that holds it, in every installer language.
 
 ### Alpha
 

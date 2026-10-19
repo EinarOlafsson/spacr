@@ -98,7 +98,8 @@ def test_source_checkout_explanation_precedes_cleanup_or_install(messages, monke
 def test_running_analysis_prevents_package_mutation(messages, monkeypatch):
     from spacr.qt import bridge
     monkeypatch.setattr(updater, "editable_install_location", lambda: None)
-    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(is_busy=lambda: True))
+    monkeypatch.setattr(bridge, "registry", lambda: SimpleNamespace(
+        is_busy=lambda: True, _of_kind=lambda *kinds: ["run"] if "analysis" in kinds else []))
     window = Window()
     window._on_update_check_done(updater.UpdateInfo("1.0", "2.0", None))
     assert "active analyses" in messages[-1][1]

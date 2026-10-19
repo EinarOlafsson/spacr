@@ -2603,7 +2603,12 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
 #: Preferences before the home screen exists, so this thread always wins
 #: the race it has to win.
 PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
-                     "spacr.qt.imagery")
+                     "spacr.qt.imagery", "spacr.settings_advisor",
+                     "pandas", "scipy.linalg",
+                     "scipy.stats", "matplotlib.figure",
+                     "matplotlib.font_manager", "skimage.data",
+                     "skimage.draw", "skimage.filters", "skimage.measure",
+                     "skimage.morphology")
 
 
 def _prewarmed_module_names():
@@ -2673,9 +2678,16 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
     requested: list = []
     real_import = importlib.import_module
 
+    nesting = [0]
+
     def _record(name):
-        requested.append(name)
-        return real_import(name)
+        if not nesting[0]:
+            requested.append(name)
+        nesting[0] += 1
+        try:
+            return real_import(name)
+        finally:
+            nesting[0] -= 1
 
     with monkeypatch.context() as m:
         m.setattr(importlib, "import_module", _record)

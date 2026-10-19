@@ -186,11 +186,15 @@ def test_a_refresh_that_throws_on_show_does_not_reach_qt(qtbot, caplog):
 
 
 def test_a_screen_that_will_not_be_watched_still_gets_its_strip(qtbot, pins,
-                                                                caplog):
+                                                                caplog,
+                                                                monkeypatch):
+    from spacr.qt import gil_priority
+
     host = _Host()
     qtbot.addWidget(host)
-    host.installEventFilter = lambda _f: (_ for _ in ()).throw(
-        RuntimeError("no event loop"))
+    monkeypatch.setattr(gil_priority, "_watch_object_events",
+                        lambda *_args: (_ for _ in ()).throw(
+                            RuntimeError("no event loop")))
     with caplog.at_level(logging.ERROR, logger="spacr.qt.chaining"):
         strip = ChainingBar(host, pins=pins)
     qtbot.addWidget(strip)

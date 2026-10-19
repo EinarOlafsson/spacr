@@ -369,3 +369,4 @@ The concept DOI is unchanged. Packaging installation prose no longer tells
 a maintainer to repeat the already-completed conda onboarding.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_packaging_metadata.py).
+2026-10-19: maintainer pinged the conda-forge reviewers on staged-recipes#35101 (pyfixest), the one dependency every current feedstock PR (#4-#8, 1.5.0.9 to 1.5.1.4) fails on; channel still 1.5.0.8. Waiting on that review; #35223, #35225 and btrack-feedstock#18 unchanged, dgl-feedstock still has no v0.9.x branch.

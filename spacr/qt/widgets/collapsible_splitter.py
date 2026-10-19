@@ -85,6 +85,13 @@ from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+#: What a pane's own watch reads: its hide, and a pane shown or hidden.
+_PANE_KINDS = frozenset((QEvent.Hide, QEvent.ShowToParent, QEvent.HideToParent))
+
+#: What a body or focus-widget watch reads.
+_VISIBILITY_KINDS = frozenset((QEvent.ShowToParent, QEvent.HideToParent))
 from shiboken6 import isValid
 
 from ..i18n import tr
@@ -329,7 +336,7 @@ class FoldSection(QWidget):
                                     shut_by_default=bool(folded))
         lock_folded_to_bottom(self, self.folder, Qt.Vertical)
         if self._follow_body:
-            body.installEventFilter(self)
+            _watch_object_events(body, self, _VISIBILITY_KINDS)
             if body_hidden:
                 self.setVisible(False)
 
@@ -602,7 +609,7 @@ class CollapsibleSplitter(QSplitter):
         self._extents_timer.timeout.connect(self._save_extents)
         self.setHandleWidth(GRIP_PX)
         self.splitterMoved.connect(self._on_moved)
-        self.installEventFilter(self)
+        _watch_object_events(self, self, _PANE_KINDS)
 
     def createHandle(self):                                  # noqa: N802
         """Every handle is a :class:`_PaneHandle`."""
@@ -651,7 +658,7 @@ class CollapsibleSplitter(QSplitter):
                     fold_key, hint)
         self._panes.append(pane)
         self.setStretchFactor(self.indexOf(widget), max(0, int(stretch)))
-        widget.installEventFilter(self)
+        _watch_object_events(widget, self, _PANE_KINDS)
         if folder is not None:
             folder.add_listener(partial(self._folder_moved, pane))
             lock_folded_to_bottom(widget, folder, self.orientation())
@@ -925,9 +932,9 @@ class CollapsibleSplitter(QSplitter):
             if old is widget or not _alive(old):
                 continue
             if self.indexOf(old) < 0 and widget.isAncestorOf(old):
-                old.removeEventFilter(self)
+                _stop_watching_object_events(old, self)
                 pane.widget = widget
-                widget.installEventFilter(self)
+                _watch_object_events(widget, self, _PANE_KINDS)
                 self.setStretchFactor(self.indexOf(widget),
                                       max(0, pane.stretch))
         self._sync_flags()
@@ -1267,7 +1274,7 @@ class FocusCollapse(QObject):
         if widget is None or widget in self._triggers:
             return
         self._triggers.append(widget)
-        widget.installEventFilter(self)
+        _watch_object_events(widget, self, _VISIBILITY_KINDS)
         self.refresh()
 
     def target(self, splitter: CollapsibleSplitter, name: str) -> None:

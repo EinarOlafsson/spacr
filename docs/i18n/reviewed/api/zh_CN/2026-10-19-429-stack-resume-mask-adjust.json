@@ -1,0 +1,224 @@
+{
+  "language": "zh_CN",
+  "note": "Item 429: changed public docstrings (convert_separate_files_to_yokogawa, spacr.resume, completed_fields_in_merged, process_mask_file_adjust_cell).",
+  "records": [
+    {
+      "context": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "source_sha256": "04c5c86232895780c860b264a909e4484f47dc78a0630da1245759c8144a1a31",
+      "translation": "文件按从正则表达式解析出的 ``(plateID, wellID, fieldID, timeID, chanID)`` 分组。包含多个 Z 切片的组在保存前进行最大值投影，映射关系记录到 ``rename_log.csv``。"
+    },
+    {
+      "context": "1. A ``wellID`` that **is** a well address keeps it — :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01`` (row 17) and ``AA13`` (row 27) alike. 2. Anything else — ``1``, ``well_left``, a positional number — is handed a synthetic id, in ``_natural_key`` order so the same folder always converts the same way. 3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so well ``A01`` of two source laboratory microplates stays two microplate sample positions.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "1. A ``wellID`` that **is** a well address keeps it — :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01`` (row 17) and ``AA13`` (row 27) alike. 2. Anything else — ``1``, ``well_left``, a positional number — is handed a synthetic id, in ``_natural_key`` order so the same folder always converts the same way. 3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so well ``A01`` of two source plates stays two wells.",
+      "source_sha256": "04a887eda34c0ccea4965f129410cdddcc4f1af2602dbf4446ef8ee0293515e5",
+      "translation": "1. 本身**就是**孔位地址的 ``wellID`` 保持不变 —— :func:`spacr.convert.normalise_well` 以同样方式读取 ``a1``、``A-01``、``Q01``（第 17 行）和 ``AA13``（第 27 行）。2. 其他任何值 —— ``1``、``well_left``、位置编号 —— 都会按 ``_natural_key`` 顺序分配一个合成 ID，因此同一个文件夹每次转换的结果都相同。3. 每个不同的源 ``plateID`` 都获得各自的 ``plate<N>`` 标记，因此两个源板的孔 ``A01`` 仍是两个孔。"
+    },
+    {
+      "context": "Folder containing the source TIFFs.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Folder containing the source TIFFs.",
+      "source_sha256": "fe04581fb850dcf6354f1a73ae113a1503c99f4f67ffac627cf1bd9d5f0e043c",
+      "translation": "包含源 TIFF 文件的文件夹。"
+    },
+    {
+      "context": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "source_sha256": "1f1dbbcd1eefc3738da325db55b7645767836ea05dd3bcbc42a9648af65a1198",
+      "translation": "包含命名组 ``wellID``（必需）以及可选的 ``plateID``、``fieldID``、``timeID``、``chanID``、``sliceID`` 的模式。"
+    },
+    {
+      "context": "Resume / checkpointing for spaCR's two long batch stages.",
+      "label": "spacr.resume#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume / checkpointing for spaCR's two long batch stages.",
+      "source_sha256": "ca65c2e84b84bb3e47626969495deaf674ce9e1108a30d6c878c6f2e14632ce5",
+      "translation": "spaCR 两个长时间批处理阶段的续跑与检查点功能。"
+    },
+    {
+      "context": "A laboratory microplate can be a thousand microscope fields of view and several hours. When a processing session stops at microscope field of view 900 — a full disk, an OOM-killed worker, a closed laptop lid — this module lets the next invocation skip the microscope fields of view already completed instead of starting again.",
+      "label": "spacr.resume#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A plate can be a thousand fields and several hours. When a run stops at field 900 — a full disk, an OOM-killed worker, a closed laptop lid — this module lets the next invocation skip the fields already completed instead of starting again.",
+      "source_sha256": "49da02cd55b58d089203bfd7870b0337b085acac04a038413eeeb1e64c890b5c",
+      "translation": "一块板可能有上千个视野、耗时数小时。当一次运行在第 900 个视野处停止时 —— 磁盘已满、工作进程因内存不足被终止、笔记本电脑合上了盖子 —— 本模块让下一次调用跳过已完成的视野，而不是从头开始。"
+    },
+    {
+      "context": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "label": "spacr.resume#10",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "source_sha256": "a71d5ca6fc1233025bcc14754f150e3252fa18aecfca7c2d5141a9e6091e605e",
+      "translation": "这一切的边界在于：规范表中每个导入行在 ``foreign_<object>`` 中都有完全相同的副本，而 ``foreign_<object>`` *不*在允许列表中，因此任何续跑都无法触及它。这一点经过检查而非假定 —— 没有对应副本的行会中止释放。"
+    },
+    {
+      "context": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "label": "spacr.resume#11",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "source_sha256": "3115becf856bfffbee43f32a8a7b8fdf824a174a55668717e37c2278d931ff88",
+      "translation": "其中一半问题仍未解决，且不在本模块中：``_merge_and_save_to_database`` 会在不知情的情况下向由导入填充的规范表追加数据，因此用户在*不*续跑的情况下测量此类项目时，仍会在一个表中得到两个群体。``tests/test_resume_owned_tables.py`` 用 ``xfail(strict=True)`` 固定了这一行为，并指出 ``spacr/utils.py`` 需要做的修改。"
+    },
+    {
+      "context": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-executing one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "label": "spacr.resume#12",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-running one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "source_sha256": "81718b398c9e524e867232267195386df7013dc1b493d6c707c23eac88bb8b66",
+      "translation": "已被早期续跑损坏的数据库无法在读取时修复 —— 这些行已经消失，文件中也没有任何内容记录它们原来是什么。但可以根据数据库之外的来源*重写*它，而且三个写入函数都使用 ``if_exists='replace'``，因此重新运行其中一个就是完整修复，而不会产生第二批行：``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` 从转换后图像旁边的 CSV 恢复映射，``align.save_coordinates`` 恢复拼接坐标，``foreign.run_import`` 恢复导入的测量值。"
+    },
+    {
+      "context": "**A microscope field of view is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one microscope field of view would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "label": "spacr.resume#13",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A field is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one field would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "source_sha256": "9eb0b50526dcf59b09c1c07ad83f59fd76f4d5fd3cd9b1b0644d043d00f8598a",
+      "translation": "**视野通过其孔位坐标识别，绝不通过名称前缀识别。** 使用 ``LIKE 'plate1_A01_f1%'`` 删除时还会匹配 ``f10`` … ``f19``，因此清除一个视野会删除另外十个视野的行。这里的每条语句都对 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID``（时间序列另加 ``timeID``）进行相等匹配，并拒绝处理未包含全部四列的表。"
+    },
+    {
+      "context": "**A resume across different settings is not a resume.** Concatenating microscope fields of view measured with one channel/diameter/extracted-image-region configuration onto microscope fields of view measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous processing session and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "label": "spacr.resume#14",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A resume across different settings is not a resume.** Concatenating fields measured with one channel/diameter/crop configuration onto fields measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous run and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "source_sha256": "3aa3ef028f5ed965c211c373242350defa16f20acd1803b270888c54232f68e1",
+      "translation": "**跨不同设置的续跑不是续跑。** 把用一种通道/直径/裁剪配置测量的视野与用另一种配置测量的视野拼接在一起，会得到一半是一种情况、一半是另一种情况的数据集，而下游任何环节都无法分辨。:func:`check_settings_compatible` 将当前设置与上一次运行记录的设置进行比较，并抛出 :class:`ResumeRefused`，准确指出哪些地方不同。环境变化（例如 numpy 版本升级）不会阻止续跑。"
+    },
+    {
+      "context": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a processing session without it behaves exactly as it did before.",
+      "label": "spacr.resume#15",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a run without it behaves exactly as it did before.",
+      "source_sha256": "ff6926e2022974b49117519dfa678eeef8ff52021833a4d7933210d3d451b2b8",
+      "translation": "续跑需要**主动启用**：除非 ``settings['resume']`` 为 true，否则这里的一切都不起作用，未启用续跑的运行与以前的行为完全相同。"
+    },
+    {
+      "context": "Typical use, from ``measure_crop``",
+      "label": "spacr.resume#17",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Typical use, from ``measure_crop``",
+      "source_sha256": "ff7df5a8dcda2db2e8baad7db63c94c73180609e6e3b5d4db0ab94b6d553a756",
+      "translation": "典型用法，来自 ``measure_crop``"
+    },
+    {
+      "context": "Most of the module decides whether skipping a field is *safe*:",
+      "label": "spacr.resume#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Most of the module decides whether skipping a field is *safe*:",
+      "source_sha256": "bb0ed19daddb2ac203cf6e055cde153d9d18900218e11abafeab759486e51646",
+      "translation": "本模块的大部分内容用于判断跳过某个视野是否*安全*："
+    },
+    {
+      "context": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending microscope field of view from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each microscope image field was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "label": "spacr.resume#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending field from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each tile was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "source_sha256": "b92a7f18669bd4508258c5d830c110dbd91eab9528fbbdb89d6283bf001a59f9",
+      "translation": "**measurements.db 不是 measure 的私有文件。** ``convert`` 向其中写入 ``conversion_map``，``align`` 写入 ``align_coordinates``，``foreign`` 写入 ``foreign_*``，``timelapse`` 写入其轨迹表 —— 它们都刻意以与测量值相同的四列为键，以便相互连接。因此，仅凭列来查找 \"tables to clear\"（需要清除的表）会找到所有这些表，而从每个表中清除一个待处理视野，将会删除唯一记录哪个厂商文件变成了 ``plate1_A01_1``、每个图块拼接在何处以及导入的测量值的数据。这些内容（None of it）都无法从数据库重新计算。因此，续跑可以删除数据的表是一个明确的允许列表 :data:`MEASURE_OWNED_TABLES`，在发现该列表时检查一次，并在准备 DELETE 语句之前对每个表再检查一次。"
+    },
+    {
+      "context": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "label": "spacr.resume#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "source_sha256": "ecfda98e0d21d52df75b5cda6d64e1e6835ed8258f94f18cea24ce2819bfd4bd",
+      "translation": "**名义上归属不等于实际归属，因此归属按行判定。** 名称允许列表回答的是“measure 是否可能写过这个表？”，而有一种情况下“它是否真的写过？”的答案是否定的：``foreign.run_import`` 会在规范的 ``cell`` / ``nucleus`` / ``pathogen`` 表中没有其他来源的数据时，把导入的行复制进去，使纯导入的项目可以被每个 spaCR 工具读取。这些行位于允许列表中某个表的 spaCR 自有元数据列之下，按表级规则会把它们连同待处理视野一起清除。"
+    },
+    {
+      "context": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "label": "spacr.resume#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "source_sha256": "2b60ac7c79a8d6bcc4aef67d718f4f97903c9661cfde325cb6ea2f3e334eae19",
+      "translation": "这些行通过 ``foreign_columns`` 区分，它由每个版本的导入器写入，记录导入器在每个表中放入的每一列。它在表级的用法 —— ``foreign._importer_owns``，即“该表的列是否是导入器所记录列的子集？” —— 有一个行级的对应规则，这里采用的正是它：**如果某行所有非 NULL 的列都是导入器为该表记录过的列，则该行属于导入器**。``measure_crop`` 行至少总带有其自身的面积和强度列，而导入器从不写这些列；导入的行只带有元数据和以 ``foreign_`` 为前缀的测量值。因此，即使一个表一半是一种行、一半是另一种行，每一行仍然可以归属 —— 这一点很重要，因为先导入再测量的项目正是如此。参见 :func:`measure_rows_clause`。"
+    },
+    {
+      "context": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a microscope field of view into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-microplate sample position count becomes the sum of two populations. :func:`supersede_imported_copies` executes before the first insert and removes that copy — but only when every microscope field of view it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "label": "spacr.resume#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a field into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-well count becomes the sum of two populations. :func:`supersede_imported_copies` runs before the first insert and removes that copy — but only when every field it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "source_sha256": "a0e3c89211c92923b07cf5a2f579785d1eede0f203ba0919ef70d6f821f62ecf",
+      "translation": "**在 measure 向表追加数据之前，先释放导入的副本。** ``measure_crop`` 以追加方式写入，因此一旦 spaCR 将某个视野测量到由导入填充的规范表中，其行与导入行就位于同一个表中，没有任何分界标记，每孔计数都会变成两个群体之和。:func:`supersede_imported_copies` 在第一次插入之前运行并删除该副本 —— 但前提是它覆盖的每个视野要么已经测量到该表中，要么已排队等待本次测量，并且只有在 :func:`spacr.foreign.release_canonical_copy` 逐行证明其删除的每一行仍存在于 ``foreign_<object>`` 中之后才执行。释放了一半的表比未释放的表更糟，因此任何不完整、有损的释放都会被拒绝并报告，同时给出手动完成该操作的两行代码。"
+    },
+    {
+      "context": "It never answers on the strength of ``os.path.exists``: each candidate's header is parsed and its length checked against its own declared shape, because older releases wrote merged arrays in place with ``np.save`` and a run killed mid-write left a short file behind.",
+      "label": "spacr.resume.completed_fields_in_merged#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "It never answers on the strength of ``os.path.exists``: each candidate's header is parsed and its length checked against its own declared shape, because older releases wrote merged arrays in place with ``np.save`` and a run killed mid-write left a short file behind.",
+      "source_sha256": "9f691fd91eaf7f832d263148d2774b91724c430ebd849f3f179e6148f7995a07",
+      "translation": "它从不仅凭 ``os.path.exists`` 作出判断：会解析每个候选文件的文件头，并根据其自身声明的形状检查长度，因为旧版本使用 ``np.save`` 原地写入合并数组，写入过程中被终止的运行会留下不完整的文件。"
+    },
+    {
+      "context": "the ``merged/`` folder (or any folder of ``.npy`` fields).",
+      "label": "spacr.resume.completed_fields_in_merged#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "the ``merged/`` folder (or any folder of ``.npy`` fields).",
+      "source_sha256": "b15b9d25358960c2c9753b1fb6b9d4bc800a7fe98abc41000c58f17945acfdad",
+      "translation": "``merged/`` 文件夹（或任何包含 ``.npy`` 视野文件的文件夹）。"
+    },
+    {
+      "context": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* image layer count across the folder is used instead — every microscope field of view in a merged folder is written with the same image layer count, so an odd one out is a bad microscope field of view.",
+      "label": "spacr.resume.completed_fields_in_merged#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* plane count across the folder is used instead — every field in a merged folder is written with the same plane count, so an odd one out is a bad field.",
+      "source_sha256": "71178390b889fd3e6452812caf207ba3981f7a8f9d3f0aece6e69025da1ba11b",
+      "translation": "最后一个轴的最小尺寸，参见 :func:`expected_min_planes`。为 None 且至少有三个文件通过验证时，改用整个文件夹中平面数的*众数* —— 合并文件夹中的每个视野都以相同的平面数写入，因此与众不同的那个就是有问题的视野。"
+    },
+    {
+      "context": "optional dict populated in place with ``{field: reason}`` for each candidate. **Rejected candidates** are recorded there. Reporting code can then say \"3 fields rejected as truncated\" instead of doing extra work without explanation.",
+      "label": "spacr.resume.completed_fields_in_merged#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional dict, populated in place with ``{field: reason}`` for every candidate that was **rejected**. This is how the caller can report \"3 fields rejected as truncated\" rather than silently doing more work.",
+      "source_sha256": "9ff2e6ab3a651b17c0d85cc5c446eca0e7873964b001e03fdb9186d623bdec15",
+      "translation": "可选字典，会原地填入每个被**拒绝**的候选项的 ``{field: reason}``。调用方可借此报告“3 个视野因被截断而被拒绝”，而不是默默地做更多工作。"
+    },
+    {
+      "context": "mask file name (must exist in all folders).",
+      "label": "spacr.utils.process_mask_file_adjust_cell#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "mask file name (must exist in all folders).",
+      "source_sha256": "2ec991fa8a09f655d32251c6a02bfb550c388392cf471ef762108fa122e07d2f",
+      "translation": "掩膜文件名（必须存在于所有文件夹中）。"
+    },
+    {
+      "context": "folder of parasite masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of parasite masks.",
+      "source_sha256": "091e1a8f2d0d0976d61417317b3bc1963d9104bd2dcc67fc947ab5cc621a7426",
+      "translation": "寄生虫掩膜文件夹。"
+    },
+    {
+      "context": "folder of nuclei masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of nuclei masks.",
+      "source_sha256": "460edf701c4ba7c313b062130489dc4b5a864d5391087ef33768c0dadfa825f2",
+      "translation": "细胞核掩膜文件夹。"
+    },
+    {
+      "context": "optional folder of organelle masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional folder of organelle masks.",
+      "source_sha256": "4fa9f7bc2dc2cc28fc94c1f2bbe02b6cb0af09c286cdff588c496694c8115eb2",
+      "translation": "可选的细胞器掩膜文件夹。"
+    },
+    {
+      "context": "elapsed seconds.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "elapsed seconds.",
+      "source_sha256": "2d1f90c2a487534d206f3cd50d00c1726a2fdbdb2e09ab8424ff0835013754b4",
+      "translation": "耗时秒数。"
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

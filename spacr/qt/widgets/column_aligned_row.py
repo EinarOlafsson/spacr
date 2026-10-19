@@ -41,6 +41,7 @@ from typing import Iterable, Optional, Tuple
 import shiboken6
 from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QLayout, QWidget, QWidgetItem
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 LOG = logging.getLogger(__name__)
 
@@ -112,7 +113,8 @@ class ColumnAlignedRow(QLayout):
             header.sectionResized.connect(self._restate)
             header.sectionMoved.connect(self._restate)
             header.geometriesChanged.connect(self._restate)
-            header.viewport().installEventFilter(self)
+            _watch_object_events(header.viewport(), self,
+                                 (QEvent.Resize, QEvent.Move, QEvent.Show))
 
 
     def addItem(self, item) -> None:                          # noqa: N802

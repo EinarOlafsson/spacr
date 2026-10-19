@@ -15,6 +15,7 @@ tooltips for a single hover.
 from __future__ import annotations
 
 import pytest
+from PySide6.QtWidgets import QApplication
 
 from PySide6.QtCore import Qt
 
@@ -170,11 +171,16 @@ class TestTheHoverAffordances:
         first = lbl._help_filter
         assert first is not None
 
+        from spacr.qt import gil_priority
+
         installs, removals = [], []
-        monkeypatch.setattr(type(lbl), "installEventFilter",
-                            lambda self, f: installs.append(f))
-        monkeypatch.setattr(type(lbl), "removeEventFilter",
-                            lambda self, f: removals.append(f))
+        watch = gil_priority._watch_object_events
+        stop = gil_priority._stop_watching_object_events
+        monkeypatch.setattr(gil_priority, "_watch_object_events",
+                            lambda w, f, kinds: (installs.append(f),
+                                                 watch(w, f, kinds))[1])
+        monkeypatch.setattr(gil_priority, "_stop_watching_object_events",
+                            lambda w, f: (removals.append(f), stop(w, f))[1])
         lbl.set_url("https://example.invalid/one")
         lbl.set_url("https://example.invalid/two")
         lbl.retranslate_dynamic_content("de")
@@ -183,3 +189,7 @@ class TestTheHoverAffordances:
         assert installs == [first, first, first]
         assert removals == [first, first, first], (
             "an install without a matching removal leaves two filters")
+        hub = gil_priority._application_event_hub(
+            QApplication.instance(), create=False)
+        if hub is not None:
+            assert gil_priority._hub_object_watchers(hub, lbl) == (first,)

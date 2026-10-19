@@ -21,6 +21,7 @@ from functools import partial
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from shiboken6 import isValid
 from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
                                QFrame, QLabel, QPushButton, QScrollArea,
                                QSizePolicy, QTabBar, QTableWidget,
@@ -30,8 +31,10 @@ from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
 from ..i18n import tr
 from ..theme import install_close_marks
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_items, _spare_table_item, install_sorting)
 from ..widgets.fold_strip import FoldStrip
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -2467,6 +2470,11 @@ class BarcodeSearchPanel(QWidget):
             ABSENT: palette.get("fg_muted"),
             INDETERMINATE: palette.get("warning"),
         }
+        for row in range(len(findings), self.findings.rowCount()):
+            for column in range(self.findings.columnCount()):
+                cell = self.findings.takeItem(row, column)
+                if cell is not None:
+                    _spare_items(self.findings).append(cell)
         self.findings.setRowCount(len(findings))
         for row, finding in enumerate(findings):
             cells = (
@@ -2483,7 +2491,7 @@ class BarcodeSearchPanel(QWidget):
             for column, text in enumerate(cells):
                 item = self.findings.item(row, column)
                 if item is None:
-                    item = table_item()
+                    item = _spare_table_item(self.findings)
                     self.findings.setItem(row, column, item)
                 item.setText(str(text))
                 item.setToolTip(str(finding.reason))
@@ -2654,7 +2662,7 @@ class BarcodeSearchPanel(QWidget):
         self._proposal = None
         self._changes = ()
         self._reads_shown = 0
-        self.findings.setRowCount(0)
+        _retire_table_cells(self.findings)
         self.proposal_label.setText("")
         self.reads.clear()
 
@@ -2876,7 +2884,7 @@ class _SpatialPanelLifecycle(QObject):
             if panel is not None:
                 panel._shutdown()
         elif event.type() == QEvent.Close and watched.isVisible():
-            QTimer.singleShot(0, lambda: self._check_closed(watched))
+            _after(0, self, lambda: self._check_closed(watched))
         elif event.type() == QEvent.Show:
             panel = self._panel()
             if panel is not None:
@@ -2887,7 +2895,8 @@ class _SpatialPanelLifecycle(QObject):
         """Shut the panel down if its window really ended up hidden."""
         panel = self._panel()
         try:
-            if panel is not None and not watched.isVisible():
+            if (panel is not None and isValid(watched)
+                    and not watched.isVisible()):
                 panel._shutdown()
         except RuntimeError:
             pass

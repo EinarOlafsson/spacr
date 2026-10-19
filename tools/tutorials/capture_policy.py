@@ -221,6 +221,17 @@ def refuse_whats_new_titles(titles):
             raise RuntimeError(
                 f"Capture refused: the \"What's new\" dialog is open ({title!r})")
 
+def warm_gui_imports():
+    """Finish the start-up import warm that launch() starts for real users.
+
+    In-process recorders build ``MainWindow`` without ``launch()``, so
+    without this the first module open imports pandas, scipy, matplotlib and
+    scikit-image on the GUI thread and the clip freezes.
+    """
+    from spacr.qt.app import _start_settings_prewarm
+    _start_settings_prewarm().join()
+
+
 def verify_fresh_start(window=None):
     """Refuse to record when spaCR started in restore mode.
 

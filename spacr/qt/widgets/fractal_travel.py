@@ -1106,7 +1106,6 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 self._worker.render, Qt.ConnectionType.QueuedConnection)
             self._worker.frame_ready.connect(self._accept_frame)
             self._worker.failed.connect(self._on_failure)
-            self._thread.finished.connect(self._worker.deleteLater)
             self._thread.start()
             self._app_quit_join = (
                 lambda thread=self._thread: _quit_and_join_thread(thread))

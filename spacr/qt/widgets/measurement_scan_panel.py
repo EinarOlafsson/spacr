@@ -51,7 +51,7 @@ from ...plate_measurements import (ambiguous_identifiers,
                                    describe_identifier_refusal)
 from ...schema import PLATE_KEY
 from .. import path_probe
-from .sortable_table import install_sorting, table_item
+from .sortable_table import install_sorting, table_item, _reuse_list_items
 
 LOG = logging.getLogger(__name__)
 
@@ -2239,14 +2239,13 @@ class DatabaseMergePanel(WorkflowSteps, QWidget):
 
         self._filling = True
         try:
-            self.tables_list.clear()
-            for name in names:
-                item = QListWidgetItem(name)
+            items = _reuse_list_items(self.tables_list, len(names))
+            for name, item in zip(names, items):
+                item.setText(name)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
                 item.setCheckState(
                     Qt.Checked if (not previous or name in previous)
                     else Qt.Unchecked)
-                self.tables_list.addItem(item)
 
             anchors = anchor_tables(names)
             chosen = self.anchor_box.currentText()
@@ -3174,16 +3173,15 @@ class ColumnRegressionPanel(WorkflowSteps, QWidget):
                 frame = self._frame_provider()
             except Exception as error:        # noqa: BLE001 - say, not raise
                 self._columns = ()
-                self.columns_list.clear()
+                _reuse_list_items(self.columns_list, 0)
                 self.state.setText(f"Could not read the merged frame: "
                                    f"{error}")
                 self._refresh_buttons()
                 return 0
         self._columns = regressable_columns(frame)
-        self.columns_list.clear()
-        for name in self._columns:
-            item = QListWidgetItem(name)
-            self.columns_list.addItem(item)
+        items = _reuse_list_items(self.columns_list, len(self._columns))
+        for name, item in zip(self._columns, items):
+            item.setText(name)
             item.setSelected(name in chosen)
         self._apply_filter(self.filter.text())
         self.state.setText(self._describe_state(frame))

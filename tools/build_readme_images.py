@@ -1762,24 +1762,38 @@ ICON_SHARE = 0.115
 ICON_ROW_SHARE = 0.99
 #: The resolution the cells are drawn at: a column this many pixels wide.
 ICON_REFERENCE = 1600
-#: Transparent space above and below an icon, as shares of the column:
-#: below it matches the gap under a panel (11 px on a phone).
+#: Cells per row width: every cell is one seventh of the row (the widest
+#: module band), whatever its row holds, so the gap between two icons'
+#: artwork is the same in every row: G = (ICON_ROW_SHARE / ICON_COLUMNS -
+#: ICON_SHARE) of the column, 22 px on an 830 px desktop column, 9 px on a
+#: 358 px phone one.
+ICON_COLUMNS = 7
+#: Transparent space above and below an icon, as shares of the column; the
+#: two together equal G within a pixel, so rows sit as far apart as icons.
 ICON_MARGIN_TOP = 0.008
-ICON_MARGIN_BOTTOM = 0.028
+ICON_MARGIN_BOTTOM = 0.018
+
+
+def icon_gutter() -> float:
+    """G, the gap between neighbouring icons' artwork, as a column share."""
+    return ICON_ROW_SHARE / ICON_COLUMNS - ICON_SHARE
 
 
 def icon_cell(source: str, count: int) -> tuple[str, str]:
-    """The cell of a row of ``count`` equal icons that holds ``source``.
+    """The cell that holds ``source`` in a row of ``count`` icons.
 
-    A cell is a transparent PNG one ``count``-th of the row wide with the
-    icon centred in it, so every icon in every row is the same size
-    (:data:`ICON_SHARE` of the column), the gaps in a row are equal, and
-    the row spans the column at any width. Returns the cell's
-    repository-relative path and its ``width`` attribute.
+    A cell is a transparent PNG :data:`ICON_COLUMNS`-th of the row wide
+    with the icon's visible artwork centred in it, so every icon in every
+    row is the same size (:data:`ICON_SHARE` of the column) and every gap
+    between two icons' artwork is :func:`icon_gutter`, in short rows too.
+    ``count`` no longer changes the cell; it is kept for the callers.
+    Returns the cell's repository-relative path and its ``width``
+    attribute.
     """
+    del count
     inside = Path(source).as_posix().split("icons/", 1)[-1]
-    path = SHARED_DIR / "cells" / str(count) / Path(inside).with_suffix(".png")
-    share = ICON_ROW_SHARE / count
+    path = SHARED_DIR / "cells" / Path(inside).with_suffix(".png")
+    share = ICON_ROW_SHARE / ICON_COLUMNS
     return path.relative_to(ROOT).as_posix(), f"{100 * share:.2f}%"
 
 
@@ -1792,9 +1806,12 @@ def draw_icon_cell(source: str, count: int) -> Path:
     icon_px = round(ICON_REFERENCE * ICON_SHARE)
     top = round(ICON_REFERENCE * ICON_MARGIN_TOP)
     bottom = round(ICON_REFERENCE * ICON_MARGIN_BOTTOM)
-    cell_w = round(ICON_REFERENCE * ICON_ROW_SHARE / count)
+    cell_w = round(ICON_REFERENCE * ICON_ROW_SHARE / ICON_COLUMNS)
     with Image.open(ROOT / source) as image:
         art = image.convert("RGBA")
+    ink = art.getchannel("A").getbbox()
+    if ink is not None:
+        art = art.crop(ink)
     size = (cell_w, round(icon_px * art.height / art.width) + top + bottom)
     if path.is_file():
         with Image.open(path) as existing:
@@ -1934,9 +1951,32 @@ def cover_markup(text: str, language: str, render: bool) -> str:
     return _COVER.sub(replace, text)
 
 
+#: An icon cell a raw block already carries, from this or an earlier
+#: layout (cells were once kept per row length, ``cells/<n>/``).
+_DRAWN_CELL = re.compile(
+    r'src="(?P<rel>[^"]*?)readme_assets/cells/(?:\d+/)?(?P<inside>[^"]+?\.png)" '
+    r'width="[0-9.]+%"')
+
+
+def redraw_cells(text: str, language: str, render: bool) -> str:
+    """Point every icon cell a raw block already holds at the current cell.
+
+    The installer row reaches this file already converted to raw HTML, so
+    :func:`icon_rows` would leave its cells as an earlier build drew them.
+    """
+    def current(match) -> str:
+        source = f"spacr/resources/icons/{match.group('inside')}"
+        cell, width = icon_cell(source, 0)
+        if render:
+            draw_icon_cell(source, 0)
+        return f'src="{_html(_relative(cell, language))}" width="{width}"'
+    return _DRAWN_CELL.sub(current, text)
+
+
 def responsive_raw(text: str, language: str, render: bool) -> str:
     """A raw block with its cover and icon rows in the two-layout form."""
-    return icon_rows(cover_markup(text, language, render), language, render)
+    return redraw_cells(icon_rows(cover_markup(text, language, render),
+                                  language, render), language, render)
 
 
 def _current_markers(language: str) -> dict[str, str]:

@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
-from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_fresh_start, verify_visible_paths
+from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_fresh_start, verify_visible_paths, warm_gui_imports
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
@@ -422,6 +422,7 @@ def main() -> int:
     except Exception:
         pass
     window = gui.MainWindow()
+    warm_gui_imports()
     window.apply_dock_mode('locked')
     window.resize(3840, 2160)
     window.show()

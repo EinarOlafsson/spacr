@@ -144,13 +144,13 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. |InstallerWindows| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/3/platforms/windows.png" width="33.00%" align="middle" alt="Windows 10/11 : télécharger spaCR 1.5.1.4"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Windows-Online-Setup.exe"><img src="../../readme_assets/cells/platforms/windows.png" width="14.14%" align="middle" alt="Windows 10/11 : télécharger spaCR 1.5.1.4"></a>
 .. |InstallerMacOS| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/3/platforms/macos.png" width="33.00%" align="middle" alt="macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.1.4"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-macOS-Universal-Online.pkg"><img src="../../readme_assets/cells/platforms/macos.png" width="14.14%" align="middle" alt="macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.1.4"></a>
 .. |InstallerLinux| raw:: html
 
-   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/3/platforms/linux.png" width="33.00%" align="middle" alt="Linux 64 bits : télécharger spaCR 1.5.1.4"></a>
+   <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Linux 64 bits : télécharger spaCR 1.5.1.4"></a>
 
 .. spacr-installer-links-end
 
@@ -324,79 +324,79 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. |Module_mask| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../readme_assets/cells/6/workflow/mask.png" width="16.50%" align="middle" alt="Ouvrir l’API de Mask"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks"><img src="../../readme_assets/cells/workflow/mask.png" width="14.14%" align="middle" alt="Ouvrir l’API de Mask"></a>
 
 .. |Module_measure| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../readme_assets/cells/6/workflow/measure.png" width="16.50%" align="middle" alt="Ouvrir l’API de Measure"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"><img src="../../readme_assets/cells/workflow/measure.png" width="14.14%" align="middle" alt="Ouvrir l’API de Measure"></a>
 
 .. |Module_annotate| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../readme_assets/cells/6/workflow/annotate.png" width="16.50%" align="middle" alt="Ouvrir l’API de Annotate"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html"><img src="../../readme_assets/cells/workflow/annotate.png" width="14.14%" align="middle" alt="Ouvrir l’API de Annotate"></a>
 
 .. |Module_classify_merged| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../readme_assets/cells/6/workflow/classify_merged.png" width="16.50%" align="middle" alt="Ouvrir l’API de Classify"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"><img src="../../readme_assets/cells/workflow/classify_merged.png" width="14.14%" align="middle" alt="Ouvrir l’API de Classify"></a>
 
 .. |Module_map_barcodes| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../readme_assets/cells/6/workflow/map_barcodes.png" width="16.50%" align="middle" alt="Ouvrir l’API de Map Barcodes"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"><img src="../../readme_assets/cells/workflow/map_barcodes.png" width="14.14%" align="middle" alt="Ouvrir l’API de Map Barcodes"></a>
 
 .. |Module_regression| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../readme_assets/cells/6/workflow/regression.png" width="16.50%" align="middle" alt="Ouvrir l’API de Regression"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/ml/index.html"><img src="../../readme_assets/cells/workflow/regression.png" width="14.14%" align="middle" alt="Ouvrir l’API de Regression"></a>
 
 .. |Module_foreign| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../readme_assets/cells/7/workflow/apps/foreign.png" width="14.14%" align="middle" alt="Ouvrir l’API de Import"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html"><img src="../../readme_assets/cells/workflow/apps/foreign.png" width="14.14%" align="middle" alt="Ouvrir l’API de Import"></a>
 
 .. |Module_embeddings| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../readme_assets/cells/7/workflow/apps/embeddings.png" width="14.14%" align="middle" alt="Ouvrir l’API de Embeddings"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html"><img src="../../readme_assets/cells/workflow/apps/embeddings.png" width="14.14%" align="middle" alt="Ouvrir l’API de Embeddings"></a>
 
 .. |Module_run_compare| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../readme_assets/cells/7/workflow/apps/run_compare.png" width="14.14%" align="middle" alt="Ouvrir l’API de Run Compare"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html"><img src="../../readme_assets/cells/workflow/apps/run_compare.png" width="14.14%" align="middle" alt="Ouvrir l’API de Run Compare"></a>
 
 .. |Module_experiment_design| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../readme_assets/cells/7/workflow/apps/experiment_design.png" width="14.14%" align="middle" alt="Ouvrir l’API de Experiment Design"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html"><img src="../../readme_assets/cells/workflow/apps/experiment_design.png" width="14.14%" align="middle" alt="Ouvrir l’API de Experiment Design"></a>
 
 .. |Module_power| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../readme_assets/cells/7/workflow/apps/power.png" width="14.14%" align="middle" alt="Ouvrir l’API de Power / Design"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html"><img src="../../readme_assets/cells/workflow/apps/power.png" width="14.14%" align="middle" alt="Ouvrir l’API de Power / Design"></a>
 
 .. |Module_dose_response| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../readme_assets/cells/7/workflow/apps/dose_response.png" width="14.14%" align="middle" alt="Ouvrir l’API de Dose–Response"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html"><img src="../../readme_assets/cells/workflow/apps/dose_response.png" width="14.14%" align="middle" alt="Ouvrir l’API de Dose–Response"></a>
 
 .. |Module_qc_dashboard| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../readme_assets/cells/7/workflow/apps/qc_dashboard.png" width="14.14%" align="middle" alt="Ouvrir l’API de QC"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html"><img src="../../readme_assets/cells/workflow/apps/qc_dashboard.png" width="14.14%" align="middle" alt="Ouvrir l’API de QC"></a>
 
 .. |Module_make_masks| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../readme_assets/cells/5/workflow/apps/make_masks.png" width="19.80%" align="middle" alt="Ouvrir l’API de Make Masks"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html"><img src="../../readme_assets/cells/workflow/apps/make_masks.png" width="14.14%" align="middle" alt="Ouvrir l’API de Make Masks"></a>
 
 .. |Module_align| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../readme_assets/cells/5/workflow/apps/align.png" width="19.80%" align="middle" alt="Ouvrir l’API de Align &amp; Stitch"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/align/index.html"><img src="../../readme_assets/cells/workflow/apps/align.png" width="14.14%" align="middle" alt="Ouvrir l’API de Align &amp; Stitch"></a>
 
 .. |Module_umap| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../readme_assets/cells/5/workflow/apps/umap.png" width="19.80%" align="middle" alt="Ouvrir l’API de Image UMAP"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap"><img src="../../readme_assets/cells/workflow/apps/umap.png" width="14.14%" align="middle" alt="Ouvrir l’API de Image UMAP"></a>
 
 .. |Module_gate_editor| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../readme_assets/cells/5/workflow/apps/gate_editor.png" width="19.80%" align="middle" alt="Ouvrir l’API de Gate Editor"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html"><img src="../../readme_assets/cells/workflow/apps/gate_editor.png" width="14.14%" align="middle" alt="Ouvrir l’API de Gate Editor"></a>
 
 .. |Module_graph_builder| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../readme_assets/cells/5/workflow/apps/graph_builder.png" width="19.80%" align="middle" alt="Ouvrir l’API de Graph Builder"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html"><img src="../../readme_assets/cells/workflow/apps/graph_builder.png" width="14.14%" align="middle" alt="Ouvrir l’API de Graph Builder"></a>
 
 .. |Module_toxoplasma| raw:: html
 
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../readme_assets/cells/1/workflow/apps/toxoplasma.png" width="99.00%" align="middle" alt="Ouvrir l’API de Toxoplasma"></a>
+   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../readme_assets/cells/workflow/apps/toxoplasma.png" width="14.14%" align="middle" alt="Ouvrir l’API de Toxoplasma"></a>
 
 .. spacr-workflow-end
 
@@ -452,23 +452,23 @@ Site web: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.
 
 .. |DataBioStudies| raw:: html
 
-   <a href="https://doi.org/10.6019/S-BIAD2135"><img src="../../readme_assets/cells/5/databanks/biostudies_button.png" width="19.80%" align="middle" alt="Ouvrir le jeu de microscopie dans BioStudies"></a>
+   <a href="https://doi.org/10.6019/S-BIAD2135"><img src="../../readme_assets/cells/databanks/biostudies_button.png" width="14.14%" align="middle" alt="Ouvrir le jeu de microscopie dans BioStudies"></a>
 
 .. |DataHuggingFace| raw:: html
 
-   <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="../../readme_assets/cells/5/databanks/huggingface_button.png" width="19.80%" align="middle" alt="Ouvrir le jeu de test sur Hugging Face"></a>
+   <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="../../readme_assets/cells/databanks/huggingface_button.png" width="14.14%" align="middle" alt="Ouvrir le jeu de test sur Hugging Face"></a>
 
 .. |DataNCBI| raw:: html
 
-   <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="../../readme_assets/cells/5/databanks/ncbi_button.png" width="19.80%" align="middle" alt="Ouvrir le jeu de séquençage dans NCBI"></a>
+   <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="../../readme_assets/cells/databanks/ncbi_button.png" width="14.14%" align="middle" alt="Ouvrir le jeu de séquençage dans NCBI"></a>
 
 .. |DataSpaCRPower| raw:: html
 
-   <a href="https://github.com/maomlab/spaCRPower"><img src="../../readme_assets/cells/5/databanks/spacrpower_button.png" width="19.80%" align="middle" alt="Ouvrir spaCRPower"></a>
+   <a href="https://github.com/maomlab/spaCRPower"><img src="../../readme_assets/cells/databanks/spacrpower_button.png" width="14.14%" align="middle" alt="Ouvrir spaCRPower"></a>
 
 .. |DataBioRxiv| raw:: html
 
-   <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="../../readme_assets/cells/5/databanks/biorxiv_button.png" width="19.80%" align="middle" alt="Ouvrir la prépublication bioRxiv"></a>
+   <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="../../readme_assets/cells/databanks/biorxiv_button.png" width="14.14%" align="middle" alt="Ouvrir la prépublication bioRxiv"></a>
 
 .. raw:: html
 

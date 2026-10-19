@@ -317,3 +317,5 @@ FINAL PASS, to run last, once no other session is editing spacr/:
     python tools/strip_comments.py spacr --check     # must exit 0
 
 2026-10-04 AUDIT: the strip tool's own tests pass, but new comments have landed since 2026-09-28 and no test guards the package-wide count. The extraction run was not applied in the audit (permission denied for the bulk rewrite); left OPEN for the maintainer.
+
+2026-10-19 — strip_comments.py spacr --check on fbdf6d825 reports 0 removable comments in 0 files (19415 protected kept), so --apply changes nothing; tests/test_no_new_hash_comments_in_spacr.py (pushed in fbdf6d825) fails on any new removable # comment in spacr/ and passes with the tool's 13 tests.

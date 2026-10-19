@@ -147,6 +147,7 @@ from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_TABLE, install_test_data_button,
 )
+from ..widgets.sortable_table import _reuse_list_items
 from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
@@ -1750,7 +1751,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._token += 1
         self._model.set_more(False)
         self._model.clear()
-        self._table_list.clear()
+        _reuse_list_items(self._table_list, 0)
         self._db = None
         self._table = ""
         self._all_columns = []
@@ -1776,8 +1777,9 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status(self._humanise(e, path), error=True)
             self._update_controls()
             return False
-        for name in tables:
-            self._table_list.addItem(QListWidgetItem(name))
+        for item, name in zip(
+                _reuse_list_items(self._table_list, len(tables)), tables):
+            item.setText(name)
         if not tables:
             self._set_status(
                 f"Opened {db.path} — but it has no tables.", error=False)

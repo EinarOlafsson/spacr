@@ -242,14 +242,19 @@ class _CheckableValueCombo(QComboBox):
         all_values.extend(
             value for value in selected if str(value) not in existing)
         model = self.model()
-        model.clear()
-        for value in all_values:
-            item = QStandardItem(str(value))
+        spare = self.__dict__.setdefault("_spare_rows", [])
+        while model.rowCount() > len(all_values):
+            spare.extend(model.takeRow(model.rowCount() - 1))
+        for row, value in enumerate(all_values):
+            fresh = row >= model.rowCount()
+            item = QStandardItem() if fresh else model.item(row)
+            item.setText(str(value))
             item.setData(value, Qt.UserRole)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
             item.setCheckState(
                 Qt.Checked if str(value) in selected_text else Qt.Unchecked)
-            model.appendRow(item)
+            if fresh:
+                model.appendRow(item)
         self._refresh_text()
 
     def checked_values(self) -> list[Any]:

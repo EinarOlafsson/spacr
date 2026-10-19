@@ -101,5 +101,9 @@
   "gui_category_history": "History",
   "gui_category_temporary": "Temporary files",
   "gui_category_downloads": "Downloads",
-  "gui_category_other": "Other spaCR data"
+  "gui_category_other": "Other spaCR data",
+  "lease_held": "%s is held by spaCR installer process %s. Wait for it to finish; if it stopped during a rollback, follow its installation log before retrying.",
+  "lease_held_unknown": "%s is held by a spaCR installer this version cannot check. If no spaCR installer is running, remove it and retry.",
+  "lease_cleared": "Removed a lock left by an interrupted spaCR installation whose process has ended: %s",
+  "staging_removed": "Removed the staging runtime an interrupted spaCR installation left behind: %s"
 }

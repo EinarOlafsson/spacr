@@ -14,6 +14,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
 from .gil_priority import _watch_application_events
+from . import _after
 
 POSITIVE_PREFIXES = ("run", "propagate")
 NEGATIVE_PREFIXES = (
@@ -227,8 +228,8 @@ class _SemanticButtonFilter(QObject):
         disables or relabels the button, and reading its state before it has run
         settles against the state the button had a moment ago.
         """
-        QTimer.singleShot(
-            0, lambda target=button: self._settle_after_handler(target))
+        _after(
+            0, self, lambda target=button: self._settle_after_handler(target))
 
     @staticmethod
     def _settle_after_handler(button: QPushButton) -> None:

@@ -77,6 +77,8 @@ from .help_index import (
     _search_with_overflow,
 )
 from .i18n import tr
+from .widgets.sortable_table import _reuse_list_items
+from . import _after
 
 LOG = logging.getLogger("spacr.qt.help_search")
 
@@ -771,7 +773,7 @@ class HelpSearchField(QLineEdit):
         if not query:
             self._results = []
             self._left_out = {}
-            self._list.clear()
+            _reuse_list_items(self._list, 0)
             self.hide_popup()
             return
         if self._index is None:
@@ -781,17 +783,22 @@ class HelpSearchField(QLineEdit):
             cap - PER_KIND_LIMIT for cap in self._caps.values())
         self._results, self._left_out = _search_with_overflow(
             self._index, query, limit=limit, caps=self._caps)
-        self._list.clear()
         last_of_kind = {entry.kind: i for i, entry in enumerate(self._results)}
+        plan = []
         for i, entry in enumerate(self._results):
-            item = QListWidgetItem(self._row_text(entry))
-            item.setData(ENTRY_ROLE, entry)
-            described = rendered_description(entry, tr)
+            plan.append(entry)
+            if last_of_kind[entry.kind] == i and entry.kind in self._left_out:
+                plan.append(entry.kind)
+        rows = _reuse_list_items(self._list, len(plan))
+        for item, step in zip(rows, plan):
+            if isinstance(step, str):
+                self._fill_more_row(item, step)
+                continue
+            item.setText(self._row_text(step))
+            item.setData(ENTRY_ROLE, step)
+            described = rendered_description(step, tr)
             if described:
                 item.setToolTip(described)
-            self._list.addItem(item)
-            if last_of_kind[entry.kind] == i and entry.kind in self._left_out:
-                self._list.addItem(self._more_row(entry.kind))
         if self._results:
             self._list.setCurrentRow(0)
             self._note.setVisible(False)
@@ -800,20 +807,19 @@ class HelpSearchField(QLineEdit):
             self._show_note(tr("Nothing called “{query}”.", query=query))
         self._place_popup()
 
-    def _more_row(self, kind: str) -> QListWidgetItem:
-        """The "and N more" row that follows the last shown row of ``kind``.
+    def _fill_more_row(self, item: QListWidgetItem, kind: str) -> None:
+        """Write the "and N more" row that follows the last shown row of ``kind``.
 
         It sits under its own kind rather than at the foot of the list, so
         it reads as "more of THESE" -- after the eight ``src`` rows, not
         after an API list that has nothing to do with them.
 
-        :param kind: the kind with matches left out.
-        :returns: an item carrying ``kind`` under :data:`MORE_ROLE`.
+        :param item: the row to write into.
+        :param kind: the kind with matches left out; stored under
+            :data:`MORE_ROLE`.
         """
-        item = QListWidgetItem(
-            tr("and {count} more", count=self._left_out[kind]))
+        item.setText(tr("and {count} more", count=self._left_out[kind]))
         item.setData(MORE_ROLE, kind)
-        return item
 
     def _show_more(self, kind: str) -> None:
         """Lift the cap on ``kind`` by :data:`MORE_STEP` and search again.
@@ -902,7 +908,7 @@ class HelpSearchField(QLineEdit):
             return
         kind = item.data(MORE_ROLE)
         if kind:
-            QTimer.singleShot(0, partial(self._show_more, str(kind)))
+            _after(0, self, partial(self._show_more, str(kind)))
             return
         entry = item.data(ENTRY_ROLE)
         if entry is None:

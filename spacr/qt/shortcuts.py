@@ -1255,6 +1255,10 @@ def _open_palette(window: QMainWindow) -> None:
         palette = CommandPalette(window)
         try:
             palette.exec()
+            chosen = getattr(palette, "_pending_command", None)
+            palette._pending_command = None
+            if chosen is not None:
+                palette._run_command(chosen)
         finally:
             palette.deleteLater()
     except Exception as e:

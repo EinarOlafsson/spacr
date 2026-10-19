@@ -162,7 +162,7 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
     assert len(urls) == len(PLATFORM_ASSETS)
     # 2026-10-13: each icon is shown as its cell of an equal-cell row
     # (tools/build_readme_images.py icon_cell), drawn from the artwork.
-    prefix = f"docs/readme_assets/cells/{len(PLATFORM_ASSETS)}/platforms/"
+    prefix = "docs/readme_assets/cells/platforms/"
     for url in urls:
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
         assert (ROOT / url).is_file(), f"{url} is not committed"

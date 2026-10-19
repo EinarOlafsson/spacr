@@ -22,7 +22,8 @@ from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox,
                                QDoubleSpinBox, QFileDialog, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 LOG = logging.getLogger("spacr.qt.sweep_panel")
 
@@ -370,7 +371,7 @@ class SweepPanel(QWidget):
         """
         keep = self.rows()
         self.table.setSortingEnabled(False)
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         shown = keep.head(2000)
         self.table.setRowCount(len(shown))
         for row, (_index, entry) in enumerate(shown.iterrows()):
@@ -382,7 +383,7 @@ class SweepPanel(QWidget):
                       str(int(entry["n_wells"])),
                       f"{entry['effective_wells']:.0f}"]
             for column, text in enumerate(values):
-                self.table.setItem(row, column, table_item(text))
+                self.table.setItem(row, column, _spare_table_item(self.table, text))
         self.table.setSortingEnabled(True)
         if len(keep) > len(shown):
             self.status.setText(

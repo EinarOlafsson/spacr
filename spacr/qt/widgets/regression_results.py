@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -2773,12 +2774,17 @@ class RegressionResultsPanel(QWidget):
         knowing what they gave up.
         """
         frame = self._frame
+        held = self.__dict__.get("_level_counts_of")
+        if held is not None and held[0] is frame and frame is not None:
+            return dict(held[1])
         levels = self._levels_of(frame)
         if frame is None or levels is None:
             return {None: 0, "gene": 0, "grna": 0}
-        return {None: int(len(frame)),
-                "grna": int((levels == "grna").sum()),
-                "gene": int((levels == "gene").sum())}
+        counts = {None: int(len(frame)),
+                  "grna": int((levels == "grna").sum()),
+                  "gene": int((levels == "gene").sum())}
+        self._level_counts_of = (frame, dict(counts))
+        return counts
 
     def _default_level(self):
         """The level to open a new table at.
@@ -3439,7 +3445,8 @@ class RegressionResultsPanel(QWidget):
         from PySide6.QtCore import QTimer
 
         self.set_level("grna" if guide_of(str(key)) else "gene")
-        QTimer.singleShot(0, lambda k=str(key): self.table.select_key(k))
+        _after(
+            0, self, lambda k=str(key): self.table.select_key(k))
         self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
                  f"so the point you clicked has a row.")
 

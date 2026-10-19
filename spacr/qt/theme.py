@@ -6428,7 +6428,10 @@ def apply_close_mark(button, *, tooltip: Optional[str] = None,
     if getattr(button, "_spacr_close_mark_resizer", None) is None:
         resizer = _CloseMarkResizer(button, body_px)
         button._spacr_close_mark_resizer = resizer
-        button.installEventFilter(resizer)
+        from .gil_priority import _watch_object_events
+
+        _watch_object_events(button, resizer,
+                             (QEvent.FontChange, QEvent.StyleChange))
     button.setCursor(Qt.PointingHandCursor)
     set_auto_raise = getattr(button, "setAutoRaise", None)
     if callable(set_auto_raise):

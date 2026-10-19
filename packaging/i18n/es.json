@@ -101,5 +101,9 @@
   "gui_category_history": "Historial",
   "gui_category_temporary": "Archivos temporales",
   "gui_category_downloads": "Descargas",
-  "gui_category_other": "Otros datos de spaCR"
+  "gui_category_other": "Otros datos de spaCR",
+  "lease_held": "%s está retenido por el proceso de instalación de spaCR %s. Espere a que termine; si se detuvo durante una restauración, siga su registro de instalación antes de reintentar.",
+  "lease_held_unknown": "%s está retenido por un instalador de spaCR que esta versión no puede comprobar. Si no se está ejecutando ningún instalador de spaCR, elimínelo y vuelva a intentarlo.",
+  "lease_cleared": "Se eliminó un bloqueo dejado por una instalación de spaCR interrumpida cuyo proceso ha terminado: %s",
+  "staging_removed": "Se eliminó el entorno de preparación que dejó una instalación de spaCR interrumpida: %s"
 }

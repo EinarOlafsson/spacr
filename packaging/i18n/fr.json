@@ -101,5 +101,9 @@
   "gui_category_history": "Historique",
   "gui_category_temporary": "Fichiers temporaires",
   "gui_category_downloads": "Téléchargements",
-  "gui_category_other": "Autres données spaCR"
+  "gui_category_other": "Autres données spaCR",
+  "lease_held": "%s est détenu par le processus d’installation spaCR %s. Attendez qu’il se termine ; s’il s’est arrêté pendant une restauration, suivez son journal d’installation avant de réessayer.",
+  "lease_held_unknown": "%s est détenu par un programme d’installation spaCR que cette version ne peut pas vérifier. Si aucun programme d’installation spaCR n’est en cours d’exécution, supprimez-le puis réessayez.",
+  "lease_cleared": "Verrou supprimé, laissé par une installation spaCR interrompue dont le processus est terminé : %s",
+  "staging_removed": "Environnement de préparation supprimé, laissé par une installation spaCR interrompue : %s"
 }

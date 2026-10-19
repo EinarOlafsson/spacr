@@ -116,7 +116,8 @@ PALETTE = (
 #: GUI module nothing.
 from ...figures.style import ROLES as _ROLES
 from .. import _after
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 HIGHLIGHT = _ROLES["highlight"]
 MUTED = _ROLES["data"]
@@ -8271,11 +8272,12 @@ class ResultsTable(QWidget):
             else None)
         self._significance = significance_column or self._guess_significance(frame)
         if frame is None or not len(frame):
-            self.table.setRowCount(0)
+            _retire_table_cells(self.table)
             self._count.setText("Nothing to show.")
             return 0
 
         columns = list(frame.columns)
+        _retire_table_cells(self.table, headers=True)
         self.table.setSortingEnabled(False)
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
@@ -8301,7 +8303,7 @@ class ResultsTable(QWidget):
             values = frame.iloc[row]
             for column, name in enumerate(columns):
                 value = values.iloc[column] if by_position else values[name]
-                item = table_item(value)
+                item = _spare_table_item(self.table, value)
                 item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
             if (row + 1) % rows_per_step == 0 and row + 1 < len(frame):

@@ -2893,6 +2893,8 @@ channels
 |             :py:func:`~spacr.validate.describe_plan` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``_check_channels`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -2933,6 +2935,8 @@ channels
 |         :py:func:`~spacr.validate.describe_plan` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``_check_channels`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
@@ -2969,7 +2973,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
+Read by ``v2_channels_from_settings``, ``_cf_load_checkpoint``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``_watch_vendor_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_app_specific``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-checkpoint_path:
 

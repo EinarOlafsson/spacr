@@ -46,7 +46,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget,
+    QPushButton, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from ..theme import RADIUS, SPACING, font_px, register_widget_qss
@@ -54,6 +54,7 @@ from .formula import (
     FUNCTION_HELP, ColumnFormula, ColumnResult, FormulaError, FormulaSet,
     compute,
 )
+from .sortable_table import _reuse_list_items
 from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.formula_editor")
@@ -408,13 +409,12 @@ class FormulaPanel(QWidget):
         expression otherwise, so why a column is unavailable is reachable from
         the row itself.
         """
-        self._list.clear()
         notices = {r.formula.name: r.notice for r in self._results}
-        for formula in self._formulas.formulas:
-            item = QListWidgetItem(formula.describe())
+        formulas = list(self._formulas.formulas)
+        for formula, item in zip(formulas, _reuse_list_items(self._list, len(formulas))):
+            item.setText(formula.describe())
             item.setData(Qt.UserRole, formula.name)
             item.setToolTip(notices.get(formula.name, formula.expression))
-            self._list.addItem(item)
 
     def _say(self, text: str, state: str) -> None:
         """Write the status line and repolish it so the state style takes effect.

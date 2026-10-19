@@ -295,6 +295,13 @@ def test_the_authorized_helper_request_is_bounded_and_never_from_root(monkeypatc
 
 def test_a_protected_update_is_requested_only_from_a_normal_user_with_an_exact_image(
         tmp_path, monkeypatch):
+    """Hermetic: on a Mac with spaCR installed the last refusal used to fall through to a real
+    administrator prompt. No native authorization can run, and /Applications/spaCR.app is absent."""
+    monkeypatch.setattr(ic, "_macos_native",
+                        lambda *a, **k: pytest.fail("a test must never request native authorization"))
+    real_isdir = os.path.isdir
+    monkeypatch.setattr(ic.os.path, "isdir",
+                        lambda path: False if path == "/Applications/spaCR.app" else real_isdir(path))
     monkeypatch.setattr(ic.os, "geteuid", lambda: 0)
     with pytest.raises(ValueError, match="must not run as root"):
         ic._macos_request_protected_update("1.5.1.1", DIGEST, image="/x")

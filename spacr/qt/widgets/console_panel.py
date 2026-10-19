@@ -56,6 +56,7 @@ from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, QSS_FONT_FAMILY, SPACING, _painting_palette, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
 from .flash import Flash
+from .. import _after
 
 
 #: Soft budget for pipeline scrollback attached to one AI turn. A complete
@@ -1433,7 +1434,7 @@ class ConsolePanel(QWidget):
 
     #: Glyphs the run notices use that Open Sans does not have, so Qt finds
     #: them in a fallback font the first time each size draws them.
-    NOTICE_GLYPHS = "→✓■…"
+    NOTICE_GLYPHS = "→✓■…⚠"
 
     def warm_notice_glyphs(self) -> bool:
         """Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.
@@ -1969,7 +1970,7 @@ class ConsolePanel(QWidget):
                 continue
             widget.setVisible(not folded)
         self._follow_output = False
-        QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
+        _after(0, self, lambda: self._scroll_widget_to_top(bar))
 
     def _scroll_widget_to_top(self, bar) -> None:
         """Scroll the console so a widget sits at the top of the viewport.

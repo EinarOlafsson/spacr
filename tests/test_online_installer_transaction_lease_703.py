@@ -223,3 +223,27 @@ def test_nsis_bootstrap_files_are_private_to_this_installer_process():
     assert 'SetOutPath "$PLUGINSDIR\\spaCR-online-installer"' in section
     assert '-File "$PLUGINSDIR\\spaCR-online-installer\\install_spacr_windows.ps1"' in section
     assert 'Delete "$PLUGINSDIR\\spaCR-online-installer\\install_spacr_windows.ps1"' in section
+
+
+def _identity_function():
+    source = UNIX.read_text()
+    start = source.index('spacr_installer_lease_identity() {\n')
+    return source[start:source.index('\n}\n', start) + 3]
+
+
+@pytest.mark.parametrize('flavor', ['gnu', 'bsd'])
+def test_lease_identity_uses_whichever_stat_is_on_path(tmp_path, flavor):
+    """These drivers pin PLATFORM=linux; on a Mac the stat on PATH is BSD's, and Homebrew's gnubin can put
+    GNU's first there. The identity must come from whichever one answers."""
+    folder = tmp_path / flavor
+    folder.mkdir()
+    fake = folder / 'stat'
+    accepted = '-c' if flavor == 'gnu' else '-f'
+    fake.write_text('#!/bin/sh\n[ "$1" = "' + accepted + '" ] && { printf "' + flavor + ':%s\\n" "$2"; exit 0; }\n'
+                    'echo "stat: illegal option" >&2\nexit 1\n')
+    fake.chmod(0o755)
+    result = subprocess.run(['bash', '-c', _identity_function() + 'spacr_installer_lease_identity /lease\n'],
+                            env=dict(os.environ, PATH=f"{folder}{os.pathsep}{os.environ['PATH']}"),
+                            text=True, capture_output=True, timeout=10)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == flavor + ':%d:%i'

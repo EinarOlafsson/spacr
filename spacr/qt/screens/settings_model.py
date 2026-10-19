@@ -4782,6 +4782,22 @@ def _is_self_labelling(widget) -> bool:
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
+    #: Every event type :meth:`eventFilter` acts on.
+    KINDS = (QEvent.Enter, QEvent.Leave, QEvent.ToolTip)
+
+    def watch(self, widget) -> None:
+        """Hear ``widget``'s hover and tooltip events, once, never a paint."""
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+        _stop_watching_object_events(widget, self)
+        _watch_object_events(widget, self, self.KINDS)
+
+    def unwatch(self, widget) -> None:
+        """Stop hearing ``widget``."""
+        from ..gil_priority import _stop_watching_object_events
+
+        _stop_watching_object_events(widget, self)
+
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
         """Show the API help popup instead of Qt's own tooltip.
 
@@ -6491,15 +6507,30 @@ def refresh_api_tooltips(
     """
     if root is None:
         return
-    from ..i18n import tr
-
-    code = _language_code(language)
     widgets = [root]
     try:
         widgets.extend(root.findChildren(QWidget))
     except (AttributeError, RuntimeError):
         return
+    _refresh_api_tooltips_of(widgets, language)
 
+
+def _refresh_api_tooltips_of(widgets, language: Optional[str] = None) -> None:
+    """:func:`refresh_api_tooltips` for exactly ``widgets``, not a subtree.
+
+    A late-caption pass only has to render the help of the widgets it has
+    not stamped yet: the stamped ones were rendered in this language by the
+    pass that stamped them. Rendering every setting under the screen's tab
+    strip again took about 130 ms each time a dialog or panel was parented,
+    for example when a folder was dropped on Make Masks.
+
+    :param widgets: the widgets to refresh; those without ``settingsAppKey``
+        and ``settingKey`` are left alone.
+    :param language: as for :func:`refresh_api_tooltips`.
+    """
+    from ..i18n import tr
+
+    code = _language_code(language)
     descriptions: Optional[Dict[str, str]] = None
     for widget in widgets:
         try:
@@ -6592,11 +6623,10 @@ def install_api_tooltips(
             widget.setProperty("apiTooltipHtml", "")
             widget.setProperty("apiTooltipDisplayRole", "metadata")
             widget.setToolTip("")
-            widget.removeEventFilter(event_filter)
+            event_filter.unwatch(widget)
             continue
         if label is None:
-            widget.removeEventFilter(event_filter)
-            widget.installEventFilter(event_filter)
+            event_filter.watch(widget)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -6610,12 +6640,11 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
 
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
-        widget.removeEventFilter(event_filter)
+        event_filter.unwatch(widget)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
@@ -6951,12 +6980,13 @@ class _CloudBrowserDialog(QDialog):
         import threading
 
         from ..i18n import tr
+        from ..widgets.sortable_table import _reuse_list_items
 
         self._request += 1
         request = self._request
         address = self.location()
         options = self.options()
-        self.entries.clear()
+        _reuse_list_items(self.entries, 0)
         self.details.setPlainText(tr("Reading…"))
         signals = self._signals
 
@@ -6987,16 +7017,15 @@ class _CloudBrowserDialog(QDialog):
 
     def _show_listing(self, request, entries, text) -> None:
         """Show a finished listing, unless a newer one was asked for."""
-        from PySide6.QtWidgets import QListWidgetItem
+        from ..widgets.sortable_table import _reuse_list_items
 
         if request != self._request:
             return
-        self.entries.clear()
-        for name, kind, size in entries:
+        items = _reuse_list_items(self.entries, len(entries))
+        for item, (name, kind, size) in zip(items, entries):
             label = f"{name}/" if kind == "folder" else f"{name}  ({size} B)"
-            item = QListWidgetItem(label)
+            item.setText(label)
             item.setData(Qt.UserRole, name)
-            self.entries.addItem(item)
         self.details.setPlainText(str(text or ""))
 
 
@@ -8198,13 +8227,45 @@ ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
 _LIVE_FOLDER_SCANS: set = set()
 
 
-def _forget_folder_scan(thread, worker) -> None:
-    """Release one finished folder scan.
+class _FolderScanKeeper(QObject):
+    """Hold one folder scan's thread and worker until the thread has stopped.
 
-    :param thread: the QThread that has just emitted ``finished``.
-    :param worker: the worker that ran on it.
+    The keeper lives on the GUI thread, so its slot runs there once the
+    thread has emitted ``finished``; the pair is released from that slot and
+    never from a destructor or from the worker thread.
     """
-    _LIVE_FOLDER_SCANS.discard((thread, worker))
+
+    def __init__(self, thread, worker) -> None:
+        """Keep the pair and release it when the thread finishes.
+
+        :param thread: the QThread running the scan.
+        :param worker: the worker moved onto that thread.
+        """
+        super().__init__()
+        self._thread = thread
+        self._worker = worker
+        thread.finished.connect(self._release)
+
+    def _release(self) -> None:
+        """Drop the pair from the GUI thread after the thread has stopped.
+
+        :returns: nothing.
+        """
+        _LIVE_FOLDER_SCANS.discard(self)
+        self._thread = None
+        self._worker = None
+        self.deleteLater()
+
+
+def _keep_folder_scan(thread, worker) -> None:
+    """Register one running folder scan with a GUI-thread keeper.
+
+    :param thread: the QThread running the scan.
+    :param worker: the worker moved onto that thread.
+    :returns: nothing.
+    """
+    keeper = _FolderScanKeeper(thread, worker)
+    _LIVE_FOLDER_SCANS.add(keeper)
 
 
 class _FolderScanWorker(QObject):
@@ -8545,9 +8606,7 @@ class _MetadataTypeField(QWidget):
         worker.tested.connect(thread.quit)
         worker.ranked.connect(thread.quit)
         worker.failed.connect(thread.quit)
-        _LIVE_FOLDER_SCANS.add((thread, worker))
-        thread.finished.connect(partial(_forget_folder_scan, thread, worker))
-        thread.finished.connect(thread.deleteLater)
+        _keep_folder_scan(thread, worker)
         thread.finished.connect(self._on_scan_finished)
         self._thread = thread
         self._worker = worker
@@ -9587,8 +9646,12 @@ class _SpinCommitInput(QObject):
         """Watch ``widget`` and its line edit for the events this filter handles."""
         super().__init__(widget)
         self._widget = widget
-        widget.installEventFilter(self)
-        widget.lineEdit().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        kinds = (QEvent.KeyPress, QEvent.InputMethod, QEvent.KeyRelease,
+                 QEvent.MouseButtonPress, QEvent.Wheel, QEvent.FocusOut)
+        _watch_object_events(widget, self, kinds)
+        _watch_object_events(widget.lineEdit(), self, kinds)
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
         """Remember input kind before Qt emits synchronous valueChanged."""
@@ -12900,10 +12963,9 @@ def retarget_field_tooltips(root: QWidget) -> int:
         if pending:
             label.setEnabled(field.isEnabled())
             _note_on_label(label, pending)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
         field.setToolTip("")
         field.setProperty("apiTooltipDisplayRole", "metadata")
-        field.removeEventFilter(event_filter)
+        event_filter.unwatch(field)
         moved += 1
     return moved

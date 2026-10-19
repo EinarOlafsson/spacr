@@ -52,13 +52,16 @@ import tempfile
 import threading
 import time
 import weakref
+from collections import OrderedDict
 from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFileDialog, QFormLayout,
     QAbstractItemView, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy,
@@ -901,6 +904,24 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
     """
     plane = frame_channel(image, channel)
     base = _to_uint8(plane, normalise=normalise, lo_pct=lo_pct, hi_pct=hi_pct)
+    return _overlay_tracks(base, labels, tracks, frame, tail)
+
+
+def _overlay_tracks(base: np.ndarray, labels, tracks, frame: int,
+                    tail: int) -> np.ndarray:
+    """Draw track outlines and tails over an already stretched plane.
+
+    Each outline pixel takes its track's colour from one lookup over the
+    outline pixels alone. Masking the whole field once per track made a
+    1024 px frame with forty tracks forty full-field comparisons.
+
+    :param base: the ``uint8`` plane or RGB picture to draw over.
+    :param labels: the track-relabelled mask of the frame, or None.
+    :param tracks: the track table, or None.
+    :param frame: index of the frame in the track table.
+    :param tail: how many earlier frames each trail reaches back.
+    :returns: a new RGB ``uint8`` array.
+    """
     if base.ndim == 2:
         rgb = np.stack([base, base, base], axis=-1)
     else:
@@ -910,10 +931,11 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
         labels = np.asarray(labels).astype(np.int32)
         boundary = _boundary_mask(labels)
         edge = boundary & (labels > 0)
-        ids = np.unique(labels[edge]) if edge.any() else np.array([], dtype=int)
-        for tid in ids:
-            rgb[edge & (labels == tid)] = np.array(
-                track_colour(int(tid)), dtype=np.uint8)
+        if edge.any():
+            ids, which = np.unique(labels[edge], return_inverse=True)
+            colours = np.array([track_colour(int(tid)) for tid in ids],
+                               dtype=np.uint8).reshape(-1, 3)
+            rgb[edge] = colours[which.reshape(-1)]
 
     _needed = {"x", "y", "frame", "track_id"}
     if tracks is not None and len(tracks) and _needed.issubset(tracks.columns):
@@ -932,6 +954,29 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
                 _draw_dot(rgb, xs[-1], ys[-1], colour, radius=2)
     return rgb
 
+
+
+#: Bytes of frame pictures the preview keeps for scrubbing and playback.
+_FRAME_PICTURE_BUDGET_BYTES = 256 * 1024 * 1024
+
+
+def _stretch_levels(plane: np.ndarray) -> tuple:
+    """The 2nd and 98th percentiles :func:`_to_uint8` stretches a plane by."""
+    return tuple(np.percentile(plane.astype(np.float32), (2.0, 98.0)))
+
+
+def _stretched(plane: np.ndarray, levels: tuple) -> np.ndarray:
+    """A 2-D plane stretched as :func:`_to_uint8` does, at known levels."""
+    arr = plane.astype(np.float32)
+    lo, hi = levels
+    if hi <= lo:
+        return np.zeros(arr.shape, dtype=np.uint8)
+    return np.clip(255 * (arr - lo) / (hi - lo), 0, 255).astype(np.uint8)
+
+
+def _pixmap_bytes(pixmap: QPixmap) -> int:
+    """What one pixmap holds, from its size and depth."""
+    return pixmap.width() * pixmap.height() * max(8, pixmap.depth()) // 8
 
 
 @dataclass
@@ -1791,6 +1836,12 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._stats: Optional[TrackStats] = None
         self._mask_cache: Dict[tuple, np.ndarray] = {}
         self._mask_cache_last_used: Dict[tuple, float] = {}
+        self._frame_pictures: "OrderedDict[tuple, Tuple[QPixmap, QPixmap]]" = OrderedDict()
+        self._frame_pictures_owner: tuple = ()
+        self._frame_pictures_used: Dict[tuple, float] = {}
+        self._shown_field: tuple = ()
+        self._frame_levels: Dict[tuple, tuple] = {}
+        self._frame_levels_owner: tuple = ()
         self._movie_fields: Dict[str, Dict[str, Any]] = {}
         self._movie_sources: List[str] = []
         self._movie_pending_path: Optional[str] = None
@@ -2647,7 +2698,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         The stack currently drawn, and one a worker is currently re-linking,
         are pinned. Older segmentation signatures are reproducible caches and
-        can be evicted independently.
+        can be evicted independently, and so is every kept frame picture.
         """
         now = time.time()
         worker_key = (self._pending_signature
@@ -2657,10 +2708,20 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
              float(self._mask_cache_last_used.get(key, now)),
              value is self._masks or key == worker_key)
             for key, value in list(self._mask_cache.items())
+        ] + [
+            (("frame picture",) + key,
+             _pixmap_bytes(pictures[0]) + _pixmap_bytes(pictures[1]),
+             float(self._frame_pictures_used.get(key, now)), False)
+            for key, pictures in list(self._frame_pictures.items())
         ]
 
     def _drop_cache_budget_entry(self, key) -> bool:
-        """Drop one inactive segmentation result chosen by the policy."""
+        """Drop one inactive segmentation result or kept frame picture."""
+        if (isinstance(key, tuple) and key[:1] == ("frame picture",)
+                and key[1:] in self._frame_pictures):
+            self._frame_pictures.pop(key[1:], None)
+            self._frame_pictures_used.pop(key[1:], None)
+            return True
         value = self._mask_cache.get(key)
         if value is None or value is self._masks:
             return False
@@ -3223,6 +3284,83 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         current = self._frame_slider.value()
         self._frame_slider.setValue(0 if current >= last else current + 1)
 
+    def _frame_pictures_for(self, idx: int, read) -> Tuple[QPixmap, QPixmap]:
+        """The source and tracked pictures of one frame, made once.
+
+        Scrubbing or playing a loaded preview used to stretch the frame by
+        percentile twice, colour its outlines and convert both pictures on
+        every step, about 45 ms a step at 1024 px on the GUI thread, which
+        took the window's paint rate from 50 to 25 frames a second while
+        a lesson played the preview. Both pictures are kept per frame and
+        drawing settings, held only while the sequence, masks and tracks
+        they show are the ones loaded, and within
+        :data:`_FRAME_PICTURE_BUDGET_BYTES`. Past the budget, pictures drawn
+        with other settings go first and then new frames are not kept, so a
+        looping movie longer than the budget still finds its first frames
+        rather than evicting each one just before it is shown again. The
+        percentile levels of every frame are kept regardless; they are what
+        the stretch costs.
+
+        :param idx: the frame index.
+        :param read: returns that frame; called only when it is not kept.
+        :returns: ``(source, overlay)`` pixmaps.
+        """
+        owner = (self._sequence, self._masks, self._tracked, self._tracks)
+        kept = self._frame_pictures
+        if (len(self._frame_pictures_owner) != len(owner) or any(
+                a is not b for a, b in zip(self._frame_pictures_owner, owner))):
+            kept.clear()
+            self._frame_pictures_used.clear()
+            self._frame_pictures_owner = owner
+        norm = self._normalise.isChecked()
+        channel = int(self._channel.value())
+        tail = int(self._tail.value())
+        key = (idx, channel, norm, tail)
+        pictures = kept.get(key)
+        if pictures is not None:
+            kept.move_to_end(key)
+            self._frame_pictures_used[key] = time.time()
+            return pictures
+        plane = frame_channel(read(), channel)
+        if norm and plane.ndim == 2:
+            stretched_from = (self._sequence, self._masks)
+            if (len(self._frame_levels_owner) != 2 or any(
+                    a is not b for a, b in zip(self._frame_levels_owner,
+                                               stretched_from))):
+                self._frame_levels.clear()
+                self._frame_levels_owner = stretched_from
+            levels = self._frame_levels.get((idx, channel))
+            if levels is None:
+                levels = self._frame_levels[(idx, channel)] = _stretch_levels(plane)
+            base = _stretched(plane, levels)
+        else:
+            base = _to_uint8(plane, normalise=norm)
+        labels = None
+        if self._tracked is not None and idx < self._tracked.shape[0]:
+            labels = self._tracked[idx]
+        source = numpy_to_qpixmap(base)
+        overlay = numpy_to_qpixmap(_overlay_tracks(
+            base if base.ndim == 2 else base.copy(), labels, self._tracks,
+            idx, tail))
+        pictures = (source, overlay)
+        kept[key] = pictures
+        self._frame_pictures_used[key] = time.time()
+
+        def over() -> bool:
+            """Whether the kept pictures hold more than the budget."""
+            return (sum(_pixmap_bytes(a) + _pixmap_bytes(b)
+                        for a, b in kept.values())
+                    > _FRAME_PICTURE_BUDGET_BYTES)
+        for other in [k for k in kept if k[1:] != key[1:]]:
+            if not over():
+                break
+            kept.pop(other)
+            self._frame_pictures_used.pop(other, None)
+        if over():
+            kept.pop(key)
+            self._frame_pictures_used.pop(key, None)
+        return pictures
+
     def _refresh_canvases(self) -> None:
         """Redraw every canvas for the current frame."""
         seq = self._sequence
@@ -3230,25 +3368,25 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if seq is None:
             if self._masks is None:
                 return
-            image = self._masks[min(idx, self._masks.shape[0] - 1)]
+            read = partial(self._masks.__getitem__,
+                           min(idx, self._masks.shape[0] - 1))
         else:
             if not len(seq):
                 return
-            image = seq.frame(min(idx, len(seq) - 1))
+            read = partial(seq.frame, min(idx, len(seq) - 1))
 
-        norm = self._normalise.isChecked()
-        plane = frame_channel(image, int(self._channel.value()))
-        self._src_view.set_pixmap(numpy_to_qpixmap(
-            _to_uint8(plane, normalise=norm)))
-
-        labels = None
-        if self._tracked is not None and idx < self._tracked.shape[0]:
-            labels = self._tracked[idx]
-        overlay = render_frame(
-            image, labels=labels, tracks=self._tracks, frame=idx,
-            tail=int(self._tail.value()), normalise=norm,
-            channel=int(self._channel.value()))
-        self._out_view.set_pixmap(numpy_to_qpixmap(overlay))
+        source, overlay = self._frame_pictures_for(idx, read)
+        shown = (self._sequence, self._mask_sequence,
+                 self._masks if seq is None else None)
+        same = (len(self._shown_field) == len(shown) and all(
+            a is b for a, b in zip(self._shown_field, shown)))
+        self._shown_field = shown
+        for view, picture in ((self._src_view, source),
+                              (self._out_view, overlay)):
+            if same:
+                view._show_frame(picture)
+            else:
+                view.set_pixmap(picture)
 
         total = self._masks.shape[0] if self._masks is not None else (
             len(seq) if seq is not None else 0)

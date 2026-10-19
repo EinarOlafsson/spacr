@@ -43,7 +43,9 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog,
                                QTextBrowser,
                                QVBoxLayout, QWidget)
 
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_items,
+    _spare_table_item, _wipe)
 from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 from ...logging_util import _spacr_home
 from ..prefs import _store_args
@@ -1525,8 +1527,7 @@ class ModelZooPicker(QDialog):
         self._entries = list(entries)
 
         self._rebuilding = True
-        self.table.clearContents()
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self._groups = group_entries(entries)
         from ... import model_zoo as _zoo
 
@@ -1630,7 +1631,11 @@ class ModelZooPicker(QDialog):
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
         for column, text in enumerate(cells):
-            item = table_item(str(text))
+            old = self.table.takeItem(row, column)
+            if old is not None:
+                _wipe(self.table, old)
+                _spare_items(self.table).append(old)
+            item = _spare_table_item(self.table, str(text))
             if column == 0:
                 item.setData(Qt.UserRole, group)
             if tip:
@@ -2143,7 +2148,6 @@ class ModelZooPicker(QDialog):
         worker.cancelled.connect(self._reference_cancelled)
         for signal in (worker.succeeded, worker.failed, worker.cancelled):
             signal.connect(thread.quit, Qt.DirectConnection)
-        thread.finished.connect(worker.deleteLater)
         thread.start()
 
     def _stop_reference_check(self):

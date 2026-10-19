@@ -97,7 +97,10 @@ from ..widgets.measurements_example import install_test_data_button
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    SORT_KEY_ROLE, _retire_table_cells, _spare_table_item, install_sorting,
+    table_item,
+)
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.embeddings")
@@ -2886,6 +2889,7 @@ class EmbeddingsScreen(QWidget):
         self._pages.setCurrentWidget(self._table)
         self._table.setSortingEnabled(False)
         try:
+            _retire_table_cells(self._table, headers=True)
             self._table.setRowCount(0)
             self._table.setColumnCount(len(columns))
             self._table.setHorizontalHeaderLabels(columns)
@@ -2893,7 +2897,10 @@ class EmbeddingsScreen(QWidget):
             for row in range(rows):
                 for index, column in enumerate(columns):
                     value = float(frame.iloc[row][column])
-                    item = table_item(f"{value:.4f}", key=value)
+                    item = _spare_table_item(
+                        self._table, f"{value:.4f}",
+                        make=lambda text, key=value: table_item(text, key=key))
+                    item.setData(SORT_KEY_ROLE, float(value))
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     self._table.setItem(row, index, item)
         finally:

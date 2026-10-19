@@ -1037,7 +1037,7 @@ class _LateCaptionTranslator(QObject):
         """
         if event.type() != QEvent.ChildAdded:
             return False
-        QTimer.singleShot(0, partial(self._on_arrivals_in, watched))
+        _after(0, self, partial(self._on_arrivals_in, watched))
         return False
 
     #: Marks a child this filter has already run its pass over. A Qt
@@ -1048,6 +1048,11 @@ class _LateCaptionTranslator(QObject):
 
     def _on_arrivals_in(self, host) -> None:
         """Run the pass over children of ``host`` that have not had one.
+
+        The screen schedules one of these per host as soon as this is
+        installed, for the children built with it. Left to the first
+        later arrival, that sweep took the thousand-widget settings panel
+        along with whatever arrived -- a dropped folder's report, mid-drop.
 
         Scans rather than being handed the child, because the arrival is
         the one moment the child cannot safely be touched -- see
@@ -1448,6 +1453,29 @@ def _resume_the_fractal(screen) -> int:
     return resumed
 
 
+class _FloorObserver(QObject):
+    """Hand the runtime viewport's watched events to its ``_observe``.
+
+    The viewport is a ``QScrollArea``, which installs itself on its content,
+    so an ``eventFilter`` override there was asked about every paint of the
+    content on every field frame.
+    """
+
+    def __init__(self, react, parent=None) -> None:
+        """Keep ``react``, called with ``(watched, event)``."""
+        super().__init__(parent)
+        self._react = react
+
+    def eventFilter(self, watched, event):          # noqa: N802 - Qt name
+        """Ask ``react``; nothing is consumed unless it says so."""
+        return bool(self._react(watched, event))
+
+
+#: What the runtime viewport's floor follows.
+_FLOOR_KINDS = frozenset((QEvent.LayoutRequest, QEvent.ShowToParent,
+                          QEvent.HideToParent, QEvent.Resize))
+
+
 class _RuntimeViewport(QScrollArea):
     """Keep runtime controls usable when their minimum height exceeds the viewport.
 
@@ -1469,17 +1497,23 @@ class _RuntimeViewport(QScrollArea):
         self.setFrameShape(QScrollArea.NoFrame)
         self.setWidgetResizable(True)
         self.setWidget(content)
-        self.viewport().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        self._observer = _FloorObserver(self._observe, self)
+        _watch_object_events(self.viewport(), self._observer, _FLOOR_KINDS)
 
     def _watch_splitter(self, splitter):
         """Observe pane changes without changing collapse or drag ownership.
 
         :param splitter: the registered runtime pane splitter.
         """
+        from ..gil_priority import _watch_object_events
+
         self._split = splitter
-        splitter.installEventFilter(self)
+        _watch_object_events(splitter, self._observer, _FLOOR_KINDS)
         for index in range(splitter.count()):
-            splitter.widget(index).installEventFilter(self)
+            _watch_object_events(splitter.widget(index), self._observer,
+                                 _FLOOR_KINDS)
         splitter.pane_toggled.connect(self._queue_floor)
         self._queue_floor()
 
@@ -1491,18 +1525,21 @@ class _RuntimeViewport(QScrollArea):
         if not self._floor_timer.isActive():
             self._floor_timer.start(0)
 
-    def eventFilter(self, watched, event):
+    def _observe(self, watched, event) -> bool:
         """Revisit minima after wrapping, visibility, and viewport width changes.
+
+        Not an ``eventFilter`` override: the scroll area installs itself on
+        its content, and an override would be asked about every paint of it.
 
         :param watched: the pane, splitter, or viewport receiving the event.
         :param event: the actual Qt event.
-        :returns: the inherited event-filter result.
+        :returns: False; nothing is consumed.
         """
         if event.type() in (QEvent.LayoutRequest, QEvent.ShowToParent,
                             QEvent.HideToParent) or (
                 watched is self.viewport() and event.type() == QEvent.Resize):
             self._queue_floor()
-        return super().eventFilter(watched, event)
+        return False
 
     def _sync_floor(self):
         """Let scrolling absorb genuine overflow instead of shrinking controls."""
@@ -7986,6 +8023,7 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
+        _after(0, self, self._warm_console_glyphs)
         self._watch_live_plate = None
         if self.app_key == "mask":
             self._watch_live_plate = _DeferredWatchLivePlate(console_wrap)
@@ -8958,13 +8996,16 @@ class AppScreen(QWidget):
         hosts = (getattr(self, "_runtime_wrap", None),
                  getattr(self, "_body_splitter", None),
                  self)
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
         watcher = _LateCaptionTranslator(self)
         self._late_caption_watcher = watcher
         for host in hosts:
             if host is None:
                 continue
-            host.removeEventFilter(watcher)
-            host.installEventFilter(watcher)
+            _stop_watching_object_events(host, watcher)
+            _watch_object_events(host, watcher, (QEvent.ChildAdded,))
+            _after(0, watcher, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:
         """The prompt the category strip falls back to, in the UI language.
@@ -9336,6 +9377,27 @@ class AppScreen(QWidget):
         timer.start()
         return True
 
+    def _warm_console_glyphs(self) -> None:
+        """Load the console symbols' fallback fonts on the first idle turn.
+
+        The first line the console prints need not come from a Run: a
+        dropped folder's report opens with a warning sign, and the fallback
+        font lookup for it (35 ms, several times that on a busy machine)
+        landed inside the drop. See
+        :meth:`spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`.
+        """
+        console = getattr(self, "_console", None)
+        warm = getattr(console, "warm_notice_glyphs", None)
+        if not callable(warm):
+            return
+        try:
+            from shiboken6 import isValid
+            if isinstance(console, QObject) and not isValid(console):
+                return
+            warm()
+        except RuntimeError:
+            pass
+
     def _check_the_entry_import(self) -> None:
         """Start the waiting Run's import, then resume the Run once it ends."""
         waiting = getattr(self, "_entry_import", None)
@@ -9621,8 +9683,9 @@ class AppScreen(QWidget):
             return
         lines = text.count("\n")
         self._btn_copy_console.setText(tr("Copied"))
-        QTimer.singleShot(
+        _after(
             1200,
+            self,
             lambda: self._btn_copy_console.setText(tr("Copy console")))
         try:
             self.statusBar().showMessage(
@@ -12574,7 +12637,21 @@ class AppScreen(QWidget):
         Wired to QThread.finished (not worker.finished), so by the time this
         runs the thread's event loop has exited and dropping the last Python
         reference cannot abort the process.
+
+        Only the refs of a thread that has stopped are cleared. ``worker.
+        finished`` re-enables Run before ``thread.finished`` arrives, so a new
+        run can already hold ``self._thread`` when the old run's queued call
+        lands; ``sender()`` is null there (the emitter is gone after its
+        ``deleteLater``), so the held thread is asked instead.
         """
+        from ..bridge import thread_has_stopped
+
+        try:
+            running = not thread_has_stopped(self._thread)
+        except AttributeError:
+            running = False
+        if running:
+            return
         self._thread = None
         self._worker = None
         if getattr(self, "_form_rebuild_deferred", False):
@@ -12707,7 +12784,7 @@ class AppScreen(QWidget):
         snapshot to the new source, never to the previous lock. Drafts are left
         untouched, since failed validation is not an edit.
         """
-        from ...run_journal import _observe_settings_changes
+        from ...run_journal import _find_lock, _observe_settings_changes
 
         model = getattr(self, "_settings_model", None)
         if (model is None or getattr(model, "_applying_settings", False)
@@ -12715,6 +12792,16 @@ class AppScreen(QWidget):
             return
         try:
             source = model._valid_committed_value("src")
+        except (TypeError, ValueError, RuntimeError):
+            return
+        try:
+            unlocked = _find_lock(self.app_key, source) is None
+        except (OSError, ValueError):
+            unlocked = False
+        if unlocked:
+            self._settings_lock_observation = None
+            return
+        try:
             if key not in (None, "src"):
                 settings = {"src": source,
                             key: model._valid_committed_value(key)}

@@ -323,3 +323,6 @@ MAINTAINER STEPS (no agent may touch tokens; do them in order):
  bookmarks do not redirect (see the 2026-10-15 quota plan).
 
 2026-10-15: maintainer granted the token write access and added HF_DOCS_SPACE/HF_DOCS_URL; verify-host-access run 38829534457 succeeded.
+2026-10-19: not superseded: the Space retired 2026-10-18 is 698's spacr-mask-generator, not this docs Space. v2 serves nightly d499821c1 (channels schema 2); nightly's docs.yml already builds the main-only Pages site with the /nightly/ redirect stub to HF_DOCS_URL (31 channel/stub tests pass).
+2026-10-19: REMAINING (maintainer): merge nightly into main so main runs the main-only docs.yml; Pages is still the old combined site (main 87ff67a, nightly c138911) and /nightly/ is not yet a redirect. Then decide on v2 history squashing before it fills.
+2026-10-19: 06a579801: docs.yml squashes the v2 Space before an upload (stored + site > 60% of 1 GB, or 20 commits) and deletes unserved LFS files; v2 was at 990 MB (785 MB unserved), so the next nightly deploy squashes it. Maintainer step 6 is no longer needed.

@@ -1,0 +1,400 @@
+{
+  "language": "de",
+  "note": "Items 460/462: test-data docstrings (import_examples, measurements_example, plate templates) not yet reviewed in this locale.",
+  "records": [
+    {
+      "context": "Published contents: :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "label": "spacr.import_examples#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Published contents: :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "source_sha256": "f6ca2c83adbdaf5fb94f47ae157aaed5b86ca0ba6c5e3d4beba858ddca48c626",
+      "translation": "Veröffentlichte Inhalte: :data:`IMPORT_EXAMPLE_REPO` enthält ein Archiv. Darin, unter ``import_example/``:"
+    },
+    {
+      "context": "``variants/<key>/plate1/`` -- the same twelve image layers (microplate sample positions E01 and E02, microscope fields of view 9 and 10, three image data channels, cropped from the toxo_mito laboratory microplate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
+      "label": "spacr.import_examples#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``variants/<key>/plate1/`` -- the same twelve planes (wells E01 and E02, fields 9 and 10, three channels, cropped from the toxo_mito plate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
+      "source_sha256": "12bb5adfbfa5aba964a2a79e64d201f01cf7fa9b782c4c95cfda73619043c487",
+      "translation": "``variants/<key>/plate1/`` -- dieselben zwölf Ebenen (Wells E01 und E02, Bildfelder 9 und 10, drei Kanäle, ausgeschnitten aus der toxo_mito-Platte), einmal pro Variante geschrieben: einmal pro Dateinamenskonvention, einmal als Zeiss CZI, einmal als OME-TIFF und einmal als ImageJ-TIFF-Stapel;"
+    },
+    {
+      "context": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files, because no open library writes ND2 or LIF. They are third-party images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "label": "spacr.import_examples#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files, because no open library writes ND2 or LIF. They are third-party images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "source_sha256": "f97b8d9ab0b47964d32b97a11278f9c049895dbdd0efeaed5128c07a215e4f8e",
+      "translation": "``variants/nikon_nd2`` und ``variants/leica_lif`` -- öffentliche Beispieldateien, weil keine offene Bibliothek ND2 oder LIF schreibt. Es sind Bilder Dritter unter CC BY 4.0, ohne Masken, und sie durchlaufen den Format Converter;"
+    },
+    {
+      "context": "``manifest.csv`` -- one row per image file stating its actual well, microscope field of view, image data channel, z and t. It is the last member of the archive, so an interrupted transfer leaves no manifest and the set reads as absent.",
+      "label": "spacr.import_examples#8",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``manifest.csv`` -- one row per image file stating its actual well, field, channel, z and t. It is the last member of the archive, so an interrupted transfer leaves no manifest and the set reads as absent.",
+      "source_sha256": "a207a71d80f8669f643cf2c8011eb3b64706ef30368cb0abc90eab261bf7a7c8",
+      "translation": "``manifest.csv`` -- eine Zeile pro Bilddatei mit ihrem tatsächlichen Well, Bildfeld, Kanal, z und t. Sie ist das letzte Element des Archivs, sodass eine unterbrochene Übertragung kein Manifest hinterlässt und der Satz als nicht vorhanden gilt."
+    },
+    {
+      "context": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "label": "spacr.import_examples.is_present#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "source_sha256": "c5e3b615815ae5b67416f846c3d68c8ecce7708d6fc803353f4f33644ba3c113",
+      "translation": "``True`` nur dann, wenn das Manifest existiert und jede darin für die Variante(n) aufgeführte Datei auf dem Datenträger liegt. Ein teilweise entpackter Satz gilt als nicht vorhanden und wird daher erneut heruntergeladen."
+    },
+    {
+      "context": "Load Import test data: one example per vendor format and file naming.",
+      "label": "spacr.qt.import_demo#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Load Import test data: one example per vendor format and file naming.",
+      "source_sha256": "71bda0a7a078897848e6612c40ba52819018fc4f20b280e58c902564d6c41322",
+      "translation": "Lädt Testdaten für Import: ein Beispiel pro Herstellerformat und Dateibenennung."
+    },
+    {
+      "context": "The \"Load test data…\" button opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "label": "spacr.qt.import_demo#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The \"Load test data…\" button opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "source_sha256": "3876f4a2781af684385a54f0765a312f4dc11ff3b0eba2b6342e6f4687eca69d",
+      "translation": "Die Schaltfläche \"Load test data…\" öffnet :class:`ImportTestDataChooser` mit einer Schaltfläche pro Variante in :data:`spacr.import_examples.IMPORT_VARIANTS`, die jeweils beim Überfahren mit der Maus beschrieben wird. Die gewählte Variante wird abgerufen -- der gesamte Satz ist ein einziges Archiv, sodass der erste Klick alle Varianten herunterlädt und jeder weitere Klick aus dem Cache öffnet --, und anschließend:"
+    },
+    {
+      "context": "The download uses the same code as the other example sets: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
+      "label": "spacr.qt.import_demo#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The download uses the same code as the other example sets: :class:`_TarExampleWorker` streams the archive on a worker thread behind the shared progress dialog and unpacks it through the tar data filter.",
+      "source_sha256": "74757680c56d6792b3abb0ca44a4316ed09e59c30c23e46a4c2e1a7d3f35a214",
+      "translation": "Der Download verwendet denselben Code wie die anderen Beispielsätze: :class:`_TarExampleWorker` streamt das Archiv in einem Worker-Thread hinter dem gemeinsamen Fortschrittsdialog und entpackt es über den tar-Datenfilter."
+    },
+    {
+      "context": "Pick their files, review the mapping, import, read the summary.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Pick their files, review the mapping, import, read the summary.",
+      "source_sha256": "18b1058c323caeba027e65f166b3eb62f7ce37fc8abdf223d94f817c26f79fa3",
+      "translation": "Eigene Dateien auswählen, die Zuordnung prüfen, importieren, die Zusammenfassung lesen."
+    },
+    {
+      "context": "when False every job executes inline on the calling independent execution path. Tests use it so assertions are exact; the app leaves it True so a long import does not freeze the window.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "when False every job runs inline on the calling thread. Tests use it so assertions are exact; the app leaves it True so a long import does not freeze the window.",
+      "source_sha256": "eef833511e290f44ee9e3a3cdfda8a3250c74207accb0139862936f17406b77a",
+      "translation": "bei False läuft jeder Job direkt im aufrufenden Thread. Tests verwenden dies, damit Prüfungen exakt sind; die Anwendung belässt es auf True, damit ein langer Import das Fenster nicht einfriert."
+    },
+    {
+      "context": "Build the importer: images, masks, table and mapping.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build the importer: images, masks, table and mapping.",
+      "source_sha256": "e82aa9195673f73140257b013eba04754d45cff4606e4e42ba0d0d80eb68541d",
+      "translation": "Baut den Importer auf: Bilder, Masken, Tabelle und Zuordnung."
+    },
+    {
+      "context": "whether the import executes on a worker.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "whether the import runs on a worker.",
+      "source_sha256": "a7a6a64caeb1db80fba1eb42d5bd960fc9eefa7affc0208053ada9926e4fe9bf",
+      "translation": "ob der Import in einem Worker läuft."
+    },
+    {
+      "context": "How many background execution units are still winding down.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.active_jobs#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "How many worker threads are still winding down.",
+      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
+      "translation": "Wie viele Worker-Threads noch beendet werden."
+    },
+    {
+      "context": "Register a mask folder for one object class.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Register a mask folder for one object class.",
+      "source_sha256": "8e5cc5a01056e4bce8f727f9510c0bb4fe2054d217c3628c26c463fd9f70e684",
+      "translation": "Registriert einen Maskenordner für eine Objektklasse."
+    },
+    {
+      "context": "False when the class is unknown or the path is blank, with the reason inline — never an exception into a GUI slot.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "False when the class is unknown or the path is blank, with the reason inline — never an exception into a GUI slot.",
+      "source_sha256": "2bd76c877da125703d3858b0a9b6792a2506533b98f359030904103ccb8baca5",
+      "translation": "False, wenn die Klasse unbekannt oder der Pfad leer ist, mit dem Grund direkt angezeigt — nie eine Ausnahme in einen GUI-Slot."
+    },
+    {
+      "context": "True when the Import button is live.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.can_import#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the Import button is live.",
+      "source_sha256": "bf094c86760b4f9becc7f5f70482f6f3ad53cb57dba6174e073e1ff040e97505",
+      "translation": "True, wenn die Import-Schaltfläche aktiv ist."
+    },
+    {
+      "context": "The mapping as edited — exactly what Import would apply.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.column_maps#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The mapping as edited — exactly what Import would apply.",
+      "source_sha256": "449f666692a3705d7a05b932a5b2bc1709fa1bb156de84842bfda6869074cc6d",
+      "translation": "Die Zuordnung in ihrer bearbeiteten Form — genau das, was Import anwenden würde."
+    },
+    {
+      "context": "One line per conflict, blocking or not.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.conflict_lines#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One line per conflict, blocking or not.",
+      "source_sha256": "cc2554bf0dc850d7491a4f47264556ce0fc0bf67d9368d60a1c88ee79fc4da8e",
+      "translation": "Eine Zeile pro Konflikt, blockierend oder nicht."
+    },
+    {
+      "context": "The destination currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.destination_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The destination currently typed in.",
+      "source_sha256": "8f6c44c8e4a6535c6631af56ad8ab12f38e79e5d5726eadb254c6308053e682b",
+      "translation": "Das aktuell eingegebene Ziel."
+    },
+    {
+      "context": "The image folder currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.images_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The image folder currently typed in.",
+      "source_sha256": "d5547addfb7a6e31ef8ba03ded020c0e272ca01dc99a20737619de8b664b4719",
+      "translation": "Der aktuell eingegebene Bildordner."
+    },
+    {
+      "context": "True while a preview or an import is in flight.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.is_busy#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True while a preview or an import is in flight.",
+      "source_sha256": "faceed522475568c5b33a08448708b729f610007a8d50118c0b30ebe1f89c2b5",
+      "translation": "True, solange eine Vorschau oder ein Import läuft."
+    },
+    {
+      "context": "Read a mapping back and apply it to the plan on application view.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.load_mapping#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Read a mapping back and apply it to the plan on screen.",
+      "source_sha256": "ebd4d7a3158ea8158e2b9636318081979b97b7fee143c1ac3bdc226723877dee",
+      "translation": "Liest eine Zuordnung wieder ein und wendet sie auf den angezeigten Plan an."
+    },
+    {
+      "context": "Rows in the mapping table.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.mapping_row_count#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Rows in the mapping table.",
+      "source_sha256": "be61fc29c77990a128ef451f60140b67c0a97fb7b768b4d386e953cdde7f46b6",
+      "translation": "Zeilen in der Zuordnungstabelle."
+    },
+    {
+      "context": "``{object_type: folder}``, in spaCR's mask image layer order.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.mask_folders#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``{object_type: folder}``, in spaCR's mask-plane order.",
+      "source_sha256": "53e34034747b7c5284a0aecb7aa921d7dfb21732fbf1d7763928a951ecbed06c",
+      "translation": "``{object_type: folder}``, in der Reihenfolge der Maskenebenen von spaCR."
+    },
+    {
+      "context": "The measurement table currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.measurements_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The measurement table currently typed in.",
+      "source_sha256": "154e6e320955b77759b05ea34567bce05f172653f2957626968ba8ffa8716a30",
+      "translation": "Die aktuell eingegebene Messtabelle."
+    },
+    {
+      "context": "The selected collision policy.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.on_conflict#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The selected collision policy.",
+      "source_sha256": "0f4f336a9ab67aa0ede230303fee737b823186ec8696d7249d62ac0478c24226",
+      "translation": "Die gewählte Kollisionsrichtlinie."
+    },
+    {
+      "context": "The scale as a number, or None when blank or unparseable.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.pixel_size#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The scale as a number, or None when blank or unparseable.",
+      "source_sha256": "ddcb666ac3b7a3625b066f51cfd0efd86f4a4c3f36cad5287ae576a88f6967a4",
+      "translation": "Der Maßstab als Zahl oder None, wenn das Feld leer oder nicht auswertbar ist."
+    },
+    {
+      "context": "None is not an error: a column that needs a pixel size and does not have one is reported uncalibrated rather than scaled by 1.0.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.pixel_size#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "None is not an error: a column that needs a pixel size and does not have one is reported uncalibrated rather than scaled by 1.0.",
+      "source_sha256": "441d4e201f6cc283f9aac2234328b7dbf54b9690bf44c054acbab5eff93fc6d6",
+      "translation": "None ist kein Fehler: Eine Spalte, die eine Pixelgröße benötigt und keine hat, wird als unkalibriert gemeldet, statt mit 1.0 skaliert zu werden."
+    },
+    {
+      "context": "The plan currently on application view, or None.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.plan#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The plan currently on screen, or None.",
+      "source_sha256": "d9f6dedc7903ee6740089f6eea860076d9050744a0278cc66d018d07dcdf9fd7",
+      "translation": "Der aktuell angezeigte Plan oder None."
+    },
+    {
+      "context": "Scan, pair and verify. Writes nothing.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.preview#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Scan, pair and verify. Writes nothing.",
+      "source_sha256": "f08877aa80ad0bb38bcec9fffee0cfaacd3d877e9d5c3ecb325412ea6264bfae",
+      "translation": "Durchsucht, paart und prüft. Schreibt nichts."
+    },
+    {
+      "context": "True when the job was started (or, unthreaded, completed); False when the inputs are unusable, with the reason in the inline status label.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.preview#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the job was started (or, unthreaded, completed); False when the inputs are unusable, with the reason in the inline status label.",
+      "source_sha256": "762869bda1e4ef6ad627529f3724442243d96a07aa00fca7a66709d205a439c1",
+      "translation": "True, wenn der Job gestartet (oder ohne Thread abgeschlossen) wurde; False, wenn die Eingaben unbrauchbar sind, mit dem Grund im Statusfeld."
+    },
+    {
+      "context": "Forget one object class's mask folder.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.remove_mask_folder#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Forget one object class's mask folder.",
+      "source_sha256": "285af9bbf40531916df9cd8857f698d2bb2e44b62307becb6a2620bc45f09d78",
+      "translation": "Vergisst den Maskenordner einer Objektklasse."
+    },
+    {
+      "context": "Whatever is in the report pane.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.report_text#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Whatever is in the report pane.",
+      "source_sha256": "7481df9b65900bb5f6bbc7170cc183b1f8a25d558ec95e7c54a3877a39fee527",
+      "translation": "Der Inhalt des Berichtsbereichs."
+    },
+    {
+      "context": "The result of the last import, or None.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.result#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The result of the last import, or None.",
+      "source_sha256": "139df773931a4bacf470441125a638719e289e67aa7599898cbd5a9af7693375",
+      "translation": "Das Ergebnis des letzten Imports oder None."
+    },
+    {
+      "context": "Build the project. Off the main GUI execution path unless ``threaded=False``.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.run_import#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build the project. Off the GUI thread unless ``threaded=False``.",
+      "source_sha256": "bd5e1a64c0e8d331140ca127330e5096d3539d95cd2177cca50d306f9fac4194",
+      "translation": "Erstellt das Projekt. Außerhalb des GUI-Threads, sofern nicht ``threaded=False``."
+    },
+    {
+      "context": "True when the job was started, False when it was refused — with the reason inline.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.run_import#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the job was started, False when it was refused — with the reason inline.",
+      "source_sha256": "50da5b00edef562285d6143d7c4bbb4df3485e3e983f61dcca411fb958e96717",
+      "translation": "True, wenn der Job gestartet wurde, False, wenn er abgelehnt wurde — mit dem Grund direkt angezeigt."
+    },
+    {
+      "context": "Write the mapping on application view to a reviewable CSV.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.save_mapping#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Write the mapping on screen to a reviewable CSV.",
+      "source_sha256": "3fc6062ce5759dde3bbc952ad923988b8156d11b9a582d7a3a680a056d39d3fd",
+      "translation": "Schreibt die angezeigte Zuordnung in eine prüfbare CSV-Datei."
+    },
+    {
+      "context": "Set the destination project root.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_destination#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Set the destination project root.",
+      "source_sha256": "ec417ff62f7a1bda9a1ccdd380dd278f764d45982e3c3da83d3e5b7b704485b1",
+      "translation": "Legt das Wurzelverzeichnis des Zielprojekts fest."
+    },
+    {
+      "context": "Point the application view at their image folder without opening a dialog.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_images#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Point the screen at their image folder without opening a dialog.",
+      "source_sha256": "c27833590f076eb7b9466feea009dd3b6e20f13084c8eb7acea3683044f5e01e",
+      "translation": "Richtet den Bildschirm auf den Bildordner des Benutzers aus, ohne einen Dialog zu öffnen."
+    },
+    {
+      "context": "Edit one cell the way the delegate would.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Edit one cell the way the delegate would.",
+      "source_sha256": "780b9918abc108bed01a388bfabc6ec38224ff83aa3590d4ff915e2e63432f61",
+      "translation": "Bearbeitet eine Zelle so, wie es der Delegate tun würde."
+    },
+    {
+      "context": "The application view's own edit path, exposed so a test drives the same code an editor widget does rather than reaching into the model.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The screen's own edit path, exposed so a test drives the same code an editor widget does rather than reaching into the model.",
+      "source_sha256": "5f6c264763b0e45c9d69a68c0363f6cfcb3ee0a50b2d8ec800b7addf4c458c70",
+      "translation": "Der eigene Bearbeitungspfad des Bildschirms, offengelegt, damit ein Test denselben Code ausführt wie ein Editor-Widget, statt direkt in das Modell einzugreifen."
+    },
+    {
+      "context": "Choose refuse-or-rename for colliding targets.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_on_conflict#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Choose refuse-or-rename for colliding targets.",
+      "source_sha256": "e3df10e47af162ffe7ddc7e1735506d7f3ad7e0378e0e036b81214632c70a733",
+      "translation": "Wählt Ablehnen oder Umbenennen für kollidierende Ziele."
+    },
+    {
+      "context": "Set the µm-per-pixel scale; None or '' means unknown.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_pixel_size#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Set the µm-per-pixel scale; None or '' means unknown.",
+      "source_sha256": "250291b04caa144cdb00f3d1eafafef13f732af0e25236fff76c9030361aa99b",
+      "translation": "Legt den Maßstab in µm pro Pixel fest; None oder '' bedeutet unbekannt."
+    },
+    {
+      "context": "Current inline status message.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.status_text#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Current inline status message.",
+      "source_sha256": "f189e4920e5593fbbb2b9120ff0ca74d5606bd45defaf2823b5391f04b804bd0",
+      "translation": "Aktuelle Statusmeldung."
+    },
+    {
+      "context": "Their columns with no mapping, by name.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.unmapped_columns#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Their columns with no mapping, by name.",
+      "source_sha256": "574c656f4ea7b6f28e8099c75701bb3f7d0b103572c62c2ba29049e11f397ef9",
+      "translation": "Die Spalten des Benutzers ohne Zuordnung, nach Namen."
+    },
+    {
+      "context": "The same list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
+      "label": "spacr.qt.screens.foreign.naming_choices#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The same list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
+      "source_sha256": "26609c675da21280787b5646fe8fbdc0e11ce4e6de1de232cae0533a5b90b76a",
+      "translation": "Dieselbe Liste, die ``metadata_type`` von Mask anbietet, gelesen aus :func:`spacr.regex_infer._metadata_convention_menu`, sodass eine Platte, die Mask parsen kann, auch von Import geparst werden kann und die beiden Listen nicht auseinanderlaufen können. Ordner stehen an erster Stelle, weil Import diese verwendete, bevor es irgendeine Konvention kannte; die Herstellerkonventionen folgen in der Herstellerreihenfolge von Mask, jeweils mit ihrem Hersteller beschriftet und gekennzeichnet, wenn spaCR bei ihr nur Vermutungen anstellt."
+    },
+    {
+      "context": "The download reuses existing code. The archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "label": "spacr.qt.widgets.measurements_example#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The download reuses existing code. The archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
+      "source_sha256": "11c30d39ef9a542f00a821955f6a534dbba82659584589602e4394747872664a",
+      "translation": "Der Download verwendet vorhandenen Code. Archiv, Worker und Fortschrittsdialog stammen aus :func:`spacr.qt.hf_download.download_annotate_example`, demselben Aufruf, den die Schaltfläche von Classify ausführt, und eine Platte, die einer von ihnen bereits entpackt hat, wird ohne Netzwerkzugriff wiederverwendet."
+    },
+    {
+      "context": "Three public sets have buttons of their own, fetched through the example-set registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction Profiler, Run Compare, Run History and Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart, and ``hit`` (a cut of the TSG101 screening experiment, ``einarolafsson/spacr-example-hit``) for Investigate Hit.",
+      "label": "spacr.qt.widgets.measurements_example#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Three public sets have buttons of their own, fetched through the example-set registry (:data:`spacr.example_archives.EXAMPLE_SETS`): ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) for Dose-Response, Prediction Profiler, Run Compare, Run History and Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) for Control Chart, and ``hit`` (a cut of the TSG101 screen, ``einarolafsson/spacr-example-hit``) for Investigate Hit.",
+      "source_sha256": "832feba1f5b08c47a7ab9640073ad512503c55fc44ff3f0627c4e15c579e46cc",
+      "translation": "Drei öffentliche Sätze haben eigene Schaltflächen und werden über das Register der Beispielsätze (:data:`spacr.example_archives.EXAMPLE_SETS`) abgerufen: ``dose`` (LINCS Cell Painting, ``einarolafsson/spacr-example-dose``) für Dose-Response, Prediction Profiler, Run Compare, Run History und Training Runs, ``control_chart`` (CPJUMP1, ``einarolafsson/spacr-example-control-chart``) für Control Chart und ``hit`` (ein Ausschnitt des TSG101-Screens, ``einarolafsson/spacr-example-hit``) für Investigate Hit."
+    },
+    {
+      "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised, so one bad template does not remove the others from the menu.",
+      "label": "spacr.qt.widgets.plate_layout.plate_templates#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised, so one bad template does not remove the others from the menu.",
+      "source_sha256": "76e66e6742ccddbe3cf430a9763333214df427200735d83e929af6663c4cbf44",
+      "translation": "Wird bei jedem Aufruf aus den Paketdaten gelesen; der Ordner enthält eine Handvoll kleiner Dateien und wird nur gelesen, wenn Experiment Design sein Menü aufbaut. Eine Datei, die sich nicht parsen lässt, wird übersprungen statt einen Fehler auszulösen, sodass eine fehlerhafte Vorlage die übrigen nicht aus dem Menü entfernt."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

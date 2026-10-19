@@ -71,7 +71,8 @@ from ..theme import (SPACING, active_palette, block_surface,
                      mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import (_reuse_tree_items, install_sorting,
+                                      tree_item)
 from ..app_catalog import declared_app, register_declared
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
@@ -544,7 +545,7 @@ class ProfilerScreen(QWidget):
         if design.empty:
             self._set_status("That model has no inputs to profile.",
                              problem=True)
-            self._inputs.clear()
+            _reuse_tree_items(self._inputs, 0)
             self._show_curve(None, "No inputs to profile.")
             return
         self._ranked = sensitivity(model, design)
@@ -565,20 +566,19 @@ class ProfilerScreen(QWidget):
 
     def _fill_inputs(self) -> None:
         """Redraw the ranked input list."""
-        self._inputs.clear()
-        for record in self._ranked:
+        items = _reuse_tree_items(self._inputs, len(self._ranked))
+        for item, record in zip(items, self._ranked):
             coefficient = ("—" if math.isnan(record.coefficient)
                            else f"{record.coefficient:.4g}")
-            item = tree_item([record.variable, coefficient,
-                                    f"{record.span:.4g}"])
+            for column, text in enumerate((record.variable, coefficient,
+                                           f"{record.span:.4g}")):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, record.variable)
             item.setToolTip(
                 0, f"{record.variable}: sweeping {record.low:.4g} → "
                    f"{record.high:.4g} moves the prediction "
                    f"{record.prediction_low:.4g} → "
                    f"{record.prediction_high:.4g}.")
-            self._inputs.addTopLevelItem(item)
-
 
     def _build_sliders(self) -> None:
         """One slider per held input, for the most influential few."""

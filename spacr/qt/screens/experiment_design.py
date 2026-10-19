@@ -71,7 +71,10 @@ from ..widgets.plate_layout import (
 )
 from ..widgets.plate_map_picker import _Header, _locked_square, well_side
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_items, _spare_table_item, install_sorting,
+    table_item,
+)
 from ..app_catalog import declared_app, register_declared
 
 __all__ = [
@@ -615,7 +618,7 @@ class ExperimentDesignScreen(QWidget):
         :param conditions: the ``Condition`` records to show, in order.
         """
         self._table.blockSignals(True)
-        self._table.setRowCount(0)
+        _retire_table_cells(self._table)
         for condition in conditions:
             self._append_row(condition)
         self._table.blockSignals(False)
@@ -628,9 +631,11 @@ class ExperimentDesignScreen(QWidget):
         """
         row = self._table.rowCount()
         self._table.insertRow(row)
-        self._table.setItem(row, 0, table_item(condition.name))
         self._table.setItem(
-            row, 1, table_item(str(int(condition.replicates))))
+            row, 0, _spare_table_item(self._table, condition.name))
+        self._table.setItem(
+            row, 1, _spare_table_item(
+                self._table, str(int(condition.replicates))))
         box = QComboBox()
         box.addItems(ROLES)
         box.setCurrentText(condition.role)
@@ -651,7 +656,12 @@ class ExperimentDesignScreen(QWidget):
         """
         rows = sorted({index.row() for index in
                        self._table.selectedIndexes()}, reverse=True)
+        spare = _spare_items(self._table)
         for row in rows:
+            for column in range(self._table.columnCount()):
+                item = self._table.takeItem(row, column)
+                if item is not None:
+                    spare.append(item)
             self._table.removeRow(row)
         self.refresh()
 

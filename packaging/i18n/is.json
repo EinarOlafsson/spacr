@@ -101,5 +101,9 @@
   "gui_category_history": "Saga",
   "gui_category_temporary": "Bráðabirgðaskrár",
   "gui_category_downloads": "Niðurhal",
-  "gui_category_other": "Önnur spaCR-gögn"
+  "gui_category_other": "Önnur spaCR-gögn",
+  "lease_held": "%s er í höndum spaCR-uppsetningarferlis %s. Bíddu þar til því lýkur; ef það stöðvaðist í miðri endurheimt skaltu fylgja uppsetningarannál þess áður en þú reynir aftur.",
+  "lease_held_unknown": "%s er í höndum spaCR-uppsetningarforrits sem þessi útgáfa getur ekki athugað. Ef ekkert spaCR-uppsetningarforrit er í gangi skaltu fjarlægja það og reyna aftur.",
+  "lease_cleared": "Fjarlægði lás sem trufluð spaCR-uppsetning skildi eftir; ferli hennar er lokið: %s",
+  "staging_removed": "Fjarlægði undirbúningsumhverfi sem trufluð spaCR-uppsetning skildi eftir: %s"
 }

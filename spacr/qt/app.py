@@ -662,7 +662,7 @@ class _PipelinePreloader:
         self._thread = threading.Thread(
             target=self._work, name="spacr-preload", daemon=True)
         self._thread.start()
-        self._poll = QTimer()
+        self._poll = QTimer(QApplication.instance())
         self._poll.setInterval(40)
         self._poll.timeout.connect(self._drain)
         self._poll.start()
@@ -697,8 +697,10 @@ class _PipelinePreloader:
         if not self._done.is_set():
             return
         if self._poll is not None:
-            self._poll.stop()
-            self._poll = None
+            poll, self._poll = self._poll, None
+            poll.stop()
+            poll.deleteLater()
+            del poll
         if self._on_done is not None:
             try:
                 self._on_done()
@@ -5171,7 +5173,7 @@ class MainWindow(QMainWindow):
         try:
             from spacr.updater import editable_install_location
         except ImportError as exc:
-            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=str(exc)))
+            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(exc))))
             return
         checkout = editable_install_location()
         if checkout:
@@ -5182,10 +5184,23 @@ class MainWindow(QMainWindow):
                    "No package upgrade was performed.", path=checkout))
             return
         from .bridge import registry
-        if registry().is_busy():
+        runs = registry()
+        if runs._of_kind("analysis"):
             QMessageBox.information(
                 self, tr("Updates"),
                 tr("Finish or stop the active analyses before updating spaCR."))
+            return
+        if runs._of_kind("package_install"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A package is being installed into this spaCR environment. "
+                   "Wait for it to finish before updating spaCR."))
+            return
+        if runs._of_kind("model_download"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A model download is in progress. Wait for it to finish, or "
+                   "cancel it in the Jobs window, before updating spaCR."))
             return
 
         msg = (f"A new version is available.\n\n"
@@ -5325,7 +5340,7 @@ class MainWindow(QMainWindow):
                 self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
                 return
             self._frozen_update_timer = QTimer(self)
             self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
@@ -5438,7 +5453,7 @@ class MainWindow(QMainWindow):
                 LOG.exception("Frozen update shutdown approval failed; the installed app is retained")
             else:
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
 
     def _confirm_update_restart(self, message):
         """Offer an explicit Restart action only after update preparation succeeds."""
@@ -5564,6 +5579,20 @@ class MainWindow(QMainWindow):
                 tr("no Python outside the installation could be found to "
                    "finish the update; run the new installer instead"),
         }
+        marker = "Traceback (most recent call last):"
+        if marker in why:
+            from pathlib import Path
+            sentence = why.split(marker, 1)[0].rstrip().rstrip(":").strip()
+            last = next((line.strip() for line in reversed(why.splitlines()) if line.strip()), "")
+            cause = last.split(": ", 1)[1] if ": " in last and last.split(": ", 1)[0].endswith(("Error", "Exception")) else last
+            summary = ": ".join(part for part in (sentence, cause) if part)
+            LOG.warning("Update failed:\n%s", why)
+            report = Path.home() / ".spacr" / "logs" / "update.log"
+            if not report.is_file():
+                from spacr.logging_util import log_path
+
+                report = log_path()
+            return tr("{summary}\n\nThe full report is in {path}.", summary=summary, path=str(report))
         return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
@@ -5636,7 +5665,7 @@ class MainWindow(QMainWindow):
             except Exception as error:
                 self._cancel_frozen_update()
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
                 event.ignore()
                 self._closing = False
                 return
@@ -5679,7 +5708,17 @@ class MainWindow(QMainWindow):
         if notice is None:
             self._tour_timer.start(500)
         else:
-            notice.finished.connect(lambda _result: self._tour_timer.start(500))
+            notice.finished.connect(self._resume_the_tour)
+
+    def _resume_the_tour(self, _result=None) -> None:
+        """Start the tour once the anonymous-report notice has closed.
+
+        A bound method rather than a lambda, so Qt drops the connection if
+        this window goes before the notice does.
+
+        :param _result: the notice's dialog result; unused.
+        """
+        self._tour_timer.start(500)
 
     def _maybe_offer_installation_cache_review(self):
         """Offer default-off cache choices once per installed release/profile.
@@ -8181,9 +8220,18 @@ def _start_settings_prewarm() -> threading.Thread:
     def _warm_the_settings_imports():
         """Import each module, logging rather than raising a failure."""
         try:
+            try:
+                from .widgets.ambient import _import_numba
+                _import_numba()
+            except ImportError:
+                LOG.debug("numba is not available to prewarm", exc_info=True)
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery"):
+                        "spacr.qt.imagery", "spacr.settings_advisor",
+                        "pandas", "scipy.linalg", "scipy.stats",
+                        "matplotlib.figure", "matplotlib.font_manager",
+                        "skimage.data", "skimage.draw", "skimage.filters",
+                        "skimage.measure", "skimage.morphology"):
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
@@ -8550,7 +8598,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if update_launch is not None:
         from PySide6.QtCore import QTimer
 
-        QTimer.singleShot(0, lambda: win._after_the_startup_sequence(
+        _after(0, win, lambda: win._after_the_startup_sequence(
             lambda: _finish_update_launch(update_launch)
             if win.isVisible() and not win._closing else None))
 

@@ -56,10 +56,12 @@ from PySide6.QtWidgets import (
     QAccessibleWidget, QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout,
     QWidget,
 )
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..i18n import tr
 from ..theme import active_palette
 from .eliding import ElidingPushButton
+from .. import _after
 
 #: A dock row as the registry hands it over: key, name, description, section.
 Row = Tuple[str, str, str, str]
@@ -276,7 +278,9 @@ class Dock(QWidget):
         for key, name, desc, section in rows:
             if section and section != current:
                 header = SectionHeader(section)
-                header.installEventFilter(self)
+                _watch_object_events(header, self, (
+                    QEvent.Type.Enter, QEvent.Type.Leave,
+                    QEvent.Type.MouseButtonRelease))
                 column.addWidget(header)
                 self._headers[section] = header
                 self._section_rows.setdefault(section, [])
@@ -704,7 +708,7 @@ class DockEdge(QWidget):
         if self._pressed_x is None:
             from .ambient import field_ripple_for_widget
 
-            QTimer.singleShot(0, partial(
+            _after(0, self, partial(
                 field_ripple_for_widget, self if collapsed else self._dock,
                 edge="right"))
 

@@ -68,7 +68,7 @@ from ...volcano_style import (
     validate_style,
 )
 from .collapsible_splitter import CollapsibleSplitter
-from .sortable_table import install_sorting, table_item
+from .sortable_table import install_sorting, table_item, _reuse_list_items
 
 #: What an optional column menu calls "leave this unset". Spelled once,
 #: because the menu has to tell it apart from a column actually named that.
@@ -278,9 +278,8 @@ class _MultiSelect(QListWidget):
         offered += [value for value in wanted if value not in offered]
         self._filling = True
         try:
-            self.clear()
-            for option in offered:
-                item = QListWidgetItem(str(option), self)
+            for option, item in zip(offered, _reuse_list_items(self, len(offered))):
+                item.setText(str(option))
                 item.setData(Qt.UserRole, option)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
                 item.setCheckState(Qt.Checked if option in wanted

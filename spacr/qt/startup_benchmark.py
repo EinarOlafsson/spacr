@@ -20,6 +20,7 @@ from typing import Callable, Iterable, Optional, Union
 from PySide6.QtCore import QObject, QTimer
 
 from . import timing
+from . import _after
 
 OUTPUT_ENV = "SPACR_BENCHMARK_JSON"
 RUN_LABEL_ENV = "SPACR_BENCHMARK_RUN"
@@ -412,8 +413,9 @@ class BenchmarkController(QObject):
             detail = str(self.current_key)
         self._timeout_pending = True
         timing.cancel_interactive(detail=str(detail))
-        QTimer.singleShot(
+        _after(
             SETTLE_MS,
+            self,
             lambda: self._record_error(
                 detail,
                 f"no painted usable state within {self._armed_timeout_s:.1f} seconds",

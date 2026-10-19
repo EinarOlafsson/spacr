@@ -65,6 +65,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QWidget
 
 from .gil_priority import _watch_application_events
+from . import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -740,7 +741,7 @@ class ColumnTextScale(QObject):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("a column widget refused its text size",
                               exc_info=True)
-        QTimer.singleShot(0, lambda: self._refit(root))
+        _after(0, self, lambda: self._refit(root))
         return True
 
     @staticmethod

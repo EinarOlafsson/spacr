@@ -362,6 +362,70 @@ def upload_nightly(site: Path, space: str = NIGHTLY_SPACE) -> str:
     return info.oid
 
 
+#: What a free Hugging Face Space may store, history included.
+SPACE_LIMIT_BYTES = 1000 * 1000 * 1000
+#: Squash before an upload that would take the Space past this share of it.
+SQUASH_FRACTION = 0.6
+#: ...or once this many commits have piled up, whatever their size.
+SQUASH_EVERY = 20
+
+
+def squash_reason(used_bytes: int, incoming_bytes: int, commits: int, *,
+                  limit: int = SPACE_LIMIT_BYTES, fraction: float = SQUASH_FRACTION,
+                  every: int = SQUASH_EVERY) -> str | None:
+    """Whether the nightly Space's history should be squashed before an upload.
+
+    Every nightly upload keeps the previous site in the Space's history, so
+    the first Space filled its 1 GB in about five days of pushes and then
+    refused every deploy. ``"storage"`` when what is stored plus the site
+    about to go up passes ``fraction`` of ``limit``; ``"commits"`` once
+    ``every`` commits have accumulated; otherwise None.
+    """
+    if used_bytes + incoming_bytes > fraction * limit:
+        return "storage"
+    if commits >= every:
+        return "commits"
+    return None
+
+
+def squash_nightly_if_needed(site: Path, space: str = NIGHTLY_SPACE, api=None) -> dict:
+    """Squash the Space to one commit and drop the files no longer served.
+
+    Run before :func:`upload_nightly`. Squashing rewrites the history to the
+    current site; the large files only earlier sites referenced still count
+    against the quota until they are deleted, so the ones the current tree
+    does not reference are deleted as well. The token comes from
+    ``HF_TOKEN`` and is never printed.
+
+    :returns: what was measured and done, for the job log.
+    """
+    if api is None:
+        from huggingface_hub import HfApi
+        api = HfApi()
+    info = api.space_info(space, expand=["usedStorage"])
+    used = int(getattr(info, "used_storage", None) or getattr(info, "usedStorage", 0) or 0)
+    commits = sum(1 for _ in api.list_repo_commits(space, repo_type="space"))
+    incoming = site_size(site)
+    reason = squash_reason(used, incoming, commits)
+    result = {"space": space, "reason": reason, "used_bytes": used,
+              "incoming_bytes": incoming, "commits": commits, "squashed": False}
+    if reason is None:
+        return result
+    api.super_squash_history(space, repo_type="space",
+                             commit_message="Squash nightly documentation history")
+    head = api.space_info(space).sha
+    served = {entry.lfs.sha256 for entry in api.list_repo_tree(
+        space, repo_type="space", revision=head, recursive=True)
+        if getattr(entry, "lfs", None) is not None}
+    orphans = [item for item in api.list_lfs_files(space, repo_type="space")
+               if item.file_oid not in served]
+    if orphans:
+        api.permanently_delete_lfs_files(space, orphans, repo_type="space")
+    result.update(squashed=True, deleted_files=len(orphans),
+                  deleted_bytes=sum(int(item.size) for item in orphans))
+    return result
+
+
 def space_refusal_reason(error) -> str | None:
     """Classify a hosting refusal into a fixed, non-secret reason.
 
@@ -603,6 +667,9 @@ def main(argv=None) -> int:
     night.add_argument("--output", type=Path, required=True)
     night.add_argument("--main-url", default=MAIN_URL)
     night.add_argument("--nightly-url", default=NIGHTLY_URL)
+    squash = sub.add_parser("squash-nightly-if-needed")
+    squash.add_argument("--site", type=Path, required=True)
+    squash.add_argument("--space", default=NIGHTLY_SPACE)
     upload = sub.add_parser("upload-nightly")
     upload.add_argument("--site", type=Path, required=True)
     upload.add_argument("--space", default=NIGHTLY_SPACE)
@@ -649,6 +716,8 @@ def main(argv=None) -> int:
         print(verify_nightly(args.site, args.url, args.attempts, args.interval))
     elif args.command == "verify-space-tree":
         print(json.dumps(verify_space_tree(args.site, args.space, args.revision)))
+    elif args.command == "squash-nightly-if-needed":
+        print(json.dumps(squash_nightly_if_needed(args.site, args.space)))
     elif args.command == "verify-space-access":
         try:
             print(json.dumps(verify_space_access(args.space)))

@@ -161,7 +161,8 @@ def test_typing_before_the_journal_loads_claims_no_count(make_screen, journal):
     assert screen._status.text() == "Loaded 2 recorded run(s)."
 
     screen._search.setText("measure")
-    assert screen._table.rowCount() == 1
+    assert len(screen._visible_rows()) == 1
+    assert screen._table.rowCount() == 2
     assert screen._status.text() == "Showing 1 of 2 recorded run(s)."
 
 

@@ -206,14 +206,16 @@ def test_one_text_size_at_true_display_size_on_phone_and_desktop():
 
 
 def test_icon_rows_are_equal_cells_spanning_the_row():
-    """Module, data and installer icons: one row each, equal cells, the
-    same icon size in every row."""
+    """Module, data and installer icons: one row each, and one cell width
+    in every row (item 366, 2026-10-19: rows are as long as their icons,
+    so the gutter is the same in all of them)."""
     tool = _tool()
     text = _readme("en").read_text(encoding="utf-8")
     rows = [re.findall(r"\|([A-Za-z_]+)\|", line)
             for line in text.splitlines()
             if re.match(r"\| \|(Module_|Data|Installer)", line)]
     assert rows
+    every = set()
     for names in rows:
         widths = set()
         for name in names:
@@ -224,7 +226,9 @@ def test_icon_rows_are_equal_cells_spanning_the_row():
             assert (ROOT / found.group(1)).is_file(), found.group(1)
             widths.add(float(found.group(2)))
         assert len(widths) == 1, names
-        assert 98 <= widths.pop() * len(names) < 100, names
+        assert widths.copy().pop() * len(names) < 100, names
+        every |= widths
+    assert every == {round(100 * tool.ICON_ROW_SHARE / tool.ICON_COLUMNS, 2)}
 
 
 def test_the_palette_is_the_score_cards_and_never_warm():

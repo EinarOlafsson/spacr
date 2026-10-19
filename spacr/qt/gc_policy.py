@@ -40,9 +40,11 @@ GUI thread.
 
 from __future__ import annotations
 
+import contextlib
 import gc
 import logging
 import sys
+import threading
 import time
 from typing import Optional
 
@@ -121,6 +123,39 @@ def _defer_for_busy_workers() -> bool:
     return False
 
 
+_PAUSE_LOCK = threading.RLock()
+_PAUSE = {"depth": 0, "resume": False}
+
+
+@contextlib.contextmanager
+def _automatic_collection_paused():
+    """Hold automatic cyclic collection off for a block, from any thread.
+
+    Replaces the save-and-restore of ``gc.isenabled()`` that heavy imports
+    did on their own: two such blocks on two threads, or one racing
+    :func:`install`, could restore "enabled" after the policy had switched
+    automatic collection off, and the collector then ran on whichever thread
+    allocated next, the field-animation thread included. Pauses nest across
+    threads; the last one out re-enables collection only when it was enabled
+    before the first and the GUI-thread policy is not installed.
+
+    :returns: a context manager; the body runs with automatic collection off.
+    """
+    with _PAUSE_LOCK:
+        if _PAUSE["depth"] == 0:
+            _PAUSE["resume"] = gc.isenabled()
+            gc.disable()
+        _PAUSE["depth"] += 1
+    try:
+        yield
+    finally:
+        with _PAUSE_LOCK:
+            _PAUSE["depth"] -= 1
+            if (_PAUSE["depth"] == 0 and _PAUSE["resume"]
+                    and _timer is None):
+                gc.enable()
+
+
 def collect_once() -> int:
     """Run at most one generation's collection, CPython's own policy.
 
@@ -172,8 +207,11 @@ def install(parent=None) -> bool:
         return False
     try:
         _saved_thresholds = gc.get_threshold()
-        _was_enabled = gc.isenabled()
-        gc.disable()
+        with _PAUSE_LOCK:
+            _was_enabled = gc.isenabled() or (
+                _PAUSE["depth"] > 0 and _PAUSE["resume"])
+            _PAUSE["resume"] = False
+            gc.disable()
         timer = QTimer(parent)
         timer.setInterval(INTERVAL_MS)
         timer.timeout.connect(collect_once)
@@ -207,6 +245,9 @@ def uninstall() -> bool:
         pass
     _timer = None
     _saved_thresholds = None
-    if _was_enabled:
-        gc.enable()
+    with _PAUSE_LOCK:
+        if _PAUSE["depth"] > 0:
+            _PAUSE["resume"] = _was_enabled
+        elif _was_enabled:
+            gc.enable()
     return True

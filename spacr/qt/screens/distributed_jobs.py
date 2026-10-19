@@ -58,7 +58,9 @@ from ..iconset import icon
 from ..theme import SPACING, active_palette
 from ..widgets import Card, Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_table_item, install_sorting, table_item,
+)
 from .settings_model import attach_api_tooltip
 
 LOG = logging.getLogger(__name__)
@@ -493,8 +495,7 @@ class ExecutionProfileDialog(QDialog):
             from .settings_model import _ApiTooltipFilter
             filter_ = _ApiTooltipFilter(self)
             self._api_tooltip_filter = filter_
-        label.removeEventFilter(filter_)
-        label.installEventFilter(filter_)
+        filter_.watch(label)
 
     def _sync_backend(self, *_args) -> None:
         """Show only controls meaningful to the selected backend."""
@@ -1301,7 +1302,7 @@ class DistributedJobsScreen(QWidget):
         if not previous and current is not None:
             previous = current.job_id
         self._jobs = list(jobs)
-        self._table.setRowCount(0)
+        _retire_table_cells(self._table)
         palette = active_palette()
         colours = {
             "success": palette["success"],
@@ -1321,7 +1322,8 @@ class DistributedJobsScreen(QWidget):
                 job.external_id or "—", job.created_utc, job.updated_utc,
             )
             for column, value in enumerate(values):
-                cell = _item(value)
+                cell = _spare_table_item(self._table, "" if value is None else str(value), make=_item)
+                cell.setFlags(cell.flags() & ~Qt.ItemIsEditable)
                 if column == 0:
                     cell.setData(Qt.UserRole, job.job_id)
                 if column == 1:

@@ -39,7 +39,8 @@ from ...derived_tables import (
 from ...merge_tables import MergeError, aggregation_for
 from ..i18n import tr
 from ..job_runner import JobRunner
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 from ..theme import SPACING
 
 WARNING = (
@@ -379,7 +380,7 @@ class MergeTablesDialog(QDialog):
         full data.
         """
         definition = self.configuration()
-        self.rules.setRowCount(0)
+        _retire_table_cells(self.rules)
         for join in definition["joins"]:
             frame = column_sample(self.path, join["table"])
             identifiers = set(join.get("identifiers", []))
@@ -389,7 +390,7 @@ class MergeTablesDialog(QDialog):
                 row = self.rules.rowCount()
                 self.rules.insertRow(row)
                 for index, text in enumerate((join["table"], column)):
-                    item = table_item(text)
+                    item = _spare_table_item(self.rules, text)
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                     self.rules.setItem(row, index, item)
                 method = self._overrides.get(join["table"], {}).get(column, aggregation_for(

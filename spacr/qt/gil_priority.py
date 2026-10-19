@@ -239,6 +239,160 @@ def _open_torch_libraries() -> bool:
         return False
 
 
+def _hub_rebuild_objects(hub) -> None:
+    """Index ``hub``'s object watchers' kinds and their geometry watches."""
+    from PySide6.QtCore import QEvent
+
+    geometry_kinds = {QEvent.Type.Move, QEvent.Type.Resize,
+                      QEvent.Type.Show, QEvent.Type.Hide}
+    kinds = set()
+    geometry = {}
+    for key, chain in hub._objects.items():
+        for entry in chain:
+            kinds.update(entry[1])
+            if entry[1] & geometry_kinds:
+                geometry[key] = entry[3]
+    hub._object_kinds = frozenset(kinds)
+    hub._geometry_watched = geometry
+
+
+def _hub_add_object(hub, watched, watcher, kinds) -> None:
+    """Ask ``watcher`` first about ``watched``'s events of ``kinds``."""
+    from shiboken6 import getCppPointer
+
+    key = getCppPointer(watched)[0]
+    chain = [entry for entry in hub._objects.get(key, [])
+             if entry[0]() is not watcher]
+    if key not in hub._objects:
+        watched.destroyed.connect(
+            lambda *_args, key=key: _hub_drop_object(hub, key))
+    chain.insert(0, [weakref.ref(watcher), frozenset(kinds), True,
+                     weakref.ref(watched)])
+    hub._objects[key] = chain
+    _hub_rebuild_objects(hub)
+
+
+def _hub_discard_object(hub, watched, watcher) -> bool:
+    """Stop ``hub`` asking ``watcher`` about ``watched``."""
+    from shiboken6 import getCppPointer
+
+    try:
+        key = getCppPointer(watched)[0]
+    except (RuntimeError, TypeError):
+        return False
+    chain = hub._objects.get(key)
+    if not chain:
+        return False
+    kept = []
+    found = False
+    for entry in chain:
+        if entry[0]() is watcher:
+            entry[2] = False
+            found = True
+        else:
+            kept.append(entry)
+    if kept:
+        hub._objects[key] = kept
+    else:
+        hub._objects.pop(key, None)
+    _hub_rebuild_objects(hub)
+    return found
+
+
+def _hub_drop_object(hub, key) -> None:
+    """Forget every watch on an object that has been destroyed."""
+    chain = hub._objects.pop(key, None)
+    for entry in chain or ():
+        entry[2] = False
+    if chain is not None:
+        _hub_rebuild_objects(hub)
+
+
+def _hub_object_watchers(hub, watched) -> tuple:
+    """The live watchers of ``watched``, in the order they are asked."""
+    from shiboken6 import getCppPointer, isValid
+
+    try:
+        chain = hub._objects.get(getCppPointer(watched)[0], ())
+    except (RuntimeError, TypeError):
+        return ()
+    return tuple(watcher for watcher in
+                 (entry[0]() for entry in chain if entry[2])
+                 if watcher is not None and isValid(watcher))
+
+
+def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
+    """Hand ``event`` to ``watched``'s watchers of ``kind``."""
+    from shiboken6 import getCppPointer, isValid
+
+    try:
+        chain = hub._objects.get(getCppPointer(watched)[0])
+    except (RuntimeError, TypeError):
+        return False
+    if not chain:
+        return False
+    for entry in tuple(chain):
+        if not entry[2] or kind not in entry[1]:
+            continue
+        watcher = entry[0]()
+        if watcher is None or not isValid(watcher):
+            continue
+        try:
+            if watcher.eventFilter(watched, event):
+                return True
+        except Exception:
+            sys.excepthook(*sys.exc_info())
+    return False
+
+
+def _hub_geometry_before(hub) -> list:
+    """Where each geometry-watched widget is, before a paint pass."""
+    from shiboken6 import isValid
+
+    states = []
+    for ref in tuple(hub._geometry_watched.values()):
+        widget = ref()
+        if widget is None or not isValid(widget):
+            continue
+        try:
+            states.append((widget, widget.isVisible(), widget.pos(),
+                           widget.size()))
+        except (AttributeError, RuntimeError):
+            continue
+    return states
+
+
+def _hub_geometry_after(hub, states) -> None:
+    """Tell the watchers what moved during a paint pass they missed.
+
+    A paint pass runs with the hub off the application, so a move, resize,
+    show or hide sent from inside a paint is not heard as it happens. Each
+    is made again from the widget's state and handed to the watchers that
+    asked for it, once.
+    """
+    from PySide6.QtGui import QHideEvent, QMoveEvent, QResizeEvent, QShowEvent
+    from shiboken6 import isValid
+
+    for widget, visible, pos, size in states:
+        if not isValid(widget):
+            continue
+        try:
+            now = (widget.isVisible(), widget.pos(), widget.size())
+        except RuntimeError:
+            continue
+        events = []
+        if now[0] != visible:
+            events.append(QShowEvent() if now[0] else QHideEvent())
+        if now[1] != pos:
+            events.append(QMoveEvent(now[1], pos))
+        if now[2] != size:
+            events.append(QResizeEvent(now[2], size))
+        for event in events:
+            kind = event.type()
+            if kind in hub._object_kinds:
+                _hub_ask_object_watchers(hub, widget, event, kind)
+
+
 _HUB_ATTRIBUTE = "_spacr_application_event_hub"
 _HUB_CLASS = None
 
@@ -307,6 +461,9 @@ def _application_event_hub_class():
             self._entries = []
             self._by_kind = {}
             self._paints_unheard = True
+            self._objects = {}
+            self._object_kinds = frozenset()
+            self._geometry_watched = {}
 
         def _rebuild(self) -> None:
             """Index the live watchers by event type, newest first."""
@@ -356,14 +513,22 @@ def _application_event_hub_class():
             if kind == update_request and self._paints_unheard:
                 app = self.parent()
                 if app is not None and watched.isWidgetType():
+                    if (kind in self._object_kinds
+                            and _hub_ask_object_watchers(self, watched, event, kind)):
+                        return True
+                    moved = (_hub_geometry_before(self)
+                             if self._geometry_watched else None)
                     app.removeEventFilter(self)
                     try:
                         QCoreApplication.sendEvent(watched, event)
                     finally:
                         app.installEventFilter(self)
+                        if moved:
+                            _hub_geometry_after(self, moved)
                     return True
             if not chain:
-                return False
+                return (kind in self._object_kinds
+                        and _hub_ask_object_watchers(self, watched, event, kind))
             dead = False
             try:
                 for entry in chain:
@@ -378,7 +543,8 @@ def _application_event_hub_class():
                             return True
                     except Exception:
                         sys.excepthook(*sys.exc_info())
-                return False
+                return (kind in self._object_kinds
+                        and _hub_ask_object_watchers(self, watched, event, kind))
             finally:
                 if dead:
                     self._forget_the_dead()
@@ -457,6 +623,66 @@ def _watch_application_events(app, watcher, kinds) -> bool:
         return True
     hub.add(watcher, kinds)
     return True
+
+
+def _watch_object_events(watched, watcher, kinds) -> bool:
+    """Call ``watcher.eventFilter`` for ``watched``'s events of ``kinds``.
+
+    The replacement for ``watched.installEventFilter(watcher)`` with a
+    Python filter that never acts on a paint. Over the animated field every
+    widget on screen is painted on every frame, and Qt asks a widget's own
+    filters about each paint: lesson 13's Regression screen re-entered
+    Python 233 times per 3840x2160 frame, and during a run each re-entry
+    waits behind the pipeline's hold on the interpreter lock. Behind the
+    application hub the watcher hears only the kinds it names, in the same
+    call that already asks the application's watchers, and a paint pass
+    never reaches it; a move, resize, show or hide sent from inside a paint
+    is told afterwards. It is asked after the application's own watchers
+    and before the object's remaining Qt filters, which is where Qt asks an
+    application filter.
+
+    ``kinds`` must name every event type the filter can act on and must
+    not include ``Paint`` or ``UpdateRequest``: such a filter is installed
+    on ``watched`` directly, as before.
+
+    :param watched: the object to watch.
+    :param watcher: a ``QObject`` with an ``eventFilter``.
+    :param kinds: the ``QEvent.Type`` values it acts on.
+    :returns: ``True`` when the watcher is now watching.
+    """
+    if watched is None or watcher is None:
+        return False
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    kinds = frozenset(kinds)
+    hub = None
+    if not kinds & {QEvent.Type.Paint, QEvent.Type.UpdateRequest}:
+        hub = _application_event_hub(QCoreApplication.instance())
+    if hub is None:
+        watched.installEventFilter(watcher)
+        return True
+    _hub_add_object(hub, watched, watcher, kinds)
+    return True
+
+
+def _stop_watching_object_events(watched, watcher) -> bool:
+    """Undo :func:`_watch_object_events`; ``True`` if it was watching."""
+    if watched is None or watcher is None:
+        return False
+    from PySide6.QtCore import QCoreApplication
+
+    hub = _application_event_hub(QCoreApplication.instance(), create=False)
+    found = False
+    if hub is not None:
+        try:
+            found = _hub_discard_object(hub, watched, watcher)
+        except RuntimeError:
+            found = False
+    try:
+        watched.removeEventFilter(watcher)
+    except RuntimeError:
+        pass
+    return found
 
 
 def _stop_watching_application_events(app, watcher) -> bool:
@@ -579,7 +805,7 @@ def _tell_the_watchers(hub, root, before) -> None:
 
     if not isValid(root):
         return
-    wanted = hub._by_kind
+    wanted = set(hub._by_kind) | set(getattr(hub, "_object_kinds", ()))
     if not wanted:
         return
     for widget in [root] + list(root.findChildren(QWidget)):

@@ -462,6 +462,7 @@ def _attach(screen: QWidget, app_key: str,
     else:
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
+    _dress_a_late_panel(screen, toggle)
     return host
 
 

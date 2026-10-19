@@ -67,6 +67,7 @@ from PySide6.QtWidgets import (
 )
 
 from .widgets.flow import FlowLayout
+from .widgets.sortable_table import _reuse_list_items
 from .i18n import tr
 from ..logging_util import _spacr_home
 from ..run_journal import _atomic_write_text
@@ -549,12 +550,11 @@ class RecipeDialog(QDialog):
     def reload(self) -> None:
         """Re-read the module's recipe folder and repopulate the list."""
         self._recipes = list_recipes(self._app_key)
-        self._list.clear()
-        for recipe in self._recipes:
-            item = QListWidgetItem(
+        rows = _reuse_list_items(self._list, len(self._recipes))
+        for item, recipe in zip(rows, self._recipes):
+            item.setText(
                 f"{recipe.name}    ·    spaCR {recipe.spacr_version}")
             item.setData(Qt.UserRole, recipe.path)
-            self._list.addItem(item)
         if self._recipes:
             self._list.setCurrentRow(0)
         else:

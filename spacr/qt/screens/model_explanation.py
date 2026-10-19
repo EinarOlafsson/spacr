@@ -24,7 +24,8 @@ from ..linked_selection import has_object_opener, open_objects
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_table_item, install_sorting, table_item)
 
 APP_KEY = "explain_cv"
 APP_NAME = "Explain CV Model"
@@ -42,12 +43,14 @@ APP_CLI_NOTE = (
     "spacr.surrogate.explain_classifier and spacr.hit_attribution directly.")
 
 
-def _read_only_item(value: Any) -> QTableWidgetItem:
+def _read_only_item(value: Any, table=None) -> QTableWidgetItem:
     """Build a table cell that cannot be edited.
 
     :param value: the value; ``None`` and ``NaN`` render blank rather than
         as the string "nan", and a float is shown to five significant
         figures so a column of them lines up.
+    :param table: when given, a spare cell kept by this table is rewritten
+        instead of building a new one.
     :returns: the cell.
     """
     if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -56,7 +59,8 @@ def _read_only_item(value: Any) -> QTableWidgetItem:
         text = f"{value:.5g}"
     else:
         text = str(value)
-    item = table_item(text)
+    item = (_spare_table_item(table, text) if table is not None
+            else table_item(text))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -78,13 +82,13 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame,
     if not isinstance(shown.index, pd.RangeIndex):
         shown = shown.reset_index()
     table.setSortingEnabled(False)
-    table.clear()
+    _retire_table_cells(table, headers=True)
     table.setColumnCount(len(shown.columns))
     table.setHorizontalHeaderLabels([str(column) for column in shown.columns])
     table.setRowCount(len(shown))
     for row_index, row in enumerate(shown.itertuples(index=False, name=None)):
         for column_index, value in enumerate(row):
-            table.setItem(row_index, column_index, _read_only_item(value))
+            table.setItem(row_index, column_index, _read_only_item(value, table))
     table.setSortingEnabled(True)
     if shown.shape[1]:
         table.horizontalHeader().setSectionResizeMode(
