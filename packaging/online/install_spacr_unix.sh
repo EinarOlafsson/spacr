@@ -905,6 +905,7 @@ spacr_say downloading_dependencies
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --offline --no-index \
         --find-links "$OFFLINE_BUNDLE/wheels" \
         ${override_args[@]+"${override_args[@]}"} \
@@ -912,6 +913,7 @@ if [[ -n "$OFFLINE_BUNDLE" ]]; then
 else
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --torch-backend "$TORCH_BACKEND" \
         ${override_args[@]+"${override_args[@]}"} \
         "$PACKAGE_SPEC" \

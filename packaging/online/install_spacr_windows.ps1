@@ -471,11 +471,11 @@ try {
 
     Write-Host (Get-SpacrInstallerMessage "downloading_dependencies") -ForegroundColor Cyan
     if ($OfflineBundle) {
-        Invoke-Checked $UvExe pip install --python $StagePython --offline --no-index `
+        Invoke-Checked $UvExe pip install --python $StagePython --compile-bytecode --offline --no-index `
             --find-links (Join-Path $OfflineBundle "wheels") @OverrideArgs `
             -r (Join-Path $OfflineBundle "requirements.txt")
     } else {
-        Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend @OverrideArgs $PackageSpec @ResolverGuards
+        Invoke-Checked $UvExe pip install --python $StagePython --compile-bytecode --torch-backend $TorchBackend @OverrideArgs $PackageSpec @ResolverGuards
     }
 
     Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
