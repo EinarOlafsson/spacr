@@ -175,6 +175,7 @@ def test_cold_compilation_uses_worker_and_gui_keeps_ticking(qtbot, monkeypatch):
         original()
 
     monkeypatch.setattr(ambient, '_warm_packed_scatter', record)
+    monkeypatch.setattr(ambient, '_numba_cache_directory', lambda: None)
     timer = QTimer()
     timer.setInterval(10)
     timer.timeout.connect(lambda: beats.append(time.perf_counter()))

@@ -10570,7 +10570,24 @@ def volume_render_backends():
     found = {info['backend'] for info in wgpu_adapters()}
     return tuple(key for key in VOLUME_BACKENDS
                  if (key not in VOLUME_WGPU_BACKENDS or key in found)
-                 and (key != 'opengl' or find_spec('vispy') is not None))
+                 and (key != 'opengl' or _opengl_volume_importable()))
+
+
+def _opengl_volume_importable():
+    """Whether the OpenGL volume renderer's two libraries import.
+
+    VisPy draws, and needs PyOpenGL for 3D textures; with only VisPy every
+    frame fails and the view silently falls back to the CPU.
+
+    :returns: ``True`` when ``vispy`` and ``OpenGL.GL`` both import.
+    """
+    if find_spec('vispy') is None or find_spec('OpenGL') is None:
+        return False
+    try:
+        import OpenGL.GL
+    except Exception:
+        return False
+    return True
 
 
 def volume_backend_chain(choice, offered=None, platform=None):
@@ -10683,6 +10700,8 @@ class _GLVolumeContext:
 
         if find_spec('vispy') is None:
             raise RuntimeError('VisPy is not installed')
+        if not _opengl_volume_importable():
+            raise RuntimeError('PyOpenGL is not installed')
         wanted = QSurfaceFormat()
         wanted.setRenderableType(QSurfaceFormat.OpenGL)
         wanted.setProfile(QSurfaceFormat.CompatibilityProfile)

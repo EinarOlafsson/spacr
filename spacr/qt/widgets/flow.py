@@ -13,7 +13,22 @@ from __future__ import annotations
 from typing import Any, List
 
 from PySide6.QtCore import QPoint, QRect, QSize, Qt
+from shiboken6 import isValid
 from PySide6.QtWidgets import QLayout, QSizePolicy, QWidget
+
+
+def _alive(layout) -> bool:
+    """Whether the layout's C++ half still exists.
+
+    Qt asks a layout for its items while a parent widget is being torn
+    down (``ChildRemoved`` reaches ``count``/``itemAt``/``takeAt``); by then
+    this Python layout may already be half destroyed, and answering from it
+    then is how a Python ``QLayout`` crashes during teardown.
+
+    :param layout: the layout.
+    :returns: ``False`` once its C++ object has been destroyed.
+    """
+    return isValid(layout)
 
 
 class FlowLayout(QLayout):
@@ -48,6 +63,8 @@ class FlowLayout(QLayout):
 
     def count(self) -> int:
         """Number of items in the layout."""
+        if not _alive(self):
+            return 0
         return len(self._items)
 
     def itemAt(self, index):                    # noqa: N802 (Qt override)
@@ -55,7 +72,7 @@ class FlowLayout(QLayout):
 
         :param index: zero-based position of the item.
         """
-        if 0 <= index < len(self._items):
+        if _alive(self) and 0 <= index < len(self._items):
             return self._items[index]
         return None
 
@@ -64,7 +81,7 @@ class FlowLayout(QLayout):
 
         :param index: zero-based position of the item to remove.
         """
-        if 0 <= index < len(self._items):
+        if _alive(self) and 0 <= index < len(self._items):
             return self._items.pop(index)
         return None
 
@@ -100,6 +117,8 @@ class FlowLayout(QLayout):
     def minimumSize(self) -> QSize:             # noqa: N802 (Qt override)
         """The largest single chip, plus margins."""
         size = QSize()
+        if not _alive(self):
+            return size
         for item in self._items:
             size = size.expandedTo(item.minimumSize())
         margins = self.contentsMargins()
@@ -119,6 +138,8 @@ class FlowLayout(QLayout):
             ``heightForWidth`` is answered.
         :returns: the height the items needed.
         """
+        if not _alive(self):
+            return 0
         margins = self.contentsMargins()
         area = rect.adjusted(margins.left(), margins.top(),
                              -margins.right(), -margins.bottom())

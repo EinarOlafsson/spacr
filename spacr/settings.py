@@ -1167,7 +1167,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
 
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
-    settings.setdefault('keep_original_images', False)
+    settings.setdefault('keep_original_images', True)
     settings.setdefault('adjust_cells', True)
     settings.setdefault('mask_parallel', False)
     settings.setdefault('mask_gpu_indices', '')
@@ -1315,7 +1315,7 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('randomize', True)
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
-    settings.setdefault('keep_original_images', False)
+    settings.setdefault('keep_original_images', True)
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('figuresize', 10)
     settings.setdefault('normalize', True)
@@ -4820,7 +4820,7 @@ tooltips = {
     "cloud_fields": "(int) - Fields per well of a cloud OME-Zarr plate to fetch, counted from the first. 0 fetches every field. Default 0.",
     "cloud_level": "(int) - Resolution level of a cloud OME-Zarr to fetch. 0 is full resolution; each level above usually halves width and height, so set diameters and size limits for the smaller images. Default 0.",
     "cloud_results": "(str) - Cloud folder (s3://, gs:// or az://) the run's measurements folder is copied to when it finishes, in one subfolder per src. Blank keeps results in the local folder only. Default blank.",
-    "keep_original_images": "(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
+    "keep_original_images": "(bool) - Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
     "augment": "(bool) - Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False.",

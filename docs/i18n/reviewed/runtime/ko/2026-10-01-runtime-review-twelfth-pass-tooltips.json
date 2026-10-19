@@ -2016,9 +2016,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "원본 원시 입력 이미지를 유지합니다(orig/ 안에). 디스크 공간을 절약하기 위해 기본적으로 꺼져 있습니다. 픽셀 데이터는 merged/에 있습니다."
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "실행 후에도 원본 원시 입력 이미지를 orig/에 유지합니다. 원시 파일이 사라지지 않도록 기본적으로 켜져 있습니다. 디스크 공간을 절약하려는 경우에만 False로 설정하세요. 그러면 merged/가 만들어진 뒤 orig/가 삭제되며 되돌릴 수 없습니다. merged/에는 투영된 픽셀 데이터가 있고 원시 파일은 없습니다."
     },
     {
       "table": "setting_tooltips",

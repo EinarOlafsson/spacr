@@ -208,7 +208,10 @@ class _ThreadStreamRouter(io.TextIOBase):
         :param value: the text.
         :returns: how many characters were accepted.
         """
-        return self._target().write(value)
+        try:
+            return self._target().write(value)
+        except ValueError:
+            return 0
 
     def flush(self) -> None:
         """Flush this thread's redirector, tolerating one that has gone away."""
@@ -232,7 +235,10 @@ class _ThreadStreamRouter(io.TextIOBase):
         :returns: the real stream's answer, and ``False`` for a stream that
             does not implement it -- a router is never itself a terminal.
         """
-        return bool(getattr(self.original, "isatty", lambda: False)())
+        try:
+            return bool(getattr(self.original, "isatty", lambda: False)())
+        except ValueError:
+            return False
 
 
 _STREAM_ROUTER_LOCK = threading.RLock()

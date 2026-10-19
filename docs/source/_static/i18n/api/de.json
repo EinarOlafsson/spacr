@@ -130806,146 +130806,16 @@
     },
     "spacr.qt.widgets.channel_sort_dialog": {
       "source_blocks_sha256": [
-        "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+        "0db23266304f86d8ee4762faa106a031e43d8db3669ee8e9113e656adbd8ddd4",
         "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
-        "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
-        "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
-        "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
-        "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33"
+        "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b"
       ],
-      "source_sha256": "fe785517ee6b83683f575fc7d5761ae3edf212a3d95fed0a5eac3f693fc7575a",
-      "text": "Der Dialog \"Sort into channels…\" von Make Masks, sein Fenster für reguläre Ausdrücke und seine Satzprüfung.\n\nDünne Qt-Schicht über :mod:`spacr.channel_sorting`, das alle Entscheidungen trifft:\n\n* :class:`ChannelSortDialog` listet die Bilder des geöffneten Ordners mit Miniaturansichten auf und zeigt, ob jedes eine Maske hat. Bilder werden ausgewählt (Klick, Umschalt, Strg, Alle auswählen) und einem Kanal zugewiesen -- die AUSWAHL-Strategie --, und stattdessen kann ein regulärer Ausdruck jedes Bild zuweisen -- die REGEX-Strategie. Apply baut einen :class:`spacr.channel_sorting.SortPlan`; wenn sich die Namen nicht in Sätze umwandeln lassen, wird der Benutzer gebeten, den regulären Ausdruck zu ändern.\n* :class:`RegexWindow` erklärt die benannten Gruppen, testet einen regulären Ausdruck live gegen jeden Dateinamen, schlägt einen vor (\"Auto regex\") oder paart Bilder nach Ähnlichkeit und Größe, ohne die Namen zu beachten (\"Detect sets\").\n* :class:`ExampleSetsDialog` zeigt drei erkannte Sätze nebeneinander, jeden Kanal mit seiner Maske, und fragt, ob sie stimmen.\n\nNichts hier verschiebt eine Datei. Der Dialog gibt einen Plan zurück; die Ansicht wendet ihn außerhalb des GUI-Threads an.",
+      "source_sha256": "f8e0c22c9f95aca34fbddb65b0397b5d5260f909c3b7a4fc84d8495efba72d3b",
+      "text": "Die Prüfung der Beispielsätze in Make Masks.\n\nDünne Qt-Schicht über :mod:`spacr.channel_sorting`, das alle Entscheidungen trifft:\n\n* :class:`ExampleSetsDialog` zeigt drei erkannte Sätze nebeneinander, jeden Kanal mit seiner Maske, und fragt, ob sie stimmen.",
       "translation_source_blocks_sha256": [
-        "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+        "0db23266304f86d8ee4762faa106a031e43d8db3669ee8e9113e656adbd8ddd4",
         "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
-        "0735d09f5b73275a2c8557b67b966a043cce4e84de161da406980b99cf4b2d27",
-        "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
-        "cdcaa7524ecd759114535d6389fabac40522045cc026502a0adb1c3ac5061fec",
-        "ec1e4266c0e7f3977e057de26edee52b4200734390a16cf3c69c82b68ad3a770"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog": {
-      "source_blocks_sha256": [
-        "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
-        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
-        "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
-        "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
-        "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ],
-      "source_sha256": "1eb2db48146f7cc475e8ee79a40a391f5ea943c9b2e7f19ed4e3da9ef0d61685",
-      "text": "Weist die Bilder des Ordners Kanälen zu, prüft die Sätze und plant die Verschiebung.\n\n:ivar plan: der bestätigte :class:`spacr.channel_sorting.SortPlan`, sobald der Dialog angenommen ist, sonst None.\nListet den Ordner auf und schlägt einen regulären Ausdruck vor.\n\n:param folder: der Ordner, den Make Masks geöffnet hat.\n:param masks_dir: sein Maskenordner, wenn nicht ``<folder>/masks``.\n:param parent: das übergeordnete Qt-Objekt.",
-      "translation_source_blocks_sha256": [
-        "a51ce99c1fe5e54638838deae49b2810f1cef53f58da88a577f7da39d4792132",
-        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
-        "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
-        "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
-        "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel": {
-      "source_blocks_sha256": [
-        "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
-        "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f"
-      ],
-      "source_sha256": "68e7d3ec5b69367e66eeb0df56bef6eee11a197c4bc579b9d3d3bb11a223176f",
-      "text": "Bietet einen weiteren Kanal an.\n\n:returns: die Nummer des neuen Kanals.",
-      "translation_source_blocks_sha256": [
-        "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
-        "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected": {
-      "source_blocks_sha256": [
-        "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
-        "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
-        "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08"
-      ],
-      "source_sha256": "21ba167751401f07c62d36e3ab665d1d734cd4fdad2a5eee0fe9c2ac0b8d8f76",
-      "text": "Weist die ausgewählten Bilder ``channel`` zu; None hebt die Zuweisung auf.\n\nEine Zuweisung von Hand ersetzt alle Sätze, die \"Detect sets\" gefunden hat.\n\n:param channel: der 1-basierte Kanal oder None.",
-      "translation_source_blocks_sha256": [
-        "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
-        "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
-        "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets": {
-      "source_blocks_sha256": [
-        "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
-        "f665741cf3de350053902b4d02c7361a40dbcef4f7f6736ab1c44bac133e9a34"
-      ],
-      "source_sha256": "aa57d9fd408e9ec6485dbf45f85c47a63c39a392e3714501725591972be69498",
-      "text": "Die Sätze, die Apply verwenden würde, und was falsch ist, wenn es keine gibt.\n\n:returns: ``(sets or None, report text)``.",
-      "translation_source_blocks_sha256": [
-        "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
-        "f665741cf3de350053902b4d02c7361a40dbcef4f7f6736ab1c44bac133e9a34"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles": {
-      "source_blocks_sha256": [
-        "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a"
-      ],
-      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
-      "text": "``{channel: role}`` wie gewählt, ohne ``none``.",
-      "translation_source_blocks_sha256": [
-        "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed": {
-      "source_blocks_sha256": [
-        "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d"
-      ],
-      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
-      "text": "Jedes Bild, durch den regulären Ausdruck gelesen, mit den Kanälen der Auswahl.",
-      "translation_source_blocks_sha256": [
-        "dedb611e0087968efa6650fe3f8e3cb419cb43be3ab219b5c4f348f61ffcbce6"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan": {
-      "source_blocks_sha256": [
-        "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
-        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
-        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
-      ],
-      "source_sha256": "b1050511b7763467d507fd735090e090bb95f30fdda4014b734468a7fe2258c1",
-      "text": "Baut den Plan aus den aktuellen Sätzen oder None, wenn es keine gibt.\n\n:param convert: RGB-Bilder und Z-Stapel in eine Ebene umwandeln.\n:returns: der Plan, der noch Probleme enthalten kann.",
-      "translation_source_blocks_sha256": [
-        "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
-        "4d8beba79b5a664643693178d4f756fc82114a24e9d46d808ae72cc4ff080bd4",
-        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh": {
-      "source_blocks_sha256": [
-        "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444"
-      ],
-      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
-      "text": "Zeichnet die Listentexte, die Auswahl der Maskenrollen und die Statuszeile neu.",
-      "translation_source_blocks_sha256": [
-        "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names": {
-      "source_blocks_sha256": [
-        "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3"
-      ],
-      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
-      "text": "Die Namen der ausgewählten Bilder, in Listenreihenfolge.",
-      "translation_source_blocks_sha256": [
-        "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex": {
-      "source_blocks_sha256": [
-        "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
-        "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d"
-      ],
-      "source_sha256": "a99305ba986bbe1a54710e5be4e54beee02106c88f07f4380dfe29fe4e271fab",
-      "text": "Verwendet ab jetzt ``regex`` für Kanäle und Sätze.\n\n:param regex: das Muster.",
-      "translation_source_blocks_sha256": [
-        "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
-        "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d"
+        "cdcaa7524ecd759114535d6389fabac40522045cc026502a0adb1c3ac5061fec"
       ]
     },
     "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog": {
@@ -130964,70 +130834,6 @@
         "c676e8c5a6377668bd0a40f6184a6a9cc4e728c5cf994fd274d072a36b510530",
         "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
         "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow": {
-      "source_blocks_sha256": [
-        "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
-        "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
-        "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
-        "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
-        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
-        "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
-        "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ],
-      "source_sha256": "a328d5ba2f6f6663f7cecff42c6fecbefdda856946e685dfdb72663b4f8af360",
-      "text": "Schreibt, testet, leitet ab oder umgeht den regulären Ausdruck, der Bilder in Sätze sortiert.\n\n:ivar regex: der reguläre Ausdruck, wenn das Fenster mit \"Use this regex\" angenommen wird.\n:ivar detected: die Sätze, die \"Detect sets\" gefunden und der Benutzer bestätigt hat, oder None.\nBaut das Fenster und führt den Test einmal aus.\n\n:param folder: der Bildordner.\n:param names: die Bildnamen, gegen die getestet wird.\n:param channels: ``{name: channel}`` aus der Auswahl.\n:param regex: der reguläre Ausdruck, von dem ausgegangen wird.\n:param masks_dir: ein ausdrücklich angegebener Maskenordner.\n:param parent: das übergeordnete Qt-Objekt.",
-      "translation_source_blocks_sha256": [
-        "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
-        "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
-        "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
-        "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
-        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
-        "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
-        "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex": {
-      "source_blocks_sha256": [
-        "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
-        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
-      ],
-      "source_sha256": "8aea25dc6c9b06cc7d519c4e7d0a97c946af76266b6a91fad5786f8d34748140",
-      "text": "Schlägt einen regulären Ausdruck vor, setzt ihn ins Feld und testet ihn.\n\n:returns: der reguläre Ausdruck oder None, wenn keiner gefunden wurde.",
-      "translation_source_blocks_sha256": [
-        "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
-        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect": {
-      "source_blocks_sha256": [
-        "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
-        "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585"
-      ],
-      "source_sha256": "5dcafa2e380dd72b0440fa44069d857fcc27477a8abe9987f9087358374146d5",
-      "text": "Paart Bilder zu Sätzen, zeigt drei und behält sie, wenn sie bestätigt werden.\n\n:returns: die Sätze, wenn der Benutzer sie für richtig erklärt hat, sonst None.",
-      "translation_source_blocks_sha256": [
-        "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
-        "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585"
-      ]
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test": {
-      "source_blocks_sha256": [
-        "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
-        "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737"
-      ],
-      "source_sha256": "b2b7355afd4fded0838af8a6d4d4d5bdec8b17eff6f2eaae9954ce79b38bc9d5",
-      "text": "Liest jeden Namen mit dem regulären Ausdruck und füllt Tabelle und Zusammenfassung.\n\n:returns: der Satzbericht.",
-      "translation_source_blocks_sha256": [
-        "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
-        "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737"
       ]
     },
     "spacr.qt.widgets.class_editor": {

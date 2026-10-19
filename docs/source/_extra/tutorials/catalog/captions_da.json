@@ -3724,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Åbn undermappen masks i Source. Hvert billede har en maske-TIFF med samme filnavnsstamme. Undersøg figurerne ved siden af de originale billeder, og læg mærke til oversete objekter og sammenhængende celler. Flowpanelet viser de retninger, modellen bruger til segmenteringen.",
+          "narration": "Undermappen masks i Source indeholder en maske-TIFF med samme filnavnsstamme til hvert billede. Undersøg figurerne ved siden af de originale billeder, og læg mærke til oversete objekter og sammenhængende celler. Flowpanelet viser de retninger, modellen bruger til segmenteringen.",
           "focus": [
             1000,
             450,
@@ -3735,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå Live preview til, og vælg et billede med billedvælgeren. Åbn Live settings, og kontrollér indstillingerne for kanal og normalisering. Fold Console og System sammen for at give forhåndsvisningen mere plads, hvis det er nødvendigt.",
+          "narration": "Fold de øvrige resultatkort sammen for at give forhåndsvisningen mere plads. Slå Live preview til, og vælg et billede med billedvælgeren. Gå til det medfølgende eksempelbillede.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Sammenlign forhåndsvisningen med den gemte batchmaske. Forhåndsvisningen og Apply bruger forskellige behandlingsveje i dette eksempel og kan derfor give forskellige grænser og antal. Gennemgå de gemte TIFF-filer, når du vurderer, om batchens output egner sig til måling.",
+          "narration": "Kontrollér kanal og normalisering i Live settings, og kør derefter forhåndsvisningen. Forhåndsvisningen og Apply behandler disse billeder forskelligt, så grænser og antal kan afvige. Gennemgå de gemte TIFF-filer, når du vurderer, om batchens output egner sig til måling.",
           "focus": [
             1000,
             1160,
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Brug musehjulet til at forstørre et område på begge forhåndsvisningsflader. Undersøg objekter, der rører hinanden, og svage grænser, og zoom derefter ud for at kontrollere hele synsfeltet.",
+          "narration": "Brug musehjulet til at forstørre et område på begge forhåndsvisningsflader. Undersøg objekter, der rører hinanden, og svage grænser i det forstørrede billede.",
           "focus": [
             1010,
             1280,
@@ -3794,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6590,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7418,7 +7464,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8428,7 +8497,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8611,7 +8703,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

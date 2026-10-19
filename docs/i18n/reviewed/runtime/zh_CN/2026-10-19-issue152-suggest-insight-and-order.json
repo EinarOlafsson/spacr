@@ -1,0 +1,407 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude); no human or native-speaker signoff",
+  "review_method": "Direct translation of the Annotate Suggest progress, page order, suggestion-model scorecard and threshold texts added for issue #152 on 2026-10-19, reusing the terms of the reviewed 2026-10-01 and 2026-10-18 Suggest records and the runtime catalog.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A suggestion run is going; the thresholds apply to its result when it finishes.",
+      "source": "A suggestion run is going; the thresholds apply to its result when it finishes.",
+      "source_sha256": "25e3a03ee91ec20982f526e9725c5b4beb4dd3f324b37cf465c1cf5fa6ad9138",
+      "translation": "建议生成正在进行；完成后，阈值将应用于其结果。"
+    },
+    {
+      "table": "ui",
+      "key": "As stored",
+      "source": "As stored",
+      "source_sha256": "422216374b5fccca627cddeffa9178e177c6c94b114d6b090bbd043c4de6a9b5",
+      "translation": "按存储顺序"
+    },
+    {
+      "table": "ui",
+      "key": "By class, unlabelled first",
+      "source": "By class, unlabelled first",
+      "source_sha256": "7d0f9d1305caafb5d3515cd0534cb906f7eb6a2bc11cf8edbb27963f15871810",
+      "translation": "按类别，未标注的在前"
+    },
+    {
+      "table": "ui",
+      "key": "By class, unlabelled last",
+      "source": "By class, unlabelled last",
+      "source_sha256": "568278f904a719c83bab36f804caee8bb6b102af2b4ba2f1f81326c9d2e48166",
+      "translation": "按类别，未标注的在后"
+    },
+    {
+      "table": "ui",
+      "key": "By suggestion probability, highest first",
+      "source": "By suggestion probability, highest first",
+      "source_sha256": "9bf4ee8df7016fb3abee1e8a476e0df7b8cec81204056a89f7b2bc4b6f511d5b",
+      "translation": "按建议概率，由高到低"
+    },
+    {
+      "table": "ui",
+      "key": "By suggestion probability, lowest first",
+      "source": "By suggestion probability, lowest first",
+      "source_sha256": "a2265186cdc2837f7feb34af5282615358b53ade6f99b7995a0f8ec61b48e169",
+      "translation": "按建议概率，由低到高"
+    },
+    {
+      "table": "ui",
+      "key": "Class weight",
+      "source": "Class weight",
+      "source_sha256": "c27fba28436f33777e0b6b53997855cfb6d179b8a1d0571b54520074ca2124bc",
+      "translation": "类别权重"
+    },
+    {
+      "table": "ui",
+      "key": "Class {c}: minimum probability",
+      "source": "Class {c}: minimum probability",
+      "source_sha256": "222422211318697867ff4b2577cb736b7eaafaa90f427cec4723dd5c702e6447",
+      "translation": "类别 {c}：最低概率"
+    },
+    {
+      "table": "ui",
+      "key": "Clearing earlier suggestions…",
+      "source": "Clearing earlier suggestions…",
+      "source_sha256": "4496dd0a8169cd96fce2deb42e20a2e447a292ee20dd1d03fc900ad6102d4028",
+      "translation": "正在清除先前的建议…"
+    },
+    {
+      "table": "ui",
+      "key": "Confident only: no suggestion between the two probabilities below",
+      "source": "Confident only: no suggestion between the two probabilities below",
+      "source_sha256": "c02144337646aed98bd45afed63b9ba82c61953f6d86b1aeecb7f7f4a187e8f7",
+      "translation": "仅高置信度：两个概率之间不给出建议"
+    },
+    {
+      "table": "ui",
+      "key": "Confusion matrix: rows are your labels, columns the model's out-of-fold suggestion.",
+      "source": "Confusion matrix: rows are your labels, columns the model's out-of-fold suggestion.",
+      "source_sha256": "cd8c9876ce71fa2d57f4ca0908e431b6b89d014a9c9909d110c3cac6e421c143",
+      "translation": "混淆矩阵：行为您的标签，列为模型的折外（out-of-fold）建议。"
+    },
+    {
+      "table": "ui",
+      "key": "Could not apply the thresholds: {why}",
+      "source": "Could not apply the thresholds: {why}",
+      "source_sha256": "b8d1dfbe6c27d706c1e4dffc37634d024c959c8691013353171c63152af184cb",
+      "translation": "无法应用阈值：{why}"
+    },
+    {
+      "table": "ui",
+      "key": "Cross-validated scorecard on your labels",
+      "source": "Cross-validated scorecard on your labels",
+      "source_sha256": "f4a72410871d97845bc6d01ec952016e0bfa6dc3752049554873c63276aa5b0c",
+      "translation": "基于您的标签的交叉验证评分表"
+    },
+    {
+      "table": "ui",
+      "key": "Each tree leaf holds at least {n} labels.",
+      "source": "Each tree leaf holds at least {n} labels.",
+      "source_sha256": "24f79915070128d1d3ec6c647a3517ac7ba84ad534dd9bb53f7c38e492305797",
+      "translation": "每个树叶节点至少包含 {n} 个标签。"
+    },
+    {
+      "table": "ui",
+      "key": "F1 score",
+      "source": "F1 score",
+      "source_sha256": "b09def449a16f02e7ab632c872d31be3175feea0ca7d2eca636f671b97a8f2b9",
+      "translation": "F1 分数"
+    },
+    {
+      "table": "ui",
+      "key": "How far the suggestion run has got. The window stays usable while it runs; Cancel stops it at its next step.",
+      "source": "How far the suggestion run has got. The window stays usable while it runs; Cancel stops it at its next step.",
+      "source_sha256": "442275d67bdb27c8a34547782d80cabd5ccd84fb298ddf4d2c23bc8362184c53",
+      "translation": "建议生成的进度。运行期间窗口仍可使用；取消将在下一步停止运行。"
+    },
+    {
+      "table": "ui",
+      "key": "Labelled {c}",
+      "source": "Labelled {c}",
+      "source_sha256": "80ca2ada3354518723b7fc0dc8b6c13b240f983ee10cab0f72ca8e8dcacd51d3",
+      "translation": "已标注 {c}"
+    },
+    {
+      "table": "ui",
+      "key": "Lead over the runner-up class, at least",
+      "source": "Lead over the runner-up class, at least",
+      "source_sha256": "5f8e92a299eb5fb164285bb5e7fe5754dc0b542970d6692edacb78382b28ef4e",
+      "translation": "领先第二名类别的幅度，至少"
+    },
+    {
+      "table": "ui",
+      "key": "Majority-class baseline (control)",
+      "source": "Majority-class baseline (control)",
+      "source_sha256": "20d1b619e23f4e9e935c365a3752e0a2e6eeea5a145d8617e7ee82910e0cc1f5",
+      "translation": "多数类别基线（对照）"
+    },
+    {
+      "table": "ui",
+      "key": "Mean over classes (macro)",
+      "source": "Mean over classes (macro)",
+      "source_sha256": "78c14a05ec065a79e358b4fe5999a0c9912396e10e6eea2efd1aefb84a8ed38f",
+      "translation": "各类别平均（宏平均）"
+    },
+    {
+      "table": "ui",
+      "key": "Model: {name}. Fitted on {n} labels with {f} features. Class balance: {balance}.",
+      "source": "Model: {name}. Fitted on {n} labels with {f} features. Class balance: {balance}.",
+      "source_sha256": "67310bae37b4277f2d0d15bc9ddf6035e39b2f25b406fe735a8f2ceaaa7f89b1",
+      "translation": "模型：{name}。使用 {n} 个标签和 {f} 个特征拟合。类别平衡：{balance}。"
+    },
+    {
+      "table": "ui",
+      "key": "No scorecard: {why}.",
+      "source": "No scorecard: {why}.",
+      "source_sha256": "45ac3334eb93378b233449c2ab67adc106b9638610952e6a550a0235e21929be",
+      "translation": "无评分表：{why}。"
+    },
+    {
+      "table": "ui",
+      "key": "Order the pages by annotation: by class label, with unlabelled crops last or first and each class's suggestions after its answers, or by the last model's probability. The order stays while you page through; a crop you label moves when the pages are next read, for example when the order is chosen again.",
+      "source": "Order the pages by annotation: by class label, with unlabelled crops last or first and each class's suggestions after its answers, or by the last model's probability. The order stays while you page through; a crop you label moves when the pages are next read, for example when the order is chosen again.",
+      "source_sha256": "06c03d48a7f13adfcd484eedcfaf4fb86c451943dcf30959f2a3b13c993f16a6",
+      "translation": "按标注对页面排序：按类别标签，未标注的裁剪图像排在最后或最前，每个类别的建议排在其已标注结果之后；或按最近一次模型的概率。翻页时顺序保持不变；您标注的裁剪图像会在下次读取页面时移动，例如重新选择排序时。"
+    },
+    {
+      "table": "ui",
+      "key": "Out-of-fold probability of class {c}, by your label",
+      "source": "Out-of-fold probability of class {c}, by your label",
+      "source_sha256": "045ed8df5a65282d997ef7b7f940bedb827023ea60d494262a931ad6b18f9357",
+      "translation": "类别 {c} 的折外概率，按您的标签分组"
+    },
+    {
+      "table": "ui",
+      "key": "Out-of-fold probability of the labelled class",
+      "source": "Out-of-fold probability of the labelled class",
+      "source_sha256": "31a7cf4e9a126733b289bf373148942dd3d62c8ebd279a4e8b47cae3c0a6a773",
+      "translation": "所标注类别的折外概率"
+    },
+    {
+      "table": "ui",
+      "key": "Pages ordered: {order}.",
+      "source": "Pages ordered: {order}.",
+      "source_sha256": "4a11e35814c4b87c7ea9f0a2dc0bc90df03098526446bae9a7ca40182f5f2d7b",
+      "translation": "页面排序：{order}。"
+    },
+    {
+      "table": "ui",
+      "key": "Precision: of the crops the model calls a class, the share that are that class. Recall: of the crops of a class, the share the model finds. F1 score: the harmonic mean of precision and recall. Support: how many labelled crops of the class were scored. Accuracy: the share of all labelled crops predicted correctly; balanced accuracy is the mean recall over classes, so a large class cannot carry it. The majority-class baseline is the control: it suggests the largest class for every crop. Every labelled crop is predicted by a model fitted without it (stratified k-fold cross-validation).",
+      "source": "Precision: of the crops the model calls a class, the share that are that class. Recall: of the crops of a class, the share the model finds. F1 score: the harmonic mean of precision and recall. Support: how many labelled crops of the class were scored. Accuracy: the share of all labelled crops predicted correctly; balanced accuracy is the mean recall over classes, so a large class cannot carry it. The majority-class baseline is the control: it suggests the largest class for every crop. Every labelled crop is predicted by a model fitted without it (stratified k-fold cross-validation).",
+      "source_sha256": "f0d8abdf8968806d318eaa6debe22bf19edaf015daccc184e1112bcbec5af627",
+      "translation": "精确率：模型判为某类别的裁剪图像中，确实属于该类别的比例。召回率：某类别的裁剪图像中，被模型找出的比例。F1 分数：精确率与召回率的调和平均数。支持数：该类别中参与评分的已标注裁剪图像数量。准确率：所有已标注裁剪图像中预测正确的比例；平衡准确率是各类别召回率的平均值，因此大类别无法左右它。多数类别基线是对照：它对每个裁剪图像都建议最大的类别。每个已标注的裁剪图像都由不含它的模型进行预测（分层 k 折交叉验证）。"
+    },
+    {
+      "table": "ui",
+      "key": "Reading features…",
+      "source": "Reading features…",
+      "source_sha256": "e332925319f3422cf6fb14f058572a5f07a52761a4f3240acbec0d9566b29607",
+      "translation": "正在读取特征…"
+    },
+    {
+      "table": "ui",
+      "key": "Run Suggest first; the model window describes its last run.",
+      "source": "Run Suggest first; the model window describes its last run.",
+      "source_sha256": "1a8f7a6a2e19ba9b5f11628e6e18c2e0bd4bd8c5afaf6e09065b328e131b7c9d",
+      "translation": "请先运行 Suggest；模型窗口描述其最近一次运行。"
+    },
+    {
+      "table": "ui",
+      "key": "Scoring crops…",
+      "source": "Scoring crops…",
+      "source_sha256": "9393e8c27394f2eec5864a9ab4fdd2fc47546ed7d3b39d1575065ee5967dad37",
+      "translation": "正在为裁剪图像评分…"
+    },
+    {
+      "table": "ui",
+      "key": "Scoring {n} crops…",
+      "source": "Scoring {n} crops…",
+      "source_sha256": "ea54d67479c2ddbc9673598575a0f5b483e8f1f283f0eb5deca3c44772c05401",
+      "translation": "正在为 {n} 个裁剪图像评分…"
+    },
+    {
+      "table": "ui",
+      "key": "Share",
+      "source": "Share",
+      "source_sha256": "29887a5ff9846ccc23327565a07e17fa6dcaea6211f1898ae825f84ae38f4223",
+      "translation": "占比"
+    },
+    {
+      "table": "ui",
+      "key": "Show what the last Suggest model was fitted on, how it scores on your own labels by cross-validation, and the thresholds that decide which crops get a suggestion. Moving a threshold updates the suggestions on the pages at once, without fitting again.",
+      "source": "Show what the last Suggest model was fitted on, how it scores on your own labels by cross-validation, and the thresholds that decide which crops get a suggestion. Moving a threshold updates the suggestions on the pages at once, without fitting again.",
+      "source_sha256": "e79f1bc37f09d1253e31039f1529630a3bb9717a7e88bd550ef790e3f71eeb1c",
+      "translation": "显示最近一次 Suggest 模型所用的拟合数据、它在您自己标签上的交叉验证得分，以及决定哪些裁剪图像获得建议的阈值。调整阈值会立即更新页面上的建议，无需重新拟合。"
+    },
+    {
+      "table": "ui",
+      "key": "Suggest class {a} below",
+      "source": "Suggest class {a} below",
+      "source_sha256": "a3843569b9a3c39572ff459286a0763f37797f9b74c6d6d8343c2a2caa4cf825",
+      "translation": "类别 {a} 的建议：低于"
+    },
+    {
+      "table": "ui",
+      "key": "Suggest class {b} above",
+      "source": "Suggest class {b} above",
+      "source_sha256": "7e3029d65d10652a35aef25403c84ec5be2e7dcd02ab6381d24f903ca2bdd9b3",
+      "translation": "类别 {b} 的建议：高于"
+    },
+    {
+      "table": "ui",
+      "key": "Suggest class {b} from probability",
+      "source": "Suggest class {b} from probability",
+      "source_sha256": "d4f39cbf5644fc323249c6e4704d63eaa2ce9c8e8a8eacba61622d1550f92f66",
+      "translation": "类别 {b} 的建议：概率起"
+    },
+    {
+      "table": "ui",
+      "key": "Suggested class {c}, probability {p}",
+      "source": "Suggested class {c}, probability {p}",
+      "source_sha256": "b57e24d23f4a95c16a5e4f1cedf3c002c23d24e23a052851e92d2dae69c92d23",
+      "translation": "建议类别 {c}，概率 {p}"
+    },
+    {
+      "table": "ui",
+      "key": "Suggested now: {parts}. Withheld by the thresholds: {w}.",
+      "source": "Suggested now: {parts}. Withheld by the thresholds: {w}.",
+      "source_sha256": "8fe3180412dbcd6b322adc1721cca49383e22afc470c3588c9afd730c8be8f0a",
+      "translation": "当前建议：{parts}。被阈值暂缓：{w}。"
+    },
+    {
+      "table": "ui",
+      "key": "Suggested {c}",
+      "source": "Suggested {c}",
+      "source_sha256": "f5aaa7e8f26389424b67ccd874c39dd4b92585ecdba25c7e6762565181878275",
+      "translation": "建议 {c}"
+    },
+    {
+      "table": "ui",
+      "key": "Suggestion model",
+      "source": "Suggestion model",
+      "source_sha256": "25adab4661f3e23203e1f8e39ecfc263c0499a1389c8c856a7a15f00937f1efe",
+      "translation": "建议模型"
+    },
+    {
+      "table": "ui",
+      "key": "Suggestion model…",
+      "source": "Suggestion model…",
+      "source_sha256": "cc58db368722982880accade6f47ed1f51f110d8a5f1da4e0087de97f9d8cc85",
+      "translation": "建议模型…"
+    },
+    {
+      "table": "ui",
+      "key": "Support",
+      "source": "Support",
+      "source_sha256": "be91940b79f469101df9a50544b6873aa5509a12f1f93f1cb5e3be3990d344b3",
+      "translation": "支持数"
+    },
+    {
+      "table": "ui",
+      "key": "These suggestions were kept or thrown away. Run Suggest again to threshold a new set.",
+      "source": "These suggestions were kept or thrown away. Run Suggest again to threshold a new set.",
+      "source_sha256": "9b7e8defb9953ce575c826f2ac4cbd528c68128782e909487b3f1989d5277390",
+      "translation": "这些建议已被保留或丢弃。请再次运行 Suggest，以对新的建议集应用阈值。"
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds",
+      "source": "Thresholds",
+      "source_sha256": "fe43448c3110f9a916f443cc4edbaeece316f3db978ed3d6e8c4d1dc06a5e78b",
+      "translation": "阈值"
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds applied: {changed} suggestions changed; suggested now: {parts}.",
+      "source": "Thresholds applied: {changed} suggestions changed; suggested now: {parts}.",
+      "source_sha256": "2d9d1748ede6cd8a4862274b063ee41e3ff5c1a9066b5f1f7e2d19dea5ae414a",
+      "translation": "已应用阈值：{changed} 条建议发生变化；当前建议：{parts}。"
+    },
+    {
+      "table": "ui",
+      "key": "Training and cross-validating…",
+      "source": "Training and cross-validating…",
+      "source_sha256": "3aae3813f41317fab7c0907261a67b6f7af0fa731a47545d614c431f0676b07a",
+      "translation": "正在训练并交叉验证…"
+    },
+    {
+      "table": "ui",
+      "key": "Training labels",
+      "source": "Training labels",
+      "source_sha256": "1abe951fbea58e357832e11f47b186c97925dbc1735c6a6a6aee3a4db0f6d7ef",
+      "translation": "训练标签"
+    },
+    {
+      "table": "ui",
+      "key": "Warning: the model gives every crop the same probability, so it has learned nothing that separates the classes. The usual causes are features that do not differ between the classes or too few labels.",
+      "source": "Warning: the model gives every crop the same probability, so it has learned nothing that separates the classes. The usual causes are features that do not differ between the classes or too few labels.",
+      "source_sha256": "281fa1c4b798ca0882b67ac5e5f895abcb02c7a282408f19f686bf296cef2f8a",
+      "translation": "警告：模型对每个裁剪图像给出相同的概率，说明它没有学到能区分各类别的信息。常见原因是各类别之间的特征没有差异，或标签太少。"
+    },
+    {
+      "table": "ui",
+      "key": "Writing suggestions…",
+      "source": "Writing suggestions…",
+      "source_sha256": "06d33160de36f8e0054629bc6d3facdd01d47018dad6c209197d22f5868662aa",
+      "translation": "正在写入建议…"
+    },
+    {
+      "table": "ui",
+      "key": "class weights inversely proportional to class size (balanced), so a small class counts as much as a large one",
+      "source": "class weights inversely proportional to class size (balanced), so a small class counts as much as a large one",
+      "source_sha256": "3d9e5134c877cbbae19a3388ebd14b4eee5b690dfe5783d16a239c22b0c9c73c",
+      "translation": "类别权重与类别大小成反比（平衡），因此小类别与大类别同等重要"
+    },
+    {
+      "table": "ui",
+      "key": "class {c}: {n}",
+      "source": "class {c}: {n}",
+      "source_sha256": "1302e2ffb260c6b57c3740a609948f3c7958a771e2ffd12a90173923a2bd5323",
+      "translation": "类别 {c}：{n}"
+    },
+    {
+      "table": "ui",
+      "key": "gradient-boosted trees (scikit-learn HistGradientBoostingClassifier)",
+      "source": "gradient-boosted trees (scikit-learn HistGradientBoostingClassifier)",
+      "source_sha256": "fff5067802c5c086380592604157192179939e45b85bfe5ab18fd2ee91e4cce5",
+      "translation": "梯度提升树（scikit-learn HistGradientBoostingClassifier）"
+    },
+    {
+      "table": "ui",
+      "key": "larger classes cut down to the size of the smallest",
+      "source": "larger classes cut down to the size of the smallest",
+      "source_sha256": "b858fe50a2330eb47fd777f3ce4ad25bd9e7e48b90c8a7ced2a3a1ad774b71e6",
+      "translation": "较大的类别被缩减到最小类别的大小"
+    },
+    {
+      "table": "ui",
+      "key": "the run did not compute one",
+      "source": "the run did not compute one",
+      "source_sha256": "70550c81622fefab4043aa65b817d84f30e21fbc6b8486dfc31ae586e3c85f34",
+      "translation": "本次运行未计算该项"
+    },
+    {
+      "table": "ui",
+      "key": "{k}-fold cross-validation on {n} labels. Accuracy {acc} (balanced accuracy {bal}); the majority-class baseline, which always suggests class {c}, scores {base} (balanced accuracy {bbase}).",
+      "source": "{k}-fold cross-validation on {n} labels. Accuracy {acc} (balanced accuracy {bal}); the majority-class baseline, which always suggests class {c}, scores {base} (balanced accuracy {bbase}).",
+      "source_sha256": "7aac6dc2239aedb25a6694fe3ae6ac42ec69bfe24d9ed1f47301e6bb95188ac1",
+      "translation": "{k} 折交叉验证，共 {n} 个标签。准确率 {acc}（平衡准确率 {bal}）；始终建议类别 {c} 的多数类别基线得分为 {base}（平衡准确率 {bbase}）。"
+    },
+    {
+      "table": "ui",
+      "key": "{n} negatives were drawn at random from unlabelled crops because only one class is annotated.",
+      "source": "{n} negatives were drawn at random from unlabelled crops because only one class is annotated.",
+      "source_sha256": "21a4974b61bf2b485f4cfd9ee1fab19a82733bb59b1816bac238bbf1d39d23c3",
+      "translation": "由于只标注了一个类别，从未标注的裁剪图像中随机抽取了 {n} 个负样本。"
+    },
+    {
+      "table": "ui",
+      "key": "{n} rejected suggestions were fitted as the other class.",
+      "source": "{n} rejected suggestions were fitted as the other class.",
+      "source_sha256": "252405720864a29c226b1cb929052b4fb0ff84c5cabdb9226aec1cc3e8a47b05",
+      "translation": "{n} 条被拒绝的建议被作为另一类别进行拟合。"
+    }
+  ]
+}

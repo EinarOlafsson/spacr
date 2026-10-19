@@ -165,6 +165,9 @@ dependencies = [
     'pyqtgraph>=0.13.3,<1',
     'mpmath>=1.3,<2',
     'vispy>=0.14,<1.0',
+    # VisPy's OpenGL volume renderer needs PyOpenGL for 3D textures. It is pure
+    # Python, so one requirement covers every platform and Python.
+    'PyOpenGL>=3.1.7,<4',
     # wgpu draws the True 3D view through Vulkan, Metal or Direct3D 12. Its
     # wheels cover Windows x86/x64/arm64, macOS x86_64/arm64 and manylinux_2_28
     # x86_64/aarch64; wgpu 0.32 needs Python 3.11, 0.25-0.31.0 Python 3.10,

@@ -1460,7 +1460,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # is_chosen, mousePressEvent, paintEvent, set_chosen, sizeHint), claude_path, gemini_path, github_path, gpt_path, mark_for
     # and the nested _parse_svg_path.num, _svg_arc.ang and _svg_arc.pt; and
     # SetupSlides.provider_status. Nothing added.
-    expected = 13_190
+    # 2026-10-19: +0/-1, FoldButton.paintEvent retired: the verdict dot is a
+    # native paint layer, so a field frame no longer re-enters Python for it.
+    # (AiToggleLabel.paintEvent, also retired, was a 2026-10-15 arrival.)
+    # 2026-10-19 item 600: -14 with ChannelSortDialog and RegexWindow
+    # (spacr.qt.widgets.channel_sort_dialog) deleted.
+    expected = 13_175
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
     assert len(worker_arrivals) == 8
@@ -1769,7 +1774,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     late_reviewed_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
         / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
-    assert len(late_reviewed_arrivals) == 20
+    # 2026-10-19: 19, AiToggleLabel.paintEvent retired (native focus layer).
+    assert len(late_reviewed_arrivals) == 19
     assert {key: docs[key] for key in late_reviewed_arrivals} == (
         late_reviewed_arrivals
     )
@@ -1898,7 +1904,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_190
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_175
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

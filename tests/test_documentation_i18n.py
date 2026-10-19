@@ -275,7 +275,10 @@ TOOLS = ROOT / "tools"
 # 2026-10-15 item 700: +0/-28, the cli_setup_panel and provider_marks
 # modules and SetupSlides.provider_status leave with the first-run AI and
 # GitHub pages. The named inverse below retains the prior historical floor.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_218
+# 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
+# 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
+# spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
@@ -3522,7 +3525,9 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     # Reuse the exact named arrivals already bound by the extractor contract.
     for filename, count in (
         ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
-        ("reviewed_api_surface_arrivals_2026-10-15.json", 20),
+        # 2026-10-19: 19, AiToggleLabel.paintEvent retired; the focus ring
+        # is a native paint layer.
+        ("reviewed_api_surface_arrivals_2026-10-15.json", 19),
         ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
         ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
         ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),

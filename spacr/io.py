@@ -1318,6 +1318,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             else:
                 shutil.move(os.path.join(src, filename), move)
     else:
+        print('save_original_images is off: each raw image that went into a '
+              'verified field stack in stack/ is deleted from the source '
+              'folder; this cannot be undone.')
         in_a_stack = {path for key, paths in image_paths_by_key.items()
                       if stem_of[key] in stacked for path in paths}
         for filename in _listdir_visible(src):

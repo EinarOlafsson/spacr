@@ -735,7 +735,7 @@ def preprocess_generate_masks(settings):
 
                     from .utils import cleanup_pipeline_folders
                     keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
-                    keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
+                    keep_original = settings.get('keep_original_images', True) and not settings.get('delete_intermediate', False)
                     cleanup_pipeline_folders(src,
                                              keep_intermediate=keep_intermediate,
                                              keep_original=keep_original)

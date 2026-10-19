@@ -4051,7 +4051,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
+          "narration": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
           "focus": [
             1000,
             450,
@@ -4059,17 +4059,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
+          "speech_text": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。",
+          "narration": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。",
           "hold_after": 0.7,
-          "speech_text": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。"
+          "speech_text": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。"
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
+          "narration": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
           "focus": [
             1000,
             1160,
@@ -4077,11 +4077,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
+          "speech_text": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。",
+          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。",
           "focus": [
             1010,
             1280,
@@ -4089,7 +4089,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。"
+          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。"
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4128,7 +4128,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7107,7 +7130,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7989,7 +8035,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9062,7 +9131,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9256,7 +9348,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

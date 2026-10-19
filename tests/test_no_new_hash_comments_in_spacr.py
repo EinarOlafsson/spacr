@@ -10,27 +10,41 @@ run ``python tools/strip_comments.py spacr --apply``.
 from __future__ import annotations
 
 import importlib.util
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def _tool():
+    name = "strip_comments_for_the_package_guard"
     spec = importlib.util.spec_from_file_location(
-        "strip_comments_for_the_package_guard",
-        ROOT / "tools" / "strip_comments.py")
+        name, ROOT / "tools" / "strip_comments.py")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    sys.modules[name] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        sys.modules.pop(name, None)
+        raise
     return module
 
 
 def test_no_removable_hash_comment_is_left_in_the_package():
     tool = _tool()
+    try:
+        offenders = _offenders(tool)
+    finally:
+        sys.modules.pop("strip_comments_for_the_package_guard", None)
+    assert not offenders, "new # comments in spacr/:\n  " + "\n  ".join(
+        offenders[:20])
+
+
+def _offenders(tool):
     offenders = []
     for path in tool.iter_py([str(ROOT / "spacr")]):
         _text, removed, _kept = tool.strip_text(
             path.read_text(encoding="utf-8"))
         if removed:
             offenders.append(f"{path.relative_to(ROOT)}: {removed}")
-    assert not offenders, "new # comments in spacr/:\n  " + "\n  ".join(
-        offenders[:20])
+    return offenders

@@ -377,3 +377,4 @@ translation rows at the next catalog rebuild; deleting 593's unused
 ChannelSortDialog/RegexWindow if he agrees.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+2026-10-19: DONE. Maintainer agreed: ChannelSortDialog and RegexWindow deleted from spacr/qt/widgets/channel_sort_dialog.py with their tests and reviewed API records (ExampleSetsDialog, _ThumbWorker, _grey_icon kept); help index, API catalogs and counts regenerated.

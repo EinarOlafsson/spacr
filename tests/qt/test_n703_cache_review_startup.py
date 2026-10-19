@@ -48,7 +48,7 @@ def startup(monkeypatch, tmp_path):
     window._review_installation_caches = lambda: events.append("cache-preview")
     window._tour_timer = SimpleNamespace(start=lambda delay: events.append(("tour", delay)))
     for name in ["_maybe_offer_installation_cache_review", "_finish_cache_cleanup_review",
-                 "_continue_installer_onboarding"]:
+                 "_continue_installer_onboarding", "_resume_the_tour"]:
         setattr(window, name, MethodType(getattr(app_module.MainWindow, name), window))
     monkeypatch.setattr(app_module.sys, "frozen", False, raising=False)
     monkeypatch.setattr(install_profile, "read_profile", lambda: state["profile"])

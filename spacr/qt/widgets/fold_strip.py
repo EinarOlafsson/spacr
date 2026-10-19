@@ -40,7 +40,7 @@ from __future__ import annotations
 
 from typing import Callable, Iterable, Optional, Sequence, Tuple, Union
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QObject, QSize, Qt
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 from .. import iconset
@@ -439,6 +439,57 @@ def _describe(key: str) -> Tuple[str, str, str]:
     return default_name, "", "stable"
 
 
+class _DotFollower(QObject):
+    """Redraws a fold button's verdict dot when the button changes size."""
+
+    def eventFilter(self, watched, event):          # noqa: N802 - Qt name
+        """Redraw the dot of a button that was resized or re-scaled."""
+        _show_verdict_dot(watched)
+        return False
+
+
+_DOT_FOLLOWER = []
+
+
+def _show_verdict_dot(button) -> None:
+    """Draw ``button``'s verdict dot into its paint layer, or hide it.
+
+    The dot used to be drawn by a Python ``paintEvent`` that every frame of
+    the window's field re-entered, with or without a dot to draw. It is a
+    corner circle a fifth of the button's height across, in the verdict's
+    ink, antialiased, drawn over the button's own paint.
+    """
+    from PySide6.QtCore import QEvent, QRectF
+    from PySide6.QtGui import QColor, QPainter
+
+    from ..gil_priority import (_blank_layer_pixmap, _show_paint_layer,
+                                _watch_object_events)
+
+    level = getattr(button, "_verdict", "")
+    ink = button._verdict_ink(level) if level else ""
+    if not ink:
+        _show_paint_layer(button, "_verdict_layer", None)
+        return
+    if not _DOT_FOLLOWER:
+        _DOT_FOLLOWER.append(_DotFollower())
+    if not button.__dict__.get("_verdict_followed"):
+        _watch_object_events(button, _DOT_FOLLOWER[0],
+                             (QEvent.Resize, QEvent.ScreenChangeInternal))
+        button._verdict_followed = True
+    pixmap = _blank_layer_pixmap(button)
+    painter = QPainter(pixmap)
+    try:
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        size = max(6.0, button.height() * 0.22)
+        box = QRectF(button.width() - size - 3.0, 3.0, size, size)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(ink))
+        painter.drawEllipse(box)
+    finally:
+        painter.end()
+    _show_paint_layer(button, "_verdict_layer", pixmap)
+
+
 class FoldButton(QPushButton):
     """One folded module, drawn as its own icon and nothing else.
 
@@ -572,37 +623,8 @@ class FoldButton(QPushButton):
         level = str(level or "")
         self._verdict = level if level in ("pass", "check", "fail") else ""
         self._verdict_detail = str(detail or "")
+        _show_verdict_dot(self)
         self.update()
-
-    def paintEvent(self, event):        # noqa: N802 - Qt naming
-        """Draw the folded module's icon, and its maturity as a rim colour.
-
-        The colour carries information, so it is drawn rather than left to a
-        stylesheet: alpha and beta modules are marked, and a reader who
-        cannot distinguish the hues still gets the tooltip.
-
-        :param event: the Qt paint event.
-        """
-        super().paintEvent(event)
-        level = getattr(self, "_verdict", "")
-        if not level:
-            return
-        ink = self._verdict_ink(level)
-        if not ink:
-            return
-        from PySide6.QtCore import QRectF
-        from PySide6.QtGui import QColor, QPainter
-
-        painter = QPainter(self)
-        try:
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-            size = max(6.0, self.height() * 0.22)
-            box = QRectF(self.width() - size - 3.0, 3.0, size, size)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QColor(ink))
-            painter.drawEllipse(box)
-        finally:
-            painter.end()
 
     def set_stage(self, stage: str) -> None:
         """Re-state the maturity this button is drawn in.

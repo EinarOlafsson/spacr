@@ -3724,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Opnaðu undirmöppuna masks í Source. Hver mynd hefur TIFF-grímu með sama stofni skráarheitis. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
+          "narration": "Undirmappan masks í Source inniheldur TIFF-grímu með sama stofni skráarheitis fyrir hverja mynd. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
           "focus": [
             1000,
             450,
@@ -3735,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Kveiktu á Live preview og veldu mynd með myndavalinu. Opnaðu Live settings og athugaðu stýringar fyrir rás og stöðlun. Leggðu saman Console og System til að gefa forskoðuninni meira pláss ef þörf er á.",
+          "narration": "Leggðu saman hin niðurstöðuspjöldin til að gefa forskoðuninni meira pláss. Kveiktu á Live preview og veldu mynd með myndavalinu. Flettu að meðfylgjandi dæmamynd.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Berðu forskoðunina saman við vistuðu grímuna úr rununni. Forskoðunin og Apply nota ólíkar vinnsluleiðir í þessu dæmi, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
+          "narration": "Athugaðu rás og stöðlun í Live settings og keyrðu síðan forskoðunina. Forskoðunin og Apply vinna þessar myndir á ólíkan hátt, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
           "focus": [
             1000,
             1160,
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk og þysjaðu svo út til að athuga allt sjónsviðið.",
+          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk í stækkuðu myndinni.",
           "focus": [
             1010,
             1280,
@@ -3794,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6590,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7418,7 +7464,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8428,7 +8497,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8611,7 +8703,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
