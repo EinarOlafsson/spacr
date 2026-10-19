@@ -8819,7 +8819,7 @@ class AppScreen(QWidget):
                 controls += tuple(card.findChildren(QPushButton))
                 controls += tuple(card.findChildren(QToolButton))
         for control in controls:
-            if control is None:
+            if control is None or control.property("moduleTooltipStyle") == "fold":
                 continue
             source = control.property("_spacr_i18n_tooltip")
             sources.append((control, source or self._action_hints.get(control) or control.toolTip()))
