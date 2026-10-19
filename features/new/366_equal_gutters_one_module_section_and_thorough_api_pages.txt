@@ -964,3 +964,5 @@ The current README has 21 Home tiles after the intentional four-assay to
 three-organism replacement in 1d5a80f78; measure that actual grid.
 
 VERIFIED 2026-10-04: the 10 test files this item names pass on CPU/offscreen.
+
+2026-10-19 — Live nightly page measured with headless Chrome (1440 and 390 px): the README no longer has the six-column tile tables the 2026-09-27 receipt measured; icons are inline cells, neighbours touch (0 px) or sit 4.2 px apart, and artwork-to-artwork gaps vary with each PNG's own padding, so one equal-gutter number cannot be read. Maintainer must restate the gutter criterion for the cell layout; no code owed.
