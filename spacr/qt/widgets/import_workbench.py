@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
 
 from ...import_plan import (CHANNEL_MEANINGS, ROLES, for_get_regex,
                             group_names, plan)
+from ..i18n import tr
 from .collapsible_splitter import CollapsibleSplitter
 from .sortable_table import install_sorting, table_item
 
@@ -524,8 +525,8 @@ class ImportWorkbench(QWidget):
                 self._put_cell(index, 0, name)
                 self._put_cell(
                     index, 1, "no match", red=True,
-                    tip=("The regex above does not match this name, so "
-                         "this file would not be imported at all."))
+                    tip=tr("The regex above does not match this name, so "
+                           "this file would not be imported at all."))
         finally:
             table.setSortingEnabled(sorting)
         self.table.resizeColumnsToContents()

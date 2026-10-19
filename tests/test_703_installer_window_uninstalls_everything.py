@@ -17,18 +17,23 @@ def _record(root, layout="macos-runtime", needs_admin=False):
 
 
 @pytest.fixture
-def preview():
+def user_runtime(tmp_path):
+    return str(tmp_path / "Library" / "Application Support" / "spaCR")
+
+
+@pytest.fixture
+def preview(user_runtime):
     return {"operation_id": "op", "snapshot_id": "snap", "categories": list(ic._UNINSTALL_CATEGORIES),
             "cleanup": [], "installations": [
                 {"key": key, "current": False, "selectable": True,
                  "record": {"root": root, "version": "1", "kind": "installer"}, "paths": [root]}
                 for key, root in (("app", "/Library/Application Support/spaCR"),
-                                  ("runtime", "/Users/u/Library/Application Support/spaCR"))]}
+                                  ("runtime", user_runtime))]}
 
 
-def test_protected_app_parts_are_reported_not_removed(preview, monkeypatch):
+def test_protected_app_parts_are_reported_not_removed(preview, user_runtime, monkeypatch):
     app = _record("/Library/Application Support/spaCR", layout="macos-app", needs_admin=True)
-    runtime = _record("/Users/u/Library/Application Support/spaCR")
+    runtime = _record(user_runtime)
     seen = {}
     monkeypatch.setattr(ic, "_validate_uninstall_selection",
                         lambda p, s, m, after_shutdown: ([app, runtime], []))
