@@ -2316,6 +2316,24 @@ def _install_the_workspace_dispatcher() -> bool:
     return True
 
 
+def _import_pyplot_without_pinning_callers() -> None:
+    """Import ``matplotlib.pyplot`` and free the cycles the import leaves.
+
+    Building pyplot's mathtext grammar raises and catches hundreds of
+    pyparsing exceptions. Each traceback is a reference cycle whose frames
+    reach, through ``f_back``, every frame above the import: the screen
+    method that started a job and :func:`make_thread` itself, with the
+    worker, thread and run handle in their locals. Left alone, those
+    objects outlive their owners and are destroyed from inside a later
+    garbage collection. One young-generation sweep here, before any worker
+    exists, frees the cycles while nothing Qt is held (about 20 ms, once
+    per process).
+    """
+    import matplotlib.pyplot  # noqa: F401
+
+    gc.collect(0)
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
@@ -2364,7 +2382,7 @@ def make_thread(
         try:
             if gc_was_enabled:
                 gc.disable()
-            import matplotlib.pyplot  # noqa: F401
+            _import_pyplot_without_pinning_callers()
         except Exception:              # noqa: BLE001
             LOG.debug("matplotlib.pyplot could not be pre-imported",
                       exc_info=True)

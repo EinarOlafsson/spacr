@@ -2148,7 +2148,6 @@ class ModelZooPicker(QDialog):
         worker.cancelled.connect(self._reference_cancelled)
         for signal in (worker.succeeded, worker.failed, worker.cancelled):
             signal.connect(thread.quit, Qt.DirectConnection)
-        thread.finished.connect(worker.deleteLater)
         thread.start()
 
     def _stop_reference_check(self):

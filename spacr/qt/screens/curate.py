@@ -171,7 +171,7 @@ class CurateScreen(QWidget):
             previous brush panel is stopped and removed first.
         """
         if self.brush is not None:
-            self.brush.stop_painting()
+            self.brush.close()
             self.brush.setParent(None)
             self.brush.deleteLater()
         self._brush_hint.setVisible(False)

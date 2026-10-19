@@ -559,14 +559,16 @@ class BatchScreen(QWidget):
         self._set_status(f"Running {len(self._queue)} job(s), one at a time…")
 
         box: Dict[str, Any] = {}
+        on_error = self._on_error_combo.currentData() or "continue"
+        max_failures = self._threshold_spin.value()
 
         def _job(payload: Dict[str, Any]) -> None:
             """Run the whole plate queue. Off the GUI thread."""
             payload["result"] = bt.run_queue(
                 self._queue,
                 path=self._path or None,
-                on_error=self._on_error_combo.currentData() or "continue",
-                max_consecutive_failures=self._threshold_spin.value(),
+                on_error=on_error,
+                max_consecutive_failures=max_failures,
                 on_progress=self._relay_progress,
                 runner=self._runner,
                 stop_flag=lambda: self._stop_requested,
