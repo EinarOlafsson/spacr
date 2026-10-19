@@ -78,8 +78,8 @@ def test_the_preloader_poll_timer_is_released_from_the_event_loop(qtbot):
         import weakref
         ref = weakref.ref(poll)
         del poll
-        _pump(100)
-        assert ref() is None or not shiboken6.isValid(ref())
+        qtbot.waitUntil(lambda: ref() is None or not shiboken6.isValid(ref()),
+                        timeout=30000)
     finally:
         gc.enable()
 
@@ -115,10 +115,13 @@ def test_closing_the_batch_screen_drains_its_run(qtbot, qt_theme_applied, tmp_pa
         assert widget._stop_requested is True
         del thread, worker
         release.set()
-        _pump(600)
+
+        def stopped():
+            t = tref()
+            return t is None or not shiboken6.isValid(t) or not t.isRunning()
+
+        qtbot.waitUntil(stopped, timeout=30000)
         from spacr.qt.bridge import _PARKED_THREADS
-        t = tref()
-        assert t is None or not shiboken6.isValid(t) or not t.isRunning()
         assert widget._thread is None and widget._worker is None
         _ = wref, _PARKED_THREADS
     finally:

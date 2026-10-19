@@ -1037,7 +1037,7 @@ class _LateCaptionTranslator(QObject):
         """
         if event.type() != QEvent.ChildAdded:
             return False
-        QTimer.singleShot(0, self, partial(self._on_arrivals_in, watched))
+        _after(0, self, partial(self._on_arrivals_in, watched))
         return False
 
     #: Marks a child this filter has already run its pass over. A Qt
@@ -8023,7 +8023,7 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
-        QTimer.singleShot(0, self, self._warm_console_glyphs)
+        _after(0, self, self._warm_console_glyphs)
         self._watch_live_plate = None
         if self.app_key == "mask":
             self._watch_live_plate = _DeferredWatchLivePlate(console_wrap)
@@ -9005,7 +9005,7 @@ class AppScreen(QWidget):
                 continue
             _stop_watching_object_events(host, watcher)
             _watch_object_events(host, watcher, (QEvent.ChildAdded,))
-            QTimer.singleShot(0, watcher, partial(watcher._on_arrivals_in, host))
+            _after(0, watcher, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:
         """The prompt the category strip falls back to, in the UI language.
@@ -9683,7 +9683,7 @@ class AppScreen(QWidget):
             return
         lines = text.count("\n")
         self._btn_copy_console.setText(tr("Copied"))
-        QTimer.singleShot(
+        _after(
             1200,
             self,
             lambda: self._btn_copy_console.setText(tr("Copy console")))

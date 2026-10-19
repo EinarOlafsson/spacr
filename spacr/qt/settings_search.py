@@ -61,6 +61,7 @@ from .i18n import tr
 from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
 from .prefs import _flush_stores, _store_args, _store_later, _stored_later
+from . import _after
 
 LOG = logging.getLogger("spacr.qt.settings_search")
 
@@ -448,7 +449,7 @@ class SettingsSearchBar(QWidget):
         section.setVisible(True)
         self._revealed = str(key)
         self._mark(field)
-        QTimer.singleShot(0, self, lambda: self._scroll_to(field))
+        _after(0, self, lambda: self._scroll_to(field))
         return True
 
     def revealed_key(self) -> str:

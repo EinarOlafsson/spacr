@@ -171,6 +171,7 @@ from PySide6.QtCore import QSettings, Qt
 from .night_themes import (DATA_ART_THEMES, DATA_ART_THEME_KEYS,
                            NIGHT_THEME_KEYS, is_night_theme, theme_for)
 from .prefs import _store_args
+from . import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -11639,7 +11640,7 @@ class PreferencesDialog:
 
             window = parent.window() if parent is not None else None
             dlg.reject()
-            QTimer.singleShot(
+            _after(
                 0, window if window is not None else dlg,
                 lambda: _open_uninstall(window))
 

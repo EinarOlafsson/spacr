@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -3444,7 +3445,7 @@ class RegressionResultsPanel(QWidget):
         from PySide6.QtCore import QTimer
 
         self.set_level("grna" if guide_of(str(key)) else "gene")
-        QTimer.singleShot(
+        _after(
             0, self, lambda k=str(key): self.table.select_key(k))
         self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
                  f"so the point you clicked has a row.")

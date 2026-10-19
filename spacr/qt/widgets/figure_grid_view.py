@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..hidpi import device_ratio, follow_device_ratio, logical_size, scaled_for
+from .. import _after
 
 #: Below this, a cell is too small to read anything in.
 MIN_CELL_PX = 220
@@ -1012,7 +1013,7 @@ class FigureGridView(QScrollArea):
             return False
         self._collapsed.discard(key)
         self._relayout()
-        QTimer.singleShot(0, self, lambda: self._scroll_section_to_top(key))
+        _after(0, self, lambda: self._scroll_section_to_top(key))
         return True
 
     def _relayout(self) -> None:

@@ -39,6 +39,7 @@ from PySide6.QtWidgets import (
 
 from ..ingest_preview import ROW_COLUMNS, _yokogawa_name, rows_to_mappings
 from .sortable_table import install_sorting, table_item
+from .. import _after
 
 _EDITABLE = {"plate", "well", "field", "channel", "time"}
 _INT_COLS = {"field", "channel", "time"}
@@ -124,7 +125,7 @@ class MetadataTablePanel(QWidget):
         idle = not self._pending
         self._pending.extend(rows)
         if idle:
-            QTimer.singleShot(0, self, self._drain_pending)
+            _after(0, self, self._drain_pending)
 
     def _drain_pending(self) -> None:
         """Add the next chunk of :meth:`_append_later` rows."""
@@ -134,7 +135,7 @@ class MetadataTablePanel(QWidget):
         del self._pending[:_ROWS_PER_TURN]
         self._add_rows(chunk)
         if self._pending:
-            QTimer.singleShot(0, self, self._drain_pending)
+            _after(0, self, self._drain_pending)
         else:
             self._refresh_summary()
 

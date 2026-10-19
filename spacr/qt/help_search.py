@@ -78,6 +78,7 @@ from .help_index import (
 )
 from .i18n import tr
 from .widgets.sortable_table import _reuse_list_items
+from . import _after
 
 LOG = logging.getLogger("spacr.qt.help_search")
 
@@ -907,7 +908,7 @@ class HelpSearchField(QLineEdit):
             return
         kind = item.data(MORE_ROLE)
         if kind:
-            QTimer.singleShot(0, self, partial(self._show_more, str(kind)))
+            _after(0, self, partial(self._show_more, str(kind)))
             return
         entry = item.data(ENTRY_ROLE)
         if entry is None:

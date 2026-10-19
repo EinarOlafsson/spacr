@@ -8598,7 +8598,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if update_launch is not None:
         from PySide6.QtCore import QTimer
 
-        QTimer.singleShot(0, win, lambda: win._after_the_startup_sequence(
+        _after(0, win, lambda: win._after_the_startup_sequence(
             lambda: _finish_update_launch(update_launch)
             if win.isVisible() and not win._closing else None))
 

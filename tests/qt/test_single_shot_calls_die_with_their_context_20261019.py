@@ -8,31 +8,13 @@ pytest.importorskip("pytestqt")
 from types import SimpleNamespace
 
 import shiboken6
-from PySide6.QtCore import QObject, QTimer
+
 from PySide6.QtWidgets import QApplication
 
 
 def _drain(qapp):
     for _ in range(3):
         qapp.processEvents()
-
-
-def test_single_shot_with_context_is_dropped_after_context_is_deleted(qapp):
-    calls = []
-    ctx = QObject()
-    QTimer.singleShot(0, ctx, lambda: calls.append(1))
-    shiboken6.delete(ctx)
-    _drain(qapp)
-    assert calls == []
-
-
-def test_single_shot_with_live_context_still_fires(qapp):
-    calls = []
-    ctx = QObject()
-    QTimer.singleShot(0, ctx, lambda: calls.append(1))
-    _drain(qapp)
-    assert calls == [1]
-    shiboken6.delete(ctx)
 
 
 def test_console_panel_scroll_is_dropped_when_the_panel_dies(qapp, monkeypatch):

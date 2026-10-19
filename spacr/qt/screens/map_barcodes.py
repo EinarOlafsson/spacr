@@ -34,6 +34,7 @@ from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
 from ..widgets.sortable_table import (
     _retire_table_cells, _spare_items, _spare_table_item, install_sorting)
 from ..widgets.fold_strip import FoldStrip
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -2883,7 +2884,7 @@ class _SpatialPanelLifecycle(QObject):
             if panel is not None:
                 panel._shutdown()
         elif event.type() == QEvent.Close and watched.isVisible():
-            QTimer.singleShot(0, self, lambda: self._check_closed(watched))
+            _after(0, self, lambda: self._check_closed(watched))
         elif event.type() == QEvent.Show:
             panel = self._panel()
             if panel is not None:
