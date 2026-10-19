@@ -1919,3 +1919,5 @@ Canonical source/catalog/review/generator edits remain held until release.
 Diagnostic API inputs346120f5403/1ba8602514c/ace35ac16b4 and follow-ups localized41 missing bodies and repaired copied-English/path literals.
 Normal65-symbol nine-language audit exposed only six path-literal defects; their normal six-language repair/audit passes, all other records retained.
 History tests12PASS; no model requests or native-speaker claims. Broader tutorial/hosted publication and final release remain open.
+
+2026-10-19 — API/runtime side re-checked on current nightly: en.json has no drift, every reviewed API record binds (check_reviewed_api_evidence), Help index is current, and the normal repair run regenerated all nine catalogs with the new 411/429/460/462/678 reviewed records. No runtime strings changed. Tutorials stay with their lane.

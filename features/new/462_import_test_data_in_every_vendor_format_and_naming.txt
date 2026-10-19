@@ -173,3 +173,5 @@ api/en.json carries import_examples (9 hits); of the reviewed API packs only
 de names it. The other eight packs are the docs lane's API translation pass.
 
 VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-19 — API translations closed with 460: every unreviewed block of import_examples, spacr.qt.import_demo, the ForeignScreen methods and naming_choices now has a reviewed record in all nine locales (41-42 import-screen blocks per locale plus the import_examples rows) (shared file 2026-10-19-460-462-import-measurements-examples.json, AI review, no native-speaker signoff). Catalogs and Help regenerated normally; nothing remains here.
