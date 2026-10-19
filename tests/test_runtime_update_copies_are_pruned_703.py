@@ -17,6 +17,12 @@ from spacr import install_cleanup as ic
 pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX ownership fixtures")
 
 
+@pytest.fixture(autouse=True)
+def _private_home(tmp_path, monkeypatch):
+    """update.log goes to the test's own home, never the developer's."""
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+
+
 @pytest.fixture
 def runtime(tmp_path):
     root = tmp_path / "spaCR"
@@ -41,7 +47,7 @@ def _copy(root, prefix, name, state, mtime, *, family="posix-runtime", new_ident
     return folder
 
 
-def test_two_committed_copies_leave_the_newest(runtime):
+def test_two_committed_copies_leave_the_newest(runtime, tmp_path):
     root, prefix = runtime
     older = _copy(root, prefix, "older", "committed", 1000)
     newer = _copy(root, prefix, "newer", "committed", 2000)
@@ -49,6 +55,7 @@ def test_two_committed_copies_leave_the_newest(runtime):
     assert [path for path, _size in removed] == [str(older)]
     assert removed[0][1] >= 2048
     assert not older.exists() and newer.is_dir()
+    assert str(older) in (tmp_path / "home" / ".spacr" / "logs" / "update.log").read_text()
 
 
 @pytest.mark.parametrize("state", ["rolling_back", "launch_unconfirmed", "staging", "something-new"])

@@ -5604,6 +5604,15 @@ def _remove_runtime_copies(parent, candidates):
             continue
         log.info("Removed the retained update copy %s (%.1f MB)", path, size / 1e6)
         removed.append((path, size))
+    if removed:
+        report = os.path.join(os.path.expanduser("~"), ".spacr", "logs", "update.log")
+        try:
+            os.makedirs(os.path.dirname(report), exist_ok=True)
+            with open(report, "a", encoding="utf-8") as handle:
+                for path, size in removed:
+                    handle.write(f"Removed the retained update copy {path} ({size / 1e6:.1f} MB)\n")
+        except OSError:
+            pass
     return removed
 
 
