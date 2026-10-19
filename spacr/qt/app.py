@@ -5586,8 +5586,13 @@ class MainWindow(QMainWindow):
             last = next((line.strip() for line in reversed(why.splitlines()) if line.strip()), "")
             cause = last.split(": ", 1)[1] if ": " in last and last.split(": ", 1)[0].endswith(("Error", "Exception")) else last
             summary = ": ".join(part for part in (sentence, cause) if part)
-            return tr("{summary}\n\nThe full report is in {path}.", summary=summary,
-                      path=str(Path.home() / ".spacr" / "logs" / "update.log"))
+            LOG.warning("Update failed:\n%s", why)
+            report = Path.home() / ".spacr" / "logs" / "update.log"
+            if not report.is_file():
+                from spacr.logging_util import log_path
+
+                report = log_path()
+            return tr("{summary}\n\nThe full report is in {path}.", summary=summary, path=str(report))
         return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:

@@ -123,10 +123,17 @@ def test_an_update_error_with_a_traceback_is_shown_as_one_sentence(tmp_path, mon
     from spacr.qt.app import MainWindow
 
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "app-logs"))
     why = ("The staged application identity could not be verified: Traceback (most recent call last):\n"
            '  File "<string>", line 40, in <module>\nAssertionError: Requested spaCR version differs\n')
     shown = MainWindow._removal_reason_text(why)
     assert "Traceback" not in shown and "File" not in shown
     assert shown.startswith("The staged application identity could not be verified: Requested spaCR version differs")
-    assert str(tmp_path / ".spacr" / "logs" / "update.log") in shown
+    from spacr.logging_util import log_path
+
+    assert str(log_path()) in shown
+    update_log = tmp_path / ".spacr" / "logs" / "update.log"
+    update_log.parent.mkdir(parents=True, exist_ok=True)
+    update_log.write_text("helper report\n")
+    assert str(update_log) in MainWindow._removal_reason_text(why)
     assert MainWindow._removal_reason_text("Plain reason.") == "Plain reason."
