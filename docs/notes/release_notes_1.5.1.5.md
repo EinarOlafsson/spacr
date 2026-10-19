@@ -64,6 +64,7 @@ On every platform, a new install of 1.5.1.3 or 1.5.1.4, or an update to either, 
 
 ### Fixed
 
+- Mask generation keeps the raw images by default: `keep_original_images` now defaults to True (with `save_original_images`), so orig/ is no longer deleted when a run finishes. Set it to False to discard them; the log then says how many raw images are removed (issue #154).
 - Closing the main window saves pending Annotate labels and drains its page loader and database writer.
 - Corrected the restart command and launch environment for frozen desktop applications, while preserving saved workspace state.
 - Prevented environment capture from relaunching frozen desktop applications.

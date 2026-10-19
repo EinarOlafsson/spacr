@@ -1995,9 +1995,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "保留原始输入图像（位于 orig/ 中）。默认关闭以节省磁盘空间；像素数据保存在 merged/ 中。"
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "运行结束后将原始输入图像保留在 orig/ 中。默认开启，这样原始文件不会丢失。仅在需要节省磁盘空间时才设为 False：此时 merged/ 构建完成后会删除 orig/，且无法撤销；merged/ 保存的是投影后的像素数据，而不是原始文件。"
     },
     {
       "table": "setting_tooltips",

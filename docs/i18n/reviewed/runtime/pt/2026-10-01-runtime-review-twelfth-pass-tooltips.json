@@ -2198,9 +2198,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "Mantém as imagens de entrada brutas originais (em orig/). Desativado por padrão para economizar espaço em disco; os dados de pixel ficam em merged/."
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "Mantém as imagens de entrada brutas originais em orig/ depois da execução. Ativado por padrão, para que os arquivos brutos nunca se percam. Defina como False apenas para economizar espaço em disco: orig/ é então apagado quando merged/ é criado, o que não pode ser desfeito; merged/ guarda os dados de pixel projetados, não os arquivos brutos."
     },
     {
       "table": "setting_tooltips",

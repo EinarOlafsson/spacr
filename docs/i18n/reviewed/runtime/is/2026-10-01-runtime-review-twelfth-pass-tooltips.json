@@ -2177,9 +2177,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "Halda upprunalegu hráu inntaksmyndunum (í orig/). Sjálfgefið slökkt til að spara diskpláss; pixlagögnin eru í merged/."
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "Heldur upprunalegu hráu inntaksmyndunum í orig/ eftir keyrsluna. Sjálfgefið kveikt, svo hráu skrárnar glatist aldrei. Stilltu á False aðeins til að spara diskpláss: orig/ er þá eytt þegar merged/ hefur verið búið til, sem ekki er hægt að afturkalla; merged/ geymir vörpuðu pixlagögnin, ekki hráu skrárnar."
     },
     {
       "table": "setting_tooltips",

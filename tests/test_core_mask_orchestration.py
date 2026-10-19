@@ -508,6 +508,15 @@ def test_cleanup_keep_flags(run_dir, stubs, keep_int, keep_orig, delete_int,
     assert kwargs == {"keep_intermediate": exp_int, "keep_original": exp_orig}
 
 
+def test_a_run_that_names_no_keep_flag_keeps_the_originals(run_dir, stubs):
+    from spacr.core import preprocess_generate_masks
+
+    preprocess_generate_masks(_mask_settings(run_dir))
+
+    args, kwargs = stubs["cleanup"].calls[0]
+    assert kwargs["keep_original"] is True
+
+
 def test_run_status_is_stamped_into_measurements_db(run_dir, stubs):
     """A completed run records itself in the db it produced."""
     from spacr.core import preprocess_generate_masks

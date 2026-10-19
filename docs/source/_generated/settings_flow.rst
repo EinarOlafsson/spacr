@@ -11273,7 +11273,7 @@ Read by ``preprocess_generate_masks``.
 keep_original_images
 --------------------
 
-(bool) - Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.
+(bool) - Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**

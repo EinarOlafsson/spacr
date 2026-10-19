@@ -10342,6 +10342,13 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                     deleted.append(p)
 
     if not keep_original and os.path.isdir(orig):
+        raw_files = [f for f in _listdir_visible(orig)
+                     if os.path.isfile(os.path.join(orig, f))]
+        if verbose:
+            print(f"cleanup: keep_original_images is off, so the {len(raw_files)} "
+                  f"raw image(s) in {orig} are being deleted; merged/ holds the "
+                  "projected pixel data only. Set keep_original_images to True "
+                  "to keep them.")
         shutil.rmtree(orig, ignore_errors=True)
         deleted.append(orig)
 
