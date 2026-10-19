@@ -1508,6 +1508,77 @@ def _process_group_live_member(group):
     return ""
 
 
+def _windows_children(pid):
+    """The live children of ``pid`` as (pid, start stamp) pairs, or None when the process table cannot be read.
+
+    Windows keeps a dead parent's id in its children's records, so a killed installer's pip or uv still names
+    it. A child whose start cannot be read makes the answer unknown.
+    """
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        """PROCESSENTRY32W."""
+
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+                    ("th32DefaultHeapID", ctypes.c_size_t), ("th32ModuleID", wintypes.DWORD),
+                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+                    ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD),
+                    ("szExeFile", ctypes.c_wchar * 260)]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    snapshot = kernel.CreateToolhelp32Snapshot(0x2, 0)
+    if snapshot in (None, 0, ctypes.c_void_p(-1).value):
+        return None
+    try:
+        entry = Entry()
+        entry.dwSize = ctypes.sizeof(Entry)
+        children = []
+        more = kernel.Process32FirstW(snapshot, ctypes.byref(entry))
+        if not more:
+            return None
+        while more:
+            if entry.th32ParentProcessID == int(pid) and entry.th32ProcessID != int(pid):
+                children.append(int(entry.th32ProcessID))
+            more = kernel.Process32NextW(snapshot, ctypes.byref(entry))
+        if ctypes.get_last_error() != 18:
+            return None
+    finally:
+        kernel.CloseHandle(snapshot)
+    found = []
+    for child in children:
+        stamp = _process_started(child)
+        if stamp is None:
+            return None
+        if stamp:
+            found.append((child, stamp))
+    return found
+
+
+def _owner_children_live(pid, started):
+    """Whether a process the lease's owner started still runs: True, False, or None when that is unknown.
+
+    Only a child created at or after the owner's own start counts; a child of an earlier process that held the
+    same id is older than the owner. Stamps of another kind make the answer unknown.
+    """
+    children = _windows_children(pid)
+    if children is None:
+        return None
+    kind, _, value = started.partition(":")
+    if kind != "filetime" or not value.isdigit():
+        return None
+    for _child, stamp in children:
+        child_kind, _, child_value = stamp.partition(":")
+        if child_kind != kind or not child_value.isdigit():
+            return None
+        if int(child_value) >= int(value):
+            return True
+    return False
+
+
 def _lease_host():
     """This computer's name as the installers record it: COMPUTERNAME on Windows, ``uname -n`` elsewhere."""
     import platform
@@ -1522,12 +1593,16 @@ def _lease_owner_text():
     """The owner record a new lease carries, measured once per process.
 
     Process id, start stamp and host everywhere, plus the pid namespace on POSIX, so a lease written inside a
-    container that shares this host name is never judged by pids it cannot see.
+    container that shares this host name is never judged by pids it cannot see. Windows records tree=1: the
+    lease stays live while a process the owner started still runs, since Windows does not end a killed
+    installer's pip or uv with it.
     """
     pid = os.getpid()
     if pid not in _OWN_LEASE_RECORD:
         text = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
-        if os.name != "nt":
+        if os.name == "nt":
+            text += "tree=1\n"
+        else:
             text += f"pidns={_pid_namespace()}\n"
             try:
                 text += f"pgid={os.getpgrp()}\n"
@@ -1592,7 +1667,9 @@ def _lease_owner_dead(path):
     fields = _lease_fields(text)
     expected = _lease_fields(_lease_owner_text())
     expected.pop("pgid", None)
+    expected.pop("tree", None)
     group = fields.pop("pgid", None)
+    tree = fields.pop("tree", None)
     if (set(fields) != set(expected) or not fields["started"] or fields["host"] != expected["host"]
             or fields.get("pidns") != expected.get("pidns") or expected.get("pidns") == "unknown"):
         return False
@@ -1606,6 +1683,10 @@ def _lease_owner_dead(path):
         now = _process_started(pid)
         if not now or now.partition(":")[0] != fields["started"].partition(":")[0] or now == fields["started"]:
             return False
+    if tree is not None:
+        if tree != "1" or group is not None:
+            return False
+        return _owner_children_live(pid, fields["started"]) is False
     if group is None:
         return True
     if not group.isdigit() or int(group) <= 0:

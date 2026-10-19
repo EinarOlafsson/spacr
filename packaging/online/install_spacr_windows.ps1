@@ -155,6 +155,49 @@ function Invoke-Checked {
 # no rollback line, and its recorded owner on this computer is provably gone
 # (no such process, or a process started at another time). A lease from a
 # version that recorded no owner is never taken over.
+#
+# Children of a killed installer (uv, pip, Python) would keep working in the
+# root after their parent is gone. The installer runs in a Job Object that
+# Windows closes, killing every member, when the installer dies; its lease
+# records tree=1, and stays live while any process the owner started (parent
+# id equal to the owner's, created at or after it) still runs. A process
+# table that cannot be read refuses.
+function Enable-SpacrInstallerJob {
+    try {
+        Add-Type -Namespace SpacrInstaller -Name Job -MemberDefinition @'
+[System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+public static extern System.IntPtr CreateJobObject(System.IntPtr attributes, string name);
+[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool SetInformationJobObject(System.IntPtr job, int infoClass, byte[] info, int length);
+[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool AssignProcessToJobObject(System.IntPtr job, System.IntPtr process);
+[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+public static extern System.IntPtr GetCurrentProcess();
+'@
+        $Job = [SpacrInstaller.Job]::CreateJobObject([System.IntPtr]::Zero, $null)
+        if ($Job -eq [System.IntPtr]::Zero) { return $false }
+        $Limits = New-Object byte[] ($(if ([System.IntPtr]::Size -eq 8) { 144 } else { 112 }))
+        [System.BitConverter]::GetBytes([int]0x2000).CopyTo($Limits, 16)
+        if (-not [SpacrInstaller.Job]::SetInformationJobObject($Job, 9, $Limits, $Limits.Length)) { return $false }
+        if (-not [SpacrInstaller.Job]::AssignProcessToJobObject($Job, [SpacrInstaller.Job]::GetCurrentProcess())) { return $false }
+        $script:SpacrInstallerJob = $Job
+        return $true
+    } catch { return $false }
+}
+function Test-SpacrOwnerChildrenLive {
+    param([int]$OwnerId, [string]$Started)
+    if ($Started -notmatch '^filetime:([0-9]+)$') { return $null }
+    $Since = [long]$Matches[1]
+    try {
+        $Children = @(Get-CimInstance -ClassName Win32_Process -Filter "ParentProcessId = $OwnerId" -ErrorAction Stop)
+    } catch { return $null }
+    foreach ($Child in $Children) {
+        if ($Child.ProcessId -eq $OwnerId) { continue }
+        if ($null -eq $Child.CreationDate) { return $null }
+        if ($Child.CreationDate.ToFileTimeUtc() -ge $Since) { return $true }
+    }
+    return $false
+}
 function Get-SpacrProcessStarted {
     param([int]$ProcessId)
     try { $Process = [System.Diagnostics.Process]::GetProcessById($ProcessId) } catch [System.ArgumentException] { return "" }
@@ -174,12 +217,17 @@ function Test-SpacrLeaseOwnerDead {
         $Pair = $Line.TrimEnd("`r") -split "=", 2
         if ($Pair.Count -eq 2) { $Fields[$Pair[0]] = $Pair[1] }
     }
+    $Tree = $Fields["tree"]
+    if ($Fields.ContainsKey("tree")) { $Fields.Remove("tree") }
     if ($Fields.Count -ne 3 -or -not $Fields.ContainsKey("pid") -or -not $Fields.ContainsKey("started")
             -or $Fields["host"] -ne $env:COMPUTERNAME -or -not $Fields["started"]) { return $false }
     $OwnerId = 0
     if (-not [int]::TryParse($Fields["pid"], [ref]$OwnerId) -or $OwnerId -le 0 -or $OwnerId -eq $PID) { return $false }
     $Now = Get-SpacrProcessStarted $OwnerId
-    return ($null -ne $Now) -and (($Now -eq "") -or ($Now -ne $Fields["started"]))
+    if (-not (($null -ne $Now) -and (($Now -eq "") -or ($Now -ne $Fields["started"])))) { return $false }
+    if ($null -eq $Tree) { return $true }
+    if ($Tree -ne "1") { return $false }
+    return ($false -eq (Test-SpacrOwnerChildrenLive $OwnerId $Fields["started"]))
 }
 function Get-SpacrLeaseOwner {
     param([string]$LeasePath)
@@ -198,7 +246,7 @@ function New-SpacrInstallerLeaseFile {
     param([string]$LeasePath)
     $Stream = [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
         [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::Read)
-    $Record = "pid=$PID`nstarted=$(Get-SpacrProcessStarted $PID)`nhost=$env:COMPUTERNAME`n"
+    $Record = "pid=$PID`nstarted=$(Get-SpacrProcessStarted $PID)`nhost=$env:COMPUTERNAME`ntree=1`n"
     $Bytes = [System.Text.Encoding]::UTF8.GetBytes($Record)
     $Stream.Write($Bytes, 0, $Bytes.Length)
     $Stream.Flush()
@@ -229,6 +277,7 @@ $MetadataBackup = Join-Path $WorkDir "previous-metadata"
 $MetadataTouched = $false
 $RetainWorkDir = $false
 $Committed = $false
+$null = Enable-SpacrInstallerJob
 try {
     $InstallParent = [System.IO.Path]::GetDirectoryName($InstallRoot)
     New-Item -ItemType Directory -Force -Path $InstallParent | Out-Null
