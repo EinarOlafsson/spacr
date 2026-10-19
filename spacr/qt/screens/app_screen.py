@@ -12636,7 +12636,21 @@ class AppScreen(QWidget):
         Wired to QThread.finished (not worker.finished), so by the time this
         runs the thread's event loop has exited and dropping the last Python
         reference cannot abort the process.
+
+        Only the refs of a thread that has stopped are cleared. ``worker.
+        finished`` re-enables Run before ``thread.finished`` arrives, so a new
+        run can already hold ``self._thread`` when the old run's queued call
+        lands; ``sender()`` is null there (the emitter is gone after its
+        ``deleteLater``), so the held thread is asked instead.
         """
+        from ..bridge import thread_has_stopped
+
+        try:
+            running = not thread_has_stopped(self._thread)
+        except AttributeError:
+            running = False
+        if running:
+            return
         self._thread = None
         self._worker = None
         if getattr(self, "_form_rebuild_deferred", False):

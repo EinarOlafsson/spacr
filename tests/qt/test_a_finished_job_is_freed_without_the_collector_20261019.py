@@ -14,12 +14,31 @@ from __future__ import annotations
 
 import os
 import subprocess
+from pathlib import Path
 import sys
 import textwrap
 
 
+_TESTED_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _tested_tree(env):
+    """Make a fresh probe process import this tree's spacr, not an install.
+
+    :param env: the probe's environment, changed in place.
+    :returns: ``env``.
+    """
+    env["SPACR_TESTED_ROOT"] = str(_TESTED_ROOT)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(_TESTED_ROOT)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+    return env
+
+
+GUARD = 'import os as _os, spacr as _spacr\nassert _os.path.realpath(_spacr.__file__).startswith(_os.path.realpath(_os.environ["SPACR_TESTED_ROOT"]) + _os.sep), ("probe imported spacr from " + _spacr.__file__)\n'
+
+
 def test_the_first_job_of_a_process_dies_by_reference_count(tmp_path):
-    script = textwrap.dedent("""
+    script = GUARD + textwrap.dedent("""
         import gc, sys, time, weakref
         from PySide6.QtWidgets import QApplication
         app = QApplication(sys.argv[:1])
@@ -48,8 +67,8 @@ def test_the_first_job_of_a_process_dies_by_reference_count(tmp_path):
     probe.write_text(script, encoding="utf-8")
     result = subprocess.run(
         [sys.executable, str(probe)], capture_output=True, text=True,
-        timeout=180, env={**os.environ,
-                          "QT_QPA_PLATFORM": "offscreen"})
+        timeout=180, env=_tested_tree(
+            {**os.environ, "QT_QPA_PLATFORM": "offscreen"}))
     assert "FINISHED" in result.stdout, result.stdout + result.stderr
     assert "FREED" in result.stdout, (
         "the first job's worker or output drain outlived its owners and "

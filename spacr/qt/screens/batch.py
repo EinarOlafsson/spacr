@@ -35,7 +35,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -90,6 +90,22 @@ STATUS_COLOURS: Dict[str, str] = {
 _LOG_TAIL_BYTES = 200_000
 
 
+class _CloseDrain(QObject):
+    """Event filter that drains a screen's queue run when the screen closes.
+
+    :param screen: the BatchScreen to watch.
+    """
+
+    def __init__(self, screen):
+        super().__init__(screen)
+        self._screen = screen
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt name
+        if event.type() == QEvent.Close and watched is self._screen:
+            self._screen._drain_jobs()
+        return False
+
+
 class BatchScreen(QWidget):
     """Build a queue of module+settings jobs, validate it, and run it overnight.
 
@@ -138,6 +154,8 @@ class BatchScreen(QWidget):
         self._result: Optional[bt.QueueResult] = None
         self._problems: List[bt.Problem] = []
         self._jobs: List[tuple] = []
+        self._close_drain = _CloseDrain(self)
+        self.installEventFilter(self._close_drain)
         self._pending: List[Dict[str, Any]] = []
         self._thread = None
         self._worker = None
@@ -718,6 +736,27 @@ class BatchScreen(QWidget):
         for thread, _worker in list(self._jobs):
             if thread_has_stopped(thread):
                 self._retire_job(thread)
+
+    def _drain_jobs(self) -> None:
+        """Stop the queue run and wait briefly for each job thread.
+
+        A thread that will not stop is parked by ``drain_thread`` instead of
+        being dropped, so nothing destroys a running QThread or leaves its
+        worker emitting at a deleted widget.
+
+        :returns: None.
+        """
+        from ..bridge import drain_thread
+
+        self._stop_requested = True
+        for thread, worker in list(self._jobs):
+            try:
+                drain_thread(thread, worker, timeout_ms=1500)
+            except (AttributeError, RuntimeError):
+                continue
+        self._jobs.clear()
+        self._thread = None
+        self._worker = None
 
     def _retire_job(self, thread) -> None:
         """Release this job's refs once its own event loop has exited."""

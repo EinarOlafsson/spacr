@@ -8227,13 +8227,45 @@ ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
 _LIVE_FOLDER_SCANS: set = set()
 
 
-def _forget_folder_scan(thread, worker) -> None:
-    """Release one finished folder scan.
+class _FolderScanKeeper(QObject):
+    """Hold one folder scan's thread and worker until the thread has stopped.
 
-    :param thread: the QThread that has just emitted ``finished``.
-    :param worker: the worker that ran on it.
+    The keeper lives on the GUI thread, so its slot runs there once the
+    thread has emitted ``finished``; the pair is released from that slot and
+    never from a destructor or from the worker thread.
     """
-    _LIVE_FOLDER_SCANS.discard((thread, worker))
+
+    def __init__(self, thread, worker) -> None:
+        """Keep the pair and release it when the thread finishes.
+
+        :param thread: the QThread running the scan.
+        :param worker: the worker moved onto that thread.
+        """
+        super().__init__()
+        self._thread = thread
+        self._worker = worker
+        thread.finished.connect(self._release)
+
+    def _release(self) -> None:
+        """Drop the pair from the GUI thread after the thread has stopped.
+
+        :returns: nothing.
+        """
+        _LIVE_FOLDER_SCANS.discard(self)
+        self._thread = None
+        self._worker = None
+        self.deleteLater()
+
+
+def _keep_folder_scan(thread, worker) -> None:
+    """Register one running folder scan with a GUI-thread keeper.
+
+    :param thread: the QThread running the scan.
+    :param worker: the worker moved onto that thread.
+    :returns: nothing.
+    """
+    keeper = _FolderScanKeeper(thread, worker)
+    _LIVE_FOLDER_SCANS.add(keeper)
 
 
 class _FolderScanWorker(QObject):
@@ -8574,9 +8606,7 @@ class _MetadataTypeField(QWidget):
         worker.tested.connect(thread.quit)
         worker.ranked.connect(thread.quit)
         worker.failed.connect(thread.quit)
-        _LIVE_FOLDER_SCANS.add((thread, worker))
-        thread.finished.connect(partial(_forget_folder_scan, thread, worker))
-        thread.finished.connect(thread.deleteLater)
+        _keep_folder_scan(thread, worker)
         thread.finished.connect(self._on_scan_finished)
         self._thread = thread
         self._worker = worker

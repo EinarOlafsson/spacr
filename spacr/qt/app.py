@@ -662,7 +662,7 @@ class _PipelinePreloader:
         self._thread = threading.Thread(
             target=self._work, name="spacr-preload", daemon=True)
         self._thread.start()
-        self._poll = QTimer()
+        self._poll = QTimer(QApplication.instance())
         self._poll.setInterval(40)
         self._poll.timeout.connect(self._drain)
         self._poll.start()
@@ -697,8 +697,10 @@ class _PipelinePreloader:
         if not self._done.is_set():
             return
         if self._poll is not None:
-            self._poll.stop()
-            self._poll = None
+            poll, self._poll = self._poll, None
+            poll.stop()
+            poll.deleteLater()
+            del poll
         if self._on_done is not None:
             try:
                 self._on_done()

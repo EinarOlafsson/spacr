@@ -18,6 +18,7 @@ a Tk mainloop just to see download progress.
 from __future__ import annotations
 
 import logging
+import weakref
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
@@ -27,6 +28,7 @@ from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
                                QProgressBar, QProgressDialog,
                                QPushButton, QVBoxLayout, QWidget)
 
+from .bridge import drain_thread
 from ..example_archives import (                              # noqa: F401
     ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
     EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
@@ -293,6 +295,111 @@ class _DownloadDialog(QDialog):
         self._bar.reset()
 
 
+_LIVE_DOWNLOADS: set = set()
+
+
+class _DownloadKeeper(QObject):
+    """Hold one download's thread and worker until the thread has stopped.
+
+    The thread is not parented to the caller's widget, so closing or
+    destroying that widget cannot destroy a running QThread. The keeper lives
+    on the GUI thread and releases the pair from an ordinary slot once the
+    thread has emitted ``finished``.
+    """
+
+    def __init__(self, thread: QThread, worker, parent, stopper=None,
+                 ui=None) -> None:
+        """Keep the pair, and drain the thread if the caller goes away.
+
+        :param thread: the QThread running the download.
+        :param worker: the worker moved onto that thread.
+        :param parent: the caller's widget whose destruction is watched.
+        :param stopper: the shutdown handler holding the pair, disconnected on release.
+        :param ui: the signal receiver whose own references are cleared on release.
+        """
+        super().__init__()
+        self._stopper = stopper
+        self._ui = weakref.ref(ui) if ui is not None else None
+        self._owner = weakref.ref(parent)
+        self._thread = thread
+        self._worker = worker
+        thread.finished.connect(self._release)
+        try:
+            parent.destroyed.connect(self._owner_gone)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not watch the download's owner", exc_info=True)
+
+    def _quit_thread(self, *_args) -> None:
+        """Ask the thread's event loop to stop because the worker finished.
+
+        :param _args: the worker's result arguments, unused.
+        :returns: nothing.
+        """
+        if self._thread is not None:
+            self._thread.quit()
+
+    def _owner_gone(self, *_args) -> None:
+        """Cancel and drain the thread because the caller's widget is gone.
+
+        :param _args: the destroyed object Qt passes, unused.
+        :returns: nothing.
+        """
+        thread, worker = self._thread, self._worker
+        if thread is None:
+            return
+        try:
+            worker.cancel()
+        except Exception:                                    # noqa: BLE001
+            pass
+        drain_thread(thread, worker, timeout_ms=1000)
+
+    def _release(self) -> None:
+        """Drop the pair from the GUI thread after the thread has stopped.
+
+        :returns: nothing.
+        """
+        _LIVE_DOWNLOADS.discard(self)
+        stopper, self._stopper = self._stopper, None
+        if stopper is not None:
+            try:
+                from PySide6.QtCore import QCoreApplication
+
+                QCoreApplication.instance().aboutToQuit.disconnect(stopper)
+            except Exception:                                # noqa: BLE001
+                pass
+        del stopper
+        ui = self._ui() if self._ui is not None else None
+        if ui is not None:
+            ui._thread = None
+            ui._worker = None
+        del ui
+        owner = self._owner()
+        if owner is not None:
+            for attr in ("_hf_download_thread", "_hf_download_worker",
+                         "_hf_download_dialog", "_hf_download_ui"):
+                owner.__dict__.pop(attr, None)
+        del owner
+        self._thread = None
+        self._worker = None
+        self.deleteLater()
+
+
+def _keep_download(thread: QThread, worker, parent, stopper=None,
+                   ui=None) -> None:
+    """Register one running download with a GUI-thread keeper.
+
+    :param thread: the QThread running the download.
+    :param worker: the worker moved onto that thread.
+    :param parent: the caller's widget.
+    :param stopper: the shutdown handler that holds the pair.
+    :param ui: the signal receiver that also holds the pair.
+    :returns: nothing.
+    """
+    keeper = _DownloadKeeper(thread, worker, parent, stopper, ui)
+    worker.finished.connect(keeper._quit_thread)
+    _LIVE_DOWNLOADS.add(keeper)
+
+
 class _HFDownloadUI(QObject):
     """Receives the worker's signals **on the GUI thread**.
 
@@ -389,8 +496,9 @@ class _HFDownloadUI(QObject):
         dlg.reset()
         dlg.close()
         dlg.deleteLater()
-        self._thread.quit()
-        self._thread.wait(2000)
+        if drain_thread(self._thread, self._worker, timeout_ms=2000):
+            self._thread = None
+            self._worker = None
         for attr in ("_hf_download_thread", "_hf_download_worker",
                      "_hf_download_dialog", "_hf_download_ui"):
             try:
@@ -865,7 +973,7 @@ def download_toxo_mito_demo(parent,
     dlg.setAutoReset(True)
     dlg.show()
 
-    thread = QThread(parent)
+    thread = QThread()
     worker = (worker_factory or _HFDownloadWorker)(dest)
     worker.moveToThread(thread)
 
@@ -875,6 +983,7 @@ def download_toxo_mito_demo(parent,
     worker.finished.connect(ui.on_finished)
 
     dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
+    stopper = None
     try:
         from PySide6.QtCore import QCoreApplication
 
@@ -895,8 +1004,10 @@ def download_toxo_mito_demo(parent,
 
             application.aboutToQuit.connect(_stop_before_quitting,
                                             Qt.DirectConnection)
+            stopper = _stop_before_quitting
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not arm the shutdown cancel", exc_info=True)
+    _keep_download(thread, worker, parent, stopper, ui)
     thread.started.connect(worker.run)
     thread.start()
     parent._hf_download_thread = thread

@@ -12,10 +12,29 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from pathlib import Path
 import sys
 import textwrap
 
 import pytest
+
+
+_TESTED_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _tested_tree(env):
+    """Make a fresh probe process import this tree's spacr, not an install.
+
+    :param env: the probe's environment, changed in place.
+    :returns: ``env``.
+    """
+    env["SPACR_TESTED_ROOT"] = str(_TESTED_ROOT)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(_TESTED_ROOT)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+    return env
+
+
+GUARD = 'import os as _os, spacr as _spacr\nassert _os.path.realpath(_spacr.__file__).startswith(_os.path.realpath(_os.environ["SPACR_TESTED_ROOT"]) + _os.sep), ("probe imported spacr from " + _spacr.__file__)\n'
 
 pytest.importorskip("PySide6")
 
@@ -63,7 +82,7 @@ def test_opening_regression_adds_no_heavy_module_after_the_warm(tmp_path):
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
                CUDA_VISIBLE_DEVICES="", HOME=str(tmp_path),
                XDG_CONFIG_HOME=str(tmp_path))
-    done = subprocess.run([sys.executable, "-c", SCRIPT], env=env,
+    done = subprocess.run([sys.executable, "-c", GUARD + SCRIPT], env=_tested_tree(env),
                           capture_output=True, text=True, timeout=300)
     lines = [line for line in done.stdout.splitlines() if line.startswith("{")]
     assert lines, done.stderr[-2000:]

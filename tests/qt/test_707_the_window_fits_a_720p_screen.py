@@ -295,6 +295,24 @@ def test_a_roomy_screen_lays_out_exactly_as_before_it_scrolled(
     host.close()
 
 
+_TESTED_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _tested_tree(env):
+    """Make a fresh probe process import this tree's spacr, not an install.
+
+    :param env: the probe's environment, changed in place.
+    :returns: ``env``.
+    """
+    env["SPACR_TESTED_ROOT"] = str(_TESTED_ROOT)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(_TESTED_ROOT)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+    return env
+
+
+GUARD = 'import os as _os, spacr as _spacr\nassert _os.path.realpath(_spacr.__file__).startswith(_os.path.realpath(_os.environ["SPACR_TESTED_ROOT"]) + _os.sep), ("probe imported spacr from " + _spacr.__file__)\n'
+
+
 _DPR_SCRIPT = r"""
 import sys
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
@@ -328,7 +346,7 @@ def test_the_threshold_is_in_logical_pixels_at_device_pixel_ratio_two():
 
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_SCALE_FACTOR="2",
                CUDA_VISIBLE_DEVICES="")
-    done = subprocess.run([sys.executable, "-c", _DPR_SCRIPT], env=env,
+    done = subprocess.run([sys.executable, "-c", GUARD + _DPR_SCRIPT], env=_tested_tree(env),
                           capture_output=True, text=True, timeout=240)
     assert done.returncode == 0, done.stderr[-2000:]
     line = done.stdout.strip().splitlines()[-1]

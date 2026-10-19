@@ -15,6 +15,24 @@ from pathlib import Path
 
 import pytest
 
+
+_TESTED_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _tested_tree(env):
+    """Make a fresh probe process import this tree's spacr, not an install.
+
+    :param env: the probe's environment, changed in place.
+    :returns: ``env``.
+    """
+    env["SPACR_TESTED_ROOT"] = str(_TESTED_ROOT)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(_TESTED_ROOT)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+    return env
+
+
+GUARD = 'import os as _os, spacr as _spacr\nassert _os.path.realpath(_spacr.__file__).startswith(_os.path.realpath(_os.environ["SPACR_TESTED_ROOT"]) + _os.sep), ("probe imported spacr from " + _spacr.__file__)\n'
+
 pytest.importorskip("numba")
 
 SCRIPT = textwrap.dedent("""
@@ -43,7 +61,7 @@ def _run(home, extra=None):
     env.pop("NUMBA_CACHE_DIR", None)
     env.pop("NUMBA_DISABLE_JIT", None)
     env.update(extra or {})
-    done = subprocess.run([sys.executable, "-c", SCRIPT], env=env,
+    done = subprocess.run([sys.executable, "-c", GUARD + SCRIPT], env=_tested_tree(env),
                           capture_output=True, text=True, timeout=300)
     lines = [x for x in done.stdout.splitlines() if x.startswith("{")]
     assert lines, done.stderr[-2000:]
