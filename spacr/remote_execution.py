@@ -433,15 +433,25 @@ def _file_lock(path: Path):
         ) from exc
     try:
         try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            if os.name == "nt":
+                import msvcrt
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         except (ImportError, OSError):
             pass
         yield
     finally:
         try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            if os.name == "nt":
+                import msvcrt
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         except (ImportError, OSError):
             pass
         handle.close()

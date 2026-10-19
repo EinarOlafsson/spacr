@@ -128,6 +128,8 @@ def _stop_before_the_machine_does() -> None:
 
     if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
         return
+    if not hasattr(os, "sysconf"):         # Windows: no page size, no per-process statm to read
+        return
     ceiling = _memory_ceiling_bytes()
 
     def watch() -> None:
