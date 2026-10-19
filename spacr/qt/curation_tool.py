@@ -42,6 +42,7 @@ from ..layers import LabelsLayer, LayerError, LayerEvent
 from .layer_viewer import CanvasTool, LayerCanvas
 from .theme import register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
+from .widgets.sortable_table import _reuse_list_items
 
 LOG = logging.getLogger(__name__)
 
@@ -464,11 +465,10 @@ class BrushPanel(QWidget):
         self.undo_button.setEnabled(self._session.can_undo)
         spacing = getattr(self._session.layer, "spacing", None)
         self.units.setText(getattr(spacing, "units", "") or "")
-        self.ledger.clear()
-        for edit in self._session.log.edits:
-            item = QListWidgetItem(edit.describe())
+        edits = list(self._session.log.edits)
+        for item, edit in zip(_reuse_list_items(self.ledger, len(edits)), edits):
+            item.setText(edit.describe())
             item.setToolTip(str(dict(edit.detail)))
-            self.ledger.addItem(item)
         self.badge.setText(self._session.log.describe())
         self.painted.emit(sum(edit.n_changed
                               for edit in self._session.log.edits))
@@ -708,26 +708,27 @@ class TrackCurationPanel(QWidget):
 
     def refresh(self) -> None:
         """Redraw the track list, the ledger and the consistency line."""
-        self.track_list.clear()
-        self.ledger.clear()
         session = self._session
         if session is None:
+            _reuse_list_items(self.track_list, 0)
+            _reuse_list_items(self.ledger, 0)
             self.status.setText("No tracks open.")
             self._refresh_buttons()
             self.tracks_changed.emit(0)
             return
-        for track_id in session.track_ids:
+        track_ids = list(session.track_ids)
+        for item, track_id in zip(
+                _reuse_list_items(self.track_list, len(track_ids)), track_ids):
             span = session.span(track_id)
             frames = session.frames_of(track_id)
-            item = QListWidgetItem(
+            item.setText(
                 f"track {track_id}   {len(frames)} frame(s)   "
                 f"{span[0]}–{span[1]}" if span else f"track {track_id}")
             item.setData(Qt.UserRole, track_id)
-            self.track_list.addItem(item)
-        for edit in session.log.edits:
-            entry = QListWidgetItem(edit.describe())
+        edits = list(session.log.edits)
+        for entry, edit in zip(_reuse_list_items(self.ledger, len(edits)), edits):
+            entry.setText(edit.describe())
             entry.setToolTip(str(dict(edit.detail)))
-            self.ledger.addItem(entry)
         self.status.setText(session.describe())
         self._refresh_buttons()
         self.tracks_changed.emit(len(session.track_ids))

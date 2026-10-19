@@ -51,7 +51,8 @@ from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.toggle import Toggle
 from ..widgets.measurements_example import install_test_data_button
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from ..app_catalog import register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
@@ -774,14 +775,14 @@ class DataManagerScreen(QWidget):
         self._destination = str(path)
         self.destination_label.setText(self._destination)
         self._archive_plan = None
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         self._update_controls()
 
     def _clear_tables(self) -> None:
         """Empty every table, so a stale plan is not read as a current one."""
         for table in (self.usage_table, self.prune_table, self.kept_table,
                       self.archive_table):
-            table.setRowCount(0)
+            _retire_table_cells(table)
         self.total_label.setText("—")
         self.freed_label.setText("No plan yet.")
 
@@ -977,8 +978,8 @@ class DataManagerScreen(QWidget):
     def _on_kinds_changed(self, _checked: bool) -> None:
         """A changed selection invalidates the plan it was not made with."""
         self._plan = None
-        self.prune_table.setRowCount(0)
-        self.kept_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
+        _retire_table_cells(self.kept_table)
         self.freed_label.setText("Kinds changed — plan again.")
         self._update_controls()
 
@@ -1026,7 +1027,7 @@ class DataManagerScreen(QWidget):
             notes.append(f"{len(usage.symlinks)} symlink(s), not followed")
         self._note("; ".join(notes))
 
-        self.usage_table.setRowCount(0)
+        _retire_table_cells(self.usage_table)
         for row in usage.kinds:
             if not row.size_bytes and not row.n_artifacts:
                 continue
@@ -1069,13 +1070,13 @@ class DataManagerScreen(QWidget):
         :param plan: the proposed deletions.
         """
         self._plan = plan
-        self.prune_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
         for candidate in plan.candidates:
             self._append(self.prune_table, (
                 dm.human_bytes(candidate.size_bytes), candidate.label,
                 os.path.relpath(candidate.path, plan.root),
                 f"{candidate.n_files:,}", candidate.regenerate_with))
-        self.kept_table.setRowCount(0)
+        _retire_table_cells(self.kept_table)
         for skip in plan.kept:
             self._append(self.kept_table, (
                 dm.human_bytes(skip.size_bytes),
@@ -1121,7 +1122,7 @@ class DataManagerScreen(QWidget):
         :param result: what was deleted.
         """
         self._plan = None
-        self.prune_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
         self.freed_label.setText(
             f"Freed {dm.human_bytes(result.freed_bytes)} in "
             f"{result.n_files:,} files.")
@@ -1147,7 +1148,7 @@ class DataManagerScreen(QWidget):
         :param plan: the proposed archive.
         """
         self._archive_plan = plan
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         for item in plan.items:
             self._append(self.archive_table, (
                 dm.human_bytes(item.size_bytes),
@@ -1183,7 +1184,7 @@ class DataManagerScreen(QWidget):
         :param result: what was archived.
         """
         self._archive_plan = None
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         self._note(f"Moved {dm.human_bytes(result.total_bytes)} to "
                    f"{result.destination}. Record left at "
                    f"{result.ledger_path}.")
@@ -1192,11 +1193,17 @@ class DataManagerScreen(QWidget):
 
     @staticmethod
     def _append(table: QTableWidget, values) -> int:
-        """Append one row of strings; returns its index."""
+        """Append one row of strings; returns its index.
+
+        Cells come from the ones :func:`_retire_table_cells` kept when the
+        table was last emptied: deleting Python-made items while assistive
+        technology may hold wrappers of them crashed lesson 44 in this
+        screen's ``setRowCount(0)``, during the choose-folder click.
+        """
         row = table.rowCount()
         table.insertRow(row)
         for column, value in enumerate(values):
-            item = table_item(str(value))
+            item = _spare_table_item(table, str(value))
             item.setToolTip(str(value))
             if column == 0:
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
