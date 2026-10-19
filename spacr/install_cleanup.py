@@ -5455,7 +5455,11 @@ def _runtime_recovery_journal(root, state):
 _RUNTIME_TRANSACTIONS = {
     "posix-runtime": (".spacr-runtime-update-", 2, "runtime"),
     "windows-private-pip": (".spacr-windows-update-", 1, "previous"),
+    "windows-online-uv": (".spacr-windows-update-", 1, "previous"),
 }
+
+#: Journal states of an update that stopped before touching the live runtime: only its staged copy is left.
+_ABANDONED_TRANSACTION_STATES = frozenset({"staging_failed", "cancelled"})
 
 
 def _runtime_transaction_folders(parent):
@@ -5522,24 +5526,23 @@ def _folder_size(path):
 
 
 def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
-    """Remove retained update copies of ``prefix`` except the newest committed one.
+    """Remove retained update copies of ``prefix`` except the newest committed one, and abandoned stages.
 
     Every update keeps the runtime it replaced as a rollback copy, about 3 GB, and nothing removed the older
     ones. Only a copy whose journal says "committed" is removed; one rolling back, awaiting launch
-    confirmation, unknown or unreadable is kept, as is the newest committed one. With ``live`` the copies
+    confirmation, unknown or unreadable is kept, as is the newest committed one. A copy whose update
+    failed or was cancelled before the live runtime was retired (``staging_failed``, ``cancelled``, about
+    2.3 GB of staged runtime) is always removed. With ``live`` the committed copies
     are pruned only when the newest transaction of all is committed and its new runtime is the one now
     installed, by directory identity and content. The caller holds the runtime lease. Nothing outside the
     runtime's own folder is touched and no link is followed.
 
     :param prefix: the runtime directory the transactions replaced.
-    :param family: "posix-runtime" or "windows-private-pip".
+    :param family: "posix-runtime", "windows-private-pip" or "windows-online-uv".
     :param live: check the newest transaction against the installed runtime first.
     :param inventory: the content inventory of ``prefix``, computed when needed if omitted.
     :returns: ``(path, bytes)`` for each removed copy.
     """
-    import logging
-
-    log = logging.getLogger("spacr.install_cleanup")
     prefix = os.path.realpath(prefix)
     parent = os.path.dirname(prefix)
     journals = []
@@ -5548,29 +5551,47 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
         if found is not None:
             journals.append((found[1], path, found[0]))
     journals.sort(key=lambda row: (row[0], row[1]))
+    _marker, _schema, child = _RUNTIME_TRANSACTIONS[family]
+    abandoned = [row for row in journals if row[2].get("state") in _ABANDONED_TRANSACTION_STATES
+                 and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))]
     committed = [row for row in journals if row[2].get("state") == "committed"]
-    if len(committed) < 2:
-        return []
+    candidates = list(abandoned)
+    if len(committed) >= 2 and _newest_copy_is_live(prefix, family, journals, live, inventory):
+        candidates.extend(committed[:-1])
+    return _remove_runtime_copies(parent, candidates)
+
+
+def _newest_copy_is_live(prefix, family, journals, live, inventory):
+    """Whether older committed copies may go: always at the start of an update; after a launch only when
+    the newest transaction is committed and its new runtime is the installed one."""
     if live:
         newest_state = journals[-1][2]
         if newest_state.get("state") != "committed":
-            return []
+            return False
         try:
             details = os.stat(prefix, follow_symlinks=False)
         except OSError:
-            return []
+            return False
         if [details.st_dev, details.st_ino] != newest_state.get("new_identity"):
-            return []
+            return False
         if inventory is None:
             measure = _runtime_recovery_inventory if family == "posix-runtime" else _windows_pip_tree
             try:
                 inventory = measure(prefix)
             except (OSError, ValueError):
-                return []
+                return False
         if inventory != newest_state.get("new_inventory"):
-            return []
+            return False
+    return True
+
+
+def _remove_runtime_copies(parent, candidates):
+    """Remove each candidate transaction folder that is still a plain directory directly in ``parent``."""
+    import logging
+
+    log = logging.getLogger("spacr.install_cleanup")
     removed = []
-    for _mtime, path, _state in committed[:-1]:
+    for _mtime, path, _state in candidates:
         try:
             details = os.lstat(path)
             if (stat.S_ISLNK(details.st_mode) or not stat.S_ISDIR(details.st_mode)
@@ -5596,9 +5617,12 @@ def _prune_runtime_transactions_after_launch(prefix=None):
     :returns: ``(path, bytes)`` for each removed copy.
     """
     prefix = os.path.realpath(prefix or sys.prefix)
-    family = "windows-private-pip" if os.name == "nt" else "posix-runtime"
     parent = os.path.dirname(prefix)
-    if not any(_runtime_transaction_journal(path, prefix, family) for path in _runtime_transaction_folders(parent)):
+    families = ("windows-private-pip", "windows-online-uv") if os.name == "nt" else ("posix-runtime",)
+    folders = _runtime_transaction_folders(parent)
+    families = [family for family in families
+                if any(_runtime_transaction_journal(path, prefix, family) for path in folders)]
+    if not families:
         return []
     lock = os.path.join(parent, "." + os.path.basename(prefix) + ".spacr-update-lock")
     try:
@@ -5606,7 +5630,7 @@ def _prune_runtime_transactions_after_launch(prefix=None):
     except OSError:
         return []
     try:
-        return _prune_runtime_transactions(prefix, family, live=True)
+        return [row for family in families for row in _prune_runtime_transactions(prefix, family, live=True)]
     finally:
         try:
             _release_lease_dir(lock)
@@ -6974,7 +6998,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         record = replace(record, version=old["version"])
         if _runtime_version_compare(record.python, record.version, version, runner) > 0:
             raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
-        _prune_runtime_transactions(prefix, "windows-private-pip")
+        _prune_runtime_transactions(prefix, "windows-online-uv" if uv_tool else "windows-private-pip")
         root = tempfile.mkdtemp(prefix=".spacr-windows-update-", dir=parent)
         _windows_pip_private_directory(root)
         staged = os.path.join(root, "staged")
@@ -7208,15 +7232,10 @@ def _windows_online_commands(record, version, workdir, desktop_prefix, desktop_e
     python = os.path.join(scripts, "python.exe")
     windowed = os.path.join(scripts, "pythonw.exe")
     uv = os.path.join(root, "bootstrap", "uv.exe")
-
-    def normalize(path):
-        """Compare Windows paths by their resolved, case-folded spelling."""
-        return os.path.normcase(os.path.realpath(path))
-
     executable = os.path.abspath(desktop_executable or "")
-    if (normalize(record.python) != normalize(python)
-            or normalize(desktop_prefix or "") != normalize(prefix)
-            or normalize(os.path.dirname(executable)) != normalize(scripts)
+    if (_windows_path_key(record.python) != _windows_path_key(python)
+            or _windows_path_key(desktop_prefix or "") != _windows_path_key(prefix)
+            or _windows_path_key(os.path.dirname(executable)) != _windows_path_key(scripts)
             or os.path.basename(executable).lower() not in {"python.exe", "pythonw.exe"}
             or any(not os.path.isfile(path) or os.path.islink(path) for path in (uv, python, windowed, executable))
             or _inside(os.path.realpath(workdir), root)):
@@ -7314,6 +7333,22 @@ def _prune_windows_online_recovery(root):
     return removed
 
 
+def _windows_path_key(path):
+    """Compare Windows paths by their resolved, case-folded spelling."""
+    return os.path.normcase(os.path.realpath(path))
+
+
+def _windows_online_ready(handshake, wait, record, plan, desktop, install, relaunch, runtime, current):
+    """Offer Restart only after the staged runtime passes its checks."""
+    handshake.ready()
+    handshake.wait_for_shutdown(wait)
+    if _windows_online_commands(record, plan["version"], plan["workdir"], desktop.get("prefix"),
+                                desktop.get("executable")) != (install, relaunch):
+        raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
+    if _retiring_runtime_identity(runtime.root) != current:
+        raise ValueError("previous_runtime_identity_unverified")
+
+
 def _run_windows_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     """Carry out an approved Windows online update with the installation's own uv.
 
@@ -7338,17 +7373,10 @@ def _run_windows_online_update(plan, machine, *, wait=None, run=None, spawn=None
         raise ValueError("The running spaCR is newer than the requested release. Nothing was changed.")
     handshake = _WindowsPipHandshake(plan)
     handshake.check()
+    from functools import partial
 
-    def prepared():
-        """Offer Restart only after the staged runtime passes its checks."""
-        handshake.ready()
-        handshake.wait_for_shutdown(wait)
-        if _windows_online_commands(record, plan["version"], plan["workdir"], desktop.get("prefix"),
-                                    desktop.get("executable")) != (install, relaunch):
-            raise ValueError(tr("The saved installation choices changed while preparing the update. Nothing was changed."))
-        if _retiring_runtime_identity(runtime.root) != current:
-            raise ValueError("previous_runtime_identity_unverified")
-
+    prepared = partial(_windows_online_ready, handshake, wait, record, plan, desktop, install, relaunch,
+                       runtime, current)
     observed, output = _windows_pip_transaction(
         runtime, plan["version"], install, machine=machine, runner=runner, before_activate=prepared,
         uv_tool=True, without_wgpu="--override" in install,

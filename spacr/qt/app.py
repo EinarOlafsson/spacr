@@ -5009,16 +5009,8 @@ class MainWindow(QMainWindow):
             return
         import threading
 
-        def prune():
-            """Prune off the GUI thread; a failure only leaves the copies in place."""
-            try:
-                from spacr.install_cleanup import _prune_runtime_transactions_after_launch
-
-                _prune_runtime_transactions_after_launch()
-            except Exception:                                    # noqa: BLE001
-                LOG.debug("Retained runtime copies were not pruned", exc_info=True)
-
-        threading.Thread(target=prune, name="spacr-runtime-prune", daemon=True).start()
+        threading.Thread(target=_prune_retained_runtime_copies_quietly, name="spacr-runtime-prune",
+                         daemon=True).start()
 
     def _maybe_show_whats_new(self) -> None:
         """Show what changed when this launch runs a newer version than the last.
@@ -8421,6 +8413,16 @@ def _register_the_glyph_font() -> None:
 
 
 _ICON_WARM_AFTER_MS = 1500
+
+
+def _prune_retained_runtime_copies_quietly() -> None:
+    """Prune older retained update copies off the GUI thread; a failure only leaves them in place."""
+    try:
+        from spacr.install_cleanup import _prune_runtime_transactions_after_launch
+
+        _prune_runtime_transactions_after_launch()
+    except Exception:                                            # noqa: BLE001
+        LOG.debug("Retained runtime copies were not pruned", exc_info=True)
 
 #: Delay before older retained update copies are pruned: well after the window is confirmed up.
 _RETAINED_RUNTIME_PRUNE_AFTER_MS = 60_000

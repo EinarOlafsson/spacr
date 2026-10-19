@@ -151,7 +151,7 @@ def test_both_update_paths_prune_before_they_stage():
     assert posix.index('_prune_runtime_transactions(prefix, "posix-runtime")') < posix.index(
         'tempfile.mkdtemp(prefix=".spacr-runtime-update-"')
     windows = source[source.index("def _windows_pip_transaction"):]
-    assert windows.index('_prune_runtime_transactions(prefix, "windows-private-pip")') < windows.index(
+    assert windows.index('_prune_runtime_transactions(prefix, "windows-online-uv" if uv_tool else "windows-private-pip")') < windows.index(
         'tempfile.mkdtemp(prefix=".spacr-windows-update-"')
 
 
@@ -166,3 +166,29 @@ def test_uninstall_lists_retained_copies_under_temporary_files(tmp_path):
     preview = ic._uninstall_preview("lists-copies", system=box.machine("linux"))
     rows = [row for row in preview["cleanup"] if row["path"] == str(copy)]
     assert rows and rows[0]["category"] == "temporary" and rows[0]["selectable"]
+
+
+@pytest.mark.parametrize("family", ["windows-private-pip", "windows-online-uv"])
+@pytest.mark.parametrize("state", ["staging_failed", "cancelled"])
+def test_a_failed_or_cancelled_stage_is_removed_and_the_live_runtime_kept(runtime, family, state):
+    root, prefix = runtime
+    failed = _copy(root, prefix, "failed", state, 3000, family=family)
+    (failed / "previous").rename(failed / "staged")
+    committed = _copy(root, prefix, "kept", "committed", 1000, family=family)
+    removed = ic._prune_runtime_transactions(prefix, family)
+    assert [path for path, _ in removed] == [str(failed)]
+    assert committed.is_dir() and os.path.isfile(os.path.join(prefix, "bin", "python"))
+
+
+def test_a_failed_stage_that_still_holds_the_previous_runtime_is_kept(runtime):
+    root, prefix = runtime
+    held = _copy(root, prefix, "held", "staging_failed", 3000, family="windows-online-uv")
+    assert ic._prune_runtime_transactions(prefix, "windows-online-uv") == []
+    assert (held / "previous").is_dir()
+
+
+def test_the_launch_prune_removes_a_failed_stage_without_an_identity_match(runtime):
+    root, prefix = runtime
+    failed = _copy(root, prefix, "failed", "cancelled", 3000)
+    assert [path for path, _ in ic._prune_runtime_transactions(prefix, "posix-runtime", live=True,
+                                                              inventory={"live": False})] == [str(failed)]
