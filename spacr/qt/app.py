@@ -5488,10 +5488,12 @@ class MainWindow(QMainWindow):
                 version=self._frozen_update_plan["version"])
             from PySide6.QtCore import QTimer
 
-            keep_alive = QTimer(self)
+            keep_alive = QTimer()
             keep_alive.setInterval(30000)
-            keep_alive.timeout.connect(handshake.progress)
-            keep_alive.start()
+            report = getattr(handshake, "progress", None)
+            if callable(report):
+                keep_alive.timeout.connect(report)
+                keep_alive.start()
             try:
                 answer = self._confirm_update_restart(message)
             finally:

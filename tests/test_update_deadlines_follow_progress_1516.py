@@ -86,13 +86,35 @@ class _Channel:
 def test_the_heartbeat_records_progress_only_while_work_moves():
     moving, still = _Channel(), _Channel()
     counter = iter(range(10_000))
-    with ic._preparation_heartbeat(moving, interval=0.01, activity=lambda: next(counter)):
+    with ic._preparation_heartbeat({}, channel=moving, interval=0.01, activity=lambda: next(counter)):
         time.sleep(0.2)
-    with ic._preparation_heartbeat(still, interval=0.01, activity=lambda: 5.0):
+    with ic._preparation_heartbeat({}, channel=still, interval=0.01, activity=lambda: 5.0):
         time.sleep(0.2)
-    with ic._preparation_heartbeat(still, interval=0.01, activity=lambda: None):
+    with ic._preparation_heartbeat({}, channel=still, interval=0.01, activity=lambda: None):
         time.sleep(0.1)
     assert moving.beats > 0 and still.beats == 0
+
+
+def test_a_channel_that_cannot_open_runs_the_update_without_a_heartbeat():
+    ran = []
+    with ic._preparation_heartbeat({"handshake": {}}):
+        ran.append(True)
+    assert ran == [True]
+
+
+def test_activity_is_read_from_the_process_table_with_the_standard_library():
+    import subprocess
+    import time as clock
+    worker = subprocess.Popen(["python3", "-c", "x = 0\nwhile True: x += 1"])
+    try:
+        clock.sleep(0.3)
+        first = ic._process_tree_activity(os.getpid())
+        clock.sleep(1.2)
+        assert first is not None and ic._process_tree_activity(os.getpid()) > first
+    finally:
+        worker.kill()
+        worker.wait()
+    assert ic._cpu_seconds("1-02:03:04.5") == 93784.5 and ic._cpu_seconds("0:01.25") == 1.25
 
 
 def test_the_helper_and_the_restart_prompt_both_report_progress():
@@ -100,7 +122,7 @@ def test_the_helper_and_the_restart_prompt_both_report_progress():
     assert source.count("with _preparation_heartbeat(") == 2
     app = open(os.path.join(os.path.dirname(ic.__file__), "qt", "app.py"), encoding="utf-8").read()
     poll = app[app.index("def _poll_frozen_update"):app.index("def _confirm_update_restart")]
-    assert "keep_alive.timeout.connect(handshake.progress)" in poll
+    assert "keep_alive.timeout.connect(report)" in poll
     assert poll.index("keep_alive.start()") < poll.index("self._confirm_update_restart(message)")
 
 

@@ -4133,7 +4133,7 @@ class _FrozenUpdateHandshake:
         ready = message is not None and message.get("state") == "ready"
         initial = float(message["expires"]) if ready else self.expires
         cap = self.expires + _PROGRESS_CAP_SECONDS
-        if not 0 < initial <= cap:
+        if not 0 < initial <= self.expires + _WAIT_SECONDS:
             raise ValueError("invalid frozen updater readiness deadline")
         last = self._last_progress()
         deadline = min(cap, max(initial, last + (_WAIT_SECONDS if ready else _PREPARATION_STALL_SECONDS)))
@@ -4190,45 +4190,150 @@ class _FrozenUpdateHandshake:
             time.sleep(0.05)
 
 
-def _process_tree_activity(pid):
-    """A total that grows while ``pid`` or a descendant uses the CPU or moves bytes; None when unknown."""
+def _cpu_seconds(text):
+    """Seconds in a ps ``time`` column: ``[[dd-]hh:]mm:ss[.ss]``; None when it does not parse."""
+    days, _, clock = text.strip().rpartition("-")
+    parts = clock.split(":")
     try:
-        import psutil
-    except ImportError:
+        seconds = sum(float(part) * 60 ** index for index, part in enumerate(reversed(parts)))
+        return seconds + (int(days) * 86400 if days else 0)
+    except ValueError:
         return None
+
+
+def _windows_tree_activity(pid):
+    """CPU time and I/O bytes of ``pid`` and its descendants on Windows; None when they cannot be read."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        """PROCESSENTRY32W."""
+
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+                    ("th32DefaultHeapID", ctypes.c_size_t), ("th32ModuleID", wintypes.DWORD),
+                    ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+                    ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD),
+                    ("szExeFile", ctypes.c_wchar * 260)]
+
+    class Counters(ctypes.Structure):
+        """IO_COUNTERS."""
+
+        _fields_ = [(name, ctypes.c_ulonglong) for name in
+                    ("reads", "writes", "others", "read_bytes", "write_bytes", "other_bytes")]
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel.OpenProcess.restype = wintypes.HANDLE
+    snapshot = kernel.CreateToolhelp32Snapshot(0x2, 0)
+    if snapshot in (None, 0, ctypes.c_void_p(-1).value):
+        return None
+    parents = {}
     try:
-        root = psutil.Process(pid)
-        members = [root] + root.children(recursive=True)
-    except psutil.Error:
+        entry = Entry()
+        entry.dwSize = ctypes.sizeof(Entry)
+        more = kernel.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            parents[int(entry.th32ProcessID)] = int(entry.th32ParentProcessID)
+            more = kernel.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel.CloseHandle(snapshot)
+    total = 0.0
+    for member in _descendants(parents, int(pid)):
+        handle = kernel.OpenProcess(0x1000, False, member)
+        if not handle:
+            continue
+        try:
+            counters = Counters()
+            if kernel.GetProcessIoCounters(handle, ctypes.byref(counters)):
+                total += counters.read_bytes + counters.write_bytes + counters.other_bytes
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if kernel.GetProcessTimes(handle, *[ctypes.byref(item) for item in times]):
+                for item in times[2:]:
+                    total += ((item.dwHighDateTime << 32) | item.dwLowDateTime) / 1e7
+        finally:
+            kernel.CloseHandle(handle)
+    return total
+
+
+def _descendants(parents, pid):
+    """``pid`` and every process whose chain of parents reaches it, from a ``{pid: ppid}`` table."""
+    children = {}
+    for child, parent in parents.items():
+        if child != parent:
+            children.setdefault(parent, []).append(child)
+    found, pending = [], [pid]
+    while pending and len(found) < 100_000:
+        current = pending.pop()
+        if current in found:
+            continue
+        found.append(current)
+        pending.extend(children.get(current, ()))
+    return found
+
+
+def _process_tree_activity(pid):
+    """A total that grows while ``pid`` or a descendant uses the CPU or moves bytes; None when unknown.
+
+    Standard library only, since this module also runs embedded in the shell installer: Windows reads the
+    process table and its I/O and CPU counters, POSIX reads ``ps`` CPU time and, on Linux, /proc I/O.
+    """
+    if os.name == "nt":
+        try:
+            return _windows_tree_activity(pid)
+        except (OSError, AttributeError, ValueError):
+            return None
+    try:
+        done = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,time="], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C"))
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if done.returncode != 0:
+        return None
+    parents, seconds = {}, {}
+    for line in done.stdout.splitlines():
+        fields = line.split()
+        if len(fields) == 3 and fields[0].isdigit() and fields[1].isdigit():
+            parents[int(fields[0])] = int(fields[1])
+            seconds[int(fields[0])] = _cpu_seconds(fields[2]) or 0.0
+    if int(pid) not in parents:
         return None
     total = 0.0
-    for member in members:
+    for member in _descendants(parents, int(pid)):
+        total += seconds.get(member, 0.0)
         try:
-            times = member.cpu_times()
-            total += times.user + times.system
-        except (psutil.Error, AttributeError):
+            with open(f"/proc/{member}/io", encoding="ascii") as handle:
+                for row in handle:
+                    key, _, value = row.partition(":")
+                    if key in ("rchar", "wchar"):
+                        total += int(value)
+        except (OSError, ValueError):
             pass
-        try:
-            counters = member.io_counters()
-        except (psutil.Error, AttributeError, NotImplementedError):
-            continue
-        total += sum(getattr(counters, name, 0) for name in
-                     ("read_bytes", "write_bytes", "read_chars", "write_chars", "other_bytes"))
     return total
 
 
 @contextmanager
-def _preparation_heartbeat(handshake, *, interval=30.0, activity=None):
+def _preparation_heartbeat(plan, *, windows=False, interval=30.0, activity=None, channel=None):
     """Record progress while this helper or its children are doing work, for as long as the block runs.
 
     A download, a pip resolve or a copy shows up as CPU or byte counts that keep growing; a hung child
-    shows none, so its update still times out after the stall allowance. When activity cannot be read
-    (no psutil), nothing is recorded and the original deadlines apply.
+    shows none, so its update still times out after the stall allowance. When activity cannot be read,
+    nothing is recorded and the original deadlines apply.
 
-    :param handshake: the plan's readiness channel.
+    :param plan: the update plan whose readiness channel records the progress.
+    :param windows: whether the channel is the Windows one.
     :param interval: seconds between activity samples.
     :param activity: replaces :func:`_process_tree_activity` for tests.
+    :param channel: an already open readiness channel, for tests.
     """
+    handshake = channel
+    if handshake is None:
+        try:
+            handshake = (_WindowsPipHandshake if windows else _FrozenUpdateHandshake)(plan)
+        except Exception:                                        # noqa: BLE001
+            handshake = None
+    if handshake is None:
+        yield
+        return
     measure = activity or (lambda: _process_tree_activity(os.getpid()))
     stop = threading.Event()
 
@@ -8503,9 +8608,8 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
                          else _run_macos_online_update)
-            channel = (_WindowsPipHandshake if plan["adapter"] in {"pip-private-windows-v1", "windows-online-uv-v1"}
-                       else _FrozenUpdateHandshake)(plan)
-            with _preparation_heartbeat(channel):
+            with _preparation_heartbeat(plan, windows=plan["adapter"] in {"pip-private-windows-v1",
+                                                                          "windows-online-uv-v1"}):
                 observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
             lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1"
@@ -8521,7 +8625,7 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return _finish(0)
     if plan.get("adapter") == "windows-frozen-nsis-v1":
         try:
-            with _preparation_heartbeat(_WindowsPipHandshake(plan)):
+            with _preparation_heartbeat(plan, windows=True):
                 observed, output = _run_windows_frozen_update(
                     plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
             lines.extend([output, json.dumps({"version": observed, "relaunch": "ready"})])
