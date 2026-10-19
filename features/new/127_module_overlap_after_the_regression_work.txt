@@ -420,3 +420,6 @@ right default: a module deleted from under a published figure cannot be
 un-deleted from a reader's paper.
 
 VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+2026-10-19: RESOLVED by the maintainer: keep plot.volcano_plot, toxo.custom_volcano_plot, volcano_style, sp_stats (now an adapter over figures.stats), figure_style and regression_diagnostics/regression_qc as they are.
+2026-10-19: regression_search shipped in v1.5.0.5..v1.5.1.4 (the "never shipped" note is corrected in tests/test_the_shim_that_never_shipped.py); it stays in 1.5.1.5.
+2026-10-19: 1.5.1.6 REMOVAL touches: delete spacr/regression_search.py, its "regression_search" entry in spacr/__init__.py's lazy-loader list (line ~212), tests/test_the_shim_that_never_shipped.py, the comment in tests/test_api_i18n_extractor.py (~374-380), its API symbols (rerun build_documentation_i18n --sources-only and --repair-api-blocks, build_help_search_index), the public-surface counts in the API tests, and a release-notes line naming spacr.parameter_sweep as the replacement.
