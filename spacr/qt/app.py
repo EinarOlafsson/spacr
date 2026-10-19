@@ -8313,17 +8313,19 @@ def _open_the_heavy_warm_after_home() -> None:
     """
     from PySide6.QtCore import QTimer
 
-    gate = _HEAVY_WARM_GATE
-
-    def on_home(entry: dict) -> None:
-        if entry.get("detail") == "__home__":
-            _timing.unsubscribe_readiness(on_home)
-            QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS, gate.set)
-
     if _timing.ENABLED:
-        _timing.subscribe_readiness(on_home)
+        _timing.subscribe_readiness(_open_the_heavy_warm_on_home)
     else:
-        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS * 2, gate.set)
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS * 2, _HEAVY_WARM_GATE.set)
+
+
+def _open_the_heavy_warm_on_home(entry: dict) -> None:
+    """Open the warm gate a moment after Home's readiness record arrives."""
+    from PySide6.QtCore import QTimer
+
+    if entry.get("detail") == "__home__":
+        _timing.unsubscribe_readiness(_open_the_heavy_warm_on_home)
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS, _HEAVY_WARM_GATE.set)
 
 
 def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
