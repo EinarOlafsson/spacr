@@ -32,6 +32,7 @@ SCRIPT = textwrap.dedent("""
     window.show()
     app.processEvents()
     import threading
+    import numba
     import numba.core.dispatcher as dispatcher
     gui_compiles = []
     real_compile = dispatcher.Dispatcher.compile

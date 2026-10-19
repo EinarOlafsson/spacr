@@ -5389,6 +5389,21 @@ def _ready_subpixel_scatter():
     return _SUBPIXEL_SCATTER
 
 
+_NUMBA_IMPORT_LOCK = threading.Lock()
+
+
+def _import_numba():
+    """Import numba once at a time, so two first importers cannot interleave.
+
+    The start-up warm thread and the kernel warmup thread can both be the
+    first to import it; numba imports itself in a cycle, and two threads
+    inside that cycle can see a half-initialised package.
+    """
+    with _NUMBA_IMPORT_LOCK:
+        import numba
+        return numba
+
+
 def _numba_cache_directory():
     """A writable per-user folder for compiled kernels, or ``None``.
 
@@ -5422,7 +5437,7 @@ def _numba_cache_directory():
 def _compiled_kernel(function):
     """``function`` as a nogil numba kernel, cached on disk when it can be."""
     cached = _numba_cache_directory() is not None
-    from numba import njit
+    njit = _import_numba().njit
 
     if cached:
         try:

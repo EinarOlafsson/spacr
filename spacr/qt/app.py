@@ -8181,6 +8181,11 @@ def _start_settings_prewarm() -> threading.Thread:
     def _warm_the_settings_imports():
         """Import each module, logging rather than raising a failure."""
         try:
+            try:
+                from .widgets.ambient import _import_numba
+                _import_numba()
+            except ImportError:
+                LOG.debug("numba is not available to prewarm", exc_info=True)
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
                         "spacr.qt.imagery", "spacr.settings_advisor",

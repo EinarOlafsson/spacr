@@ -19,6 +19,7 @@ pytest.importorskip("numba")
 
 SCRIPT = textwrap.dedent("""
     import json
+    import numba
     import numba.core.dispatcher as dispatcher
     compiled = []
     real = dispatcher._FunctionCompiler._compile_core
