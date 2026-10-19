@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -150,14 +151,82 @@ def iter_image_files(root: Path, cap: Optional[int] = None):
     :param root: folder to walk.
     :param cap: stop after this many image files. ``None`` for no cap.
     """
+    for path in _iter_image_paths(root, cap):
+        yield Path(path)
+
+
+def _iter_image_paths(root, cap: Optional[int] = None):
+    """:func:`iter_image_files` as plain strings, in the same order.
+
+    A ``Path`` built from a string parses it only when it is first asked
+    for its parts or its text, so a caller that ranks 100,000 files and
+    keeps 200 should rank the strings and build ``Path`` objects for the
+    200.
+
+    :param root: folder to walk.
+    :param cap: stop after this many image files. ``None`` for no cap.
+    """
     root = Path(root)
     seen = 0
-    for p in root.rglob("*"):
-        if p.suffix.lower() in IMAGE_EXTS and p.is_file():
-            yield p
+    for entries in _listings_in_rglob_order(root):
+        for entry in entries:
+            name = entry.name
+            dot = name.rfind(".")
+            suffix = name[dot:] if 0 < dot < len(name) - 1 else ""
+            if suffix.lower() not in IMAGE_EXTS:
+                continue
+            try:
+                if not entry.is_file():
+                    continue
+            except OSError:
+                continue
+            yield entry.path
             seen += 1
             if cap is not None and seen >= cap:
                 return
+
+
+def _listings_in_rglob_order(root: Path):
+    """Each folder's ``os.scandir`` entries, in the order ``rglob('*')`` visits.
+
+    ``Path.rglob`` lists a folder when it reaches it and finds the
+    subfolders by walking top-down, with every image then asked for its
+    ``stat``. This lists each folder once and asks the directory entry
+    instead, which needs no system call per file, so a 100,000-file plate
+    is walked with a fraction of the Python work that held the interpreter
+    lock while the GUI thread waited for it. The folders come in the same
+    order, so the same files come in the same order.
+
+    :param root: folder to walk.
+    """
+    def listing(folder):
+        """One folder's entries, or none when it cannot be read."""
+        try:
+            with os.scandir(folder) as found:
+                return list(found)
+        except OSError:
+            return []
+
+    top = listing(root)
+    yield top
+    kept = {os.fspath(root): top}
+    stack = [os.fspath(root)]
+    while stack:
+        folder = stack.pop()
+        entries = kept.pop(folder, None)
+        if entries is None:
+            entries = listing(folder)
+        subfolders = []
+        for entry in entries:
+            try:
+                if entry.is_dir(follow_symlinks=False):
+                    subfolders.append(entry.path)
+            except OSError:
+                continue
+        for sub in subfolders:
+            kept[sub] = listing(sub)
+            yield kept[sub]
+        stack.extend(reversed(subfolders))
 
 
 

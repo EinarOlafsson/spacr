@@ -268,9 +268,9 @@ def test_a_folder_with_no_recognisable_layout_is_never_fully_walked(
     def _iter(path):
         for i in range(1000):
             walked.append(i)
-            yield Path(f"{i}.tif")
+            yield f"{i}.tif"
 
-    monkeypatch.setattr(fm, "iter_image_files", _iter)
+    monkeypatch.setattr(fm, "_iter_image_paths", _iter)
     monkeypatch.setattr(fm, "detect_folder_metadata",
                         lambda path, files=None: None)
     out = dh.scan_folder_structure(tmp_path)
@@ -282,7 +282,7 @@ def test_a_layout_detector_that_raises_reports_nothing_to_show(tmp_path,
                                                                  monkeypatch):
     from spacr.qt import folder_metadata as fm
     monkeypatch.setattr(
-        fm, "iter_image_files",
+        fm, "_iter_image_paths",
         lambda path: (_ for _ in ()).throw(OSError("unreadable")))
     assert dh.scan_folder_structure(tmp_path) == {
         "labels": (), "rows": [], "error": ""}
@@ -299,7 +299,8 @@ def test_a_recognised_layout_is_planned_in_the_same_single_walk(tmp_path,
         depth_labels = ("plate", "well")
 
     files = [Path(f"{i}.tif") for i in range(5)]
-    monkeypatch.setattr(fm, "iter_image_files", lambda path: iter(files))
+    monkeypatch.setattr(fm, "_iter_image_paths",
+                        lambda path: iter([str(f) for f in files]))
     monkeypatch.setattr(fm, "detect_folder_metadata",
                         lambda path, files=None: _Template())
     seen = {}
@@ -323,7 +324,7 @@ def test_a_plan_that_fails_reports_its_reason_beside_the_labels(tmp_path,
     class _Template:
         depth_labels = ("plate",)
 
-    monkeypatch.setattr(fm, "iter_image_files", lambda path: iter([]))
+    monkeypatch.setattr(fm, "_iter_image_paths", lambda path: iter([]))
     monkeypatch.setattr(fm, "detect_folder_metadata",
                         lambda path, files=None: _Template())
     monkeypatch.setattr(
@@ -342,7 +343,7 @@ def test_a_plan_that_fails_without_a_message_still_names_what_went_wrong(
     class _Template:
         depth_labels = ("plate",)
 
-    monkeypatch.setattr(fm, "iter_image_files", lambda path: iter([]))
+    monkeypatch.setattr(fm, "_iter_image_paths", lambda path: iter([]))
     monkeypatch.setattr(fm, "detect_folder_metadata",
                         lambda path, files=None: _Template())
     monkeypatch.setattr(ip, "plan_folder_extraction",

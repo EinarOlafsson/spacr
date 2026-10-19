@@ -6491,15 +6491,30 @@ def refresh_api_tooltips(
     """
     if root is None:
         return
-    from ..i18n import tr
-
-    code = _language_code(language)
     widgets = [root]
     try:
         widgets.extend(root.findChildren(QWidget))
     except (AttributeError, RuntimeError):
         return
+    _refresh_api_tooltips_of(widgets, language)
 
+
+def _refresh_api_tooltips_of(widgets, language: Optional[str] = None) -> None:
+    """:func:`refresh_api_tooltips` for exactly ``widgets``, not a subtree.
+
+    A late-caption pass only has to render the help of the widgets it has
+    not stamped yet: the stamped ones were rendered in this language by the
+    pass that stamped them. Rendering every setting under the screen's tab
+    strip again took about 130 ms each time a dialog or panel was parented,
+    for example when a folder was dropped on Make Masks.
+
+    :param widgets: the widgets to refresh; those without ``settingsAppKey``
+        and ``settingKey`` are left alone.
+    :param language: as for :func:`refresh_api_tooltips`.
+    """
+    from ..i18n import tr
+
+    code = _language_code(language)
     descriptions: Optional[Dict[str, str]] = None
     for widget in widgets:
         try:

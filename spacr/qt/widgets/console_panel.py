@@ -1433,7 +1433,7 @@ class ConsolePanel(QWidget):
 
     #: Glyphs the run notices use that Open Sans does not have, so Qt finds
     #: them in a fallback font the first time each size draws them.
-    NOTICE_GLYPHS = "→✓■…"
+    NOTICE_GLYPHS = "→✓■…⚠"
 
     def warm_notice_glyphs(self) -> bool:
         """Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.

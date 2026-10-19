@@ -4493,12 +4493,15 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
 
     stamp = _pass_stamp(code)
     collections = (QTabWidget, QComboBox, QTableWidget, QTreeWidget)
+    unstamped = []
     for widget in widgets:
         if only_new:
             try:
-                if (widget.property(_PASS_STAMP) == stamp
-                        and not isinstance(widget, collections)):
-                    continue
+                if widget.property(_PASS_STAMP) == stamp:
+                    if not isinstance(widget, collections):
+                        continue
+                else:
+                    unstamped.append(widget)
             except (AttributeError, RuntimeError):
                 continue
         _translate_qt_text(
@@ -4659,8 +4662,11 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return
     try:
-        from .screens.settings_model import refresh_api_tooltips
-        refresh_api_tooltips(root, code)
+        from .screens import settings_model
+        if only_new:
+            settings_model._refresh_api_tooltips_of(unstamped, code)
+        else:
+            settings_model.refresh_api_tooltips(root, code)
     except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
         pass
 

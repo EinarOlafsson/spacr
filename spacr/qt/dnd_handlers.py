@@ -37,10 +37,12 @@ so users can also drop a settings CSV on any screen to load it.
 """
 from __future__ import annotations
 
+import heapq
 import logging
 import os
 import threading
 import time
+from functools import partial
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -345,6 +347,91 @@ def _scan_then(screen, fn: Callable[[], Any],
             LOG.debug("falling back to an inline folder scan", exc_info=True)
     landed(guarded())
     return False
+
+
+def _nothing() -> None:
+    """The worker half of :func:`_later`: there is nothing to do there."""
+    return None
+
+
+def _later(screen, step: Callable[[], None]) -> None:
+    """Run ``step`` on the GUI thread on a later turn, as part of the scan.
+
+    The report of a dropped folder writes the console, opens an editor and
+    fills a table. Done in one go that was one event-loop turn long enough
+    to stall the window; split, each part is its own turn. The step goes
+    round the scanner as an empty job, so :func:`scan_is_busy` keeps
+    answering True until it has run, exactly as it would for the walk.
+
+    :param step: what to do next, on the GUI thread.
+    """
+    _scan_then(screen, _nothing, lambda _nothing_found: step())
+
+
+def _now_or_later(screen, defer: bool, step: Callable[[], None]) -> None:
+    """Run ``step`` now, or on a later turn of a drop's scan (:func:`_later`).
+
+    :param defer: True on the drop path; the synchronous report entry points
+        keep doing everything in the one call they promise.
+    :param step: what to do, on the GUI thread.
+    """
+    if defer:
+        _later(screen, step)
+    else:
+        step()
+
+
+def _custom_regex(screen) -> str:
+    """The pattern typed into the screen's ``custom_regex`` field, or ``""``."""
+    try:
+        w = screen._settings_model._widgets.get("custom_regex")
+        if w is not None and hasattr(w, "text"):
+            return (w.text() or "").strip()
+    except Exception:
+        pass
+    return ""
+
+
+def _scan_and_detect(path, custom: str) -> Dict[str, Any]:
+    """:func:`scan_mask_folder`, plus the regex verdict on what it sampled.
+
+    The pattern search and validation are pure functions of the sampled
+    names, so they run on the worker with the listing instead of on the GUI
+    thread when the report lands. ``custom`` is what the field held when the
+    drop was dispatched; the report redoes the verdict if it has changed.
+
+    :param path: the dropped folder.
+    :param custom: the custom pattern at dispatch, or ``""``.
+    """
+    from . import regex_detect as rd
+    from . import regex_editor  # noqa: F401
+    from .widgets import metadata_table  # noqa: F401
+
+    scan = scan_mask_folder(path)
+    filenames = list(scan.get("names") or ())
+    if filenames:
+        scan["detected"] = (custom, _regex_verdict(rd, filenames, custom))
+    return scan
+
+
+def _regex_verdict(rd, filenames: list, custom: str) -> tuple:
+    """``(pattern, label, n_matches, records, missed, warnings)`` for names.
+
+    :param rd: :mod:`spacr.qt.regex_detect`.
+    :param filenames: the sampled file names.
+    :param custom: a custom pattern to apply, or ``""`` to detect one.
+    """
+    if custom:
+        records, missed = rd.apply_regex(filenames, custom)
+        pattern, label = custom, "custom"
+        n_matches = len(records)
+    else:
+        pattern, label, n_matches = rd.auto_detect_regex(filenames)
+        records, missed = ([], filenames[:]) \
+                          if pattern is None \
+                          else rd.apply_regex(filenames, pattern)
+    warnings = rd.validate_records(records, multichannel=True)
+    return pattern, label, n_matches, records, missed, warnings
 
 
 def scan_is_busy(screen) -> bool:
@@ -779,8 +866,8 @@ def scan_folder_structure(path) -> Dict[str, Any]:
 
     out: Dict[str, Any] = {"labels": (), "rows": [], "error": ""}
     try:
-        walk = fm.iter_image_files(path)
-        probe = list(islice(walk, _FOLDER_PROBE))
+        walk = fm._iter_image_paths(path)
+        probe = [Path(p) for p in islice(walk, _FOLDER_PROBE)]
         template = fm.detect_folder_metadata(path, files=probe)
     except Exception:
         return out
@@ -789,8 +876,11 @@ def scan_folder_structure(path) -> Dict[str, Any]:
         return out
     out["labels"] = tuple(labels)
     try:
+        shown = heapq.nsmallest(
+            ip._PREVIEW_ROWS, chain((os.fspath(p) for p in probe), walk),
+            key=ip._path_order)
         out["rows"] = ip.plan_folder_extraction(
-            path, files=chain(probe, walk), template=template)
+            path, files=[Path(p) for p in shown], template=template)
     except Exception as exc:
         out["error"] = str(exc) or exc.__class__.__name__
     return out
@@ -907,8 +997,9 @@ class MaskDropHandler(DropHandler):
         if not facts.get("is_file"):
             _scan_then(
                 screen,
-                lambda: scan_mask_folder(path),
-                lambda scan: _render_mask_report(path, screen, scan),
+                partial(_scan_and_detect, path, _custom_regex(screen)),
+                lambda scan: _render_mask_report(path, screen, scan,
+                                                 defer=True),
                 lambda exc: _log(
                     screen, f"[drop] could not read {path}: {exc}\n"),
             )
@@ -993,7 +1084,8 @@ def _render_container_report(path, screen, scan: Dict[str, Any]) -> None:
         _log(screen, f"[drop] metadata preview unavailable: {e}\n")
 
 
-def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
+def _render_mask_report(path: Path, screen, scan: Dict[str, Any],
+                        defer: bool = False) -> None:
     """Write the filename-regex report for a finished :func:`scan_mask_folder`.
 
     The GUI-thread half of a folder drop: it reads and writes settings
@@ -1011,23 +1103,13 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
         return
     total_images = int(scan.get("total") or 0)
 
-    custom = ""
-    try:
-        w = screen._settings_model._widgets.get("custom_regex")
-        if w is not None and hasattr(w, "text"):
-            custom = (w.text() or "").strip()
-    except Exception:
-        pass
-
-    if custom:
-        records, missed = rd.apply_regex(filenames, custom)
-        pattern, label = custom, "custom"
-        n_matches = len(records)
+    custom = _custom_regex(screen)
+    detected = scan.get("detected")
+    if detected is not None and detected[0] == custom:
+        pattern, label, n_matches, records, missed, warnings = detected[1]
     else:
-        pattern, label, n_matches = rd.auto_detect_regex(filenames)
-        records, missed = ([], filenames[:]) \
-                          if pattern is None \
-                          else rd.apply_regex(filenames, pattern)
+        pattern, label, n_matches, records, missed, warnings = \
+            _regex_verdict(rd, filenames, custom)
 
     _log(screen,
          f"[drop] mask · folder = {path}\n"
@@ -1040,7 +1122,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
         table = rd.tabulate_records(records, max_rows=10)
         _log(screen, table + "\n")
 
-    warnings = rd.validate_records(records, multichannel=True)
     if warnings:
         for w in warnings:
             _log(screen, f"⚠ {w}\n")
@@ -1049,15 +1130,17 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
                      "pattern that matches your filenames live. Use the "
                      "Auto-detect button or edit the pattern manually — or use "
                      "the folder-structure option above.\n")
-        _open_regex_editor(filenames, pattern or "", screen)
+        _now_or_later(screen, defer, lambda: _open_regex_editor(
+            filenames, pattern or "", screen))
     else:
         _log(screen, "✓ All required fields captured "
                      "(wellID / fieldID, chanID).\n")
         _log(screen, "→ Confirm the parsed columns above match your naming "
                      "before running. Edit the pattern if a column is "
                      "holding the wrong value.\n")
-        _open_regex_editor(filenames, pattern or "", screen,
-                           confirming=True, fallback=pattern)
+        _now_or_later(screen, defer, lambda: _open_regex_editor(
+            filenames, pattern or "", screen,
+            confirming=True, fallback=pattern))
 
 
 def _set_screen_setting(screen, key: str, value) -> bool:
@@ -1122,8 +1205,11 @@ def _render_folder_structure(path, screen, result: Dict[str, Any]) -> None:
     from . import ingest_preview as ip
     _log(screen, f"[drop] folder-structure plan — "
                  f"{ip.summarize_rows(rows)}\n")
-    _open_metadata_table(rows, path, screen)
+    _later(screen, lambda: _open_metadata_table(rows, path, screen))
 
+
+#: Rows the metadata table opens with; the rest are added on later turns.
+_FIRST_ROWS = 20
 
 #: Fallback owner for metadata dialogs whose screen cannot hold a reference.
 #: Entries are removed again when the dialog emits ``finished``.
@@ -1143,7 +1229,7 @@ def _open_metadata_table(rows, dst, screen) -> None:
         _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
 
     dst = Path(dst)
-    if dst.is_dir() or dst.suffix.lower() != ".csv":
+    if dst.suffix.lower() != ".csv" or dst.is_dir():
         dst = dst / "filename_map.csv"
 
     try:
@@ -1152,7 +1238,10 @@ def _open_metadata_table(rows, dst, screen) -> None:
         return
     try:
         parent = screen if hasattr(screen, "window") else None
-        dlg = MetadataTableDialog(rows, dst, on_apply=_on_apply, parent=parent)
+        dlg = MetadataTableDialog(rows[:_FIRST_ROWS], dst,
+                                  on_apply=_on_apply, parent=parent)
+        if len(rows) > _FIRST_ROWS:
+            dlg.panel._append_later(rows[_FIRST_ROWS:])
     except Exception as e:
         _log(screen, f"[drop] could not open metadata table: {e}\n")
         return

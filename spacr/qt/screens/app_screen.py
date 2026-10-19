@@ -1049,6 +1049,11 @@ class _LateCaptionTranslator(QObject):
     def _on_arrivals_in(self, host) -> None:
         """Run the pass over children of ``host`` that have not had one.
 
+        The screen schedules one of these per host as soon as this is
+        installed, for the children built with it. Left to the first
+        later arrival, that sweep took the thousand-widget settings panel
+        along with whatever arrived -- a dropped folder's report, mid-drop.
+
         Scans rather than being handed the child, because the arrival is
         the one moment the child cannot safely be touched -- see
         :meth:`eventFilter`. A turn later they are ordinary widgets of
@@ -7986,6 +7991,7 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
+        QTimer.singleShot(0, self, self._warm_console_glyphs)
         self._watch_live_plate = None
         if self.app_key == "mask":
             self._watch_live_plate = _DeferredWatchLivePlate(console_wrap)
@@ -8965,6 +8971,7 @@ class AppScreen(QWidget):
                 continue
             host.removeEventFilter(watcher)
             host.installEventFilter(watcher)
+            QTimer.singleShot(0, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:
         """The prompt the category strip falls back to, in the UI language.
@@ -9335,6 +9342,23 @@ class AppScreen(QWidget):
         timer.timeout.connect(self._check_the_entry_import)
         timer.start()
         return True
+
+    def _warm_console_glyphs(self) -> None:
+        """Load the console symbols' fallback fonts on the first idle turn.
+
+        The first line the console prints need not come from a Run: a
+        dropped folder's report opens with a warning sign, and the fallback
+        font lookup for it (35 ms, several times that on a busy machine)
+        landed inside the drop. See
+        :meth:`spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`.
+        """
+        console = getattr(self, "_console", None)
+        if console is None:
+            return
+        try:
+            console.warm_notice_glyphs()
+        except RuntimeError:
+            pass
 
     def _check_the_entry_import(self) -> None:
         """Start the waiting Run's import, then resume the Run once it ends."""
@@ -12707,7 +12731,7 @@ class AppScreen(QWidget):
         snapshot to the new source, never to the previous lock. Drafts are left
         untouched, since failed validation is not an edit.
         """
-        from ...run_journal import _observe_settings_changes
+        from ...run_journal import _find_lock, _observe_settings_changes
 
         model = getattr(self, "_settings_model", None)
         if (model is None or getattr(model, "_applying_settings", False)
@@ -12715,6 +12739,16 @@ class AppScreen(QWidget):
             return
         try:
             source = model._valid_committed_value("src")
+        except (TypeError, ValueError, RuntimeError):
+            return
+        try:
+            unlocked = _find_lock(self.app_key, source) is None
+        except (OSError, ValueError):
+            unlocked = False
+        if unlocked:
+            self._settings_lock_observation = None
+            return
+        try:
             if key not in (None, "src"):
                 settings = {"src": source,
                             key: model._valid_committed_value(key)}
