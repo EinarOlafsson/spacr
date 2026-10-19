@@ -57,8 +57,13 @@ def test_the_main_window_closing_still_ends_the_program(qapp):
 
     from spacr.qt.app import MainWindow
 
+    from spacr.qt import app as app_module
+
     source = inspect.getsource(MainWindow.closeEvent)
-    assert "app.quit()" in source, (
+    assert "_end_the_event_loop(app)" in source, (
         "with quitOnLastWindowClosed off, nothing else ends the session")
+    ender = inspect.getsource(app_module._end_the_event_loop)
+    assert "app.quit()" in ender, (
+        "off macOS the session must still end through quit()")
     assert "isAccepted()" in source, (
         "a close the window itself vetoed must not quit anyway")
