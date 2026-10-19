@@ -3724,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Åpne undermappen masks i Source. Hvert bilde har en maske-TIFF med samme filnavnstamme. Undersøk figurene ved siden av originalbildene, og se etter oversette objekter og sammenslåtte celler. Flytpanelet viser retningene modellen bruker til segmenteringen.",
+          "narration": "Undermappen masks i Source inneholder en maske-TIFF med samme filnavnstamme for hvert bilde. Undersøk figurene ved siden av originalbildene, og se etter oversette objekter og sammenslåtte celler. Flytpanelet viser retningene modellen bruker til segmenteringen.",
           "focus": [
             1000,
             450,
@@ -3735,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå på Live preview og velg et bilde med bildevelgeren. Åpne Live settings og kontroller kontrollene for kanal og normalisering. Skjul Console og System for å gi forhåndsvisningen mer plass ved behov.",
+          "narration": "Skjul de andre resultatkortene for å gi forhåndsvisningen mer plass. Slå på Live preview og velg et bilde med bildevelgeren. Bla til det medfølgende eksempelbildet.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Sammenlign forhåndsvisningen med den lagrede batchmasken. Forhåndsvisningen og Apply bruker ulike behandlingsveier i dette eksemplet, så de kan gi ulike grenser og antall. Undersøk de lagrede TIFF-filene når du vurderer om batchutdataene egner seg for måling.",
+          "narration": "Kontroller kanal og normalisering i Live settings, og kjør deretter forhåndsvisningen. Forhåndsvisningen og Apply behandler disse bildene ulikt, så grenser og antall kan avvike. Undersøk de lagrede TIFF-filene når du vurderer om batchutdataene egner seg for måling.",
           "focus": [
             1000,
             1160,
@@ -3751,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Bruk musehjulet til å forstørre et område på begge forhåndsvisningsflatene. Undersøk objekter som berører hverandre og svake grenser, og zoom deretter ut for å kontrollere hele synsfeltet.",
+          "narration": "Bruk musehjulet til å forstørre et område på begge forhåndsvisningsflatene. Undersøk objekter som berører hverandre og svake grenser i den forstørrede visningen.",
           "focus": [
             1010,
             1280,
@@ -3794,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
