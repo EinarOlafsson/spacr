@@ -2773,12 +2773,17 @@ class RegressionResultsPanel(QWidget):
         knowing what they gave up.
         """
         frame = self._frame
+        held = self.__dict__.get("_level_counts_of")
+        if held is not None and held[0] is frame and frame is not None:
+            return dict(held[1])
         levels = self._levels_of(frame)
         if frame is None or levels is None:
             return {None: 0, "gene": 0, "grna": 0}
-        return {None: int(len(frame)),
-                "grna": int((levels == "grna").sum()),
-                "gene": int((levels == "gene").sum())}
+        counts = {None: int(len(frame)),
+                  "grna": int((levels == "grna").sum()),
+                  "gene": int((levels == "gene").sum())}
+        self._level_counts_of = (frame, dict(counts))
+        return counts
 
     def _default_level(self):
         """The level to open a new table at.
