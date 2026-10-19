@@ -3061,7 +3061,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-15 item 700: -23 callables with the cli_setup_panel and
     # provider_marks modules and SetupSlides.provider_status.
     # 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
-    assert len(callables) == len(by_symbol) == 10002
+    # 2026-10-19 item 600: -14 callables with ChannelSortDialog and
+    # RegexWindow deleted from spacr.qt.widgets.channel_sort_dialog.
+    assert len(callables) == len(by_symbol) == 9988
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3159,14 +3161,17 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 700, 2026-10-15: -16 method (CliSetupPanel's nine,
         # ProviderMark's six and SetupSlides.provider_status).
         # 2026-10-19: -1 method, FoldButton.paintEvent retired.
-        "method": 4318,
+        # Item 600, 2026-10-19: -12 method (ChannelSortDialog's nine,
+        # RegexWindow's three).
+        "method": 4306,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
         # Item 673: +1 constructor (VolumeMaskSession).
         # Item 690: +1 constructor (spacr.io.MissingTEMReader).
         # Item 700: -2 constructor (CliSetupPanel, ProviderMark).
-        "constructor": 462,
+        # Item 600, 2026-10-19: -2 constructor (ChannelSortDialog, RegexWindow).
+        "constructor": 460,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -3229,7 +3234,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 690, 2026-10-11: +10, as the total.
         # Item 700, 2026-10-15: -23, as the total.
         # 2026-10-19: -1, FoldButton.paintEvent retired.
-        "autoapi": 9997,
+        # Item 600, 2026-10-19: -14, as the total.
+        "autoapi": 9983,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -3289,7 +3295,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Item 690, 2026-10-11: +10 variants, one per new callable.
     # Item 700, 2026-10-15: -23, one per retired callable.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
-    assert sum(item.variant_count for item in callables) == 10009
+    # Item 600, 2026-10-19: -14, one per retired callable.
+    assert sum(item.variant_count for item in callables) == 9995
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3313,7 +3320,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Items 672/673, 2026-10-10: +23 single-variant callables.
         # Item 700, 2026-10-15: -23, the retired setup callables.
         # 2026-10-19: -1, FoldButton.paintEvent retired.
-        1: 9995,
+        # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
+        1: 9981,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -3364,12 +3372,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 463 on 2026-10-10 with item 673's VolumeMaskSession.
     # 464 on 2026-10-11 with item 690's spacr.io.MissingTEMReader.
     # 462 on 2026-10-15: item 700 retires CliSetupPanel and ProviderMark.
+    # 460 on 2026-10-19: item 600 retires ChannelSortDialog and RegexWindow.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 462
+    ) == 460
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 462
+    ) == 460
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -3591,7 +3600,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # N673 wgpu, 2026-10-16: 19,898 - 19,897 = 1, install_profile.write_profile's
     # optional keyword without_wgpu=; the new callables are in their contract.
     # 2026-10-19: -1, FoldButton.paintEvent's event.
-    assert sum(len(item.parameters) for item in callables) == 19897
+    # Item 600, 2026-10-19: 19,897 -> 19,885, the 12 parameters of
+    # ChannelSortDialog's and RegexWindow's retired callables.
+    assert sum(len(item.parameters) for item in callables) == 19885
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3644,7 +3655,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # without defaults (the two loaders' ask= and folder= have them).
     # 2026-10-15 item 700: -18 required, those of the retired setup callables.
     # 2026-10-19: -1 required, FoldButton.paintEvent's event.
-    assert sum(len(item.required_parameters) for item in callables) == 10239
+    # 2026-10-19 item 600: -5 required, those of ChannelSortDialog's and
+    # RegexWindow's retired callables.
+    assert sum(len(item.required_parameters) for item in callables) == 10234
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -3856,7 +3869,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # the optional without_wgpu=; the new callables arrive through
     # 673_wgpu_api_arrivals_2026-10-16.json and are subtracted above; no row
     # removed.
-) == '592d64d6d9a5c3529f96af74735de3cc151431497e1219e5c61566ece8bb8770'
+    # Moved 2026-10-19 for item 600 (was 592d64d6...): the 14 callables of
+    # ChannelSortDialog and RegexWindow are removed; no surviving callable
+    # changed its parameters.
+) == '9bbf3742d8cd1fb3c2ecdbfd1493415d2ccc55674fc92369667bd4c91561e5d7'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4806,7 +4822,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) == 13153
+               - zoo_additions.keys()) == 13139
     # 2026-10-19: 13,154 -> 13,153, FoldButton.paintEvent retired (native
     # verdict-dot layer).
     # 2026-10-15 item 700: 13,182 -> 13,154, the 28 first-run setup symbols
@@ -5218,12 +5234,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
-    assert len(prior - pipeline_callables) == 9651
+    # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
+    assert len(prior - pipeline_callables) == 9637
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
     # Item 700: -23, as above.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
-    assert len(prior - pipeline_callables - validation_functions) == 9645
+    # Item 600, 2026-10-19: -14, as above.
+    assert len(prior - pipeline_callables - validation_functions) == 9631
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -5286,7 +5304,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9974
+               - volume_callables - arrival_callables) == 9960
     # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)

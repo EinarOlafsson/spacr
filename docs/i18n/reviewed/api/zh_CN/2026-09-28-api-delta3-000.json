@@ -1662,14 +1662,6 @@
       "translation": "Classify 的第一组只是模型族开关，因此其附加项包含任一模型族训练所需的内容：类别、数据划分、图像模型及其训练计划，以及表格算法及其主要超参数。模型族开关会将不适用的那一半置灰。"
     },
     {
-      "context": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
-      "source_sha256": "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
-      "translation": "Make Masks 的 \"Sort into channels…\" 对话框、其正则表达式窗口及其组检查。"
-    },
-    {
       "context": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
       "label": "spacr.qt.widgets.channel_sort_dialog#1",
       "review_basis": "written from the English (no current MT draft)",
@@ -1678,308 +1670,12 @@
       "translation": ":mod:`spacr.channel_sorting` 之上的一层薄 Qt 封装，所有决策都在前者中做出："
     },
     {
-      "context": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to an image data channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to a channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
-      "source_sha256": "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
-      "translation": ":class:`ChannelSortDialog` 列出所打开文件夹中的图像及其缩略图，并显示每张图像是否有掩膜。图像可被选中（单击、Shift、Ctrl、全选）并分配给某个通道——即选择策略——也可以改用正则表达式为每张图像分配——即正则策略。Apply 会构建一个 :class:`spacr.channel_sorting.SortPlan`；当名称无法组成组时，会请用户修改正则表达式。"
-    },
-    {
-      "context": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
-      "label": "spacr.qt.widgets.channel_sort_dialog#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
-      "source_sha256": "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
-      "translation": ":class:`RegexWindow` 解释各命名组，实时用每个文件名测试正则表达式，提议一个正则表达式（\"Auto regex\"），或者不看名称而按相似度和尺寸配对图像（\"Detect sets\"）。"
-    },
-    {
-      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#4",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
-      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
-      "translation": ":class:`ExampleSetsDialog` 并排显示三个检测到的组，每个通道都带其掩膜，并询问它们是否正确。"
-    },
-    {
-      "context": "Nothing here moves a file. The dialog hands back a plan; the application view applies it off the main GUI execution path.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#5",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Nothing here moves a file. The dialog hands back a plan; the screen applies it off the GUI thread.",
-      "source_sha256": "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33",
-      "translation": "这里不会移动任何文件。对话框交回一个计划；视图在 GUI 线程之外应用它。"
-    },
-    {
-      "context": "Assign the folder's images to image data channels, check the sets, plan the move.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assign the folder's images to channels, check the sets, plan the move.",
-      "source_sha256": "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
-      "translation": "将文件夹中的图像分配到通道、检查组并规划移动。"
-    },
-    {
-      "context": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
-      "source_sha256": "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
-      "translation": "对话框被接受后确认的 :class:`spacr.channel_sorting.SortPlan`，否则为 None。"
-    },
-    {
-      "context": "List the folder and propose a regex.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "List the folder and propose a regex.",
-      "source_sha256": "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
-      "translation": "列出文件夹内容并提议一个正则表达式。"
-    },
-    {
-      "context": "the folder Make Masks has open.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the folder Make Masks has open.",
-      "source_sha256": "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
-      "translation": "Make Masks 当前打开的文件夹。"
-    },
-    {
-      "context": "its masks folder, when not ``<folder>/masks``.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#4",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "its masks folder, when not ``<folder>/masks``.",
-      "source_sha256": "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
-      "translation": "其掩膜文件夹，当它不是 ``<folder>/masks`` 时使用。"
-    },
-    {
-      "context": "Offer one more channel.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Offer one more channel.",
-      "source_sha256": "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
-      "translation": "再提供一个通道。"
-    },
-    {
-      "context": "the new channel's number.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the new channel's number.",
-      "source_sha256": "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f",
-      "translation": "新通道的编号。"
-    },
-    {
-      "context": "Assign the selected images to ``channel``; None clears them.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assign the selected images to ``channel``; None clears them.",
-      "source_sha256": "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
-      "translation": "将选中的图像分配给 ``channel``；None 表示清除分配。"
-    },
-    {
-      "context": "Assigning by hand replaces any sets \"Detect sets\" found.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assigning by hand replaces any sets \"Detect sets\" found.",
-      "source_sha256": "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
-      "translation": "手动分配会替换 \"Detect sets\" 找到的所有组。"
-    },
-    {
-      "context": "the 1-based channel, or None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the 1-based channel, or None.",
-      "source_sha256": "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08",
-      "translation": "从 1 开始计数的通道，或 None。"
-    },
-    {
-      "context": "The sets Apply would use, and what is wrong when there are none.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "The sets Apply would use, and what is wrong when there are none.",
-      "source_sha256": "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
-      "translation": "Apply 将使用的组，以及没有组时出了什么问题。"
-    },
-    {
-      "context": "``{channel: role}`` as chosen, leaving out ``none``.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "``{channel: role}`` as chosen, leaving out ``none``.",
-      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
-      "translation": "所选的 ``{channel: role}``，不含 ``none``。"
-    },
-    {
-      "context": "Every image read through the regex, with the selection's image data channels.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Every image read through the regex, with the selection's channels.",
-      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
-      "translation": "通过正则表达式读取的每张图像，带有选择中的通道。"
-    },
-    {
-      "context": "Build the plan from the current sets, or None when there are none.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Build the plan from the current sets, or None when there are none.",
-      "source_sha256": "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
-      "translation": "根据当前的组构建计划；没有组时为 None。"
-    },
-    {
-      "context": "convert RGB images and z-stacks to one image layer.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "convert RGB images and z-stacks to one plane.",
-      "source_sha256": "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
-      "translation": "将 RGB 图像和 z 堆栈转换为单个平面。"
-    },
-    {
-      "context": "the plan, which may still carry problems.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the plan, which may still carry problems.",
-      "source_sha256": "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9",
-      "translation": "计划，可能仍带有问题。"
-    },
-    {
-      "context": "Redraw the list texts, the mask-role choices and the status line.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Redraw the list texts, the mask-role choices and the status line.",
-      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
-      "translation": "重绘列表文本、掩膜角色选项和状态行。"
-    },
-    {
-      "context": "The selected images' names, in list order.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "The selected images' names, in list order.",
-      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
-      "translation": "选中图像的名称，按列表顺序排列。"
-    },
-    {
-      "context": "Use ``regex`` for channels and sets from now on.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Use ``regex`` for channels and sets from now on.",
-      "source_sha256": "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
-      "translation": "从现在起使用 ``regex`` 确定通道和组。"
-    },
-    {
-      "context": "the pattern.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the pattern.",
-      "source_sha256": "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d",
-      "translation": "模式。"
-    },
-    {
       "context": "Three sets side by side -- every image data channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
       "label": "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Three sets side by side -- every channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
       "source_sha256": "dd2e726e1cde5d46efc870a113c92884a8c2754136bee3681e0161ec1e1ea844",
       "translation": "并排显示三个组——每个通道及其掩膜——并提出一个问题。最多排列三个组：第一个、中间一个和最后一个。"
-    },
-    {
-      "context": "Write, test, infer or bypass the regex that sorts images into sets.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Write, test, infer or bypass the regex that sorts images into sets.",
-      "source_sha256": "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
-      "translation": "编写、测试、推断或绕过将图像整理成组的正则表达式。"
-    },
-    {
-      "context": "the regex when the window is accepted with \"Use this regex\".",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex when the window is accepted with \"Use this regex\".",
-      "source_sha256": "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
-      "translation": "窗口以 \"Use this regex\" 被接受时的正则表达式。"
-    },
-    {
-      "context": "the sets \"Detect sets\" found and the user confirmed, or None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the sets \"Detect sets\" found and the user confirmed, or None.",
-      "source_sha256": "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
-      "translation": "\"Detect sets\" 找到并经用户确认的组，或 None。"
-    },
-    {
-      "context": "Build the window and run the test once.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Build the window and run the test once.",
-      "source_sha256": "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
-      "translation": "构建窗口并运行一次测试。"
-    },
-    {
-      "context": "the image names to test against.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#5",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the image names to test against.",
-      "source_sha256": "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
-      "translation": "用于测试的图像名称。"
-    },
-    {
-      "context": "``{name: channel}`` from the selection.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#6",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "``{name: channel}`` from the selection.",
-      "source_sha256": "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
-      "translation": "来自选择的 ``{name: channel}``。"
-    },
-    {
-      "context": "the regex to start from.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#7",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex to start from.",
-      "source_sha256": "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
-      "translation": "起始的正则表达式。"
-    },
-    {
-      "context": "Propose a regex, put it in the field and test it.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Propose a regex, put it in the field and test it.",
-      "source_sha256": "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
-      "translation": "提议一个正则表达式，填入字段并进行测试。"
-    },
-    {
-      "context": "the regex, or None when none was found.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex, or None when none was found.",
-      "source_sha256": "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896",
-      "translation": "正则表达式；未找到时为 None。"
-    },
-    {
-      "context": "Pair images into sets, show three, and keep them when confirmed.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Pair images into sets, show three, and keep them when confirmed.",
-      "source_sha256": "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
-      "translation": "将图像配对成组，显示其中三个，并在确认后保留。"
-    },
-    {
-      "context": "the sets when the user said they are right, else None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the sets when the user said they are right, else None.",
-      "source_sha256": "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585",
-      "translation": "用户确认正确时的组，否则为 None。"
-    },
-    {
-      "context": "Parse every name with the regex and fill the table and summary.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Parse every name with the regex and fill the table and summary.",
-      "source_sha256": "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
-      "translation": "用正则表达式解析每个名称，并填充表格和摘要。"
-    },
-    {
-      "context": "the set report.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the set report.",
-      "source_sha256": "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737",
-      "translation": "组报告。"
     },
     {
       "context": "Add a filter row for regionprop ``name``, every cell empty.",
@@ -2114,6 +1810,22 @@
       "source": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
       "source_sha256": "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
       "translation": "数据库路径，或 PostgreSQL 连接字符串；不存在时会创建，``~`` 会被展开。"
+    },
+    {
+      "context": "Make Masks' example-set check.",
+      "label": "spacr.qt.widgets.channel_sort_dialog#0",
+      "review_basis": "written from the English (no current MT draft)",
+      "source": "Make Masks' example-set check.",
+      "source_sha256": "0db23266304f86d8ee4762faa106a031e43d8db3669ee8e9113e656adbd8ddd4",
+      "translation": "Make Masks 的示例组检查。"
+    },
+    {
+      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
+      "label": "spacr.qt.widgets.channel_sort_dialog#2",
+      "review_basis": "written from the English (no current MT draft)",
+      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
+      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
+      "translation": ":class:`ExampleSetsDialog` 并排显示三个检测到的组，每个通道都带其掩膜，并询问它们是否正确。"
     }
   ],
   "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",

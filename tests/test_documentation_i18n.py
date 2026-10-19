@@ -276,7 +276,9 @@ TOOLS = ROOT / "tools"
 # modules and SetupSlides.provider_status leave with the first-run AI and
 # GitHub pages. The named inverse below retains the prior historical floor.
 # 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_217
+# 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
+# spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",

@@ -82115,97 +82115,12 @@
     },
     "spacr.qt.widgets.channel_sort_dialog": {
       "source_blocks_sha256": [
-        "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+        "0db23266304f86d8ee4762faa106a031e43d8db3669ee8e9113e656adbd8ddd4",
         "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
-        "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
-        "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
-        "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
-        "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33"
+        "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b"
       ],
-      "source_sha256": "fe785517ee6b83683f575fc7d5761ae3edf212a3d95fed0a5eac3f693fc7575a",
-      "text": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.\n\nThin Qt over :mod:`spacr.channel_sorting`, which holds every decision:\n\n* :class:`ChannelSortDialog` lists the open folder's images with thumbnails\n  and whether each has a mask. Images are selected (click, Shift, Ctrl,\n  Select all) and assigned to a channel -- the SELECTION strategy -- and a\n  regex can assign every image instead -- the REGEX strategy. Apply builds a\n  :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned\n  into sets, the user is asked to change the regex.\n* :class:`RegexWindow` explains the named groups, tests a regex live against\n  every file name, proposes one (\"Auto regex\") or pairs images by similarity\n  and size, ignoring names (\"Detect sets\").\n* :class:`ExampleSetsDialog` shows three detected sets side by side, every\n  channel with its mask, and asks whether they are right.\n\nNothing here moves a file. The dialog hands back a plan; the screen applies\nit off the GUI thread."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog": {
-      "source_blocks_sha256": [
-        "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
-        "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
-        "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
-        "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
-        "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ],
-      "source_sha256": "1eb2db48146f7cc475e8ee79a40a391f5ea943c9b2e7f19ed4e3da9ef0d61685",
-      "text": "Assign the folder's images to channels, check the sets, plan the move.\n\n:ivar plan: the confirmed :class:`spacr.channel_sorting.SortPlan` once the\n    dialog is accepted, else None.\nList the folder and propose a regex.\n\n:param folder: the folder Make Masks has open.\n:param masks_dir: its masks folder, when not ``<folder>/masks``.\n:param parent: the Qt parent."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel": {
-      "source_blocks_sha256": [
-        "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
-        "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f"
-      ],
-      "source_sha256": "68e7d3ec5b69367e66eeb0df56bef6eee11a197c4bc579b9d3d3bb11a223176f",
-      "text": "Offer one more channel.\n\n:returns: the new channel's number."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected": {
-      "source_blocks_sha256": [
-        "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
-        "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
-        "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08"
-      ],
-      "source_sha256": "21ba167751401f07c62d36e3ab665d1d734cd4fdad2a5eee0fe9c2ac0b8d8f76",
-      "text": "Assign the selected images to ``channel``; None clears them.\n\nAssigning by hand replaces any sets \"Detect sets\" found.\n\n:param channel: the 1-based channel, or None."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets": {
-      "source_blocks_sha256": [
-        "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
-        "f665741cf3de350053902b4d02c7361a40dbcef4f7f6736ab1c44bac133e9a34"
-      ],
-      "source_sha256": "aa57d9fd408e9ec6485dbf45f85c47a63c39a392e3714501725591972be69498",
-      "text": "The sets Apply would use, and what is wrong when there are none.\n\n:returns: ``(sets or None, report text)``."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles": {
-      "source_blocks_sha256": [
-        "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a"
-      ],
-      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
-      "text": "``{channel: role}`` as chosen, leaving out ``none``."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed": {
-      "source_blocks_sha256": [
-        "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d"
-      ],
-      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
-      "text": "Every image read through the regex, with the selection's channels."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan": {
-      "source_blocks_sha256": [
-        "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
-        "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
-        "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9"
-      ],
-      "source_sha256": "b1050511b7763467d507fd735090e090bb95f30fdda4014b734468a7fe2258c1",
-      "text": "Build the plan from the current sets, or None when there are none.\n\n:param convert: convert RGB images and z-stacks to one plane.\n:returns: the plan, which may still carry problems."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh": {
-      "source_blocks_sha256": [
-        "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444"
-      ],
-      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
-      "text": "Redraw the list texts, the mask-role choices and the status line."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names": {
-      "source_blocks_sha256": [
-        "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3"
-      ],
-      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
-      "text": "The selected images' names, in list order."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex": {
-      "source_blocks_sha256": [
-        "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
-        "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d"
-      ],
-      "source_sha256": "a99305ba986bbe1a54710e5be4e54beee02106c88f07f4380dfe29fe4e271fab",
-      "text": "Use ``regex`` for channels and sets from now on.\n\n:param regex: the pattern."
+      "source_sha256": "f8e0c22c9f95aca34fbddb65b0397b5d5260f909c3b7a4fc84d8495efba72d3b",
+      "text": "Make Masks' example-set check.\n\nThin Qt over :mod:`spacr.channel_sorting`, which holds every decision:\n\n* :class:`ExampleSetsDialog` shows three detected sets side by side, every\n  channel with its mask, and asks whether they are right."
     },
     "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog": {
       "source_blocks_sha256": [
@@ -82217,46 +82132,6 @@
       ],
       "source_sha256": "0aed207b721d76fc430d28b0af838d2ace596c2278b1df3401d1d306d59f6bc4",
       "text": "Three sets side by side -- every channel and its mask -- and a question.\nLay out up to three sets: the first, the middle and the last.\n\n:param folder: the image folder.\n:param sets: ``{set key: {channel: name}}``.\n:param masks_dir: an explicit masks folder.\n:param parent: the Qt parent."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow": {
-      "source_blocks_sha256": [
-        "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
-        "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
-        "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
-        "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
-        "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
-        "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
-        "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
-        "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
-        "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
-        "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b"
-      ],
-      "source_sha256": "a328d5ba2f6f6663f7cecff42c6fecbefdda856946e685dfdb72663b4f8af360",
-      "text": "Write, test, infer or bypass the regex that sorts images into sets.\n\n:ivar regex: the regex when the window is accepted with \"Use this regex\".\n:ivar detected: the sets \"Detect sets\" found and the user confirmed, or\n    None.\nBuild the window and run the test once.\n\n:param folder: the image folder.\n:param names: the image names to test against.\n:param channels: ``{name: channel}`` from the selection.\n:param regex: the regex to start from.\n:param masks_dir: an explicit masks folder.\n:param parent: the Qt parent."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex": {
-      "source_blocks_sha256": [
-        "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
-        "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896"
-      ],
-      "source_sha256": "8aea25dc6c9b06cc7d519c4e7d0a97c946af76266b6a91fad5786f8d34748140",
-      "text": "Propose a regex, put it in the field and test it.\n\n:returns: the regex, or None when none was found."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect": {
-      "source_blocks_sha256": [
-        "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
-        "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585"
-      ],
-      "source_sha256": "5dcafa2e380dd72b0440fa44069d857fcc27477a8abe9987f9087358374146d5",
-      "text": "Pair images into sets, show three, and keep them when confirmed.\n\n:returns: the sets when the user said they are right, else None."
-    },
-    "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test": {
-      "source_blocks_sha256": [
-        "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
-        "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737"
-      ],
-      "source_sha256": "b2b7355afd4fded0838af8a6d4d4d5bdec8b17eff6f2eaae9954ce79b38bc9d5",
-      "text": "Parse every name with the regex and fill the table and summary.\n\n:returns: the set report."
     },
     "spacr.qt.widgets.class_editor": {
       "source_blocks_sha256": [

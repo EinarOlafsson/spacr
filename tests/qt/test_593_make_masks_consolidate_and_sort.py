@@ -2,9 +2,8 @@
 
 A dropped folder whose images sit in subfolders is offered for
 consolidation; the answer is monkeypatched because a headless ``_confirm``
-always says no. The "Sort into channels…" dialog, its regex window and the
-example-sets check are driven through their methods, and the screen's
-off-thread copy and move are waited for.
+always says no. The example-sets check is driven through its methods, and the
+screen's off-thread copy and move are waited for.
 """
 from __future__ import annotations
 
@@ -116,68 +115,14 @@ def _drawn(root: Path) -> Path:
     return folder
 
 
-def test_the_sort_dialog_lists_proposes_and_plans(qtbot, qt_theme_applied,
-                                                  tmp_path, monkeypatch):
-    """The regex is proposed on opening; the plan moves six images."""
-    monkeypatch.setattr(csd, "_headless", lambda: True)
+def test_detected_sets_are_shown_three_at_a_time(qtbot, qt_theme_applied, tmp_path):
+    """Detect sets pairs the images; the check shows three of them."""
+    from spacr import channel_sorting as cs
     folder = _drawn(tmp_path)
-    dialog = csd.ChannelSortDialog(str(folder))
-    qtbot.addWidget(dialog)
-    assert dialog.list.count() == 6
-    assert "chanID" in dialog.regex
-    plan = dialog.prepare_plan()
-    assert plan is not None and plan.ok
-    assert plan.mask_roles == {1: "cell", 2: "nucleus"}
-    dialog._on_apply()
-    assert dialog.plan is plan or dialog.plan is not None
-    dialog._stop_thumbs()
-
-
-def test_selection_strategy_assigns_channels_and_bad_sets_ask_for_a_regex(
-        qtbot, qt_theme_applied, tmp_path, monkeypatch):
-    """Channels by hand; with no regex the sets are missing and the window opens."""
-    monkeypatch.setattr(csd, "_headless", lambda: True)
-    folder = _drawn(tmp_path)
-    dialog = csd.ChannelSortDialog(str(folder))
-    qtbot.addWidget(dialog)
-    dialog.set_regex("")
-    opened = []
-    dialog.open_regex_window = lambda: opened.append(True) or False
-    for i in range(dialog.list.count()):
-        item = dialog.list.item(i)
-        item.setSelected(item.data(0x0100).startswith("nuc"))
-    dialog.assign_selected(1)
-    dialog.list.selectAll()
-    for i in range(dialog.list.count()):
-        item = dialog.list.item(i)
-        item.setSelected(item.data(0x0100).startswith("cell"))
-    dialog.assign_selected(2)
-    assert set(dialog.channels.values()) == {1, 2}
-    assert dialog.prepare_plan() is None
-    # Headless, the "change the regex?" question answers no.
-    dialog._on_apply()
-    assert dialog.plan is None
-    dialog._stop_thumbs()
-
-
-def test_the_regex_window_tests_infers_and_detects(qtbot, qt_theme_applied, tmp_path):
-    """Live test table, Auto regex, and Detect sets with the check confirmed."""
-    folder = _drawn(tmp_path)
-    names = sorted(os.listdir(folder))
-    names = [n for n in names if n.endswith(".tif")]
+    names = sorted(n for n in os.listdir(folder) if n.endswith(".tif"))
     channels = {n: 1 if n.startswith("nuc") else 2 for n in names}
-    window = csd.RegexWindow(str(folder), names, channels, "nothing")
-    qtbot.addWidget(window)
-    report = window.run_test()
-    assert window.table.rowCount() == 6 and not report.ok
-    assert window.auto_regex()
-    assert window.run_test().ok
-
-    shown = []
-    window.confirm_examples = lambda sets: shown.append(sets) or True
-    sets = window.detect()
-    assert sets and len(sets) == 3
-    assert window.detected == sets
+    sets = cs.detect_sets(str(folder), channels).sets
+    assert len(sets) == 3
     example = csd.ExampleSetsDialog(str(folder), sets)
     qtbot.addWidget(example)
     assert len(example.shown) == 3
