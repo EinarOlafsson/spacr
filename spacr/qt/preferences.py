@@ -9406,6 +9406,51 @@ def _put_the_preferences_away(window, dialog) -> None:
     _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
 
 
+def _name_unnamed_form_fields(root) -> int:
+    """Give each silent field in a form row its row label as accessible name.
+
+    A screen reader reads a focused checkbox without text, a slider or an
+    empty line edit as nothing, although the row's label beside it says what
+    it is. The label is already translated, so no new text is introduced.
+
+    :param root: the dialog to walk.
+    :returns: how many fields were named.
+    """
+    from PySide6.QtGui import QTextDocumentFragment
+    from PySide6.QtWidgets import QFormLayout, QLabel, QWidget
+
+    named = 0
+    for form in root.findChildren(QFormLayout):
+        for row in range(form.rowCount()):
+            label_item = form.itemAt(row, QFormLayout.LabelRole)
+            field_item = form.itemAt(row, QFormLayout.FieldRole)
+            label = label_item.widget() if label_item is not None else None
+            if not isinstance(label, QLabel) or field_item is None:
+                continue
+            text = QTextDocumentFragment.fromHtml(label.text()).toPlainText()
+            text = text.replace("&", "").strip().rstrip(":").strip()
+            if not text:
+                continue
+            field = field_item.widget()
+            if field is None:
+                continue
+            for widget in [field, *field.findChildren(QWidget)]:
+                if not (widget.focusPolicy() & Qt.TabFocus):
+                    continue
+                if widget.accessibleName():
+                    continue
+                own = getattr(widget, "text", None)
+                if callable(own) and not isinstance(widget, QLabel):
+                    try:
+                        if own() and type(widget).__name__ != "QLineEdit":
+                            continue
+                    except TypeError:
+                        pass
+                widget.setAccessibleName(text)
+                named += 1
+    return named
+
+
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
 
@@ -9491,6 +9536,7 @@ class PreferencesDialog:
             column.addLayout(page_form)
             column.addStretch(1)
             scroll = QScrollArea()
+            scroll.setFocusPolicy(Qt.NoFocus)
             scroll.setWidgetResizable(True)
             scroll.setFrameShape(QFrame.NoFrame)
             scroll.setWidget(page)
@@ -10186,6 +10232,7 @@ class PreferencesDialog:
         scale_row.addWidget(scale_slider)
         scale_row.addWidget(scale_value)
         _wrap = _hbox_wrap(scale_row)
+        scale_slider.setAccessibleName(tr("Font scale"))
         form.addRow(tr("Font scale"), _wrap)
 
         text_size_slider = QSlider(Qt.Horizontal)
@@ -10222,6 +10269,7 @@ class PreferencesDialog:
         gui_scale_row = QVBoxLayout()
         gui_scale_row.addWidget(gui_scale_slider)
         gui_scale_row.addWidget(gui_scale_value)
+        gui_scale_slider.setAccessibleName(tr("GUI scale"))
         form.addRow(tr("GUI scale"), _hbox_wrap(gui_scale_row))
 
         scale_settle = QTimer(dlg)
@@ -12402,6 +12450,7 @@ class PreferencesDialog:
             tuple(custom_colors), custom_background[0], _chosen_debug[0],
             style_panel.values(), dlg._storage_page._rows,
             theme_before_contrast[0], tuple(sorted(motion_before[0].items())))
+        _name_unnamed_form_fields(dlg)
         dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 

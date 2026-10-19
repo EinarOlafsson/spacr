@@ -84,6 +84,7 @@ class ModuleHintBar(QLabel):
         line = max(1, self.fontMetrics().lineSpacing())
         self.setFixedHeight(line * 2 + 10)
         self.setWordWrap(False)
+        self.setAccessibleName(default)
 
 
     def event(self, event):                     # noqa: N802 - Qt naming
@@ -135,6 +136,7 @@ class ModuleHintBar(QLabel):
         if links:
             html = f"{html}<br>{links}" if html else links
         self.setText(html)
+        self.setAccessibleName(text or self._default)
         self.setAccessibleDescription(text)
         self._hold(True)
         return html
@@ -211,6 +213,7 @@ class ModuleHintBar(QLabel):
         self._hold(False)
         from ..i18n import tr
         self.setText(escape(tr(self._default)))
+        self.setAccessibleName(tr(self._default))
         self.setAccessibleDescription(tr(self._default))
 
     def is_holding(self) -> bool:

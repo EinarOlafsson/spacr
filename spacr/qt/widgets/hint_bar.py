@@ -268,6 +268,7 @@ class HintBar(QLabel):
         inner.setSpacing(0)
         inner.addWidget(self._resize_handle)
         inner.addWidget(self._view)
+        self._view.setAccessibleName(default)
         self._view.setPlainText(default)
         self.setFixedHeight(self._minimum_help_height())
 
@@ -336,6 +337,7 @@ class HintBar(QLabel):
         """
         self._visible_text = text
         self.setAccessibleName(text)
+        self._view.setAccessibleName(text)
         self._view.setPlainText(text)
         self._view.verticalScrollBar().setValue(0)
 
