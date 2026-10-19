@@ -328,6 +328,8 @@ class LayerCanvas(QFrame):
         self._depth: Dict[str, float] = {}
         self._drag: Optional[QPoint] = None
         self._tool: Optional[CanvasTool] = None
+        self._picture = None
+        self._picture_canvas: Optional[Canvas] = None
         self._stack.subscribe(self._on_layers_changed)
 
     @property
@@ -352,7 +354,7 @@ class LayerCanvas(QFrame):
         self._stack = stack
         self._stack.subscribe(self._on_layers_changed)
         self._canvas = None
-        self.update()
+        self._redraw()
 
     def detach(self) -> None:
         """Stop listening to the model. Call from ``closeEvent``."""
@@ -361,7 +363,35 @@ class LayerCanvas(QFrame):
     def _on_layers_changed(self, event: LayerEvent) -> None:
         """Redraw for a stack that has gained, lost or reordered a layer."""
         if event.kind in LayerEvent.REPAINT:
-            self.update()
+            self._redraw()
+
+    def _redraw(self) -> None:
+        """Composite the stack again at the next paint, and ask for it.
+
+        Every other paint blits the picture kept by :meth:`_composited`.
+        """
+        self._picture = None
+        self.update()
+
+    def _composited(self, canvas: Canvas):
+        """The stack composited through ``canvas``, made once per change.
+
+        The window repaints everything over its animated backdrop on every
+        backdrop frame, and compositing the stack took about 150 ms at
+        1920x1080, so Curate painted at 6 to 8 frames a second while
+        nothing on it changed. The picture is kept until the stack reports
+        a change, a tool handles an event, or the world window is another
+        one (pan, zoom, resize, depth or plane).
+
+        :param canvas: the world window being painted.
+        :returns: the pixmap to draw.
+        """
+        if self._picture is None or self._picture_canvas is not canvas:
+            from .widgets.live_preview import numpy_to_qpixmap
+            self._picture = numpy_to_qpixmap(self._stack.render_uint8(canvas),
+                                             normalise=False)
+            self._picture_canvas = canvas
+        return self._picture
 
     @property
     def tool(self) -> Optional[CanvasTool]:
@@ -393,7 +423,7 @@ class LayerCanvas(QFrame):
             self.setFocusPolicy(Qt.StrongFocus)
             if tool.cursor is not None:
                 self.setCursor(tool.cursor)
-        self.update()
+        self._redraw()
         return previous
 
     def _tool_world(self, event) -> Optional[Dict[str, float]]:
@@ -474,10 +504,7 @@ class LayerCanvas(QFrame):
                 painter.drawText(self.rect(), Qt.AlignCenter,
                                  "No layers yet")
                 return
-            from .widgets.live_preview import numpy_to_qpixmap
-            pixmap = numpy_to_qpixmap(self._stack.render_uint8(canvas),
-                                      normalise=False)
-            painter.drawPixmap(1, 1, pixmap)
+            painter.drawPixmap(1, 1, self._composited(canvas))
         except Exception:
             LOG.exception("Could not paint the layer canvas")
         finally:
@@ -522,7 +549,7 @@ class LayerCanvas(QFrame):
             return
         if self._tool is not None and self._tool.press(
                 self, canvas.world_at(*self._pixel(event)), event):
-            self.update()
+            self._redraw()
             return
         if event.button() != Qt.LeftButton:
             return
@@ -539,7 +566,7 @@ class LayerCanvas(QFrame):
             return
         if self._tool is not None and self._tool.double_click(
                 self, canvas.world_at(*self._pixel(event)), event):
-            self.update()
+            self._redraw()
             return
         if event.button() != Qt.LeftButton:
             return
@@ -552,7 +579,7 @@ class LayerCanvas(QFrame):
         :param event: the Qt key event.
         """
         if self._tool is not None and self._tool.key(self, event):
-            self.update()
+            self._redraw()
             event.accept()
             return
         super().keyPressEvent(event)
@@ -568,7 +595,7 @@ class LayerCanvas(QFrame):
         if (self._drag is None and self._tool is not None
                 and self._tool.move(self, canvas.world_at(*self._pixel(event)),
                                     event)):
-            self.update()
+            self._redraw()
             return
         if self._drag is not None:
             position = event.position().toPoint()
@@ -593,7 +620,7 @@ class LayerCanvas(QFrame):
         canvas = self._ensure_canvas()
         if self._tool is not None and canvas is not None and self._tool.release(
                 self, canvas.world_at(*self._pixel(event)), event):
-            self.update()
+            self._redraw()
 
 
 
