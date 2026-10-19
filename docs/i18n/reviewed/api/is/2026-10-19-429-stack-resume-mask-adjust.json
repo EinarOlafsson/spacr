@@ -1,0 +1,232 @@
+{
+  "language": "is",
+  "note": "Item 429: changed public docstrings (convert_separate_files_to_yokogawa, spacr.resume, completed_fields_in_merged, process_mask_file_adjust_cell).",
+  "records": [
+    {
+      "context": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "source_sha256": "04c5c86232895780c860b264a909e4484f47dc78a0630da1245759c8144a1a31",
+      "translation": "Skrám er hópað eftir ``(plateID, wellID, fieldID, timeID, chanID)`` sem lesið er úr reglulegu segðinni. Hópar með mörgum Z-sneiðum eru hámarksvarpaðir (max- projected) áður en þeir eru vistaðir, og vörpunin er skráð í ``rename_log.csv``."
+    },
+    {
+      "context": "1. A ``wellID`` that **is** a well address keeps it — :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01`` (row 17) and ``AA13`` (row 27) alike. 2. Anything else — ``1``, ``well_left``, a positional number — is handed a synthetic id, in ``_natural_key`` order so the same folder always converts the same way. 3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so well ``A01`` of two source laboratory microplates stays two microplate sample positions.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "1. A ``wellID`` that **is** a well address keeps it — :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01`` (row 17) and ``AA13`` (row 27) alike. 2. Anything else — ``1``, ``well_left``, a positional number — is handed a synthetic id, in ``_natural_key`` order so the same folder always converts the same way. 3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so well ``A01`` of two source plates stays two wells.",
+      "source_sha256": "04a887eda34c0ccea4965f129410cdddcc4f1af2602dbf4446ef8ee0293515e5",
+      "translation": "1. ``wellID`` sem **er** brunnsvistfang heldur því — :func:`spacr.convert.normalise_well` les ``a1``, ``A-01``, ``Q01`` (röð 17) og ``AA13`` (röð 27) á sama hátt. 2. Allt annað — ``1``, ``well_left``, raðnúmer eftir staðsetningu — fær tilbúið auðkenni, í röð ``_natural_key`` svo sama mappan sé alltaf umbreytt á sama hátt. 3. Hvert ólíkt ``plateID`` í upprunanum fær sitt eigið ``plate<N>``-tákn, svo brunnur ``A01`` á tveimur upprunaplötum verður áfram tveir brunnar."
+    },
+    {
+      "context": "Folder containing the source TIFFs.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Folder containing the source TIFFs.",
+      "source_sha256": "fe04581fb850dcf6354f1a73ae113a1503c99f4f67ffac627cf1bd9d5f0e043c",
+      "translation": "Mappa sem inniheldur TIFF-upprunaskrárnar."
+    },
+    {
+      "context": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "source_sha256": "1f1dbbcd1eefc3738da325db55b7645767836ea05dd3bcbc42a9648af65a1198",
+      "translation": "Mynstur með nefndum hópum, ``wellID`` (áskilinn) auk valfrjálsra ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``."
+    },
+    {
+      "context": "Resume / checkpointing for spaCR's two long batch stages.",
+      "label": "spacr.resume#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume / checkpointing for spaCR's two long batch stages.",
+      "source_sha256": "ca65c2e84b84bb3e47626969495deaf674ce9e1108a30d6c878c6f2e14632ce5",
+      "translation": "Framhald keyrslu og vistunarpunktar fyrir tvö löng lotuþrep spaCR."
+    },
+    {
+      "context": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "label": "spacr.resume#10",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "source_sha256": "a71d5ca6fc1233025bcc14754f150e3252fa18aecfca7c2d5141a9e6091e605e",
+      "translation": "Það sem setur þessu öllu mörk: hver innflutt röð í stöðluðu töflunni á sér nákvæma tvíburaröð í ``foreign_<object>``, og ``foreign_<object>`` er *ekki* á leyfislistanum, svo ekkert framhald keyrslu getur snert hana. Þetta er athugað frekar en gengið út frá því — röð án tvíbura stöðvar losunina."
+    },
+    {
+      "context": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "label": "spacr.resume#11",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "source_sha256": "3115becf856bfffbee43f32a8a7b8fdf824a174a55668717e37c2278d931ff88",
+      "translation": "Annar helmingur þessa er enn óleystur og er ekki í þessari einingu: ``_merge_and_save_to_database`` bætir við staðlaða töflu sem innflutningur fyllti án þess að taka eftir því, svo notandi sem mælir slíkt verkefni *án* framhalds keyrslu fær samt bæði þýðin í eina töflu. ``tests/test_resume_owned_tables.py`` festir þetta með ``xfail(strict=True)`` og nefnir breytinguna sem ``spacr/utils.py`` þarfnast."
+    },
+    {
+      "context": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-executing one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "label": "spacr.resume#12",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-running one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "source_sha256": "81718b398c9e524e867232267195386df7013dc1b493d6c707c23eac88bb8b66",
+      "translation": "Ekki er hægt að gera við gagnagrunn sem fyrra framhald keyrslu hefur þegar skemmt við lestur — raðirnar eru horfnar og ekkert í skránni skráir hverjar þær voru. Hægt er að *endurskrifa* hann úr uppsprettum utan gagnagrunnsins, og allir þrír skrifararnir nota ``if_exists='replace'``, svo endurkeyrsla eins þeirra er full viðgerð frekar en önnur kynslóð raða: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` endurheimtir vörpunina úr CSV-skránni sem liggur við hlið umbreyttu myndanna, ``align.save_coordinates`` endurheimtir saumahnitin og ``foreign.run_import`` endurheimtir innfluttu mælingarnar."
+    },
+    {
+      "context": "**A microscope field of view is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one microscope field of view would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "label": "spacr.resume#13",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A field is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one field would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "source_sha256": "9eb0b50526dcf59b09c1c07ad83f59fd76f4d5fd3cd9b1b0644d043d00f8598a",
+      "translation": "**Sjónsvið er auðkennt með brunnshnitum sínum, aldrei með nafnforskeyti.** Eyðing með ``LIKE 'plate1_A01_f1%'`` passar einnig við ``f10`` … ``f19``, svo hreinsun eins sjónsviðs myndi eyða röðum tíu annarra. Hver skipun hér ber saman með jöfnuði yfir ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (auk ``timeID`` fyrir tímaraðir), og neitar að snerta töflu sem hefur ekki alla fjóra dálkana."
+    },
+    {
+      "context": "**A resume across different settings is not a resume.** Concatenating microscope fields of view measured with one channel/diameter/extracted-image-region configuration onto microscope fields of view measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous processing session and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "label": "spacr.resume#14",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A resume across different settings is not a resume.** Concatenating fields measured with one channel/diameter/crop configuration onto fields measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous run and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "source_sha256": "3aa3ef028f5ed965c211c373242350defa16f20acd1803b270888c54232f68e1",
+      "translation": "**Framhald keyrslu með öðrum stillingum er ekki framhald.** Ef sjónsviðum sem mæld voru með einni uppsetningu rása/þvermáls/myndskurðar er skeytt við sjónsvið sem mæld voru með annarri fæst gagnasafn sem er til helminga eitt og annað, og ekkert í síðari skrefum getur greint það. :func:`check_settings_compatible` ber núverandi stillingar saman við þær sem fyrri keyrsla skráði og kastar :class:`ResumeRefused` sem nefnir nákvæmlega hvað er ólíkt. Breytingar á umhverfi (ný útgáfa af numpy) hindra ekki."
+    },
+    {
+      "context": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a processing session without it behaves exactly as it did before.",
+      "label": "spacr.resume#15",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a run without it behaves exactly as it did before.",
+      "source_sha256": "ff6926e2022974b49117519dfa678eeef8ff52021833a4d7933210d3d451b2b8",
+      "translation": "Framhald keyrslu er **valkvætt**: ekkert hér hefur áhrif nema ``settings['resume']`` sé satt, og keyrsla án þess hegðar sér nákvæmlega eins og áður."
+    },
+    {
+      "context": "Typical use, from ``measure_crop``",
+      "label": "spacr.resume#17",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Typical use, from ``measure_crop``",
+      "source_sha256": "ff7df5a8dcda2db2e8baad7db63c94c73180609e6e3b5d4db0ab94b6d553a756",
+      "translation": "Dæmigerð notkun, úr ``measure_crop``"
+    },
+    {
+      "context": "Most of the module decides whether skipping a field is *safe*:",
+      "label": "spacr.resume#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Most of the module decides whether skipping a field is *safe*:",
+      "source_sha256": "bb0ed19daddb2ac203cf6e055cde153d9d18900218e11abafeab759486e51646",
+      "translation": "Stærstur hluti einingarinnar ákvarðar hvort *öruggt* sé að sleppa sjónsviði:"
+    },
+    {
+      "context": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending microscope field of view from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each microscope image field was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "label": "spacr.resume#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending field from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each tile was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "source_sha256": "b92a7f18669bd4508258c5d830c110dbd91eab9528fbbdb89d6283bf001a59f9",
+      "translation": "**measurements.db er ekki einkaskrá measure.** ``convert`` skrifar ``conversion_map`` í hana, ``align`` skrifar ``align_coordinates``, ``foreign`` skrifar ``foreign_*``, ``timelapse`` skrifar ferlatöflu sína — allar lyklaðar á sömu fjóra dálka og mælingarnar, af ásettu ráði, svo hægt sé að tengja þær saman. Ef „töflur sem á að hreinsa“ (\"tables to clear\") væru fundnar út frá dálkum þeirra einum fyndust því allar þessar töflur, og ef ólokið sjónsvið væri hreinsað úr hverri þeirra myndi það eyða einu skránni um hvaða skrá frá framleiðanda varð ``plate1_A01_1``, hvar hver flís var saumuð og um innfluttar mælingar. Ekkert af þessu (None of it) er hægt að endurreikna úr gagnagrunninum. Töflurnar sem framhald keyrslu má eyða úr eru því skilgreindar í skýrum leyfislista, :data:`MEASURE_OWNED_TABLES`, sem er athugaður bæði þegar listinn er fundinn og aftur fyrir hverja töflu rétt áður en DELETE-skipunin er undirbúin."
+    },
+    {
+      "context": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "label": "spacr.resume#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "source_sha256": "ecfda98e0d21d52df75b5cda6d64e1e6835ed8258f94f18cea24ce2819bfd4bd",
+      "translation": "**Eignarhald samkvæmt nafni er ekki raunverulegt eignarhald, svo eignarhald er ákvarðað fyrir hverja röð.** Nafnaleyfislisti svarar spurningunni „gæti measure hafa skrifað þessa töflu?“, og í einu tilviki er svarið við „gerði hún það?“ nei: ``foreign.run_import`` afritar innfluttu raðirnar í stöðluðu töfluna ``cell`` / ``nucleus`` / ``pathogen`` þegar engin gögn frá öðrum eru þar, svo að hvert spaCR-verkfæri geti lesið verkefni sem eingöngu er innflutt. Þessar raðir eru undir eigin lýsigagnadálkum spaCR í töflu sem er á leyfislistanum, og regla á töflustigi myndi hreinsa þær ásamt ólokna sjónsviðinu."
+    },
+    {
+      "context": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "label": "spacr.resume#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "source_sha256": "2b60ac7c79a8d6bcc4aef67d718f4f97903c9661cfde325cb6ea2f3e334eae19",
+      "translation": "Raðirnar eru aðgreindar með ``foreign_columns``, sem hver útgáfa innflutningstólsins skrifar og nefnir hvern dálk sem innflutningstólið setti í hverja töflu. Notkun hennar á töflustigi — ``foreign._importer_owns``, „eru dálkar þessarar töflu hlutmengi þess sem innflutningstólið skráði?“ — á sér hliðstæðu á raðastigi, og það er reglan hér: **röð tilheyrir innflutningstólinu þegar hver dálkur þar sem hún er ekki NULL er dálkur sem innflutningstólið skráði fyrir þessa töflu**. ``measure_crop``-röð inniheldur alltaf að minnsta kosti eigin flatarmáls- og styrkdálka, sem innflutningstólið skrifaði aldrei; innflutt röð inniheldur aðeins lýsigögn og mælingar með forskeytinu ``foreign_``. Tafla getur því verið til helminga hvort tveggja og samt er hægt að rekja hverja röð — sem skiptir máli, því verkefni sem var flutt inn og síðan mælt er einmitt þannig. Sjá :func:`measure_rows_clause`."
+    },
+    {
+      "context": "Ownership is not read from a table-level marker such as ``foreign_import.canonical_table_written``. A marker that blocks every delete from a claimed table would also block clearing fields the import never covered, so such a project could never be resumed; and the first importer release wrote the canonical copy without that marker. ``foreign_columns`` is per table and per column, and every importer release has written it.",
+      "label": "spacr.resume#8",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Ownership is not read from a table-level marker such as ``foreign_import.canonical_table_written``. A marker that blocks every delete from a claimed table would also block clearing fields the import never covered, so such a project could never be resumed; and the first importer release wrote the canonical copy without that marker. ``foreign_columns`` is per table and per column, and every importer release has written it.",
+      "source_sha256": "b81bb92533f51288b75bf1f069a2793c921d452397cd5f3b3348aae3265ba0a7",
+      "translation": "Eignarhald er ekki lesið úr merki á töflustigi á borð við ``foreign_import.canonical_table_written``. Merki sem hindrar allar eyðingar úr tilkallaðri töflu myndi einnig hindra hreinsun sjónsviða sem innflutningurinn náði aldrei yfir, svo aldrei væri hægt að halda áfram slíku verkefni; og fyrsta útgáfa innflutningstólsins skrifaði staðlaða afritið án þessa merkis. ``foreign_columns`` er skilgreint fyrir hverja töflu og hvern dálk, og hver útgáfa innflutningstólsins hefur skrifað það."
+    },
+    {
+      "context": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a microscope field of view into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-microplate sample position count becomes the sum of two populations. :func:`supersede_imported_copies` executes before the first insert and removes that copy — but only when every microscope field of view it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "label": "spacr.resume#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a field into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-well count becomes the sum of two populations. :func:`supersede_imported_copies` runs before the first insert and removes that copy — but only when every field it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "source_sha256": "a0e3c89211c92923b07cf5a2f579785d1eede0f203ba0919ef70d6f821f62ecf",
+      "translation": "**Innflutt afrit er losað áður en measure bætir við töflu þess.** ``measure_crop`` bætir við, svo um leið og spaCR mælir sjónsvið inn í staðlaða töflu sem innflutningur fyllti eru raðir þess og innfluttu raðirnar í sömu töflu án nokkurs sem markar skilin, og hver talning á brunn verður summa tveggja þýða. :func:`supersede_imported_copies` keyrir á undan fyrstu innsetningu og fjarlægir það afrit — en aðeins þegar hvert sjónsvið sem það nær yfir hefur annaðhvort þegar verið mælt inn í þá töflu eða er í biðröð til mælingar núna, og aðeins eftir að :func:`spacr.foreign.release_canonical_copy` hefur sannreynt, röð fyrir röð, að hver röð sem það fjarlægir sé enn til í ``foreign_<object>``. Hálflosuð tafla er verri en ólosuð, svo öllu sem er minna en fullkomin losun án taps er hafnað og það tilkynnt í staðinn, ásamt línunum tveimur sem gera það handvirkt."
+    },
+    {
+      "context": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* image layer count across the folder is used instead — every microscope field of view in a merged folder is written with the same image layer count, so an odd one out is a bad microscope field of view.",
+      "label": "spacr.resume.completed_fields_in_merged#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* plane count across the folder is used instead — every field in a merged folder is written with the same plane count, so an odd one out is a bad field.",
+      "source_sha256": "71178390b889fd3e6452812caf207ba3981f7a8f9d3f0aece6e69025da1ba11b",
+      "translation": "lágmarksstærð síðasta ássins, sjá :func:`expected_min_planes`. Þegar None og að minnsta kosti þrjár skrár standast staðfestingu er *algengasti* fjöldi plana í möppunni notaður í staðinn — hvert sjónsvið í sameinaðri möppu er skrifað með sama fjölda plana, svo frávik bendir til gallaðs sjónsviðs."
+    },
+    {
+      "context": "optional dict populated in place with ``{field: reason}`` for each candidate. **Rejected candidates** are recorded there. Reporting code can then say \"3 fields rejected as truncated\" instead of doing extra work without explanation.",
+      "label": "spacr.resume.completed_fields_in_merged#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional dict, populated in place with ``{field: reason}`` for every candidate that was **rejected**. This is how the caller can report \"3 fields rejected as truncated\" rather than silently doing more work.",
+      "source_sha256": "9ff2e6ab3a651b17c0d85cc5c446eca0e7873964b001e03fdb9186d623bdec15",
+      "translation": "valfrjáls orðabók sem er fyllt á staðnum með ``{field: reason}`` fyrir hvern kandídat sem var **hafnað**. Þannig getur kallandinn tilkynnt „3 sjónsviðum hafnað sem styttum“ í stað þess að vinna meiri vinnu án þess að láta vita."
+    },
+    {
+      "context": "set of field stems (basename without ``.npy``) that are safe to skip.",
+      "label": "spacr.resume.completed_fields_in_merged#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "set of field stems (basename without ``.npy``) that are safe to skip.",
+      "source_sha256": "661bf724378535f0096b34a773a876a9cceb93b3d2ee688afdc9d57e499a8dee",
+      "translation": "mengi skráarstofna sjónsviða (grunnheiti án ``.npy``) sem óhætt er að sleppa."
+    },
+    {
+      "context": "mask file name (must exist in all folders).",
+      "label": "spacr.utils.process_mask_file_adjust_cell#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "mask file name (must exist in all folders).",
+      "source_sha256": "2ec991fa8a09f655d32251c6a02bfb550c388392cf471ef762108fa122e07d2f",
+      "translation": "heiti grímuskrár (verður að vera til í öllum möppum)."
+    },
+    {
+      "context": "folder of parasite masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of parasite masks.",
+      "source_sha256": "091e1a8f2d0d0976d61417317b3bc1963d9104bd2dcc67fc947ab5cc621a7426",
+      "translation": "mappa með grímum sníkjudýra."
+    },
+    {
+      "context": "folder of nuclei masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of nuclei masks.",
+      "source_sha256": "460edf701c4ba7c313b062130489dc4b5a864d5391087ef33768c0dadfa825f2",
+      "translation": "mappa með kjarnagrímum."
+    },
+    {
+      "context": "optional folder of organelle masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional folder of organelle masks.",
+      "source_sha256": "4fa9f7bc2dc2cc28fc94c1f2bbe02b6cb0af09c286cdff588c496694c8115eb2",
+      "translation": "valfrjáls mappa með grímum frumulíffæra."
+    },
+    {
+      "context": "fractional overlap threshold used by the merger.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "fractional overlap threshold used by the merger.",
+      "source_sha256": "d74578ab692f965d7efea3bf728580ac8c18902e00741fe0e22efa017dec0b87",
+      "translation": "þröskuldur hlutfallslegrar skörunar sem sameiningin notar."
+    },
+    {
+      "context": "shared-perimeter threshold used by the merger.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "shared-perimeter threshold used by the merger.",
+      "source_sha256": "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
+      "translation": "þröskuldur sameiginlegs jaðars sem sameiningin notar."
+    },
+    {
+      "context": "elapsed seconds.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "elapsed seconds.",
+      "source_sha256": "2d1f90c2a487534d206f3cd50d00c1726a2fdbdb2e09ab8424ff0835013754b4",
+      "translation": "liðnar sekúndur."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

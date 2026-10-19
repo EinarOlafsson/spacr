@@ -1,0 +1,120 @@
+{
+  "language": "ko",
+  "note": "Item 411: remaining blocks of the workspace, example-loading, Make Masks fold and ResultsTable entries.",
+  "records": [
+    {
+      "context": "Fetch the example screen and fill `count_data` and `score_data`.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Fetch the example screen and fill `count_data` and `score_data`.",
+      "source_sha256": "703d9eaccc8c968e8c47c2126da9d3f739f03e4491366bb5b4ced7eaad993225",
+      "translation": "예제 스크린을 가져와 `count_data`와 `score_data`를 채웁니다."
+    },
+    {
+      "context": "If ``True``, download files that are not already in the local cache.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "If ``True``, download files that are not already in the local cache.",
+      "source_sha256": "bb775aff83e5c80b09ccc93ab7d9ebde2bd762bc334fc3bdf65a714058c444ea",
+      "translation": "``True``이면 로컬 캐시에 아직 없는 파일을 내려받습니다."
+    },
+    {
+      "context": "A mapping of populated setting names to their file paths.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A mapping of populated setting names to their file paths.",
+      "source_sha256": "7ca1ec6ad4fb8a2509b18e7e79af2acb1f816431b335f4f866bdc18d4305f6fa",
+      "translation": "채워진 설정 이름과 해당 파일 경로의 매핑입니다."
+    },
+    {
+      "context": "Enrol this screen and its panels with the workspace registry.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.register_workspace#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Enrol this screen and its panels with the workspace registry.",
+      "source_sha256": "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
+      "translation": "이 화면과 패널을 작업 공간 레지스트리에 등록합니다."
+    },
+    {
+      "context": "Registered as CALLABLES returning the attribute, never as the widget: `_results_panel` is rebuilt when the module changes, and a captured reference would hand a processing-session journal a deleted C++ peer to ask.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.register_workspace#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Registered as CALLABLES returning the attribute, never as the widget: `_results_panel` is rebuilt when the module changes, and a captured reference would hand a run journal a deleted C++ peer to ask.",
+      "source_sha256": "3cf2bd0b7fa7b2c1ab1e487d13b604ce9b9b9fbe8e05d6e5a8bc1736df6ec525",
+      "translation": "위젯 자체가 아니라 속성을 반환하는 CALLABLES로 등록됩니다. `_results_panel`은 모듈이 바뀔 때 다시 만들어지므로, 참조를 붙잡아 두면 실행 기록이 이미 삭제된 C++ 객체에 질의하게 됩니다."
+    },
+    {
+      "context": "Withdraw this screen's sections. Called when it is torn down.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.unregister_workspace#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Withdraw this screen's sections. Called when it is torn down.",
+      "source_sha256": "20808645a71d82a73a92a0c11ade40115b9729463bdb29ff524ffb196d80b928",
+      "translation": "이 화면의 섹션을 철회합니다. 화면이 해체될 때 호출됩니다."
+    },
+    {
+      "context": "Open a folded module on this application view, pointed at the open field.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Open a folded module on this screen, pointed at the open field.",
+      "source_sha256": "13820c42291787a40f6548c4c0921d94e3c69cba5e9a42c88ba59ea879ad52ad",
+      "translation": "이 화면에서 접힌 모듈을 열고, 열려 있는 시야를 대상으로 지정합니다."
+    },
+    {
+      "context": "The module arrives as a PAGE beside the editor, which is where a fold belongs; it becomes a window only if this screen has no body to make pages out of.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The module arrives as a PAGE beside the editor, which is where a fold belongs; it becomes a window only if this screen has no body to make pages out of.",
+      "source_sha256": "965a03a2a065487ee4281dc4194b95a7d22bcee9f0482b9dd4c9d01616b09037",
+      "translation": "모듈은 편집기 옆의 PAGE로 열리며, 접힌 모듈은 이 위치에 있어야 합니다. 이 화면에 페이지를 만들 본문이 없을 때만 창으로 열립니다."
+    },
+    {
+      "context": "one of :data:`FOLD_ORDER`.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "one of :data:`FOLD_ORDER`.",
+      "source_sha256": "e01c1ff2455b36da5d3831e95c495a6c3b0193ed867fe7f8ee0c44455f16e083",
+      "translation": ":data:`FOLD_ORDER` 중 하나입니다."
+    },
+    {
+      "context": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "the module's panel, or ``None`` for a key this screen does not fold. Pressing the same button again raises the page that is already there rather than building a second one.",
+      "source_sha256": "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9",
+      "translation": "모듈의 패널이며, 이 화면이 접지 않는 키이면 ``None``입니다. 같은 버튼을 다시 누르면 두 번째 페이지를 만들지 않고 이미 있는 페이지를 앞으로 가져옵니다."
+    },
+    {
+      "context": "Fill the table. Returns the row count.",
+      "label": "spacr.qt.widgets.fast_plots.ResultsTable.set_frame#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Fill the table. Returns the row count.",
+      "source_sha256": "41984a811b2e8fc2db257cddd0c7480292f8e1f89b2dcd3dc2c25f308c5828c5",
+      "translation": "테이블을 채웁니다. 행 수를 반환합니다."
+    },
+    {
+      "context": "This resets process state during application shutdown and test teardown.",
+      "label": "spacr.workspace.clear_providers#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "This resets process state during application shutdown and test teardown.",
+      "source_sha256": "3563841c1d603ae727df1878f8227cdc54c62aeb573da28e97851703db86308d",
+      "translation": "애플리케이션 종료 및 테스트 정리 시 프로세스 상태를 초기화합니다."
+    },
+    {
+      "context": "``{name: provider-or-object}``. A callable value is called; anything else is used directly.",
+      "label": "spacr.workspace.section_states#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``{name: provider-or-object}``. A callable value is called; anything else is used directly.",
+      "source_sha256": "96c1fd8c8680f16ff90ca9d998959ae5eaf3b4be556ca02e3e5328c2ec77f04b",
+      "translation": "``{name: provider-or-object}``입니다. 호출 가능한 값은 호출하고, 그 밖의 값은 그대로 사용합니다."
+    },
+    {
+      "context": "``(sections, problems)``. A provider that raises or returns no usable state is omitted and described in ``problems``; other sections are still collected.",
+      "label": "spacr.workspace.section_states#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``(sections, problems)``. A provider that raises or returns no usable state is omitted and described in ``problems``; other sections are still collected.",
+      "source_sha256": "60193b352a446b2fcf836a2d87deb675a18628ea9f460f9efc3147f8a85b3d8b",
+      "translation": "``(sections, problems)``입니다. 예외를 발생시키거나 사용할 수 있는 상태를 반환하지 않는 제공자는 제외되고 ``problems``에 설명되며, 다른 섹션은 계속 수집됩니다."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}
