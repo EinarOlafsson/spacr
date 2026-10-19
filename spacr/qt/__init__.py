@@ -89,10 +89,17 @@ def _after(msec: int, owner, callback):
     :param msec: delay in milliseconds.
     :param owner: the ``QObject`` whose lifetime bounds the call.
     :param callback: the function to call, with no arguments.
-    :returns: the started ``QTimer``.
+    :returns: the started ``QTimer``, or ``None`` when ``owner`` is already
+        gone. A callback that reschedules itself -- a poll waiting on a worker
+        thread -- can run once more while its widget is being torn down, and
+        a ``QTimer`` parented to a deleted object crashes PySide
+        (``Sbk_QTimer_Init``, macOS acceptance 2026-10-19).
     """
     from PySide6.QtCore import QTimer
+    from shiboken6 import isValid
 
+    if owner is None or not isValid(owner):
+        return None
     timer = QTimer(owner)
     timer.setSingleShot(True)
     timer.timeout.connect(callback)

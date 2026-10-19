@@ -63,3 +63,15 @@ def _three_argument_single_shots():
 
 def test_no_module_passes_an_owner_and_a_callable_to_single_shot():
     assert _three_argument_single_shots() == []
+
+
+def test_a_poll_rescheduling_itself_after_its_owner_is_gone_is_dropped(qtbot):
+    """2026-10-19 macOS acceptance: the console's allowance poll asked for
+    another tick after its panel was deleted, and ``QTimer(dead owner)``
+    crashed PySide in ``Sbk_QTimer_Init`` while a module screen opened."""
+    import shiboken6
+
+    owner = QWidget()
+    shiboken6.delete(owner)
+    assert _after(10, owner, lambda: None) is None
+    assert _after(10, None, lambda: None) is None
