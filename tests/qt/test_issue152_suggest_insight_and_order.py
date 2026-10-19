@@ -200,8 +200,8 @@ def test_the_progress_bar_shows_each_stage_and_hides_at_the_end(
     def record(step, total, stage):
         """Note what the bar shows after each step starts."""
         original(step, total, stage)
-        seen.append((bar.value(), bar.maximum(), bar.format(),
-                     bar.isVisibleTo(screen)))
+        seen.append((bar.value(), bar.maximum(),
+                     screen._suggest_stage.text(), bar.isVisibleTo(screen)))
 
     monkeypatch.setattr(screen, "_on_suggest_progress", record)
     assert bar.isHidden()
@@ -211,7 +211,8 @@ def test_the_progress_bar_shows_each_stage_and_hides_at_the_end(
     assert all(shown for _, _, _, shown in seen)
     assert seen[1][2] == "Reading features…"
     assert seen[2][2] == "Training and cross-validating…"
-    assert bar.isHidden()
+    assert bar.isHidden() and screen._suggest_stage.isHidden()
+    assert not bar.isTextVisible()
     assert screen._btn_suggest_model.isEnabled()
 
 
