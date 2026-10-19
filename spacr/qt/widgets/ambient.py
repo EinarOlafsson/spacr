@@ -12285,6 +12285,7 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
 
 def _place_the_spaceout_fractal(widget, host) -> None:
     """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     widget.setParent(host)
     widget.setGeometry(host.rect())
     widget.lower()
