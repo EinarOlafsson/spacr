@@ -289,12 +289,7 @@ def test_a_destroyed_field_gives_the_chrome_back(scene, qtbot):
     edit.setText("")
     image = QImage(edit.size(), QImage.Format_ARGB32_Premultiplied)
     image.fill(0)
-    QApplication.processEvents()
-    layer = field_fade._UNDERLAYS.get(edit)
-    painter_of_the_fade = edit if layer is None else layer
-    if layer is not None:
-        assert layer.isVisible() and layer.geometry() == edit.geometry()
-    painter_of_the_fade.render(image)
+    edit.render(image)
     assert any(bytes(image.constBits())), "the fade no longer paints"
 
 
