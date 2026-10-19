@@ -479,7 +479,31 @@ try {
     }
 
     Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
-    Invoke-Checked $UvExe pip check --python $StagePython
+    # An install without wgpu leaves one declared dependency out on purpose, so
+    # uv's sole "spacr requires wgpu" diagnostic is accepted then and nothing
+    # else is (install_cleanup._only_saved_wgpu_omission, as the updater does).
+    # Start-Process keeps uv's own UTF-8 bytes; PowerShell redirection would
+    # re-encode them and wrap stderr lines as error records.
+    $PipCheckOut = Join-Path $WorkDir "pip-check-out.txt"
+    $PipCheckErr = Join-Path $WorkDir "pip-check-err.txt"
+    $PipCheckLog = Join-Path $WorkDir "pip-check.txt"
+    $PipCheck = Start-Process -FilePath $UvExe -ArgumentList @("pip", "check", "--python", "`"$StagePython`"") `
+        -NoNewWindow -Wait -PassThru -RedirectStandardOutput $PipCheckOut -RedirectStandardError $PipCheckErr
+    $PipCheckCode = $PipCheck.ExitCode
+    [System.IO.File]::WriteAllText($PipCheckLog,
+        [System.IO.File]::ReadAllText($PipCheckErr) + [System.IO.File]::ReadAllText($PipCheckOut),
+        [System.Text.UTF8Encoding]::new($false))
+    Write-Host ([System.IO.File]::ReadAllText($PipCheckLog))
+    if ($PipCheckCode -ne 0) {
+        $Accepted = $false
+        if ($WithoutWgpu) {
+            & $StagePython -I -c "import sys; from spacr.install_cleanup import _only_saved_wgpu_omission as only; sys.exit(0 if only(int(sys.argv[1]), open(sys.argv[2], encoding='utf-8', errors='replace').read()) else 1)" "$PipCheckCode" $PipCheckLog
+            $Accepted = ($LASTEXITCODE -eq 0)
+        }
+        if (-not $Accepted) {
+            throw (Get-SpacrInstallerMessage "command_failed" @($UvExe, $PipCheckCode))
+        }
+    }
     $env:QT_QPA_PLATFORM = "offscreen"
     Invoke-Checked -Command $StagePython -Arguments @(
         "-I",

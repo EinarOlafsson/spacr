@@ -194,7 +194,7 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
     for path in (UNIX, WINDOWS):
         source = _text(path)
         assert "--relocatable" in source
-        check = source.index("pip check")
+        check = source.index("pip check" if path == UNIX else '@("pip", "check"')
         import_check = source.index("import spacr, PySide6, torch")
         activate = source.index("venv-previous")
         assert "-I" in source[:import_check]

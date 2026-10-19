@@ -1156,7 +1156,7 @@ def test_the_windows_installer_validates_staging_before_retiring_old_copies():
         encoding="utf-8")
     remove = ps1.index("$CleanupModule remove")
     assert ps1.index("python find $PythonVersion") < remove
-    assert ps1.index("pip check --python $StagePython") < remove
+    assert ps1.index('@("pip", "check", "--python"') < remove
     assert ps1.index("pip install --python $StagePython") < remove
     assert "--keep $InstallRoot" in ps1
     assert "--keep $LogPath" in ps1
