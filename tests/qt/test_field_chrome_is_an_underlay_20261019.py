@@ -138,3 +138,24 @@ def test_a_parentless_field_keeps_the_hook(qtbot, qapp, sandbox):
     edit.show()
     qtbot.waitExposed(edit)
     assert ff._UNDERLAYS.get(edit) is None
+
+
+def test_an_underlaid_field_is_not_rechecked_on_every_frame(qtbot, qapp,
+                                                            sandbox):
+    """Each frame re-reads the geometry of every widget watched for a move
+    the paint pass could hide; an underlay is re-placed by the field's next
+    event anyway, and thirty fields read on every frame of lesson 13's run
+    made its gaps longer. Counted, not timed."""
+    from shiboken6 import getCppPointer
+
+    from spacr.qt import gil_priority
+
+    prefs.set_theme_choice("dark")
+    prefs.apply_preferences_to_app(qapp)
+    host, fields = _form(qtbot)
+    hub = gil_priority._application_event_hub(qapp, create=False)
+    assert hub is not None
+    watched = set(hub._geometry_watched)
+    for field in fields:
+        assert ff._follower() in gil_priority._hub_object_watchers(hub, field)
+        assert getCppPointer(field)[0] not in watched

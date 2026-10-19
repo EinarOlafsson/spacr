@@ -250,13 +250,13 @@ def _hub_rebuild_objects(hub) -> None:
     for key, chain in hub._objects.items():
         for entry in chain:
             kinds.update(entry[1])
-            if entry[1] & geometry_kinds:
+            if entry[1] & geometry_kinds and (len(entry) < 5 or entry[4]):
                 geometry[key] = entry[3]
     hub._object_kinds = frozenset(kinds)
     hub._geometry_watched = geometry
 
 
-def _hub_add_object(hub, watched, watcher, kinds) -> None:
+def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
     """Ask ``watcher`` first about ``watched``'s events of ``kinds``."""
     from shiboken6 import getCppPointer
 
@@ -267,7 +267,7 @@ def _hub_add_object(hub, watched, watcher, kinds) -> None:
         watched.destroyed.connect(
             lambda *_args, key=key: _hub_drop_object(hub, key))
     chain.insert(0, [weakref.ref(watcher), frozenset(kinds), True,
-                     weakref.ref(watched)])
+                     weakref.ref(watched), bool(replay)])
     hub._objects[key] = chain
     _hub_rebuild_objects(hub)
 
@@ -346,17 +346,17 @@ def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
 
 
 def _hub_geometry_before(hub) -> list:
-    """Where each geometry-watched widget is, before a paint pass."""
-    from shiboken6 import isValid
+    """Where each geometry-watched widget is, before a paint pass.
 
+    Two calls a widget, because this runs on every frame of the field.
+    """
     states = []
     for ref in tuple(hub._geometry_watched.values()):
         widget = ref()
-        if widget is None or not isValid(widget):
+        if widget is None:
             continue
         try:
-            states.append((widget, widget.isVisible(), widget.pos(),
-                           widget.size()))
+            states.append((widget, widget.isHidden(), widget.geometry()))
         except (AttributeError, RuntimeError):
             continue
     return states
@@ -370,23 +370,23 @@ def _hub_geometry_after(hub, states) -> None:
     is made again from the widget's state and handed to the watchers that
     asked for it, once.
     """
-    from PySide6.QtGui import QHideEvent, QMoveEvent, QResizeEvent, QShowEvent
-    from shiboken6 import isValid
-
-    for widget, visible, pos, size in states:
-        if not isValid(widget):
-            continue
+    for widget, hidden, geometry in states:
         try:
-            now = (widget.isVisible(), widget.pos(), widget.size())
+            now_hidden, now = widget.isHidden(), widget.geometry()
         except RuntimeError:
             continue
+        if now_hidden == hidden and now == geometry:
+            continue
+        from PySide6.QtGui import (QHideEvent, QMoveEvent, QResizeEvent,
+                                   QShowEvent)
+
         events = []
-        if now[0] != visible:
-            events.append(QShowEvent() if now[0] else QHideEvent())
-        if now[1] != pos:
-            events.append(QMoveEvent(now[1], pos))
-        if now[2] != size:
-            events.append(QResizeEvent(now[2], size))
+        if now_hidden != hidden:
+            events.append(QHideEvent() if now_hidden else QShowEvent())
+        if now.topLeft() != geometry.topLeft():
+            events.append(QMoveEvent(now.topLeft(), geometry.topLeft()))
+        if now.size() != geometry.size():
+            events.append(QResizeEvent(now.size(), geometry.size()))
         for event in events:
             kind = event.type()
             if kind in hub._object_kinds:
@@ -625,7 +625,7 @@ def _watch_application_events(app, watcher, kinds) -> bool:
     return True
 
 
-def _watch_object_events(watched, watcher, kinds) -> bool:
+def _watch_object_events(watched, watcher, kinds, replay=True) -> bool:
     """Call ``watcher.eventFilter`` for ``watched``'s events of ``kinds``.
 
     The replacement for ``watched.installEventFilter(watcher)`` with a
@@ -648,6 +648,10 @@ def _watch_object_events(watched, watcher, kinds) -> bool:
     :param watched: the object to watch.
     :param watcher: a ``QObject`` with an ``eventFilter``.
     :param kinds: the ``QEvent.Type`` values it acts on.
+    :param replay: whether a move, resize, show or hide made inside a paint
+        is told afterwards. Every frame of the field checks each widget
+        watched this way, so a watcher that is told the next change anyway
+        passes ``False``.
     :returns: ``True`` when the watcher is now watching.
     """
     if watched is None or watcher is None:
@@ -661,7 +665,7 @@ def _watch_object_events(watched, watcher, kinds) -> bool:
     if hub is None:
         watched.installEventFilter(watcher)
         return True
-    _hub_add_object(hub, watched, watcher, kinds)
+    _hub_add_object(hub, watched, watcher, kinds, replay)
     return True
 
 

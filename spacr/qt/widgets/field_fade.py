@@ -394,7 +394,7 @@ def _attach(widget) -> None:
             layer.deleteLater()
         widget.installEventFilter(_filter)
         return
-    _watch_object_events(widget, _follower(), _UNDERLAY_KINDS)
+    _watch_object_events(widget, _follower(), _UNDERLAY_KINDS, replay=False)
     _sync_underlay(widget)
 
 
