@@ -64,7 +64,7 @@ SCRIPT = textwrap.dedent("""
     dispatcher.Dispatcher.compile = counting
     A._start_settings_prewarm().join()
     before = set(sys.modules)
-    window.open_module("regression")
+    window.open_module("__MODULE__")
     end = time.monotonic() + 3
     while time.monotonic() < end:
         app.processEvents()
@@ -74,17 +74,21 @@ SCRIPT = textwrap.dedent("""
     out = {t: sorted(m for m in new if m == t or m.startswith(t + "."))
            for t in tops}
     out["gui_thread_compilations"] = gui_compiles
-    print(json.dumps(out))
+    sys.stdout.write("\\nRESULT " + json.dumps(out) + "\\n")
+    sys.stdout.flush()
 """)
 
 
-def test_opening_regression_adds_no_heavy_module_after_the_warm(tmp_path):
+@pytest.mark.parametrize("module", ["regression", "invasion"])
+def test_opening_a_module_adds_no_heavy_module_after_the_warm(tmp_path, module):
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
                CUDA_VISIBLE_DEVICES="", HOME=str(tmp_path),
                XDG_CONFIG_HOME=str(tmp_path))
-    done = subprocess.run([sys.executable, "-c", GUARD + SCRIPT], env=_tested_tree(env),
+    done = subprocess.run([sys.executable, "-c", GUARD + SCRIPT.replace("__MODULE__", module)], env=_tested_tree(env),
                           capture_output=True, text=True, timeout=300)
-    lines = [line for line in done.stdout.splitlines() if line.startswith("{")]
-    assert lines, done.stderr[-2000:]
-    added = json.loads(lines[-1])
+    lines = [line for line in done.stdout.splitlines() if line.startswith("RESULT ")]
+    noise = "qt.text.font.db: OpenType support missing"
+    errors = "\n".join(line for line in done.stderr.splitlines() if noise not in line)
+    assert lines, f"probe exit {done.returncode}; stderr: {errors[-2000:]}; stdout: {done.stdout[-500:]}"
+    added = json.loads(lines[-1][len("RESULT "):])
     assert added == {key: [] for key in added}

@@ -2507,8 +2507,11 @@ def _crop_object_keys(crops: pd.DataFrame) -> pd.DataFrame:
         field, sep, _ = key.rpartition(schema.KEY_SEPARATOR)
         parent.append(f"{field}{sep}o{cell}"
                       if cell is not None and sep else None)
-    return pd.DataFrame({"object_type": types, "own_key": own,
-                         "parent_key": parent}, index=crops.index)
+    return pd.DataFrame({
+        "object_type": pd.Series(types, index=crops.index, dtype=object),
+        "own_key": pd.Series(own, index=crops.index, dtype=object),
+        "parent_key": pd.Series(parent, index=crops.index, dtype=object),
+    }, index=crops.index)
 
 
 def _crop_feature_keys(crops: pd.DataFrame) -> pd.Series:
