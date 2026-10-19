@@ -245,3 +245,6 @@ of v3) is the same physical plate as ReimagedPlate1 (training data of v4).
 2026-10-17: 153 test fields, object F1 v5 0.816, v4 0.725, v3 0.741, stock 0.227; 81 fields unseen by v3/v4: 0.803, 0.661, 0.684, 0.451. Card, binding and zoo entry added.
 2026-10-17: maintainer made v5 the default (v3 recommended for Gel Doc wells, v4 selectable); 9-locale reviewed captions updated.
 2026-10-17: REMAINING: HF upload of einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 (main), then push; v4's HF card pages still say default; web models.json needs regenerating.
+2026-10-19: verified on HF: cpsam-r7@e29ee85 weights/cpsam_plaque_r7 sha256 9243917b...8a1, matching the zoo row and the local checkpoint; v4's HF card (cpsam-r6@94e9989) already says v5 is the default.
+2026-10-19: web models.json regenerated with tools.web_mask_generator.provision from public Hub metadata (18/18 LFS checksums match; v4 now pinned at 94e9989, sources rebound).
+2026-10-19: browser ONNX toxoplasma_plaque_v5-a03c569178f1.onnx exported (torch vs onnxruntime check passed) and uploaded with browser-manifest.json to dataset einarolafsson/models web-onnx/ (commit 52aa66e6). Nothing remains for 438.
