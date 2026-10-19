@@ -365,6 +365,10 @@ jobs:
         run: |
           tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-nightly \
             --nightly channels/docs-channel-nightly --output space --nightly-url "$HF_DOCS_URL"
+      - name: Squash the Space's history before it nears its storage limit
+        run: |
+          tools/run_capped.sh 4G python tools/publish_docs_channels.py squash-nightly-if-needed \
+            --site space --space "$HF_DOCS_SPACE"
       - name: Upload one complete site and verify its public deployment
         run: |
           revision=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py upload-nightly --site space --space "$HF_DOCS_SPACE")
