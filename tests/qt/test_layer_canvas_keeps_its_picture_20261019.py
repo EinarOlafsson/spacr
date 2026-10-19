@@ -44,6 +44,7 @@ def counted(qtbot, monkeypatch):
     qtbot.addWidget(canvas)
     canvas.resize(220, 200)
     canvas.show()
+    qtbot.waitExposed(canvas)
     canvas.repaint()
     return canvas, stack, calls
 
@@ -82,21 +83,65 @@ def test_a_new_world_window_composites_again(counted):
     assert calls[-1] is canvas._canvas
 
 
-def test_a_brush_dab_shows_and_then_stays_kept(counted, qtbot):
+def _full(canvas):
+    from PySide6.QtGui import QImage
+    from spacr.layers import LayerStack
+    rgb = np.ascontiguousarray(LayerStack.render_uint8(canvas.stack, canvas.canvas))
+    h, w = rgb.shape[:2]
+    return QImage(rgb.data, w, h, 3 * w, QImage.Format_RGB888).convertToFormat(
+        QImage.Format_RGB32)
+
+
+def _kept(canvas):
+    from PySide6.QtGui import QImage
+    return canvas._picture.toImage().convertToFormat(QImage.Format_RGB32)
+
+
+def test_a_brush_dab_redraws_only_its_box(counted, qtbot, monkeypatch):
     canvas, stack, calls = counted
     panel = ct.BrushPanel(canvas, layer=stack["mask"])
     qtbot.addWidget(panel)
     panel.start_painting()
     canvas.repaint()
     before = len(calls)
+    pieces = []
+    original = stack._render_uint8_gathered
+
+    def counted_piece(view, rows=slice(None), cols=slice(None)):
+        piece = original(view, rows, cols)
+        pieces.append(piece.shape[:2])
+        return piece
+    monkeypatch.setattr(stack, "_render_uint8_gathered", counted_piece)
     QTest.mouseClick(canvas, Qt.LeftButton, pos=QPoint(110, 100))
     canvas.repaint()
-    assert len(calls) == before + 1
-    painted = canvas.grab().toImage()
+    assert len(calls) == before
+    assert len(pieces) == 1
+    h, w = canvas.canvas.shape
+    assert pieces[0][0] * pieces[0][1] < h * w // 4
+    assert _kept(canvas) == _full(canvas)
     for _ in range(10):
         canvas.repaint()
-    assert len(calls) == before + 1
+    assert len(calls) == before
     panel.undo()
     canvas.repaint()
-    assert len(calls) == before + 2
-    assert canvas.grab().toImage() != painted
+    assert len(calls) == before
+    assert _kept(canvas) == _full(canvas)
+
+
+def test_a_dab_on_another_grid_composites_everything(qtbot):
+    from spacr.layers import Spacing
+    stack = _stack()
+    stack.add_labels(np.zeros((8, 8), np.int64), name="coarse",
+                     spacing=Spacing.isotropic(2, 8.0, units="px"))
+    canvas = lv.LayerCanvas(stack)
+    qtbot.addWidget(canvas)
+    canvas.resize(220, 200)
+    canvas.show()
+    qtbot.waitExposed(canvas)
+    canvas.grab()
+    assert canvas._picture is not None
+    layer = stack["mask"]
+    layer.set_labels_at((np.array([5, 6]), np.array([5, 5])), 9)
+    assert canvas._picture is None
+    canvas.grab()
+    assert _kept(canvas) == _full(canvas)

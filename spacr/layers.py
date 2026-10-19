@@ -419,11 +419,43 @@ def label_colors(labels: Any, *, seed: int = 0) -> np.ndarray:
     out = np.zeros(arr.shape + (3,), dtype=np.float32)
     if arr.size == 0:
         return out
+    dense = _dense_label_colors(arr, seed)
+    if dense is not None:
+        return dense
     unique = np.unique(arr)
     lut = np.array([label_color(int(u), seed=seed) for u in unique],
                    dtype=np.float32)
     index = np.searchsorted(unique, arr)
     return lut[index]
+
+
+def _dense_label_colors(arr: np.ndarray, seed: int) -> Optional[np.ndarray]:
+    """:func:`label_colors` through a table indexed by the label itself.
+
+    Counting the labels with ``np.bincount`` finds the same labels as
+    ``np.unique`` without sorting every pixel, and indexing a table by the
+    label replaces the ``searchsorted``; the colours are the same float32
+    values. Only for non-negative integer labels small enough to index a
+    table of at most about a million rows.
+
+    :param arr: the labels.
+    :param seed: as for :func:`label_colors`.
+    :returns: the colours, or None when the labels do not qualify.
+    """
+    if arr.dtype.kind not in "ui" or arr.dtype.itemsize > 8:
+        return None
+    low, high = int(arr.min()), int(arr.max())
+    if low < 0 or high >= (1 << 20) or high > 4 * arr.size + 1024:
+        return None
+    flat = arr.reshape(-1)
+    if flat.dtype != np.intp:
+        flat = flat.astype(np.intp)
+    present = np.flatnonzero(np.bincount(flat, minlength=high + 1))
+    table = np.zeros((high + 1, 3), dtype=np.float32)
+    table[present] = np.array(
+        [label_color(int(u), seed=seed) for u in present],
+        dtype=np.float32).reshape(-1, 3)
+    return table[arr]
 
 
 
@@ -1987,6 +2019,30 @@ class Layer:
             index.append(np.clip(idx, 0, max(int(size) - 1, 0)))
         return tuple(index), valid
 
+    def _sample_vectors(self, canvas: Canvas) -> List[Tuple[int, Any, Any]]:
+        """:meth:`_sample_index` kept separable, one entry per data axis.
+
+        Each entry is ``(role, index, valid)``: role 0 follows the canvas
+        rows and 1 its columns, with ``index`` and ``valid`` one value per
+        row or column; role 2 is an axis pinned at :attr:`Canvas.depth`,
+        with scalar ``index`` and ``valid``. Broadcast together they are
+        exactly what :meth:`_sample_index` returns.
+        """
+        sp = self._spacing
+        vectors: List[Tuple[int, Any, Any]] = []
+        for axis_at, (axis, size) in enumerate(zip(sp.axes, self.shape)):
+            if axis == canvas.axes[0]:
+                role, world = 0, canvas.row_world()
+            elif axis == canvas.axes[1]:
+                role, world = 1, canvas.column_world()
+            else:
+                role, world = 2, np.float64(canvas.depth.get(axis, 0.0))
+            frac = (world - sp.translate[axis_at]) / sp.scale[axis_at]
+            idx = np.rint(frac).astype(np.int64)
+            ok = (idx >= 0) & (idx < int(size))
+            vectors.append((role, np.clip(idx, 0, max(int(size) - 1, 0)), ok))
+        return vectors
+
     def _notify(self, detail: str, kind: str = "changed") -> None:
         """Tell the stack this layer changed, if it is in one.
 
@@ -2317,7 +2373,17 @@ class ImageLayer(Layer):
         :returns: the rendered RGBA array.
         """
         index, valid = self._sample_index(canvas)
-        h, w = canvas.shape
+        return self._draw_sampled(index, valid)
+
+    def _draw_sampled(self, index, valid: np.ndarray
+                      ) -> Tuple[np.ndarray, np.ndarray]:
+        """:meth:`_draw` at data indices already sampled.
+
+        :param index: one index per data axis, broadcasting to ``valid``.
+        :param valid: which output pixels fall inside the data.
+        :returns: ``(rgb, coverage)`` at the shape of ``valid``.
+        """
+        h, w = valid.shape
         rgb = np.zeros((h, w, 3), dtype=np.float32)
         for c, plane in enumerate(self._planes):
             if not self._channel_visible[c]:
@@ -2591,6 +2657,8 @@ class LabelsLayer(Layer):
         changed = int(np.count_nonzero(previous != int(label)))
         if changed:
             self._data[index] = int(label)
+            self._painted_box = tuple((int(np.min(axis)), int(np.max(axis)) + 1)
+                                      for axis in index)
             self._notify("paint", kind="data")
         return changed
 
@@ -2615,6 +2683,16 @@ class LabelsLayer(Layer):
         :returns: the rendered RGBA array.
         """
         index, valid = self._sample_index(canvas)
+        return self._draw_sampled(index, valid)
+
+    def _draw_sampled(self, index, valid: np.ndarray
+                      ) -> Tuple[np.ndarray, np.ndarray]:
+        """:meth:`_draw` at data indices already sampled.
+
+        :param index: one index per data axis, broadcasting to ``valid``.
+        :param valid: which output pixels fall inside the data.
+        :returns: ``(rgb, coverage)`` at the shape of ``valid``.
+        """
         values = self._data[index]
         present = valid & (values != 0)
         rgb = label_colors(np.where(present, values, 0), seed=self._seed)
@@ -3782,7 +3860,84 @@ class LayerStack:
         :param canvas: World window and output grid on which to composite the
             stack.
         """
+        gathered = self._render_uint8_gathered(canvas)
+        if gathered is not None:
+            return gathered
         return np.clip(self.render(canvas) * 255.0 + 0.5, 0, 255).astype(np.uint8)
+
+    def _render_uint8_gathered(self, canvas: Canvas, rows: slice = slice(None),
+                               cols: slice = slice(None)
+                               ) -> Optional[np.ndarray]:
+        """:meth:`render_uint8` composited once per data pixel shown.
+
+        When every drawn layer is an image or labels layer sampling the same
+        data pixel for each canvas pixel, every canvas pixel is a function
+        of that one data pixel. The stack is then composited on the distinct
+        data rows and columns the canvas shows, by the same layer and
+        blending code, and the canvas gathers its pixels from that, so a
+        256 px mask shown at 1500 px composites 65 thousand pixels instead
+        of a million and a half, with the same bytes.
+
+        :param canvas: the world window.
+        :param rows: the canvas rows wanted, for redrawing part of it.
+        :param cols: the canvas columns wanted.
+        :returns: the picture, or None when the layers do not qualify.
+        """
+        drawn = [layer for layer in self._layers
+                 if layer.visible and layer.opacity > 0.0]
+        if not drawn or any(type(layer)._draw not in (ImageLayer._draw,
+                                                      LabelsLayer._draw)
+                            for layer in drawn):
+            return None
+        first = drawn[0]
+        vectors = first._sample_vectors(canvas)
+        for layer in drawn[1:]:
+            if layer.shape != first.shape:
+                return None
+            other = layer._sample_vectors(canvas)
+            if any(a[0] != b[0] or not np.array_equal(a[1], b[1])
+                   for a, b in zip(vectors, other)):
+                return None
+        vectors = [(role, idx[rows] if role == 0 else idx[cols] if role == 1
+                    else idx, ok[rows] if role == 0 else ok[cols] if role == 1
+                    else ok) for role, idx, ok in vectors]
+        h = len(range(*rows.indices(canvas.shape[0])))
+        w = len(range(*cols.indices(canvas.shape[1])))
+        if not all(bool(ok) for role, _, ok in vectors if role == 2):
+            return np.zeros((h, w, 3), dtype=np.uint8)
+        rows = cols = None
+        row_ok = np.ones(h, dtype=bool)
+        col_ok = np.ones(w, dtype=bool)
+        for role, idx, ok in vectors:
+            if role == 0:
+                rows, row_inv = np.unique(idx, return_inverse=True)
+                row_ok = row_ok & ok
+            elif role == 1:
+                cols, col_inv = np.unique(idx, return_inverse=True)
+                col_ok = col_ok & ok
+        if rows is None:
+            row_inv = np.zeros(h, dtype=np.intp)
+        if cols is None:
+            col_inv = np.zeros(w, dtype=np.intp)
+        n_rows = 1 if rows is None else len(rows)
+        n_cols = 1 if cols is None else len(cols)
+        index = tuple(rows[:, None] if role == 0 else
+                      cols[None, :] if role == 1 else idx
+                      for role, idx, _ in vectors)
+        valid = np.ones((n_rows, n_cols), dtype=bool)
+        rgb = np.zeros((n_rows, n_cols, 3), dtype=np.float32)
+        for layer in drawn:
+            src, coverage = layer._draw_sampled(index, valid)
+            rgb, _used = Blending.apply(
+                rgb, np.asarray(src, dtype=np.float32),
+                np.asarray(coverage, dtype=np.float32), layer.opacity,
+                layer.blending)
+        small = np.clip(rgb * 255.0 + 0.5, 0, 255).astype(np.uint8)
+        out = np.take(np.take(small, row_inv.reshape(-1), axis=0),
+                      col_inv.reshape(-1), axis=1)
+        out[~row_ok] = 0
+        out[:, ~col_ok] = 0
+        return out
 
     def pick(self, canvas: Canvas, row: float, column: float
              ) -> Tuple[Optional[Layer], Dict[str, float], Any]:
