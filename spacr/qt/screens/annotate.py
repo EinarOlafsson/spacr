@@ -120,13 +120,16 @@ from PySide6.QtWidgets import (
     QMenu,
     QMessageBox,
     QPlainTextEdit,
+    QProgressBar,
     QPushButton,
     QRadioButton,
     QRubberBand,
     QScrollArea,
     QSizePolicy,
+    QSlider,
     QSpinBox,
     QStackedWidget,
+    QTableWidget,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -134,6 +137,7 @@ from PySide6.QtWidgets import (
 from ..widgets.percentile_pair import (
     DECIMALS as PERCENTILE_DECIMALS)
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import _retire_table_cells, _spare_table_item
 from ..i18n import tr
 from ..bridge import drain_thread
 from ..job_runner import JobRunner
@@ -1043,7 +1047,16 @@ class _SuggestWorker(QThread):
     ``requestInterruption()``; it is honoured at the next step boundary and
     the run then emits ``cancelled`` instead of ``done``. A cancel before
     the writing step writes no suggestion; a cancel after the fit leaves
-    that round's scores, which only reorder the queue.
+    that round's scores, which only reorder the queue. ``scoring`` carries
+    how many crops the fitted round scored, for the progress bar.
+
+    THE MODEL IS DESCRIBED AND THE PROBABILITIES KEPT. After the fit the
+    run cross-validates the same estimator on the labels (the scorecard)
+    and, once it has ranked, leaves ``insight`` holding the model's
+    parameters, the scorecard and every proposal's per-class probability.
+    The screen re-thresholds those probabilities live without fitting
+    again; the run writes only the proposals its ``thresholds`` option
+    lets through.
 
     A SUGGESTION DOES NOT NEED A WELL-SEPARATED SCORE. The fit's held-out
     check keeps wells apart, and labels from one page often put a whole
@@ -1066,6 +1079,7 @@ class _SuggestWorker(QThread):
     progress = Signal(int, int, str)
     cancelled = Signal()
     split_relaxed = Signal(str)
+    scoring = Signal(int)
 
     def __init__(self, db_path: str, annotation_column: str,
                  options: Dict[str, object], *,
@@ -1093,7 +1107,9 @@ class _SuggestWorker(QThread):
         self._png_table = png_table
         self._only = None if only_paths is None else [str(p)
                                                       for p in only_paths]
+        self._thresholds = self._options.pop("thresholds", None)
         self.earlier_kept: Optional[bool] = None
+        self.insight: Optional[Dict[str, Any]] = None
 
     def _put_back(self, snapshot: Dict[str, int], cleared: bool) -> None:
         """Restore the suggestions this run cleared, when it wrote none.
@@ -1143,8 +1159,8 @@ class _SuggestWorker(QThread):
         from ...classifier_evaluation import _GroupedSplitImpossible
 
         try:
-            al.retrain_round(self._db_path, self._column, **round_kwargs)
-            return
+            return al.retrain_round(self._db_path, self._column,
+                                    **round_kwargs)
         except _GroupedSplitImpossible as exc:
             if str(round_kwargs.get("group_by", "well")).lower() in ("none",
                                                                 "cell"):
@@ -1152,11 +1168,67 @@ class _SuggestWorker(QThread):
             reason = str(exc)
         relaxed = dict(round_kwargs)
         relaxed["group_by"] = "none"
-        al.retrain_round(self._db_path, self._column, **relaxed)
+        result = al.retrain_round(self._db_path, self._column, **relaxed)
         try:
             self.split_relaxed.emit(reason)
         except RuntimeError:
             pass
+        return result
+
+    def _model_insight(self, al, round_kwargs: Dict[str, object], result,
+                       rejections: Dict[str, int]) -> Dict[str, Any]:
+        """What the model was fitted on, and a cross-validated scorecard.
+
+        Never fatal: a scorecard that cannot be computed is reported in
+        ``note`` and the suggestions are written regardless.
+
+        :param al: the ``spacr.active_learning`` module.
+        :param round_kwargs: the keyword arguments the round was fitted with.
+        :param result: the round's ``RoundResult``, or None.
+        :param rejections: the rejected suggestions handed to the fit.
+        :returns: ``model`` (parameters) and ``scorecard``.
+        """
+        from ...suggest import (_class_weights, _connect_read_only,
+                                _cross_validated_scorecard,
+                                _suggest_training_set)
+        from ...tabular import _read_query
+
+        model_type = str(round_kwargs.get("model_type", "gradient_boosting"))
+        model: Dict[str, Any] = {
+            "model_type": model_type,
+            "round": getattr(result, "round_index", None),
+            "split_rule": getattr(result, "split_rule", ""),
+            "holdout_accuracy": float(getattr(result, "accuracy",
+                                              float("nan"))),
+            "rejections": len(rejections),
+            "synthetic": int(round_kwargs.get("synthetic_negatives") or 0),
+            "balance": str(round_kwargs.get("balance", "none")),
+            "reweights": bool(al._model_reweights(model_type)),
+        }
+        try:
+            features = round_kwargs.get("features")
+            with _connect_read_only(self._db_path) as db:
+                crops = _read_query(
+                    db, f'SELECT png_path, "{self._column}" FROM '
+                    f'"{self._png_table}"', report=None)
+            x, labels, names = _suggest_training_set(
+                self._column, crops, features, rejections=rejections,
+                image_type=round_kwargs.get("image_type"))
+            counts: Dict[str, int] = {}
+            for value in labels:
+                counts[str(value)] = counts.get(str(value), 0) + 1
+            model.update({
+                "features": names, "class_counts": counts,
+                "weights": _class_weights(labels),
+                "leaf": al._leaf_size(len(labels)),
+            })
+            scorecard = _cross_validated_scorecard(
+                x, labels, model_type=model_type,
+                seed=int(round_kwargs.get("seed", 0) or 0))
+        except Exception as exc:
+            LOG.debug("no Suggest scorecard", exc_info=True)
+            scorecard = {"note": f"{type(exc).__name__}: {exc}"}
+        return {"model": model, "scorecard": scorecard}
 
     def run(self):
         """Fit, propose, write, and hand back what was proposed.
@@ -1172,8 +1244,13 @@ class _SuggestWorker(QThread):
         snapshot: Dict[str, int] = {}
         cleared = False
         try:
+            import numpy as np
+
             from ... import active_learning as al
-            from ...suggest import (_suggestion_snapshot,
+            from ...suggest import (_flat_probabilities,
+                                    _suggestion_snapshot,
+                                    _threshold_suggestions,
+                                    SUGGESTION_OFFSET as offset,
                                     rejected_suggestions, resolve_suggestions,
                                     suggest_from_scores, write_suggestions)
 
@@ -1203,21 +1280,46 @@ class _SuggestWorker(QThread):
                     channels=selection.get("feature_channels"),
                     families=selection.get("feature_families"))
             self._step(3, "fit")
-            self._fit(al, round_kwargs)
+            result = self._fit(al, round_kwargs)
+            insight = self._model_insight(al, round_kwargs, result,
+                                          rejections)
             self._step(4, "rank")
+            try:
+                self.scoring.emit(int(getattr(result, "scored", 0) or 0))
+            except RuntimeError:
+                pass
+            known = _round_classes(result)
             proposal = suggest_from_scores(
-                self._db_path, self._column, png_table=self._png_table)
+                self._db_path, self._column, png_table=self._png_table,
+                **({} if known is None else {"classes": known}))
             frame = proposal.frame
             if self._only is not None and not frame.empty:
                 frame = frame[frame["png_path"].isin(set(self._only))]
                 frame = frame.reset_index(drop=True)
                 proposal.frame = frame
                 proposal.scored = int(len(frame))
+            classes = list(proposal.classes)
+            chosen = _threshold_suggestions(frame, classes, self._thresholds)
+            writing = frame
+            if not frame.empty:
+                keep = ~np.isnan(chosen)
+                writing = frame[keep].copy()
+                writing["suggested"] = chosen[keep].astype(int)
+                writing["stored"] = writing["suggested"] + offset
+            insight.update({
+                "frame": frame, "classes": classes,
+                "thresholds": self._thresholds,
+                "flat": _flat_probabilities(frame, classes),
+                "applied": {str(p): (None if np.isnan(c) else int(c))
+                            for p, c in zip(frame.get("png_path", []),
+                                            chosen)},
+            })
+            self.insight = insight
             self._step(5, "write")
             written = 0
-            if not frame.empty:
+            if not writing.empty:
                 written = write_suggestions(
-                    self._db_path, self._column, frame,
+                    self._db_path, self._column, writing,
                     png_table=self._png_table)
         except _SuggestCancelled:
             self._put_back(snapshot, cleared)
@@ -1237,6 +1339,24 @@ class _SuggestWorker(QThread):
             self.done.emit((proposal, written, len(rejections)))
         except RuntimeError:
             pass
+
+
+def _round_classes(result) -> Optional[List[int]]:
+    """The class values a round's score columns stand for, in column order.
+
+    :param result: a ``RoundResult``, or None from a stand-in fit.
+    :returns: integer class values, or None to let the column decide.
+    """
+    names = list(getattr(result, "classes", None) or [])
+    if not names:
+        return None
+    out: List[int] = []
+    for name in names:
+        try:
+            out.append(int(float(name)))
+        except (TypeError, ValueError):
+            return None
+    return out
 
 
 def _retire(obj) -> bool:
@@ -1491,6 +1611,543 @@ def _known(chosen: Optional[Sequence[str]],
         return None
     kept = [n for n in chosen if n in names]
     return kept or None
+
+
+class _ProbabilityHistogram(QWidget):
+    """Bars of out-of-fold probabilities per true class, with the thresholds.
+
+    Painted rather than plotted: it redraws on every threshold move, and a
+    figure canvas would be rebuilt each time.
+    """
+
+    BINS = 10
+
+    def __init__(self, parent=None):
+        """An empty histogram; :meth:`set_distribution` fills it."""
+        super().__init__(parent)
+        self.setObjectName("AnnotateSuggestHistogram")
+        self.setMinimumHeight(150)
+        self._classes: List[Any] = []
+        self._counts: Dict[str, List[int]] = {}
+        self._lines: List[float] = []
+        self._axis = ""
+
+    def set_distribution(self, classes: Sequence[Any],
+                         values: Dict[str, Sequence[float]],
+                         axis: str) -> None:
+        """Bin each class's probabilities into tenths.
+
+        :param classes: the class values, in order.
+        :param values: ``{str(class): probabilities}``.
+        :param axis: what the horizontal axis shows.
+        """
+        import numpy as np
+
+        self._classes = list(classes)
+        self._counts = {}
+        for value in self._classes:
+            data = np.asarray(values.get(str(value), []), dtype=float)
+            hist, _ = np.histogram(data, bins=self.BINS, range=(0.0, 1.0))
+            self._counts[str(value)] = [int(v) for v in hist]
+        self._axis = str(axis)
+        self.update()
+
+    def set_lines(self, lines: Sequence[float]) -> None:
+        """Mark the thresholds now in force on the probability axis."""
+        self._lines = [float(v) for v in lines]
+        self.update()
+
+    def counts(self) -> Dict[str, List[int]]:
+        """``{str(class): crops per tenth}``, as drawn."""
+        return {k: list(v) for k, v in self._counts.items()}
+
+    def lines(self) -> List[float]:
+        """The threshold positions drawn."""
+        return list(self._lines)
+
+    def paintEvent(self, event):
+        """Draw the bars, the threshold lines and the axis."""
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            palette = tile_palette()
+            text = QColor(palette["fg_muted"])
+            metrics = painter.fontMetrics()
+            bottom = self.height() - 2 * metrics.height() - 4
+            top = 6
+            left, right = 8, self.width() - 8
+            width = max(1, right - left)
+            height = max(1, bottom - top)
+            peak = max([max(v) for v in self._counts.values() if v] or [0])
+            n = max(1, len(self._classes))
+            slot = width / float(self.BINS)
+            bar = max(1.0, (slot - 4.0) / n)
+            for b in range(self.BINS):
+                for i, value in enumerate(self._classes):
+                    count = self._counts.get(str(value), [0] * self.BINS)[b]
+                    if not count or not peak:
+                        continue
+                    h = height * count / float(peak)
+                    colour = label_to_hex(value if isinstance(value, int)
+                                          else None, dark=on_dark_theme())
+                    painter.fillRect(
+                        QRectF(left + b * slot + 2 + i * bar, bottom - h,
+                               bar, h),
+                        QColor(colour or resting_border_color()))
+            painter.setPen(QPen(text, 1))
+            painter.drawLine(left, bottom, right, bottom)
+            dash = QPen(QColor(palette["warning"]), 2)
+            dash.setStyle(Qt.DashLine)
+            painter.setPen(dash)
+            for value in self._lines:
+                x = left + width * min(1.0, max(0.0, value))
+                painter.drawLine(int(x), top, int(x), bottom)
+            painter.setPen(QPen(text, 1))
+            base = bottom + metrics.ascent() + 2
+            painter.drawText(left, base, "0")
+            middle = "0.5"
+            painter.drawText(int(left + width / 2 - metrics.horizontalAdvance(
+                middle) / 2), base, middle)
+            painter.drawText(right - metrics.horizontalAdvance("1"), base, "1")
+            painter.drawText(QRect(left, base + 2, width, metrics.height()),
+                             Qt.AlignHCenter, self._axis)
+        finally:
+            painter.end()
+
+
+class _SuggestModelDialog(QDialog):
+    """The last Suggest model: what it was fitted on, its scorecard, thresholds.
+
+    Non-modal, so the pages stay usable while it is open. Every threshold
+    control re-thresholds the probabilities the run cached: the screen
+    rewrites only the suggestions that changed, and nothing is fitted.
+    A move is applied once the controls have been still for a moment
+    (``DEBOUNCE_MS``), so dragging the slider does not write on every pixel.
+    """
+
+    DEBOUNCE_MS = 120
+
+    thresholds_changed = Signal(object)
+
+    def __init__(self, parent=None):
+        """Build the empty sections; :meth:`set_insight` fills them."""
+        super().__init__(parent)
+        self.setObjectName("AnnotateSuggestModelDialog")
+        self.setWindowTitle(tr("Suggestion model"))
+        self.setModal(False)
+        self._classes: List[Any] = []
+        self._filling = False
+        outer = QVBoxLayout(self)
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        body = QWidget(scroll)
+        layout = QVBoxLayout(body)
+        scroll.setWidget(body)
+        outer.addWidget(scroll, 1)
+
+        def section(text):
+            """A bold heading between sections."""
+            label = QLabel(text, body)
+            font = label.font()
+            font.setBold(True)
+            label.setFont(font)
+            layout.addWidget(label)
+
+        section(tr("Model"))
+        self._summary = QLabel(body)
+        self._summary.setObjectName("AnnotateSuggestModelSummary")
+        self._summary.setWordWrap(True)
+        layout.addWidget(self._summary)
+        self._classes_table = QTableWidget(0, 4, body)
+        self._classes_table.setObjectName("AnnotateSuggestModelClasses")
+        self._classes_table.setHorizontalHeaderLabels(
+            [tr("Class"), tr("Training labels"), tr("Share"),
+             tr("Class weight")])
+        self._classes_table.verticalHeader().setVisible(False)
+        self._classes_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(self._classes_table)
+        self._features = QPlainTextEdit(body)
+        self._features.setObjectName("AnnotateSuggestModelFeatures")
+        self._features.setReadOnly(True)
+        self._features.setMaximumHeight(90)
+        layout.addWidget(self._features)
+
+        section(tr("Cross-validated scorecard on your labels"))
+        self._score_note = QLabel(body)
+        self._score_note.setObjectName("AnnotateSuggestScoreNote")
+        self._score_note.setWordWrap(True)
+        layout.addWidget(self._score_note)
+        self._scorecard = QTableWidget(0, 5, body)
+        self._scorecard.setObjectName("AnnotateSuggestScorecard")
+        self._scorecard.setHorizontalHeaderLabels(
+            [tr("Class"), tr("Precision"), tr("Recall"), tr("F1 score"),
+             tr("Support")])
+        self._scorecard.verticalHeader().setVisible(False)
+        self._scorecard.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(self._scorecard)
+        glossary = QLabel(tr(
+            "Precision: of the crops the model calls a class, the share that "
+            "are that class. Recall: of the crops of a class, the share the "
+            "model finds. F1 score: the harmonic mean of precision and "
+            "recall. Support: how many labelled crops of the class were "
+            "scored. Accuracy: the share of all labelled crops predicted "
+            "correctly; balanced accuracy is the mean recall over classes, "
+            "so a large class cannot carry it. The majority-class baseline "
+            "is the control: it suggests the largest class for every crop. "
+            "Every labelled crop is predicted by a model fitted without it "
+            "(stratified k-fold cross-validation)."), body)
+        glossary.setObjectName("AnnotateSuggestGlossary")
+        glossary.setWordWrap(True)
+        layout.addWidget(glossary)
+        layout.addWidget(QLabel(tr(
+            "Confusion matrix: rows are your labels, columns the model's "
+            "out-of-fold suggestion."), body))
+        self._confusion = QTableWidget(0, 0, body)
+        self._confusion.setObjectName("AnnotateSuggestConfusion")
+        self._confusion.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(self._confusion)
+        self._histogram = _ProbabilityHistogram(body)
+        layout.addWidget(self._histogram)
+
+        section(tr("Thresholds"))
+        self._live_note = QLabel(body)
+        self._live_note.setObjectName("AnnotateSuggestLiveNote")
+        self._live_note.setWordWrap(True)
+        self._live_note.hide()
+        layout.addWidget(self._live_note)
+        self._threshold_box = QWidget(body)
+        self._threshold_layout = QFormLayout(self._threshold_box)
+        layout.addWidget(self._threshold_box)
+        self._counts = QLabel(body)
+        self._counts.setObjectName("AnnotateSuggestCounts")
+        self._counts.setWordWrap(True)
+        layout.addWidget(self._counts)
+        layout.addStretch(1)
+
+        self._slider: Optional[QSlider] = None
+        self._slider_value: Optional[QLabel] = None
+        self._band: Optional[QCheckBox] = None
+        self._low: Optional[QDoubleSpinBox] = None
+        self._high: Optional[QDoubleSpinBox] = None
+        self._minimum: Dict[str, QDoubleSpinBox] = {}
+        self._margin: Optional[QDoubleSpinBox] = None
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        buttons.rejected.connect(self.close)
+        outer.addWidget(buttons)
+        self._debounce = QTimer(self)
+        self._debounce.setSingleShot(True)
+        self._debounce.setInterval(self.DEBOUNCE_MS)
+        self._debounce.timeout.connect(self._emit_thresholds)
+        self.resize(640, 760)
+
+    def _probability_spin(self, value: float, name: str) -> QDoubleSpinBox:
+        """A 0-to-1 spin box that reports a change."""
+        spin = QDoubleSpinBox(self._threshold_box)
+        spin.setObjectName(name)
+        spin.setRange(0.0, 1.0)
+        spin.setSingleStep(0.05)
+        spin.setDecimals(2)
+        spin.setValue(float(value))
+        spin.valueChanged.connect(self._schedule)
+        return spin
+
+    def _clear_threshold_controls(self) -> None:
+        """Take the controls of the previous class set out of the form."""
+        while self._threshold_layout.rowCount():
+            self._threshold_layout.removeRow(0)
+        self._slider = self._slider_value = self._band = None
+        self._low = self._high = self._margin = None
+        self._minimum = {}
+
+    def _build_threshold_controls(self, classes: Sequence[Any],
+                                  rule: Dict[str, Any]) -> None:
+        """The controls for this class set: a threshold, or per-class floors."""
+        self._clear_threshold_controls()
+        form = self._threshold_layout
+        if len(classes) == 2:
+            first, second = classes
+            self._slider = QSlider(Qt.Horizontal, self._threshold_box)
+            self._slider.setObjectName("AnnotateSuggestThreshold")
+            self._slider.setRange(0, 100)
+            self._slider.setValue(int(round(float(rule["threshold"]) * 100)))
+            self._slider.valueChanged.connect(self._on_slider)
+            self._slider_value = QLabel(self._threshold_box)
+            self._slider_value.setObjectName("AnnotateSuggestThresholdValue")
+            holder = QWidget(self._threshold_box)
+            row = QHBoxLayout(holder)
+            row.setContentsMargins(0, 0, 0, 0)
+            row.addWidget(self._slider, 1)
+            row.addWidget(self._slider_value)
+            form.addRow(tr("Suggest class {b} from probability",
+                           b=second), holder)
+            self._band = QCheckBox(tr(
+                "Confident only: no suggestion between the two probabilities "
+                "below"), self._threshold_box)
+            self._band.setObjectName("AnnotateSuggestBand")
+            self._band.setChecked(bool(rule.get("band")))
+            self._band.toggled.connect(self._on_band)
+            form.addRow(self._band)
+            self._low = self._probability_spin(rule["low"],
+                                               "AnnotateSuggestBandLow")
+            self._high = self._probability_spin(rule["high"],
+                                                "AnnotateSuggestBandHigh")
+            form.addRow(tr("Suggest class {a} below", a=first), self._low)
+            form.addRow(tr("Suggest class {b} above", b=second), self._high)
+            self._on_band(bool(rule.get("band")), emit=False)
+            self._show_slider_value()
+        else:
+            minimum = rule.get("minimum") or {}
+            for value in classes:
+                spin = self._probability_spin(
+                    float(minimum.get(str(value), 0.0)),
+                    f"AnnotateSuggestMinimum{value}")
+                self._minimum[str(value)] = spin
+                form.addRow(tr("Class {c}: minimum probability", c=value),
+                            spin)
+            self._margin = self._probability_spin(
+                float(rule.get("margin", 0.0)), "AnnotateSuggestMargin")
+            form.addRow(tr("Lead over the runner-up class, at least"),
+                        self._margin)
+
+    def _show_slider_value(self) -> None:
+        """Write the slider's probability beside it."""
+        if self._slider is not None and self._slider_value is not None:
+            self._slider_value.setText(f"{self._slider.value() / 100:.2f}")
+
+    @Slot(int)
+    def _on_slider(self, _value: int) -> None:
+        """Show the new threshold and schedule it."""
+        self._show_slider_value()
+        self._schedule()
+
+    @Slot(bool)
+    def _on_band(self, on: bool, emit: bool = True) -> None:
+        """Enable the band's two probabilities, or the single threshold."""
+        for spin in (self._low, self._high):
+            if spin is not None:
+                spin.setEnabled(bool(on))
+        if self._slider is not None:
+            self._slider.setEnabled(not on)
+        if emit:
+            self._schedule()
+
+    @Slot()
+    def _schedule(self, *_args) -> None:
+        """Apply the controls once they have been still for a moment."""
+        if not self._filling:
+            self._debounce.start()
+
+    @Slot()
+    def _emit_thresholds(self) -> None:
+        """Hand the thresholds now set to the screen."""
+        self._debounce.stop()
+        rule = self.thresholds()
+        self._histogram.set_lines(self._lines_for(rule))
+        self.thresholds_changed.emit(rule)
+
+    def apply_now(self) -> None:
+        """Apply a pending move at once rather than after the pause."""
+        self._emit_thresholds()
+
+    def thresholds(self) -> Dict[str, Any]:
+        """The threshold set the controls describe."""
+        from ...suggest import _default_thresholds
+
+        rule = dict(_default_thresholds(self._classes))
+        if self._slider is not None:
+            rule["threshold"] = self._slider.value() / 100.0
+        if self._band is not None:
+            rule["band"] = bool(self._band.isChecked())
+        if self._low is not None and self._high is not None:
+            low, high = float(self._low.value()), float(self._high.value())
+            rule["low"], rule["high"] = min(low, high), max(low, high)
+        if self._minimum:
+            rule["minimum"] = {k: float(s.value())
+                               for k, s in self._minimum.items()}
+        if self._margin is not None:
+            rule["margin"] = float(self._margin.value())
+        return rule
+
+    def _lines_for(self, rule: Dict[str, Any]) -> List[float]:
+        """Where the thresholds sit on the histogram's probability axis."""
+        if len(self._classes) == 2:
+            if rule.get("band"):
+                return [float(rule["low"]), float(rule["high"])]
+            return [float(rule["threshold"])]
+        floors = [float(v) for v in (rule.get("minimum") or {}).values()
+                  if float(v) > 0]
+        return sorted(set(floors))
+
+    def set_live(self, live: bool, note: str = "") -> None:
+        """Allow or refuse threshold moves, saying why when refused."""
+        self._threshold_box.setEnabled(bool(live))
+        self._live_note.setText(note)
+        self._live_note.setVisible(bool(note) and not live)
+
+    def set_insight(self, insight: Dict[str, Any],
+                    thresholds: Optional[Dict[str, Any]] = None) -> None:
+        """Show a run's model, scorecard and threshold controls.
+
+        :param insight: the Suggest worker's ``insight``.
+        :param thresholds: the screen's current thresholds, or None.
+        """
+        from ...suggest import _default_thresholds
+
+        classes = list(insight.get("classes") or [])
+        rule = dict(_default_thresholds(classes))
+        rule.update(thresholds or {})
+        self._filling = True
+        try:
+            self._fill_model(insight, classes)
+            self._fill_scorecard(insight.get("scorecard") or {}, classes)
+            if classes != self._classes or not self._threshold_layout.rowCount():
+                self._classes = classes
+                self._build_threshold_controls(classes, rule)
+        finally:
+            self._filling = False
+        self._histogram.set_lines(self._lines_for(self.thresholds()))
+
+    def _fill_model(self, insight: Dict[str, Any], classes) -> None:
+        """The parameters section."""
+        model = insight.get("model") or {}
+        kind = str(model.get("model_type", ""))
+        if kind in ("gradient_boosting", "hist_gradient_boosting", "gb"):
+            name = tr("gradient-boosted trees (scikit-learn "
+                      "HistGradientBoostingClassifier)")
+        else:
+            name = kind
+        if str(model.get("balance")) == "downsample":
+            balance = tr("larger classes cut down to the size of the smallest")
+        elif model.get("reweights"):
+            balance = tr("class weights inversely proportional to class size "
+                         "(balanced), so a small class counts as much as a "
+                         "large one")
+        else:
+            balance = tr("none")
+        counts = model.get("class_counts") or {}
+        features = list(model.get("features") or [])
+        lines = [tr("Model: {name}. Fitted on {n} labels with {f} features. "
+                    "Class balance: {balance}.", name=name,
+                    n=f"{sum(counts.values()):,}", f=f"{len(features):,}",
+                    balance=balance)]
+        leaf = model.get("leaf")
+        if leaf:
+            lines.append(tr("Each tree leaf holds at least {n} labels.",
+                            n=leaf))
+        if model.get("synthetic"):
+            lines.append(tr(
+                "{n} negatives were drawn at random from unlabelled crops "
+                "because only one class is annotated.",
+                n=f"{int(model['synthetic']):,}"))
+        if model.get("rejections"):
+            lines.append(tr(
+                "{n} rejected suggestions were fitted as the other class.",
+                n=f"{int(model['rejections']):,}"))
+        if insight.get("flat"):
+            lines.append(tr(
+                "Warning: the model gives every crop the same probability, so "
+                "it has learned nothing that separates the classes. The usual "
+                "causes are features that do not differ between the classes "
+                "or too few labels."))
+        self._summary.setText("\n".join(lines))
+        weights = model.get("weights") or {}
+        total = float(sum(counts.values()) or 1)
+        table = self._classes_table
+        _retire_table_cells(table)
+        names = [str(c) for c in classes] or sorted(counts)
+        table.setRowCount(len(names))
+        for row, key in enumerate(names):
+            n = int(counts.get(key, 0))
+            cells = (key, f"{n:,}", f"{100.0 * n / total:.1f}%",
+                     f"{float(weights.get(key, 0.0)):.2f}")
+            for column, text in enumerate(cells):
+                table.setItem(row, column, _spare_table_item(table, text))
+        self._features.setPlainText("\n".join(features))
+
+    def _fill_scorecard(self, card: Dict[str, Any], classes) -> None:
+        """The scorecard, confusion matrix and probability histogram."""
+        import numpy as np
+
+        names = [str(c) for c in (card.get("classes") or classes)]
+        table = self._scorecard
+        _retire_table_cells(table)
+        confusion = self._confusion
+        _retire_table_cells(confusion)
+        if "accuracy" not in card:
+            self._score_note.setText(tr(
+                "No scorecard: {why}.",
+                why=card.get("note") or tr("the run did not compute one")))
+            confusion.setColumnCount(0)
+            self._histogram.set_distribution([], {}, "")
+            return
+        self._score_note.setText(tr(
+            "{k}-fold cross-validation on {n} labels. Accuracy {acc} "
+            "(balanced accuracy {bal}); the majority-class baseline, which "
+            "always suggests class {c}, scores {base} (balanced accuracy "
+            "{bbase}).", k=card["folds"], n=f"{int(card['n']):,}",
+            acc=f"{card['accuracy']:.2f}",
+            bal=f"{card['balanced_accuracy']:.2f}",
+            c=card["baseline_class"], base=f"{card['baseline_accuracy']:.2f}",
+            bbase=f"{card['baseline_balanced_accuracy']:.2f}"))
+        rows = []
+        for i, name in enumerate(names):
+            rows.append((name, f"{card['precision'][i]:.2f}",
+                         f"{card['recall'][i]:.2f}", f"{card['f1'][i]:.2f}",
+                         f"{int(card['support'][i]):,}"))
+        rows.append((tr("Mean over classes (macro)"),
+                     f"{float(np.mean(card['precision'])):.2f}",
+                     f"{float(np.mean(card['recall'])):.2f}",
+                     f"{card['f1_macro']:.2f}", f"{int(card['n']):,}"))
+        rows.append((tr("Majority-class baseline (control)"), "—",
+                     f"{card['baseline_balanced_accuracy']:.2f}",
+                     f"{card['baseline_f1_macro']:.2f}",
+                     f"{int(card['n']):,}"))
+        table.setRowCount(len(rows))
+        for r, cells in enumerate(rows):
+            for c, text in enumerate(cells):
+                table.setItem(r, c, _spare_table_item(table, text))
+        matrix = card["confusion"]
+        if confusion.columnCount() != len(names):
+            confusion.setColumnCount(len(names))
+            confusion.setHorizontalHeaderLabels(
+                [tr("Suggested {c}", c=n) for n in names])
+        confusion.setRowCount(len(names))
+        confusion.setVerticalHeaderLabels([tr("Labelled {c}", c=n)
+                                           for n in names])
+        for r in range(len(names)):
+            for c in range(len(names)):
+                confusion.setItem(r, c, _spare_table_item(
+                    confusion, f"{int(matrix[r][c]):,}"))
+        oof = np.asarray(card["oof"], dtype=float)
+        truth = np.asarray(card["truth"], dtype=int)
+        values: Dict[str, Sequence[float]] = {}
+        typed = list(card.get("classes") or classes)
+        if len(names) == 2:
+            for i, name in enumerate(names):
+                values[name] = oof[truth == i, 1]
+            axis = tr("Out-of-fold probability of class {c}, by your label",
+                      c=names[1])
+        else:
+            for i, name in enumerate(names):
+                values[name] = oof[truth == i, i]
+            axis = tr("Out-of-fold probability of the labelled class")
+        self._histogram.set_distribution(typed, values, axis)
+
+    def set_counts(self, counts: Optional[Dict[str, int]]) -> None:
+        """Say how many crops each class is suggested for now."""
+        if not counts:
+            self._counts.setText("")
+            return
+        parts = [tr("class {c}: {n}", c=key, n=f"{int(n):,}")
+                 for key, n in counts.items() if key != "withheld"]
+        self._counts.setText(tr(
+            "Suggested now: {parts}. Withheld by the thresholds: {w}.",
+            parts=" · ".join(parts), w=f"{int(counts.get('withheld', 0)):,}"))
+
+    def counts_text(self) -> str:
+        """The counts line, as shown."""
+        return self._counts.text()
 
 
 class _TextReportDialog(QDialog):
@@ -2398,6 +3055,127 @@ def _blind_order(rows, rank: Dict[str, int]) -> list:
         return (1, 0, hashlib.sha256(path.encode("utf-8")).hexdigest())
 
     return sorted(rows, key=position)
+
+
+#: The orders the Annotate pages can be put in, as (key, needs scores).
+SORT_ORDERS = ("original", "class_last", "class_first", "probability_high",
+               "probability_low")
+
+
+def _crop_confidences(db_path: str, table: str) -> Dict[str, float]:
+    """Each crop's highest class probability from the last round.
+
+    :param db_path: the annotation database.
+    :param table: the crop table.
+    :returns: ``{png_path: probability}`` for the crops a round scored.
+    """
+    import numpy as np
+
+    from ...active_learning import as_probabilities
+    from ...suggest import _connect_read_only, _score_columns
+
+    with _connect_read_only(db_path) as db:
+        try:
+            names = [row[1] for row in db.execute(
+                f'PRAGMA table_info("{table}")').fetchall()]
+        except Exception:
+            return {}
+        cols = _score_columns(names)
+        if not cols:
+            return {}
+        picked = ", ".join(f'"{c}"' for c in cols)
+        rows = db.execute(
+            f'SELECT png_path, {picked} FROM "{table}"').fetchall()
+    if not rows:
+        return {}
+    paths = [str(r[0]) for r in rows]
+    raw = np.asarray([[np.nan if v is None else float(v) for v in r[1:]]
+                      for r in rows], dtype=float)
+    usable = ~np.isnan(raw).any(axis=1)
+    if not usable.any():
+        return {}
+    best = as_probabilities(raw[usable]).max(axis=1)
+    kept = [p for p, ok in zip(paths, usable) if ok]
+    return dict(zip(kept, (float(v) for v in best)))
+
+
+def _sort_rows(rows, mode: str,
+               confidences: Optional[Dict[str, float]] = None) -> list:
+    """``rows`` in the order the Annotate "Order" control asks for.
+
+    Stable, so crops that tie keep the order they came in, which is the
+    blinding key's order while blinded.
+
+    :param rows: ``(png_path, annotation)`` pairs.
+    :param mode: one of :data:`SORT_ORDERS`. ``class_last`` and
+        ``class_first`` sort by class, a suggestion right after the answers
+        of its own class, with unlabelled crops last or first;
+        ``probability_high`` and ``probability_low`` sort by the last
+        round's probability for the crop's most probable class, crops
+        without a score last.
+    :param confidences: from :func:`_crop_confidences`, for the
+        probability orders.
+    :returns: the rows, reordered; ``original`` returns them unchanged.
+    """
+    rows = list(rows)
+    if mode in ("class_last", "class_first"):
+        unlabelled_rank = 1 if mode == "class_last" else -1
+
+        def by_class(row):
+            """Answers by class, each class's suggestions after its answers."""
+            value = row[1]
+            try:
+                value = int(value)
+            except (TypeError, ValueError):
+                return (unlabelled_rank, 0, 0)
+            if value <= 0:
+                return (unlabelled_rank, 0, 0)
+            if value > SUGGESTION_OFFSET:
+                return (0, value - SUGGESTION_OFFSET, 1)
+            return (0, value, 0)
+
+        return sorted(rows, key=by_class)
+    if mode in ("probability_high", "probability_low"):
+        scores = confidences or {}
+        sign = -1.0 if mode == "probability_high" else 1.0
+
+        def by_probability(row):
+            """Scored crops by probability, unscored ones after them."""
+            p = scores.get(str(row[0]))
+            if p is None:
+                return (1, 0.0)
+            return (0, sign * float(p))
+
+        return sorted(rows, key=by_probability)
+    return rows
+
+
+def _sorted_total(outcome: dict, s: AnnotateSettings, mode: str) -> dict:
+    """A population count with its rows in the "Order" control's order.
+
+    Runs on the same worker as :func:`_compute_total`; the unfiltered
+    population is read whole, as it is while blinded.
+
+    :param outcome: what :func:`_compute_total` (and blinding) returned.
+    :param s: a frozen copy of the screen's settings.
+    :param mode: one of :data:`SORT_ORDERS`.
+    :returns: ``outcome``, reordered unless the order is ``original``.
+    """
+    if mode not in SORT_ORDERS or mode == "original":
+        return outcome
+    rows = outcome.get("filtered_rows")
+    if rows is None:
+        rows = fetch_page(s.db_path, s.annotation_column, 0, -1,
+                          s.image_type, table=s.png_table)
+    confidences = None
+    if mode.startswith("probability"):
+        try:
+            confidences = _crop_confidences(s.db_path, s.png_table)
+        except Exception:
+            LOG.debug("no round scores to order by", exc_info=True)
+            confidences = {}
+    ordered = _sort_rows(rows, mode, confidences)
+    return dict(outcome, filtered_rows=ordered, total=len(ordered))
 
 
 def _blinded_total(outcome: dict, s: AnnotateSettings,
@@ -3674,6 +4452,14 @@ class AnnotateScreen(QWidget):
         #: withheld: accepting two thousand mostly-negative guesses in one
         #: click is the worst thing this button could do.
         self._suggestions_are_a_ranking = False
+        #: The last Suggest run's cached probabilities and model insight,
+        #: re-thresholded live by the Suggestion model window.
+        self._suggest_cache: Optional[Dict[str, Any]] = None
+        self._suggest_applied: Dict[str, Optional[int]] = {}
+        self._suggest_probs: Dict[str, Dict[int, float]] = {}
+        self._suggest_thresholds: Optional[Dict[str, Any]] = None
+        self._suggest_model_dialog: Optional["_SuggestModelDialog"] = None
+        self._sort_mode = "original"
         self._last_round = None
         self._stop_verdict = None
         self._object_request = None
@@ -3998,6 +4784,32 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
         self._btn_suggest_cancel.hide()
         row.addWidget(self._btn_suggest_cancel)
+
+        self._suggest_progress = QProgressBar()
+        self._suggest_progress.setObjectName("AnnotateSuggestProgress")
+        self._suggest_progress.setRange(0, _SuggestWorker.STEPS)
+        self._suggest_progress.setTextVisible(True)
+        self._suggest_progress.setMinimumWidth(220)
+        self._suggest_progress.setToolTip(tr(
+            "How far the suggestion run has got. The window stays usable "
+            "while it runs; Cancel stops it at its next step."))
+        self._suggest_progress.hide()
+        row.addWidget(self._suggest_progress)
+
+        self._btn_suggest_model = QPushButton(tr("Suggestion model…"))
+        self._btn_suggest_model.setObjectName("AnnotateSuggestModel")
+        self._btn_suggest_model.setIcon(iconset.icon("chart"))
+        self._btn_suggest_model.setCursor(Qt.PointingHandCursor)
+        self._btn_suggest_model.setToolTip(tr(
+            "Show what the last Suggest model was fitted on, how it scores "
+            "on your own labels by cross-validation, and the thresholds "
+            "that decide which crops get a suggestion. Moving a threshold "
+            "updates the suggestions on the pages at once, without fitting "
+            "again."))
+        self._btn_suggest_model.clicked.connect(self._open_suggest_model)
+        self._btn_suggest_model.setEnabled(False)
+        row.addWidget(self._btn_suggest_model)
+        row.addWidget(self._build_sort_control())
 
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
@@ -6265,6 +7077,13 @@ class AnnotateScreen(QWidget):
         self._btn_suggest.setEnabled(False)
         self._btn_suggest_cancel.setEnabled(True)
         self._btn_suggest_cancel.show()
+        self._suggest_progress.setValue(0)
+        self._suggest_progress.setFormat(tr("Starting…"))
+        self._suggest_progress.show()
+        if self._suggest_model_dialog is not None:
+            self._suggest_model_dialog.set_live(False, tr(
+                "A suggestion run is going; the thresholds apply to its "
+                "result when it finishes."))
         self._status_label.setText(
             "Fitting on the labels so far, then suggesting…")
         self._console.append_notice(
@@ -6273,11 +7092,13 @@ class AnnotateScreen(QWidget):
             self._settings.db_path, self._settings.annotation_column,
             {"round_index": self._round_index,
              "model_type": "gradient_boosting",
-             "balance": "downsample",
+             "balance": "none",
              "measure": self._settings.queue_measure,
              "diversity": self._settings.queue_diversity,
              "image_type": self._settings.image_type,
              "synthetic_negatives": synthetic,
+             "thresholds": (None if self._suggest_thresholds is None
+                            else dict(self._suggest_thresholds)),
              **self._suggest_selection_options(selection)},
             png_table=self._settings.png_table,
             only_paths=only, parent=self)
@@ -6317,7 +7138,8 @@ class AnnotateScreen(QWidget):
         pairs = []
         for name, slot in (("progress", self._on_suggest_progress),
                            ("cancelled", self._on_suggest_cancelled),
-                           ("split_relaxed", self._on_suggest_split_relaxed)):
+                           ("split_relaxed", self._on_suggest_split_relaxed),
+                           ("scoring", self._on_suggest_scoring)):
             signal = getattr(worker, name, None)
             if signal is not None and hasattr(signal, "connect"):
                 pairs.append((signal, slot))
@@ -6354,6 +7176,26 @@ class AnnotateScreen(QWidget):
         self._status_label.setText(tr(
             "Suggest: step {n} of {total} — {what}…",
             n=int(step), total=int(total), what=what))
+        stage_text = {
+            "clear": tr("Clearing earlier suggestions…"),
+            "features": tr("Reading features…"),
+            "fit": tr("Training and cross-validating…"),
+            "rank": tr("Scoring crops…"),
+            "write": tr("Writing suggestions…"),
+        }.get(str(stage), str(stage))
+        bar = self._suggest_progress
+        bar.setRange(0, max(1, int(total)))
+        bar.setValue(max(0, int(step) - 1))
+        bar.setFormat(stage_text)
+
+    @Slot(int)
+    def _on_suggest_scoring(self, count: int) -> None:
+        """Say how many crops the fitted model is scoring.
+
+        :param count: the crops the round scored.
+        """
+        self._suggest_progress.setFormat(tr(
+            "Scoring {n} crops…", n=f"{int(count):,}"))
 
     @Slot()
     def _on_suggest_cancelled(self) -> None:
@@ -6399,6 +7241,7 @@ class AnnotateScreen(QWidget):
         proposal, written = payload[0], payload[1]
         rejections = int(payload[2]) if len(payload) > 2 else 0
         note = getattr(proposal, "note", "") or ""
+        self._take_suggest_insight()
         if not written:
             message = note or "nothing was left to suggest a label for"
             self._console.append_notice(
@@ -6479,8 +7322,12 @@ class AnnotateScreen(QWidget):
         try:
             self._btn_suggest.setEnabled(True)
             self._btn_suggest_cancel.hide()
+            self._suggest_progress.hide()
         except RuntimeError:
             return
+        dialog = self._suggest_model_dialog
+        if dialog is not None and self._suggest_cache is not None:
+            self._show_suggest_liveness(dialog)
         if worker is None:
             return
         for signal, slot in ((worker.done, self._on_suggest_done),
@@ -6492,6 +7339,305 @@ class AnnotateScreen(QWidget):
             except (RuntimeError, TypeError):
                 pass
         _retire(worker)
+
+    def _take_suggest_insight(self) -> None:
+        """Keep the finished run's probabilities and model for the thresholds."""
+        insight = getattr(self._suggest_worker, "insight", None)
+        if not isinstance(insight, dict) or "frame" not in insight:
+            return
+        import numpy as np
+
+        from ...suggest import _probability_columns
+
+        frame = insight["frame"]
+        classes = list(insight.get("classes") or [])
+        cols = [c for c in _probability_columns(classes)
+                if c in getattr(frame, "columns", [])]
+        insight["live"] = True
+        insight["index"] = {str(p): i for i, p in
+                            enumerate(frame.get("png_path", []))}
+        insight["matrix"] = (frame[cols].to_numpy(dtype=float) if cols
+                             else np.zeros((len(frame), 0)))
+        self._suggest_cache = insight
+        self._suggest_applied = dict(insight.get("applied") or {})
+        self._btn_suggest_model.setEnabled(True)
+        if insight.get("flat"):
+            self._console.append_notice(
+                "Warning: the model gives every crop the same probability, "
+                "so it has learned nothing that separates the classes. The "
+                "usual causes are features that do not differ between the "
+                "classes or too few labels.\n")
+        dialog = self._suggest_model_dialog
+        if dialog is not None:
+            dialog.set_insight(insight, self._suggest_thresholds)
+            dialog.set_counts(self._suggest_counts())
+
+    def _show_suggest_liveness(self, dialog: "_SuggestModelDialog") -> None:
+        """Enable the thresholds when they can act on the cached run."""
+        cache = self._suggest_cache or {}
+        if self._suggest_worker is not None:
+            dialog.set_live(False, tr(
+                "A suggestion run is going; the thresholds apply to its "
+                "result when it finishes."))
+        elif not cache.get("live", False):
+            dialog.set_live(False, tr(
+                "These suggestions were kept or thrown away. Run Suggest "
+                "again to threshold a new set."))
+        else:
+            dialog.set_live(True)
+
+    def _open_suggest_model(self) -> Optional["_SuggestModelDialog"]:
+        """Show the last Suggest model's parameters, scorecard and thresholds.
+
+        :returns: the window, or None before any run has finished.
+        """
+        if self._suggest_cache is None:
+            self._status_label.setText(tr(
+                "Run Suggest first; the model window describes its last run."))
+            return None
+        dialog = self._suggest_model_dialog
+        if dialog is None:
+            dialog = _SuggestModelDialog(self)
+            dialog.thresholds_changed.connect(self._on_suggest_thresholds)
+            self._suggest_model_dialog = dialog
+        dialog.set_insight(self._suggest_cache, self._suggest_thresholds)
+        self._show_suggest_liveness(dialog)
+        dialog.set_counts(self._suggest_counts())
+        dialog.show()
+        dialog.raise_()
+        return dialog
+
+    def _suggest_blocked(self) -> set:
+        """Crops a threshold move must leave alone: answered or rejected.
+
+        :returns: the ``png_path`` of every crop with a human answer, every
+            rejected suggestion and every crop labelled but not yet saved.
+        """
+        blocked = {str(p) for p, v in self._pending_updates.items()
+                   if v is not None}
+        blocked |= {str(p) for p, v in self._local_verdicts.items()
+                    if v is not None and int(v) < 0}
+        db_path = self._settings.db_path
+        if not db_path or not os.path.isfile(db_path):
+            return blocked
+        from ...suggest import (_connect_read_only, _has_column,
+                                rejected_suggestions)
+
+        column = self._settings.annotation_column
+        table = self._settings.png_table
+        try:
+            blocked |= set(rejected_suggestions(db_path, column,
+                                                png_table=table))
+            with _connect_read_only(db_path) as db:
+                if _has_column(db, table, column):
+                    blocked |= {str(r[0]) for r in db.execute(
+                        f'SELECT png_path FROM "{table}" WHERE "{column}" '
+                        f'IS NOT NULL AND "{column}" <= ?',
+                        (SUGGESTION_OFFSET,)).fetchall()}
+        except Exception:
+            LOG.debug("could not read the answered crops", exc_info=True)
+        return blocked
+
+    def _suggest_counts(self, chosen=None, blocked=None) -> Optional[Dict[str, int]]:
+        """How many crops each class is suggested for under the thresholds.
+
+        :param chosen: from ``_threshold_suggestions``; computed when None.
+        :param blocked: from :meth:`_suggest_blocked`; read when None.
+        :returns: per-class counts and ``withheld``, or None without a run.
+        """
+        cache = self._suggest_cache
+        if cache is None:
+            return None
+        import numpy as np
+
+        from ...suggest import _suggestion_counts, _threshold_suggestions
+
+        frame = cache["frame"]
+        classes = list(cache.get("classes") or [])
+        if chosen is None:
+            chosen = _threshold_suggestions(frame, classes,
+                                            self._suggest_thresholds)
+        if blocked is None:
+            blocked = self._suggest_blocked()
+        paths = [str(p) for p in frame.get("png_path", [])]
+        free = np.asarray([p not in blocked for p in paths], dtype=bool)
+        return _suggestion_counts(np.asarray(chosen)[free] if len(free)
+                                  else np.asarray(chosen), classes)
+
+    @Slot(object)
+    def _on_suggest_thresholds(self, thresholds) -> None:
+        """A threshold moved in the model window: apply it to the pages.
+
+        :param thresholds: the window's threshold set.
+        """
+        self._suggest_thresholds = dict(thresholds or {})
+        counts = self._apply_suggest_thresholds(self._suggest_thresholds)
+        dialog = self._suggest_model_dialog
+        if dialog is not None and counts is not None:
+            dialog.set_counts(counts)
+
+    def _apply_suggest_thresholds(self, thresholds: Dict[str, Any]
+                                  ) -> Optional[Dict[str, int]]:
+        """Re-threshold the cached probabilities and show the result.
+
+        Only the crops whose suggestion changed are written; answers and
+        rejected suggestions are never touched. The tiles on screen are
+        updated in place and nothing is fitted.
+
+        :param thresholds: the threshold set.
+        :returns: the new per-class counts, or None when nothing is cached
+            or a run is going.
+        """
+        cache = self._suggest_cache
+        if cache is None or not cache.get("live") or (
+                self._suggest_worker is not None):
+            return None
+        import numpy as np
+
+        from ...suggest import (_threshold_suggestions, _write_rethresholded,
+                                pending_suggestions)
+
+        self._flush_pending()
+        frame = cache["frame"]
+        classes = list(cache.get("classes") or [])
+        chosen = _threshold_suggestions(frame, classes, thresholds)
+        blocked = self._suggest_blocked()
+        changes: Dict[str, Optional[int]] = {}
+        for path, value in zip(frame.get("png_path", []), chosen):
+            path = str(path)
+            new = None if np.isnan(value) else int(value)
+            if path in blocked:
+                continue
+            if self._suggest_applied.get(path) != new:
+                changes[path] = new
+        db_path = self._settings.db_path
+        if changes and db_path:
+            try:
+                _write_rethresholded(db_path, self._settings.annotation_column,
+                                     changes,
+                                     png_table=self._settings.png_table)
+            except Exception as exc:
+                self._status_label.setText(tr(
+                    "Could not apply the thresholds: {why}",
+                    why=self._blind_text(str(exc))))
+                return None
+            self._suggest_applied.update(changes)
+            self._show_rethresholded(changes)
+            try:
+                self._judge_totals["left"] = pending_suggestions(
+                    db_path, self._settings.annotation_column,
+                    png_table=self._settings.png_table)
+            except Exception:
+                LOG.debug("could not recount the suggestions", exc_info=True)
+            self._refresh_judge_bar()
+        counts = self._suggest_counts(chosen, blocked)
+        parts = " · ".join(tr("class {c}: {n}", c=k, n=f"{int(n):,}")
+                           for k, n in (counts or {}).items()
+                           if k != "withheld")
+        self._status_label.setText(tr(
+            "Thresholds applied: {changed} suggestions changed; suggested "
+            "now: {parts}.", changed=f"{len(changes):,}", parts=parts))
+        return counts
+
+    def _show_rethresholded(self, changes: Dict[str, Optional[int]]) -> None:
+        """Put re-thresholded suggestions on the tiles and the cached rows.
+
+        :param changes: ``{png_path: class or None}``.
+        """
+        def stored(value):
+            """The column value a suggested class is stored as."""
+            return None if value is None else int(value) + SUGGESTION_OFFSET
+
+        def replaceable(value):
+            """Whether a crop's value is empty or a suggestion."""
+            try:
+                return value is None or int(value) > SUGGESTION_OFFSET
+            except (TypeError, ValueError):
+                return False
+
+        for slot, (path, value) in enumerate(list(self._page_paths)):
+            path = str(path)
+            if path not in changes or path in self._pending_updates:
+                continue
+            if not replaceable(value):
+                continue
+            before = self._judge_contribution(slot)
+            self._page_paths[slot] = (path, stored(changes[path]))
+            self._account_judgement(before, self._judge_contribution(slot))
+            self._repaint_slot(slot)
+        if self._filtered_rows is not None:
+            self._filtered_rows = [
+                (p, stored(changes[str(p)]))
+                if str(p) in changes and replaceable(v) else (p, v)
+                for p, v in self._filtered_rows]
+
+    def _suggestion_tip(self, slot: int) -> str:
+        """The tooltip of a suggested tile: its class and probability."""
+        cache = self._suggest_cache
+        if cache is None or not self._is_suggested_slot(slot):
+            return ""
+        index = cache.get("index") or {}
+        row = index.get(str(self._page_paths[slot][0]))
+        classes = list(cache.get("classes") or [])
+        shown = self._displayed_class(slot)
+        if row is None or shown not in classes:
+            return ""
+        matrix = cache.get("matrix")
+        column = classes.index(shown)
+        if matrix is None or column >= matrix.shape[1]:
+            return ""
+        return tr("Suggested class {c}, probability {p}", c=shown,
+                  p=f"{float(matrix[row, column]):.2f}")
+
+    def _build_sort_control(self) -> QWidget:
+        """The "Order" control: pages by class or by suggestion probability."""
+        box = QWidget()
+        layout = QHBoxLayout(box)
+        layout.setContentsMargins(0, 0, 0, 0)
+        label = QLabel(tr("Order"), box)
+        combo = QComboBox(box)
+        combo.setObjectName("AnnotateSortOrder")
+        for key, text in (
+                ("original", tr("As stored")),
+                ("class_last", tr("By class, unlabelled last")),
+                ("class_first", tr("By class, unlabelled first")),
+                ("probability_high",
+                 tr("By suggestion probability, highest first")),
+                ("probability_low",
+                 tr("By suggestion probability, lowest first"))):
+            combo.addItem(text, key)
+        tip = tr(
+            "Order the pages by annotation: by class label, with unlabelled "
+            "crops last or first and each class's suggestions after its "
+            "answers, or by the last model's probability. The order stays "
+            "while you page through; a crop you label moves when the pages "
+            "are next read, for example when the order is chosen again.")
+        combo.setToolTip(tip)
+        label.setToolTip(tip)
+        label.setBuddy(combo)
+        combo.currentIndexChanged.connect(self._on_sort_changed)
+        layout.addWidget(label)
+        layout.addWidget(combo)
+        self._sort_order = combo
+        return box
+
+    @Slot(int)
+    def _on_sort_changed(self, index: int) -> None:
+        """Re-read the pages in the chosen order, from the first page.
+
+        :param index: the chosen entry of the Order control.
+        """
+        mode = str(self._sort_order.itemData(index) or "original")
+        if mode not in SORT_ORDERS:
+            mode = "original"
+        self._sort_mode = mode
+        self._offset = 0
+        if not self._settings.db_path:
+            return
+        self._flush_pending()
+        self._status_label.setText(tr(
+            "Pages ordered: {order}.", order=self._sort_order.itemText(index)))
+        self._refresh_total(then=self._load_page)
 
     def _resolve_suggestions(self, keep: bool) -> None:
         """Accept every outstanding suggestion, or clear them all away.
@@ -6527,6 +7673,10 @@ class AnnotateScreen(QWidget):
                 question) != QMessageBox.Yes:
             return
         self._drain_saves()
+        if self._suggest_cache is not None:
+            self._suggest_cache["live"] = False
+            if self._suggest_model_dialog is not None:
+                self._show_suggest_liveness(self._suggest_model_dialog)
         changed = resolve_suggestions(
             db_path, column, keep=keep,
             png_table=self._settings.png_table)
@@ -6904,6 +8054,16 @@ class AnnotateScreen(QWidget):
         if self._object_rows is not None:
             self._filtered_rows = (self._object_rows if rank is None
                                    else _blind_order(self._object_rows, rank))
+            if self._sort_mode != "original":
+                confidences = None
+                if self._sort_mode.startswith("probability"):
+                    try:
+                        confidences = _crop_confidences(
+                            self._settings.db_path, self._settings.png_table)
+                    except Exception:
+                        confidences = {}
+                self._filtered_rows = _sort_rows(
+                    self._filtered_rows, self._sort_mode, confidences)
             self._total = len(self._object_rows)
             self._queue_summary = ""
             if then is not None:
@@ -6911,10 +8071,12 @@ class AnnotateScreen(QWidget):
             return
         settings = deepcopy(self._settings)
         filter_active = self._filter_active()
+        mode = self._sort_mode
         self._total_jobs.cancel()
         self._total_jobs.submit(
-            lambda: _blinded_total(_compute_total(settings, filter_active),
-                                   settings, rank),
+            lambda: _sorted_total(
+                _blinded_total(_compute_total(settings, filter_active),
+                               settings, rank), settings, mode),
             lambda outcome, _then=then: self._apply_total(outcome, _then))
 
     def _apply_total(self, outcome: dict, then=None) -> None:
@@ -7239,6 +8401,9 @@ class AnnotateScreen(QWidget):
         thumb.set_occupied(slot < len(self._page_paths))
         thumb.set_border_color(self._border_color_for(slot))
         thumb.set_suggested(self._is_suggested_slot(slot))
+        tip = self._suggestion_tip(slot)
+        if thumb.toolTip() != tip:
+            thumb.setToolTip(tip)
         state = self._judgement_of(slot)
         thumb.set_badge(state, badge_colors(state) if state else None)
         thumb.set_current(slot == self._focus_slot)
@@ -7995,7 +9160,8 @@ class AnnotateScreen(QWidget):
         batch = dict(self._pending_updates)
         self._worker.submit(self._pending_updates)
         self._pending_updates.clear()
-        if self._blind is not None and self._filtered_rows is not None:
+        if self._filtered_rows is not None and (
+                self._blind is not None or self._sort_mode != "original"):
             self._filtered_rows = [
                 (path, batch[path]) if path in batch else (path, value)
                 for path, value in self._filtered_rows]
