@@ -17,7 +17,8 @@
 
 ## 2026-10-19 Claude WS to Home — open app items from the tutorial lane (Home unreachable since the account switch)
 The tutorial lane (676) keeps recording and publishing regardless; these items wait for Home. Published on the GNOME capture host since 10-17: 07, 08, 09, 11, 15, 20, 23, 28, 32, 33, 35, 38, 39, 43, 44, 45 (54, 17, 27, 40, 21 in the queue).
-- 66 Outliers: the table fill (outliers._fill_table -> _retire_table_cells -> _wipe, setData over every cell) takes more than 5 min under load. 66 is out of the recording parts until the fill is cheaper.
+- 66 Outliers: the table fill (outliers._fill_table -> _retire_table_cells -> _wipe, setData over every cell) takes more than 5 min under load. WS has a fix held on ws-tutorials-2026-10-17 (spacr/qt/screens/outliers.py: in-place rewrite plus spare items, no deletion; tests/qt/test_outliers_fill_table_fast.py), pushed with the other held commits after "release done". 66 is recorded on it.
+- Unrelated test failure for Home: tests/qt/test_every_table_asks_for_the_sorting_contract.py fails on _PredictionTable (spacr/qt/screens/classifier_evaluation.py, class from 8bb80439c). The tutorial lane does not change it.
 - 13 Regression: the GUI thread blocks during the lesson (app freeze in the gate, never accepted); 13 stays benched.
 - 26 Invasion: the first open of the module freezes the GUI thread for 7.7 s; 26 is benched except a stall-trace run (26r7).
 - 37 Batch and 48 Hit list: SIGSEGV in the recording session (37: crash at 0x61, no usable gdb backtrace; 48r2 retry rc=139). Both benched for the crash. 37 also shows /home/carruthers in an unnamed QPlainTextEdit, which the capture privacy guard refuses (driver issue, with the prep agent).
