@@ -84,6 +84,8 @@ def test_the_dot_follows_a_resize(qtbot):
     button.resize(60, 56)
     qtbot.waitUntil(lambda: button._verdict_layer.size() == button.size(),
                     timeout=2000)
+    assert button._verdict_layer.geometry() == button.rect()
+    assert button._verdict_layer.isVisible()
 
 
 def test_the_focus_ring_is_the_painted_ring(qtbot):

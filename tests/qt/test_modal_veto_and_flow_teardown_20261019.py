@@ -134,6 +134,7 @@ def test_chips_come_and_go_while_their_hosts_are_torn_down(qapp):
         for i in range(5):
             layout.addWidget(QLabel(f"late {i}", host))
         layout.activate()
+        assert layout.count() == 25
         if round_ % 3 == 0:
             host.deleteLater()
         else:
