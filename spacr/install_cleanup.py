@@ -6956,6 +6956,26 @@ def _windows_online_update_record(records, *, system=None, strict=False):
     return candidates[0] if candidates else None
 
 
+def _windows_online_profiles(prefix):
+    """The installer-profile reader, from the runtime being updated when spaCR itself is not importable.
+
+    The update helper runs on the installation's base Python, outside the runtime, where
+    ``spacr`` cannot be imported; ``install_profile`` uses only the standard library.
+    """
+    from importlib import import_module, util
+
+    try:
+        return import_module("spacr.install_profile")
+    except ModuleNotFoundError:
+        source = os.path.join(prefix, "Lib", "site-packages", "spacr", "install_profile.py")
+        if not os.path.isfile(source) or os.path.islink(source):
+            raise ValueError(tr("The saved installation choices could not be read. Nothing was changed."))
+        spec = util.spec_from_file_location("_spacr_runtime_install_profile", source)
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+
 def _windows_online_commands(record, version, workdir, desktop_prefix, desktop_executable):
     """Bind the online installer's own uv, private runtime and saved choices to one update.
 
@@ -6966,10 +6986,8 @@ def _windows_online_commands(record, version, workdir, desktop_prefix, desktop_e
     :param desktop_executable: the interpreter that runs that desktop.
     :returns: the staged uv install command and the relaunch command.
     """
-    from importlib import import_module
     from pathlib import Path
 
-    profiles = import_module("spacr.install_profile")
     refusal = tr("This installation cannot stage a verified update. Nothing was changed.")
     if (record.kind != "installer" or record.layout != "windows-online"
             or record.platform != "windows" or not record.running or not record.python):
@@ -6993,6 +7011,7 @@ def _windows_online_commands(record, version, workdir, desktop_prefix, desktop_e
             or any(not os.path.isfile(path) or os.path.islink(path) for path in (uv, python, windowed, executable))
             or _inside(os.path.realpath(workdir), root)):
         raise ValueError(refusal)
+    profiles = _windows_online_profiles(prefix)
     profile_path = Path(root) / "install-profile.json"
     profile = profiles.read_profile(profile_path)
     if profile_path.exists() and (profile is None or not isinstance(profile.get("without_wgpu", False), bool)):

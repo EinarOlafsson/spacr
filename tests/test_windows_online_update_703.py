@@ -125,6 +125,31 @@ def test_the_saved_backend_and_wgpu_choice_are_kept(online, without_wgpu):
         assert override.parent == online.helper and 'never' in override.read_text()
 
 
+def test_the_detached_helper_reads_saved_choices_without_importing_spacr(online, monkeypatch):
+    """Found natively 2026-10-19: the helper runs on the base Python, where spacr is not importable."""
+    import importlib
+    import shutil
+
+    from spacr import install_profile
+
+    shutil.copy(install_profile.__file__, online.venv / 'Lib' / 'site-packages' / 'spacr' / 'install_profile.py')
+    install_profile.write_profile(online.root / 'install-profile.json', 'cpu', 'none', without_wgpu=True)
+    real = importlib.import_module
+
+    def without_spacr(name, *args, **kwargs):
+        if name.startswith('spacr'):
+            raise ModuleNotFoundError("No module named 'spacr'")
+        return real(name, *args, **kwargs)
+
+    monkeypatch.setattr(importlib, 'import_module', without_spacr)
+    online.helper.mkdir()
+    install, _relaunch = commands(online)
+    assert install[install.index('--torch-backend') + 1] == 'cpu' and '--override' in install
+    (online.venv / 'Lib' / 'site-packages' / 'spacr' / 'install_profile.py').unlink()
+    with pytest.raises(ValueError, match='saved installation choices'):
+        commands(online)
+
+
 def test_unreadable_saved_choices_refuse(online):
     (online.root / 'install-profile.json').write_text('{"schema": 1}')
     with pytest.raises(ValueError, match='saved installation choices'):
