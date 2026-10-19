@@ -150,7 +150,7 @@ def test_console_output_uses_open_sans_light_and_readable_leading(
 
     assert block.font().family() == "Open Sans"
     assert block.font().weight() == QFont.Light
-    assert "font-family: 'Open Sans'" in block.styleSheet()
+    assert 'font-family: "Open Sans"' in block.styleSheet()
     assert "font-weight: 300" in block.styleSheet()
 
     paragraph = block.document().firstBlock().blockFormat()

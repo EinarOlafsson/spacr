@@ -1691,6 +1691,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in dino_drop_in_arrivals} == dino_drop_in_arrivals
     assert not dino_drop_in_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **dino_drop_in_arrivals}
+    # 2026-10-18: Item 560 Cell-DINO checkpoint picker: the dialog's installed-checkpoint helper; one named contract.
+    cell_dino_picker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_cell_dino_checkpoints_api_arrivals_2026-10-18.json").read_text())
+    assert set(cell_dino_picker_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed",
+    }
+    assert {key: docs[key] for key in cell_dino_picker_arrivals} == cell_dino_picker_arrivals
+    assert not cell_dino_picker_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cell_dino_picker_arrivals}
     # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
     n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text())

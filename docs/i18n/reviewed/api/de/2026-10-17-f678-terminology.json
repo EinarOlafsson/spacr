@@ -230,7 +230,9 @@
       "label": "spacr.active_learning.round_features#5",
       "source": "object tables to merge features from; missing ones are skipped.",
       "source_sha256": "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-      "translation": "Objekttabellen, aus denen Merkmale zusammengeführt werden sollen; fehlende werden übersprungen."
+      "translation": "Objekttabellen, aus denen Merkmale zusammengeführt werden sollen; fehlende werden übersprungen.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "**Labels, not rounds, are the unit of cost.** A round is whatever size the annotator felt like; \"no improvement for 3 rounds\" says nothing when the rounds were 5, 300 and 8 labels. The thing being spent is human attention, one extracted image region at a time, so the window is measured in extracted image regions.",

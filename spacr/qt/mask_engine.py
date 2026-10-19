@@ -335,6 +335,42 @@ def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
     return labels, result, original, target
 
 
+def _merge_continuation(state: dict, mother: str, daughter: str) -> dict:
+    """Make a founder that continues a childless cell part of it, division included.
+
+    Every frame of ``daughter`` maps to ``mother``, its daughters become
+    daughters of ``mother`` and ``daughter`` is retired. A pair that shares a
+    frame, a daughter with a parent or a mother that already divided is
+    refused, since one cell cannot be both.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    cells = result["cells"]
+    keep, gone = cells[mother], cells[daughter]
+    if mother == daughter or gone.get("parent_uuid") is not None or keep.get("children") \
+            or any(mother in mapping.values() and daughter in mapping.values()
+                   for mapping in result["frames"].values()):
+        raise ValueError(tr(
+            "{old} cannot become part of {name}: one cell cannot appear twice in a "
+            "frame or divide twice.", old=gone["name"], name=keep["name"]))
+    stamp = _next_lineage_revision(result)
+    for frame, mapping in result["frames"].items():
+        if daughter in mapping.values():
+            result["frames"][frame] = {
+                local: mother if identity == daughter else identity
+                for local, identity in mapping.items()}
+            result["frame_revisions"][frame] = stamp
+    keep.update(children=list(gone["children"]), division_frame=gone.get("division_frame"),
+                revision=stamp)
+    keep.pop("division_frame_id", None)
+    for child in gone["children"]:
+        cells[child].update(parent_uuid=mother, revision=stamp)
+    del cells[daughter]
+    result["deleted_cells"][daughter] = stamp
+    return validate_lineage(result)
+
+
 def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
     """Rename a segment while retaining its identity and parent links.
 
@@ -423,10 +459,10 @@ def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
         if old is None:
             result["cells"][identity] = cell
             continue
-        if any(old.get(key) != cell.get(key) for key in ("parent_uuid", "born_frame_id")) \
-                or (old.get("revision", 0) == cell.get("revision", 0)
-                    and (old["children"] != cell["children"]
-                         or old["division_frame_id"] != cell["division_frame_id"])):
+        if old.get("born_frame_id") != cell.get("born_frame_id") or (
+                old.get("revision", 0) == cell.get("revision", 0) and any(
+                    old.get(key) != cell.get(key) for key in (
+                        "parent_uuid", "children", "division_frame_id"))):
             raise ValueError(tr("Embedded lineage snapshots disagree about a cell's ancestry."))
         newer = cell if cell.get("revision", 0) > old.get("revision", 0) else old
         result["cells"][identity] = dict(newer)
@@ -2746,6 +2782,15 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
         raise ValueError(
             f"mask carries label {top}, past what a uint16 mask can hold.")
     return out.astype(np.uint16)
+
+
+_MASK_SAVE_WAIT_SECONDS: Optional[float] = 0.1
+"""How long Make Masks waits on the GUI thread for a mask save to land.
+
+A save written in this time is reported, and its follow-up steps run, as
+before; a slower one (3.1 s on a busy disk in lesson 14) finishes on the mask
+writer thread and reports when it lands. ``None`` waits for every save.
+"""
 
 
 def save_mask(folder: str, filename: str, mask: np.ndarray,

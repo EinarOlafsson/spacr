@@ -402,7 +402,7 @@ def test_hover_and_wheel_visit_both_endpoints_and_save(qtbot, screen):
     pos = QPointF(canvas._image_to_canvas(10.5, 10.5))
     canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, pos, pos,
                                       Qt.NoButton, Qt.NoButton, Qt.NoModifier))
-    assert int(canvas.mask[10, 10]) == 321
+    assert int(canvas.mask[10, 10]) == 7
     wheel(screen, 3)
     wait_idle(qtbot, screen)
     assert screen._current_index == 3
@@ -555,8 +555,7 @@ def test_separate_label_tools_switch_without_disabling_time(qtbot, screen, monke
     screen._label_value.setText("321")
     canvas = screen._canvas
     pos = QPointF(canvas._image_to_canvas(10.5, 10.5))
-    canvas.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, pos, pos,
-                                      Qt.NoButton, Qt.NoButton, Qt.NoModifier))
+    click_pixel(screen, (10, 10))
     identity = screen._selected_cell
     frame = screen._lineage_frame()
     assert screen._lineage["frames"][frame]["321"] == identity
@@ -1039,6 +1038,8 @@ def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtb
     select(screen, mother)
     before_pixels, before_graph = screen._canvas.mask.copy(), _graph(screen._lineage)
     hover(screen, (10, 10))
+    np.testing.assert_array_equal(screen._canvas.mask, before_pixels)
+    click_pixel(screen, (10, 10))
     assert int(screen._canvas.mask[10, 10]) == 61
     assert screen._selected_cell == kept
     assert "89 now carries 61 through the division" in screen._status_label.text()
@@ -1055,7 +1056,7 @@ def test_selected_mother_continues_through_its_daughter_with_undo_and_reopen(qtb
     wheel(screen, 1)
     wait_idle(qtbot, screen)
     assert screen._current_index == 3 and int(screen._canvas.mask[10, 10]) == 61
-    hover(screen, (30, 30))
+    click_pixel(screen, (30, 30))
     assert "61 already labels another object in this frame" in screen._status_label.text()
     assert int(screen._canvas.mask[30, 30]) == 90
     wheel(screen, -3)

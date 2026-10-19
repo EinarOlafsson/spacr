@@ -1,0 +1,35 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Quit spaCR before uninstalling it from the installer.",
+      "source": "Quit spaCR before uninstalling it from the installer.",
+      "source_sha256": "42de91e762c1d0abf55156f401c39e85d87b5ec2a8cd5c1b9b72e203d06267ab",
+      "table": "ui",
+      "translation": "설치 프로그램에서 제거하기 전에 spaCR를 종료하세요."
+    },
+    {
+      "key": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source_sha256": "d95b7c5ce880d67724295f9166d8ae52b12d1f5f64f599f59c947783c1c80aa5",
+      "table": "ui",
+      "translation": "실행 중인 spaCR는 설치된 상태로 유지되므로 정리 범주는 처음에 선택 해제되어 있으며 설정, 모델, 기록이 보존됩니다. 해당 파일도 삭제하려면 범주를 선택하세요."
+    },
+    {
+      "key": "list every spaCR installation and its data for the installer window",
+      "source": "list every spaCR installation and its data for the installer window",
+      "source_sha256": "cc943d2417b96f6ec545df9feb074acbb5f56b91f251e82426809adc7d267413",
+      "table": "ui",
+      "translation": "설치 프로그램 창에 표시할 모든 spaCR 설치와 데이터를 나열합니다"
+    },
+    {
+      "key": "remove every listed spaCR installation and the chosen data",
+      "source": "remove every listed spaCR installation and the chosen data",
+      "source_sha256": "e90049358d90b233d6bc3e21de3581a649a6eacb9552a5f4a632271a703b665d",
+      "table": "ui",
+      "translation": "나열된 모든 spaCR 설치와 선택한 데이터를 제거합니다"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

@@ -22,7 +22,7 @@ apptainer build --build-arg BOOTSTRAP=docker-daemon \
     --build-arg IMAGE=spacr:cpu spacr-cpu.sif packaging/apptainer/spacr.def
 ```
 
-Pin a release by tag (`IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4`)
+Pin a release by tag (`IMAGE=ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4`)
 rather than `cpu` / `cuda` when results have to be reproducible.
 
 The build runs the definition's `%test`, which is the Docker images' own smoke

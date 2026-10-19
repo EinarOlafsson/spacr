@@ -260,3 +260,4 @@ action -- and `setup_dialog` is now imported by nothing outside `tests/`.
 Whether that module is kept as a second door or removed is a decision for
 whoever owns the slides, not something an audit should settle; it is recorded
 here so the next reader does not assume the dialog is what a user meets.
+2026-10-18 — Claude Home integrated 42a89b504 into nightly: a Metal machine torch cannot use is told spaCR runs those tasks on the CPU instead of being sent to spacr-doctor for CUDA; nine-language catalogs regenerated.

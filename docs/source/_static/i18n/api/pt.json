@@ -1039,13 +1039,13 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "750e36de9893f80daf838fda778697fb247e391b1cf1e62082f7cc578e58a089",
         "9927ae21a825a35f4a4823a2c2e8b31dd081a64605efcedd996cc11baa3c1c75",
-        "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+        "eb8e87e40c1228638c7ed50f596036ffda96a54a09dfd4086c37b21dc675e7a0",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
       ],
-      "source_sha256": "8c911e80f2de11b9ac3f9ba4ad1fca7121dd3c448f67744d6c694c272359029d",
-      "text": "Resumir a cobertura de anotação por classe, posição da amostra de microplacas, microplaca de laboratório e aquisição.\n\nA distribuição de rótulos em unidades experimentais determina se um modelo de classificação de aprendizado de máquina pode generalizar além da coloração, foco e confluência específicos de aquisição. Um conjunto de rótulos concentrados dentro de uma posição de amostra de microplacas pode, portanto, produzir desempenho otimista sob uma divisão aleatória em nível de objeto. Esta função expõe essa concentração antes do treinamento ou avaliação do modelo.\n\nLê ``png_list`` somente leitura, mais :data:`ROUND_TABLE` quando está lá, então os rótulos também podem ser atribuídos à rodada de aprendizado ativo que os trouxe à tona.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: a coluna em que o aplicativo Annotate escreve.\n:param table: tabela extraído-imagem-região (padrão ``png_list``).\n:param key: identificador de linha (padrão ``png_path``).\n:param image_type: filtro de substring no nome de dados estruturados, correspondendo ao próprio filtro do modo de exibição do aplicativo Annotate. Cada contagem abaixo dele, ``n_rows`` incluído, refere-se às regiões de imagem extraídas que corresponderam — um denominador retirado da tabela inteira colocaria o numerador e o denominador em duas populações diferentes. ``n_rows_unfiltered`` mantém o total, e uma nota diz quantos foram excluídos.\n:returns: uma linha por ``(plateID, rowID, columnID, class)`` que tenha pelo menos uma anotação, com ``n`` e ``share`` mais toda a desagregação em ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (por classe) e ``notes``.\n:raises ValueError: quando a tabela não tem essa coluna — um resultado vazio seria lido como \"nothing annotated yet\" (nada anotado ainda), o que é um fato diferente.\n:raises FileNotFoundError: Quando o banco de dados não está lá.",
+      "source_sha256": "bc1cacbba20167ee58f77511d97383acfe3dfef19586568712e40c57a6a879bc",
+      "text": "Resumir a cobertura de anotação por classe, posição da amostra de microplacas, microplaca de laboratório e aquisição.\n\nA distribuição de rótulos em unidades experimentais determina se um modelo de classificação de aprendizado de máquina pode generalizar além da coloração, foco e confluência específicos de aquisição. Um conjunto de rótulos concentrados dentro de uma posição de amostra de microplacas pode, portanto, produzir desempenho otimista sob uma divisão aleatória em nível de objeto. Esta função expõe essa concentração antes do treinamento ou avaliação do modelo.\n\nLê ``png_list`` somente leitura, mais :data:`ROUND_TABLE` quando está lá, então os rótulos também podem ser atribuídos à rodada de aprendizado ativo que os trouxe à tona.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: a coluna em que o aplicativo Annotate escreve.\n:param table: tabela extraído-imagem-região (padrão ``png_list``).\n:param key: identificador de linha (padrão ``png_path``).\n:param image_type: o próprio filtro da vista Annotate sobre a chave, lido como a grade o lê (AND, OR, NOT, termos sem distinção entre maiúsculas e minúsculas). Cada contagem abaixo dele, ``n_rows`` incluído, refere-se às regiões de imagem extraídas que corresponderam — um denominador retirado da tabela inteira colocaria o numerador e o denominador em duas populações diferentes. ``n_rows_unfiltered`` mantém o total, e uma nota diz quantas foram excluídas.\n:returns: uma linha por ``(plateID, rowID, columnID, class)`` que tenha pelo menos uma anotação, com ``n`` e ``share`` mais toda a desagregação em ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (por classe) e ``notes``.\n:raises ValueError: quando a tabela não tem essa coluna — um resultado vazio seria lido como \"nothing annotated yet\" (nada anotado ainda), o que é um fato diferente.\n:raises FileNotFoundError: Quando o banco de dados não está lá.",
       "translation_source_blocks_sha256": [
         "d54694a4887e21db5eb04e4a3a384fde7165749260bccb2ecf019185dfd829a7",
         "016a691c17b5cdb8202315faff64adcf1e24c6d2f51f8dfa482a35d4c21a20b3",
@@ -1054,7 +1054,7 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "452d01891862e03c4baef3aa5158b052f77f8055547a50cb24a7269f35a6493b",
         "a506a1eed41c74aad9de41be6ae13e82bb8e2f562f5a9e10906d07c917af3612",
-        "29992052ca1ef7c848619617ff00cb5ec629bdd174c24b6d551deb718a2013e0",
+        "c94b39489853a58466988a4a8fa00ca57e8e201429ebd70ec2c87a49f016c8e9",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
@@ -1098,14 +1098,14 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
+        "0c12a9527a2ca7d996ce14b24151417f2d4ff407ab447992eaadc84f15e5e5ed",
         "30ffff94b1f25ce27a73ee3a1e7bb114ff46e8c9ac44a5b1c19a51a9eb4226ef",
         "3db974dd779fc492b98a7d7df944ad3f6fa527dfe29f46f6757c89378c676846",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
         "7419a19d554bce02dec446f36cef42c534cc0ede025b03f4455a4905083d35de"
       ],
-      "source_sha256": "6758ccbc340c4f93c2480edf6c49f98835305ac6313e29ff56117d0627776455",
-      "text": "Crie a lista de trabalho de anotação: regiões de imagem extraídas não rotuladas, a mais incerta primeiro.\n\nLê ``png_list`` somente leitura e retorna uma linha por região de imagem extraída ainda à espera de um rótulo, ordenado para que as regiões de imagem extraído que iria ensinar o modelo mais vir em primeiro lugar.\n\n**Regiões de imagem extraídas já anotadas são excluídas.** ``NULL`` em ``annotation_column`` significa \"not looked at\" (não examinada); qualquer outro valor — *inclusive 0* — significa que uma pessoa atribuiu uma classe. Se a coluna não existir, nada foi anotado ainda e todas as regiões de imagem extraídas entram na fila (com uma observação que informa isso). Esta é a mesma convenção de abstenção de :mod:`spacr.agreement`.\n\n**A lista de trabalho de anotação é diversificada por padrão, e isso custa alguma coisa.** Com ``diversity='well'`` as regiões de imagem extraídas classificadas são distribuídas em rombo redondo em posições de amostra de microplacas: a posição 1 ainda é a única região de imagem retirada mais incerta, mas a posição 2 é a região de imagens extraídas mais indefinida em um poço *different*, que pode ser materialmente menos incerta do que o segundo lugar em geral. Se ``limit`` for menor do que o número de posições de amostra de microplacas, a lista de trabalho de anotação conterá aproximadamente uma região de imagem extraída de cada uma das posições de exemplo de ``limit`` microplaca e nenhuma do resto. Passe ``diversity='none'`` para a ordem pura, ``'field'``/``'plate'`` para outros estratos ou ``group_columns=[…]`` para o seu próprio - incluindo um id de cluster que você computou a partir de características, que é a diversificação mais completa que este não necessita de uma matriz de características.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: coluna em que o aplicativo Annotate escreve (padrão ``'annotate'``).\n:param pred_column: nome, ou lista de nomes, da coluna de pontuação do modelo. ``None`` (padrão) autodetecta:  ``pred_0, pred_1, …`` colunas de estilo para multiclasse, caso contrário  ``pred``. Uma única coluna é lida como a probabilidade de classe positiva de um problema binário.\n:param table: tabela contendo as regiões de imagem extraídas (padrão ``png_list``).\n:param key: identificador de linha (padrão ``png_path``).\n:param measure: ``'entropy'`` (padrão),  ``'least_confidence'``, ``'margin'`` ou um callable. Em duas classes as duas últimas dão a mesma ordem.\n:param limit: manter no máximo essas muitas regiões de imagem extraídas.\n:param diversity: ``'well'`` (padrão),  ``'plate'``, ``'row'``,``'column'``, -``'field'`` ou ``'none'``.\n:param group_columns: colunas explícitas para estratificar, substituindo ``diversity``.\n:param seed: ``None`` quebra os laços na ordem da linha. De qualquer forma, o resultado é reprodutível.\n:param image_type: O filtro de substring em ``png_path`` corresponde ao filtro ``image_type`` do próprio modo de exibição do aplicativo Annotate (ex. ``'cell'``).\n:returns: DataFrame com ``rank`` (1-based), o nome de dados estruturados, ``uncertainty``, ``predicted_class``, as colunas de probabilidade e o que quer que extraído-imagem-região metadados ``png_list`` tem. Vazio (com as mesmas colunas) quando não há nada para anotar. Diagnósticos vivem em ``queue.attrs['spacr_active_learning']``; renderizá-los com :func:`format_queue_summary`.\n:raises ValueError: quando a tabela ou a coluna de previsão está faltando - ambos significam que não há lista de trabalho para construir, e adivinhar produziria uma ordem errada com aparência plausível.\n:raises FileNotFoundError: Quando o banco de dados não está lá.\n\n.. warning::\n   ``uncertainty`` é uma pontuação de classificação, não uma confiança calibrada. Veja :data:`CALIBRATION_NOTE`.",
+      "source_sha256": "7ebda6a05096e9c72c19c037746f7bd3d724438d3097d3c8151463b245979a04",
+      "text": "Crie a lista de trabalho de anotação: regiões de imagem extraídas não rotuladas, a mais incerta primeiro.\n\nLê ``png_list`` somente leitura e retorna uma linha por região de imagem extraída ainda à espera de um rótulo, ordenado para que as regiões de imagem extraído que iria ensinar o modelo mais vir em primeiro lugar.\n\n**Regiões de imagem extraídas já anotadas são excluídas.** ``NULL`` em ``annotation_column`` significa \"not looked at\" (não examinada); qualquer outro valor — *inclusive 0* — significa que uma pessoa atribuiu uma classe. Se a coluna não existir, nada foi anotado ainda e todas as regiões de imagem extraídas entram na fila (com uma observação que informa isso). Esta é a mesma convenção de abstenção de :mod:`spacr.agreement`.\n\n**A lista de trabalho de anotação é diversificada por padrão, e isso custa alguma coisa.** Com ``diversity='well'`` as regiões de imagem extraídas classificadas são distribuídas em rombo redondo em posições de amostra de microplacas: a posição 1 ainda é a única região de imagem retirada mais incerta, mas a posição 2 é a região de imagens extraídas mais indefinida em um poço *different*, que pode ser materialmente menos incerta do que o segundo lugar em geral. Se ``limit`` for menor do que o número de posições de amostra de microplacas, a lista de trabalho de anotação conterá aproximadamente uma região de imagem extraída de cada uma das posições de exemplo de ``limit`` microplaca e nenhuma do resto. Passe ``diversity='none'`` para a ordem pura, ``'field'``/``'plate'`` para outros estratos ou ``group_columns=[…]`` para o seu próprio - incluindo um id de cluster que você computou a partir de características, que é a diversificação mais completa que este não necessita de uma matriz de características.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: coluna em que o aplicativo Annotate escreve (padrão ``'annotate'``).\n:param pred_column: nome, ou lista de nomes, da coluna de pontuação do modelo. ``None`` (padrão) autodetecta:  ``pred_0, pred_1, …`` colunas de estilo para multiclasse, caso contrário  ``pred``. Uma única coluna é lida como a probabilidade de classe positiva de um problema binário.\n:param table: tabela contendo as regiões de imagem extraídas (padrão ``png_list``).\n:param key: identificador de linha (padrão ``png_path``).\n:param measure: ``'entropy'`` (padrão),  ``'least_confidence'``, ``'margin'`` ou um callable. Em duas classes as duas últimas dão a mesma ordem.\n:param limit: manter no máximo essas muitas regiões de imagem extraídas.\n:param diversity: ``'well'`` (padrão),  ``'plate'``, ``'row'``,``'column'``, -``'field'`` ou ``'none'``.\n:param group_columns: colunas explícitas para estratificar, substituindo ``diversity``.\n:param seed: ``None`` quebra os laços na ordem da linha. De qualquer forma, o resultado é reprodutível.\n:param image_type: o filtro ``image_type`` da vista Annotate sobre ``png_path`` (por exemplo, ``'cell'`` ou ``'cell AND NOT pathogen'``), lido como a grade o lê: AND, OR, NOT e parênteses, com cada termo comparado sem distinção entre maiúsculas e minúsculas.\n:returns: DataFrame com ``rank`` (1-based), o nome de dados estruturados, ``uncertainty``, ``predicted_class``, as colunas de probabilidade e o que quer que extraído-imagem-região metadados ``png_list`` tem. Vazio (com as mesmas colunas) quando não há nada para anotar. Diagnósticos vivem em ``queue.attrs['spacr_active_learning']``; renderizá-los com :func:`format_queue_summary`.\n:raises ValueError: quando a tabela ou a coluna de previsão está faltando - ambos significam que não há lista de trabalho para construir, e adivinhar produziria uma ordem errada com aparência plausível.\n:raises FileNotFoundError: Quando o banco de dados não está lá.\n\n.. warning::\n   ``uncertainty`` é uma pontuação de classificação, não uma confiança calibrada. Veja :data:`CALIBRATION_NOTE`.",
       "translation_source_blocks_sha256": [
         "6a9525dc472316ce57ca82a96ab048c346b696b346f5da78d6cbd1d097fdc038",
         "f0b8c5ce932145dd058d7bea404a4b7b3357c25f4a6382c06fc6fd0ed4fba0e2",
@@ -1121,7 +1121,7 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "7b18cd8d589d17fcda749986eeb1501b7ad69fe26520bdacb3d4a60e7683d95d",
+        "63e460e87d3e2f0693f869b5fa42b27c0c9459f6a69583207fa57ceb3382c9b1",
         "86a02024ff7490e61340209a578550dd8db0c02d200b59f5b93e574f77933aa9",
         "06ddaec3cae5522a2175e192dae21721e450e664b9b89fe6f97a4a734ffbaa56",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
@@ -1141,11 +1141,11 @@
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
         "d862db52f9dfd39bce03280d81217d90ffb7329d6f04714aefb3675400b8efe6",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ],
-      "source_sha256": "d7231c91f09a37f517fcd1861a42b7a51fdad1ed84177d1d02f465d6c057b8de",
-      "text": "Resolva identificadores de objetos para linhas de regiões de imagem extraídas, **na ordem do chamador**.\n\nA metade do banco de dados do contrato de roteamento de objetos em :mod:`spacr.qt.linked_selection`: um gráfico de dispersão ou uma célula de matriz de confusão nomeia objetos pelo nome de dados estruturados :data:`spacr.selection.OBJECT_KEY_COLUMNS`, e a exibição do aplicativo Annotate tem que transformar aqueles nas regiões de imagem extraídas que ele pagina. Mantido aqui, em vez de no modo de exibição de aplicativo Qt, por isso é testável sem um display, e assim um segundo consumidor não precisa reimplantar a armadilha ``'o5'``-versus-``5`` em :func:`_object_label`.\n\nA ordem de entrada é preservada para que rankings prioritários como ``worst errors first`` permaneçam inalterados. Chaves sem uma região de imagem extraída correspondente são omitidas.\n\nNomes de dados estruturados digitados distinguem objetos com o mesmo rótulo numérico em um campo de visão do microscópio. ``png_list`` identifica o tipo de objeto através da coluna  ``<type>_id`` povoada (:data:`PNG_ID_COLUMN_TYPES`), então o núcleo 1 e o patógeno 1 resolvem de forma independente. Um nome de dados estruturada não digitado seleciona a primeira região de imagem extraída correspondente. Se a tabela não expor colunas do tipo objeto, a pesquisa digitada retornará ao nome de dado estruturado não digitada correspondente.\n\nOs componentes de metadados evadidos são resolvidos em forma codificada e bruta. Por exemplo, :func:`spacr.selection.object_keys` representa um  ``fieldID`` de  ``'f_1'`` como ``'f%5F1'``, enquanto um nome de dados estruturados montado a partir de colunas de tabela de imagem extraída contém o sublinhado bruto.\n\n:param db_path: caminho para ``measurements.db``.\n:param keys: Identificadores de objeto, digitados ou não. Um ``png_path``, um ``prcfo`` ou um ``file_name`` também é aceito, portanto, um chamador que trabalha a partir de uma tabela de região de imagem extraída em vez de uma mesa de medição não precisa de uma etapa de tradução.\n:param table: tabela extraído-imagem-região.\n:param key: Extraído-imagem-região identificador coluna.\n:param annotation_column: leia o rótulo existente também, de modo que uma região de imagem já anotada extraída renderiza com sua cor em vez de em branco.\n:param timelapse: As chaves carregam um ponto de tempo.\n:param image_type: filtro substring na chave de região-imagem extraída.\n:returns: ``[(png_path, annotation or None), …]`` na ordem das chaves.",
+      "source_sha256": "f64b7ab8717a72f564311eb69f7a8bf347db6c7ae707c0f7341b290982f030b6",
+      "text": "Resolva identificadores de objetos para linhas de regiões de imagem extraídas, **na ordem do chamador**.\n\nA metade do banco de dados do contrato de roteamento de objetos em :mod:`spacr.qt.linked_selection`: um gráfico de dispersão ou uma célula de matriz de confusão nomeia objetos pelo nome de dados estruturados :data:`spacr.selection.OBJECT_KEY_COLUMNS`, e a exibição do aplicativo Annotate tem que transformar aqueles nas regiões de imagem extraídas que ele pagina. Mantido aqui, em vez de no modo de exibição de aplicativo Qt, por isso é testável sem um display, e assim um segundo consumidor não precisa reimplantar a armadilha ``'o5'``-versus-``5`` em :func:`_object_label`.\n\nA ordem de entrada é preservada para que rankings prioritários como ``worst errors first`` permaneçam inalterados. Chaves sem uma região de imagem extraída correspondente são omitidas.\n\nNomes de dados estruturados digitados distinguem objetos com o mesmo rótulo numérico em um campo de visão do microscópio. ``png_list`` identifica o tipo de objeto através da coluna  ``<type>_id`` povoada (:data:`PNG_ID_COLUMN_TYPES`), então o núcleo 1 e o patógeno 1 resolvem de forma independente. Um nome de dados estruturada não digitado seleciona a primeira região de imagem extraída correspondente. Se a tabela não expor colunas do tipo objeto, a pesquisa digitada retornará ao nome de dado estruturado não digitada correspondente.\n\nOs componentes de metadados evadidos são resolvidos em forma codificada e bruta. Por exemplo, :func:`spacr.selection.object_keys` representa um  ``fieldID`` de  ``'f_1'`` como ``'f%5F1'``, enquanto um nome de dados estruturados montado a partir de colunas de tabela de imagem extraída contém o sublinhado bruto.\n\n:param db_path: caminho para ``measurements.db``.\n:param keys: Identificadores de objeto, digitados ou não. Um ``png_path``, um ``prcfo`` ou um ``file_name`` também é aceito, portanto, um chamador que trabalha a partir de uma tabela de região de imagem extraída em vez de uma mesa de medição não precisa de uma etapa de tradução.\n:param table: tabela extraído-imagem-região.\n:param key: Extraído-imagem-região identificador coluna.\n:param annotation_column: leia o rótulo existente também, de modo que uma região de imagem já anotada extraída renderiza com sua cor em vez de em branco.\n:param timelapse: As chaves carregam um ponto de tempo.\n:param image_type: o filtro de imagens do Annotate sobre a chave da região de imagem extraída, lido como a grade o lê (AND, OR, NOT, termos sem distinção entre maiúsculas e minúsculas).\n:returns: ``[(png_path, annotation or None), …]`` na ordem das chaves.",
       "translation_source_blocks_sha256": [
         "5430048bbfa86368363220fae110ebe8eb481c11a7b83dafe4a8b469cac78fb7",
         "da67a92aa443071a53265d33f04eb01a0c40920ff2c11ee682c66492a85d55d8",
@@ -1158,7 +1158,7 @@
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
         "cf3b2d22413e3e269a5b9e074ecd2d681923b311392f9f47c20f19a1722ac097",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ]
     },
@@ -1571,7 +1571,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "c4a49e34c74648bbeeaac2580ba68aebc6b7ae4f12411b494ee6c75cfc4c1e68",
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1588,8 +1588,8 @@
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "8e454e6390c0cf40214a75f58051d4d2ee497409af3a69e6aa5c7c0279ad3a2e"
       ],
-      "source_sha256": "5c0a2f87b2a2a444204a461bedaa7bb150107d7f9cd40bfefaa12120723cb287",
-      "text": "Coloque um modelo nas etiquetas atuais, reclassifique todas as regiões de imagem extraídas, registre a rodada.\n\nSem um retreinamento, a ordem da lista de trabalho ainda reflete um modelo montado antes de qualquer uma das novas etiquetas, por isso fica desatualizado após as primeiras dezenas de etiquetas.\n\nUma chamada faz todas as cinco coisas que o ciclo precisa:\n\n1. se encaixa um modelo em cada etiqueta em ``annotation_column``; 2. pontua-lo em uma divisão de **grouped**, de modo que o número não é um artefato de 190 rótulos provenientes de uma posição de amostra de microplacas; 3. escreve probabilidades por classe de volta em ``png_list`` como colunas :data:`ROUND_PRED_PREFIX`, que :func:`build_queue` prefere sobre o mais antigo ``pred`` então a próxima lista de trabalho é genuinamente re-classificada; 4. registra a rodada, dando :func:`learning_curve` outro ponto; 5. retorna o :class:`StoppingVerdict` para a curva até agora.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: A coluna que contém os rótulos.\n:param features: matriz de característica indexada pelo nome de dados estruturados extraídos-imagem-região. omitido, ele é lido nas tabelas de medição com :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (padrão é aquele que se comporta em 20 rótulos),  ``'random_forest'`` ou  ``'gradient_boosting'``.\n:param group_by: ``'well'`` (padrão), ``'plate'``, ``'field'`` ou ``'none'``. O que a divisão retida se recusa a compartilhar. Corresponde exatamente e em menor caso; qualquer outra coisa produz um erro, da mesma forma que um ``diversity=`` desconhecido faz em :func:`build_queue`. Quando a estratégia é ``'none'``, ou a tabela de região de imagem extraída não tem nenhuma das colunas de que precisa, a divisão é uma aleatória estratificada e ``split_rule`` afirma que nunca realizou um grupo ``NOT grouped``.\n:param holdout: fração mantida.\n:param seed: torna a divisão e o ajuste reprodutíveis.\n:param min_labels: Recuse-se a se encaixar abaixo desses muitos rótulos.\n:param round_index: substituir o número redondo; padrão para :func:`next_round`.\n:param table: tabela extraído-imagem-região.\n:param key: Extraído-imagem-região identificador coluna.\n:param image_type: filtro substring na chave de região-imagem extraída.\n:param write_scores: Escreva as novas probabilidades de volta para o banco de dados.\n:param save_model: joblib-dump o modelo ajustado ao lado do banco de dados.\n:param model_dir: onde colocá-lo; padrão para ``<db dir>/active_learning``.\n:param write_card: Escreva um cartão de modelo ao lado do modelo salvo.\n:param label_window: passou para :func:`should_stop`.\n:param min_gain: passou para :func:`should_stop`.\n:param measure: registrado com a rodada, para a lista de trabalho que se segue.\n:param diversity: Da mesma forma.\n:param balance: ``'none'`` (padrão) deixa o desequilíbrio para o próprio estimador  ``class_weight='balanced'``; ``'downsample'`` corta cada classe para o tamanho do menor ANTES da divisão agrupada.\n\n    Reponderamento e downsampling produzem probabilidades diferentes das mesmas regiões de imagem extraídas, e :func:`spacr.suggest.suggest_from_scores` classifica essas probabilidades, de modo que a rodada registra a configuração em  ``notes`` e no cartão do modelo.\n:param rejections: ``{crop key: rejected class}`` -- sugere o anotador rejeitado (:func:`spacr.suggest.rejected_suggestions`). Em uma coluna de duas classes, uma rejeição da classe 1 é um exemplo da classe 2, e é ajustada como uma; uma região de imagem extraída que foi rotulada é deixada em seu rótulo e, em uma coluna com quaisquer outras classes, a rejeição não pode ser transformada em um rótulo e é contada nas notas. Sem isso, o modelo que propôs a classe errada seria montado novamente na mesma evidência.\n:param synthetic_negatives: quantas regiões de imagem extraídas não anotadas para desenhar aleatoriamente e se encaixam como a classe ausente quando apenas uma classe foi anotada. ``None`` (padrão) recusa em vez disso, como antes.\n\n    Um sorteio aleatório do pool não anotado é principalmente negativo, não negativo, então o resultado é um ranking em vez de uma classificação. As notas redondas e o cartão modelo registram quantos negativos sintéticos foram usados. Definido apenas para as classes binárias 1 e 2 -- veja :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: abaixo dos rótulos ``min_labels``, com menos de duas classes anotadas, ou para um  ``group_by`` não reconhecido.",
+      "source_sha256": "a74925dd50ad41ac7120eab34cf450578d9f3b097f67b4feef6ebcfba49e5e0c",
+      "text": "Coloque um modelo nas etiquetas atuais, reclassifique todas as regiões de imagem extraídas, registre a rodada.\n\nSem um retreinamento, a ordem da lista de trabalho ainda reflete um modelo montado antes de qualquer uma das novas etiquetas, por isso fica desatualizado após as primeiras dezenas de etiquetas.\n\nUma chamada faz todas as cinco coisas que o ciclo precisa:\n\n1. se encaixa um modelo em cada etiqueta em ``annotation_column``; 2. pontua-lo em uma divisão de **grouped**, de modo que o número não é um artefato de 190 rótulos provenientes de uma posição de amostra de microplacas; 3. escreve probabilidades por classe de volta em ``png_list`` como colunas :data:`ROUND_PRED_PREFIX`, que :func:`build_queue` prefere sobre o mais antigo ``pred`` então a próxima lista de trabalho é genuinamente re-classificada; 4. registra a rodada, dando :func:`learning_curve` outro ponto; 5. retorna o :class:`StoppingVerdict` para a curva até agora.\n\n:param db_path: caminho para ``measurements.db``.\n:param annotation_column: A coluna que contém os rótulos.\n:param features: matriz de característica indexada pelo nome de dados estruturados extraídos-imagem-região. omitido, ele é lido nas tabelas de medição com :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (padrão é aquele que se comporta em 20 rótulos),  ``'random_forest'`` ou  ``'gradient_boosting'``.\n:param group_by: ``'well'`` (padrão), ``'plate'``, ``'field'`` ou ``'none'``. O que a divisão retida se recusa a compartilhar. Corresponde exatamente e em menor caso; qualquer outra coisa produz um erro, da mesma forma que um ``diversity=`` desconhecido faz em :func:`build_queue`. Quando a estratégia é ``'none'``, ou a tabela de região de imagem extraída não tem nenhuma das colunas de que precisa, a divisão é uma aleatória estratificada e ``split_rule`` afirma que nunca realizou um grupo ``NOT grouped``.\n:param holdout: fração mantida.\n:param seed: torna a divisão e o ajuste reprodutíveis.\n:param min_labels: Recuse-se a se encaixar abaixo desses muitos rótulos.\n:param round_index: substituir o número redondo; padrão para :func:`next_round`.\n:param table: tabela extraído-imagem-região.\n:param key: Extraído-imagem-região identificador coluna.\n:param image_type: o filtro de imagens do Annotate sobre a chave da região de imagem extraída, lido como a grade o lê (AND, OR, NOT, termos sem distinção entre maiúsculas e minúsculas).\n:param write_scores: Escreva as novas probabilidades de volta para o banco de dados.\n:param save_model: joblib-dump o modelo ajustado ao lado do banco de dados.\n:param model_dir: onde colocá-lo; padrão para ``<db dir>/active_learning``.\n:param write_card: Escreva um cartão de modelo ao lado do modelo salvo.\n:param label_window: passou para :func:`should_stop`.\n:param min_gain: passou para :func:`should_stop`.\n:param measure: registrado com a rodada, para a lista de trabalho que se segue.\n:param diversity: Da mesma forma.\n:param balance: ``'none'`` (padrão) deixa o desequilíbrio para o próprio estimador  ``class_weight='balanced'``; ``'downsample'`` corta cada classe para o tamanho do menor ANTES da divisão agrupada.\n\n    Reponderamento e downsampling produzem probabilidades diferentes das mesmas regiões de imagem extraídas, e :func:`spacr.suggest.suggest_from_scores` classifica essas probabilidades, de modo que a rodada registra a configuração em  ``notes`` e no cartão do modelo.\n:param rejections: ``{crop key: rejected class}`` -- sugere o anotador rejeitado (:func:`spacr.suggest.rejected_suggestions`). Em uma coluna de duas classes, uma rejeição da classe 1 é um exemplo da classe 2, e é ajustada como uma; uma região de imagem extraída que foi rotulada é deixada em seu rótulo e, em uma coluna com quaisquer outras classes, a rejeição não pode ser transformada em um rótulo e é contada nas notas. Sem isso, o modelo que propôs a classe errada seria montado novamente na mesma evidência.\n:param synthetic_negatives: quantas regiões de imagem extraídas não anotadas para desenhar aleatoriamente e se encaixam como a classe ausente quando apenas uma classe foi anotada. ``None`` (padrão) recusa em vez disso, como antes.\n\n    Um sorteio aleatório do pool não anotado é principalmente negativo, não negativo, então o resultado é um ranking em vez de uma classificação. As notas redondas e o cartão modelo registram quantos negativos sintéticos foram usados. Definido apenas para as classes binárias 1 e 2 -- veja :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: abaixo dos rótulos ``min_labels``, com menos de duas classes anotadas, ou para um  ``group_by`` não reconhecido.",
       "translation_source_blocks_sha256": [
         "951d883926b536a34e5cd0ebee5f02933b55e5828da6efc3a79435c417c21e65",
         "e4fcf0faf850f6bf6f649c7afe08a6e74907d17388393c016a51c4d9a6620b55",
@@ -1606,7 +1606,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "5d1c3c972e1ffc64511eb1eae159d667f9b6daf83948df53b888203ea49445ce",
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1631,25 +1631,29 @@
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "4018b583c775fc05733dfce234cb6f94a8448e3361f957cf66989a0a73ca0e4a",
         "42529e1520f6516ab9c106702830c241cf965efc52e64bb7c16dde2ca5939061",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "50cdd854a2adde80ccef5cb67792eacef83a6e781f992348ba774ca19940808f",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "a7972a1a00a26ce5a9a7b7342e3ccea30e2b327e11b9461bf0190b26cc4f5114"
       ],
-      "source_sha256": "8dfab3528887ae976b854dca42cb42786dc0f25ee6bb33657fd28ba4e1799e86",
-      "text": "As características de medição para cada região de imagem extraída, indexada por ``png_path``.\n\nA matriz de características em que um retreinamento de visualização em aplicativo se encaixa. Características de medição em vez de pixels de propósito: o ponto de reciclagem de dentro do Annotate é obter uma nova classificação em segundos, na máquina em que o anotador está sentado, sem um GPU e sem sair da visualização do aplicativo. Um retreinamento CNN é a coisa certa a fazer no *end* do ciclo, não entre duas páginas de regiões de imagem extraídas.\n\n:param db_path: caminho para ``measurements.db``.\n:param table: tabela extraído-imagem-região transportando ``png_path`` e ``prcfo``.\n:param key: a coluna identificador de imagem extraída.\n:param tables: tabelas de objetos para mesclar características; faltantes são ignorados.\n:param nuclei_limit: passou para :func:`spacr.io._read_and_merge_data`.\n:param pathogen_limit: Da mesma forma.\n:returns: características numéricas indexados por ``png_path``.\n:raises ValueError: quando nenhuma tabela de objetos com características pôde ser lida.",
+      "source_sha256": "115a6b78c60744ea5dcf44bbc4d5d78525ea8de74aaad2cb82509bbb6fe1c013",
+      "text": "As características de medição para cada região de imagem extraída, indexada por ``png_path``.\n\nA matriz de características em que um retreinamento de visualização em aplicativo se encaixa. Características de medição em vez de pixels de propósito: o ponto de reciclagem de dentro do Annotate é obter uma nova classificação em segundos, na máquina em que o anotador está sentado, sem um GPU e sem sair da visualização do aplicativo. Um retreinamento CNN é a coisa certa a fazer no *end* do ciclo, não entre duas páginas de regiões de imagem extraídas.\n\n:param db_path: caminho para ``measurements.db``.\n:param table: tabela extraído-imagem-região transportando ``png_path`` e ``prcfo``.\n:param key: a coluna identificador de imagem extraída.\n:param tables: tabelas de objetos das quais as características são tiradas; as que faltam são ignoradas, e ``None`` significa as tabelas dos tipos de objeto que as regiões de imagem extraídas mostram. A tabela própria de uma região (``nucleus`` para uma região de núcleo) fornece a linha própria do objeto, uma tabela superior (``cell`` ou ``cytoplasm``) a linha da célula em que ele está, e qualquer outra tabela a média das linhas dentro dessa célula. Uma região é mantida quando sua tabela própria está selecionada e contém sua linha ou, quando sua tabela própria não está selecionada, quando alguma tabela selecionada a descreve.\n:param nuclei_limit: uma célula com mais núcleos do que este valor não recebe características médias de núcleo; ``None`` não define limite.\n:param pathogen_limit: uma célula com mais patógenos do que este valor não recebe características médias de patógeno; ``None`` não define limite.\n:param channels: manter apenas as características destes grupos de canais, ``channel_<n>`` e ``none`` para características em que nenhum canal isolado entra (área, forma); ``None`` mantém todos os canais.\n:param families: manter apenas estas famílias de características, com os nomes de :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``, ``morphology``, ``texture`` etc.); ``None`` mantém todas as famílias.\n:returns: características numéricas indexadas por ``png_path``.\n:raises ValueError: quando nenhuma das tabelas de objetos pode ser lida, quando a seleção de canais e famílias não deixa nenhuma coluna de características, ou quando existem regiões de imagem extraídas e objetos medidos e nenhuma região corresponde a um objeto; no último caso, são indicadas uma chave de região e uma chave de objeto.",
       "translation_source_blocks_sha256": [
         "d3bc87290a803f6dc7d1edeb34d177115eb2c80058e9653f6e9165263c2459a3",
         "be6bd319614c4e175d9733d38c7036d9b2f5cfaa3521c292992d4321245dd934",
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "5300d333528981fa26e142fb1bdfb7c18b52f53e8a0ea14cf607024afd5f1465",
         "7d9d21ae8dc0f391ffc61c27ecc5b17762bd0552c401aa7947787ec078a5c183",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "49610a01e2cddc5ab9704824421010a65ab0cabe0eebf676100f12098a70b093",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "5210bc81a275b5d62fb9ffbf5e6fcd0142a54b9742656b1c6c5f6a496da959b2"
       ]
     },
     "spacr.active_learning.should_stop": {
@@ -23746,12 +23750,14 @@
     },
     "spacr.embeddings._cell_dino_model.forward": {
       "source_blocks_sha256": [
-        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d"
+        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+        "818ec8e8d821075bc67cffa17b7828e1372ab68ec964d3469052db0845e39f9d"
       ],
-      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
-      "text": "Devolver a saída da cabeça oficial DINOv2 para cada recorte declarado.",
+      "source_sha256": "a810037205193ce34881f0cb190474f344dc4375a6773eab08926ba06704c8de",
+      "text": "Devolver a saída da cabeça oficial DINOv2 para cada recorte declarado.\n\nChannel-Adaptive DINO codifica cada plano separadamente e devolve os tokens de classe de todos os planos lado a lado, como faz a sua avaliação oficial bag-of-channels.",
       "translation_source_blocks_sha256": [
-        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
+        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee",
+        "592489a0d8b841548105208f54295b7e00a17d56fbd0d7baa813c863fb9744a1"
       ]
     },
     "spacr.embeddings._dino_classifier_apply.refuse": {
@@ -23881,14 +23887,16 @@
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
         "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+        "c62e76c01327e1b77381460479b1855bd69e2f16cdcbee7ffb5fb6c624caa3ab",
         "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
         "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "264f161d2a0d1a4b9113d3edd2c7107edb84ae25374905e23dcc7ffc46d77dd4",
-      "text": "Codificar os planos declarados Cell-DINO com o tamanho oficial dos recortes.\n\nCodificar recortes de formato ``(n, h, w, k)`` em lotes adequados ao modelo.\n\n:param stack: Recortes float32 com os canais na última dimensão. SubCell R/Y/B/G usa valores de intensidade originais; os outros modelos fundacionais esperam [0, 1].\n:returns: Características ``(n, dims)`` em float32.",
+      "source_sha256": "c7c2c9528400cd4261f8bfb7e3f98a8c36f9992de2c871a4962ecb8cdb0a28d2",
+      "text": "Codificar os planos declarados Cell-DINO com o tamanho oficial dos recortes.\n\nCada plano de cada recorte é centrado e escalado para desvio-padrão unitário após o redimensionamento, como faz a transformação de avaliação oficial.\n\nCodificar recortes de formato ``(n, h, w, k)`` em lotes adequados ao modelo.\n\n:param stack: Recortes float32 com os canais na última dimensão. SubCell R/Y/B/G usa valores de intensidade originais; os outros modelos fundacionais esperam [0, 1].\n:returns: Características ``(n, dims)`` em float32.",
       "translation_source_blocks_sha256": [
         "0e92863a5153c0808c64f765b599c4a341f3c06e119ed44d5477b39d6f38dd15",
+        "17bccbbb02a5d3c5af2122f086e387920d9315e70d220e6f91032c8ddccecafb",
         "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
         "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
@@ -87566,7 +87574,7 @@
     },
     "spacr.qt.mask_engine.assign_tracked_object": {
       "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -87574,10 +87582,10 @@
         "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
         "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
       ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "Rastrear um objeto sob o ponteiro usando um ID local livre, sem assumir outra trajetória.\n\n:param mask: A máscara atual de rótulos inteiros em duas dimensões.\n:param x: A coluna do pixel sob o ponteiro.\n:param y: A linha do pixel sob o ponteiro.\n:param state: O grafo de linhagem a copiar e atualizar.\n:param frame: O caminho da imagem de origem deste quadro.\n:param cell_uuid: O UUID persistente do segmento a atribuir.",
+      "source_sha256": "20e05c734d55af9cb86840fb3c2d4931357ba0bb47e9c770b91c721cf65a44db",
+      "text": "Atribuir a identidade selecionada ao objeto sob o ponteiro, permitindo que um ramo de uma divisão a continue.\n\n:param mask: A máscara atual de rótulos inteiros em duas dimensões.\n:param x: A coluna do pixel sob o ponteiro.\n:param y: A linha do pixel sob o ponteiro.\n:param state: O grafo de linhagem a copiar e atualizar.\n:param frame: O caminho da imagem de origem deste quadro.\n:param cell_uuid: O UUID persistente do segmento a atribuir.",
       "translation_source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -104164,12 +104172,22 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": {
       "source_blocks_sha256": [
-        "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d"
+        "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551"
       ],
-      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "text": "O quinto plano pertence apenas à função de criação Cell Painting.",
+      "source_sha256": "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551",
+      "text": "Mostrar os planos que a função de criação escolhida aceita; nenhum quando é adaptativa.",
       "translation_source_blocks_sha256": [
-        "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+        "921189f8847b2a176e13c9e14904965af0fb1ce8275dcdb7a354b6bf2091f21a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed": {
+      "source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
+      ],
+      "source_sha256": "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4",
+      "text": "Preencher o arquivo e o modelo detectado; o resumo criptográfico é lido ao clicar em OK.",
+      "translation_source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {

@@ -14,7 +14,9 @@
       "source_sha256": "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
       "source": "substring filter on ``png_path`` — matches the Annotate screen's own ``image_type`` filter (e.g. ``'cell'``).",
       "context": "substring filter on ``png_path`` — matches the Annotate application view's own ``image_type`` filter (e.g. ``'cell'``).",
-      "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``)."
+      "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``).",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "label": "spacr.active_learning.predict_probabilities#1",

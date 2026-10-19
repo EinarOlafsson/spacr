@@ -282,11 +282,11 @@
       "translation": "掩膜必须包含非负整数标签：{path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "时间模式保存的掩膜使用内嵌细胞谱系的 32-bit TIFF。名称和祖先关系存储在 TIFF 内部；现有文件仅在保存时更改。将指针悬停在对象上即可分配所选标签，滚轮会先保存编辑，再移至每个相邻帧。启用时间？"
+      "translation": "时间模式保存的掩膜使用内嵌细胞谱系的 32-bit TIFF。名称和祖先关系存储在 TIFF 内部；现有文件仅在保存时更改。滚轮每滚动一格，都会把所选标签分配给指针下的对象，并在移至相邻帧前保存编辑；仅移动指针不会做任何更改。启用时间？"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

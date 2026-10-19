@@ -1,0 +1,35 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Quit spaCR before uninstalling it from the installer.",
+      "source": "Quit spaCR before uninstalling it from the installer.",
+      "source_sha256": "42de91e762c1d0abf55156f401c39e85d87b5ec2a8cd5c1b9b72e203d06267ab",
+      "table": "ui",
+      "translation": "请先退出 spaCR，再从安装程序中卸载它。"
+    },
+    {
+      "key": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source": "The running spaCR stays installed, so the cleanup categories start cleared and its settings, models and history are kept. Tick a category to delete its files as well.",
+      "source_sha256": "d95b7c5ce880d67724295f9166d8ae52b12d1f5f64f599f59c947783c1c80aa5",
+      "table": "ui",
+      "translation": "正在运行的 spaCR 会保持安装状态，因此清理类别初始为未选中，其设置、模型和历史记录都会保留。勾选某个类别即可同时删除其文件。"
+    },
+    {
+      "key": "list every spaCR installation and its data for the installer window",
+      "source": "list every spaCR installation and its data for the installer window",
+      "source_sha256": "cc943d2417b96f6ec545df9feb074acbb5f56b91f251e82426809adc7d267413",
+      "table": "ui",
+      "translation": "为安装程序窗口列出每个 spaCR 安装及其数据"
+    },
+    {
+      "key": "remove every listed spaCR installation and the chosen data",
+      "source": "remove every listed spaCR installation and the chosen data",
+      "source_sha256": "e90049358d90b233d6bc3e21de3581a649a6eacb9552a5f4a632271a703b665d",
+      "table": "ui",
+      "translation": "删除列出的每个 spaCR 安装以及所选数据"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

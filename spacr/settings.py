@@ -7548,6 +7548,8 @@ ALPHA_FEATURES = {
                     'EmbeddingsCellDinoPlane4',
                     'EmbeddingsCellDinoPlane5',
                     'EmbeddingsCellDinoProblem',
+                    'EmbeddingsCellDinoInstalled',
+                    'EmbeddingsCellDinoAdaptiveNote',
                     'EmbeddingsLabelsButton', 'EmbeddingsUseForLabel',
                     'EmbeddingsUseForPicker', 'EmbeddingsUseForRun'),
     },

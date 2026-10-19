@@ -136,14 +136,18 @@
       "label": "spacr.active_learning.round_features#5",
       "source": "object tables to merge features from; missing ones are skipped.",
       "source_sha256": "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-      "translation": "개체 테이블에서 특징을 결합; 실종된 것은 벗어납니다."
+      "translation": "개체 테이블에서 특징을 결합; 실종된 것은 벗어납니다.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "numeric features indexed by ``png_path``.",
       "label": "spacr.active_learning.round_features#8",
       "source": "numeric features indexed by ``png_path``.",
       "source_sha256": "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-      "translation": "숫자 특징은 ``png_path``로 인덱스됩니다."
+      "translation": "숫자 특징은 ``png_path``로 인덱스됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "Multi-annotator agreement for spaCR annotation columns.",

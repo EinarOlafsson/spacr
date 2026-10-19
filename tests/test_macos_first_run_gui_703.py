@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import subprocess
@@ -134,7 +135,11 @@ def test_all_window_keys_have_nine_locale_translations():
     spec.loader.exec_module(renderer)
     catalogs = renderer.catalogs()
     keys = {key for key in catalogs['en'] if key.startswith('gui_')}
-    assert len(keys) == 12
+    window = (ONLINE / 'macos_installer.m').read_text(encoding='utf-8')
+    named = set(re.findall(r'@"(gui_[a-z_]+)"', window)) - {'gui_category_'}
+    categories = re.search(r'NSArray \*keys = @\[(@"caches".*?)\];', window).group(1)
+    named |= {'gui_category_' + key for key in re.findall(r'@"([a-z]+)"', categories)}
+    assert keys == named and len(keys) == 30
     for language, table in catalogs.items():
         assert keys <= table.keys()
         if language != 'en':

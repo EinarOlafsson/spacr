@@ -48,7 +48,9 @@
       "label": "spacr.active_learning.annotation_coverage#7",
       "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
       "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
-      "translation": "구조화된 데이터 이름에 대한 부분 문자열 필터로, Annotate 애플리케이션 뷰 자체의 필터와 일치합니다. 그 아래의 모든 개수( ``n_rows`` 포함)는 일치한 추출된 이미지 영역만을 대상으로 합니다 — 전체 테이블에서 가져온 분모는 분자와 분모를 서로 다른 두 모집단에 두게 됩니다. ``n_rows_unfiltered`` 는 전체 개수를 유지하며, 메모에 몇 개가 제외되었는지 표시됩니다."
+      "translation": "구조화된 데이터 이름에 대한 부분 문자열 필터로, Annotate 애플리케이션 뷰 자체의 필터와 일치합니다. 그 아래의 모든 개수( ``n_rows`` 포함)는 일치한 추출된 이미지 영역만을 대상으로 합니다 — 전체 테이블에서 가져온 분모는 분자와 분모를 서로 다른 두 모집단에 두게 됩니다. ``n_rows_unfiltered`` 는 전체 개수를 유지하며, 메모에 몇 개가 제외되었는지 표시됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "one row per ``(plateID, rowID, columnID, class)`` that has at least one annotation, with ``n`` and ``share`` — plus the whole breakdown in ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, ``by_source``, ``concentration`` (per class) and ``notes``.",

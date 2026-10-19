@@ -282,11 +282,11 @@
       "translation": "La máscara debe contener etiquetas enteras no negativas: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "Las máscaras guardadas en el modo Tiempo usan TIFF de 32-bit con el linaje celular incrustado. Los nombres y la ascendencia se almacenan dentro del TIFF; los archivos existentes solo cambian al guardarlos. Al situar el puntero sobre un objeto se le asigna la etiqueta seleccionada, y la rueda guarda los cambios antes de pasar a cada fotograma adyacente. ¿Activar Tiempo?"
+      "translation": "Las máscaras guardadas en el modo Tiempo usan TIFF de 32-bit con el linaje celular incrustado. Los nombres y la ascendencia se almacenan dentro del TIFF; los archivos existentes solo cambian al guardarlos. Cada paso de la rueda asigna la etiqueta seleccionada al objeto bajo el puntero y guarda los cambios antes de pasar al fotograma adyacente; mover solo el puntero no cambia nada. ¿Activar Tiempo?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

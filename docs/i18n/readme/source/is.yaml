@@ -140,8 +140,8 @@ blocks:
   - '**Docker**: skipanalínuvinnslurnar í Linux-gámi, úr CPU-myndinni eða myndinni
     fyrir NVIDIA-skjákort:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker-leiðbeiningarnar (nightly, á ensku) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     fjalla um uppsetningu skjákorts, tengingu gagnamappa og skipanir fyrir vinnslurnar.'

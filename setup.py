@@ -123,7 +123,14 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 
 dependencies = [
     'packaging>=21.3',
-    'numpy>=1.26.4,<3.0',
+    # torch 2.2.2 is the last release with Intel macOS wheels and is built
+    # against numpy 1.x: under numpy 2 every torch.from_numpy raises "Numpy is
+    # not available". The installer applied this guard only on first install,
+    # so an in-app `uv pip install --upgrade spacr` moved numpy to 2.x. Python
+    # 3.13 on an Intel Mac gets no torch and no numpy 1.x wheel, so it is left
+    # out. opencv 4.12 requires numpy 2 and follows the same split.
+    'numpy>=1.26.4,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+    'numpy>=1.26.4,<2.0; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
@@ -172,7 +179,8 @@ dependencies = [
     'adjustText>=1.2.0,<2.0',
     'bottleneck>=1.3.6,<2.0',
     'numexpr>=2.8.4,<3.0',
-    'opencv-python-headless>=4.9.0.80,<5.0',
+    'opencv-python-headless>=4.9.0.80,<5.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+    'opencv-python-headless>=4.9.0.80,<4.12; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'pillow>=10.2.0,<13',
     'tifffile>=2023.4.12',
     'nd2reader>=3.3.0, <4.0',
@@ -201,7 +209,7 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.1.4"
+VERSION = "1.5.1.5"
 name = "spacr"
 
 setup(
@@ -263,7 +271,10 @@ setup(
             'xenon>=0.9,<1',
             'pingouin>=0.5.5,<2.0',
         ],
-        'headless': ['opencv-python-headless>=4.9.0.80,<5.0'],
+        'headless': [
+            'opencv-python-headless>=4.9.0.80,<5.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+            'opencv-python-headless>=4.9.0.80,<4.12; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
+        ],
         'embeddings': ['timm>=0.9,<2.0'],
         'trackastra': [
             'trackastra>=0.5,<1.0; python_version >= "3.10" and '

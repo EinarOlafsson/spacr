@@ -102,6 +102,7 @@ from PIL.ImageQt import ImageQt
 from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
                            QPainter, QPainterPath, QPen, QPixmap)
 from PySide6.QtWidgets import (
+    QButtonGroup,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -114,10 +115,13 @@ from PySide6.QtWidgets import (
     QInputDialog,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QRadioButton,
     QRubberBand,
     QScrollArea,
     QSizePolicy,
@@ -1185,12 +1189,19 @@ class _SuggestWorker(QThread):
             if rejections:
                 options["rejections"] = rejections
             round_kwargs = {**options}
+            selection = {name: round_kwargs.pop(name) for name in
+                         ("feature_tables", "feature_channels",
+                          "feature_families") if name in round_kwargs}
             self._step(2, "features")
             if round_kwargs.get("features") is None:
                 round_kwargs["features"] = al.round_features(
                     self._db_path,
                     table=str(round_kwargs.get("table", al.PNG_TABLE)),
-                    key=str(round_kwargs.get("key", al.PNG_KEY)))
+                    key=str(round_kwargs.get("key", al.PNG_KEY)),
+                    tables=selection.get("feature_tables",
+                                         al.DEFAULT_FEATURE_TABLES),
+                    channels=selection.get("feature_channels"),
+                    families=selection.get("feature_families"))
             self._step(3, "fit")
             self._fit(al, round_kwargs)
             self._step(4, "rank")
@@ -1251,6 +1262,235 @@ def _retire(obj) -> bool:
     except RuntimeError:
         return False
     return True
+
+
+class _SuggestDialog(QDialog):
+    """Choose what a Suggest round fits on and which crops it writes to.
+
+    Three choices, each answering a different question:
+
+    * the measurement TABLES whose features describe a crop -- by default
+      the table of the annotated object type, so a nucleus crop is described
+      by its own nucleus row; a parent table such as ``cell`` adds the row of
+      the cell the object lies in;
+    * the feature CLASSES, by channel and by family, as
+      :func:`spacr.active_learning._feature_columns` reads them;
+    * the CROPS to write suggestions onto: the images on screen, every
+      image, or chosen pages.
+
+    THE PAGES ARE FROZEN WHEN THE DIALOG OPENS. The grid reflows when the
+    window is resized, so "page 3" names different crops before and after;
+    the list here keeps the crops each page held at opening, and that is
+    what a ticked page means.
+
+    Shown with ``open()``, never ``exec()``: see :class:`_TextReportDialog`
+    for why a nested event loop is not used on this screen.
+    """
+
+    def __init__(self, choices: Dict[str, Any], pages: List[List[str]],
+                 current_page: int, remembered: Optional[Dict[str, Any]],
+                 parent: Optional[QWidget] = None):
+        """Build the three choices.
+
+        :param choices: from
+            :func:`spacr.active_learning._suggest_feature_choices`.
+        :param pages: the crop paths of every page, in order, as the grid
+            shows them now.
+        :param current_page: the index of the page on screen.
+        :param remembered: the last selection for this database, or None.
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        self.setObjectName("AnnotateSuggestDialog")
+        self.setWindowTitle(tr("Suggest labels"))
+        self._pages = [list(page) for page in pages]
+        self._current = max(0, min(int(current_page), len(pages) - 1))
+        remembered = dict(remembered or {})
+        self._buttons: Optional[QDialogButtonBox] = None
+        layout = QVBoxLayout(self)
+        self._layout = layout
+        _section = self._section
+        _boxes = self._boxes
+
+        _section(tr("Measurement tables to fit on"))
+        tables = list(choices.get("tables") or [])
+        chosen_tables = [t for t in (remembered.get("feature_tables")
+                                     or choices.get("default_tables") or [])
+                         if t in tables]
+        self._tables = _boxes(tables, chosen_tables or tables[:1],
+                              "AnnotateSuggestTable")
+
+        _section(tr("Channels"))
+        channels = list(choices.get("channels") or [])
+        self._channels = _boxes(
+            channels, _known(remembered.get("feature_channels"), channels),
+            "AnnotateSuggestChannel", _channel_text)
+
+        _section(tr("Feature families"))
+        families = list(choices.get("families") or [])
+        self._families = _boxes(
+            families, _known(remembered.get("feature_families"), families),
+            "AnnotateSuggestFamily")
+
+        _section(tr("Images to suggest for"))
+        self._on_screen = QRadioButton(tr("Images on screen"), self)
+        self._on_screen.setObjectName("AnnotateSuggestScopeScreen")
+        self._every = QRadioButton(tr("All images"), self)
+        self._every.setObjectName("AnnotateSuggestScopeAll")
+        self._chosen = QRadioButton(tr("Pages…"), self)
+        self._chosen.setObjectName("AnnotateSuggestScopePages")
+        group = QButtonGroup(self)
+        for button in (self._on_screen, self._every, self._chosen):
+            group.addButton(button)
+            layout.addWidget(button)
+            button.toggled.connect(self._refresh)
+        self._page_list = QListWidget(self)
+        self._page_list.setObjectName("AnnotateSuggestPages")
+        for index, page in enumerate(self._pages):
+            item = QListWidgetItem(
+                tr("Page {n} ({count} images)", n=index + 1,
+                   count=len(page)))
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Checked if index == self._current
+                               else Qt.Unchecked)
+            self._page_list.addItem(item)
+        self._page_list.itemChanged.connect(self._refresh)
+        layout.addWidget(self._page_list)
+        scope = remembered.get("scope")
+        {"all": self._every, "pages": self._chosen}.get(
+            scope, self._on_screen).setChecked(True)
+
+        self._buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self._buttons.button(QDialogButtonBox.Ok).setText(tr("Suggest"))
+        self._buttons.button(QDialogButtonBox.Ok).setObjectName(
+            "AnnotateSuggestDialogOk")
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        layout.addWidget(self._buttons)
+        self._refresh()
+
+    def _section(self, text: str) -> QLabel:
+        """Add a bold heading above one group of choices.
+
+        :param text: the heading, already translated.
+        :returns: the label.
+        """
+        label = QLabel(text, self)
+        font = label.font()
+        font.setBold(True)
+        label.setFont(font)
+        self._layout.addWidget(label)
+        return label
+
+    def _boxes(self, names: Sequence[str], chosen: Optional[Sequence[str]],
+               prefix: str, text_for=None) -> Dict[str, QCheckBox]:
+        """Add one check box per name, four to a row.
+
+        :param names: the choices.
+        :param chosen: the names to tick; None ticks every one.
+        :param prefix: object-name prefix, ``<prefix>_<name>``.
+        :param text_for: the shown text for a name; None shows the name
+            itself, which is then an identifier and is not translated.
+        :returns: ``{name: box}``.
+        """
+        row = QGridLayout()
+        boxes: Dict[str, QCheckBox] = {}
+        wanted = None if chosen is None else set(chosen)
+        for i, name in enumerate(names):
+            box = QCheckBox(text_for(name) if text_for else name, self)
+            box.setObjectName(f"{prefix}_{name}")
+            if text_for is None:
+                box.setProperty("i18nSkipText", True)
+            box.setChecked(wanted is None or name in wanted)
+            box.toggled.connect(self._refresh)
+            row.addWidget(box, i // 4, i % 4)
+            boxes[name] = box
+        self._layout.addLayout(row)
+        return boxes
+
+    def _refresh(self, *_args) -> None:
+        """Enable the page list for Pages, and OK only for a usable choice."""
+        if self._buttons is None:
+            return
+        self._page_list.setEnabled(self._chosen.isChecked())
+        usable = (any(b.isChecked() for b in self._tables.values())
+                  and (not self._channels
+                       or any(b.isChecked() for b in self._channels.values()))
+                  and (not self._families
+                       or any(b.isChecked() for b in self._families.values()))
+                  and (not self._chosen.isChecked() or bool(self.pages())))
+        self._buttons.button(QDialogButtonBox.Ok).setEnabled(usable)
+
+    def pages(self) -> List[int]:
+        """The ticked pages, counted from 0."""
+        return [i for i in range(self._page_list.count())
+                if self._page_list.item(i).checkState() == Qt.Checked]
+
+    def scope(self) -> str:
+        """``'screen'``, ``'all'`` or ``'pages'``."""
+        if self._every.isChecked():
+            return "all"
+        if self._chosen.isChecked():
+            return "pages"
+        return "screen"
+
+    def only_paths(self) -> Optional[List[str]]:
+        """The crops to write suggestions onto; None means every crop.
+
+        Taken from the pages as they were when the dialog opened.
+        """
+        scope = self.scope()
+        if scope == "all":
+            return None
+        chosen = self.pages() if scope == "pages" else [self._current]
+        paths: List[str] = []
+        for index in chosen:
+            if 0 <= index < len(self._pages):
+                paths.extend(self._pages[index])
+        return list(dict.fromkeys(paths))
+
+    def selection(self) -> Dict[str, Any]:
+        """The tables and feature classes, as ``_SuggestWorker`` options.
+
+        A group with every box ticked is passed as None, "no restriction",
+        so a channel the next Measure run adds is not left out.
+        """
+        return {"feature_tables": [n for n, b in self._tables.items()
+                                   if b.isChecked()],
+                "feature_channels": _ticked(self._channels),
+                "feature_families": _ticked(self._families)}
+
+
+def _ticked(boxes: Dict[str, QCheckBox]) -> Optional[List[str]]:
+    """The ticked names, or None when every box is ticked.
+
+    :param boxes: ``{name: box}``.
+    """
+    names = [n for n, b in boxes.items() if b.isChecked()]
+    return None if len(names) == len(boxes) else names
+
+
+def _channel_text(name: str) -> str:
+    """The shown text of a channel group in the Suggest dialog.
+
+    :param name: ``channel_<n>`` or
+        :data:`spacr.active_learning.NO_CHANNEL`.
+    """
+    from ...active_learning import NO_CHANNEL
+
+    if name == NO_CHANNEL:
+        return tr("No single channel (shape, size)")
+    return tr("Channel {n}", n=name.rsplit("_", 1)[-1])
+
+
+def _known(chosen: Optional[Sequence[str]],
+           names: Sequence[str]) -> Optional[List[str]]:
+    """The remembered names still on offer; None (all) when none remain."""
+    if chosen is None:
+        return None
+    kept = [n for n in chosen if n in names]
+    return kept or None
 
 
 class _TextReportDialog(QDialog):
@@ -3752,9 +3992,9 @@ class AnnotateScreen(QWidget):
         self._btn_suggest_cancel.setToolTip(tr(
             "Stop the suggestion run at its next step. No new suggestions "
             "are written if it stops before the writing step; earlier "
-            "suggestions may have been cleared and round scores may have "
-            "been updated. Your annotations are unchanged. Shown only "
-            "while a run is going."))
+            "suggestions are put back, and round scores may have been "
+            "updated. Your annotations are unchanged. Shown only while a "
+            "run is going."))
         self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
         self._btn_suggest_cancel.hide()
         row.addWidget(self._btn_suggest_cancel)
@@ -5832,6 +6072,14 @@ class AnnotateScreen(QWidget):
             waiting = 0
 
         menu = QMenu(self._btn_suggest)
+        choose = menu.addAction(iconset.icon("settings"),
+                                tr("Choose tables, features and images…"))
+        choose.setObjectName("AnnotateSuggestChoose")
+        choose.setToolTip(tr(
+            "Choose the measurement tables and feature classes the model is "
+            "fitted on, and the images it writes suggestions onto: the "
+            "images on screen, all images, or chosen pages."))
+        choose.triggered.connect(self._open_suggest_dialog)
         page = menu.addAction(iconset.icon("classify"),
                               "Suggest for the images on this page")
         page.setToolTip(
@@ -5885,8 +6133,113 @@ class AnnotateScreen(QWidget):
                                   table=self._settings.png_table)
         self._worker.start()
 
-    def _start_suggest(self, *, this_page: bool) -> None:
-        """Fit a round and write its proposals, off the GUI thread."""
+    def _suggest_choice_key(self) -> str:
+        """The settings key of this database's last Suggest choices."""
+        import hashlib
+
+        path = os.path.abspath(str(self._settings.db_path or ""))
+        return ("annotate/suggest_choice/"
+                + hashlib.sha1(path.encode("utf-8")).hexdigest())
+
+    def _remembered_suggest_choice(self) -> Dict[str, Any]:
+        """The tables, feature classes and scope last chosen for this database.
+
+        :returns: the stored choice, or an empty dict when there is none or
+            it cannot be read.
+        """
+        import json
+
+        from ..prefs import _s
+
+        try:
+            raw = _s().value(self._suggest_choice_key())
+            value = json.loads(str(raw)) if raw else {}
+        except Exception:
+            LOG.debug("unreadable Suggest choice", exc_info=True)
+            return {}
+        return value if isinstance(value, dict) else {}
+
+    def _remember_suggest_choice(self, choice: Dict[str, Any]) -> None:
+        """Store this database's Suggest choices for the next opening."""
+        import json
+
+        from ..prefs import _s
+
+        try:
+            store = _s()
+            store.setValue(self._suggest_choice_key(), json.dumps(choice))
+            store.sync()
+        except Exception:
+            LOG.debug("could not store the Suggest choice", exc_info=True)
+
+    def _frozen_pages(self) -> List[List[str]]:
+        """Every page of the grid as it is laid out now, as crop paths.
+
+        The same rows, in the same order, :meth:`_load_page` pages through,
+        cut at the current page size.
+        """
+        page = max(1, int(self._settings.page_size or 1))
+        if self._filtered_rows is not None:
+            rows = list(self._filtered_rows)
+        else:
+            rows = fetch_page(self._settings.db_path,
+                              self._settings.annotation_column, 0,
+                              max(int(self._total or 0), page),
+                              self._settings.image_type,
+                              table=self._settings.png_table)
+        paths = [str(row[0]) for row in rows]
+        return [paths[i:i + page] for i in range(0, len(paths), page)]
+
+    def _open_suggest_dialog(self) -> Optional["_SuggestDialog"]:
+        """Ask which tables, feature classes and images a round uses.
+
+        :returns: the opened dialog, or None without a source.
+        """
+        if not self._settings.db_path:
+            return None
+        from ... import active_learning as al
+
+        try:
+            choices = al._suggest_feature_choices(
+                self._settings.db_path, self._settings.png_table)
+        except Exception as exc:
+            self._status_label.setText(
+                tr("Could not read the measurement tables: {why}",
+                   why=self._blind_text(str(exc))))
+            return None
+        page = max(1, int(self._settings.page_size or 1))
+        dialog = _SuggestDialog(choices, self._frozen_pages(),
+                                int(self._offset or 0) // page,
+                                self._remembered_suggest_choice(), self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.accepted.connect(lambda: self._accept_suggest_dialog(dialog))
+        self._suggest_dialog = dialog
+        dialog.open()
+        return dialog
+
+    def _accept_suggest_dialog(self, dialog: "_SuggestDialog") -> None:
+        """Remember the dialog's choices and start the round they describe."""
+        selection = dialog.selection()
+        self._remember_suggest_choice({**selection, "scope": dialog.scope()})
+        paths = dialog.only_paths()
+        if paths is not None and not paths:
+            self._status_label.setText(
+                "There is nothing on this page to suggest for.")
+            return
+        self._start_suggest(this_page=False, only_paths=paths,
+                            selection=selection)
+
+    def _start_suggest(self, *, this_page: bool,
+                       only_paths: Optional[Sequence[str]] = None,
+                       selection: Optional[Dict[str, Any]] = None) -> None:
+        """Fit a round and write its proposals, off the GUI thread.
+
+        :param this_page: write suggestions only onto the page on screen.
+        :param only_paths: write them only onto these crops instead.
+        :param selection: the tables and feature classes to fit on, as
+            :meth:`_SuggestDialog.selection` gives them; None uses the last
+            choice for this database, or the defaults.
+        """
         if self._suggest_worker is not None:
             self._status_label.setText("A suggestion run is already going.")
             return
@@ -5900,7 +6253,7 @@ class AnnotateScreen(QWidget):
 
         synthetic = self._synthetic_negatives_needed()
 
-        only = None
+        only = None if only_paths is None else [str(p) for p in only_paths]
         if this_page:
             only = [str(path) for path, _ in self._page_paths]
             if not only:
@@ -5924,7 +6277,8 @@ class AnnotateScreen(QWidget):
              "measure": self._settings.queue_measure,
              "diversity": self._settings.queue_diversity,
              "image_type": self._settings.image_type,
-             "synthetic_negatives": synthetic},
+             "synthetic_negatives": synthetic,
+             **self._suggest_selection_options(selection)},
             png_table=self._settings.png_table,
             only_paths=only, parent=self)
         worker.done.connect(self._on_suggest_done)
@@ -5934,6 +6288,24 @@ class AnnotateScreen(QWidget):
             signal.connect(slot)
         self._suggest_worker = worker
         worker.start()
+
+    def _suggest_selection_options(
+            self, selection: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """The worker options a table and feature-class choice adds.
+
+        :param selection: the choice, or None for the remembered one.
+        :returns: only the keys that restrict something, so a round with no
+            choice made fits exactly as before.
+        """
+        if selection is None:
+            selection = self._remembered_suggest_choice()
+        out: Dict[str, Any] = {}
+        for name in ("feature_tables", "feature_channels",
+                     "feature_families"):
+            value = selection.get(name)
+            if value:
+                out[name] = list(value)
+        return out
 
     def _suggest_extra_slots(self, worker):
         """The progress, cancel and split signals a suggestion run carries.

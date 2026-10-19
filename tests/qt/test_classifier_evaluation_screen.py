@@ -154,8 +154,9 @@ def test_scan_loads_all_evaluation_views(screen):
     assert "4 held-out prediction" in screen._status.text()
 
 
-def test_prediction_filter_searches_across_columns(screen):
+def test_prediction_filter_searches_across_columns(qtbot, screen):
     screen._prediction_filter.setText("plate2 B01")
+    qtbot.waitUntil(lambda: screen._predictions.rowCount() == 1, timeout=3000)
     assert screen._predictions.rowCount() == 1
     screen._prediction_filter.clear()
     assert screen._predictions.rowCount() == 4

@@ -216,6 +216,7 @@ class FeaturePicker(QWidget):
         """
         self._all = () if frame is None else candidate_features(frame)
         self._checked = set(self._all)
+        self._rebuild_items()
         self._refilter()
 
     def set_selected(self, features) -> None:
@@ -261,17 +262,33 @@ class FeaturePicker(QWidget):
         needle = self._search.text().strip().lower()
         return [n for n in self._all if not needle or needle in n.lower()]
 
-    def _refilter(self) -> None:
-        """Re-list the features matching the search box."""
+    def _rebuild_items(self) -> None:
+        """Rebuild one list item per offered feature, hidden or not.
+
+        Called only when the offered features change, never per keystroke.
+        """
         self._list.blockSignals(True)
         self._list.clear()
-        for name in self._visible():
+        for name in self._all:
             item = QListWidgetItem(name)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if name in self._checked
                                else Qt.Unchecked)
             item.setData(Qt.UserRole, name)
             self._list.addItem(item)
+        self._list.blockSignals(False)
+
+    def _refilter(self) -> None:
+        """Show the features matching the search box, reusing the items."""
+        shown = set(self._visible())
+        self._list.blockSignals(True)
+        for row in range(self._list.count()):
+            item = self._list.item(row)
+            name = item.data(Qt.UserRole)
+            item.setHidden(name not in shown)
+            state = Qt.Checked if name in self._checked else Qt.Unchecked
+            if item.checkState() != state:
+                item.setCheckState(state)
         self._list.blockSignals(False)
         total = len(self._all)
         self._count.setText(

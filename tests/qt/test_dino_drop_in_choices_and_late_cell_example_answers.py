@@ -104,9 +104,10 @@ def test_the_cell_dino_form_starts_from_an_installed_checkpoint_it_finds(
     found = tmp_path / "hpa.pth"
     found.write_bytes(b"x")
     asked = []
-    monkeypatch.setattr(embeddings, "_find_cell_dino", lambda verify=False: (
-        asked.append(verify) or {"path": str(found), "factory": "cell_dino_hpa_vitl16",
-                                 "sha256": "c" * 64}))
+    monkeypatch.setattr(embeddings, "_find_cell_dino", lambda verify=False, **choice: (
+        asked.append(verify) or chose.append(choice) or {
+            "path": str(found), "factory": "cell_dino_hpa_vitl16", "sha256": "c" * 64}))
+    chose = []
     seen = []
     monkeypatch.setattr(QDialog, "exec", lambda dialog: seen.append(
         dialog.objectName()) or QDialog.Rejected)
@@ -115,10 +116,11 @@ def test_the_cell_dino_form_starts_from_an_installed_checkpoint_it_finds(
     screen._choose_cell_dino()
 
     assert asked == [True] and seen == ["EmbeddingsCellDinoDialog"]
+    assert chose == [{"available": 4, "preferred": ""}]
     assert (screen._cell_dino_factory, screen._cell_dino_checkpoint,
             screen._cell_dino_digest) == ("cell_dino_hpa_vitl16", str(found), "c" * 64)
 
-    monkeypatch.setattr(embeddings, "_find_cell_dino", lambda verify=False: (
+    monkeypatch.setattr(embeddings, "_find_cell_dino", lambda verify=False, **_: (
         asked.append(verify) or {"path": str(found), "factory": "cell_dino_cp_vits8",
                                  "sha256": "d" * 64}))
     screen._choose_cell_dino()
@@ -131,7 +133,7 @@ def test_the_cell_dino_form_without_an_installed_checkpoint_keeps_nothing(
     from spacr import embeddings
 
     monkeypatch.setattr(embeddings, "_find_cell_dino",
-                        lambda verify=False: {"path": "/x.pth", "problem": "missing"})
+                        lambda verify=False, **_: {"path": "/x.pth", "problem": "missing"})
     monkeypatch.setattr(QDialog, "exec", lambda dialog: QDialog.Rejected)
     screen._choose_cell_dino()
     assert not screen._cell_dino_checkpoint and not screen._cell_dino_digest

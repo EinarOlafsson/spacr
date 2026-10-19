@@ -282,11 +282,11 @@
       "translation": "मास्क में गैर-ऋणात्मक पूर्णांक लेबल होने चाहिए: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "समय मोड में सहेजे गए मास्क 32-bit TIFF का उपयोग करते हैं जिनमें कोशिका वंशावली अंतर्निहित होती है। नाम और पूर्वजों की जानकारी TIFF के भीतर सहेजे जाते हैं; मौजूदा फ़ाइलें केवल सहेजने पर बदलती हैं। ऑब्जेक्ट पर पॉइंटर रखने से चुना हुआ लेबल मिलता है, और माउस व्हील हर पास वाले फ़्रेम पर जाने से पहले संपादन सहेजता है। समय सक्षम करें?"
+      "translation": "समय मोड में सहेजे गए मास्क 32-bit TIFF का उपयोग करते हैं जिनमें कोशिका वंशावली अंतर्निहित होती है। नाम और पूर्वजों की जानकारी TIFF के भीतर सहेजे जाते हैं; मौजूदा फ़ाइलें केवल सहेजने पर बदलती हैं। माउस व्हील का हर कदम पॉइंटर के नीचे वाले ऑब्जेक्ट को चुना हुआ लेबल देता है और पास वाले फ़्रेम पर जाने से पहले संपादन सहेजता है; केवल पॉइंटर हिलाने से कुछ नहीं बदलता। समय सक्षम करें?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

@@ -954,8 +954,10 @@ def build_queue(db_path: str, annotation_column: str = "annotate",
         ``diversity``.
     :param seed: tie-breaking seed; ``None`` breaks ties on row order.
         Either way the result is reproducible.
-    :param image_type: substring filter on ``png_path`` — matches the
-        Annotate screen's own ``image_type`` filter (e.g. ``'cell'``).
+    :param image_type: the Annotate screen's ``image_type`` filter on
+        ``png_path`` (e.g. ``'cell'`` or ``'cell AND NOT pathogen'``), read
+        the way the grid reads it: AND, OR, NOT and parentheses, each term
+        matched without regard to case.
     :returns: DataFrame with ``rank`` (1-based), the key, ``uncertainty``,
         ``predicted_class``, the probability columns and whatever crop
         metadata ``png_list`` has. Empty (with the same columns) when
@@ -1334,8 +1336,8 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     :param annotation_column: the column the Annotate app writes into.
     :param table: crop table (default ``png_list``).
     :param key: row key (default ``png_path``).
-    :param image_type: substring filter on the key, matching the Annotate
-        screen's own filter. Every count below it, ``n_rows`` included, is
+    :param image_type: the Annotate screen's own filter on the key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms). Every count below it, ``n_rows`` included, is
         over the crops that matched — a denominator taken from the whole
         table would put the numerator and the denominator on two different
         populations. ``n_rows_unfiltered`` keeps the total, and a note says
@@ -1590,7 +1592,8 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     :param annotation_column: read the existing label too, so an already
         annotated crop renders with its colour rather than blank.
     :param timelapse: the keys carry a timepoint.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :returns: ``[(png_path, annotation or None), …]`` in the keys' order.
     """
     wanted = [str(k) for k in keys]
@@ -2430,6 +2433,15 @@ def _image_type_mask(paths: Sequence[Any],
 _CHILD_CROP_ID_COLUMNS: Tuple[str, ...] = tuple(
     f"{role}_id" for role in schema.CHILD_OBJECT_TABLES)
 
+#: The channel group of a feature that no single channel enters -- area,
+#: shape, position. Offered beside ``channel_0`` .. ``channel_n`` so a
+#: selection of one channel can keep or leave out the shape features.
+NO_CHANNEL = "none"
+
+#: The object tables a round reads by default, in the order they are merged.
+DEFAULT_FEATURE_TABLES: Tuple[str, ...] = ("cell", "nucleus", "pathogen",
+                                           "cytoplasm")
+
 
 def _parent_cell_token(name: Any) -> Optional[int]:
     """The parent cell label in a child crop's file name, or ``None``.
@@ -2447,57 +2459,176 @@ def _parent_cell_token(name: Any) -> Optional[int]:
     return int(token) if token.isdigit() else None
 
 
-def _crop_feature_keys(crops: pd.DataFrame) -> pd.Series:
-    """The key of the measured object each ``png_list`` row shows.
+def _is_missing(value: Any) -> bool:
+    """``None`` or a float NaN."""
+    return value is None or (isinstance(value, float) and value != value)
 
-    :func:`spacr.io._read_and_merge_data` keys its rows on the parent cell,
-    ``prcf_o<cell label>``, after :func:`spacr.utils.correct_metadata` has
-    canonicalised every plate-bearing column. Two things made a stored
-    ``prcfo`` miss that key for every crop of a database:
 
-    * the plate repair (:func:`spacr.schema.canonical_plate_id`) was applied
-      to the object tables and not to ``png_list``, so a plate whose name
-      begins with ``pp`` was ``pp...`` on one side and ``p...`` on the
-      other;
-    * a nucleus, pathogen or organelle crop stores its OWN label as the last
-      ``prcfo`` component, while the merged row of that object is keyed on
-      its parent cell -- so it matched no row, or the row of an unrelated
-      cell that happened to share the number. The parent is taken from the
-      file name, where :func:`spacr.utils._generate_names` writes it.
+def _crop_object_keys(crops: pd.DataFrame) -> pd.DataFrame:
+    """What object each ``png_list`` row shows, and how to find its rows.
+
+    ``object_type`` comes from the per-mode id column the row fills
+    (``cell_id``, ``nucleus_id``, ...); a row with none of them is a cell
+    crop, which is what a table without those columns holds. ``own_key`` is
+    the object's own ``prcf_o<label>``: the stored ``prcfo`` after the plate
+    repair (:func:`spacr.schema.canonical_plate_id`) that every object table
+    is read with, so a plate whose name begins with ``pp`` matches.
+    ``parent_key`` is the cell the object belongs to -- the object itself for
+    a cell or cytoplasm crop, and for a child crop the cell
+    :func:`spacr.utils._generate_names` writes second-last in the file name.
 
     :param crops: ``png_list`` rows carrying ``prcfo`` and, where present,
-        ``file_name``/``png_path`` and the per-mode object-id columns.
-    :returns: one key per row, ``None`` where the row names no single
-        measured cell.
+        ``file_name``/``png_path`` and the per-mode id columns.
+    :returns: ``object_type``, ``own_key`` and ``parent_key`` per row, on
+        the crops' index; a key is ``None`` where the row names no object.
     """
-    keys = [None if (v is None or (isinstance(v, float) and v != v))
-            else schema.canonical_plate_id(str(v)) for v in crops["prcfo"]]
-    child_cols = [c for c in _CHILD_CROP_ID_COLUMNS if c in crops.columns]
-    if not child_cols:
-        return pd.Series(keys, index=crops.index, dtype=object)
-    has_cell = (crops["cell_id"].notna().to_numpy() if "cell_id" in crops
-                else np.zeros(len(crops), dtype=bool))
-    is_child = crops[child_cols].notna().any(axis=1).to_numpy() & ~has_cell
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    own = [None if _is_missing(v) or not str(v) else
+           schema.canonical_plate_id(str(v)) for v in crops["prcfo"]]
+    types = ["cell"] * len(crops)
+    for mode, column in PNG_OBJECT_ID_COLUMNS.items():
+        if mode == "cell" or column not in crops.columns:
+            continue
+        filled = crops[column].notna().to_numpy()
+        if "cell_id" in crops.columns:
+            filled &= crops["cell_id"].isna().to_numpy()
+        for i in np.flatnonzero(filled):
+            types[i] = mode
     names = (crops["file_name"] if "file_name" in crops.columns
              else crops.get("png_path", pd.Series([None] * len(crops),
                                                   index=crops.index)))
-    for i in np.flatnonzero(is_child):
-        key, name = keys[i], names.iloc[i]
-        if not key or (isinstance(name, float) and name != name):
-            keys[i] = None
+    parent: List[Optional[str]] = []
+    for i, (kind, key) in enumerate(zip(types, own)):
+        if kind in schema.PARENT_OBJECT_TABLES or not key:
+            parent.append(key)
             continue
-        parent = _parent_cell_token(name)
+        cell = _parent_cell_token(names.iloc[i])
         field, sep, _ = key.rpartition(schema.KEY_SEPARATOR)
-        keys[i] = (f"{field}{sep}o{parent}"
-                   if parent is not None and sep else None)
-    return pd.Series(keys, index=crops.index, dtype=object)
+        parent.append(f"{field}{sep}o{cell}"
+                      if cell is not None and sep else None)
+    return pd.DataFrame({"object_type": types, "own_key": own,
+                         "parent_key": parent}, index=crops.index)
+
+
+def _crop_feature_keys(crops: pd.DataFrame) -> pd.Series:
+    """The parent-cell key of each ``png_list`` row.
+
+    The key :func:`spacr.io._read_and_merge_data` puts every object under;
+    see :func:`_crop_object_keys`.
+
+    :param crops: ``png_list`` rows.
+    :returns: one key per row, ``None`` where the row names no single cell.
+    """
+    return _crop_object_keys(crops)["parent_key"].rename(None)
+
+
+def _feature_columns(columns: Iterable[Any],
+                     channels: Optional[Iterable[str]] = None,
+                     families: Optional[Iterable[str]] = None) -> List[str]:
+    """The feature columns a channel and family selection keeps.
+
+    Columns are classified by :func:`spacr.feature_dict.parse_column`, the
+    same classification :mod:`spacr.column_groups` offers in the column
+    picker. Identifier columns (family ``meta``) are never features. A
+    column no single channel enters (area, shape) belongs to the
+    :data:`NO_CHANNEL` group; a column the dictionary cannot classify is in
+    the family ``unknown``.
+
+    :param columns: candidate column names.
+    :param channels: ``channel_<n>`` names and/or :data:`NO_CHANNEL`;
+        ``None`` keeps every channel.
+    :param families: family names; ``None`` keeps every family.
+    :returns: the kept names, in their original order.
+    """
+    from .column_groups import _entry
+
+    channel_set = None if channels is None else {str(c) for c in channels}
+    family_set = None if families is None else {str(f) for f in families}
+    kept = []
+    for column in columns:
+        entry = _entry(column)
+        family = str(getattr(entry, "family", None) or "unknown")
+        if family == "meta":
+            continue
+        channel = getattr(entry, "channel", None)
+        group = NO_CHANNEL if channel is None else f"channel_{int(channel)}"
+        if channel_set is not None and group not in channel_set:
+            continue
+        if family_set is not None and family not in family_set:
+            continue
+        kept.append(column)
+    return kept
+
+
+def _suggest_feature_choices(db_path: str, table: str = PNG_TABLE
+                             ) -> Dict[str, Any]:
+    """What a Suggest round can be fitted on in this database.
+
+    Reads column names only, so it is cheap enough for a dialog to call on
+    every opening.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: the crop table.
+    :returns: ``tables`` (the object tables present, in
+        :data:`spacr.schema.OBJECT_TABLES` order), ``default_tables`` (the
+        tables of the object types the crops show), ``channels`` (channel
+        groups, numerically, then :data:`NO_CHANNEL` when any column has no
+        channel) and ``families`` (sorted).
+    """
+    from .column_groups import _entry
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    con = _connect(db_path)
+    try:
+        present = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
+        ).fetchall()}
+        tables = [t for t in schema.OBJECT_TABLES if t in present]
+        columns: Dict[str, List[str]] = {
+            t: [r[1] for r in con.execute(
+                f"PRAGMA table_info({_quote_ident(t)})").fetchall()]
+            for t in tables}
+        modes: List[str] = []
+        if table in present:
+            crop_columns = {r[1] for r in con.execute(
+                f"PRAGMA table_info({_quote_ident(table)})").fetchall()}
+            for mode, column in PNG_OBJECT_ID_COLUMNS.items():
+                if column in crop_columns and con.execute(
+                        f"SELECT 1 FROM {_quote_ident(table)} WHERE "
+                        f"{_quote_ident(column)} IS NOT NULL LIMIT 1"
+                ).fetchone():
+                    modes.append(mode)
+    finally:
+        con.close()
+    default = [t for t in tables if t in (modes or ["cell"])]
+    if not default and tables:
+        default = ["cell"] if "cell" in tables else tables[:1]
+    channel_numbers, families, unchannelled = set(), set(), False
+    for names in columns.values():
+        for column in names:
+            entry = _entry(column)
+            family = str(getattr(entry, "family", None) or "unknown")
+            if family == "meta":
+                continue
+            families.add(family)
+            channel = getattr(entry, "channel", None)
+            if channel is None:
+                unchannelled = True
+            else:
+                channel_numbers.add(int(channel))
+    channels = [f"channel_{n}" for n in sorted(channel_numbers)]
+    if unchannelled:
+        channels.append(NO_CHANNEL)
+    return {"tables": tables, "default_tables": default,
+            "channels": channels, "families": sorted(families)}
 
 
 def _key_samples(values: Iterable[Any], n: int = 3) -> str:
     """Up to ``n`` distinct values, quoted, for an error message."""
     seen: List[str] = []
     for value in values:
-        if value is None or (isinstance(value, float) and value != value):
+        if _is_missing(value):
             continue
         text = repr(str(value))
         if text not in seen:
@@ -2507,12 +2638,61 @@ def _key_samples(values: Iterable[Any], n: int = 3) -> str:
     return ", ".join(seen) if seen else "none"
 
 
+def _object_table_features(frame: pd.DataFrame, name: str,
+                           channels: Optional[Iterable[str]],
+                           families: Optional[Iterable[str]]
+                           ) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+    """One object table as features keyed on each object's own key.
+
+    :param frame: the table, read through :func:`spacr.io._read_db`.
+    :param name: the table name; a feature column that does not already
+        start with ``<name>_`` gets that prefix, so two tables can never
+        share a column.
+    :param channels: passed to :func:`_feature_columns`.
+    :param families: likewise.
+    :returns: ``(features, parents)`` -- numeric features indexed by
+        ``prcf_o<object_label>``, and for a table with a ``cell_id`` link the
+        parent-cell key of every row (``None`` for a parent table).
+    """
+    if "prcf" not in frame.columns or "object_label" not in frame.columns:
+        raise ValueError(
+            f"The {name} table has no 'prcf' and 'object_label' columns, so "
+            f"its rows cannot be matched to crops. Re-run Measure.")
+    labels = pd.to_numeric(frame["object_label"], errors="coerce")
+    keep = labels.notna().to_numpy()
+    frame = frame.loc[keep]
+    labels = labels.loc[keep].astype(np.int64)
+    prcf = frame["prcf"].astype(str).map(schema.canonical_plate_id)
+    own = prcf + "_o" + labels.astype(str)
+    numeric = frame.select_dtypes(include=[np.number])
+    numeric = numeric.drop(columns=[c for c in ("object_label", "cell_id")
+                                    if c in numeric.columns])
+    columns = _feature_columns(numeric.columns, channels, families)
+    features = numeric[columns].copy()
+    features.columns = [c if str(c).startswith(f"{name}_") else f"{name}_{c}"
+                        for c in columns]
+    features.index = own.to_numpy()
+    parents = None
+    if "cell_id" in frame.columns:
+        cell = pd.to_numeric(frame["cell_id"], errors="coerce")
+        parents = pd.Series(
+            [None if c != c else f"{p}_o{int(c)}"
+             for p, c in zip(prcf, cell)], index=own.to_numpy(), dtype=object)
+    duplicated = features.index.duplicated(keep="first")
+    if duplicated.any():
+        features = features.loc[~duplicated]
+        if parents is not None:
+            parents = parents.loc[~duplicated]
+    return features, parents
+
+
 def round_features(db_path: str, table: str = PNG_TABLE,
                    key: str = PNG_KEY,
-                   tables: Sequence[str] = ("cell", "nucleus", "pathogen",
-                                            "cytoplasm"),
-                   nuclei_limit: int = 10,
-                   pathogen_limit: int = 10) -> pd.DataFrame:
+                   tables: Optional[Sequence[str]] = DEFAULT_FEATURE_TABLES,
+                   nuclei_limit: Optional[int] = 10,
+                   pathogen_limit: Optional[int] = 10, *,
+                   channels: Optional[Sequence[str]] = None,
+                   families: Optional[Sequence[str]] = None) -> pd.DataFrame:
     """The measurement features for every crop, indexed by ``png_path``.
 
     The feature matrix an in-screen retrain fits on. Measurement features
@@ -2525,14 +2705,31 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     :param db_path: path to ``measurements.db``.
     :param table: crop table carrying ``png_path`` and ``prcfo``.
     :param key: the crop key column.
-    :param tables: object tables to merge features from; missing ones are
-        skipped.
-    :param nuclei_limit: passed through to :func:`spacr.io._read_and_merge_data`.
-    :param pathogen_limit: likewise.
+    :param tables: object tables to take features from; missing ones are
+        skipped, and ``None`` means the tables of the object types the crops
+        show. A crop's own table (``nucleus`` for a nucleus crop) gives the
+        object's own row, a parent table (``cell`` or ``cytoplasm``) the row
+        of the cell it lies in, and any other table the mean of the rows
+        inside that cell. A crop is kept when its own table is selected and
+        holds its row, or, when its own table is not selected, when any
+        selected table describes it.
+    :param nuclei_limit: a cell holding more nuclei than this gets no mean
+        nucleus features; ``None`` sets no limit.
+    :param pathogen_limit: a cell holding more pathogens than this gets no
+        mean pathogen features; ``None`` sets no limit.
+    :param channels: keep only the features of these channel groups,
+        ``channel_<n>`` and ``none`` for features no single channel enters
+        (area, shape); ``None`` keeps every channel.
+    :param families: keep only these feature families, as named in
+        :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``,
+        ``morphology``, ``texture`` and so on); ``None`` keeps every family.
     :returns: numeric features indexed by ``png_path``.
-    :raises ValueError: when no object table with features could be read.
+    :raises ValueError: when none of the object tables can be read, when
+        the channel and family selection leaves no feature column, or when
+        crops and measured objects exist and not one crop matches an object;
+        the last names a crop key and an object key.
     """
-    from .io import _read_and_merge_data
+    from .io import _read_db
 
     con = _connect(db_path)
     try:
@@ -2553,37 +2750,94 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     finally:
         con.close()
 
-    wanted = [t for t in tables if t in available]
+    crops = pd.DataFrame(rows, columns=select).dropna(subset=["prcfo"])
+    crops = crops.loc[~crops[key].duplicated(keep="first")]
+    crops = crops.reset_index(drop=True)
+    keys = _crop_object_keys(crops)
+    requested = (sorted(set(keys["object_type"]))
+                 if tables is None else list(tables))
+    wanted = [t for t in requested if t in available]
     if not wanted:
         raise ValueError(
             f"{os.path.basename(str(db_path))} has none of the object tables "
-            f"{', '.join(tables)}, so there are no features to fit on. Run "
+            f"{', '.join(requested)}, so there are no features to fit on. Run "
             f"Measure first, or pass features= explicitly.")
 
-    merged, _ = _read_and_merge_data([str(db_path)], wanted, False,
-                                     nuclei_limit=nuclei_limit,
-                                     pathogen_limit=pathogen_limit)
-    crops = pd.DataFrame(rows, columns=select).dropna(subset=["prcfo"])
-    crops["_object_key"] = _crop_feature_keys(crops).to_numpy()
-    numeric = merged.select_dtypes(include=[np.number])
-    joined = crops[[key, "_object_key"]].join(numeric, on="_object_key",
-                                              how="inner")
-    if joined.empty and len(crops) and len(numeric):
+    limits = {"nucleus": nuclei_limit, "pathogen": pathogen_limit}
+    parts: List[pd.DataFrame] = []
+    required = np.zeros(len(crops), dtype=bool)
+    present = np.ones(len(crops), dtype=bool)
+    described = np.zeros(len(crops), dtype=bool)
+    probe: Optional[Tuple[pd.Series, pd.Index]] = None
+    n_objects = 0
+    n_columns = 0
+    object_type = keys["object_type"].to_numpy()
+    own_key = keys["own_key"].to_numpy()
+    parent_key = keys["parent_key"].to_numpy()
+    for name, frame in zip(wanted, _read_db(str(db_path), wanted)):
+        features, parents = _object_table_features(frame, name, channels,
+                                                   families)
+        n_objects += len(features)
+        n_columns += features.shape[1]
+        own_rows = object_type == name
+        if name in schema.PARENT_OBJECT_TABLES:
+            same_cell = np.isin(object_type, schema.PARENT_OBJECT_TABLES)
+            lookup = np.where(same_cell, own_key, parent_key)
+            block = features.reindex(lookup)
+            hit = pd.Index(lookup).isin(features.index)
+        else:
+            if parents is not None:
+                grouped = features.groupby(parents.to_numpy()).mean()
+                limit = limits.get(name)
+                if limit is not None:
+                    counts = parents.value_counts()
+                    grouped = grouped.loc[
+                        counts.reindex(grouped.index).to_numpy()
+                        <= int(limit)]
+            else:
+                grouped = features.iloc[0:0]
+            lookup = np.where(own_rows, own_key, parent_key)
+            block = grouped.reindex(parent_key)
+            block.iloc[own_rows] = features.reindex(
+                own_key[own_rows]).to_numpy()
+            hit = np.where(own_rows,
+                           pd.Index(own_key).isin(features.index),
+                           pd.Index(parent_key).isin(grouped.index))
+        required |= own_rows
+        present &= ~own_rows | hit
+        described |= hit
+        if probe is None:
+            probe = (pd.Series(lookup, dtype=object), features.index)
+        block.index = crops.index
+        parts.append(block)
+
+    if not n_columns:
+        raise ValueError(
+            f"The selected channels and feature families leave no feature "
+            f"column in {', '.join(wanted)}, so there is nothing to fit on. "
+            f"Select more channels or feature families.")
+    matrix = pd.concat(parts, axis=1) if parts else pd.DataFrame(
+        index=crops.index)
+    matrix = matrix.loc[:, ~matrix.columns.duplicated(keep="first")]
+    kept = np.where(required, present, described)
+    if len(crops) and not kept.any():
+        if not n_objects:
+            raise ValueError(
+                f"{table} lists {len(crops):,} crops, but {', '.join(wanted)} "
+                f"hold no measured object, so there are no features to fit "
+                f"on. Check that Measure finished for these plates.")
+        lookup, index = probe
         raise ValueError(
             f"None of the {len(crops):,} crops in {table} matches one of the "
-            f"{len(numeric):,} measured objects in {', '.join(wanted)}, so "
+            f"{n_objects:,} measured objects in {', '.join(wanted)}, so "
             f"there are no features to fit on. A crop is looked up as "
-            f"{_key_samples(crops['_object_key'])} (from prcfo "
+            f"{_key_samples(lookup)} (from prcfo "
             f"{_key_samples(crops['prcfo'])}); the measured objects are keyed "
-            f"{_key_samples(numeric.index)}. Check that Measure and the crop "
+            f"{_key_samples(index)}. Check that Measure and the crop "
             f"export ran over the same objects and plates.")
-    if joined.empty and len(crops) and not len(numeric):
-        raise ValueError(
-            f"{table} lists {len(crops):,} crops, but no measured object "
-            f"survived the merge of {', '.join(wanted)}, so there are no "
-            f"features to fit on. Check that Measure finished for these "
-            f"plates.")
-    return joined.drop(columns=["_object_key"]).set_index(key)
+    matrix.index = crops[key].to_numpy()
+    matrix.index.name = key
+    return matrix.loc[kept]
 
 
 _SIMILAR_K = 100
@@ -2926,7 +3180,8 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
         When omitted, the crop embeddings stored in the database by
         :func:`_store_crop_embeddings` are used if present, otherwise the
         measurement features from :func:`round_features`.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :param backend: passed to :class:`_SimilarityIndex`.
     :returns: the index.
     :raises ValueError: when no crop has usable features.
@@ -3257,7 +3512,8 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         :func:`next_round`.
     :param table: crop table.
     :param key: crop key column.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :param write_scores: write the new probabilities back into the database.
     :param save_model: joblib-dump the fitted model beside the database.
     :param model_dir: where to put it; defaults to ``<db dir>/active_learning``.

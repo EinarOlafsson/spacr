@@ -1,0 +1,166 @@
+"""Save mask writes on the mask writer thread, so a slow disk never holds the window.
+
+Lesson 14 lost 3.1 s of GUI time to one TIFF write on a busy disk. A save
+that lands within ``_MASK_SAVE_WAIT_SECONDS`` still reports at once; a slower
+one finishes in the background, and every reader of that file waits for it.
+"""
+from __future__ import annotations
+
+import threading
+
+import imageio.v2 as imageio
+import numpy as np
+import pytest
+import tifffile
+from PySide6.QtCore import QSettings
+
+from spacr.qt import mask_engine as engine
+from spacr.qt.screens import make_masks as mm
+
+
+@pytest.fixture
+def opened(qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    from spacr.qt import prefs
+
+    monkeypatch.setattr(engine, "_MASK_SAVE_WAIT_SECONDS", 0.1)
+
+    settings_path = tmp_path / "editor.ini"
+    monkeypatch.setattr(
+        prefs, "_s", lambda: QSettings(str(settings_path), QSettings.IniFormat))
+    folder = tmp_path / "fields"
+    folder.mkdir()
+    for index in range(2):
+        imageio.imwrite(folder / f"field_{index}.tif",
+                        np.full((64, 64), index + 1, dtype=np.uint16))
+    screen = mm.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: screen._canvas.mask is not None)
+    yield screen, folder
+    mm._wait_for_mask_writes(timeout=10)
+    screen._magnifier.close()
+    screen.close_folded()
+
+
+def _saved(folder, index):
+    return engine.mask_save_path(str(folder), f"field_{index}.tif")
+
+
+def _held_save(monkeypatch):
+    """Make every mask save wait for the returned event, recording its thread."""
+    release, threads = threading.Event(), []
+    real = engine.save_mask
+
+    def held(*args, **kwargs):
+        threads.append(threading.current_thread().name)
+        assert release.wait(10)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(engine, "save_mask", held)
+    return release, threads
+
+
+def test_a_fast_save_is_written_by_the_writer_and_reported_at_once(opened, monkeypatch):
+    screen, folder = opened
+    threads = []
+    real = engine.save_mask
+
+    def recorded(*args, **kwargs):
+        threads.append(threading.current_thread().name)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(engine, "save_mask", recorded)
+    monkeypatch.setattr(engine, "_MASK_SAVE_WAIT_SECONDS", 30.0)
+    screen._canvas.mask[12:20, 12:20] = 7
+    screen._btn_save.click()
+    assert threads == ["spacr-mask-writer"]
+    assert screen._status_label.text().startswith("Saved")
+    assert np.all(tifffile.imread(_saved(folder, 0))[12:20, 12:20] > 0)
+
+
+def test_a_slow_save_returns_at_once_and_reports_when_it_lands(opened, monkeypatch, qtbot):
+    screen, folder = opened
+    release, threads = _held_save(monkeypatch)
+    screen._canvas.mask[12:20, 12:20] = 5
+    path = screen._save_mask()
+    assert path == _saved(folder, 0)
+    assert threads == ["spacr-mask-writer"]
+    assert mm._mask_writes_pending(path)
+    assert not screen._status_label.text().startswith("Saved")
+    release.set()
+    qtbot.waitUntil(lambda: screen._status_label.text().startswith("Saved"), timeout=10000)
+    assert not mm._mask_writes_pending()
+    assert np.all(tifffile.imread(path)[12:20, 12:20] > 0)
+
+
+def test_coming_back_to_a_field_reads_the_mask_its_save_is_still_writing(
+        opened, monkeypatch, qtbot):
+    screen, folder = opened
+    release, _threads = _held_save(monkeypatch)
+    screen._canvas.mask[12:20, 12:20] = 9
+    edited = engine.canonical_labels(screen._canvas.mask)
+    assert screen._save_mask() == _saved(folder, 0)
+    screen._btn_next.click()
+    assert screen._current_index == 1
+    assert screen._loading, "the next field must wait for the save, not read past it"
+    threading.Timer(0.3, release.set).start()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=10000)
+    screen._btn_prev.click()
+    qtbot.waitUntil(lambda: not screen._loading and screen._current_index == 0, timeout=10000)
+    np.testing.assert_array_equal(screen._canvas.mask, edited)
+
+
+def test_closing_the_screen_waits_for_the_save_in_progress(opened, monkeypatch):
+    screen, folder = opened
+    release, _threads = _held_save(monkeypatch)
+    screen._canvas.mask[12:20, 12:20] = 3
+    screen._save_mask()
+    threading.Timer(0.3, release.set).start()
+    screen.close()
+    assert not mm._mask_writes_pending()
+    assert np.all(tifffile.imread(_saved(folder, 0))[12:20, 12:20] > 0)
+    assert screen._status_label.text().startswith("Saved")
+
+
+def test_a_failed_background_save_is_reported_and_tried_again(opened, monkeypatch, qtbot):
+    screen, folder = opened
+    warnings = []
+    monkeypatch.setattr(screen, "_warn", lambda *args: warnings.append(args))
+    release = threading.Event()
+    real = engine.save_mask
+    calls = []
+
+    def failing_once(*args, **kwargs):
+        calls.append(1)
+        if len(calls) == 1:
+            assert release.wait(10)
+            raise OSError("disk full")
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(engine, "save_mask", failing_once)
+    before = screen._last_saved_mask.copy()
+    screen._canvas.mask[12:20, 12:20] = 4
+    assert screen._save_mask() == _saved(folder, 0)
+    release.set()
+    qtbot.waitUntil(lambda: bool(warnings), timeout=10000)
+    assert warnings == [("Save failed", "disk full")]
+    np.testing.assert_array_equal(screen._last_saved_mask, before)
+    screen._btn_save_on_navigation.trigger()
+    assert screen._save_mask_if_needed()
+    assert mm._wait_for_mask_writes(timeout=10)
+    assert len(calls) == 2
+    assert np.all(tifffile.imread(_saved(folder, 0))[12:20, 12:20] > 0)
+
+
+def test_a_fast_failure_still_stops_the_save_at_once(opened, monkeypatch):
+    screen, _folder = opened
+    warnings = []
+    monkeypatch.setattr(screen, "_warn", lambda *args: warnings.append(args))
+
+    def broken(*args, **kwargs):
+        raise OSError("read-only folder")
+
+    monkeypatch.setattr(engine, "save_mask", broken)
+    screen._canvas.mask[12:20, 12:20] = 2
+    assert screen._save_mask() is None
+    assert warnings == [("Save failed", "read-only folder")]

@@ -365,11 +365,17 @@ _CELL_DINO_FACTORIES = {
     "cell_dino_hpa_vitl16": (4, 224),
     "cell_dino_hpa_vitl14": (4, 518),
     "cell_dino_cp_vits8": (5, 128),
+    "channel_adaptive_dino_vitl16": (0, 224),
 }
+_CHANNEL_ADAPTIVE = "channel_adaptive_dino_vitl16"
 
 
 def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
-    """Require an official factory, local digest and ordered source planes."""
+    """Require an official factory, local digest and ordered source planes.
+
+    Channel-Adaptive DINO takes any number of distinct planes; the other
+    factories take exactly their declared width.
+    """
     if not spec.checkpoint_path:
         raise EmbeddingError(
             "Choose a local official Cell-DINO checkpoint before embedding; "
@@ -382,6 +388,8 @@ def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
         raise EmbeddingError("Choose an official Cell-DINO factory before embedding")
     width, size = _CELL_DINO_FACTORIES[factory]
     channels = spec.channels
+    if not width and isinstance(channels, (tuple, list)) and channels:
+        width = len(channels)
     if (spec.channel_policy != CHANNEL_PROJECT
             or not isinstance(channels, (tuple, list))
             or len(channels) != width
@@ -399,44 +407,35 @@ _OPEN_DINOV2 = "vit_small_patch14_dinov2.lvd142m"
 _CELL_DINO_ENV = "SPACR_CELL_DINO_CHECKPOINT"
 _CELL_DINO_PATCHES = {(4, 16): "cell_dino_hpa_vitl16",
                       (4, 14): "cell_dino_hpa_vitl14",
-                      (5, 8): "cell_dino_cp_vits8"}
+                      (5, 8): "cell_dino_cp_vits8",
+                      (1, 16): _CHANNEL_ADAPTIVE}
 _CELL_DINO_SEEN: Dict[Tuple[str, int, int], Dict[str, str]] = {}
 
 
 def _cell_dino_folder() -> str:
-    """The folder searched for an official Cell-DINO checkpoint.
+    """The folder searched for official Cell-DINO checkpoints.
 
-    ``$SPACR_CELL_DINO_CHECKPOINT`` naming a file takes precedence; otherwise
-    the first ``*.pth`` or ``*.pt`` file in ``cell_dino`` under spaCR's model
-    cache is used.
+    Every ``*.pth`` or ``*.pt`` file in ``cell_dino`` under spaCR's model
+    cache is offered; ``$SPACR_CELL_DINO_CHECKPOINT`` naming a file overrides
+    the choice.
     """
     from .model_zoo import _model_cache_root
 
     return str(_model_cache_root() / "cell_dino")
 
 
-def _find_cell_dino(verify: bool = False) -> Dict[str, str]:
-    """Locate an installed official Cell-DINO checkpoint without a network.
+def _cell_dino_entry(chosen: str, verify: bool = False) -> Dict[str, str]:
+    """Describe one checkpoint file without loading its weights.
 
     The factory is read from the patch-embedding shape of the plain model
     state, which is memory-mapped rather than loaded.
 
-    :param verify: also compute the file's SHA-256; cached per path, size
-        and modification time.
-    :returns: ``{}`` when no file is installed; else ``path`` with either
-        ``factory`` (and ``sha256`` when verified) or ``problem``.
+    :param chosen: the file.
+    :param verify: also compute its SHA-256; cached per path, size and
+        modification time.
+    :returns: ``path`` with either ``factory`` (and ``sha256`` when
+        verified) or ``problem``.
     """
-    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
-    if not chosen:
-        folder = _cell_dino_folder()
-        try:
-            names = sorted(name for name in os.listdir(folder)
-                           if name.lower().endswith((".pth", ".pt")))
-        except OSError:
-            names = []
-        if not names:
-            return {}
-        chosen = os.path.join(folder, names[0])
     path = os.path.realpath(os.path.expanduser(chosen))
     try:
         status = os.stat(path)
@@ -471,24 +470,94 @@ def _find_cell_dino(verify: bool = False) -> Dict[str, str]:
     return dict(found)
 
 
+def _cell_dino_checkpoints() -> List[Dict[str, str]]:
+    """Every installed Cell-DINO checkpoint, in file-name order.
+
+    ``$SPACR_CELL_DINO_CHECKPOINT`` is listed first when it names a file
+    outside the folder.
+    """
+    folder = _cell_dino_folder()
+    try:
+        names = sorted(name for name in os.listdir(folder)
+                       if name.lower().endswith((".pth", ".pt")))
+    except OSError:
+        names = []
+    paths = [os.path.join(folder, name) for name in names]
+    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
+    if chosen and os.path.realpath(os.path.expanduser(chosen)) not in {
+            os.path.realpath(path) for path in paths}:
+        paths.insert(0, chosen)
+    return [_cell_dino_entry(path) for path in paths]
+
+
+def _find_cell_dino(verify: bool = False, available: int = 0,
+                    preferred: str = "") -> Dict[str, str]:
+    """Pick the installed Cell-DINO checkpoint to use, without a network.
+
+    ``$SPACR_CELL_DINO_CHECKPOINT`` wins, then ``preferred`` when it is still
+    installed and readable. Otherwise the best fit for ``available`` crop
+    channels: five takes the Cell Painting ViT-S/8; four takes an HPA model,
+    a single-cell (``hpa_sc``) one first; any other count takes
+    Channel-Adaptive DINO. Failing those, the first readable file.
+
+    :param verify: also compute the chosen file's SHA-256.
+    :param available: how many channels the crops have; ``0`` if unknown.
+    :param preferred: the file the user chose last.
+    :returns: ``{}`` when no file is installed; else ``path`` with either
+        ``factory`` (and ``sha256`` when verified) or ``problem``.
+    """
+    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
+    if chosen:
+        return _cell_dino_entry(chosen, verify)
+    entries = _cell_dino_checkpoints()
+    if not entries:
+        return {}
+    readable = [entry for entry in entries if entry.get("factory")]
+    wanted = os.path.realpath(os.path.expanduser(preferred)) if preferred else ""
+    pick = next((entry for entry in readable if entry["path"] == wanted), None)
+    if pick is None:
+        if available == 5:
+            order = ("cell_dino_cp_vits8",)
+        elif available == 4:
+            order = ("cell_dino_hpa_vitl16", "cell_dino_hpa_vitl14")
+        elif available > 0:
+            order = (_CHANNEL_ADAPTIVE,)
+        else:
+            order = ()
+        fits = [entry for factory in order for entry in sorted(
+            (entry for entry in readable if entry["factory"] == factory),
+            key=lambda entry: "hpa_sc" not in os.path.basename(entry["path"]))]
+        pick = (fits or readable or entries)[0]
+    return _cell_dino_entry(pick["path"], verify)
+
+
 def _dino_choice(channels: Optional[Sequence[int]], available: int, *,
                  channel_policy: str = CHANNEL_PROJECT, batch_size: int = 64,
-                 device: Optional[str] = None,
-                 verify: bool = True) -> Tuple[EmbeddingSpec, Dict[str, str]]:
+                 device: Optional[str] = None, verify: bool = True,
+                 preferred: str = "") -> Tuple[EmbeddingSpec, Dict[str, str]]:
     """Official Cell-DINO when it is installed and mapped, else open DINOv2.
+
+    Channel-Adaptive DINO needs no mapping: without one it encodes every
+    crop channel separately, in order.
 
     :param channels: crop channel per Cell-DINO input plane, in model order.
     :param available: how many channels the crops have.
+    :param preferred: the checkpoint file the user chose last.
     :returns: the spec to run and what was decided: ``model`` is
         ``cell_dino`` or ``dinov2``, with ``reason`` (``absent``,
         ``unmapped`` or ``unreadable``) when Cell-DINO is not used.
     """
-    found = _find_cell_dino(verify=verify)
+    found = _find_cell_dino(verify=verify, available=available,
+                            preferred=preferred)
     note = dict(found)
     factory = found.get("factory")
     if factory:
         width = _CELL_DINO_FACTORIES[factory][0]
         planes = tuple(channels or ())
+        if not width:
+            if not planes or any(not 0 <= plane < available for plane in planes):
+                planes = tuple(range(available))
+            width = len(planes) or 1
         if (len(planes) == width and len(set(planes)) == width and all(
                 isinstance(plane, (int, np.integer))
                 and not isinstance(plane, (bool, np.bool_))
@@ -892,7 +961,12 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
         model.eval().to(device)
 
         def run(stack: np.ndarray) -> np.ndarray:
-            """Encode declared Cell-DINO planes at the official crop size."""
+            """Encode declared Cell-DINO planes at the official crop size.
+
+            Each plane of each crop is centred and scaled to unit standard
+            deviation after resizing, as the official evaluation transform
+            does.
+            """
             out: List[np.ndarray] = []
             with torch.no_grad():
                 for start in range(0, stack.shape[0], spec.batch_size):
@@ -903,6 +977,9 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                         chunk = torch.nn.functional.interpolate(
                             chunk, size=(size, size), mode="bilinear",
                             align_corners=False)
+                    chunk = chunk - chunk.mean((-2, -1), keepdim=True)
+                    chunk = chunk / (chunk.std((-2, -1), unbiased=False,
+                                               keepdim=True) + 1e-7)
                     out.append(forward(model, chunk).detach().float().cpu().numpy())
             return np.concatenate(out, axis=0)
 
@@ -988,11 +1065,20 @@ def _cell_dino_model(spec: EmbeddingSpec, torch: Any):
             f"loaded strictly: {exc}") from exc
     patch_embed = getattr(model, "patch_embed", None)
     projection = getattr(patch_embed, "proj", None)
-    if getattr(projection, "in_channels", None) != width:
+    adaptive = spec.cell_dino_factory == _CHANNEL_ADAPTIVE
+    if getattr(projection, "in_channels", None) != (1 if adaptive else width):
         raise EmbeddingError("Cell-DINO factory has an unexpected input width")
 
     def forward(net, x):
-        """Return the official DINOv2 head output for each declared crop."""
+        """Return the official DINOv2 head output for each declared crop.
+
+        Channel-Adaptive DINO encodes each plane on its own and returns the
+        class tokens of every plane side by side, as its official
+        bag-of-channels evaluation does.
+        """
+        if adaptive:
+            return net.get_intermediate_layers(
+                x, 1, return_class_token=True)[-1][1]
         return net(x)
 
     return model, forward

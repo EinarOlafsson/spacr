@@ -1039,13 +1039,13 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "750e36de9893f80daf838fda778697fb247e391b1cf1e62082f7cc578e58a089",
         "9927ae21a825a35f4a4823a2c2e8b31dd081a64605efcedd996cc11baa3c1c75",
-        "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+        "eb8e87e40c1228638c7ed50f596036ffda96a54a09dfd4086c37b21dc675e7a0",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
       ],
-      "source_sha256": "8c911e80f2de11b9ac3f9ba4ad1fca7121dd3c448f67744d6c694c272359029d",
-      "text": "Tekur saman þekju merkinga eftir flokki, brunni, plötu og myndatöku.\n\nDreifing merkja milli tilraunaeininga ræður því hvort flokkunarlíkan geti alhæft út fyrir litun, fókus og samflæði sem tengjast tiltekinni myndatöku. Merki sem eru að mestu úr einum brunni geta því gefið óraunhæft bjartsýnt mat þegar slembiskipting er gerð á stigi einstakra hluta. Fallið sýnir þessa samþjöppun áður en líkanið er þjálfað eða metið.\n\nLesa ``png_list`` lesið einn, plus :data:`ROUND_TABLE` þegar það er til staðar, þannig að merkingar geta einnig verið viðeigandi við aktiv læringarrún sem yfirborði þeim.\n\n:param db_path: leið til ``measurements.db``\n:param annotation_column: í kolumnið sem Annotate app skrifa inn.\n:param table: Tabelin af myndum (þekkt ``png_list``)\n:param key: Skammsögn (eðskulegt ``png_path``)\n:param image_type: hlutstrengjasía á nafn skipulegu gagnanna, sem samsvarar eigin síu Annotate-forritssýnarinnar. Sérhver talning þar fyrir neðan, ``n_rows`` meðtalin, nær yfir þau útdregnu myndsvæði sem pössuðu — nefnari tekinn úr allri töflunni myndi setja teljarann og nefnarann á tvö ólík þýði. ``n_rows_unfiltered`` heldur heildinni, og athugasemd segir hve mörg voru útilokuð.\n:returns: 1 rán á ``(plateID, rowID, columnID, class)`` sem hefur að minnsta kosti einn notkun, með ``n`` og ``share`` — plus allt brjóst í ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``,``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, #``by_source``, #``concentration`` (eð klás) og #``notes``.\n:raises ValueError: þegar tólinn hefur engin slóð — vöktu niðurstöður myndi lesa \"nothing annotated yet\", sem er öðruvísi staðreynd.\n:raises FileNotFoundError: þegar gögn er ekki til staðar.",
+      "source_sha256": "bc1cacbba20167ee58f77511d97383acfe3dfef19586568712e40c57a6a879bc",
+      "text": "Tekur saman þekju merkinga eftir flokki, brunni, plötu og myndatöku.\n\nDreifing merkja milli tilraunaeininga ræður því hvort flokkunarlíkan geti alhæft út fyrir litun, fókus og samflæði sem tengjast tiltekinni myndatöku. Merki sem eru að mestu úr einum brunni geta því gefið óraunhæft bjartsýnt mat þegar slembiskipting er gerð á stigi einstakra hluta. Fallið sýnir þessa samþjöppun áður en líkanið er þjálfað eða metið.\n\nLesa ``png_list`` lesið einn, plus :data:`ROUND_TABLE` þegar það er til staðar, þannig að merkingar geta einnig verið viðeigandi við aktiv læringarrún sem yfirborði þeim.\n\n:param db_path: leið til ``measurements.db``\n:param annotation_column: í kolumnið sem Annotate app skrifa inn.\n:param table: Tabelin af myndum (þekkt ``png_list``)\n:param key: Skammsögn (eðskulegt ``png_path``)\n:param image_type: eigin sía Annotate-sýnarinnar á lykilinn, lesin eins og hnitanetið les hana (AND, OR, NOT, orð án tillits til há- og lágstafa). Sérhver talning þar fyrir neðan, ``n_rows`` meðtalin, nær yfir þau útdregnu myndsvæði sem pössuðu — nefnari tekinn úr allri töflunni myndi setja teljarann og nefnarann á tvö ólík þýði. ``n_rows_unfiltered`` heldur heildinni, og athugasemd segir hve mörg voru útilokuð.\n:returns: 1 rán á ``(plateID, rowID, columnID, class)`` sem hefur að minnsta kosti einn notkun, með ``n`` og ``share`` — plus allt brjóst í ``attrs['spacr_annotation_coverage']``: ``by_class``, ``by_plate``,``by_well``, ``by_class_plate``, ``by_class_well``, ``by_round``, #``by_source``, #``concentration`` (eð klás) og #``notes``.\n:raises ValueError: þegar tólinn hefur engin slóð — vöktu niðurstöður myndi lesa \"nothing annotated yet\", sem er öðruvísi staðreynd.\n:raises FileNotFoundError: þegar gögn er ekki til staðar.",
       "translation_source_blocks_sha256": [
         "d54694a4887e21db5eb04e4a3a384fde7165749260bccb2ecf019185dfd829a7",
         "016a691c17b5cdb8202315faff64adcf1e24c6d2f51f8dfa482a35d4c21a20b3",
@@ -1054,7 +1054,7 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "452d01891862e03c4baef3aa5158b052f77f8055547a50cb24a7269f35a6493b",
         "a506a1eed41c74aad9de41be6ae13e82bb8e2f562f5a9e10906d07c917af3612",
-        "29992052ca1ef7c848619617ff00cb5ec629bdd174c24b6d551deb718a2013e0",
+        "c94b39489853a58466988a4a8fa00ca57e8e201429ebd70ec2c87a49f016c8e9",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
@@ -1098,14 +1098,14 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
+        "0c12a9527a2ca7d996ce14b24151417f2d4ff407ab447992eaadc84f15e5e5ed",
         "30ffff94b1f25ce27a73ee3a1e7bb114ff46e8c9ac44a5b1c19a51a9eb4226ef",
         "3db974dd779fc492b98a7d7df944ad3f6fa527dfe29f46f6757c89378c676846",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
         "7419a19d554bce02dec446f36cef42c534cc0ede025b03f4455a4905083d35de"
       ],
-      "source_sha256": "6758ccbc340c4f93c2480edf6c49f98835305ac6313e29ff56117d0627776455",
-      "text": "Býr til merkingarbiðröðina: ómerktar úrklippur, óvissustu fyrst.\n\nLesa ``png_list`` lesið-eina og endurheimtir einn stefnu á myndskurði myndaregion enn að bíða eftir merki, svo beðið myndskurður myndaregi sem myndi læra mönnun mest koma fyrst.\n\n**Sjá notuð myndskurðir myndar svæðum eru nefndar.** ``NULL`` í ``annotation_column`` þýðir \"not looked at\"; allt annað - *þar á meðal 0* - þýðir manneskjan að klás. ef stólinn er ekki til alls, ekkert hefur verið notuð enn og hvert myndskurður myndar svæðinu er quedued ( með notandi að segja svo). Þetta er sama abstinenti samning sem :mod:`spacr.agreement`.\n\n**Törlist annotation er fjölbreytur í staðsetningu, og það kostar eitthvað.** Með ``diversity='well'`` ránuð af myndum svæðum eru meðhöndlað í kringum brunna: staðsetning 1 er enn einn mest óþekkt af myndu svæðum, en staðsetningar 2 er mest óhyggð af myndinni svæðum í *lík* brunnur, sem getur verið efni minna óhyggi en runner-up almennt. Ef ``limit`` er smá en fjölda brunna, mun tákn vinnu lista innihalda nánast einn myndskurð mynd svæðis frá hverjum ``limit`` mikróbstæður stöðum og enginn frá öðrum. Pass ``diversity='none'`` fyrir hreinu orði, ``'field'``/``'plate'`` fyrir aðra skál, eða ``group_columns=[…]`` fyrir eigin — þar á meðal klúster ID sem þú tækir frá eiginleika, sem er nákvæmari fjölbreytingu þetta versla út fyrir að þurfa ekki að virðingu matrix.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param annotation_column: í ræðan sem Annotate app skrifa inn (þegandi ``'annotate'``).\n:param pred_column: nafni, eða lista á nafnum, af mönnun-score kolumns(s). ``None`` (þekkt) sjálfgeymir: ``pred_0, pred_1, …`` stíl kolumnar fyrir fjölklás, annars ``pred``. Ein einn kolumn er lesið sem jákvæð-klás líklegur á tvöfaldri vandamál.\n:param table: Tábla sem hallar út göngun svæðum (þekkt ``png_list``).\n:param key: Skammsögn (eðskulegt ``png_path``)\n:param measure: ``'entropy'`` (þekkt), ``'least_confidence'``, ``'margin'`` eða kallað. á tveimur klásum gefa síðustu tvö sama orðin.\n:param limit: geyma í flestir af þessum mörgum myndskurðum myndum svæðum.\n:param diversity: ``'well'`` (þekkt), ``'plate'`` , ``'row'``, ``'column'`` eða ``'field'``, eða ``'none'``.\n:param group_columns: Sjálfur að stratifikar yfir, yfirrita ``diversity``.\n:param seed: Sæma sem brjóta; ``None`` brjótar tengsl á eftirliti. Eða leiðin er niðurstöðu endurspeglað.\n:param image_type: substring filter á ``png_path`` — samsvarar við eigin ``image_type`` filter í Annotate app view (e.g. ``'cell'``).\n:returns: DataFrame með ``rank`` (1-baseð), byggð gögn nafn, ``uncertainty``, ``predicted_class``, sannleika kolumnar og hvaða extracted image-region meta gögn ``png_list`` hefur. Leiður ( með sömu stefnu) þegar það er ekkert að skrifa. Sýningin er í ``queue.attrs['spacr_active_learning']``; Þannig að gefa þeim :func:`format_queue_summary`.\n:raises ValueError: þegar tólinn eða fyrirspurn kolumn er saknað - bæði þýðir að það er engin vinnu lista til að byggja, og að gleyma myndi framleiða áreiðanlegur-líkt mistök orðin.\n:raises FileNotFoundError: þegar gögn er ekki til staðar.\n\n.. warning::\n   ``uncertainty`` er ráningu skólan, ekki kalíbrerað trú. Sjá :data:`CALIBRATION_NOTE`.",
+      "source_sha256": "7ebda6a05096e9c72c19c037746f7bd3d724438d3097d3c8151463b245979a04",
+      "text": "Býr til merkingarbiðröðina: ómerktar úrklippur, óvissustu fyrst.\n\nLesa ``png_list`` lesið-eina og endurheimtir einn stefnu á myndskurði myndaregion enn að bíða eftir merki, svo beðið myndskurður myndaregi sem myndi læra mönnun mest koma fyrst.\n\n**Sjá notuð myndskurðir myndar svæðum eru nefndar.** ``NULL`` í ``annotation_column`` þýðir \"not looked at\"; allt annað - *þar á meðal 0* - þýðir manneskjan að klás. ef stólinn er ekki til alls, ekkert hefur verið notuð enn og hvert myndskurður myndar svæðinu er quedued ( með notandi að segja svo). Þetta er sama abstinenti samning sem :mod:`spacr.agreement`.\n\n**Törlist annotation er fjölbreytur í staðsetningu, og það kostar eitthvað.** Með ``diversity='well'`` ránuð af myndum svæðum eru meðhöndlað í kringum brunna: staðsetning 1 er enn einn mest óþekkt af myndu svæðum, en staðsetningar 2 er mest óhyggð af myndinni svæðum í *lík* brunnur, sem getur verið efni minna óhyggi en runner-up almennt. Ef ``limit`` er smá en fjölda brunna, mun tákn vinnu lista innihalda nánast einn myndskurð mynd svæðis frá hverjum ``limit`` mikróbstæður stöðum og enginn frá öðrum. Pass ``diversity='none'`` fyrir hreinu orði, ``'field'``/``'plate'`` fyrir aðra skál, eða ``group_columns=[…]`` fyrir eigin — þar á meðal klúster ID sem þú tækir frá eiginleika, sem er nákvæmari fjölbreytingu þetta versla út fyrir að þurfa ekki að virðingu matrix.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param annotation_column: í ræðan sem Annotate app skrifa inn (þegandi ``'annotate'``).\n:param pred_column: nafni, eða lista á nafnum, af mönnun-score kolumns(s). ``None`` (þekkt) sjálfgeymir: ``pred_0, pred_1, …`` stíl kolumnar fyrir fjölklás, annars ``pred``. Ein einn kolumn er lesið sem jákvæð-klás líklegur á tvöfaldri vandamál.\n:param table: Tábla sem hallar út göngun svæðum (þekkt ``png_list``).\n:param key: Skammsögn (eðskulegt ``png_path``)\n:param measure: ``'entropy'`` (þekkt), ``'least_confidence'``, ``'margin'`` eða kallað. á tveimur klásum gefa síðustu tvö sama orðin.\n:param limit: geyma í flestir af þessum mörgum myndskurðum myndum svæðum.\n:param diversity: ``'well'`` (þekkt), ``'plate'`` , ``'row'``, ``'column'`` eða ``'field'``, eða ``'none'``.\n:param group_columns: Sjálfur að stratifikar yfir, yfirrita ``diversity``.\n:param seed: Sæma sem brjóta; ``None`` brjótar tengsl á eftirliti. Eða leiðin er niðurstöðu endurspeglað.\n:param image_type: ``image_type``-sía Annotate-sýnarinnar á ``png_path`` (t.d. ``'cell'`` eða ``'cell AND NOT pathogen'``), lesin eins og hnitanetið les hana: AND, OR, NOT og svigar, og hvert orð er borið saman án tillits til há- og lágstafa.\n:returns: DataFrame með ``rank`` (1-baseð), byggð gögn nafn, ``uncertainty``, ``predicted_class``, sannleika kolumnar og hvaða extracted image-region meta gögn ``png_list`` hefur. Leiður ( með sömu stefnu) þegar það er ekkert að skrifa. Sýningin er í ``queue.attrs['spacr_active_learning']``; Þannig að gefa þeim :func:`format_queue_summary`.\n:raises ValueError: þegar tólinn eða fyrirspurn kolumn er saknað - bæði þýðir að það er engin vinnu lista til að byggja, og að gleyma myndi framleiða áreiðanlegur-líkt mistök orðin.\n:raises FileNotFoundError: þegar gögn er ekki til staðar.\n\n.. warning::\n   ``uncertainty`` er ráningu skólan, ekki kalíbrerað trú. Sjá :data:`CALIBRATION_NOTE`.",
       "translation_source_blocks_sha256": [
         "6a9525dc472316ce57ca82a96ab048c346b696b346f5da78d6cbd1d097fdc038",
         "f0b8c5ce932145dd058d7bea404a4b7b3357c25f4a6382c06fc6fd0ed4fba0e2",
@@ -1121,7 +1121,7 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "7b18cd8d589d17fcda749986eeb1501b7ad69fe26520bdacb3d4a60e7683d95d",
+        "63e460e87d3e2f0693f869b5fa42b27c0c9459f6a69583207fa57ceb3382c9b1",
         "86a02024ff7490e61340209a578550dd8db0c02d200b59f5b93e574f77933aa9",
         "06ddaec3cae5522a2175e192dae21721e450e664b9b89fe6f97a4a734ffbaa56",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
@@ -1141,11 +1141,11 @@
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
         "d862db52f9dfd39bce03280d81217d90ffb7329d6f04714aefb3675400b8efe6",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ],
-      "source_sha256": "d7231c91f09a37f517fcd1861a42b7a51fdad1ed84177d1d02f465d6c057b8de",
-      "text": "Ákvarðar úrklippulínur út frá hlutalyklum, **í röð kallandans**.\n\nGagnagrunnshluti hlutar-stjórnunarsamningsins í :mod:`spacr.qt.linked_selection`: dreifirit eða ruglingsfylkiskerfiseiningar nefna hluti eftir :data:`spacr.selection.OBJECT_KEY_COLUMNS` nafni uppbyggðs gagna, og Annotate forritssýn þarf að breyta þeim í þær myndarhluta sem hún skiptir upp. Geymt hér frekar en í Qt forritssýn svo það sé prófanlegt án skjás, og svo annar neytandi þarf ekki að endurskilgreina ``'o5'``-á-``5`` gildruna í :func:`_object_label`.\n\nInntakið er geymt þannig að prioritery rangs eins og ``worst errors first`` eru ekki breytt.\n\nTýptir uppbyggð gögnnafn skilja hlutur með sömu tölurlist í einum mikroskópum vöru. ``png_list`` skilja upp á gögn typi í gegnum uppbyggingu ``<type>_id`` stólum (:data:`PNG_ID_COLUMN_TYPES`), þannig að kjarna 1 og sýkill 1 leysa sjálfstætt. Untyped uppbyggður gögn-nafn velur fyrstu samankomandi útgreiningu gögn svæðið. Ef tólinn sýnir ekki uppbyggingar uppbygginga stólur, típtir lookup fallir aftur til viðeigandi untyped upbyggingu gögn nafn.\n\nTil dæmis, :func:`spacr.selection.object_keys` er ``fieldID`` af ``'f_1'`` eins og ``'f%5F1'``, en struktuð gögn nafn sem safnað er úr myndskurði mynd-region tólum inniheldur rauð subscore.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param keys: A ``png_path``, ``prcfo`` eða ``file_name`` er einnig samþykkt, þannig að samtalinn sem starfar úr útgreiningu myndar svæðismenni í stað þess að mælinga tabla þarf ekki þýðingu stefnu.\n:param table: Tölur af myndum á svæðinu.\n:param key: Hugbúnað-mynd-region kennslu stefnu.\n:param annotation_column: lesa núverandi merki líka, þannig að þegar notað myndskurðir myndarregion kemur með lituna en ekki hvít.\n:param timelapse: Aðrir bæta klukkutíma.\n:param image_type: að substring filter á úrgreiðslu-mynd-region key.\n:returns: ``[(png_path, annotation or None), …]`` í orði key's.",
+      "source_sha256": "f64b7ab8717a72f564311eb69f7a8bf347db6c7ae707c0f7341b290982f030b6",
+      "text": "Ákvarðar úrklippulínur út frá hlutalyklum, **í röð kallandans**.\n\nGagnagrunnshluti hlutar-stjórnunarsamningsins í :mod:`spacr.qt.linked_selection`: dreifirit eða ruglingsfylkiskerfiseiningar nefna hluti eftir :data:`spacr.selection.OBJECT_KEY_COLUMNS` nafni uppbyggðs gagna, og Annotate forritssýn þarf að breyta þeim í þær myndarhluta sem hún skiptir upp. Geymt hér frekar en í Qt forritssýn svo það sé prófanlegt án skjás, og svo annar neytandi þarf ekki að endurskilgreina ``'o5'``-á-``5`` gildruna í :func:`_object_label`.\n\nInntakið er geymt þannig að prioritery rangs eins og ``worst errors first`` eru ekki breytt.\n\nTýptir uppbyggð gögnnafn skilja hlutur með sömu tölurlist í einum mikroskópum vöru. ``png_list`` skilja upp á gögn typi í gegnum uppbyggingu ``<type>_id`` stólum (:data:`PNG_ID_COLUMN_TYPES`), þannig að kjarna 1 og sýkill 1 leysa sjálfstætt. Untyped uppbyggður gögn-nafn velur fyrstu samankomandi útgreiningu gögn svæðið. Ef tólinn sýnir ekki uppbyggingar uppbygginga stólur, típtir lookup fallir aftur til viðeigandi untyped upbyggingu gögn nafn.\n\nTil dæmis, :func:`spacr.selection.object_keys` er ``fieldID`` af ``'f_1'`` eins og ``'f%5F1'``, en struktuð gögn nafn sem safnað er úr myndskurði mynd-region tólum inniheldur rauð subscore.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param keys: A ``png_path``, ``prcfo`` eða ``file_name`` er einnig samþykkt, þannig að samtalinn sem starfar úr útgreiningu myndar svæðismenni í stað þess að mælinga tabla þarf ekki þýðingu stefnu.\n:param table: Tölur af myndum á svæðinu.\n:param key: Hugbúnað-mynd-region kennslu stefnu.\n:param annotation_column: lesa núverandi merki líka, þannig að þegar notað myndskurðir myndarregion kemur með lituna en ekki hvít.\n:param timelapse: Aðrir bæta klukkutíma.\n:param image_type: myndsía Annotate á lykil útdregna myndsvæðisins, lesin eins og hnitanetið les hana (AND, OR, NOT, orð án tillits til há- og lágstafa).\n:returns: ``[(png_path, annotation or None), …]`` í orði key's.",
       "translation_source_blocks_sha256": [
         "5430048bbfa86368363220fae110ebe8eb481c11a7b83dafe4a8b469cac78fb7",
         "da67a92aa443071a53265d33f04eb01a0c40920ff2c11ee682c66492a85d55d8",
@@ -1158,7 +1158,7 @@
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
         "cf3b2d22413e3e269a5b9e074ecd2d681923b311392f9f47c20f19a1722ac097",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ]
     },
@@ -1571,7 +1571,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "c4a49e34c74648bbeeaac2580ba68aebc6b7ae4f12411b494ee6c75cfc4c1e68",
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1588,8 +1588,8 @@
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "8e454e6390c0cf40214a75f58051d4d2ee497409af3a69e6aa5c7c0279ad3a2e"
       ],
-      "source_sha256": "5c0a2f87b2a2a444204a461bedaa7bb150107d7f9cd40bfefaa12120723cb287",
-      "text": "Aðlagar líkan að núverandi merkjum, endurmetur skor allra úrklippna og skráir umferðina.\n\nÁn endurtekni, vinnufélinn skilyrði enn að spegja myndavél sem er sett áður en einhver af nýjum merkjum, þannig að það verður yfirgefið eftir fyrstu þúsund merkja.\n\nEinn hringur gerir allar fimm hlutir sem lúpinn þarf:\n\n1. passa á mönnun á hverri merki í ``annotation_column``; 2. skora það á **þrúnin** haldið út skipt, þannig að tölurinn er ekki artefakt af 190 merkjum sem koma frá einum brunninum; 3. skrifar sönnun per klass aftur til ``png_list`` sem :data:`ROUND_PRED_PREFIX` stólum, sem :func:`build_queue` forðast yfir eldri ``pred`` - þannig að næsta vinnuleikurinn er reiðanlega endurlist; 4. skora runda, gefur :func:`learning_curve` annað poðið; 5. hættir :class:`StoppingVerdict` fyrir krúmi þar til.\n\n:param db_path: leið til ``measurements.db``\n:param annotation_column: Sálin sem hallar merkingarnar.\n:param features: Hugbúnaður matrix geyktur af myndskurði-mynd-region struktured-data nafn. Þangað, það er lesið úr mæslum með :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (þekkt - það er sá sem fer með 20 merki), ``'random_forest'`` eða ``'gradient_boosting'``.\n:param group_by: ``'well'`` (þekkt), ``'plate'``, ``'field'`` eða ``'none'``. Það sem hold-out splittur neita að deila. Samkvæmt nákvæmlega og í lægri tilvik; allt annað framleiðir mistök, þannig að ókunnulegt ``diversity=`` gerir í :func:`build_queue`. Þegar stefnu er ``'none'``, eða myndskurður mynd-region tólinn hefur enginn af kolumnum sem það þarf, splitturinn er streituð slæmt einn og ``split_rule`` segir ``NOT grouped`` - það þýðir aldrei hópur sem það hefur ekki gert.\n:param holdout: Frakklætið er búið út.\n:param seed: Það gerir skilninginn og fíkn endurnýjandi.\n:param min_labels: Vegna þess að neita að passa undir þetta mörg merki.\n:param round_index: Hugsaðu um rúnnum; standa upp á :func:`next_round`.\n:param table: Tölur af myndum á svæðinu.\n:param key: Hugbúnað-mynd-region kennslu stefnu.\n:param image_type: að substring filter á úrgreiðslu-mynd-region key.\n:param write_scores: Skrifaðu nýjan sannleika aftur í gögnum.\n:param save_model: joblib-dump uppbyggð tölvu við gögn gögn.\n:param model_dir: Hvar á að setja það; standa á ``<db dir>/active_learning``.\n:param write_card: Skrifaðu myndavélskort við sparað mönnun.\n:param label_window: Ákvað að fara á :func:`should_stop`.\n:param min_gain: Ákvað að fara á :func:`should_stop`.\n:param measure: Skrifað með hjólinu, fyrir vinnu lista sem fylgir.\n:param diversity: Hins vegar.\n:param balance: ``'none'`` (þekkt) yfirgefur óþekkingu á eigin ``class_weight='balanced'`` áætlunara; ``'downsample'`` sniður hverri flokki til stærð minnsta áður en hópurinn skiptir.\n\n    Að þyngja og niðurstaða framleiðir mismunandi sannleika frá sömu myndskurðum myndum, og :func:`spacr.suggest.suggest_from_scores` sortir á þeim sannleikanum, þannig að rúnur rekst uppsetningu í ``notes`` og á myndavélskortinu.\n:param rejections: ``{crop key: rejected class}`` - ráðleggingar annotator neitað (:func:`spacr.suggest.rejected_suggestions`). Í tveimur klásum er neita klás 1 dæmi klás 2, og það er settur eins; myndskurður mynd svæðis sem hefur síðan verið merkinn er kvartað á merki sínu, og í kolumni með einhverjum öðrum klástum neita er ekki hægt að breyta í merki og er talin í notum í staðinn.\n:param synthetic_negatives: hve margir unannotated myndskurðir myndar svæðum til að ritast á slæmt og passa eins og fjarlægð klasa þegar aðeins einn klasa hefur verið notuð. ``None`` (þekkt) neita í staðinn, eins og áður.\n\n    A slæmt niðurstöður frá óþekktum svæði er í meirihluti neikvæð, ekki neikvænt, þannig að niðurstöðin er rangning en ekki rangning. Rúnum notum og myndavélskortinn skrá hversu mörg syntetískra neikvæðum var notað. Það er ákveðið fyrir binary klasser 1 og 2 aðeins - sjá :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: undir ``min_labels`` merki, með minna en tvö flokkur notuð, eða fyrir óþekkt ``group_by``.",
+      "source_sha256": "a74925dd50ad41ac7120eab34cf450578d9f3b097f67b4feef6ebcfba49e5e0c",
+      "text": "Aðlagar líkan að núverandi merkjum, endurmetur skor allra úrklippna og skráir umferðina.\n\nÁn endurtekni, vinnufélinn skilyrði enn að spegja myndavél sem er sett áður en einhver af nýjum merkjum, þannig að það verður yfirgefið eftir fyrstu þúsund merkja.\n\nEinn hringur gerir allar fimm hlutir sem lúpinn þarf:\n\n1. passa á mönnun á hverri merki í ``annotation_column``; 2. skora það á **þrúnin** haldið út skipt, þannig að tölurinn er ekki artefakt af 190 merkjum sem koma frá einum brunninum; 3. skrifar sönnun per klass aftur til ``png_list`` sem :data:`ROUND_PRED_PREFIX` stólum, sem :func:`build_queue` forðast yfir eldri ``pred`` - þannig að næsta vinnuleikurinn er reiðanlega endurlist; 4. skora runda, gefur :func:`learning_curve` annað poðið; 5. hættir :class:`StoppingVerdict` fyrir krúmi þar til.\n\n:param db_path: leið til ``measurements.db``\n:param annotation_column: Sálin sem hallar merkingarnar.\n:param features: Hugbúnaður matrix geyktur af myndskurði-mynd-region struktured-data nafn. Þangað, það er lesið úr mæslum með :func:`round_features`.\n:param model_type: ``'logistic_regression'`` (þekkt - það er sá sem fer með 20 merki), ``'random_forest'`` eða ``'gradient_boosting'``.\n:param group_by: ``'well'`` (þekkt), ``'plate'``, ``'field'`` eða ``'none'``. Það sem hold-out splittur neita að deila. Samkvæmt nákvæmlega og í lægri tilvik; allt annað framleiðir mistök, þannig að ókunnulegt ``diversity=`` gerir í :func:`build_queue`. Þegar stefnu er ``'none'``, eða myndskurður mynd-region tólinn hefur enginn af kolumnum sem það þarf, splitturinn er streituð slæmt einn og ``split_rule`` segir ``NOT grouped`` - það þýðir aldrei hópur sem það hefur ekki gert.\n:param holdout: Frakklætið er búið út.\n:param seed: Það gerir skilninginn og fíkn endurnýjandi.\n:param min_labels: Vegna þess að neita að passa undir þetta mörg merki.\n:param round_index: Hugsaðu um rúnnum; standa upp á :func:`next_round`.\n:param table: Tölur af myndum á svæðinu.\n:param key: Hugbúnað-mynd-region kennslu stefnu.\n:param image_type: myndsía Annotate á lykil útdregna myndsvæðisins, lesin eins og hnitanetið les hana (AND, OR, NOT, orð án tillits til há- og lágstafa).\n:param write_scores: Skrifaðu nýjan sannleika aftur í gögnum.\n:param save_model: joblib-dump uppbyggð tölvu við gögn gögn.\n:param model_dir: Hvar á að setja það; standa á ``<db dir>/active_learning``.\n:param write_card: Skrifaðu myndavélskort við sparað mönnun.\n:param label_window: Ákvað að fara á :func:`should_stop`.\n:param min_gain: Ákvað að fara á :func:`should_stop`.\n:param measure: Skrifað með hjólinu, fyrir vinnu lista sem fylgir.\n:param diversity: Hins vegar.\n:param balance: ``'none'`` (þekkt) yfirgefur óþekkingu á eigin ``class_weight='balanced'`` áætlunara; ``'downsample'`` sniður hverri flokki til stærð minnsta áður en hópurinn skiptir.\n\n    Að þyngja og niðurstaða framleiðir mismunandi sannleika frá sömu myndskurðum myndum, og :func:`spacr.suggest.suggest_from_scores` sortir á þeim sannleikanum, þannig að rúnur rekst uppsetningu í ``notes`` og á myndavélskortinu.\n:param rejections: ``{crop key: rejected class}`` - ráðleggingar annotator neitað (:func:`spacr.suggest.rejected_suggestions`). Í tveimur klásum er neita klás 1 dæmi klás 2, og það er settur eins; myndskurður mynd svæðis sem hefur síðan verið merkinn er kvartað á merki sínu, og í kolumni með einhverjum öðrum klástum neita er ekki hægt að breyta í merki og er talin í notum í staðinn.\n:param synthetic_negatives: hve margir unannotated myndskurðir myndar svæðum til að ritast á slæmt og passa eins og fjarlægð klasa þegar aðeins einn klasa hefur verið notuð. ``None`` (þekkt) neita í staðinn, eins og áður.\n\n    A slæmt niðurstöður frá óþekktum svæði er í meirihluti neikvæð, ekki neikvænt, þannig að niðurstöðin er rangning en ekki rangning. Rúnum notum og myndavélskortinn skrá hversu mörg syntetískra neikvæðum var notað. Það er ákveðið fyrir binary klasser 1 og 2 aðeins - sjá :func:`_absent_binary_class`.\n:returns: a :class:`RoundResult`.\n:raises ValueError: undir ``min_labels`` merki, með minna en tvö flokkur notuð, eða fyrir óþekkt ``group_by``.",
       "translation_source_blocks_sha256": [
         "951d883926b536a34e5cd0ebee5f02933b55e5828da6efc3a79435c417c21e65",
         "e4fcf0faf850f6bf6f649c7afe08a6e74907d17388393c016a51c4d9a6620b55",
@@ -1606,7 +1606,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "5d1c3c972e1ffc64511eb1eae159d667f9b6daf83948df53b888203ea49445ce",
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1631,25 +1631,29 @@
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "4018b583c775fc05733dfce234cb6f94a8448e3361f957cf66989a0a73ca0e4a",
         "42529e1520f6516ab9c106702830c241cf965efc52e64bb7c16dde2ca5939061",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "50cdd854a2adde80ccef5cb67792eacef83a6e781f992348ba774ca19940808f",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "a7972a1a00a26ce5a9a7b7342e3ccea30e2b327e11b9461bf0190b26cc4f5114"
       ],
-      "source_sha256": "8dfab3528887ae976b854dca42cb42786dc0f25ee6bb33657fd28ba4e1799e86",
-      "text": "Mælieiginleikar hverrar úrklippu, með ``png_path`` sem vísi.\n\nLögunarmatrísin sem endurþjálfun innan forritsins passar á. Mæligögn frekar en pixla með ásetningi: tilgangurinn með því að endurþjálfa innan Annotate er að fá ferska röðun á sekúndum, á vélinni þar sem merkingarmaðurinn situr, án GPU og án þess að yfirgefa sýn forritsins. CNN endurþjálfun er rétt aðgerð við *enda* lykkjunnar, ekki á milli tveggja pagina af unnum myndasvæðum.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param table: Tábla af myndum með ``png_path`` og ``prcfo``.\n:param key: a) myndskurður-mynd-region kennslumálinn.\n:param tables: Tólir til að sameina eiginleika frá; mismunandi eru skipt.\n:param nuclei_limit: Ákvað að fara á :func:`spacr.io._read_and_merge_data`.\n:param pathogen_limit: Sama og það.\n:returns: Númerlegur tegund er geymt með ``png_path``.\n:raises ValueError: þegar engin hlutaband með eiginleika gæti verið lesið.",
+      "source_sha256": "115a6b78c60744ea5dcf44bbc4d5d78525ea8de74aaad2cb82509bbb6fe1c013",
+      "text": "Mælieiginleikar hverrar úrklippu, með ``png_path`` sem vísi.\n\nLögunarmatrísin sem endurþjálfun innan forritsins passar á. Mæligögn frekar en pixla með ásetningi: tilgangurinn með því að endurþjálfa innan Annotate er að fá ferska röðun á sekúndum, á vélinni þar sem merkingarmaðurinn situr, án GPU og án þess að yfirgefa sýn forritsins. CNN endurþjálfun er rétt aðgerð við *enda* lykkjunnar, ekki á milli tveggja pagina af unnum myndasvæðum.\n\n:param db_path: Hugbúið til ``measurements.db``.\n:param table: Tábla af myndum með ``png_path`` og ``prcfo``.\n:param key: a) myndskurður-mynd-region kennslumálinn.\n:param tables: hlutatöflur sem eiginleikar eru teknir úr; töflum sem vantar er sleppt, og ``None`` merkir töflur þeirra hlutagerða sem útdregnu myndsvæðin sýna. Eigin tafla svæðis (``nucleus`` fyrir kjarnasvæði) gefur eigin línu hlutarins, yfirtafla (``cell`` eða ``cytoplasm``) línu frumunnar sem hann liggur í, og hver önnur tafla meðaltal línanna innan þeirrar frumu. Svæði er haldið þegar eigin tafla þess er valin og geymir línu þess, eða, þegar eigin tafla þess er ekki valin, þegar einhver valin tafla lýsir því.\n:param nuclei_limit: fruma með fleiri kjarna en þetta fær enga meðaltalseiginleika kjarna; ``None`` setur engin mörk.\n:param pathogen_limit: fruma með fleiri sýkla en þetta fær enga meðaltalseiginleika sýkla; ``None`` setur engin mörk.\n:param channels: halda aðeins eiginleikum þessara rásahópa, ``channel_<n>`` og ``none`` fyrir eiginleika sem engin ein rás gengur inn í (flatarmál, lögun); ``None`` heldur öllum rásum.\n:param families: halda aðeins þessum eiginleikaflokkum, nefndum eins og í :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``, ``morphology``, ``texture`` og svo framvegis); ``None`` heldur öllum flokkum.\n:returns: tölulegir eiginleikar með ``png_path`` sem vísi.\n:raises ValueError: þegar engin hlutataflnanna verður lesin, þegar val á rásum og flokkum skilur engan eiginleikadálk eftir, eða þegar útdregin myndsvæði og mældir hlutir eru til og ekkert svæði passar við hlut; í síðasta tilvikinu eru nefndir lykill svæðis og lykill hlutar.",
       "translation_source_blocks_sha256": [
         "d3bc87290a803f6dc7d1edeb34d177115eb2c80058e9653f6e9165263c2459a3",
         "be6bd319614c4e175d9733d38c7036d9b2f5cfaa3521c292992d4321245dd934",
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "5300d333528981fa26e142fb1bdfb7c18b52f53e8a0ea14cf607024afd5f1465",
         "7d9d21ae8dc0f391ffc61c27ecc5b17762bd0552c401aa7947787ec078a5c183",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "49610a01e2cddc5ab9704824421010a65ab0cabe0eebf676100f12098a70b093",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "5210bc81a275b5d62fb9ffbf5e6fcd0142a54b9742656b1c6c5f6a496da959b2"
       ]
     },
     "spacr.active_learning.should_stop": {
@@ -23746,12 +23750,14 @@
     },
     "spacr.embeddings._cell_dino_model.forward": {
       "source_blocks_sha256": [
-        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d"
+        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+        "818ec8e8d821075bc67cffa17b7828e1372ab68ec964d3469052db0845e39f9d"
       ],
-      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
-      "text": "Skila úttaki opinbers DINOv2-úttakshauss fyrir hvern tilgreindan myndskurð.",
+      "source_sha256": "a810037205193ce34881f0cb190474f344dc4375a6773eab08926ba06704c8de",
+      "text": "Skila úttaki opinbers DINOv2-úttakshauss fyrir hvern tilgreindan myndskurð.\n\nChannel-Adaptive DINO kóðar hvert myndplan fyrir sig og skilar flokkatáknum allra myndplana hlið við hlið, eins og opinbert bag-of-channels-mat þess gerir.",
       "translation_source_blocks_sha256": [
-        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
+        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee",
+        "592489a0d8b841548105208f54295b7e00a17d56fbd0d7baa813c863fb9744a1"
       ]
     },
     "spacr.embeddings._dino_classifier_apply.refuse": {
@@ -23881,14 +23887,16 @@
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
         "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+        "c62e76c01327e1b77381460479b1855bd69e2f16cdcbee7ffb5fb6c624caa3ab",
         "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
         "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "264f161d2a0d1a4b9113d3edd2c7107edb84ae25374905e23dcc7ffc46d77dd4",
-      "text": "Kóða tilgreind Cell-DINO-myndplön við opinbera stærð myndskurða.\n\nKóða skurði með lögunina ``(n, h, w, k)`` í lotum sem henta líkaninu.\n\n:param stack: float32-skurðir með rásir í síðustu vídd. SubCell R/Y/B/G notar upprunaleg styrkgildi; önnur grunnlíkön búast við [0, 1].\n:returns: ``(n, dims)``-einkenni í float32.",
+      "source_sha256": "c7c2c9528400cd4261f8bfb7e3f98a8c36f9992de2c871a4962ecb8cdb0a28d2",
+      "text": "Kóða tilgreind Cell-DINO-myndplön við opinbera stærð myndskurða.\n\nHvert myndplan hvers myndskurðar er miðjað og skalað í einingarstaðalfrávik eftir stærðarbreytingu, eins og opinbera matsumbreytingin gerir.\n\nKóða skurði með lögunina ``(n, h, w, k)`` í lotum sem henta líkaninu.\n\n:param stack: float32-skurðir með rásir í síðustu vídd. SubCell R/Y/B/G notar upprunaleg styrkgildi; önnur grunnlíkön búast við [0, 1].\n:returns: ``(n, dims)``-einkenni í float32.",
       "translation_source_blocks_sha256": [
         "0e92863a5153c0808c64f765b599c4a341f3c06e119ed44d5477b39d6f38dd15",
+        "17bccbbb02a5d3c5af2122f086e387920d9315e70d220e6f91032c8ddccecafb",
         "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
         "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
@@ -87566,7 +87574,7 @@
     },
     "spacr.qt.mask_engine.assign_tracked_object": {
       "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -87574,10 +87582,10 @@
         "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
         "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
       ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "Fylgja hlut undir bendlinum eftir með lausu staðbundnu auðkenni án þess að taka yfir annan feril.\n\n:param mask: Núverandi tvívíð gríma með heiltölumerkjum.\n:param x: Dálkur pixilsins undir músarbendlinum.\n:param y: Röð pixilsins undir músarbendlinum.\n:param state: Ættartréð sem á að afrita og uppfæra.\n:param frame: Slóð upprunamyndarinnar fyrir þennan myndramma.\n:param cell_uuid: Varanlegt UUID þess leggs sem á að úthluta.",
+      "source_sha256": "20e05c734d55af9cb86840fb3c2d4931357ba0bb47e9c770b91c721cf65a44db",
+      "text": "Gefa hlutnum undir bendlinum valið auðkenni, þannig að ein grein skiptingar geti haldið því áfram.\n\n:param mask: Núverandi tvívíð gríma með heiltölumerkjum.\n:param x: Dálkur pixilsins undir músarbendlinum.\n:param y: Röð pixilsins undir músarbendlinum.\n:param state: Ættartréð sem á að afrita og uppfæra.\n:param frame: Slóð upprunamyndarinnar fyrir þennan myndramma.\n:param cell_uuid: Varanlegt UUID þess leggs sem á að úthluta.",
       "translation_source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -104164,12 +104172,22 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": {
       "source_blocks_sha256": [
-        "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d"
+        "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551"
       ],
-      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "text": "Fimmta myndplanið tilheyrir aðeins Cell Painting-smíðafallinu.",
+      "source_sha256": "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551",
+      "text": "Sýna myndplönin sem valda smíðafallið tekur; engin þegar það er aðlögunarhæft.",
       "translation_source_blocks_sha256": [
-        "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+        "921189f8847b2a176e13c9e14904965af0fb1ce8275dcdb7a354b6bf2091f21a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed": {
+      "source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
+      ],
+      "source_sha256": "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4",
+      "text": "Fylla inn skrána og greint líkan hennar; tætigildið er lesið við OK.",
+      "translation_source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {

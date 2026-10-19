@@ -13,6 +13,7 @@ pytestmark = pytest.mark.qt
 
 @pytest.fixture
 def demo_screen(qtbot, monkeypatch, tmp_path):
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "models"))
     from spacr import example_archives
     from spacr.qt import preferences
     from spacr.qt.screens.embeddings import EmbeddingsScreen
@@ -127,6 +128,7 @@ def test_the_demo_uses_installed_translations_and_control_captions(
     from spacr.qt.screens.embeddings import EmbeddingsScreen
 
     monkeypatch.setenv("SPACR_LANGUAGE", language)
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "models"))
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
     prepare = example_archives._prepare_embeddings_example
     monkeypatch.setattr(example_archives, "_prepare_embeddings_example",
@@ -245,3 +247,60 @@ def test_the_dino_line_is_alpha_gated(demo_screen, monkeypatch):
     preferences._apply_alpha_widgets(demo_screen)
     assert demo_screen._dino_in_use.isHidden()
     assert demo_screen._cell_example_button.isHidden()
+
+
+def test_the_dialog_lists_installed_checkpoints_and_remembers_the_choice(
+        demo_screen, monkeypatch, tmp_path):
+    torch = pytest.importorskip("torch")
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox, QLabel, QLineEdit
+
+    from spacr import embeddings
+
+    monkeypatch.setattr(embeddings, "_CELL_DINO_SEEN", {})
+    folder = tmp_path / "models" / "cell_dino"
+    folder.mkdir(parents=True)
+    shapes = {"cell_dino_vitl16_pretrain_hpa_fov.pth": (4, 16),
+              "cell_dino_vitl16_pretrain_hpa_sc.pth": (4, 16),
+              "channel_adaptive_dino_vitl16_pretrain_cells.pth": (1, 16)}
+    for name, (planes, patch) in shapes.items():
+        torch.save({"patch_embed.proj.weight": torch.zeros(8, planes, patch, patch)},
+                   folder / name)
+    (folder / "zz_other.pth").write_bytes(b"not a state")
+    demo_screen.set_crops(np.random.default_rng(0).random(
+        (3, 8, 8, 4)).astype(np.float32))
+    demo_screen._foundation.setCurrentIndex(
+        demo_screen._foundation.findData("dino_auto"))
+    assert "hpa_sc" in demo_screen._dino_in_use.text()
+    assert "not mapped" in demo_screen._dino_in_use.text()
+
+    dialog = demo_screen._cell_dino_dialog()
+    installed = dialog.findChild(QComboBox, "EmbeddingsCellDinoInstalled")
+    factory = dialog.findChild(QComboBox, "EmbeddingsCellDinoFactory")
+    note = dialog.findChild(QLabel, "EmbeddingsCellDinoAdaptiveNote")
+    labels = [installed.itemText(i) for i in range(1, installed.count())]
+    assert [label.split(" · ")[0] for label in labels] == sorted(shapes) + [
+        "zz_other.pth"]
+    assert not installed.model().item(installed.count() - 1).isEnabled()
+    installed.setCurrentIndex(installed.findData(
+        str((folder / "channel_adaptive_dino_vitl16_pretrain_cells.pth").resolve())))
+    assert factory.currentData() == "channel_adaptive_dino_vitl16"
+    assert not note.isHidden()
+    assert dialog.findChild(QComboBox, "EmbeddingsCellDinoPlane1").isHidden()
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok).click()
+    assert len(dialog.findChild(QLineEdit, "EmbeddingsCellDinoDigest").text()) == 64
+    dialog.deleteLater()
+
+    spec = demo_screen.spec()
+    assert (spec.backbone, spec.cell_dino_factory, spec.channels) == (
+        "cell_dino", "channel_adaptive_dino_vitl16", (0, 1, 2, 3))
+    assert "channel_adaptive_dino_vitl16_pretrain_cells.pth" in (
+        demo_screen._dino_in_use.text())
+
+    from spacr.qt.screens.embeddings import EmbeddingsScreen
+
+    again = EmbeddingsScreen(threaded=False)
+    again.set_crops(np.zeros((2, 8, 8, 4), dtype=np.float32))
+    again._foundation.setCurrentIndex(again._foundation.findData("dino_auto"))
+    assert "channel_adaptive" in again._dino_in_use.text()
+    again.deleteLater()
+

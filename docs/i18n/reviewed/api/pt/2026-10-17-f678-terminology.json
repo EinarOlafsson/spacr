@@ -48,21 +48,27 @@
       "label": "spacr.active_learning.round_features#5",
       "source": "object tables to merge features from; missing ones are skipped.",
       "source_sha256": "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-      "translation": "tabelas de objetos para mesclar características; faltantes são ignorados."
+      "translation": "tabelas de objetos para mesclar características; faltantes são ignorados.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "numeric features indexed by ``png_path``.",
       "label": "spacr.active_learning.round_features#8",
       "source": "numeric features indexed by ``png_path``.",
       "source_sha256": "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-      "translation": "características numéricas indexados por ``png_path``."
+      "translation": "características numéricas indexados por ``png_path``.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "when no object table with features could be read.",
       "label": "spacr.active_learning.round_features#9",
       "source": "when no object table with features could be read.",
       "source_sha256": "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5",
-      "translation": "quando nenhuma tabela de objetos com características pôde ser lida."
+      "translation": "quando nenhuma tabela de objetos com características pôde ser lida.",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "well token parsed from the filename, such as ``\"B07\"``, or ``\"\"`` when absent.",

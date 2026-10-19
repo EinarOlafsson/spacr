@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 import pytest
 
 torch = pytest.importorskip("torch")
 
 from spacr import embeddings
-from spacr.embeddings import _OPEN_DINOV2, _dino_choice, _find_cell_dino
+from spacr.embeddings import (_OPEN_DINOV2, _cell_dino_checkpoints,
+                              _dino_choice, _find_cell_dino)
 
 
 @pytest.fixture(autouse=True)
@@ -42,6 +44,7 @@ def test_without_a_checkpoint_open_dinov2_runs_with_the_chosen_policy(model_cach
     (5, 8, "cell_dino_cp_vits8"),
     (4, 16, "cell_dino_hpa_vitl16"),
     (4, 14, "cell_dino_hpa_vitl14"),
+    (1, 16, "channel_adaptive_dino_vitl16"),
 ])
 def test_an_installed_checkpoint_is_recognised_by_its_patch_embedding(
         model_cache, planes, patch, factory):
@@ -106,3 +109,82 @@ def test_a_file_that_is_not_a_cell_dino_state_is_reported(model_cache):
     assert spec.backbone == _OPEN_DINOV2
     assert (note["model"], note["reason"]) == ("dinov2", "unreadable")
     assert note["path"].endswith("broken.pth")
+
+
+def _install_all(folder):
+    return {
+        "cp": _install(folder, 5, 8, "cell_dino_vits8_pretrain_cp.pth"),
+        "sc": _install(folder, 4, 16, "cell_dino_vitl16_pretrain_hpa_sc.pth"),
+        "fov": _install(folder, 4, 16, "cell_dino_vitl16_pretrain_hpa_fov.pth"),
+        "hires": _install(folder, 4, 14,
+                          "cell_dino_vitl14_pretrain_hpa_fov_highres.pth"),
+        "adaptive": _install(folder, 1, 16,
+                             "channel_adaptive_dino_vitl16_pretrain_cells.pth"),
+    }
+
+
+def test_every_installed_checkpoint_is_listed_with_its_factory(model_cache):
+    files = _install_all(model_cache)
+    (model_cache / "notes.pth").write_bytes(b"not a state")
+
+    listed = {Path(entry["path"]).name: entry.get("factory", entry.get("problem"))
+              for entry in _cell_dino_checkpoints()}
+
+    assert listed == {
+        files["adaptive"].name: "channel_adaptive_dino_vitl16",
+        files["sc"].name: "cell_dino_hpa_vitl16",
+        files["fov"].name: "cell_dino_hpa_vitl16",
+        files["hires"].name: "cell_dino_hpa_vitl14",
+        files["cp"].name: "cell_dino_cp_vits8",
+        "notes.pth": "unreadable",
+    }
+
+
+@pytest.mark.parametrize("available, chosen", [
+    (5, "cp"), (4, "sc"), (3, "adaptive"), (1, "adaptive"), (7, "adaptive")])
+def test_the_default_checkpoint_fits_the_crop_channels(
+        model_cache, available, chosen):
+    files = _install_all(model_cache)
+
+    assert _find_cell_dino(available=available)["path"] == str(
+        files[chosen].resolve())
+
+
+def test_without_a_fitting_model_the_first_readable_is_offered(model_cache):
+    (model_cache).mkdir(parents=True)
+    (model_cache / "a_broken.pth").write_bytes(b"not a state")
+    hires = _install(model_cache, 4, 14, "b_hpa_vitl14.pth")
+    _install(model_cache, 4, 16, "c_hpa_vitl16.pth")
+
+    assert _find_cell_dino(available=5)["path"] == str(hires.resolve())
+
+
+def test_a_remembered_choice_wins_and_the_environment_overrides_it(
+        model_cache, tmp_path, monkeypatch):
+    files = _install_all(model_cache)
+
+    assert _find_cell_dino(available=4, preferred=str(files["fov"]))[
+        "path"] == str(files["fov"].resolve())
+    assert _find_cell_dino(available=4, preferred=str(tmp_path / "gone.pth"))[
+        "path"] == str(files["sc"].resolve())
+    outside = _install(tmp_path / "elsewhere", 5, 8, "mine.pth")
+    monkeypatch.setenv("SPACR_CELL_DINO_CHECKPOINT", str(outside))
+    assert _find_cell_dino(available=4, preferred=str(files["fov"]))[
+        "path"] == str(outside.resolve())
+    assert Path(_cell_dino_checkpoints()[0]["path"]) == outside.resolve()
+
+
+def test_channel_adaptive_dino_runs_on_every_crop_channel_without_mapping(
+        model_cache):
+    files = _install_all(model_cache)
+
+    spec, note = _dino_choice(None, 3)
+
+    assert note["model"] == "cell_dino"
+    assert (spec.cell_dino_factory, spec.channels) == (
+        "channel_adaptive_dino_vitl16", (0, 1, 2))
+    assert spec.checkpoint_path == str(files["adaptive"].resolve())
+    assert embeddings._cell_dino_spec(spec) == (3, 224)
+    spec, _ = _dino_choice((2,), 3, preferred=str(files["adaptive"]))
+    assert spec.channels == (2,)
+

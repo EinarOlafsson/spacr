@@ -76,3 +76,6 @@ The user directed the remaining macOS updater scene to 100% because a native
 macOS capture host is unavailable. The updater remains implemented and its
 modeled checks remain as recorded above. The scene was not recorded or
 published, and native update/relaunch acceptance remains unverified.
+
+2026-10-18 — NATIVE INTEL MAC FINDING (Claude, macOS lane): after an in-app update the user's runtime had numpy 2.3.5 beside torch 2.2.2 and every torch.from_numpy raised "Numpy is not available"; the uv --upgrade command carried none of the installer's Intel-Mac resolver guards. setup.py now declares numpy<2 and opencv<4.12 for darwin/x86_64/Python<3.13 (core and headless extra); a real uv --upgrade on this Mac moved numpy back to 1.26.4 and torch.from_numpy works. 423 dependency/installer/doctor checks pass. Takes effect for users with the next release that carries it.
+2026-10-18 — Claude Home integrated e9b7c3e3e into nightly; the conda recipe check now counts a marker split that covers every platform (numpy, opencv-python-headless) as a core dependency, so the recipe keeps both. Native in-app update acceptance stays with the macOS lane.

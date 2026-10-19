@@ -146,8 +146,8 @@ blocks:
   - '**Docker**: die Kommandozeilen-Pipelines in einem Linux-Container, mit dem CPU-Image
     oder dem Image für NVIDIA-GPUs:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
   lang: bash
 - p: Die `Docker-Anleitung (nightly, Englisch) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_
     beschreibt die GPU-Einrichtung, das Einbinden von Daten und die Pipeline-Befehle.

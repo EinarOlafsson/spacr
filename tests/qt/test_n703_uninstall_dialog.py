@@ -232,3 +232,51 @@ def test_preferences_performance_button_opens_uninstall_for_owning_window(qtbot,
     qtbot.waitUntil(lambda: bool(received))
     assert received == [window]
     assert dialog.result() == QDialog.Rejected
+
+
+def test_older_versions_only_ticks_everything_but_the_running_installation(qtbot, preview):
+    dialog = consent._UninstallDialog(preview)
+    qtbot.addWidget(dialog)
+    dialog._scope.setCurrentIndex(dialog._scope.findData("older"))
+    assert dialog.choices()["scope"] == "older"
+    assert dialog.choices()["installations"] == ["shared"]
+    assert dialog._remove.isEnabled()
+
+
+def test_changing_a_tick_becomes_an_explicit_ticked_selection(qtbot, preview):
+    dialog = consent._UninstallDialog(preview)
+    qtbot.addWidget(dialog)
+    dialog._scope.setCurrentIndex(dialog._scope.findData("all"))
+    row, item = dialog._installation_items["current"]
+    item.setCheckState(0, Qt.Unchecked)
+    assert dialog._scope.currentData() == "custom"
+    assert dialog.choices() == install_cleanup._uninstall_selection(
+        dialog._preview, scope="custom", installations=["shared"])
+    assert item.text(2) == "Kept"
+    _, shared = dialog._installation_items["shared"]
+    shared.setCheckState(0, Qt.Unchecked)
+    assert not dialog._remove.isEnabled()
+
+
+def test_an_unverified_installation_has_no_tick_box(qtbot, preview):
+    dialog = consent._UninstallDialog(preview)
+    qtbot.addWidget(dialog)
+    _, checkout = dialog._installation_items["checkout"]
+    assert not checkout.flags() & Qt.ItemIsUserCheckable
+
+
+def test_keeping_the_running_installation_starts_with_its_data_kept(qtbot, preview):
+    dialog = consent._UninstallDialog(preview)
+    qtbot.addWidget(dialog)
+    assert dialog._kept_note.isHidden()
+    dialog._scope.setCurrentIndex(dialog._scope.findData("older"))
+    assert dialog.choices()["categories"] == []
+    assert not dialog._kept_note.isHidden()
+    dialog._category_items["logs"].setCheckState(0, Qt.Checked)
+    _, shared = dialog._installation_items["shared"]
+    shared.setCheckState(0, Qt.Unchecked)
+    shared.setCheckState(0, Qt.Checked)
+    assert dialog.choices()["categories"] == ["logs"]
+    dialog._scope.setCurrentIndex(dialog._scope.findData("all"))
+    assert dialog.choices()["categories"] == list(install_cleanup._UNINSTALL_CATEGORIES)
+    assert dialog._kept_note.isHidden()

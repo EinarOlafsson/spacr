@@ -1,0 +1,14 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "PyTorch cannot use this Mac's graphics, so spaCR runs these tasks on the CPU. Nothing needs to be installed.",
+      "source": "PyTorch cannot use this Mac's graphics, so spaCR runs these tasks on the CPU. Nothing needs to be installed.",
+      "source_sha256": "4a55915c9f2f2191a65463222e2e24356b456ea2817e931c07620408ed42f1cb",
+      "table": "ui",
+      "translation": "PyTorch 无法使用此 Mac 的图形处理器，因此 spaCR 在 CPU 上运行这些任务。无需安装任何内容。"
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

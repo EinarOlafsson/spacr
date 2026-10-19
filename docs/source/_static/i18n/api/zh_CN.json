@@ -1040,13 +1040,13 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "750e36de9893f80daf838fda778697fb247e391b1cf1e62082f7cc578e58a089",
         "9927ae21a825a35f4a4823a2c2e8b31dd081a64605efcedd996cc11baa3c1c75",
-        "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
+        "eb8e87e40c1228638c7ed50f596036ffda96a54a09dfd4086c37b21dc675e7a0",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
       ],
-      "source_sha256": "8c911e80f2de11b9ac3f9ba4ad1fca7121dd3c448f67744d6c694c272359029d",
-      "text": "按类别、孔、板和采集汇总标注覆盖率。\n\n标签在各实验单元之间的分布决定了分类器能否泛化到特定采集的染色、对焦和汇合度之外。因此，集中在一个孔内的标签集在对象级随机划分下可能产生过于乐观的性能。此函数在模型训练或评估之前揭示这种集中情况。\n\n阅读 ``png_list`` 仅读,加上 :data:`ROUND_TABLE` 当它存在时,标签也可以归咎于它们表面的活跃学习圈。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 该应用程序的列是安诺特。\n:param table: 提取图像区域表(默认 ``png_list``)。\n:param key: 序列识别器(默认 ``png_path``)。\n:param image_type: 对结构化数据名称进行子字符串过滤,与 Annotate 应用程序视图自身的过滤器一致。其下的每个计数(包括 ``n_rows``)都只针对匹配的提取图像区域——如果分母取自整张表,分子和分母就会落在两个不同的总体上。 ``n_rows_unfiltered`` 保留总数,并有一条说明指出排除了多少条。\n:returns: 每 ``(plateID, rowID, columnID, class)`` 有至少一个字符串的单行,其中 ``n`` 和 ``share`` 加上整个分裂为 ``attrs['spacr_annotation_coverage']``: ``by_class``、 ``by_plate``、``by_well``、 ``by_class_plate``、 ``by_class_well``、 ``by_round``、``by_source``、``concentration``(每个类)和 ``notes``。\n:raises ValueError: 当表中没有这样的列时,一个空白的结果会被称为 \"nothing annotated yet\",这是一个不同的事实。\n:raises FileNotFoundError: 当数据库不在时。",
+      "source_sha256": "bc1cacbba20167ee58f77511d97383acfe3dfef19586568712e40c57a6a879bc",
+      "text": "按类别、孔、板和采集汇总标注覆盖率。\n\n标签在各实验单元之间的分布决定了分类器能否泛化到特定采集的染色、对焦和汇合度之外。因此，集中在一个孔内的标签集在对象级随机划分下可能产生过于乐观的性能。此函数在模型训练或评估之前揭示这种集中情况。\n\n阅读 ``png_list`` 仅读,加上 :data:`ROUND_TABLE` 当它存在时,标签也可以归咎于它们表面的活跃学习圈。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 该应用程序的列是安诺特。\n:param table: 提取图像区域表(默认 ``png_list``)。\n:param key: 序列识别器(默认 ``png_path``)。\n:param image_type: Annotate 视图自身对键的过滤器，按网格的读法解读（AND、OR、NOT，词项不区分大小写）。其下的每个计数（包括 ``n_rows``）都只针对匹配的提取图像区域——如果分母取自整张表，分子和分母就会落在两个不同的总体上。 ``n_rows_unfiltered`` 保留总数，并有一条说明指出排除了多少条。\n:returns: 每 ``(plateID, rowID, columnID, class)`` 有至少一个字符串的单行,其中 ``n`` 和 ``share`` 加上整个分裂为 ``attrs['spacr_annotation_coverage']``: ``by_class``、 ``by_plate``、``by_well``、 ``by_class_plate``、 ``by_class_well``、 ``by_round``、``by_source``、``concentration``(每个类)和 ``notes``。\n:raises ValueError: 当表中没有这样的列时,一个空白的结果会被称为 \"nothing annotated yet\",这是一个不同的事实。\n:raises FileNotFoundError: 当数据库不在时。",
       "translation_source_blocks_sha256": [
         "d54694a4887e21db5eb04e4a3a384fde7165749260bccb2ecf019185dfd829a7",
         "016a691c17b5cdb8202315faff64adcf1e24c6d2f51f8dfa482a35d4c21a20b3",
@@ -1055,7 +1055,7 @@
         "e51e4edb806e662efbc561601c52367a0238f6ab351d3b261448515170b2908b",
         "452d01891862e03c4baef3aa5158b052f77f8055547a50cb24a7269f35a6493b",
         "a506a1eed41c74aad9de41be6ae13e82bb8e2f562f5a9e10906d07c917af3612",
-        "29992052ca1ef7c848619617ff00cb5ec629bdd174c24b6d551deb718a2013e0",
+        "c94b39489853a58466988a4a8fa00ca57e8e201429ebd70ec2c87a49f016c8e9",
         "79fa7eefa8f2744051df859079f98c9890a78cca0bbd2d2aab952472c00ff34a",
         "8e531d99fe81689d704c79c928ba356093c39f4979af9581081b4e9e63a168ae",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055"
@@ -1099,14 +1099,14 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
+        "0c12a9527a2ca7d996ce14b24151417f2d4ff407ab447992eaadc84f15e5e5ed",
         "30ffff94b1f25ce27a73ee3a1e7bb114ff46e8c9ac44a5b1c19a51a9eb4226ef",
         "3db974dd779fc492b98a7d7df944ad3f6fa527dfe29f46f6757c89378c676846",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
         "7419a19d554bce02dec446f36cef42c534cc0ede025b03f4455a4905083d35de"
       ],
-      "source_sha256": "6758ccbc340c4f93c2480edf6c49f98835305ac6313e29ff56117d0627776455",
-      "text": "构建标注队列：未标注的裁剪图，最不确定的排在最前。\n\n阅读 ``png_list`` 仅阅读,并返回每个提取图像区域一行,仍在等待标签,因此命令提取的图像区,这将教导模型最先来。\n\n**已注册的提取图像区域被排除** ``NULL`` 在 ``annotation_column`` 意味着 \"not looked at\"; 任何其他事物 - *包括 0* - 都意味着一个人致力于一个班级。 如果列根本不存在,则尚未提到任何内容,并且每个提取的图像区域都被提取(一张笔记这样说)。 这是与:mod:`spacr.agreement`相同的拒绝协议。\n\n**标记工作列表是默认的多样化,这花费了一些东西.** 与 ``diversity='well'`` 排名提取的图像区域在微板样本位置周围进行圆圈:位置 1 仍然是单一最不确定提取图像区,但位置 2 在一个 *不同* 是最不确定的提取图片区域,这可能是物质上的不确定性低于运行总体。 如果 ``limit`` 小于微板样本位置的数量,则标记工作列表将包含从每个 ``limit`` 微板模型位置中提取的图像区域大约一个,而从其他位置中则没有一个。 通过 ``diversity='none'`` 为纯顺序, ``'field'``/``'plate'`` 为其他层, 或 ``group_columns=[…]`` 为自己的 - 包括一个集体 ID 你从特征计算, 这是更详细的多样化 这些交易远离不需要一个特征矩阵。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 列在 Annotate 应用程序中写入(默认 ``'annotate'``)。\n:param pred_column: 模型分数列(s)的名称或名单。 ``None``(默认)自动检测: ``pred_0, pred_1, …``多级风格列,其余 ``pred``. 单个列被读为二进制问题的积极分类概率。\n:param table: 包含提取图像区域的表(默认 ``png_list``)。\n:param key: 序列识别器(默认 ``png_path``)。\n:param measure: ``'entropy'``(默认),``'least_confidence'``,``'margin'``,或一个可召唤的。\n:param limit: 保留大部分这些大量提取的图像区域。\n:param diversity: ``'well'``(默认),``'plate'``,``'row'``, ``'column'``、``'field'``或``'none'``。\n:param group_columns: 明确列以超越,超越``diversity``。\n:param seed: 切断种子; ``None`` 连接顺序,无论如何结果是可重复的。\n:param image_type: 基于 ``png_path`` - 与 Annotate 应用程序视图的 ``image_type`` 过滤器相匹配(例如 ``'cell'``)。\n:returns: DataFrame 与 ``rank`` (1 基),结构化数据名称, ``uncertainty``, ``predicted_class``,概率列和任何提取图像区域 ``png_list`` 具有。 空白(有相同的列),当没有什么可记录的。 诊断生活在``queue.attrs['spacr_active_learning']``; 以 :func:`format_queue_summary` 提供。\n:raises ValueError: 当表或预测列失踪时,这两者都意味着没有工作列表要创建,猜测会产生一个可靠的看起来错误的顺序。\n:raises FileNotFoundError: 当数据库不在时。\n\n.. warning::\n   ``uncertainty`` 这是一个排名分数,而不是加密信任。 :data:`CALIBRATION_NOTE`.",
+      "source_sha256": "7ebda6a05096e9c72c19c037746f7bd3d724438d3097d3c8151463b245979a04",
+      "text": "构建标注队列：未标注的裁剪图，最不确定的排在最前。\n\n阅读 ``png_list`` 仅阅读,并返回每个提取图像区域一行,仍在等待标签,因此命令提取的图像区,这将教导模型最先来。\n\n**已注册的提取图像区域被排除** ``NULL`` 在 ``annotation_column`` 意味着 \"not looked at\"; 任何其他事物 - *包括 0* - 都意味着一个人致力于一个班级。 如果列根本不存在,则尚未提到任何内容,并且每个提取的图像区域都被提取(一张笔记这样说)。 这是与:mod:`spacr.agreement`相同的拒绝协议。\n\n**标记工作列表是默认的多样化,这花费了一些东西.** 与 ``diversity='well'`` 排名提取的图像区域在微板样本位置周围进行圆圈:位置 1 仍然是单一最不确定提取图像区,但位置 2 在一个 *不同* 是最不确定的提取图片区域,这可能是物质上的不确定性低于运行总体。 如果 ``limit`` 小于微板样本位置的数量,则标记工作列表将包含从每个 ``limit`` 微板模型位置中提取的图像区域大约一个,而从其他位置中则没有一个。 通过 ``diversity='none'`` 为纯顺序, ``'field'``/``'plate'`` 为其他层, 或 ``group_columns=[…]`` 为自己的 - 包括一个集体 ID 你从特征计算, 这是更详细的多样化 这些交易远离不需要一个特征矩阵。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 列在 Annotate 应用程序中写入(默认 ``'annotate'``)。\n:param pred_column: 模型分数列(s)的名称或名单。 ``None``(默认)自动检测: ``pred_0, pred_1, …``多级风格列,其余 ``pred``. 单个列被读为二进制问题的积极分类概率。\n:param table: 包含提取图像区域的表(默认 ``png_list``)。\n:param key: 序列识别器(默认 ``png_path``)。\n:param measure: ``'entropy'``(默认),``'least_confidence'``,``'margin'``,或一个可召唤的。\n:param limit: 保留大部分这些大量提取的图像区域。\n:param diversity: ``'well'``(默认),``'plate'``,``'row'``, ``'column'``、``'field'``或``'none'``。\n:param group_columns: 明确列以超越,超越``diversity``。\n:param seed: 切断种子; ``None`` 连接顺序,无论如何结果是可重复的。\n:param image_type: Annotate 视图的 ``image_type`` 过滤器，作用于 ``png_path``（例如 ``'cell'`` 或 ``'cell AND NOT pathogen'``），按网格的读法解读：AND、OR、NOT 和括号，每个词项匹配时不区分大小写。\n:returns: DataFrame 与 ``rank`` (1 基),结构化数据名称, ``uncertainty``, ``predicted_class``,概率列和任何提取图像区域 ``png_list`` 具有。 空白(有相同的列),当没有什么可记录的。 诊断生活在``queue.attrs['spacr_active_learning']``; 以 :func:`format_queue_summary` 提供。\n:raises ValueError: 当表或预测列失踪时,这两者都意味着没有工作列表要创建,猜测会产生一个可靠的看起来错误的顺序。\n:raises FileNotFoundError: 当数据库不在时。\n\n.. warning::\n   ``uncertainty`` 这是一个排名分数,而不是加密信任。 :data:`CALIBRATION_NOTE`.",
       "translation_source_blocks_sha256": [
         "6a9525dc472316ce57ca82a96ab048c346b696b346f5da78d6cbd1d097fdc038",
         "f0b8c5ce932145dd058d7bea404a4b7b3357c25f4a6382c06fc6fd0ed4fba0e2",
@@ -1122,7 +1122,7 @@
         "2ca86209eb6d1f9bc1b8c750bd81a2b463265b76c5c4ef7775830ac8171191fb",
         "984cc5d96143e9fdef74898c0f950a2eb9d9d018349c37e1eda17e42348d93c3",
         "cf2cc3125b736ee02bbd96e4eac54f22d41e295aa382c4eb5a93794c62c3f6c8",
-        "7b18cd8d589d17fcda749986eeb1501b7ad69fe26520bdacb3d4a60e7683d95d",
+        "63e460e87d3e2f0693f869b5fa42b27c0c9459f6a69583207fa57ceb3382c9b1",
         "86a02024ff7490e61340209a578550dd8db0c02d200b59f5b93e574f77933aa9",
         "06ddaec3cae5522a2175e192dae21721e450e664b9b89fe6f97a4a734ffbaa56",
         "1e7c809ee2bca2337712bdd00a5669a1fda381e5c74d3b33ec1ff3b0f51b0055",
@@ -1142,11 +1142,11 @@
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
         "d862db52f9dfd39bce03280d81217d90ffb7329d6f04714aefb3675400b8efe6",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ],
-      "source_sha256": "d7231c91f09a37f517fcd1861a42b7a51fdad1ed84177d1d02f465d6c057b8de",
-      "text": "将对象键解析为裁剪行，**按调用方的顺序**。\n\n数据库中,对象路由合同的一半 :mod:`spacr.qt.linked_selection`: 一个分散式插图或混合式矩阵细胞名称对象由 :data:`spacr.selection.OBJECT_KEY_COLUMNS` 结构化数据名称,并且 Annotate 应用程序视图必须将这些转换为它页面所提取的图像区域。 Qt 应用程式显示,以便在没有显示器的情况下可测试,因此第二个消费者不必重新实施 ``'o5'``相反 -``5`` 陷入 :func:`_object_label`.\n\n输入顺序保留,以便优先排名如 ``worst errors first`` 保持不变。\n\n``png_list`` 通过人口 ``<type>_id`` 列(:data:`PNG_ID_COLUMN_TYPES`)识别对象类型,因此核 1 和病原体 1 独立解决。\n\n逃避的代数据组成部分以编码和原料形式解决。 例如,:func:`spacr.selection.object_keys` 代表 ``fieldID`` 的 ``'f_1'`` 作为 ``'f%5F1'``, 而从提取图像区域表列中收集的结构化数据名称包含原始子分。\n\n:param db_path: 路径为 ``measurements.db``。\n:param keys: 对象识别,打字或不打字 也被接受 ``png_path``, ``prcfo`` 或 ``file_name``,因此从提取图像区域表中工作的呼叫器而不是测量表不需要翻译步骤。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param annotation_column: 阅读现有标签也,因此已标记的提取图像区域与其颜色而不是白色。\n:param timelapse: 关键带有时间点。\n:param image_type: 在提取图像区域密钥上插入过滤器。\n:returns: 按 ``[(png_path, annotation or None), …]`` 在关键的顺序。",
+      "source_sha256": "f64b7ab8717a72f564311eb69f7a8bf347db6c7ae707c0f7341b290982f030b6",
+      "text": "将对象键解析为裁剪行，**按调用方的顺序**。\n\n数据库中,对象路由合同的一半 :mod:`spacr.qt.linked_selection`: 一个分散式插图或混合式矩阵细胞名称对象由 :data:`spacr.selection.OBJECT_KEY_COLUMNS` 结构化数据名称,并且 Annotate 应用程序视图必须将这些转换为它页面所提取的图像区域。 Qt 应用程式显示,以便在没有显示器的情况下可测试,因此第二个消费者不必重新实施 ``'o5'``相反 -``5`` 陷入 :func:`_object_label`.\n\n输入顺序保留,以便优先排名如 ``worst errors first`` 保持不变。\n\n``png_list`` 通过人口 ``<type>_id`` 列(:data:`PNG_ID_COLUMN_TYPES`)识别对象类型,因此核 1 和病原体 1 独立解决。\n\n逃避的代数据组成部分以编码和原料形式解决。 例如,:func:`spacr.selection.object_keys` 代表 ``fieldID`` 的 ``'f_1'`` 作为 ``'f%5F1'``, 而从提取图像区域表列中收集的结构化数据名称包含原始子分。\n\n:param db_path: 路径为 ``measurements.db``。\n:param keys: 对象识别,打字或不打字 也被接受 ``png_path``, ``prcfo`` 或 ``file_name``,因此从提取图像区域表中工作的呼叫器而不是测量表不需要翻译步骤。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param annotation_column: 阅读现有标签也,因此已标记的提取图像区域与其颜色而不是白色。\n:param timelapse: 关键带有时间点。\n:param image_type: Annotate 图像过滤器作用于提取图像区域的键，按网格的读法解读（AND、OR、NOT，词项不区分大小写）。\n:returns: 按 ``[(png_path, annotation or None), …]`` 在关键的顺序。",
       "translation_source_blocks_sha256": [
         "5430048bbfa86368363220fae110ebe8eb481c11a7b83dafe4a8b469cac78fb7",
         "da67a92aa443071a53265d33f04eb01a0c40920ff2c11ee682c66492a85d55d8",
@@ -1159,7 +1159,7 @@
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
         "cf3b2d22413e3e269a5b9e074ecd2d681923b311392f9f47c20f19a1722ac097",
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
       ]
     },
@@ -1572,7 +1572,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "c4a49e34c74648bbeeaac2580ba68aebc6b7ae4f12411b494ee6c75cfc4c1e68",
         "55c47b0ab87bdb69ede6aa4dba7a77ac4eaeb7cb9cc3625c2810cb85c4870db6",
-        "30c3fda81d65624b955951c0d70d5c08cf00987099c997560c4b480ba5add97a",
+        "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1589,8 +1589,8 @@
         "21cbaad989f92f91dbf33d9abb8d62856700d1fdd63df9108a678fca2a009b08",
         "8e454e6390c0cf40214a75f58051d4d2ee497409af3a69e6aa5c7c0279ad3a2e"
       ],
-      "source_sha256": "5c0a2f87b2a2a444204a461bedaa7bb150107d7f9cd40bfefaa12120723cb287",
-      "text": "在当前标签上拟合模型，对所有裁剪图重新评分，并记录本轮。\n\n没有退缩,工作列表的顺序仍然反映在任何新标签之前安装的模型,因此在前几十个标签后变得过时。\n\n一个呼叫做所有需要的五件事:\n\n1. 适合每个标签的模型在 ``annotation_column``; 2. 点数它在一个 **组** 保持分裂,所以数字不是来自一个微板样本位置的 190 个标志的对象; 3. 写回每个类的概率为 ``png_list`` 作为 :data:`ROUND_PRED_PREFIX` 列,而 :func:`build_queue` 更喜欢旧的 ``pred`` - 因此下一个工作列表是真正重新排序; 4. 记录圆,给 :func:`learning_curve` 另一个点; 5. 返回 :class:`StoppingVerdict` 为曲线到目前为止。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 包含标签的列。\n:param features: 属性矩阵由提取图像区域结构数据名称索引. 错过,它从测量表中以 :func:`round_features` 阅读。\n:param model_type: ``'logistic_regression'``(默认情况下,它是以20个标签行事的), ``'random_forest'``或 ``'gradient_boosting'``。\n:param group_by: ``'well'``(默认), ``'plate'``, ``'field'`` 或 ``'none'``. 所持的分裂拒绝共享. 正确相匹配,在较低的情况下; 其他任何东西都会产生错误, 一个未知的 ``diversity=`` 在 :func:`build_queue`. 当策略是 ``'none'``, 或提取的图像区域表没有所需要的列, 分裂是分裂的随机一个和 ``split_rule`` 说 ``NOT grouped`` - 它从来没有声称一个组合它没有完成。\n:param holdout: 被解除的分裂。\n:param seed: 使分裂和合适可再生。\n:param min_labels: 拒绝在这些许多标签下匹配。\n:param round_index: 超越圆数;默认为 :func:`next_round`。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param image_type: 在提取图像区域密钥上插入过滤器。\n:param write_scores: 将新的概率重新输入到数据库中。\n:param save_model: joblib-dump 配置模型在数据库旁边。\n:param model_dir: 在哪里放置它;默认为 ``<db dir>/active_learning``。\n:param write_card: 写一个模型卡旁边的保存模型。\n:param label_window: 转到 :func:`should_stop`。\n:param min_gain: 转到 :func:`should_stop`。\n:param measure: 记录与圆,为下列工作列表。\n:param diversity: 同样。\n:param balance: ``'none'``(默认)将不平衡留给估计器本身的 ``class_weight='balanced'``; ``'downsample'``将每个类分为最小的尺寸。\n\n    重量和下载产生不同概率来自相同的图像区域,并在这些概率上分类:func:`spacr.suggest.suggest_from_scores`,所以圆记录设置在``notes``和模型卡上。\n:param rejections: ``{crop key: rejected class}`` - 投标人拒绝的提议(:func:`spacr.suggest.rejected_suggestions`)。 在二级列中,一级1的拒绝是二级的例子,它被定义为一级; 提取的图像区域,从此已被标记,留在其标签上,并且在与任何其他类别的列中,拒绝不能转换为标签,并在笔记中计算。 没有这一点,提出错误的阶级的模型将在下一轮同样的证据上装备,并再次提出。\n:param synthetic_negatives: 有多少未注册的提取图像区域可以随机地绘制,并以缺席的类型相匹配,当只有一个类被注册时。 ``None`` (默认) 拒绝相反,就像以前一样。\n\n    一个随机从未注册的游泳池是主要是负,而不是负,因此结果是一个排名而不是分类。 圆笔和模型卡记录了多少合成负被使用。 定义为二进制类1和2仅 -- 见 :func:`_absent_binary_class`。\n:returns: a :class:`RoundResult`.\n:raises ValueError: 下面是 ``min_labels`` 标签,其中列出少于两类,或为未识别的 ``group_by``。",
+      "source_sha256": "a74925dd50ad41ac7120eab34cf450578d9f3b097f67b4feef6ebcfba49e5e0c",
+      "text": "在当前标签上拟合模型，对所有裁剪图重新评分，并记录本轮。\n\n没有退缩,工作列表的顺序仍然反映在任何新标签之前安装的模型,因此在前几十个标签后变得过时。\n\n一个呼叫做所有需要的五件事:\n\n1. 适合每个标签的模型在 ``annotation_column``; 2. 点数它在一个 **组** 保持分裂,所以数字不是来自一个微板样本位置的 190 个标志的对象; 3. 写回每个类的概率为 ``png_list`` 作为 :data:`ROUND_PRED_PREFIX` 列,而 :func:`build_queue` 更喜欢旧的 ``pred`` - 因此下一个工作列表是真正重新排序; 4. 记录圆,给 :func:`learning_curve` 另一个点; 5. 返回 :class:`StoppingVerdict` 为曲线到目前为止。\n\n:param db_path: 路径为 ``measurements.db``。\n:param annotation_column: 包含标签的列。\n:param features: 属性矩阵由提取图像区域结构数据名称索引. 错过,它从测量表中以 :func:`round_features` 阅读。\n:param model_type: ``'logistic_regression'``(默认情况下,它是以20个标签行事的), ``'random_forest'``或 ``'gradient_boosting'``。\n:param group_by: ``'well'``(默认), ``'plate'``, ``'field'`` 或 ``'none'``. 所持的分裂拒绝共享. 正确相匹配,在较低的情况下; 其他任何东西都会产生错误, 一个未知的 ``diversity=`` 在 :func:`build_queue`. 当策略是 ``'none'``, 或提取的图像区域表没有所需要的列, 分裂是分裂的随机一个和 ``split_rule`` 说 ``NOT grouped`` - 它从来没有声称一个组合它没有完成。\n:param holdout: 被解除的分裂。\n:param seed: 使分裂和合适可再生。\n:param min_labels: 拒绝在这些许多标签下匹配。\n:param round_index: 超越圆数;默认为 :func:`next_round`。\n:param table: 提取图像区域表。\n:param key: 提取图像区域识别列。\n:param image_type: Annotate 图像过滤器作用于提取图像区域的键，按网格的读法解读（AND、OR、NOT，词项不区分大小写）。\n:param write_scores: 将新的概率重新输入到数据库中。\n:param save_model: joblib-dump 配置模型在数据库旁边。\n:param model_dir: 在哪里放置它;默认为 ``<db dir>/active_learning``。\n:param write_card: 写一个模型卡旁边的保存模型。\n:param label_window: 转到 :func:`should_stop`。\n:param min_gain: 转到 :func:`should_stop`。\n:param measure: 记录与圆,为下列工作列表。\n:param diversity: 同样。\n:param balance: ``'none'``(默认)将不平衡留给估计器本身的 ``class_weight='balanced'``; ``'downsample'``将每个类分为最小的尺寸。\n\n    重量和下载产生不同概率来自相同的图像区域,并在这些概率上分类:func:`spacr.suggest.suggest_from_scores`,所以圆记录设置在``notes``和模型卡上。\n:param rejections: ``{crop key: rejected class}`` - 投标人拒绝的提议(:func:`spacr.suggest.rejected_suggestions`)。 在二级列中,一级1的拒绝是二级的例子,它被定义为一级; 提取的图像区域,从此已被标记,留在其标签上,并且在与任何其他类别的列中,拒绝不能转换为标签,并在笔记中计算。 没有这一点,提出错误的阶级的模型将在下一轮同样的证据上装备,并再次提出。\n:param synthetic_negatives: 有多少未注册的提取图像区域可以随机地绘制,并以缺席的类型相匹配,当只有一个类被注册时。 ``None`` (默认) 拒绝相反,就像以前一样。\n\n    一个随机从未注册的游泳池是主要是负,而不是负,因此结果是一个排名而不是分类。 圆笔和模型卡记录了多少合成负被使用。 定义为二进制类1和2仅 -- 见 :func:`_absent_binary_class`。\n:returns: a :class:`RoundResult`.\n:raises ValueError: 下面是 ``min_labels`` 标签,其中列出少于两类,或为未识别的 ``group_by``。",
       "translation_source_blocks_sha256": [
         "951d883926b536a34e5cd0ebee5f02933b55e5828da6efc3a79435c417c21e65",
         "e4fcf0faf850f6bf6f649c7afe08a6e74907d17388393c016a51c4d9a6620b55",
@@ -1607,7 +1607,7 @@
         "948927f51819ce74ce97415952e09e01b9fc9b56195027ee3af46a960a0c1c86",
         "5d1c3c972e1ffc64511eb1eae159d667f9b6daf83948df53b888203ea49445ce",
         "6b9d5da42cb1a6839b45859650d37e36b6f2d6c7c5676c4305fa324c033e9681",
-        "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
+        "dceb2b275da5390d116009c56a5c7e06d0c632f1340211516f1996f8d7360b0c",
         "96ff8eb5e42417ada22f7666b86d038e26e7a74358368af3cedd0f84996ab72a",
         "68917a480504eba7631a57ec044d7577034743327fae0f222dd44c7e3cc19898",
         "0f59d60fa662596e18a0c81925b32880cff95a7bbb9b36a25a996774f9537010",
@@ -1632,25 +1632,29 @@
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "4018b583c775fc05733dfce234cb6f94a8448e3361f957cf66989a0a73ca0e4a",
         "42529e1520f6516ab9c106702830c241cf965efc52e64bb7c16dde2ca5939061",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "50cdd854a2adde80ccef5cb67792eacef83a6e781f992348ba774ca19940808f",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "a7972a1a00a26ce5a9a7b7342e3ccea30e2b327e11b9461bf0190b26cc4f5114"
       ],
-      "source_sha256": "8dfab3528887ae976b854dca42cb42786dc0f25ee6bb33657fd28ba4e1799e86",
-      "text": "每个裁剪图的测量特征，以 ``png_path`` 为索引。\n\n函数矩阵一个在应用中视图逆转适合。 测量特征而不是像素的目的: 从 Annotate 内部撤退的点是在秒钟内获得新鲜的排名,在机器上,笔记者坐在那里,没有 GPU 并没有离开应用程式观点. CNN 撤退是正确的事情在 *end* 的轮子上做,而不是两页的图像区域之间。\n\n:param db_path: 路径为 ``measurements.db``。\n:param table: 提取图像区域表包含 ``png_path`` 和 ``prcfo``。\n:param key: 提取图像区域识别列。\n:param tables: 对象表将属性融入;失踪的被排除。\n:param nuclei_limit: 已转到 :func:`spacr.io._read_and_merge_data`。\n:param pathogen_limit: 同样。\n:returns: 数字属性以 ``png_path`` 索引。\n:raises ValueError: 当没有物体表与特征可以阅读时。",
+      "source_sha256": "115a6b78c60744ea5dcf44bbc4d5d78525ea8de74aaad2cb82509bbb6fe1c013",
+      "text": "每个裁剪图的测量特征，以 ``png_path`` 为索引。\n\n函数矩阵一个在应用中视图逆转适合。 测量特征而不是像素的目的: 从 Annotate 内部撤退的点是在秒钟内获得新鲜的排名,在机器上,笔记者坐在那里,没有 GPU 并没有离开应用程式观点. CNN 撤退是正确的事情在 *end* 的轮子上做,而不是两页的图像区域之间。\n\n:param db_path: 路径为 ``measurements.db``。\n:param table: 提取图像区域表包含 ``png_path`` 和 ``prcfo``。\n:param key: 提取图像区域识别列。\n:param tables: 提取特征所用的对象表；缺失的表会被跳过， ``None`` 表示提取图像区域所显示对象类型的表。区域自身的表（细胞核区域为 ``nucleus``）给出对象自己的行，上级表（ ``cell`` 或 ``cytoplasm``）给出对象所在细胞的行，其他任何表给出该细胞内各行的均值。当区域自身的表被选中且含有其行时保留该区域；若自身的表未被选中，则在任一选中的表描述了该区域时保留它。\n:param nuclei_limit: 所含细胞核多于此值的细胞不会得到细胞核均值特征； ``None`` 表示不设上限。\n:param pathogen_limit: 所含病原体多于此值的细胞不会得到病原体均值特征； ``None`` 表示不设上限。\n:param channels: 只保留这些通道组的特征：``channel_<n>``，以及用于不涉及单一通道的特征（面积、形状）的 ``none``； ``None`` 保留所有通道。\n:param families: 只保留这些特征类别，名称见 :data:`spacr.feature_dict.FEATURE_FAMILIES`（ ``intensity``、 ``morphology``、 ``texture`` 等）； ``None`` 保留所有类别。\n:returns: 以 ``png_path`` 为索引的数值特征。\n:raises ValueError: 当所有对象表都无法读取、当通道和类别选择没有留下任何特征列，或者存在提取图像区域和已测量对象却没有任何区域与对象匹配时引发；最后一种情况会给出一个区域键和一个对象键。",
       "translation_source_blocks_sha256": [
         "d3bc87290a803f6dc7d1edeb34d177115eb2c80058e9653f6e9165263c2459a3",
         "be6bd319614c4e175d9733d38c7036d9b2f5cfaa3521c292992d4321245dd934",
         "31fc51bbc194cb0f50772227bf045c5244d3ad3a7f3a5ae76591c8a1d36508b8",
         "5300d333528981fa26e142fb1bdfb7c18b52f53e8a0ea14cf607024afd5f1465",
         "7d9d21ae8dc0f391ffc61c27ecc5b17762bd0552c401aa7947787ec078a5c183",
-        "66edee8e210d4082236cd4a7df8284e54f602d2b8020815f4aa52ba458c8dabf",
-        "9a31cddf309911ab21f234598c95d16fa18baf452247f18df424267792ffbd36",
-        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "49610a01e2cddc5ab9704824421010a65ab0cabe0eebf676100f12098a70b093",
+        "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+        "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+        "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+        "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
         "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
-        "b201165dfa4ad5ed97a65f328471edd9d827ea686a130b811028f50841f556d5"
+        "5210bc81a275b5d62fb9ffbf5e6fcd0142a54b9742656b1c6c5f6a496da959b2"
       ]
     },
     "spacr.active_learning.should_stop": {
@@ -23747,12 +23751,14 @@
     },
     "spacr.embeddings._cell_dino_model.forward": {
       "source_blocks_sha256": [
-        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d"
+        "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+        "818ec8e8d821075bc67cffa17b7828e1372ab68ec964d3469052db0845e39f9d"
       ],
-      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
-      "text": "返回每个指定裁剪图像的官方 DINOv2 输出头结果。",
+      "source_sha256": "a810037205193ce34881f0cb190474f344dc4375a6773eab08926ba06704c8de",
+      "text": "返回每个指定裁剪图像的官方 DINOv2 输出头结果。\n\nChannel-Adaptive DINO 单独编码每个图像平面，并将所有图像平面的类别令牌并排返回，与其官方 bag-of-channels 评估方式一致。",
       "translation_source_blocks_sha256": [
-        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee"
+        "d703210fbcaf0ecc1fc59162159dce9f3958d5d03ee35f70bdb266569554f9ee",
+        "592489a0d8b841548105208f54295b7e00a17d56fbd0d7baa813c863fb9744a1"
       ]
     },
     "spacr.embeddings._dino_classifier_apply.refuse": {
@@ -23882,14 +23888,16 @@
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
         "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+        "c62e76c01327e1b77381460479b1855bd69e2f16cdcbee7ffb5fb6c624caa3ab",
         "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
         "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "264f161d2a0d1a4b9113d3edd2c7107edb84ae25374905e23dcc7ffc46d77dd4",
-      "text": "按官方裁剪尺寸编码指定的 Cell-DINO 图像平面。\n\n以适合模型的批次编码形状为 ``(n, h, w, k)`` 的裁剪图像。\n\n:param stack: float32 裁剪图像，通道位于最后一个维度。SubCell R/Y/B/G 使用原始强度值；其他基础模型要求数值位于 [0, 1]。\n:returns: ``(n, dims)`` float32 特征。",
+      "source_sha256": "c7c2c9528400cd4261f8bfb7e3f98a8c36f9992de2c871a4962ecb8cdb0a28d2",
+      "text": "按官方裁剪尺寸编码指定的 Cell-DINO 图像平面。\n\n调整尺寸后，每个裁剪图像的每个图像平面都会被中心化并缩放到单位标准差，与官方评估变换一致。\n\n以适合模型的批次编码形状为 ``(n, h, w, k)`` 的裁剪图像。\n\n:param stack: float32 裁剪图像，通道位于最后一个维度。SubCell R/Y/B/G 使用原始强度值；其他基础模型要求数值位于 [0, 1]。\n:returns: ``(n, dims)`` float32 特征。",
       "translation_source_blocks_sha256": [
         "0e92863a5153c0808c64f765b599c4a341f3c06e119ed44d5477b39d6f38dd15",
+        "17bccbbb02a5d3c5af2122f086e387920d9315e70d220e6f91032c8ddccecafb",
         "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
         "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
@@ -87567,7 +87575,7 @@
     },
     "spacr.qt.mask_engine.assign_tracked_object": {
       "source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -87575,10 +87583,10 @@
         "333f1ac41f13a5736ea66d39f36177320220397b6864af3748d9290d9b421e69",
         "72b9a74788f048ea0f61bbecdf3ac8ab7577ff20ddc2c78b3e2b3fa9a76f77eb"
       ],
-      "source_sha256": "7f3affaa399717c683cf1764394cdb8cdb8d1d98316b4ffe79144c8240909d43",
-      "text": "使用空闲的局部 ID 追踪指针悬停的对象，不占用其他追踪轨迹。\n\n:param mask: 当前的二维整数标签掩膜。\n:param x: 鼠标指针悬停像素的列。\n:param y: 鼠标指针悬停像素的行。\n:param state: 要复制并更新的谱系图。\n:param frame: 此帧的源图像路径。\n:param cell_uuid: 要分配的谱系区段的持久 UUID。",
+      "source_sha256": "20e05c734d55af9cb86840fb3c2d4931357ba0bb47e9c770b91c721cf65a44db",
+      "text": "为指针下的对象赋予所选身份，使分裂的一个分支延续该身份。\n\n:param mask: 当前的二维整数标签掩膜。\n:param x: 鼠标指针悬停像素的列。\n:param y: 鼠标指针悬停像素的行。\n:param state: 要复制并更新的谱系图。\n:param frame: 此帧的源图像路径。\n:param cell_uuid: 要分配的谱系区段的持久 UUID。",
       "translation_source_blocks_sha256": [
-        "a5499465fbed27dcc93508ce243b133f6b9722bfa506726af684504c78f48096",
+        "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
         "e74a5aaeadcffbe5b80a25ba18d616995128ad03889e0af1bf1d8fa0e1292470",
         "da5796513563afc5664f6530520f2a2eec49e59d877174b0c544b3a758acb1af",
         "9011989fa917ae425c718e4b8adbe503a7275e094d0f427dea7f8986a709a805",
@@ -104165,12 +104173,22 @@
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": {
       "source_blocks_sha256": [
-        "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d"
+        "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551"
       ],
-      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
-      "text": "第五个图像平面仅适用于 Cell Painting 模型构建函数。",
+      "source_sha256": "1d05844846d0ca3b9e60ff1c0bf912729e469fb107dc0128d8f6f1eb44648551",
+      "text": "显示所选模型构建函数接受的图像平面；自适应时不显示任何平面。",
       "translation_source_blocks_sha256": [
-        "cabe1e8a5b080e931aa03c9d15c3f927197488091876888d2edc97d0561cf7ab"
+        "921189f8847b2a176e13c9e14904965af0fb1ce8275dcdb7a354b6bf2091f21a"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed": {
+      "source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
+      ],
+      "source_sha256": "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4",
+      "text": "填入文件及其检测到的模型；摘要在点击 OK 时读取。",
+      "translation_source_blocks_sha256": [
+        "8906ea18e2f108061746e7b60dad8304284dfa95fa51c999bfc54d0ad8e53ab4"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._dino_classifier_dialog.choose_table": {

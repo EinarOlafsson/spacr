@@ -193,7 +193,7 @@ def test_the_module_filter_hides_the_other_modules(screen, monkeypatch):
     screen.refresh()
     assert screen._table.rowCount() == 2
     screen._module.setCurrentIndex(screen._module.findData("measure"))
-    assert screen._table.rowCount() == 1
+    assert len(screen._visible_rows()) == 1
     assert "Showing 1 of 2" in screen._status.text()
 
 

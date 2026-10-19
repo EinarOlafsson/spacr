@@ -1,13 +1,13 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: OPEN (alpha) — BLOCKED ON MAINTAINER (2026-10-17): open-DINOv2 workflow, real-cell and synthetic examples and Cell-DINO drop-in shipped; only the steps below remain.
+Status: OPEN (alpha) — BLOCKED ON MAINTAINER (2026-10-18): Meta access granted and all five official checkpoints run; only the human-label comparison (step 4 below) remains.
 2026-10-11: official Cell-DINO weights still only via Meta's gated request
 form (maintainer must submit it); see the 2026-10-11 note.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
 Owner: Claude Home (2026-10-17; Codex stopped); next step maintainer. Proposed from the 2026-09-26 deep-learning/GPU list.
 
-BLOCKED ON MAINTAINER (2026-10-17; supersedes the 2026-10-15 steps)
+BLOCKED ON MAINTAINER (2026-10-17; steps 1-3 done 2026-10-18, step 4 remains)
     1. Request Cell-DINO at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/
        and read the FAIR non-commercial model licence yourself.
     2. With the e-mailed URL: wget the checkpoint into ~/.spacr/models/cell_dino/
@@ -438,3 +438,8 @@ CPU acceptance (DINOv2, real screen): cell example 53 x 384 finite, kNN 0.91, mA
 Remaining: only the BLOCKED ON MAINTAINER steps at the top (Meta form; human-label comparisons incl. Cell-DINO).
 
 2026-10-18 — Release-note accuracy: distinguish the selectable DINOv2 workflow from the fresh GUI/API ResNet18 backbone default; Cell-DINO requires a configured official checkpoint and channel mapping. Correct the1.5.1.5 note only, preserving alpha status and all existing checkpoint/scientific acceptance gates; no model or application changes.
+
+2026-10-18 — Maintainer has Meta access; five official checkpoints are installed locally in ~/.spacr/models/cell_dino (never commit, upload or copy them). Requirements: pick any installed checkpoint, remember the choice, default to the best fit for the channel count, honour $SPACR_CELL_DINO_CHECKPOINT, name the file in use, and support Channel-Adaptive DINO.
+Built: Checkpoint and channels… lists every installed file with its detected model; the choice is a preference. Default: 5 channels → CP ViT-S/8; 4 → HPA, hpa_sc first; any other count → Channel-Adaptive DINO (official bag-of-channels, every crop channel, no mapping); otherwise the first readable. Planes are self-normalised as in Meta's evaluation transform.
+CPU functional run (kNN / mAP, chance mAP 0.56 on 53 PNG and 0.54 on 25 merged 4-ch cells): DINOv2 control 0.91/0.76 and 0.84/0.77; Channel-Adaptive 1.00/0.87 and 0.84/0.72; HPA sc 0.84/0.76, fov 0.80/0.74, fov highres 0.84/0.73; CP ViT-S/8 runs (finite 384-d) but the example has no 5 planes. Functional only, not a scientific comparison.
+Remaining: BLOCKED ON MAINTAINER only for the human-label comparison (step 4 at the top).

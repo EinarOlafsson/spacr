@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
 
 from ...import_plan import (CHANNEL_MEANINGS, ROLES, for_get_regex,
                             group_names, plan)
+from ..i18n import tr
 from .collapsible_splitter import CollapsibleSplitter
 from .sortable_table import install_sorting, table_item
 
@@ -461,6 +462,39 @@ class ImportWorkbench(QWidget):
             return ""
         return os.path.basename(os.path.dirname(self._files[0]))
 
+    def _put_cell(self, row: int, column: int, text: str,
+                  red: bool = False, tip: str = "") -> None:
+        """Show ``text`` in a cell, reusing the item already there.
+
+        Typing in the regex box redraws the table on every keystroke. An
+        existing item is rewritten in place and a missing one comes from the
+        spare list or is made once, so no keystroke deletes a Python-made
+        item: that teardown is where Classifier Evaluation's filter crashed.
+
+        :param row: the table row.
+        :param column: the table column.
+        :param text: the text to show.
+        :param red: whether to colour the text red, as for an unmatched file.
+        :param tip: the tooltip; empty clears any earlier one.
+        """
+        table = self.table
+        item = table.item(row, column)
+        if item is None:
+            spare = self.__dict__.setdefault("_spare_items", [])
+            if spare:
+                item = spare.pop()
+                item.setText(text)
+            else:
+                item = table_item(text)
+            table.setItem(row, column, item)
+        elif item.text() != text:
+            item.setText(text)
+        if red:
+            item.setForeground(Qt.red)
+        else:
+            item.setData(Qt.ForegroundRole, None)
+        item.setToolTip(tip)
+
     def _fill_the_table(self) -> None:
         """Fill the before-and-after table, unmatched files last and named.
 
@@ -471,19 +505,30 @@ class ImportWorkbench(QWidget):
         plan_ = self._plan
         rows = list(plan_.renamed) if plan_ else []
         missed = list(plan_.unmatched) if plan_ else []
-        self.table.setRowCount(len(rows) + len(missed))
-        for index, row in enumerate(rows):
-            self.table.setItem(index, 0, table_item(row.before))
-            self.table.setItem(index, 1, table_item(row.after))
-        for offset, name in enumerate(missed):
-            index = len(rows) + offset
-            self.table.setItem(index, 0, table_item(name))
-            cell = table_item("no match")
-            cell.setForeground(Qt.red)
-            cell.setToolTip(
-                "The regex above does not match this name, so this file "
-                "would not be imported at all.")
-            self.table.setItem(index, 1, cell)
+        wanted = len(rows) + len(missed)
+        table = self.table
+        spare = self.__dict__.setdefault("_spare_items", [])
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
+        try:
+            for index in range(wanted, table.rowCount()):
+                for column in range(table.columnCount()):
+                    taken = table.takeItem(index, column)
+                    if taken is not None:
+                        spare.append(taken)
+            table.setRowCount(wanted)
+            for index, row in enumerate(rows):
+                self._put_cell(index, 0, row.before)
+                self._put_cell(index, 1, row.after)
+            for offset, name in enumerate(missed):
+                index = len(rows) + offset
+                self._put_cell(index, 0, name)
+                self._put_cell(
+                    index, 1, "no match", red=True,
+                    tip=tr("The regex above does not match this name, so "
+                           "this file would not be imported at all."))
+        finally:
+            table.setSortingEnabled(sorting)
         self.table.resizeColumnsToContents()
 
     def the_plan(self):

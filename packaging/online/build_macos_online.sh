@@ -111,9 +111,18 @@ cp spacr/install_cleanup.py "$SUPPORT/verify_runtime.py"
 cp packaging/online/install_for_macos_user.sh "$SUPPORT/install-for-user.sh"
 chmod 755 "$SUPPORT/install-for-user.sh"
 
-cat > "$SCRIPTS/postinstall" <<EOF
+# 1.4.9.9 installed one system-wide runtime into the support folder; every
+# later layout keeps only helper scripts there. That runtime is obsolete
+# application code nothing launches, so it goes. Its uv cache is kept.
+cat > "$SCRIPTS/postinstall" <<'EOF'
 #!/bin/sh
 set -eu
+legacy="/Library/Application Support/spaCR"
+for part in venv python bootstrap; do
+    if [ -d "$legacy/$part" ] && [ ! -L "$legacy/$part" ]; then
+        rm -rf "$legacy/$part"
+    fi
+done
 mkdir -p /usr/local/bin
 ln -sfn "/Applications/spaCR.app/Contents/MacOS/spaCR" /usr/local/bin/spacr
 exit 0
@@ -121,8 +130,18 @@ EOF
 chmod 755 "$SCRIPTS/postinstall"
 
 python3 "$SIGNING_HELPER" sign-app "$APP"
+# Installer relocates a relocatable bundle to any copy with the same bundle
+# identifier that Spotlight knows of -- a backup, a Downloads copy, a second
+# drive -- and leaves /Applications/spaCR.app old or missing. Pin it.
+COMPONENTS="$WORK/components.plist"
+pkgbuild --analyze --root "$ROOT" "$COMPONENTS"
+count="$(python3 -c 'import plistlib,sys; print(len(plistlib.load(open(sys.argv[1],"rb"))))' "$COMPONENTS")"
+for ((index = 0; index < count; index++)); do
+    plutil -replace "$index.BundleIsRelocatable" -bool NO "$COMPONENTS"
+done
 pkgbuild \
     --root "$ROOT" \
+    --component-plist "$COMPONENTS" \
     --scripts "$SCRIPTS" \
     --identifier "com.einarolafsson.spacr.online" \
     --version "$VERSION" \

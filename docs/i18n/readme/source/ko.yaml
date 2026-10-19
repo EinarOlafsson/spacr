@@ -132,8 +132,8 @@ blocks:
   - '**conda-forge**: Conda 환경에서 ``conda install conda-forge::spacr`` 명령을 실행합니다.'
   - '**Docker**: CPU 이미지 또는 NVIDIA GPU 이미지를 사용해 Linux 컨테이너에서 명령줄 파이프라인을 실행합니다:'
 - code: |-
-    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.4 spacr-run --list
-    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4 spacr-run --list
+    docker run --rm ghcr.io/einarolafsson/spacr:1.5.1.5 spacr-run --list
+    docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.1.5-cuda12.4 spacr-run --list
   lang: bash
 - p: '`Docker 가이드 (nightly, 영어) <https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installer_guide.rst#container-images>`_\
     에서 GPU 설정, 데이터 마운트, 파이프라인 명령을 설명합니다.'

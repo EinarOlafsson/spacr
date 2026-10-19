@@ -282,11 +282,11 @@
       "translation": "A máscara deve conter rótulos inteiros não negativos: {path}"
     },
     {
-      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Hover assigns the selected label, and the wheel saves edits before moving to each adjacent frame. Enable Time?",
-      "source_sha256": "0ab673be23de178f168e06722478321252d68943fcffd89454b433c8b3eb8d8d",
+      "key": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source": "Masks saved in Time mode use 32-bit TIFFs with embedded cell lineage. Names and ancestry are stored inside the TIFF; existing files change only when saved. Each wheel step gives the selected label to the object under the pointer and saves edits before moving to the adjacent frame; moving the pointer alone changes nothing. Enable Time?",
+      "source_sha256": "9c3fbda13c3e36c8cd802131baf901948485fc2d38a8bd51fb762ea2370d1ca1",
       "table": "ui",
-      "translation": "As máscaras salvas no modo Tempo usam TIFFs de 32-bit com a linhagem celular incorporada. Os nomes e a ascendência são armazenados dentro do TIFF; os arquivos existentes só mudam ao salvar. Passar o ponteiro sobre o objeto atribui o rótulo selecionado, e a roda salva as edições antes de passar a cada quadro adjacente. Ativar Tempo?"
+      "translation": "As máscaras salvas no modo Tempo usam TIFFs de 32-bit com a linhagem celular incorporada. Os nomes e a ascendência são armazenados dentro do TIFF; os arquivos existentes só mudam ao salvar. Cada passo da roda atribui o rótulo selecionado ao objeto sob o ponteiro e salva as edições antes de passar ao quadro adjacente; apenas mover o ponteiro não altera nada. Ativar Tempo?"
     },
     {
       "key": "Moved lineage frames would share an incompatible frame identity.",

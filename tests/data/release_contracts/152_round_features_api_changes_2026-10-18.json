@@ -1,0 +1,73 @@
+{
+  "changes": {
+    "spacr.active_learning.round_features": {
+      "added_optional_parameters": [
+        "channels",
+        "families"
+      ],
+      "after": {
+        "accepted_documented_parameters": [
+          "channels",
+          "db_path",
+          "families",
+          "key",
+          "nuclei_limit",
+          "pathogen_limit",
+          "table",
+          "tables"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "channels",
+          "db_path",
+          "families",
+          "key",
+          "nuclei_limit",
+          "pathogen_limit",
+          "table",
+          "tables"
+        ],
+        "required_parameters": [
+          "db_path"
+        ],
+        "symbol": "spacr.active_learning.round_features",
+        "variant_count": 1
+      },
+      "before": {
+        "accepted_documented_parameters": [
+          "db_path",
+          "key",
+          "nuclei_limit",
+          "pathogen_limit",
+          "table",
+          "tables"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "db_path",
+          "key",
+          "nuclei_limit",
+          "pathogen_limit",
+          "table",
+          "tables"
+        ],
+        "required_parameters": [
+          "db_path"
+        ],
+        "symbol": "spacr.active_learning.round_features",
+        "variant_count": 1
+      }
+    }
+  },
+  "item": "issue-152",
+  "kind": "existing_callable_optional_parameter_changes",
+  "schema": 1
+}

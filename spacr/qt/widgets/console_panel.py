@@ -53,7 +53,7 @@ from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
-from ..theme import FONT_SIZE, SPACING, _painting_palette, active_palette
+from ..theme import FONT_SIZE, QSS_FONT_FAMILY, SPACING, _painting_palette, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
 from .flash import Flash
 
@@ -652,10 +652,10 @@ class _StdoutBlock(QPlainTextEdit):
         self.setStyleSheet(
             "QPlainTextEdit#%s { color: %s; background-color: transparent; "
             "border: none; "
-            "font-family: 'Open Sans','Segoe UI','Helvetica Neue',sans-serif; "
+            "font-family: %s; "
             "font-weight: 300; font-size: %dpt; "
             "padding: %dpx %dpx; }" % (
-                self.objectName(), self._text_color, self._font_pt,
+                self.objectName(), self._text_color, QSS_FONT_FAMILY, self._font_pt,
                 SPACING["sm"], SPACING["md"]))
 
     def _block_format(self) -> QTextBlockFormat:

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import logging
 import math
+import sys
 import warnings
 import weakref
 from contextlib import contextmanager
@@ -44,6 +45,9 @@ from PySide6.QtWidgets import QApplication
 
 from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
+
+QSS_FONT_FAMILY = ('"Open Sans", "Segoe UI", "Helvetica Neue", sans-serif'
+                   if sys.platform.startswith("win") else '"Open Sans", "Helvetica Neue", sans-serif')
 
 LOG = logging.getLogger(__name__)
 
@@ -3172,7 +3176,7 @@ def _window_block(theme: str, P: dict, background, body_px: int,
         return f"""QWidget {{
     background-color: {P["bg"]};
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {body_px}px;
     outline: none;
 }}
@@ -3207,7 +3211,7 @@ QMainWindow, QDialog {{
 QWidget {{
     background-color: transparent;
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {body_px}px;
     outline: none;
 }}
@@ -5042,7 +5046,7 @@ QMenu::separator {{
 }}
 #SidebarTitle {{
     color: {P["accent"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {font_px(24, font_scale)}px;
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
@@ -5226,7 +5230,7 @@ QPushButton#HTile {{
     border-radius: {R["lg"]}px;
     padding: 12px 14px 12px 20px;
     text-align: left;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
 }}
 QPushButton#HTile:hover {{
     background-color: {css_color(STAGE_HOVER["stable"], 0.22)};
@@ -5255,7 +5259,7 @@ QPushButton#AppTile {{
     min-height: {TILE_MIN_H}px;
     min-width: {TILE_MIN_W_PX}px;
     text-align: center;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
 }}
 /* Fallback hover, for a tile whose `stage` property was never set. The
    three stage rules below win over it wherever it was. */
@@ -5278,7 +5282,7 @@ QPushButton#AppTile:focus {{
 }}
 QLabel#HTileName {{
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["subtitle"]}px;
     font-weight: 400;                 /* Open Sans Regular */
     background: transparent;
@@ -5286,7 +5290,7 @@ QLabel#HTileName {{
 }}
 QLabel#HTileDesc {{
     color: {P["fg_muted"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["small"]}px;
     font-weight: 300;                 /* Open Sans Light */
     background: transparent;
@@ -5298,7 +5302,7 @@ QLabel#HTileDesc {{
    as ordinary paragraph text; it still moves with the font preference. */
 QLabel#HeroSubtitle {{
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["subtitle"]}px;
     font-weight: 300;
     background: transparent;
@@ -5310,7 +5314,7 @@ QLabel#HintBar {{
     background-color: {P["surface_alt"]};
     border-top: 1px solid {P["border_soft"]};
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["body"]}px;
     padding: 8px 12px;
@@ -5640,7 +5644,7 @@ QPlainTextEdit#Console {{
     background-color: {CONSOLE_BG};
     color: #d4d7dc;
     border: 1px solid {P["border_soft"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px;
@@ -6119,7 +6123,7 @@ QPlainTextEdit#ConsoleStdoutBlock {{
     color: {P["fg"]};
     background-color: {P["surface_alt"]};
     border: none;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;
@@ -6128,7 +6132,7 @@ QPlainTextEdit#ConsoleStdoutBlockError {{
     color: {P["error"]};
     background-color: {P["surface_alt"]};
     border: none;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;

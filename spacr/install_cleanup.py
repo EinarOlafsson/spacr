@@ -1828,24 +1828,56 @@ def _uninstall_preview(operation_id, *, system=None):
     return payload
 
 
-def _uninstall_selection(preview, *, scope="current", categories=None):
-    """Freeze an explicit current/all choice; uninstall data categories default to selected."""
-    if scope not in {"current", "all"}:
+_UNINSTALL_SCOPES = ("current", "older", "all", "custom")
+
+
+def _uninstall_scope_keys(preview, scope):
+    """The selectable installation keys a named current/older/all scope covers, in preview order."""
+    return [row["key"] for row in preview["installations"]
+            if row["selectable"] and (scope == "all" or (row["current"] if scope == "current" else not row["current"]))]
+
+
+def _uninstall_selection(preview, *, scope="current", categories=None, installations=None):
+    """Freeze an explicit current/older/all choice, or ticked installations.
+
+    Data categories default to selected only when the running installation is removed too; a choice that keeps
+    it running keeps its shared settings, models and history unless categories are named.
+    """
+    if scope not in _UNINSTALL_SCOPES:
         raise ValueError("scope")
-    chosen = list(_UNINSTALL_CATEGORIES if categories is None else categories)
-    if len(set(chosen)) != len(chosen) or any(key not in _UNINSTALL_CATEGORIES for key in chosen):
+    chosen = None if categories is None else list(categories)
+    if chosen is not None and (len(set(chosen)) != len(chosen)
+                               or any(key not in _UNINSTALL_CATEGORIES for key in chosen)):
         raise ValueError("categories")
-    keys = [row["key"] for row in preview["installations"]
-            if row["selectable"] and (scope == "all" or row["current"])]
+    if scope == "custom":
+        ticked = list(installations or ())
+        selectable = [row["key"] for row in preview["installations"] if row["selectable"]]
+        if len(set(ticked)) != len(ticked) or any(key not in selectable for key in ticked):
+            raise ValueError("installations")
+        keys = [key for key in selectable if key in ticked]
+    elif installations is not None:
+        raise ValueError("installations")
+    else:
+        keys = _uninstall_scope_keys(preview, scope)
     if not keys:
         raise ValueError(tr("No removable spaCR installation was found for this scope."))
+    if chosen is None:
+        chosen = [] if _uninstall_keeps_running(preview, {"installations": keys}) else list(_UNINSTALL_CATEGORIES)
     return {"operation_id": preview["operation_id"], "snapshot_id": preview["snapshot_id"],
             "scope": scope, "installations": keys, "categories": chosen}
 
 
+def _uninstall_keeps_running(preview, selection):
+    """True when no selected installation is the one running, so spaCR reopens after removal."""
+    current = {row["key"] for row in preview["installations"] if row["current"]}
+    return bool(current) and not current.intersection(selection["installations"])
+
+
 def _validate_uninstall_selection(preview, selection, machine, *, after_shutdown=False):
     """Re-discover selected scope and reject changed roots before any deletion or package operation."""
-    expected = _uninstall_selection(preview, scope=selection.get("scope"), categories=selection.get("categories"))
+    expected = _uninstall_selection(
+        preview, scope=selection.get("scope"), categories=selection.get("categories"),
+        installations=selection.get("installations") if selection.get("scope") == "custom" else None)
     if expected != selection:
         raise ValueError(tr("The uninstall selection changed. Review the paths again."))
     current = _uninstall_preview(preview["operation_id"], system=machine)
@@ -1908,6 +1940,36 @@ def _apply_uninstall_records(preview, selection, records, cleanup, machine):
         else:
             _delete(row["path"], keep, data, tr("Permission denied. These files were kept."))
     return {"ok": data.ok, "reports": [asdict(item) for item in reports], "cleanup": asdict(data)}
+
+
+def _desktop_processes():
+    """Process ids of running spaCR desktops, found by their module argument."""
+    try:
+        done = subprocess.run(["pgrep", "-f", "spacr[.]qt"], capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [int(pid) for pid in done.stdout.split() if pid.isdigit() and int(pid) != os.getpid()]
+
+
+_INSTALLER_ADMIN_PATHS = ("/Applications/spaCR.app", "/Library/Application Support/spaCR", "/usr/local/bin/spacr")
+
+
+def _installer_uninstall_apply(preview, categories, *, system=None):
+    """Remove every detected installation from the installer window, leaving protected app parts to its admin step.
+
+    The installer has no running desktop to hand over to, so a running spaCR refuses the removal rather than
+    being closed. Records needing administrator rights are reported, never removed here.
+    """
+    machine = system or _Machine(running_prefix="")
+    if system is None and _desktop_processes():
+        raise ValueError(tr("Quit spaCR before uninstalling it from the installer."))
+    selection = _uninstall_selection(preview, scope="all", categories=categories)
+    records, cleanup = _validate_uninstall_selection(preview, selection, machine, after_shutdown=False)
+    protected = [record for record in records if record.needs_admin or record.layout == "macos-app"]
+    owned = [record for record in records if record not in protected]
+    outcome = _apply_uninstall_records(preview, selection, owned, cleanup, machine)
+    outcome["admin"] = [path for path in _INSTALLER_ADMIN_PATHS if os.path.lexists(path)] if protected else []
+    return outcome
 
 
 def _uninstall_binding(preview, selection):
@@ -2493,6 +2555,9 @@ def _start_uninstall_helper(preview, selection, *, pid=None, workdir=None, syste
             "running_prefix": machine.running_prefix, "platform": machine.platform,
             "desktop_executable": machine.executable,
             "native": native,
+            "relaunch": (([machine.executable] if getattr(sys, "frozen", False)
+                          else [machine.executable, "-I", "-m", "spacr.qt"])
+                         if _uninstall_keeps_running(preview, selection) else None),
             "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + _WAIT_SECONDS}}
     handshake_type = _WindowsPipHandshake if machine.platform == "windows" else _FrozenUpdateHandshake
     handshake_type(plan)
@@ -2562,6 +2627,9 @@ def _run_uninstall_plan(plan_path, *, system=None, wait=None):
         destination = os.path.join(plan["workdir"], "result.json")
         with open(destination, "x", encoding="utf-8") as handle:
             json.dump(outcome, handle, indent=2)
+        relaunch = plan.get("relaunch")
+        if outcome["ok"] and relaunch and os.path.isfile(relaunch[0]):
+            _spawn_detached(relaunch, None, os.path.expanduser("~"))
         return 0 if outcome["ok"] else 1
     except Exception as error:
         handshake.failed(error)
@@ -7818,6 +7886,11 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     prepare_uninstall = commands.add_parser("prepare-windows-uninstall", help=tr("copy the private managed Python outside this installation"))
     prepare_uninstall.add_argument("--install-root", required=True)
     prepare_uninstall.add_argument("--workdir", required=True)
+    uninstall_preview = commands.add_parser("uninstall-preview", help=tr("list every spaCR installation and its data for the installer window"))
+    uninstall_preview.add_argument("--output", required=True)
+    uninstall_apply = commands.add_parser("uninstall-apply", help=tr("remove every listed spaCR installation and the chosen data"))
+    uninstall_apply.add_argument("--preview", required=True)
+    uninstall_apply.add_argument("--categories", default="")
     metadata = commands.add_parser("installer-metadata", help=tr("preserve or restore installer-owned metadata"))
     metadata.add_argument("action", choices=("snapshot", "restore"))
     metadata.add_argument("--folder", required=True)
@@ -7846,6 +7919,31 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
             return 1
         print(json.dumps(outcome, sort_keys=True))
         return 0
+    if args.command == "uninstall-preview":
+        import uuid
+
+        preview = _uninstall_preview(uuid.uuid4().hex, system=_Machine(running_prefix=""))
+        descriptor = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(preview, handle, indent=2)
+        for row in preview["installations"]:
+            record = row["record"]
+            action = tr("Remove") if row["selectable"] else tr("Kept")
+            print(f"{action}: {record['root']} ({record['version'] or tr('Unknown')})")
+        for row in preview["cleanup"]:
+            print(f"  [{row['category']}] {row['path']}")
+        return 0
+    if args.command == "uninstall-apply":
+        try:
+            with open(args.preview, encoding="utf-8") as handle:
+                preview = json.load(handle)
+            categories = [key for key in args.categories.split(",") if key]
+            outcome = _installer_uninstall_apply(preview, categories)
+        except Exception as error:
+            print(tr("Uninstall stopped: {error}", error=str(error)))
+            return 1
+        print(json.dumps(outcome, sort_keys=True))
+        return 0 if outcome["ok"] else 1
     if args.command == "installer-metadata":
         try:
             receipt = (_installer_metadata_snapshot(args.folder, args.paths or [])

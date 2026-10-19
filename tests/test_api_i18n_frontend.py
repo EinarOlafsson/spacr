@@ -717,8 +717,30 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     arrivals = json.loads((ROOT / "tests/data/release_contracts"
                           / "615_api_browser_arrivals_2026-10-07.json").read_text())
     assert len(arrivals) == 33
-    assert {key: docs[key] for key in arrivals} == arrivals
-    assert {key: english["symbols"][key]["text"] for key in arrivals} == arrivals
+    # 2026-10-18: item 560's Cell-DINO checkpoint picker rewrote two of these
+    # arrivals; the contract keeps the 2026-10-07 wording and the current
+    # text is pinned here.
+    revised_560 = {
+        "spacr.embeddings._cell_dino_model.forward": (
+            "Return the official DINOv2 head output for each declared crop.\n\n"
+            "Channel-Adaptive DINO encodes each plane on its own and returns the\n"
+            "class tokens of every plane side by side, as its official\n"
+            "bag-of-channels evaluation does."),
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": (
+            "Show the planes the chosen factory takes; none when adaptive."),
+    }
+    assert {key: arrivals[key] for key in revised_560} == {
+        "spacr.embeddings._cell_dino_model.forward":
+            "Return the official DINOv2 head output for each declared crop.",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width":
+            "The fifth plane belongs only to the Cell Painting factory.",
+    }
+    assert {key: docs[key] for key in revised_560} == revised_560
+    assert {key: english["symbols"][key]["text"] for key in revised_560} == revised_560
+    unchanged = {key: value for key, value in arrivals.items()
+                 if key not in revised_560}
+    assert {key: docs[key] for key in unchanged} == unchanged
+    assert {key: english["symbols"][key]["text"] for key in unchanged} == unchanged
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
     assert len(worker_arrivals) == 8
