@@ -2415,7 +2415,7 @@ def write_model_card(model_path, card, *, markdown=True):
     with open(json_path, 'w') as handle:
         _json.dump(json_safe(card), handle, indent=2, sort_keys=True)
     if markdown:
-        with open(stem + MODEL_CARD_MD_SUFFIX, 'w') as handle:
+        with open(stem + MODEL_CARD_MD_SUFFIX, 'w', encoding='utf-8') as handle:
             handle.write(format_model_card(card))
     return json_path
 

@@ -5225,7 +5225,7 @@ def _write_regression_sheet(coef_df, dst):
 
         path = publish(sheet.figure, path, bbox_inches='tight') or path
         with open(os.path.join(folder, 'regression_figure_legend.txt'),
-                  'w') as handle:
+                  'w', encoding='utf-8') as handle:
             handle.write(sheet.legend() + '\n')
         try:
             import matplotlib.pyplot as plt
@@ -5399,7 +5399,7 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
         return None
     folder = os.path.dirname(os.path.abspath(file_path))
     os.makedirs(folder, exist_ok=True)
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(summary_str)
     return file_path
 

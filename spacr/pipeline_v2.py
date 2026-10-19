@@ -190,7 +190,7 @@ class FilenameMapper:
         path.parent.mkdir(parents=True, exist_ok=True)
         cols = ["original_path", "plate", "well", "field", "channel",
                 "time", "z", "stack_field_id"]
-        with open(path, "w", newline="") as f:
+        with open(path, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(cols)
             for r in self.records:

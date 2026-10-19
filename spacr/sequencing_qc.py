@@ -1601,7 +1601,7 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         if not summary.empty:
             summary.to_csv(os.path.join(dst, "collision_summary.csv"),
                            index=False)
-        with open(os.path.join(dst, "threshold_recommendation.txt"), "w") as f:
+        with open(os.path.join(dst, "threshold_recommendation.txt"), "w", encoding="utf-8") as f:
             f.write(recommendation + "\n")
 
     if settings.get("plot", True):

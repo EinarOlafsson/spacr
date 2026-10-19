@@ -1229,7 +1229,7 @@ class Run:
             self.dir / "settings.json",
             json.dumps(self.settings, indent=2, default=str, sort_keys=True),
         )
-        with open(self.dir / "settings.csv", "w", newline="") as f:
+        with open(self.dir / "settings.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(["Key", "Value"])
             for k, v in self.settings.items():

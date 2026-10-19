@@ -5813,11 +5813,11 @@ def _save_progress(dst, train_df, validation_df):
         df (pandas.DataFrame): The DataFrame to save.
         """
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=True)
                 f.flush()
         else:
-            with open(file_path, 'a') as f:
+            with open(file_path, 'a', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=False)
                 f.flush()
                 

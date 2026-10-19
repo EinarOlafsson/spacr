@@ -2611,7 +2611,7 @@ def export_sidecars(figure, path) -> list:
     if caption:
         try:
             target = f"{base}_legend.txt"
-            with open(target, "w") as handle:
+            with open(target, "w", encoding="utf-8") as handle:
                 handle.write(caption + "\n")
             written.append(target)
         except Exception as error:       # noqa: BLE001
