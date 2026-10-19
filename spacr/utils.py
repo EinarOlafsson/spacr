@@ -896,7 +896,7 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     os.close(descriptor)
     try:
         _save_image(temporary, filtered)
-        with open(temporary, 'rb') as handle:
+        with open(temporary, 'r+b') as handle:
             os.fsync(handle.fileno())
         os.chmod(temporary, stat.S_IMODE(os.stat(mask_path).st_mode))
         os.replace(temporary, mask_path)
@@ -1635,7 +1635,7 @@ def save_settings(settings, name='settings', show=False):
                 raise OSError(errno.EINVAL, os.strerror(errno.EINVAL), str(target))
             tabular.write_table(settings_df, staged, canonicalise=False, index=False)
             mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
-            with staged.open("rb") as handle:
+            with staged.open("r+b") as handle:
                 os.fsync(handle.fileno())
             staged.chmod(mode)
             os.replace(staged, target)
