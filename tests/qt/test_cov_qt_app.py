@@ -2603,7 +2603,8 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
 #: Preferences before the home screen exists, so this thread always wins
 #: the race it has to win.
 PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
-                     "spacr.qt.imagery", "pandas", "scipy.linalg",
+                     "spacr.qt.imagery", "spacr.settings_advisor",
+                     "pandas", "scipy.linalg",
                      "scipy.stats", "matplotlib.figure",
                      "matplotlib.font_manager", "skimage.data",
                      "skimage.draw", "skimage.filters", "skimage.measure",

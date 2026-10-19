@@ -8183,7 +8183,7 @@ def _start_settings_prewarm() -> threading.Thread:
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery",
+                        "spacr.qt.imagery", "spacr.settings_advisor",
                         "pandas", "scipy.linalg", "scipy.stats",
                         "matplotlib.figure", "matplotlib.font_manager",
                         "skimage.data", "skimage.draw", "skimage.filters",

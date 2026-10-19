@@ -1,4 +1,5 @@
-"""Opening Regression after the start-up warm imports no numerical stack.
+"""Opening Regression after the start-up warm imports no numerical stack and
+compiles nothing on the GUI thread.
 
 Regression's first open pulled pandas, scipy, matplotlib and scikit-image
 onto the GUI thread, about a second of frozen window. The start-up settings
@@ -30,6 +31,17 @@ SCRIPT = textwrap.dedent("""
     window = A.MainWindow()
     window.show()
     app.processEvents()
+    import threading
+    import numba.core.dispatcher as dispatcher
+    gui_compiles = []
+    real_compile = dispatcher.Dispatcher.compile
+
+    def counting(self, sig):
+        if threading.current_thread() is threading.main_thread():
+            gui_compiles.append(self.py_func.__name__)
+        return real_compile(self, sig)
+
+    dispatcher.Dispatcher.compile = counting
     A._start_settings_prewarm().join()
     before = set(sys.modules)
     window.open_module("regression")
@@ -37,11 +49,12 @@ SCRIPT = textwrap.dedent("""
     while time.monotonic() < end:
         app.processEvents()
         time.sleep(0.005)
-    tops = ("pandas", "scipy", "matplotlib", "skimage")
+    tops = ("pandas", "scipy", "matplotlib", "skimage", "spacr.settings_advisor")
     new = [m for m in sys.modules if m not in before]
-    print(json.dumps({t: sorted(m for m in new
-                                if m == t or m.startswith(t + "."))
-                      for t in tops}))
+    out = {t: sorted(m for m in new if m == t or m.startswith(t + "."))
+           for t in tops}
+    out["gui_thread_compilations"] = gui_compiles
+    print(json.dumps(out))
 """)
 
 
@@ -54,4 +67,4 @@ def test_opening_regression_adds_no_heavy_module_after_the_warm(tmp_path):
     lines = [line for line in done.stdout.splitlines() if line.startswith("{")]
     assert lines, done.stderr[-2000:]
     added = json.loads(lines[-1])
-    assert added == {top: [] for top in added}
+    assert added == {key: [] for key in added}
