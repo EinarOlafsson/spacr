@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-620 in features/new, 77 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
+621 in features/new, 77 in features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
 do not establish current acceptance; use dated trailing evidence.
@@ -900,3 +900,4 @@ NEW FEATURES
   709  RESOLVE ALL OPEN GITHUB ISSUES; THE ITEM REOPENS WHENEVER ISSUES ARE ADDED
   710  SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
   712  MAKE MASKS: TIMELAPSE TEST DATASETS WITH MASKS (YEAST, BACTERIA, MAMMALIAN)
+  713  SANITIZE spaCR FOR A JOSS SUBMISSION, IN PARALLEL WITH THE iSCIENCE PAPER
