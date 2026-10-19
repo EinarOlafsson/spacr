@@ -275,6 +275,8 @@ def test_unmeasured_themes_keep_their_documented_automatic_rule(monkeypatch, qap
 def test_failed_isolated_probe_is_cached_without_constructing_in_parent(monkeypatch):
     import subprocess
 
+    monkeypatch.setattr(ambient.sys, "platform", "linux")
+
     calls = []
 
     def failed(command, **kwargs):
@@ -303,3 +305,17 @@ def test_flow_renderer_preference_has_explicit_cpu_and_validates_storage(
     assert preferences._flow_graphics_backend() == 'cpu'
     preferences._set_flow_graphics_backend('invalid')
     assert preferences._flow_graphics_backend() == 'gpu'
+
+
+def test_macos_never_creates_a_gl_context_to_probe(monkeypatch):
+    """Three WindowServer watchdog kills on an Intel Iris Mac (macOS 26, 2026-10-19) each followed a spaCR
+    start that probed for OpenGL 4.3, which macOS never offers. The probe is not run there at all."""
+    import subprocess
+
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(ambient.sys, "platform", "darwin")
+    monkeypatch.setattr(ambient, "_FLOW_GRAPHICS_PROBE", None)
+    monkeypatch.delenv("SPACR_NO_GL", raising=False)
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: pytest.fail("the GL probe child was started"))
+    assert ambient._flow_graphics_preflight() is False

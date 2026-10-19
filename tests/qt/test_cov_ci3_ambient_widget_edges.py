@@ -174,6 +174,8 @@ def test_a_probe_that_cannot_run_keeps_the_cpu(monkeypatch, error):
 def test_a_hardware_probe_answer_is_accepted(monkeypatch):
     import importlib.util
 
+    monkeypatch.setattr(ambient.sys, "platform", "linux")
+
     seen = []
 
     def run(command, **kwargs):
