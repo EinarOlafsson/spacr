@@ -44,7 +44,7 @@ def test_packaged_launcher_verifies_actual_runtime_before_launch_or_gui(tmp_path
                     '-o', str(binary)], check=True)
     result = subprocess.run([str(binary), '--diagnostic'], env={**os.environ, 'HOME': str(home)},
                             check=True, capture_output=True, text=True, timeout=10)
-    assert journal.read_text().splitlines() == ['-I', str(support / 'verify_runtime.py'),
+    assert journal.read_text(encoding="utf-8").splitlines() == ['-I', str(support / 'verify_runtime.py'),
                                                'verify-runtime', '--python', str(python),
                                                '--version', '1.5.1.5', '--minimum']
     assert result.stdout.splitlines() == (['APPLICATION', '-I', '-m', 'spacr.qt', '--diagnostic']
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     result = subprocess.run([str(binary), str(script)], text=True, capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr
     assert result.stdout.splitlines() == ['READY', 'exit=143']
-    assert journal.read_text() == 'restored'
+    assert journal.read_text(encoding="utf-8") == 'restored'
 
 
 @pytest.mark.parametrize('installer_exit', [0, 7])
@@ -104,16 +104,16 @@ def test_user_helper_forwards_gui_choices_without_terminal_or_hidden_relaunch(tm
                             input='', capture_output=True, text=True, timeout=10,
                             env={**os.environ, 'SPACR_USER_INSTALL_ROOT': str(runtime), 'SPACR_NO_RELAUNCH': '1'})
     assert result.returncode == installer_exit
-    assert journal.read_text().splitlines() == ['--platform', 'macos', '--install-root', str(runtime),
+    assert journal.read_text(encoding="utf-8").splitlines() == ['--platform', 'macos', '--install-root', str(runtime),
         '--no-command-launcher', '--no-launch', '--consent-collected', '--torch-backend', 'cpu', '--share-diagnostics']
     assert not (runtime / '.installing').exists()
     assert ('ready_opening' in result.stdout) == (installer_exit == 0)
 
 
 def test_gui_has_default_on_consent_bounded_log_and_cpu_choice():
-    gui = (ONLINE / 'macos_installer.m').read_text()
-    launcher = (ONLINE / 'macos_launcher.c').read_text()
-    builder = (ONLINE / 'build_macos_online.sh').read_text()
+    gui = (ONLINE / 'macos_installer.m').read_text(encoding="utf-8")
+    launcher = (ONLINE / 'macos_launcher.c').read_text(encoding="utf-8")
+    builder = (ONLINE / 'build_macos_online.sh').read_text(encoding="utf-8")
     assert 'Terminal' not in launcher and 'osascript' not in launcher
     assert 'index < 3 ? NSControlStateValueOn : NSControlStateValueOff' in gui
     assert '--share-diagnostics' in gui and '--report-issues' in gui and '--sign-in-now' not in gui and 'gui_account_setup' not in gui

@@ -30,7 +30,7 @@ HEADER_XY = 0.12863494437945
 
 
 def _ledger(folder):
-    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text())['fields']
+    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text(encoding="utf-8"))['fields']
 
 
 def _voxel(path):

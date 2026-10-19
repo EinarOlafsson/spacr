@@ -150,7 +150,7 @@ def test_an_empty_comparison_writes_the_record_and_no_data_file(tmp_path):
     assert list(written) == ["settings"]
     assert os.listdir(tmp_path / "empty") == ["settings.json"]
 
-    record = json.loads((tmp_path / "empty" / "settings.json").read_text())
+    record = json.loads((tmp_path / "empty" / "settings.json").read_text(encoding="utf-8"))
     assert record["groups"] == []
     assert record["n_per_group"] == {}
     assert record["measurement"] == "pathogen_area"
@@ -176,7 +176,7 @@ def test_an_empty_comparison_folder_is_created_and_named_in_the_return(
 
     assert target.is_dir()
     assert written["settings"] == str(target / "settings.json")
-    record = json.loads((target / "settings.json").read_text())
+    record = json.loads((target / "settings.json").read_text(encoding="utf-8"))
     assert record["regression_settings"] == {"threshold": 0.25,
                                              "genes": ["a", "b"]}
 

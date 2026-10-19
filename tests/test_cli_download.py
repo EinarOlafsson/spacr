@@ -249,7 +249,7 @@ def test_the_qt_downloader_still_re_exports_what_moved_out_of_it():
     own. Every name here is one the Qt workers resolve as a module global, or
     one a test in ``tests/qt`` patches to keep the demo flow offline.
     """
-    source = (REPO_ROOT / "spacr" / "qt" / "hf_download.py").read_text()
+    source = (REPO_ROOT / "spacr" / "qt" / "hf_download.py").read_text(encoding="utf-8")
     assert "from ..example_archives import" in source
     for name in ("DATASET_REPO", "DATASET_SUB", "SETTINGS_REPO",
                  "MEASURE_EXAMPLE_REPO", "ANNOTATE_EXAMPLE_REPO",

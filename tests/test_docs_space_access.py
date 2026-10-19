@@ -154,7 +154,7 @@ def test_non_documentation_target_is_refused_before_service_access(service, targ
 
 def test_actual_workflow_isolates_access_check_from_all_build_and_deploy_jobs():
     root = Path(__file__).resolve().parents[1]
-    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text())
+    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
     jobs = workflow['jobs']
     probe = jobs['verify-host-access']
     assert probe['if'] == "github.event_name == 'workflow_dispatch' && inputs.mode == 'verify-host-access'"
@@ -173,7 +173,7 @@ def test_actual_workflow_isolates_access_check_from_all_build_and_deploy_jobs():
 
 def test_actual_workflow_does_not_mask_failed_access_check_behind_tee(tmp_path):
     root = Path(__file__).resolve().parents[1]
-    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text())
+    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
     probe = workflow['jobs']['verify-host-access']
     step = next(s for s in probe['steps'] if 'verify-space-access' in s.get('run', ''))
     tools = tmp_path / 'tools'

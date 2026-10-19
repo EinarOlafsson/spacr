@@ -68,7 +68,7 @@ def test_success_preserves_csv_bytes_and_existing_mode(tmp_path):
     settings = {'src': str(tmp_path), 'value': 3, 'channels': [0, 1], 'none': None, 'text': 'μm,a'}
     expected = pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(index=False)
     save_settings(settings, name='sample')
-    assert target.read_text() == expected
+    assert target.read_text(encoding="utf-8") == expected
     assert stat.S_IMODE(target.stat().st_mode) == 0o640
     assert sorted(p.name for p in folder.iterdir()) == ['sample.csv', 'sample.json']
 

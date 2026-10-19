@@ -256,10 +256,10 @@ def test_an_unfaithful_bundle_keeps_its_tables_and_draws_no_ranking(tmp_path):
     assert sorted(os.listdir(tmp_path / "weak")) == [
         "feature_importance.csv", "held_out_shap_feature_values.csv",
         "held_out_signed_shap.csv", "manifest.json", "summary.txt"]
-    manifest = json.loads((tmp_path / "weak" / "manifest.json").read_text())
+    manifest = json.loads((tmp_path / "weak" / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["importance_presented"] is False
     assert manifest["fidelity_improvement"] == pytest.approx(0.01)
-    summary = (tmp_path / "weak" / "summary.txt").read_text()
+    summary = (tmp_path / "weak" / "summary.txt").read_text(encoding="utf-8")
     assert "The surrogate does NOT reproduce the CV model." in summary
     assert "Top 15 features: withheld" in summary
 
@@ -291,7 +291,7 @@ def test_a_ranking_with_nothing_measured_is_written_but_not_drawn(tmp_path):
     assert _figure_keys(paths) == []
     assert pd.read_csv(paths["importance"])["feature"].tolist() == [
         "cell_area", "noise_a"]
-    manifest = json.loads((tmp_path / "unmeasured" / "manifest.json").read_text())
+    manifest = json.loads((tmp_path / "unmeasured" / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["importance_presented"] is True
     assert manifest["shap_object_indices"] == []
 
@@ -360,7 +360,7 @@ def test_explain_cv_writes_into_the_folder_it_was_given(tmp_path):
 
     assert out["paths"]["manifest"] == str(chosen / "manifest.json")
     assert out["paths"]["summary"] == str(chosen / "summary.txt")
-    manifest = json.loads((chosen / "manifest.json").read_text())
+    manifest = json.loads((chosen / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["n_objects"] == out["result"].n_objects == 120
     assert not (tmp_path / "explain_cv_model").exists()
 

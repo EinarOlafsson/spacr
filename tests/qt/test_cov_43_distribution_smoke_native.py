@@ -51,7 +51,7 @@ def _controller(tmp_path, **extra):
 def test_a_failed_pipeline_is_written_and_leaves_the_event_loop(tmp_path):
     fake = _controller(tmp_path)
     Controller._pipeline_failed(fake, "the worker died")
-    written = json.loads(fake.output.read_text())
+    written = json.loads(fake.output.read_text(encoding="utf-8"))
     assert written["status"] == "failed" and written["error"] == "the worker died"
     assert fake.phase == "finished"
     assert fake.calls == ["timer stopped", ("exit", 1)]
@@ -263,7 +263,7 @@ def test_the_system_menu_names_its_one_preferences_and_one_quit(
     assert cocoa.updated and fake.phase == "native-menu-opening"
     assert fake._native_actions == {"preferences": 1, "quit": 4}
     assert scheduled == ["invoke preferences"]
-    assert json.loads(fake.output.read_text())["native_menu"]["selected"]
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"]["selected"]
 
 
 @pytest.mark.parametrize("cocoa,match", [
@@ -402,7 +402,7 @@ def test_quit_waits_for_preferences_to_close(monkeypatch, tmp_path, visible, obs
     expected = {"class_name": "_Dialog", "visible": visible,
                 "same_observed_wrapper": None if observed_state == "gone" else observed_state == "same"}
     assert fake.record["native_menu"]["blocking_modal"] == expected
-    assert json.loads(fake.output.read_text())["native_menu"]["blocking_modal"] == expected
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"]["blocking_modal"] == expected
     assert fake.phase == "native-menu-ready-to-quit"
     assert not fake.record["native_menu"].get("quit_dispatched")
     assert not fake.calls
@@ -423,7 +423,7 @@ def test_quit_goes_through_the_menu_it_was_verified_in(
     assert sent == (["quit"] if mode == "in-window-on-cocoa" else
                     [(4, "performActionForItemAtIndex:", None,
                       (ctypes.c_long, 7))])
-    assert json.loads(fake.output.read_text())["native_menu"][
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"][
         "quit_dispatched"] is True
 
 
@@ -693,7 +693,7 @@ def test_a_first_run_still_importing_its_pipeline_is_waited_for(tmp_path):
     assert fake.phase == "running" and not failures
     assert fake.record["real_run_clicked"] is True
     assert connected == [fake._pipeline_failed]
-    assert json.loads(fake.output.read_text())["real_run_clicked"] is True
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["real_run_clicked"] is True
 
 
 def test_a_run_whose_worker_is_ready_at_once_goes_straight_to_running(tmp_path):

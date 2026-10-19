@@ -379,7 +379,7 @@ def test_two_folders_as_two_channels_sort_and_merge(tmp_path):
     merged = np.load(result.merged[0])
     assert merged.shape == (16, 16, 4)
     assert not list((exp / "DAPI").glob("*.tif"))
-    manifest = (dest / cs.MANIFEST_NAME).read_text()
+    manifest = (dest / cs.MANIFEST_NAME).read_text(encoding="utf-8")
     assert str(exp / "DAPI" / "field1.tif") in manifest
 
 

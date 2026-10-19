@@ -48,7 +48,7 @@ def test_convert_settings_entry_links_only_imported_wells_with_mismatches(acquis
         ['plate1', 'r1', 'c1', '00123', 'RH']]
     mismatches = pd.read_csv(bundle / 'plate_barcode_mismatches.csv')
     assert set(mismatches['kind']) == {'well_not_in_lims', 'well_not_imaged', 'plate_map_differs'}
-    receipt = json.loads((bundle / 'complete.json').read_text())
+    receipt = json.loads((bundle / 'complete.json').read_text(encoding="utf-8"))
     assert receipt['complete'] and receipt['linked_wells'] == 1
     assert receipt['converted_or_existing_files'] == 2
     for path, digest in receipt['input_sha256'].items():
@@ -168,7 +168,7 @@ def test_late_bundle_collision_is_preserved(acquisition, monkeypatch):
     monkeypatch.setattr(cv, 'convert', collided)
     with pytest.raises(FileExistsError):
         cv.convert_folder(acquisition)
-    assert marker.read_text() == 'other run'
+    assert marker.read_text(encoding="utf-8") == 'other run'
     assert list(marker.parent.iterdir()) == [marker]
 
 

@@ -96,7 +96,7 @@ def _tracked_bytes() -> int:
 
 def _exclusions():
     """Each excluded path from the list, with what it weighs today."""
-    lines = [ln.strip() for ln in EXCLUDES.read_text().splitlines()
+    lines = [ln.strip() for ln in EXCLUDES.read_text(encoding="utf-8").splitlines()
              if ln.strip() and not ln.strip().startswith("#")]
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
                          capture_output=True)
@@ -466,7 +466,7 @@ def test_an_edited_exclusion_list_reaches_the_checkout(tmp_path):
     if run.returncode != 0:
         pytest.skip(f"fetch failed here: {run.stderr[-300:]}")
 
-    written = (out / ".git" / "info" / "sparse-checkout").read_text()
+    written = (out / ".git" / "info" / "sparse-checkout").read_text(encoding="utf-8")
     assert marker in written.split(), (
         "the edited exclusion list never reached the checkout; the script "
         "used its embedded copy instead:\n" + written)

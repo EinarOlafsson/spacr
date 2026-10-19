@@ -58,7 +58,7 @@ _BARE_CAP = re.compile(r"setMaximumWidth\(\s*(\d+)\s*\)")
 def _bare_caps(path: pathlib.Path):
     """``(line number, px)`` for every unscaled pixel cap in ``path``."""
     found = []
-    for number, line in enumerate(path.read_text().splitlines(), start=1):
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         match = _BARE_CAP.search(line)
         if match:
             found.append((number, int(match.group(1))))
@@ -69,7 +69,7 @@ def _bare_caps(path: pathlib.Path):
 def test_the_column_cap_is_scaled(name):
     """The cap this screen puts on its settings column tracks the font."""
     path = _SCREENS / name
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     base = CAPPED_COLUMNS[name]
     assert f"setMaximumWidth(scaled_px({base}))" in text, (
         f"{name} no longer caps its settings column at scaled_px({base}); "
@@ -108,7 +108,7 @@ def test_the_table_matches_what_the_screens_actually_do():
         if path.name in CAPPED_COLUMNS:
             continue
         if re.search(r"setMaximumWidth\(\s*scaled_px\(\s*\d\d\d\s*\)\s*\)",
-                     path.read_text()):
+                     path.read_text(encoding="utf-8")):
             unlisted.append(path.name)
     assert not unlisted, (
         f"these screens cap a settings column and are not in CAPPED_COLUMNS: "

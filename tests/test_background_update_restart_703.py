@@ -32,7 +32,7 @@ def test_restart_is_offered_only_after_real_staged_install_and_verification(
         transactions = list(prefix.parent.glob(".spacr-runtime-update-*"))
         assert len(transactions) == 1
         transaction = transactions[0]
-        journal = json.loads((transaction / "transaction.json").read_text())
+        journal = json.loads((transaction / "transaction.json").read_text(encoding="utf-8"))
         assert journal["state"] == "ready"
         staged_python = str(transaction / "runtime/bin/python")
         code, output = ic._run(ic._runtime_identity_command(staged_python, "1.5.1.5"))
@@ -62,7 +62,7 @@ def test_restart_is_offered_only_after_real_staged_install_and_verification(
         assert not launched
         preserved = _snapshot(prefix)
         if decision == "changed-runtime":
-            assert (prefix / "external-change.txt").read_text() == "Keep this newer change"
+            assert (prefix / "external-change.txt").read_text(encoding="utf-8") == "Keep this newer change"
             preserved.pop("external-change.txt")
         assert preserved == original
         assert not list(prefix.parent.glob(".spacr-runtime-update-*"))
@@ -127,7 +127,7 @@ app.exec()
         observed, _ = ic._transactional_runtime_update(
             record, "1.5.1.5", command, machine=machine, activate=restart)
         assert observed == "1.5.1.5"
-        assert json.loads(events.read_text()) == ["startup", "main"]
+        assert json.loads(events.read_text(encoding="utf-8")) == ["startup", "main"]
         assert receipts[0]["version"] == "1.5.1.5"
         assert receipts[0]["executable"] == record.python
         assert Path(receipts[0]["module"]).is_relative_to(prefix)
@@ -139,7 +139,7 @@ app.exec()
         assert _snapshot(prefix) == previous
         assert not receipts and not events.exists()
     message, = work.glob("launch-*/launch-result.json")
-    result = json.loads(message.read_text())
+    result = json.loads(message.read_text(encoding="utf-8"))
     assert result["state"] == {"ready": "ready", "wrong-version": "error",
                                "exit-before-window": "starting"}[outcome]
 
@@ -159,7 +159,7 @@ def test_unconfirmed_live_desktop_retains_both_runtimes_until_its_own_exit(insta
         ic._transactional_runtime_update(record, "1.5.1.5", command,
                                          machine=machine, activate=still_running)
     transaction, = prefix.parent.glob(".spacr-runtime-update-*")
-    state = json.loads((transaction / "transaction.json").read_text())
+    state = json.loads((transaction / "transaction.json").read_text(encoding="utf-8"))
     assert state["state"] == "launch_unconfirmed" and state["launch_pid"] == 43210
     assert _snapshot(transaction / "runtime") == previous
     assert ic._retiring_runtime_identity(str(prefix))["version"] == "1.5.1.5"

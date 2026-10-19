@@ -28,7 +28,7 @@ def generate_english(tmp_path, monkeypatch):
 
 def read_generated(path):
     namespace = {}
-    exec(compile(path.read_text(), str(path), "exec"), namespace)
+    exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), namespace)
     return namespace
 
 

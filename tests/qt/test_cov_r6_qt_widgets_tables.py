@@ -167,7 +167,7 @@ def test_apply_writes_the_csv_with_or_without_a_callback(qtbot, tmp_path):
     watched._apply_btn.click()
 
     assert seen == [watched.written_path]
-    assert watched.written_path.read_text() == plain.written_path.read_text()
+    assert watched.written_path.read_text(encoding="utf-8") == plain.written_path.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------

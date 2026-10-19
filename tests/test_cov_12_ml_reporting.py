@@ -267,7 +267,7 @@ def test_a_machine_that_can_take_no_reading_says_so_in_the_cost_file(
     path = ml._write_fit_resources({'res_folder': str(tmp_path)}, {})
 
     assert path == str(tmp_path / ml.FIT_RESOURCES_FILENAME)
-    text = (tmp_path / ml.FIT_RESOURCES_FILENAME).read_text()
+    text = (tmp_path / ml.FIT_RESOURCES_FILENAME).read_text(encoding="utf-8")
     assert 'No reading could be taken on this machine.' in text
     assert 'WHAT THIS FIT COST' in text
 

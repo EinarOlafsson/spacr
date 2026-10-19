@@ -78,7 +78,7 @@ def installation(tmp_path,monkeypatch):
     site=Path(subprocess.check_output([str(python),'-I','-c','import sysconfig; print(sysconfig.get_path("purelib"))'],text=True).strip())
     import packaging
     shutil.copytree(Path(packaging.__file__).parent,site/'packaging',ignore=shutil.ignore_patterns('__pycache__'))
-    assert (site/'spacr/qt.py').read_text()=='def main():\n    print("1.5.1.4")\n'
+    assert (site/'spacr/qt.py').read_text(encoding="utf-8")=='def main():\n    print("1.5.1.4")\n'
     identity=ic._retiring_runtime_identity(str(prefix))
     assert identity['verified'] is True and identity['version']=='1.5.1.4'
     assert Path(identity['module'])==(site/'spacr/__init__.py').resolve()
@@ -141,7 +141,7 @@ def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(
         version,output=ic._transactional_runtime_update(record,'1.5.1.5',command,machine=machine,runner=run,activate=None)
         assert version=='1.5.1.5' and 'Previous runtime retained' in output
         folders=list(prefix.parent.glob('.spacr-runtime-update-*'));assert len(folders)==1
-        state=json.loads((folders[0]/'transaction.json').read_text())
+        state=json.loads((folders[0]/'transaction.json').read_text(encoding="utf-8"))
         assert state['state']=='committed' and state['verified_version']=='1.5.1.5'
         assert _snapshot(Path(state['rollback_runtime']))==before
         assert (prefix/'my extra package data'/'original.bin').read_bytes()==b'keep exactly'
@@ -197,7 +197,7 @@ def test_failed_restoration_keeps_original_bytes_journal_and_lock(installation,t
         ic._transactional_runtime_update(record,'1.5.1.5',[str(uv),'pip','install','--python',record.python,'spacr'],
             machine=machine,runner=run)
     folders=list(prefix.parent.glob('.spacr-runtime-update-*'));assert len(folders)==1
-    state=json.loads((folders[0]/'transaction.json').read_text())
+    state=json.loads((folders[0]/'transaction.json').read_text(encoding="utf-8"))
     assert state['state']=='verifying'
     assert _snapshot(Path(state['rollback_runtime']))==before
     assert (prefix.parent/'.venv.spacr-update-lock').is_dir()

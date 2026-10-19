@@ -139,7 +139,7 @@ def test_a_patch_that_changes_nothing_does_not_rewrite_the_queue(tmp_path):
     # ... and one real change writes the whole snapshot back.
     queue.update(item.id, status=pq.Status.RUNNING)
     assert item.status is pq.Status.RUNNING
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert [row["status"] for row in payload["items"]] == ["running"]
 
 

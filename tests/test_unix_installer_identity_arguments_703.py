@@ -16,7 +16,7 @@ if os.environ.get('SPACR_TEST_BASH32'):
 @pytest.mark.parametrize('shell', SHELLS)
 @pytest.mark.parametrize('version', ['@SPACR_VERSION@', '1.5.1.5', '1.5.1.5.dev1'])
 def test_both_runtime_checks_receive_exact_arguments_under_nounset(tmp_path, shell, version):
-    source = SOURCE.read_text()
+    source = SOURCE.read_text(encoding="utf-8")
     setup = source[source.index('identity_args='):source.index('if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"')]
     activated = source.rsplit('if ! "$cleanup_python" -I "$cleanup_module"', 1)[-1]
     activated = '"$cleanup_python" -I "$cleanup_module"' + activated.split('; then', 1)[0]
@@ -32,7 +32,7 @@ def test_both_runtime_checks_receive_exact_arguments_under_nounset(tmp_path, she
     result = subprocess.run([shell, '-c', script], env=env, text=True,
                             capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr
-    calls = record.read_text().split('CALL\n')[1:]
+    calls = record.read_text(encoding="utf-8").split('CALL\n')[1:]
     assert len(calls) == 2
     optional = {} if version.startswith('@') else {'--version': version}
     for call, python, extra in zip(calls,
@@ -56,7 +56,7 @@ def test_owned_temporary_folder_is_physical_before_metadata_snapshot(tmp_path, s
     real.mkdir()
     alias = tmp_path / 'temp alias'
     alias.symlink_to(real, target_is_directory=True)
-    source = SOURCE.read_text()
+    source = SOURCE.read_text(encoding="utf-8")
     setup = source[source.index('work_dir="$(mktemp'):source.index('installer_tmp="$work_dir/')]
     result = subprocess.run([shell, '-c', 'set -Eeuo pipefail\n' + setup +
                              '\nprintf "%s" "$work_dir"'],

@@ -71,7 +71,7 @@ def test_altered_same_module_settings_prevent_shutdown_approval(messages, monkey
     def altered_replace(source, target):
         real_replace(source, target)
         target = Path(target)
-        document = json.loads(target.read_text())
+        document = json.loads(target.read_text(encoding="utf-8"))
         document['settings']['src'] = '/different-input'
         target.write_text(json.dumps(document, indent=2))
 

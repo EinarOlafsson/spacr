@@ -159,7 +159,7 @@ def test_reference_records_the_database_but_does_not_copy_it(tmp_path):
     doc = workspace.collect({"databases": Panel({"attached": [str(db)]})})
     workspace.save(run, doc, mode="reference")
 
-    written = json.loads((run / workspace.DOC_NAME).read_text())
+    written = json.loads((run / workspace.DOC_NAME).read_text(encoding="utf-8"))
     assert written["mode"] == "reference"
     assert written["files"][0].get("copied") is None
     assert not (run / workspace.FILES_DIR).exists()
@@ -172,7 +172,7 @@ def test_copy_brings_the_bytes_in_and_the_copy_is_the_same_file(tmp_path):
     doc = workspace.collect({"databases": Panel({"attached": [str(db)]})})
     workspace.save(run, doc, mode="copy")
 
-    written = json.loads((run / workspace.DOC_NAME).read_text())
+    written = json.loads((run / workspace.DOC_NAME).read_text(encoding="utf-8"))
     copied = run / written["files"][0]["copied"]
     assert copied.read_bytes() == b"the actual bytes"
 
@@ -184,7 +184,7 @@ def test_a_file_over_the_limit_is_named_with_its_size_never_dropped(tmp_path):
     doc = workspace.collect({"databases": Panel({"attached": [str(big)]})})
     workspace.save(run, doc, mode="copy", copy_limit_mb=1)
 
-    record = json.loads((run / workspace.DOC_NAME).read_text())["files"][0]
+    record = json.loads((run / workspace.DOC_NAME).read_text(encoding="utf-8"))["files"][0]
     assert record["copied"] is None
     assert "3.0 MB" in record["skipped"] and "1 MB per-file limit" in record["skipped"]
 
@@ -199,7 +199,7 @@ def test_a_figure_the_session_made_is_carried_even_in_reference_mode(tmp_path):
     })})
     workspace.save(run, doc, mode="reference")
 
-    record = json.loads((run / workspace.DOC_NAME).read_text())["files"][0]
+    record = json.loads((run / workspace.DOC_NAME).read_text(encoding="utf-8"))["files"][0]
     assert record["carry"] is True
     assert (run / record["copied"]).read_bytes() == b"PNG"
 
@@ -213,7 +213,7 @@ def test_a_carried_figure_is_carried_whatever_the_limit_says(tmp_path):
     })})
     workspace.save(run, doc, mode="copy", copy_limit_mb=1)
 
-    record = json.loads((run / workspace.DOC_NAME).read_text())["files"][0]
+    record = json.loads((run / workspace.DOC_NAME).read_text(encoding="utf-8"))["files"][0]
     assert record["copied"] and "skipped" not in record
 
 

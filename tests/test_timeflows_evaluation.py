@@ -173,20 +173,20 @@ def test_real_cli_writes_only_complete_reports_with_explicit_scope(tmp_path, mon
             '--segmentation', 'GT', '--data-kind', 'synthetic', '--gaps', '1',
             '--pairs-per-gap', '2', '--precision', 'float32', '--out', str(out)]
     assert evaluate.main(argv) == 0
-    report = json.loads((out / 'summary.json').read_text())
+    report = json.loads((out / 'summary.json').read_text(encoding="utf-8"))
     assert report['complete'] and report['selected_pairs'] == 2
     assert report['data_kind'] == 'synthetic'
     assert report['precision']['effective_encoder'] == 'torch.float32'
     assert report['requested_precision'] == 'float32'
-    assert json.loads((out / 'run.json').read_text())['precision'] == report['precision']
+    assert json.loads((out / 'run.json').read_text(encoding="utf-8"))['precision'] == report['precision']
     assignment = report['temporal_assignment']
     assert assignment['policy'] == 'distance_gate_before_assignment_with_unmatched_choices'
     assert assignment['min_successor'] == 0.5
     assert assignment['max_distance_diameters'] == 1.0
-    assert json.loads((out / 'run.json').read_text())['temporal_assignment'] == assignment
+    assert json.loads((out / 'run.json').read_text(encoding="utf-8"))['temporal_assignment'] == assignment
     assert report['results']['overall']['true_successors'] == 4
     assert report['copied_frame_control']['overall']['arms']['trained']['successor_accuracy'] == 1
-    assert len((out / 'pairs.jsonl').read_text().splitlines()) == 2
+    assert len((out / 'pairs.jsonl').read_text(encoding="utf-8").splitlines()) == 2
     assert before == {path: evaluate.digest(path) for path in before}
     with pytest.raises(FileExistsError):
         evaluate.main(argv)

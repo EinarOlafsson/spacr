@@ -76,7 +76,7 @@ def test_a_profile_that_does_not_match_the_schema_is_read_as_absent(
     """Half-right is not right: the reader returns None rather than a guess."""
     target = tmp_path / "install-profile.json"
     IP.write_profile(target, "cpu", "none")
-    payload = json.loads(target.read_text())
+    payload = json.loads(target.read_text(encoding="utf-8"))
     payload.update(mutate)
     target.write_text(json.dumps(payload))
     assert IP.read_profile(target) is None, why
@@ -110,7 +110,7 @@ def test_the_installer_command_writes_the_profile_and_prints_it(
     ])
     assert code == 0
     printed = json.loads(capsys.readouterr().out)
-    assert printed == json.loads(target.read_text())
+    assert printed == json.loads(target.read_text(encoding="utf-8"))
     assert printed["consent"] == {"collected": True, "share_diagnostics": True,
                                   "report_issues": False}
 

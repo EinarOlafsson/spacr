@@ -61,7 +61,7 @@ def test_a_weights_file_that_cannot_be_measured_is_kept_as_zero(
 
     assert sizes == {"https://example.org/w.pt": 0,
                      "https://example.org/old.pt": 7}
-    assert json.loads((tmp_path / "bioimageio_weight_sizes.json").read_text()
+    assert json.loads((tmp_path / "bioimageio_weight_sizes.json").read_text(encoding="utf-8")
                       ) == sizes
 
 

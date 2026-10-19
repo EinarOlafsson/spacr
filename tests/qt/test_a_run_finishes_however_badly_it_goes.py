@@ -162,7 +162,7 @@ def test_a_cancelled_run_is_recorded_as_cancelled_not_as_a_failure(
     assert worker.was_cancelled is True
     assert any("Cancelled safely" in line for line in lines)
     manifest = json.loads(
-        next(_isolated_worker_journal.glob("*/manifest.json")).read_text())
+        next(_isolated_worker_journal.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == "cancelled"
 
 
@@ -184,7 +184,7 @@ def test_an_aborted_run_leaves_a_failed_manifest_not_a_running_one(
     assert len(errors) == 1
     assert "KeyboardInterrupt" in errors[0]
     manifest = json.loads(
-        next(_isolated_worker_journal.glob("*/manifest.json")).read_text())
+        next(_isolated_worker_journal.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == "failed"
 
 

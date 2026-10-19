@@ -40,7 +40,7 @@ def publisher(tmp_path, monkeypatch):
 
 def records(language):
     path = ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-n702-resolution-context.json'
-    return json.loads(path.read_text())['records']
+    return json.loads(path.read_text(encoding="utf-8"))['records']
 
 
 @pytest.mark.parametrize('language', LANGUAGES)
@@ -55,7 +55,7 @@ def test_actual_unknown_request_uses_localized_context(publisher, monkeypatch, l
     candidate = f"{raw['key']}@{raw['version']!r} [sha256={raw['sha256']}]"
     expected = row['translation'].format(setting='cell_model_name', requested=repr(requested), candidates=candidate)
     prior_path = ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-cellpose-unknown-model-refusal.json'
-    prior, = json.loads(prior_path.read_text())['records']
+    prior, = json.loads(prior_path.read_text(encoding="utf-8"))['records']
     full_expected = prior['translation'].format(name=repr(requested)) + '\n' + expected
     with pytest.raises(zoo.ModelZooError) as error:
         utils._choose_model(requested, device='cpu', object_type='cell')
@@ -96,6 +96,6 @@ def test_actual_train_model_help_retains_precise_failure_contract(language):
         assert '?lang=ko' in url
     else:
         assert '?lang=ko' not in url
-    payload = json.loads((ROOT / 'docs/source/_static/i18n/api' / (language + '.json')).read_text())
+    payload = json.loads((ROOT / 'docs/source/_static/i18n/api' / (language + '.json')).read_text(encoding="utf-8"))
     assert 'custom_model_path' in payload['symbols'][symbol]['text']
     assert 'resume_checkpoint' in payload['symbols'][symbol]['text']

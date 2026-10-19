@@ -384,4 +384,4 @@ def test_module_ingest_writes_to_persistent_log(_stub_plate, tmp_path,
         vl._file_handler.flush()
     log = vl.current_log_file()
     assert log.exists()
-    assert "real-data test breadcrumb" in log.read_text()
+    assert "real-data test breadcrumb" in log.read_text(encoding="utf-8")

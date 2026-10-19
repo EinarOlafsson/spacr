@@ -85,7 +85,7 @@ def test_prose_columns_are_left_alone(unpacked):
 def test_the_settings_placeholder_is_substituted(unpacked):
     """So the user can press Run without first editing a path."""
     make_the_example_paths_absolute(unpacked)
-    text = (unpacked / "settings" / "annotate_settings.csv").read_text()
+    text = (unpacked / "settings" / "annotate_settings.csv").read_text(encoding="utf-8")
     assert DATASET_PLACEHOLDER not in text
     assert str(unpacked) in text
 
@@ -93,7 +93,7 @@ def test_the_settings_placeholder_is_substituted(unpacked):
 def test_both_modules_settings_are_rewritten(unpacked):
     make_the_example_paths_absolute(unpacked)
     for name in ("annotate_settings.csv", "classify_settings.csv"):
-        text = (unpacked / "settings" / name).read_text()
+        text = (unpacked / "settings" / name).read_text(encoding="utf-8")
         assert DATASET_PLACEHOLDER not in text, name
 
 

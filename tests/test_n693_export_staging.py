@@ -71,7 +71,7 @@ def test_successful_export_preserves_modes_and_symlink_destinations(tmp_path):
     assert alias.is_symlink() and alias.with_suffix('.json').is_symlink()
     assert csv.stat().st_mode & 0o777 == 0o640
     assert js.stat().st_mode & 0o777 == 0o600
-    assert json.loads(js.read_text()) == settings
+    assert json.loads(js.read_text(encoding="utf-8")) == settings
 
 
 @pytest.mark.parametrize('readonly', ['csv', 'json'])

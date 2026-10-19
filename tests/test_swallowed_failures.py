@@ -83,7 +83,7 @@ def test_module_defaults_reports_a_defaults_module_that_will_not_import(
 # 175 with the comment "Validate that the recorded settings exist and parse".
 # _read_settings swallows the parse error and returns {}, so the validation
 # is a no-op and the exported notebook's first code cell —
-# json.loads((RUN_DIR / 'settings.json').read_text()) — blows up in the
+# json.loads((RUN_DIR / 'settings.json').read_text(encoding="utf-8")) — blows up in the
 # user's face instead.
 # ---------------------------------------------------------------------------
 

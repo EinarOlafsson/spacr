@@ -143,7 +143,7 @@ def test_resumed_vendor_field_restores_its_plan_before_checking_inputs(tmp_path,
     assert 'Collection checkpoint inputs changed' in entry['error']
     assert context['volume_plan'] == ({key: plan} if vendor == 'volume' else {})
     assert context['native_series_plan'] == ({key: plan} if vendor == 'series' else {})
-    saved = json.loads((tmp_path / 'ledger.json').read_text())
+    saved = json.loads((tmp_path / 'ledger.json').read_text(encoding="utf-8"))
     assert saved['fields'][key]['status'] == 'failed'
 
 
@@ -165,7 +165,7 @@ def test_saved_record_of_another_stack_ingest_is_refused(tmp_path):
     first = core._watch_folder_and_analyse(
         dict(MASK, **_fast(tmp_path), timelapse=True), Recorder())
     assert first['failed'] == ['acq'] and first['done'] == []
-    ledger = json.loads((tmp_path / 'spacr_watch' / 'watch_ledger.json').read_text())
+    ledger = json.loads((tmp_path / 'spacr_watch' / 'watch_ledger.json').read_text(encoding="utf-8"))
     assert ledger['vendor_stacks'] == 'timelapse'
     ledger['vendor_stacks'] = 'volume'
     (tmp_path / 'spacr_watch' / 'watch_ledger.json').write_text(json.dumps(ledger))

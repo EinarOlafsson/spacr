@@ -17,7 +17,7 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
 
     path = (Path(__file__).resolve().parents[2] / 'docs/i18n/reviewed/runtime'
             / language / '2026-10-15-metadata-convention-status.json')
-    records = json.loads(path.read_text())['records']
+    records = json.loads(path.read_text(encoding="utf-8"))['records']
     targets = {record['source']: record['translation'] for record in records}
     assert len(targets) == 10
     for record in records:

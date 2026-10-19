@@ -308,7 +308,7 @@ def test_the_export_picker_writes_where_the_user_pointed(
     screen._pick_export_path()
 
     assert out.is_file()
-    assert out.read_text().splitlines()[0].count(",") >= 3
+    assert out.read_text(encoding="utf-8").splitlines()[0].count(",") >= 3
 
 
 def test_a_cancelled_export_writes_nothing(screen, measdb, monkeypatch,

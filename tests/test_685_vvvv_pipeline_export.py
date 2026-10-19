@@ -340,7 +340,7 @@ def test_merged_export_reports_fields_it_cannot_write(tmp_path, capsys):
     assert "skipped cell in wide.npy" in out
     assert [Path(p).relative_to(tmp_path).as_posix() for p in written] == [
         "vvvv/mask/nucleus/wide"]
-    manifest = json.loads((Path(written[0]) / "manifest.json").read_text())
+    manifest = json.loads((Path(written[0]) / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["pixel_size"]["x"] == 0.3
     assert manifest["channel_names"] == ["channel_0"]
 

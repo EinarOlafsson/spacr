@@ -68,7 +68,7 @@ def test_actual_finite_refusal_uses_installed_reviewed_language(language, monkey
     from pathlib import Path
 
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-mil-finite-features.json'
-    expected = json.loads(review.read_text())['records'][0]['translation']
+    expected = json.loads(review.read_text(encoding="utf-8"))['records'][0]['translation']
     source = frame()
     source.loc[0, 'embedding_0'] = np.inf
     before = source.copy(deep=True)

@@ -89,7 +89,7 @@ def test_actual_metadata_field_exposes_all_ten_current_missing_templates(extract
     import ast
 
     path = Path(__file__).resolve().parents[1] / 'spacr/qt/screens/settings_model.py'
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     names = {'PROVISIONAL_SUFFIX', 'LOOKS_LIKE', 'RECONSTRUCTED_NOT_DOCUMENTED',
              'READING_THE_FOLDER', 'NO_IMAGES_IN_THE_FOLDER', 'ALL_FILES_PARSE',
              'SOME_FILES_PARSE', 'NOTHING_FITS', 'RANKING_HEADING', 'ONE_RANKING_ROW'}

@@ -17,7 +17,7 @@ def test_flowchart_controls_and_candidate_explanations(qtbot, qt_theme_applied, 
     from spacr.qt.widgets.workflow_diagram import SpacrFlowchartDialog
 
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-09-23-flowchart-chrome.json').read_text())['records']
+                          '2026-09-23-flowchart-chrome.json').read_text(encoding="utf-8"))['records']
     targets = {row['source']: row['translation'] for row in records}
     monkeypatch.setattr(i18n, 'current_language', lambda: language)
     dialog = SpacrFlowchartDialog()

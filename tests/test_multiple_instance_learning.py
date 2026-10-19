@@ -368,7 +368,7 @@ def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(language, monk
     source = 'Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.'
     reviews = (Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime'
                / language / '2026-10-15-mil-direct-well-identity.json')
-    row = next(record for record in json.loads(reviews.read_text())['records']
+    row = next(record for record in json.loads(reviews.read_text(encoding="utf-8"))['records']
                if record['source'] == source)
     assert row['source_sha256'] == hashlib.sha256(source.encode()).hexdigest()
     frame = _direct_mil_identity_table()

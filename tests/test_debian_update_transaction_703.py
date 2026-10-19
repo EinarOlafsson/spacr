@@ -224,7 +224,7 @@ def test_actual_private_dpkg_replacement_and_rollback(ic, tmp_path, reject_new_r
         result = subprocess.run(command, text=True, capture_output=True, timeout=20)
         return result.returncode, result.stdout + result.stderr
     def verify(version):
-        assert (database.root / "opt/spacr/spacr").read_text() == version
+        assert (database.root / "opt/spacr/spacr").read_text(encoding="utf-8") == version
         return not (reject_new_runtime and version == "1.5.1.5")
     arguments = (str(packages["1.5.1.5"]), str(packages["1.5.1.4"]), "1.5.1.4", "1.5.1.5")
     if reject_new_runtime:
@@ -460,7 +460,7 @@ def test_journal_replacement_is_complete_private_and_retains_archives(ic, tmp_pa
     for state in ("prepared", "installing", "restored"):
         ic._debian_write_journal(tmp_path, {"state": state, "rollback_archive": str(archive)})
         journal = tmp_path / "journal.json"
-        assert json.loads(journal.read_text()) == {"state": state, "rollback_archive": str(archive)}
+        assert json.loads(journal.read_text(encoding="utf-8")) == {"state": state, "rollback_archive": str(archive)}
         assert journal.stat().st_mode & 0o077 == 0
         assert archive.read_bytes() == b"retained rollback archive"
     assert not list(tmp_path.glob(".journal-*"))
@@ -750,7 +750,7 @@ def test_root_apply_records_archives_and_lock_before_verified_commit(ic, privile
         "download:spacr_1.5.1.4_amd64.deb", "journal:prepared", "lock-enter",
         "journal:installing", "install:1.5.1.5", "verify:1.5.1.5", "journal:committed", "lock-exit"]
     assert [data["state"] for data in fixture.journals] == ["preparing", "prepared", "installing", "committed"]
-    journal = json.loads((fixture.stage_path / "journal.json").read_text())
+    journal = json.loads((fixture.stage_path / "journal.json").read_text(encoding="utf-8"))
     assert journal == fixture.journals[-1]
     assert journal["desktop_uid"] == fixture.uid and journal["previous_version"] == "1.5.1.4"
     for key, version in (("replacement", "1.5.1.5"), ("rollback", "1.5.1.4")):

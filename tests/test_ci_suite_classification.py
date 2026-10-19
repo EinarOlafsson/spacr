@@ -352,7 +352,7 @@ def _run_torch_routing_shard(tmp_path, step, node, batched, fail_tail, shard_ind
     )
     expected_exit = 7 if fail_tail and serial_tail else 0
     assert result.returncode == expected_exit, result.stderr
-    commands = [json.loads(line) for line in log.read_text().splitlines()]
+    commands = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
     assert len(commands) == (2 if serial_tail else 1)
     return commands, original_addopts, serial_tail
 

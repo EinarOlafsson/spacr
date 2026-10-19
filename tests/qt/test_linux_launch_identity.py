@@ -72,14 +72,14 @@ def test_frozen_desktop_launch_ignores_an_older_path_installation(tmp_path):
     arguments = ["--source", "field with spaces.tif"]
     subprocess.run([str(packaged), *arguments], env=environment, check=True,
                    capture_output=True, text=True, timeout=5)
-    assert proof.read_text().splitlines() == ["packaged", *arguments]
+    assert proof.read_text(encoding="utf-8").splitlines() == ["packaged", *arguments]
     proof.unlink()
     command = shlex.split(next(line.split("=", 1)[1]
-                              for line in DESKTOP.read_text().splitlines()
+                              for line in DESKTOP.read_text(encoding="utf-8").splitlines()
                               if line.startswith("Exec=")))
     assert command[0] in {"spacr", "/opt/spacr/spacr"}
     if command[0] == "/opt/spacr/spacr":
         command[0] = str(packaged)
     subprocess.run([*command, *arguments], env=environment, check=True,
                    capture_output=True, text=True, timeout=5)
-    assert proof.read_text().splitlines() == ["packaged", *arguments]
+    assert proof.read_text(encoding="utf-8").splitlines() == ["packaged", *arguments]

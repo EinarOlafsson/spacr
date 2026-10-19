@@ -86,7 +86,7 @@ def test_a_descendant_record_reaches_the_file_handler_exactly_once(
 
     logging.getLogger("spacr.qt.hf_download").info("one event, one line")
     already.flush()
-    assert log_path.read_text().count("one event, one line") == 1
+    assert log_path.read_text(encoding="utf-8").count("one event, one line") == 1
 
     spacr_logger.removeHandler(already)
     already.close()

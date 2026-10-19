@@ -146,7 +146,7 @@ def test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values(
         np.testing.assert_array_equal(tifffile.imread(folder/'masks/a.tif'), window._canvas.mask)
         rows = tabular.read_table(folder/'masks/a.puncta.csv', canonicalise=False)
         assert rows.included.sum() == (2 if has_spots else 0)
-        receipt = json.loads((folder/'masks/a.puncta.json').read_text())
+        receipt = json.loads((folder/'masks/a.puncta.json').read_text(encoding="utf-8"))
         assert receipt['mask_sha256'] == hashlib.sha256((folder/'masks/a.tif').read_bytes()).hexdigest()
         assert receipt['parent']['sha256'] == hashlib.sha256(parent_bytes).hexdigest()
         assert receipt['csv_sha256'] == hashlib.sha256((folder/'masks/a.puncta.csv').read_bytes()).hexdigest()

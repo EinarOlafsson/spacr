@@ -233,7 +233,7 @@ def test_stage_only_update_retains_original_and_user_data(runtime, monkeypatch):
     root = next(runtime.prefix.parent.glob('.spacr-windows-update-*'))
     assert snapshot(root / 'previous') == before
     assert (runtime.prefix / 'unknown-user-files/keep.bin').read_bytes() == before['unknown-user-files/keep.bin']
-    journal = json.loads((root / 'transaction.json').read_text())
+    journal = json.loads((root / 'transaction.json').read_text(encoding="utf-8"))
     assert journal['state'] == 'committed'
     assert not (runtime.prefix.parent / '.venv.spacr-update-lock').exists()
     assert [cmd for cmd in runner.commands if cmd[1:5] == ['-I', '-m', 'pip', 'install']][0][0] != str(runtime.python)
@@ -251,7 +251,7 @@ def test_failure_preserves_or_restores_exact_prior_runtime(runtime, monkeypatch,
     assert snapshot(runtime.prefix) == before
     assert not (runtime.prefix.parent / '.venv.spacr-update-lock').exists()
     root = next(runtime.prefix.parent.glob('.spacr-windows-update-*'))
-    assert json.loads((root / 'transaction.json').read_text())['state'] in {'staging_failed', 'rolled_back'}
+    assert json.loads((root / 'transaction.json').read_text(encoding="utf-8"))['state'] in {'staging_failed', 'rolled_back'}
 
 
 def test_failed_second_rename_rolls_back_without_deleting_old_runtime(runtime, monkeypatch):
@@ -348,7 +348,7 @@ def test_cancelled_restart_never_activates_the_staged_runtime(runtime, monkeypat
     installs = [cmd for cmd in runner.commands if cmd[1:5] == ['-I', '-m', 'pip', 'install']]
     assert installs and all(Path(cmd[0]).parent.parent != runtime.prefix for cmd in installs)
     root, = runtime.prefix.parent.glob('.spacr-windows-update-*')
-    assert json.loads((root / 'transaction.json').read_text())['state'] == 'staging_failed'
+    assert json.loads((root / 'transaction.json').read_text(encoding="utf-8"))['state'] == 'staging_failed'
     assert not (runtime.prefix.parent / '.venv.spacr-update-lock').exists()
 
 
@@ -394,7 +394,7 @@ def import_for_distlib(name, *args, **kwargs):
 module = types.ModuleType(original.__name__)
 module.__file__, module.__package__ = original.__file__, original.__package__
 module.__dict__['__builtins__'] = dict(vars(builtins), __import__=import_for_distlib)
-exec(compile(Path(original.__file__).read_text(), original.__file__, 'exec'), module.__dict__)
+exec(compile(Path(original.__file__).read_text(encoding="utf-8"), original.__file__, 'exec'), module.__dict__)
 sys.modules[original.__name__] = module
 stage = Path(sys.argv[1])
 maker = module.ScriptMaker(None, str(stage / 'Scripts'))
@@ -534,7 +534,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
     elif failure == 'expired':
         monkeypatch.setattr(cleanup.time, 'time', lambda: plan['handshake']['expires'] + 1)
     elif failure == 'foreign_binding':
-        contents = json.loads(path.read_text())
+        contents = json.loads(path.read_text(encoding="utf-8"))
         contents['binding'] = 'foreign'
         path.write_text(json.dumps(contents))
     elif failure == 'symlink':
@@ -556,7 +556,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
         def replace_at_open(checked, flags, *args, **kwargs):
             if Path(checked) == path:
                 os.replace(path, path.with_suffix('.original'))
-                path.write_text(path.with_suffix('.original').read_text())
+                path.write_text(path.with_suffix('.original').read_text(encoding="utf-8"))
             return original_open(checked, flags, *args, **kwargs)
         monkeypatch.setattr(cleanup.os, 'open', replace_at_open)
     with pytest.raises((RuntimeError, ValueError)):
@@ -842,5 +842,5 @@ def test_actual_offline_wheel_and_original_identity_probe_in_disposable_layout(r
                                                     machine=runtime.machine, runner=invoke, activate=relaunch)
         assert version == '1.5.1.5'
         assert snapshot(next(runtime.prefix.parent.glob('.spacr-windows-update-*')) / 'previous') == old
-        assert (runtime.package / '_version.py').read_text() == '__version__ = "1.5.1.5"\n'
+        assert (runtime.package / '_version.py').read_text(encoding="utf-8") == '__version__ = "1.5.1.5"\n'
     assert len(package_commands) == 1

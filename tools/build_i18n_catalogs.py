@@ -31,7 +31,11 @@ import ast
 import ctypes
 import threading
 import ctypes.util
-import fcntl
+try:
+    import fcntl
+except ImportError:                       # Windows: byte-range locks through msvcrt
+    fcntl = None
+    import msvcrt
 import hashlib
 import importlib.util
 import json
@@ -5277,10 +5281,18 @@ def _exclusive_cache_lock(path: Path):
     try:
         for _attempt in range(1200):
             try:
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if fcntl is not None:
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                else:
+                    os.lseek(descriptor, 0, os.SEEK_SET)
+                    msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
                 acquired = True
                 break
             except BlockingIOError:
+                time.sleep(0.05)
+            except OSError:
+                if fcntl is not None:
+                    raise
                 time.sleep(0.05)
         if not acquired:
             raise TimeoutError(
@@ -5292,8 +5304,11 @@ def _exclusive_cache_lock(path: Path):
         yield
     finally:
         try:
-            if acquired:
+            if acquired and fcntl is not None:
                 fcntl.flock(descriptor, fcntl.LOCK_UN)
+            elif acquired:
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
         finally:
             # Closing the descriptor also releases flock, including when an
             # injected/platform unlock error occurs above.

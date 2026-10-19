@@ -188,7 +188,7 @@ def test_a_hand_written_job_gets_an_id_and_a_label_of_its_own():
 
 def test_a_write_that_completes_leaves_no_temporary_behind(tmp_path):
     target = batch._atomic_write(tmp_path / "queue.json", "{}\n")
-    assert target.read_text() == "{}\n"
+    assert target.read_text(encoding="utf-8") == "{}\n"
     assert [p.name for p in tmp_path.iterdir()] == ["queue.json"]
 
 
@@ -455,7 +455,7 @@ def test_a_job_process_runs_and_its_output_lands_in_its_own_log(tmp_path,
                         [sys.executable, "-c", "print('segmenting')"])
     code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "", str(log))
     assert code == 0
-    text = log.read_text()
+    text = log.read_text(encoding="utf-8")
     assert "segmenting" in text
     assert "exit code 0" in text
 
@@ -468,7 +468,7 @@ def test_a_process_that_will_not_start_is_a_usage_failure(tmp_path,
     code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                    str(log))
     assert code == batch.EXIT_USAGE
-    assert "could not start the job process" in log.read_text()
+    assert "could not start the job process" in log.read_text(encoding="utf-8")
 
 
 def test_a_running_job_is_polled_so_a_stop_can_be_honoured(tmp_path,
@@ -483,7 +483,7 @@ def test_a_running_job_is_polled_so_a_stop_can_be_honoured(tmp_path,
         code = batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                        str(log))
     assert code == 0
-    assert "done" in log.read_text()
+    assert "done" in log.read_text(encoding="utf-8")
 
 
 def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(tmp_path,
@@ -498,7 +498,7 @@ def test_a_stop_pressed_mid_job_stops_the_child_and_says_so(tmp_path,
         with pytest.raises(PipelineCancelled):
             batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                     str(log))
-    assert "cancelled safely" in log.read_text()
+    assert "cancelled safely" in log.read_text(encoding="utf-8")
 
 
 def test_the_in_process_runner_calls_the_cli_and_tees_its_output(tmp_path,
@@ -518,7 +518,7 @@ def test_the_in_process_runner_calls_the_cli_and_tees_its_output(tmp_path,
     assert batch.inprocess_runner(job, "/data/mask.csv", str(log)) == 0
     assert seen["argv"] == ["mask", "--settings", "/data/mask.csv",
                             "--set", "diameter=30"]
-    text = log.read_text()
+    text = log.read_text(encoding="utf-8")
     assert "in-process" in text
     assert "running in this interpreter" in text
 
@@ -816,7 +816,7 @@ def test_a_child_that_ignores_a_polite_stop_is_killed(tmp_path, monkeypatch):
         with pytest.raises(PipelineCancelled):
             batch.subprocess_runner(Job(module="mask", id="mask-1"), "",
                                     str(log))
-    assert "cancelled safely" in log.read_text()
+    assert "cancelled safely" in log.read_text(encoding="utf-8")
 
 
 def test_a_job_that_was_still_running_when_the_queue_halted_is_not_run(

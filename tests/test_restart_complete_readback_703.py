@@ -18,7 +18,7 @@ def test_same_module_with_different_persisted_state_refuses_restart(
 
     def altered_replace(source, target):
         real_replace(source, target)
-        document = json.loads(target.read_text())
+        document = json.loads(target.read_text(encoding="utf-8"))
         assert document['module'] == 'measure'
         document[field] = replacement
         target.write_text(json.dumps(document, indent=2))

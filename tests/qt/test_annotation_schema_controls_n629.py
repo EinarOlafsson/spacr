@@ -52,7 +52,7 @@ def test_save_then_load_other_table_retains_all_recipe_columns_without_apply(qtb
     filename_recipe(qtbot, original)
     assert original.save_schema_button.isEnabled(), original.status.text()
     click(qtbot, original.save_schema_button)
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload['format'] == 'spacr.annotation-schema'
     assert 'source' not in payload and 'source_fingerprint' not in payload
     assert [c['column'] for c in payload['columns']] == ['genotype', 'replicate', 'condition']
@@ -83,7 +83,7 @@ def test_bad_schema_keeps_valid_draft_preview_and_apply(qtbot, tmp_path, monkeyp
     assert dialog.save_schema_button.isEnabled()
     assert 'not loaded' in dialog.status.text()
     click(qtbot, dialog.save_schema_button)
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     payload['columns'][0]['metadata_column'] = 'missing_column'
     path.write_text(json.dumps(payload))
     click(qtbot, dialog.load_schema_button)
@@ -113,7 +113,7 @@ def test_manual_row_tokens_omitted_with_notice_but_regex_reused(qtbot, tmp_path,
     assert dialog.result_frame.condition.notna().sum() == 2
     click(qtbot, dialog.save_schema_button)
     assert '1 manual row assignments were omitted' in dialog.status.text()
-    assert dialog.source_model.tokens[1] not in path.read_text()
+    assert dialog.source_model.tokens[1] not in path.read_text(encoding="utf-8")
     target = dialog_for(qtbot, frame=pd.DataFrame({'filename': ['KO_rep2.tif', 'WT_rep1.tif']}))
     click(qtbot, target.load_schema_button)
     assert target.result_frame.condition.fillna('').tolist() == ['', 'selected']
@@ -170,7 +170,7 @@ def test_schema_criteria_retains_exact_and_regex_exclusions(qtbot, tmp_path, mon
         assert dialog.boxes[0].match_mode.currentData() == 'criteria'
         assert dialog.result_frame.assigned.fillna('').tolist() == ['kept', '', 'kept']
         click(qtbot, dialog.save_schema_button)
-        saved_rule = json.loads(path.read_text())['columns'][0]['conditions'][0]
+        saved_rule = json.loads(path.read_text(encoding="utf-8"))['columns'][0]['conditions'][0]
         for key, value in extra.items():
             assert saved_rule[key] == value
         dialog.reject()
@@ -204,7 +204,7 @@ def test_threaded_save_keeps_chosen_snapshot_while_editor_changes(qtbot, tmp_pat
         release.set()
     qtbot.waitUntil(lambda: dialog._schema_saves.active_jobs() == 0, timeout=5000)
     qtbot.waitUntil(lambda: dialog.save_schema_button.isEnabled(), timeout=5000)
-    assert json.loads(path.read_text())['columns'][-1]['column'] == 'condition'
+    assert json.loads(path.read_text(encoding="utf-8"))['columns'][-1]['column'] == 'condition'
     assert dialog.configuration()['columns'][-1]['column'] == 'renamed'
     dialog.reject()
 

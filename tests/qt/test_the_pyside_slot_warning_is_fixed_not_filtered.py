@@ -196,6 +196,6 @@ def test_the_diagnostic_that_found_the_cause_is_still_here():
     assert tool.is_file(), (
         "the diagnostic that found this is gone; it is the only "
         "reproduction of a bug that took three sessions to localise")
-    body = tool.read_text()
+    body = tool.read_text(encoding="utf-8")
     assert "addMetaMethod" in body
     assert "PART 5" in body, "the part that found the cause is gone"

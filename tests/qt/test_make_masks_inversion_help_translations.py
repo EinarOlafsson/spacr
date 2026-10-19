@@ -13,7 +13,7 @@ from spacr.qt.screens.make_masks import MakeMasksScreen
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
 def test_inversion_help_and_control_names_agree(qtbot, monkeypatch, language):
     source = json.loads((Path(__file__).resolve().parents[2] /
-        "tests/data/release_contracts/435_inversion_help_2026-09-22.json").read_text())["sources"]
+        "tests/data/release_contracts/435_inversion_help_2026-09-22.json").read_text(encoding="utf-8"))["sources"]
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)

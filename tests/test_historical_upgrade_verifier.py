@@ -18,7 +18,7 @@ def _fixture(tmp_path, repair='1.5.0.5'):
     evidence = tmp_path / 'evidence'
     evidence.mkdir()
     prefix = tmp_path / 'installer/venv'
-    known = json.loads(SOURCE_BINDINGS.read_text())
+    known = json.loads(SOURCE_BINDINGS.read_text(encoding="utf-8"))
     sources = ('spacr/updater.py', 'spacr/qt/app.py', 'spacr/qt/__init__.py')
     executable = str(prefix / 'bin/python')
     states = []
@@ -56,7 +56,7 @@ def _verify(evidence, records, repair='1.5.0.5', target=TARGET):
         '--target-version', target, '--repair-version', repair,
         '--evidence', str(evidence), '--output', str(output)],
         cwd=evidence, capture_output=True, text=True, timeout=20)
-    return completed, json.loads(output.read_text()) if output.exists() else None
+    return completed, json.loads(output.read_text(encoding="utf-8")) if output.exists() else None
 
 
 @pytest.mark.parametrize('repair', ['1.5.0.5', '1.5.0.6'])

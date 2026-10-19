@@ -56,14 +56,14 @@ def test_gui_never_publishes_incomplete_result(
     worker.run()
     expected = "cancelled" if ending == "cancel" else (
         "failed" if failed else "success")
-    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text())
+    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == expected
     assert finished == [expected == "success"]
     assert results == ([{"rows": 42}] if ending == "return" and not failed else [])
     assert bool(errors) == (expected == "failed")
     if errors:
         assert "PartialRunError" in errors[0]
-    assert artifact.read_text() == "measured,42\n"
+    assert artifact.read_text(encoding="utf-8") == "measured,42\n"
 
 
 def test_later_clean_stage_and_explicit_success_cannot_hide_failure(private_runs):
@@ -72,7 +72,7 @@ def test_later_clean_stage_and_explicit_success_cannot_hide_failure(private_runs
             _ledger()
             _ledger(0)
             run.set_status("success")
-    assert json.loads((run.dir / "manifest.json").read_text())["status"] == "failed"
+    assert json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))["status"] == "failed"
 
 
 @pytest.mark.parametrize("failed", [0, 1])
@@ -83,7 +83,7 @@ def test_cli_exit_status_tracks_finalized_ledger(monkeypatch, private_runs, tmp_
     monkeypatch.setattr(cli, "import_entry", lambda module: lambda settings: _ledger(failed))
     code = cli.main(["measure", "--settings", str(settings), "--no-preflight"])
     assert code == (cli.EXIT_RUNTIME if failed else cli.EXIT_OK)
-    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text())
+    manifest = json.loads(next(private_runs.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == ("failed" if failed else "success")
 
 
@@ -127,9 +127,9 @@ def test_real_snakemake_does_not_touch_done_after_partial_run(private_runs, tmp_
     )
     (tmp_path / "snakemake.log").write_text(result.stdout + result.stderr)
     assert result.returncode != 0, result.stdout + result.stderr
-    job_logs = "\n".join(p.read_text() for p in (workflow / "logs").glob("*.log"))
+    job_logs = "\n".join(p.read_text(encoding="utf-8") for p in (workflow / "logs").glob("*.log"))
     assert "PartialRunError" in job_logs, job_logs
     assert not list((workflow / "done").glob("*.ok"))
-    assert (tmp_path / "partial.csv").read_text() == "measured,42\n"
-    manifest = json.loads(next((tmp_path / "child-runs").glob("*/manifest.json")).read_text())
+    assert (tmp_path / "partial.csv").read_text(encoding="utf-8") == "measured,42\n"
+    manifest = json.loads(next((tmp_path / "child-runs").glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert manifest["status"] == "failed"

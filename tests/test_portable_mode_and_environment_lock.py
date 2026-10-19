@@ -124,7 +124,7 @@ def journal(monkeypatch, tmp_path):
 def _open(app_key="mask"):
     with run_journal.open_run(app_key, {"src": "/nowhere"}) as run:
         pass
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     return run, manifest
 
 
@@ -135,8 +135,8 @@ def test_each_run_gets_lockfiles_named_in_its_manifest(journal):
     assert lock["pip"] == "environment/requirements-lock.txt"
     assert lock["conda"] == "environment/conda-explicit.txt"
     assert len(lock["sha256"]) == 64
-    assert (run.dir / lock["pip"]).read_text() == "numpy==2.0.0\nspacr==9.9\n"
-    assert (run.dir / lock["conda"]).read_text().startswith("@EXPLICIT")
+    assert (run.dir / lock["pip"]).read_text(encoding="utf-8") == "numpy==2.0.0\nspacr==9.9\n"
+    assert (run.dir / lock["conda"]).read_text(encoding="utf-8").startswith("@EXPLICIT")
     assert len(calls) == 1
 
 

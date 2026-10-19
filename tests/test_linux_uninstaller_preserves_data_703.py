@@ -48,7 +48,7 @@ def installation(tmp_path):
     python = _write(root / 'venv/bin/python', '#!/bin/sh\nshift 3\nexec ' +
                     shlex.quote(sys.executable) + ' -I ' + shlex.quote(str(driver)) + ' "$@"\n')
     python.chmod(0o755)
-    source = (ROOT / 'packaging/online/install_spacr_unix.sh').read_text()
+    source = (ROOT / 'packaging/online/install_spacr_unix.sh').read_text(encoding="utf-8")
     heredoc = 'cat > "$uninstall_path" <<EOF\n' + source.split('cat > "$uninstall_path" <<EOF\n', 1)[1].split('\nEOF', 1)[0] + '\nEOF\n'
     script = root / 'uninstall-spacr.sh'
     generator = tmp_path / 'generate.sh'
@@ -68,7 +68,7 @@ def test_generated_uninstaller_removes_only_application_and_preserves_folder_inv
     assert not (root / 'venv/lib/spacr.py').exists()
     assert not script.exists() and not launcher.exists() and not desktop.exists()
     assert {path: path.read_bytes() for path in protected} == before
-    assert (other / 'bootstrap/uv').read_text() == 'other installation'
+    assert (other / 'bootstrap/uv').read_text(encoding="utf-8") == 'other installation'
     assert not result.stderr
     assert 'left:' in result.stdout
 

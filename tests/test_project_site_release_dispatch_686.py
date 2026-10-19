@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def job():
-    workflow = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())
+    workflow = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text(encoding="utf-8"))
     return workflow['jobs']['refresh-project-site']
 
 
@@ -52,15 +52,15 @@ sys.exit(int(os.environ['DISPATCH_STATUS']))
     if not token:
         assert result.returncode == 0
         assert not request.exists()
-        assert 'SITE_DISPATCH_TOKEN' in summary.read_text()
+        assert 'SITE_DISPATCH_TOKEN' in summary.read_text(encoding="utf-8")
     else:
         assert result.returncode == status
-        assert json.loads(request.read_text()) == [
+        assert json.loads(request.read_text(encoding="utf-8")) == [
             'api', '--method', 'POST', 'repos/EinarOlafsson/site-src/dispatches',
             '-f', 'event_type=spacr-release', '-f', 'client_payload[version]=1.5.1.5',
             '-f', 'client_payload[tag]=v1.5.1.5']
         if status:
             assert not summary.exists()
         else:
-            assert 'requested rebuild' in summary.read_text()
-            assert 'publication is verified by the site workflow' in summary.read_text()
+            assert 'requested rebuild' in summary.read_text(encoding="utf-8")
+            assert 'publication is verified by the site workflow' in summary.read_text(encoding="utf-8")

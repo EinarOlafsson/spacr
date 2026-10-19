@@ -72,7 +72,7 @@ def test_failed_test_command_never_commits_or_pushes(tmp_path, monkeypatch):
     output = tmp_path / "results"
     output.mkdir()
     publisher.process(manifest, output)
-    result = json.loads((output / "failure.job.json").read_text())
+    result = json.loads((output / "failure.job.json").read_text(encoding="utf-8"))
     assert result["status"] == "blocked"
     assert "Prepared checks failed" in result["error"]
     assert mutations == []

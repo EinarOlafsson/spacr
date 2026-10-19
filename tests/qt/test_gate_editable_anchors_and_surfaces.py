@@ -172,7 +172,7 @@ def test_saved_mesh_and_editor_controls_restore_without_changing_the_boundary(sc
     screen.apply_settings(replace(screen._settings, anchor_density=4, show_anchors=False))
     path = tmp_path / 'strategy.json'
     screen.save_gates(str(path))
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload['editor_controls'] == {'anchor_density': 4, 'show_anchors': False}
     screen.gates.set_gates(GateSet())
     screen.apply_settings(GateEditorSettings())

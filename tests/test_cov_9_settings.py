@@ -158,7 +158,7 @@ def test_outlier_criteria_are_the_built_in_four_and_cannot_fail_to_import():
         'cell_area', 'nucleus_area', 'cell_intensity', 'nucleus_intensity']
     assert criteria is criteria_module.CRITERIA
 
-    tree = ast.parse(pathlib.Path(criteria_module.__file__).read_text())
+    tree = ast.parse(pathlib.Path(criteria_module.__file__).read_text(encoding="utf-8"))
     imported = {alias.name.split('.')[0]
                 for node in ast.walk(tree)
                 if isinstance(node, (ast.Import, ast.ImportFrom))

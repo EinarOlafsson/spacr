@@ -184,4 +184,4 @@ def test_started_native_compilation_finishes_before_interpreter_exit(tmp_path, k
                             cwd=repo, env=env, capture_output=True, text=True,
                             timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert completed.read_text() == 'compiled'
+    assert completed.read_text(encoding="utf-8") == 'compiled'

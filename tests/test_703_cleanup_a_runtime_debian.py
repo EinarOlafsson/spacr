@@ -113,7 +113,7 @@ def test_recovery_preserves_both_runtimes_when_retained_runtime_is_unverified(up
                                    wait=lambda pid: True)
     assert (_snapshot(prefix), _snapshot(transaction / "runtime")) == before
     assert len(probes) == 1 and "-B" in probes[0]
-    assert json.loads((transaction / "transaction.json").read_text())["state"] == "committed"
+    assert json.loads((transaction / "transaction.json").read_text(encoding="utf-8"))["state"] == "committed"
     assert not (prefix.parent / ("." + prefix.name + ".spacr-update-lock")).exists()
 
 
@@ -172,7 +172,7 @@ def test_runtime_update_refuses_staged_source_whose_timestamp_cannot_change(tmp_
         ic._transactional_runtime_update(record, "2.0.0", [record.python, "-I", "-m", "pip", "install", "--upgrade",
                                                            "spacr==2.0.0"], machine=_machine(tmp_path), runner=run)
     assert raised.value.errno == errno.EIO
-    assert original.read_text() == "VALUE = 1\n"
+    assert original.read_text(encoding="utf-8") == "VALUE = 1\n"
     assert sorted(path.name for path in prefix.parent.iterdir()) == ["venv"]
 
 

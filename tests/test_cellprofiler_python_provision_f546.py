@@ -86,7 +86,7 @@ def test_managed_python_is_private_verified_and_used_by_install(isolated, monkey
         assert not {"PYTHONPATH", "PYTHONHOME", "VIRTUAL_ENV"} & kwargs["env"].keys()
     assert state.record["interpreter"] == [str(managed / "python")]
     assert (0, 1, "Prepare compatible Python") in progress
-    log = (isolated / "cellprofiler.log").read_text()
+    log = (isolated / "cellprofiler.log").read_text(encoding="utf-8")
     assert "--no-bin" in log and "--selftest" in log
     assert not (isolated / "cellprofiler.lock").exists()
 
@@ -100,7 +100,7 @@ def test_failed_provision_preserves_existing_environment(isolated, failure):
     with pytest.raises(backend._InstallFailed, match="download failed"):
         backend._install_backend("cellprofiler", runner=fake_runner(
             isolated, [], failure=failure), torch_index="")
-    assert sentinel.read_text() == "preserve me"
+    assert sentinel.read_text(encoding="utf-8") == "preserve me"
     assert not (isolated / "cellprofiler.lock").exists()
     assert not backend._read_marker(str(sentinel.parent))
 
@@ -140,7 +140,7 @@ def test_cancellation_preserves_existing_environment(isolated, phase):
     with pytest.raises(backend._InstallCancelled):
         backend._install_backend("cellprofiler", runner=run, cancel=cancel,
                                  torch_index="")
-    assert sentinel.read_text() == "preserve"
+    assert sentinel.read_text(encoding="utf-8") == "preserve"
     assert len(calls) == phase
     assert not (isolated / "cellprofiler.lock").exists()
 
@@ -219,7 +219,7 @@ def test_failed_reinstall_keeps_finished_backend_usable(isolated):
     with pytest.raises(backend._InstallFailed):
         backend._install_backend("cellprofiler", reinstall=True,
                                  runner=fake_runner(isolated, [], failure=1))
-    assert python.read_text() == "old Python"
+    assert python.read_text(encoding="utf-8") == "old Python"
     assert backend._backend_state("cellprofiler").record["old"] is True
 
 

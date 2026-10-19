@@ -153,7 +153,7 @@ def test_mapped_series_runs_the_batch_iou_tracking_path(tmp_path, fake_model,
     batch_table = pd.read_csv(batch_tracks[0])
     pd.testing.assert_frame_equal(batch_table, pd.read_csv(watch_tracks[0]))
     pd.testing.assert_frame_equal(batch_table, pd.read_csv(combined_tracks[0]))
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     tracked = ledger['fields'][result['done'][0]]['collection_checkpoint']['artifacts']
     assert f'tracks/{combined_tracks[0].name}' in tracked
     assert sorted(batch_table['frame'].unique().tolist()) == [0, 1]
@@ -338,7 +338,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
         combined.write_bytes(b'conflicting combined tracks')
     elif damage == 'old_checkpoint':
         path = work / 'watch_ledger.json'
-        ledger = json.loads(path.read_text())
+        ledger = json.loads(path.read_text(encoding="utf-8"))
         del ledger['fields'][first['failed'][0]]['collection_checkpoint'][
             'artifacts'][f'tracks/{track_name}']
         path.write_text(json.dumps(ledger))
@@ -354,7 +354,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
             assert connection.execute('SELECT COUNT(*) FROM spacr_watch_fields').fetchone() == (1,)
     else:
         assert resumed['failed'] == first['failed']
-        assert 'Collection' in json.loads(Path(resumed['ledger']).read_text())[
+        assert 'Collection' in json.loads(Path(resumed['ledger']).read_text(encoding="utf-8"))[
             'fields'][first['failed'][0]]['error']
 
 

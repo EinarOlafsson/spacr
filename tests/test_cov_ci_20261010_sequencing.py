@@ -42,7 +42,7 @@ def test_a_chunk_deferred_twice_is_spooled_once(tmp_path):
     spooled = list(tmp_path.rglob("*.pkl"))
     assert [path.name for path in spooled] == ["7.pkl"]
     errors = list(tmp_path.rglob("*.error.txt"))
-    assert len(errors) == 1 and "first overload" in errors[0].read_text()
+    assert len(errors) == 1 and "first overload" in errors[0].read_text(encoding="utf-8")
     assert not retry.defer(8, {"identity": 8}, ValueError("not an overload"))
     assert pool.calls == []
 
@@ -85,7 +85,7 @@ def test_every_final_failure_is_recorded_and_the_first_is_raised(
     finals = sorted(tmp_path.rglob("*.final-error.txt"))
     assert [path.name for path in finals] == ["1.pkl.final-error.txt",
                                               "2.pkl.final-error.txt"]
-    assert "final invalid chunk 2" in finals[1].read_text()
+    assert "final invalid chunk 2" in finals[1].read_text(encoding="utf-8")
     assert len(list(tmp_path.rglob("*.pkl"))) == 2
 
 

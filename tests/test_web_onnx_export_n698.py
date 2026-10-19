@@ -138,7 +138,7 @@ def test_manifest_is_created_then_merged_per_key(tmp_path):
     path = tmp_path / "m" / "browser-manifest.json"
     first = e.merge_manifest(path, {"b_v1": {"file": "b.onnx"}})
     assert first == {"schema": 1, "generated_by": e.GENERATED_BY, "base_url": None, "models": {"b_v1": {"file": "b.onnx"}}}
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     data["base_url"] = "https://example.invalid/web-onnx/"
     path.write_text(json.dumps(data))
     merged = e.merge_manifest(path, {"a_v1": {"file": "a.onnx"}, "b_v1": {"file": "b2.onnx"}})
@@ -229,7 +229,7 @@ def test_main_writes_manifest_for_verified_weights(tmp_path, catalogue, monkeypa
     monkeypatch.setattr(e, "export_one", lambda row, weights, out, **k: {"file": row["key"] + ".onnx", "weights": str(weights)})
     out = tmp_path / "out"
     assert e.main(["--catalogue", str(path), "--all", "--weights-dir", str(directory), "--out", str(out)]) == 0
-    manifest = json.loads((out / "browser-manifest.json").read_text())
+    manifest = json.loads((out / "browser-manifest.json").read_text(encoding="utf-8"))
     assert manifest["base_url"] is None and sorted(manifest["models"]) == ["det_v1", "fam_v1"]
 
 

@@ -169,7 +169,7 @@ def test_be_polite_carries_on_when_the_kernel_refuses_a_nice_change(
 
     ps.be_polite()
 
-    assert oom_file.read_text() == "800"
+    assert oom_file.read_text(encoding="utf-8") == "800"
     assert commands and commands[0][:3] == ["ionice", "-c", "3"]
 
 
@@ -214,7 +214,7 @@ def test_be_polite_carries_on_when_ionice_is_missing(monkeypatch, tmp_path):
 
     assert ps.be_polite() is None
     assert nice_calls == [19]
-    assert oom_file.read_text() == "800"
+    assert oom_file.read_text(encoding="utf-8") == "800"
 
 
 # ---------------------------------------------------------------------------

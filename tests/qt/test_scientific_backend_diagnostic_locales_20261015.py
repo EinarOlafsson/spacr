@@ -18,7 +18,7 @@ NAMES = (
 def _cases():
     for language in ('de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'):
         for filename in NAMES:
-            payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / filename).read_text())
+            payload = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / filename).read_text(encoding="utf-8"))
             for record in payload['records']:
                 yield language, record['source'], record['translation']
 

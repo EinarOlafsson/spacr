@@ -103,7 +103,7 @@ def test_the_native_scope_refuses_a_request_that_no_longer_matches(protected_win
         target["shortcuts"] = [str(tmp_path / "Desktop" / "spaCR.lnk")]
     with pytest.raises(ValueError, match=error):
         ic._windows_uninstall_targets(request)
-    assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()
+    assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
 def test_a_special_file_is_never_taken_for_a_system_owned_path(tmp_path, monkeypatch):
@@ -415,5 +415,5 @@ def test_the_helper_keeps_opted_out_folders_and_reports_a_folder_it_cannot_remov
     with pytest.raises(PermissionError):
         helper.call()
     assert str(keep_dir) not in attempted
-    assert (keep_dir / "METADATA").is_file() and helper.project.read_text() == "unrelated"
+    assert (keep_dir / "METADATA").is_file() and helper.project.read_text(encoding="utf-8") == "unrelated"
     assert "complete" not in helper.events

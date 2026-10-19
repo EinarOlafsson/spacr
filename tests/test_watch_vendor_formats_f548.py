@@ -141,7 +141,7 @@ def test_micromanager_waits_for_its_metadata_then_matches_batch(tmp_path, real_p
         shutil.copy2(path, folder / path.name)
     first = core._watch_folder_and_analyse(_timelapse(watched))
     assert not first['done'] and not (watched / 'spacr_watch/fields').exists()
-    text = (source / 'metadata.txt').read_text()
+    text = (source / 'metadata.txt').read_text(encoding="utf-8")
     (folder / 'metadata.txt').write_text(text[:len(text) // 2])
     second = core._watch_folder_and_analyse(_timelapse(watched))
     assert not second['done'] and not (watched / 'spacr_watch/fields').exists()

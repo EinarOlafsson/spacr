@@ -58,7 +58,7 @@ def test_export_writes_the_selected_run_even_while_hidden(
     main = screen._export_selected_workflow("nextflow", str(tmp_path / "out"))
     assert main is not None and main.name == "main.nf"
     assert main.parent.name == f"{mask_run.name}_nextflow"
-    settings = json.loads((main.parent / "settings" / "plate1.json").read_text())
+    settings = json.loads((main.parent / "settings" / "plate1.json").read_text(encoding="utf-8"))
     assert settings["src"] == str(tmp_path / "plate1")
     assert str(main) in screen._status.text()
     assert screen._export_selected_workflow("make", str(tmp_path)) is None

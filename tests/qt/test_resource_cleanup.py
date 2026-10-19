@@ -31,7 +31,7 @@ pytest.importorskip("PySide6")
 from spacr.qt import resource_cleanup as rc
 
 
-SOURCE = Path(rc.__file__).read_text()
+SOURCE = Path(rc.__file__).read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -325,7 +325,7 @@ def test_the_disk_check_only_reads(tmp_path):
     entry = report.entries[0]
     assert entry.total > 0 and entry.free >= 0
     assert 0 <= entry.percent_used <= 100
-    assert (tmp_path / "keep.txt").read_text() == "data"
+    assert (tmp_path / "keep.txt").read_text(encoding="utf-8") == "data"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["keep.txt"]
 
 

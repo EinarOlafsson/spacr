@@ -645,6 +645,6 @@ def test_the_hit_fetch_unpacks_the_archive_and_fills_the_settings_path(
     assert asked == [("einarolafsson/spacr-example-hit",
                       "spacr-example-hit.tar")]
     assert (folder / "hit.json").is_file()
-    settings = (folder / "settings" / "regression.csv").read_text()
+    settings = (folder / "settings" / "regression.csv").read_text(encoding="utf-8")
     assert f"src,{folder}" in settings
     assert not (folder / "spacr-example-hit.tar").exists()

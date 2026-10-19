@@ -51,5 +51,5 @@ def test_explicit_move_recovers_from_unsupported_deep_metadata(metadata, tmp_pat
     assert target == tmp_path / "other-drive" / "spacr-news"
     assert (target / "cached.bin").read_bytes() == expected
     assert not source.exists()
-    assert json.loads(record.read_text()) == {"SPACR_NEWS_CACHE": str(target)}
+    assert json.loads(record.read_text(encoding="utf-8")) == {"SPACR_NEWS_CACHE": str(target)}
     assert os.environ["SPACR_NEWS_CACHE"] == str(target)

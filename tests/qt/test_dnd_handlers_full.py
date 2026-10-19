@@ -742,7 +742,7 @@ def test_container_preview_apply_writes_filename_map_csv(
     written = tmp_path / "filename_map.csv"
     assert dlg.written_path == written
     assert written.is_file()
-    lines = written.read_text().strip().splitlines()
+    lines = written.read_text(encoding="utf-8").strip().splitlines()
     assert lines[0] == ("original_path,canonical,plate,well,field,"
                         "channel,time")
     assert len(lines) == 3                                  # header + 2 planes

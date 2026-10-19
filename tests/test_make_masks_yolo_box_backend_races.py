@@ -60,7 +60,7 @@ def test_lock_cleanup_does_not_erase_a_disappeared_or_replaced_lock(
 
     assert ledger.is_file()
     if replacement:
-        assert lock.read_text() == "different writer"
+        assert lock.read_text(encoding="utf-8") == "different writer"
     else:
         assert not lock.exists()
 

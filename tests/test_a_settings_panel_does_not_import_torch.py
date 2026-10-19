@@ -94,7 +94,7 @@ def test_there_is_one_copy_of_each_table():
 
     import spacr
 
-    source = pathlib.Path(spacr.__file__).with_name("ml.py").read_text()
+    source = pathlib.Path(spacr.__file__).with_name("ml.py").read_text(encoding="utf-8")
     assigned = {
         target.id
         for node in ast.parse(source).body

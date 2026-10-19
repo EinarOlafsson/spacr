@@ -123,7 +123,7 @@ def test_disabled_unmixing_does_not_load_or_validate_controls(tmp_path):
 @pytest.mark.parametrize('entrypoint', ['controls', 'apply'])
 def test_installed_reviewed_language_guards_both_boundaries(tmp_path, actual_plan, language, entrypoint, monkeypatch):
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-unmix-shape-boundary.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     image = low_dimension(2)
     before = image.copy()

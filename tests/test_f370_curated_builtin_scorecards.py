@@ -7,7 +7,7 @@ import pytest
 from spacr import model_cards, model_zoo as zoo
 
 
-_KEYS = tuple(json.loads(path.read_text())["key"] for path in sorted(model_cards._CARD_DIR.glob("*.json")))
+_KEYS = tuple(json.loads(path.read_text(encoding="utf-8"))["key"] for path in sorted(model_cards._CARD_DIR.glob("*.json")))
 _FIELDS = (("f1", "object_f1"), ("boundary_f1_2px", "boundary_f1"),
            ("precision", "precision"), ("recall", "recall"), ("aji", "aji"), ("dice", "dice"))
 

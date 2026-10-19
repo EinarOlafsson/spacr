@@ -168,7 +168,7 @@ def test_an_unknown_roi_format_is_refused_and_json_defaults_to_coco(tmp_path):
         mask_io.roi_format(tmp_path / "x.zip", "svg")
     assert mask_io.roi_format(tmp_path / "x", "QuPath") == "geojson"
     written = mask_io.export_rois(_square(), tmp_path / "plate1.json")
-    data = json.loads(written.read_text())
+    data = json.loads(written.read_text(encoding="utf-8"))
     assert "annotations" in data
     assert data["images"][0]["file_name"] == "plate1"
 

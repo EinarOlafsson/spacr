@@ -359,7 +359,7 @@ def test_the_exported_page_is_the_size_that_was_asked_for(volcano, tmp_path):
 
     volcano.export(str(tmp_path / "small.svg"))
 
-    header = (tmp_path / "small.svg").read_text()[:400]
+    header = (tmp_path / "small.svg").read_text(encoding="utf-8")[:400]
     assert 'width="89.9' in header or 'width="90' in header, header[:200]
     assert 'height="59.9' in header or 'height="60' in header, header[:200]
 
@@ -372,7 +372,7 @@ def test_the_page_height_follows_the_plot_unless_one_is_given(volcano,
 
     volcano.export(str(tmp_path / "auto.svg"))
 
-    header = (tmp_path / "auto.svg").read_text()[:400]
+    header = (tmp_path / "auto.svg").read_text(encoding="utf-8")[:400]
     assert 'width="119.9' in header or 'width="120' in header, header[:200]
     assert 'height="90' not in header, "the height was pinned, not derived"
 
@@ -992,7 +992,7 @@ def test_the_saved_vector_page_draws_its_points_rather_than_pasting_them(
     of a dot in a file that claims to be vector."""
     volcano.export(str(tmp_path / "v.svg"))
 
-    svg = (tmp_path / "v.svg").read_text()
+    svg = (tmp_path / "v.svg").read_text(encoding="utf-8")
     assert svg.count("<image") == 0, "the points were pasted in as bitmaps"
     assert svg.count("<path") >= N, (
         f"only {svg.count('<path')} paths for {N} points")
@@ -1003,7 +1003,7 @@ def test_the_text_stays_text_in_the_saved_page(volcano, tmp_path):
     and an axis that survives being scaled into a figure panel."""
     volcano.export(str(tmp_path / "v.svg"))
 
-    assert (tmp_path / "v.svg").read_text().count("<text") > 5
+    assert (tmp_path / "v.svg").read_text(encoding="utf-8").count("<text") > 5
 
 
 def test_pyqtgraphs_svg_exporter_is_compatible_or_has_the_known_path_failure(

@@ -64,7 +64,7 @@ def test_concurrent_node_jobs_download_once_and_reuse_the_same_file(tmp_path, pr
         (tmp_path / 'release').touch()
         results = [process.communicate(timeout=10) for process in processes]
         assert [process.returncode for process in processes] == [0, 0], results
-        assert (tmp_path / 'fetches.txt').read_text().splitlines() in [['0'], ['1']]
+        assert (tmp_path / 'fetches.txt').read_text(encoding="utf-8").splitlines() in [['0'], ['1']]
         paths = [Path(stdout.strip()) for stdout, _stderr in results]
         assert paths[0] == paths[1]
         assert paths[0].read_bytes() == source.read_bytes()

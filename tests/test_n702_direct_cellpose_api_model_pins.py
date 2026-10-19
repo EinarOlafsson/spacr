@@ -125,10 +125,10 @@ def test_direct_api_constructor_and_journal_use_effective_bytes_while_snapshots_
     assert calls == [expected]
     assert settings['model_path'] == original['model_path']
     assert settings.get('model_metadata') == original.get('model_metadata')
-    saved = json.loads((Path(settings['src']) / 'settings' / (api + '.json')).read_text())
+    saved = json.loads((Path(settings['src']) / 'settings' / (api + '.json')).read_text(encoding="utf-8"))
     assert saved['model_path'] == original['model_path']
     assert saved.get('model_metadata') == original.get('model_metadata')
-    manifest = json.loads((run.dir / 'manifest.json').read_text())
+    manifest = json.loads((run.dir / 'manifest.json').read_text(encoding="utf-8"))
     if mode == 'legacy_stock':
         assert manifest['model_files'] == {}
         assert native_checkpoint.read_bytes() == payload

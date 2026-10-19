@@ -307,7 +307,7 @@ def test_visualize_cellpose_masks_reuses_existing_results_dir(tmp_path):
     masks = [_blob_mask(16, n=1), _blob_mask(16, n=1)]
     visualize_cellpose_masks(masks, titles=["a", "b"], filename="second",
                              save=True, src=str(tmp_path))
-    assert (tmp_path / "results" / "keep.txt").read_text() == "keep me"
+    assert (tmp_path / "results" / "keep.txt").read_text(encoding="utf-8") == "keep me"
     assert (tmp_path / "results" / "second.pdf").is_file()
 
 

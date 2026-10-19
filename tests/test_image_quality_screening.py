@@ -48,7 +48,7 @@ def test_saved_policy_decides_exclusion_without_changing_pixels(tmp_path, mode, 
     policy = dict(image_qc_mode=mode, image_qc_min_focus={0: 1.})
     assert screen_fields(tmp_path, policy) == expected
     assert excluded_fields(tmp_path) == set(expected)
-    report = json.loads((tmp_path / 'qc/image_quality.json').read_text())
+    report = json.loads((tmp_path / 'qc/image_quality.json').read_text(encoding="utf-8"))
     assert report['policy']['image_qc_min_focus'] == {'0': 1.}
     assert {row['field'] for row in report['fields']} == set(before)
     bad = next(row for row in report['fields'] if row['field'] == 'blurred.npy')
@@ -58,8 +58,8 @@ def test_saved_policy_decides_exclusion_without_changing_pixels(tmp_path, mode, 
                                 {'image_qc_excluded_fields': expected})
     assert names == (['sharp.npy'] if expected else ['blurred.npy', 'sharp.npy'])
     np.testing.assert_array_equal(batch[-1], sharp)
-    assert 'focus_below_threshold' in (tmp_path / 'qc/image_quality.csv').read_text()
-    gallery = (tmp_path / 'qc/image_quality.html').read_text()
+    assert 'focus_below_threshold' in (tmp_path / 'qc/image_quality.csv').read_text(encoding="utf-8")
+    gallery = (tmp_path / 'qc/image_quality.html').read_text(encoding="utf-8")
     assert 'data:image/png;base64,' in gallery
     assert gallery.index('<b>blurred.npy') < gallery.index('<b>sharp.npy')
     assert screen_fields(tmp_path, {'image_qc_mode': 'off'}) == []

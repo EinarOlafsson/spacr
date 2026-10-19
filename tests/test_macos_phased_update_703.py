@@ -35,7 +35,7 @@ def test_actual_pipe_bridge_preserves_or_restores_payload_at_fixed_checkpoints(t
     class Phase:
         def _send(self, phase, **details):
             events.append(phase)
-            assert payload.read_text() == ("old" if phase == "prepared" else "new")
+            assert payload.read_text(encoding="utf-8") == ("old" if phase == "prepared" else "new")
             assert details["version"] == "1.5.1.5"
 
         def _receive(self, expected, **kwargs):
@@ -48,14 +48,14 @@ def test_actual_pipe_bridge_preserves_or_restores_payload_at_fixed_checkpoints(t
     if decision == "confirmed":
         output = ic._macos_phased_transaction(script, Phase(), "1.5.1.5", 4242)
         assert output == "committed\t/Applications/.spacr-update.ABCDEF12\tdetached\n"
-        assert journal.read_text() == "committed"
+        assert journal.read_text(encoding="utf-8") == "committed"
     else:
         with pytest.raises(RuntimeError):
             ic._macos_phased_transaction(script, Phase(), "1.5.1.5", 4242)
     assert events == (["prepared"] if decision == "cancel" else ["prepared", "activated"])
-    assert payload.read_text() == ("old" if decision in {"cancel", "failed"} else "new")
+    assert payload.read_text(encoding="utf-8") == ("old" if decision in {"cancel", "failed"} else "new")
     if decision in {"retain", "disconnect"}:
-        assert journal.read_text() == "desktop-unconfirmed"
+        assert journal.read_text(encoding="utf-8") == "desktop-unconfirmed"
 
 
 @pytest.mark.parametrize("fault", [None, "owner", "writable", "link", "acl", "signature"])

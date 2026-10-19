@@ -130,7 +130,7 @@ def test_a_changed_input_file_is_still_caught_as_an_output(
     manifests = sorted(journal.glob("*/manifest.json"))
     assert manifests
     import json
-    manifest = json.loads(manifests[-1].read_text())
+    manifest = json.loads(manifests[-1].read_text(encoding="utf-8"))
     assert str(chosen) in manifest["output_hashes"]
 
 

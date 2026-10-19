@@ -176,7 +176,7 @@ def test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr(
 
 
 def test_capture_refresh_forces_off_before_the_window_and_passes_only_the_opt_in():
-    source = (TUTORIALS / "capture_refresh.py").read_text()
+    source = (TUTORIALS / "capture_refresh.py").read_text(encoding="utf-8")
     assert source.index("configure_appearance(args.theme, args.backdrop,") < \
         source.index("window = gui.MainWindow()")
     assert "'--preferences-alpha-toggle-scene', action='store_true'" in source
@@ -205,6 +205,6 @@ def test_authoring_capture_sessions_refuse_frames_while_alpha_is_on(prefs):
     prefs._set_show_alpha_features(True)
     with pytest.raises(RuntimeError, match="Show alpha features is on"):
         capture_mask_experiment.refuse_alpha_features()
-    source = Path(capture_mask_experiment.__file__).read_text()
+    source = Path(capture_mask_experiment.__file__).read_text(encoding="utf-8")
     save = source[source.index("    def save("):]
     assert save.index("refuse_alpha_features()") < save.index("self.window.grab()")

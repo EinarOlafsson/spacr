@@ -173,7 +173,7 @@ def _docs_autoapi_literal(name: str):
         pathlib.Path(__file__).resolve().parent.parent
         / "docs" / "source" / "conf.py"
     )
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in tree.body:
         targets = node.targets if isinstance(node, ast.Assign) else (
             [node.target] if isinstance(node, ast.AnnAssign) else []
@@ -1933,7 +1933,7 @@ def _validated_prior_live_settings_close_callables(callables):
     import json
     fixture = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text(encoding="utf-8"))
     assert fixture["schema"] == 1
     row = fixture["public_callable"]
     symbol = "spacr.qt.widgets.live_preview.LiveSettingsDialog.close"
@@ -1980,7 +1980,7 @@ def _validated_prior_home_ui_callables(callables, *, replay_dialog_signature=Fal
     field_symbol = "spacr.qt.widgets.ambient.field_ripple_for_widget"
     assert field_symbol not in by_symbol
     field_tree = ast.parse((pathlib.Path(__file__).resolve().parent.parent
-                            / "spacr/qt/widgets/ambient.py").read_text())
+                            / "spacr/qt/widgets/ambient.py").read_text(encoding="utf-8"))
     field_node = next(node for node in field_tree.body
                       if isinstance(node, ast.FunctionDef)
                       and node.name == "field_ripple_for_widget")
@@ -2111,7 +2111,7 @@ def _validated_prior_701_callables(callables):
     import json
     fixture = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "701_make_masks_existing_api_changes_2026-10-13.json").read_text())
+        / "701_make_masks_existing_api_changes_2026-10-13.json").read_text(encoding="utf-8"))
     assert fixture["schema"] == 1
     assert fixture["kind"] == "existing_callable_optional_parameter_changes"
     assert fixture["item"] == 701
@@ -2160,7 +2160,7 @@ def _validated_prior_152_callables(callables):
     import json
     root = pathlib.Path(__file__).resolve().parents[1]
     fixture = json.loads((root / "tests/data/release_contracts"
-        / "152_round_features_api_changes_2026-10-18.json").read_text())
+        / "152_round_features_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     assert fixture["schema"] == 1
     assert fixture["kind"] == "existing_callable_optional_parameter_changes"
     assert fixture["item"] == "issue-152"
@@ -2177,7 +2177,7 @@ def _validated_prior_152_callables(callables):
     assert actual == change["after"]
     assert not added & item.required_parameters
     assert added <= _documented_parameter_names(item.docstring)
-    tree = ast.parse((root / "spacr/active_learning.py").read_text())
+    tree = ast.parse((root / "spacr/active_learning.py").read_text(encoding="utf-8"))
     declaration = next(node for node in tree.body
                        if isinstance(node, ast.FunctionDef)
                        and node.name == "round_features")
@@ -2201,7 +2201,7 @@ def _validated_prior_708_callables(callables):
     import json
     root = pathlib.Path(__file__).resolve().parents[1]
     fixture = json.loads((root / "tests/data/release_contracts"
-        / "708_label_time_existing_api_changes_2026-10-16.json").read_text())
+        / "708_label_time_existing_api_changes_2026-10-16.json").read_text(encoding="utf-8"))
     assert fixture["schema"] == 1
     assert fixture["kind"] == "existing_callable_optional_parameter_changes"
     assert fixture["item"] == 708
@@ -2217,7 +2217,7 @@ def _validated_prior_708_callables(callables):
     assert actual == change["after"]
     assert "lineage" not in item.required_parameters
     assert "lineage" in _documented_parameter_names(item.docstring)
-    tree = ast.parse((root / "spacr/qt/mask_engine.py").read_text())
+    tree = ast.parse((root / "spacr/qt/mask_engine.py").read_text(encoding="utf-8"))
     declaration = next(node for node in tree.body
                        if isinstance(node, ast.FunctionDef)
                        and node.name == "save_mask")
@@ -2241,7 +2241,7 @@ def _validated_prior_699_callables(callables):
     profile = next(item for item in callables
                    if item.symbol == "spacr.remote_execution.ExecutionProfile")
     tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
-                      / "spacr/remote_execution.py").read_text())
+                      / "spacr/remote_execution.py").read_text(encoding="utf-8"))
     declaration = next(node for node in tree.body
                        if isinstance(node, ast.ClassDef)
                        and node.name == "ExecutionProfile")
@@ -2286,7 +2286,7 @@ def _validated_prior_example_background_callables(callables):
 
     root = pathlib.Path(__file__).resolve().parents[1]
     fixture = json.loads((root / "tests/data/release_contracts"
-        / "411_help_api_changes_2026-10-18.json").read_text())["example_background"]
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))["example_background"]
     symbol = "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen"
     source_changes = fixture["source_changes"]
     assert set(source_changes) == {
@@ -2305,7 +2305,7 @@ def _validated_prior_example_background_callables(callables):
     assert actual == change["after"]
     assert "in_background" not in item.required_parameters
     assert "in_background" in _documented_parameter_names(item.docstring)
-    tree = ast.parse((root / "spacr/qt/screens/app_screen.py").read_text())
+    tree = ast.parse((root / "spacr/qt/screens/app_screen.py").read_text(encoding="utf-8"))
     screen = next(node for node in tree.body
                   if isinstance(node, ast.ClassDef) and node.name == "AppScreen")
     declaration = next(node for node in screen.body
@@ -2773,19 +2773,19 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text()))
+            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
     # registers the three spacr.qt.tutorials arrivals and the removed
     # renderer, which was never in this inventory (*/qt/tutorial/* is ignored).
     contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     late_sources = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     workspace_sources = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "180_session_figure_api_arrivals_2026-10-15.json").read_text())
+        / "180_session_figure_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert set(workspace_sources) == {
         "spacr.qt.widgets.figure_queue.FigureQueue.apply_workspace_state",
         "spacr.qt.widgets.figure_queue.FigureQueue.workspace_state",
@@ -2822,7 +2822,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.docstring == late_sources[symbol]
     measure_sources = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text())
+        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     measure_parameters = {
         "spacr.measure.measure_volume_rows": (
             {"rows", "object_type", "progress"}, {"rows"}, "function"),
@@ -2854,7 +2854,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert item.docstring == measure_sources[symbol]
     lineage_sources = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "708_label_time_api_arrivals_2026-10-16.json").read_text())
+        / "708_label_time_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     lineage_parameters = {
         'spacr.qt.mask_engine.assign_lineage_label': (
             {'cell_uuid', 'frame', 'label', 'old_label', 'state'},
@@ -2908,7 +2908,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         assert not item.accepts_arbitrary_keywords
         assert item.docstring == lineage_sources[symbol]
     help_changes = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text())
+        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
     press_symbol = "spacr.qt.screens.regression.HitsOpener.press"
     assert set(help_arrivals) == {
@@ -2925,7 +2925,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert press.docless_variant_count == press.constructor_prose_variant_count == 0
     assert press.docstring == help_arrivals[press_symbol]
     regression_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
-        / "spacr/qt/screens/regression.py").read_text())
+        / "spacr/qt/screens/regression.py").read_text(encoding="utf-8"))
     hits_class = next(node for node in regression_tree.body
         if isinstance(node, ast.ClassDef) and node.name == "HitsOpener")
     press_node = next(node for node in hits_class.body
@@ -2938,7 +2938,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     contract_arrivals |= help_arrivals.keys()
     approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
     approval_parameters = {
         "spacr.qt.ai.prompts.tool_approval_note": ({"provider_name"}, "function"),
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once": (
@@ -2997,7 +2997,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         module, _, class_name = symbol.rpartition(".")
         source_path = pathlib.Path(__file__).resolve().parents[1] / (
             module.replace(".", "/") + ".py")
-        tree = ast.parse(source_path.read_text())
+        tree = ast.parse(source_path.read_text(encoding="utf-8"))
         declaration = next(node for node in tree.body
                            if isinstance(node, ast.ClassDef)
                            and node.name == class_name)
@@ -3042,7 +3042,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert artifact.category == "function" and artifact.exposure == "autoapi"
     assert _documented_parameter_names(artifact.docstring) == artifact_parameters
     artifact_tree = ast.parse((pathlib.Path(__file__).resolve().parents[1]
-                              / "spacr/torch_artifacts.py").read_text())
+                              / "spacr/torch_artifacts.py").read_text(encoding="utf-8"))
     artifact_node = next(node for node in artifact_tree.body
                          if isinstance(node, ast.FunctionDef)
                          and node.name == "load_model_artifact")
@@ -4050,7 +4050,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # console targets survive an excluding __all__ / AutoAPI ignore rule.
     setup_source = (
         pathlib.Path(__file__).resolve().parent.parent / "setup.py"
-    ).read_text()
+    ).read_text(encoding="utf-8")
     assert "spacr-server=spacr.qt:run_without_setup" in setup_source
     assert "spacr-tutorial=spacr.qt.tutorial.__main__:main" in setup_source
     assert by_symbol["spacr.__main__.main"].exposure == "autoapi"
@@ -4446,7 +4446,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     )
     import json
 
-    private_additions = json.loads(additions_path.read_text())
+    private_additions = json.loads(additions_path.read_text(encoding="utf-8"))
     assert len(private_additions) == 11
     recolored = (
         "spacr.qt.preferences.PreferencesDialog._build_the_dialog."
@@ -4479,7 +4479,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         key: private_additions[key] for key in unchanged}
     assert not private_additions.keys() & rendered_documented_callables.keys()
     channel_additions = json.loads(additions_path.with_name(
-        "548_native_channel_private_api_arrival_2026-10-06.json").read_text())
+        "548_native_channel_private_api_arrival_2026-10-06.json").read_text(encoding="utf-8"))
     assert channel_additions == {
         "spacr.io._preprocess_mapped_volume_series.load_channel":
         "Read one private channel from verified staged stacks."}
@@ -4487,7 +4487,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not channel_additions.keys() & rendered_documented_callables.keys()
     assert not channel_additions.keys() & private_additions.keys()
     scn_additions = json.loads(additions_path.with_name(
-        "424_scn_public_api_arrivals_2026-10-06.json").read_text())
+        "424_scn_public_api_arrivals_2026-10-06.json").read_text(encoding="utf-8"))
     assert scn_additions.keys() == {
         "spacr.convert.read_scn", "spacr.convert.scn_to_rgb8",
         "spacr.qt.mask_engine.read_image"}
@@ -4495,7 +4495,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     actual_by_symbol = {item.symbol: item for item in actual_callables}
     assert {key: actual_by_symbol[key].docstring for key in scn_additions} == scn_additions
     popup_additions = json.loads(additions_path.with_name(
-        "615_popup_api_arrivals_2026-10-07.json").read_text())
+        "615_popup_api_arrivals_2026-10-07.json").read_text(encoding="utf-8"))
     assert len(popup_additions) == 15
     assert {key: docs[key] for key in popup_additions} == popup_additions
     assert not popup_additions.keys() & (
@@ -4513,7 +4513,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     worker_additions = json.loads((
         pathlib.Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json"
-    ).read_text())
+    ).read_text(encoding="utf-8"))
     assert len(worker_additions) == 8
     assert {key: docs[key] for key in worker_additions} == worker_additions
     assert not worker_additions.keys() & (
@@ -4521,7 +4521,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         | scn_additions.keys() | popup_additions.keys() | background_additions.keys())
     home_ui_arrivals = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     # 9 -> 10 (2026-10-08, 39bfe8e19): LiveSettingsDialog.close is reviewed
     # in this contract too, as the extractor and documentation tests read it.
     assert len(home_ui_arrivals) == 10
@@ -4529,21 +4529,21 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not home_ui_arrivals.keys() & worker_additions.keys()
     hidden_close = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text(encoding="utf-8"))["API_arrivals"]
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
     assert not hidden_close.keys() & worker_additions.keys()
     animation_arrivals = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "684_animation_window_api_arrivals_2026-10-10.json").read_text())
+        / "684_animation_window_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     # Item 684: MainWindow.snap_window, AmbientWidget.set_click_ripples and
     # the Preferences density-follows-theme helper.
     assert len(animation_arrivals) == 3
     assert {key: docs[key] for key in animation_arrivals} == animation_arrivals
     volume_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
     assert len(volume_additions) == 32
     assert {key: docs[key] for key in volume_additions} == volume_additions
     assert not volume_additions.keys() & (
@@ -4552,20 +4552,20 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-11 item 685: the four model-zoo helpers of 9d48eefa6.
     zoo_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(zoo_additions) == 4
     assert {key: docs[key] for key in zoo_additions} == zoo_additions
     # 2026-10-11 item 690: the TEM readers, presets and test-data loaders.
     tem_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "690_tem_api_arrivals_2026-10-11.json").read_text())
+        / "690_tem_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(tem_additions) == 10
     assert {key: docs[key] for key in tem_additions} == tem_additions
     # F534 (2026-10-11): run_spatial_masks / run_spatial_map, their settings
     # helpers, the PageFold surface and the two Spatial switches.
     spatial_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "534_spatial_api_arrivals_2026-10-11.json").read_text())
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(spatial_additions) == 22
     assert {key: docs[key] for key in spatial_additions} == spatial_additions
     assert not spatial_additions.keys() & (
@@ -4575,93 +4575,93 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # Third-party test in spacr.model_zoo.
     mitonet_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(mitonet_additions) == 4
     assert {key: docs[key] for key in mitonet_additions} == mitonet_additions
     assert not mitonet_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **mitonet_additions}
     drawing_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text())
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
     assert len(drawing_additions) == 8
     assert {key: docs[key] for key in drawing_additions} == drawing_additions
     assert not drawing_additions.keys() & (zoo_additions.keys() | volume_additions.keys())
     zoo_additions = {**zoo_additions, **drawing_additions}
     apply_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "prefs_apply_api_arrivals_2026-10-12.json").read_text())
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(apply_additions) == 8
     assert {key: docs[key] for key in apply_additions} == apply_additions
     assert not apply_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **apply_additions}
     a11y_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(a11y_additions) == 15
     assert {key: docs[key] for key in a11y_additions} == a11y_additions
     assert not a11y_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **a11y_additions}
     in_container_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(in_container_additions) == 2
     assert {key: docs[key] for key in in_container_additions} == in_container_additions
     assert not in_container_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **in_container_additions}
     export_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "693_export_settings_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "693_export_settings_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(export_additions) == 3
     assert {key: docs[key] for key in export_additions} == export_additions
     assert not export_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **export_additions}
     response_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "144_regression_response_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "144_regression_response_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(response_additions) == 3
     assert {key: docs[key] for key in response_additions} == response_additions
     assert not response_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **response_additions}
     splash_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "694_startup_splash_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(splash_additions) == 21
     assert {key: docs[key] for key in splash_additions} == splash_additions
     assert not splash_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **splash_additions}
     sequence_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(sequence_additions) == 5
     assert {key: docs[key] for key in sequence_additions} == sequence_additions
     assert not sequence_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **sequence_additions}
     tutorial_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"]
     assert len(tutorial_additions) == 3
     assert {key: docs[key] for key in tutorial_additions} == tutorial_additions
     assert not tutorial_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **tutorial_additions}
     # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
     model_card_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "model_cards_api_arrivals_2026-10-12.json").read_text())
+        / "data/release_contracts" / "model_cards_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(model_card_additions) == 27
     assert {key: docs[key] for key in model_card_additions} == model_card_additions
     assert not model_card_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **model_card_additions}
     # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
     debounce_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+        / "data/release_contracts" / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(debounce_additions) == 4
     assert {key: docs[key] for key in debounce_additions} == debounce_additions
     assert not debounce_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **debounce_additions}
     # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
     warm_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text())
+        / "data/release_contracts" / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(warm_additions) == 1
     assert {key: docs[key] for key in warm_additions} == warm_additions
     assert not warm_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **warm_additions}
     # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
     quit_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text())
+        / "data/release_contracts" / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(quit_additions) == 3
     assert {key: docs[key] for key in quit_additions} == quit_additions
     assert not quit_additions.keys() & zoo_additions.keys()
@@ -4669,35 +4669,35 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
     client700_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text())
+        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(client700_additions) == 55
     assert {key: docs[key] for key in client700_additions} == client700_additions
     assert not client700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **client700_additions}
     # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
     s700_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
-        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text())
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(s700_additions) == 20
     assert {key: docs[key] for key in s700_additions} == s700_additions
     assert not s700_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **s700_additions}
     # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
     n673_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
-        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text())
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(n673_additions) == 8
     assert {key: docs[key] for key in n673_additions} == n673_additions
     assert not n673_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **n673_additions}
     # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
     n673g_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
-        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text())
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     assert len(n673g_additions) == 23
     assert {key: docs[key] for key in n673g_additions} == n673g_additions
     assert not n673g_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **n673g_additions}
     # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
     n673w_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
-        / "673_wgpu_api_arrivals_2026-10-16.json").read_text())
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
     assert len(n673w_additions) == 20
     assert {key: docs[key] for key in n673w_additions} == n673w_additions
     assert not n673w_additions.keys() & zoo_additions.keys()
@@ -4715,35 +4715,35 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text())
+            / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
         zoo_additions = {**zoo_additions, **additions}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
-        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text())
+        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     assert len(s370_additions) == 3
     assert {key: docs[key] for key in s370_additions} == s370_additions
     assert not s370_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **s370_additions}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text())
+        / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(note_additions) == 1
     assert {key: docs[key] for key in note_additions} == note_additions
     assert not note_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **note_additions}
     # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
     thread_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "thread_retire_api_arrivals_2026-10-13.json").read_text())
+        / "data/release_contracts" / "thread_retire_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
     assert len(thread_additions) == 3
     assert {key: docs[key] for key in thread_additions} == thread_additions
     assert not thread_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **thread_additions}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_additions = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(dna_rain_additions) == 1
     assert {key: docs[key] for key in dna_rain_additions} == dna_rain_additions
     assert not dna_rain_additions.keys() & zoo_additions.keys()
@@ -4751,27 +4751,27 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
     launcher_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
     assert len(launcher_additions) == 3
     assert {key: docs[key] for key in launcher_additions} == launcher_additions
     assert not launcher_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **launcher_additions}
     late_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text())
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
     # 2026-10-19: 19, AiToggleLabel.paintEvent retired (native focus layer).
     assert len(late_additions) == 19
     assert {key: docs[key] for key in late_additions} == late_additions
     assert not late_additions.keys() & zoo_additions.keys()
     ssh_additions = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text())
+        / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
     assert len(ssh_additions) == 1
     assert {key: docs[key] for key in ssh_additions} == ssh_additions
     assert not ssh_additions.keys() & (zoo_additions.keys() | late_additions.keys())
     zoo_additions = {**zoo_additions, **late_additions, **ssh_additions}
     help_changes = json.loads((pathlib.Path(__file__).resolve().parent
-        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text())
+        / "data/release_contracts" / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
     help_arrivals = help_changes["added"]
     assert set(help_arrivals) == {
         "spacr.qt.preferences._count_store_moves.set_path",
@@ -4790,7 +4790,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **help_arrivals}
     approval_preferences = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text())
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
     assert set(approval_preferences) == {
         "spacr.qt.ai.prompts.tool_approval_note",
         "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
@@ -5160,7 +5160,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     import json
     volume_callables = set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
         ) & rendered_documented_callables.keys()
     assert len(volume_callables) == 23
     prior = (rendered_documented_callables.keys() - incoming_callables
@@ -5224,10 +5224,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text()))
+            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     contract_callables |= help_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
@@ -5294,10 +5294,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "180_session_figure_api_arrivals_2026-10-15.json",
                      "712_timelapse_test_data_api_arrivals_2026-10-18.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
-            / "data/release_contracts" / contract).read_text()))
+            / "data/release_contracts" / contract).read_text(encoding="utf-8")))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"])
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     arrival_callables |= help_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables

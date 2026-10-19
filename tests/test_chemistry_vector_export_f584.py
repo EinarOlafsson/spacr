@@ -48,7 +48,7 @@ def test_names_are_xml_safe_and_metadata_keeps_full_unicode_names(tmp_path):
     root = ET.parse(path).getroot()
     records = json.loads(root.find(SVG + 'metadata').text)['structures']
     assert all(row['compound'] == name for row in records)
-    assert '<compound>' not in Path(path).read_text()
+    assert '<compound>' not in Path(path).read_text(encoding="utf-8")
 
 
 def test_empty_and_invalid_hits_do_not_create_artwork(tmp_path):
@@ -94,5 +94,5 @@ def test_failed_atomic_replace_preserves_previous_svg(tmp_path, monkeypatch):
     monkeypatch.setattr('os.replace', denied)
     with pytest.raises(OSError, match='destination unavailable'):
         sp._write_hit_structures_svg(result, tmp_path)
-    assert path.read_text() == 'previous vector export'
+    assert path.read_text(encoding="utf-8") == 'previous vector export'
     assert list(tmp_path.iterdir()) == [path]

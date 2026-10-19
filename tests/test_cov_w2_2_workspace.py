@@ -280,7 +280,7 @@ def test_a_missing_file_is_recorded_but_not_copied(tmp_path):
     ]}
     save(run, doc, mode="copy")
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     assert "copied" not in written["files"][0]
     assert "copied" not in written["files"][1]
     assert not (run / FILES_DIR).exists()
@@ -295,7 +295,7 @@ def test_a_file_over_the_limit_is_skipped_and_says_why(tmp_path):
     doc = collect({"images": {"stack": str(big)}}, saved="t")
     save(run, doc, mode="copy", copy_limit_mb=0.001)
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     record = written["files"][0]
     assert record["copied"] is None
     assert "over the 0.001 MB per-file limit" in record["skipped"]
@@ -314,7 +314,7 @@ def test_a_carried_file_is_copied_whatever_its_size(tmp_path):
         {"role": "figure", "path": str(figure)}]}}, saved="t")
     save(run, doc, mode="copy", copy_limit_mb=0.001)
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     copied = written["files"][0]["copied"]
     assert copied and copied.startswith(FILES_DIR)
     assert (run / copied).read_bytes() == b"y" * 4096
@@ -336,7 +336,7 @@ def test_a_copy_that_fails_is_recorded_rather_than_raised(tmp_path):
     figure.mkdir()           # same path, now a directory: copy2 refuses
 
     assert save(run, doc, mode="copy") is not None
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     record = written["files"][0]
     assert record["copied"] is None
     assert record["skipped"].startswith("could not copy: ")
@@ -855,7 +855,7 @@ def test_a_file_already_in_the_store_is_recorded_without_copying_it_again(
     assert stored_again[0].stat().st_mtime_ns == first_mtime, (
         "the file was copied over itself despite already being there")
 
-    written = json.loads((run / DOC_NAME).read_text())
+    written = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))
     assert written["files"][0]["copied"].endswith(stored[0].name)
 
 
@@ -881,6 +881,6 @@ def test_a_store_that_cannot_be_written_leaves_the_reason_in_the_document(
     doc = collect({"images": {"stack": str(source)}}, saved="t")
     save(run, doc, mode="copy")
 
-    record = json.loads((run / DOC_NAME).read_text())["files"][0]
+    record = json.loads((run / DOC_NAME).read_text(encoding="utf-8"))["files"][0]
     assert record["copied"] is None
     assert "PermissionError" in record["skipped"]

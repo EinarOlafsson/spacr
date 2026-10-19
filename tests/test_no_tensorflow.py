@@ -70,7 +70,7 @@ def tf_rooted_imports(path):
     :returns: ``[(lineno, module, qualname)]``; ``qualname`` is the
         enclosing ``Class.function`` path, or ``''`` at module scope.
     """
-    tree = ast.parse(Path(path).read_text())
+    tree = ast.parse(Path(path).read_text(encoding="utf-8"))
     found = []
 
     def visit(node, scope):
@@ -101,7 +101,7 @@ def unexplained_tf_imports(path):
 
 def _alpha_features_lines():
     """The line range of the ``ALPHA_FEATURES`` literal in settings.py."""
-    tree = ast.parse((PKG_ROOT / "settings.py").read_text())
+    tree = ast.parse((PKG_ROOT / "settings.py").read_text(encoding="utf-8"))
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(
                 getattr(t, "id", None) == "ALPHA_FEATURES"
@@ -119,7 +119,7 @@ def test_no_stardist_references(path):
     ``ALPHA_FEATURES`` registry may, so a StarDist SETTING cannot slip in
     under the file's allowance.
     """
-    src = path.read_text()
+    src = path.read_text(encoding="utf-8")
     if "stardist" not in src.lower():
         return
     allowed = range(0)

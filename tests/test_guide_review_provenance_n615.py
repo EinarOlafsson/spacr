@@ -69,7 +69,7 @@ def test_new_codex_page_does_not_claim_claude_review(tmp_path, monkeypatch):
     path = locale / "sv/LC_MESSAGES/page.po"
     assert guide.catalog_review_kind(path) == (
         "AI technical review (Codex), no native-speaker signoff")
-    assert "Claude" not in path.read_text()
+    assert "Claude" not in path.read_text(encoding="utf-8")
     monkeypatch.setattr(guide, "LOCALE_DIR", locale)
     context = {"body": "<p>Nytt stycke.</p>"}
     guide._page_context(SimpleNamespace(config=SimpleNamespace(language="sv")),
@@ -88,7 +88,7 @@ def test_unknown_reviewer_and_false_header_do_not_pass(tmp_path):
     with pytest.raises(ValueError, match="Unsupported guide reviewer"):
         _import(tmp_path, locale, [("New paragraph.", "Nytt stycke.")], "native-speaker")
     assert path.read_bytes() == original
-    path.write_text(path.read_text().replace(guide.REVIEW_KIND, "Human approved"))
+    path.write_text(path.read_text(encoding="utf-8").replace(guide.REVIEW_KIND, "Human approved"))
     assert guide.audit(pot, ["sv"], locale)["languages"]["sv"]["label_missing"] == ["page"]
     with pytest.raises(ValueError, match="Unsupported guide review label"):
         _import(tmp_path, locale, [("New paragraph.", "Nytt stycke.")])

@@ -817,7 +817,7 @@ def test_legacy_desktop_update_refuses_before_starting_an_interactive_installer(
 
     assert plan["steps"] == ["wait", "fetch", "install", "verify", "retire", "relaunch"]
     assert plan["pid"] == 4242
-    assert json.loads((workdir / "plan.json").read_text()) == json.loads(json.dumps(plan))
+    assert json.loads((workdir / "plan.json").read_text(encoding="utf-8")) == json.loads(json.dumps(plan))
     assert plan["command"] is None and not spawned
     assert plan["fetch"] is None and plan["install"] is None
     assert "cannot stage a verified update" in plan["error"]
@@ -952,7 +952,7 @@ def test_the_helper_keeps_the_working_copy_until_installer_and_probe_finish(tmp_
 
 def test_the_helper_reports_failed_retirement_after_verified_install_without_relaunch(tmp_path):
     box, root, machine, plan = _helper_plan(tmp_path)
-    data = json.loads(Path(plan).read_text())
+    data = json.loads(Path(plan).read_text(encoding="utf-8"))
     other = ic.InstallRecord(kind='installer', layout='linux-online', platform='linux',
                               root=str(box.home / 'spacr obsolete'))
     data['records'].append(dataclasses.asdict(other))
@@ -967,7 +967,7 @@ def test_the_helper_reports_failed_retirement_after_verified_install_without_rel
                         spawn=lambda *args: events.append('relaunch'), system=machine)
     assert code == 5 and events == ['install', 'verify']
     assert (root / 'venv').exists()
-    log = (box.home / '.spacr' / 'logs' / 'update.log').read_text()
+    log = (box.home / '.spacr' / 'logs' / 'update.log').read_text(encoding="utf-8")
     assert 'could not be retired' in log and 'in use' in log
 
 
@@ -1142,7 +1142,7 @@ def test_the_unix_installer_keeps_old_copies_when_staging_fails(tmp_path):
         timeout=300)
 
     assert done.returncode == 7, done.stdout + done.stderr
-    log = calls.read_text()
+    log = calls.read_text(encoding="utf-8")
     assert "old copy still there" in log and "old copy gone" not in log
     assert log.index("uv python find") < log.index("uv pip install")
     assert old_launcher.exists() and old_entry.exists()
@@ -1168,7 +1168,7 @@ def test_the_windows_installer_validates_staging_before_retiring_old_copies():
     assert 'DeleteRegKey HKCU "Software\\spaCR"' not in uninstall
     assert 'DeleteRegKey /ifempty HKCU "Software\\spaCR"' not in uninstall
     assert '-File "$PLUGINSDIR\\uninstall_spacr_windows.ps1"' in uninstall
-    outside = (ROOT / 'packaging/online/uninstall_spacr_windows.ps1').read_text()
+    outside = (ROOT / 'packaging/online/uninstall_spacr_windows.ps1').read_text(encoding="utf-8")
     assert 'remove --only-root $InstallRoot --require-outside' in outside
 
 
@@ -2016,7 +2016,7 @@ def test_a_detached_helper_really_runs_in_a_session_of_its_own(tmp_path):
     _pid, status = os.waitpid(pid, 0)
 
     assert os.waitstatus_to_exitcode(status) == 0
-    assert int(marker.read_text()) == pid
+    assert int(marker.read_text(encoding="utf-8")) == pid
 
 
 class _Clock:
@@ -2201,7 +2201,7 @@ def test_no_helper_starts_when_the_running_spacr_is_a_conda_environment(tmp_path
         'This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.')
     assert plan["pid"] == os.getpid()
     assert ic._inside(plan["workdir"], tempfile.gettempdir())
-    written = json.loads((Path(plan["workdir"]) / "plan.json").read_text())
+    written = json.loads((Path(plan["workdir"]) / "plan.json").read_text(encoding="utf-8"))
     assert written["error"] == plan["error"] and written["install"] is None
 
 
@@ -2265,7 +2265,7 @@ def test_the_helper_starts_nothing_when_the_installer_fails(tmp_path):
                         spawn=lambda *args: events.append("relaunch"), system=machine)
 
     assert code == 9 and events == [] and (root / "venv").exists()
-    log = (box.home / ".spacr" / "logs" / "update.log").read_text()
+    log = (box.home / ".spacr" / "logs" / "update.log").read_text(encoding="utf-8")
     assert "The installer failed with exit code 9." in log
 
 
@@ -2308,7 +2308,7 @@ def test_a_plan_pointing_at_another_download_deletes_nothing(tmp_path):
                         system=machine)
 
     assert code == 4 and events == [] and root.exists()
-    log = (box.home / ".spacr" / "logs" / "update.log").read_text()
+    log = (box.home / ".spacr" / "logs" / "update.log").read_text(encoding="utf-8")
     assert "refusing to download" in log
 
 
@@ -2322,7 +2322,7 @@ def test_the_helper_log_lists_your_environment_without_reporting_on_it(tmp_path)
                         run=_verified_result, spawn=lambda *args: None,
                         system=machine)
 
-    log = (box.home / ".spacr" / "logs" / "update.log").read_text()
+    log = (box.home / ".spacr" / "logs" / "update.log").read_text(encoding="utf-8")
     assert code == 0 and box.commands == []
     assert f"{prefix}  [your environment, left in place" in log
     assert "not ticked" not in log and (root / "venv").exists()

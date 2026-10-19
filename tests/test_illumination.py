@@ -1073,7 +1073,7 @@ def _categories_in_the_settings_literal():
 
     import spacr.settings as S
 
-    tree = ast.parse(pathlib.Path(S.__file__).read_text())
+    tree = ast.parse(pathlib.Path(S.__file__).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
             continue

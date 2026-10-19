@@ -16,7 +16,7 @@ def test_actual_cli_help_and_error_templates_use_exact_reviewed_locale(monkeypat
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setenv('COLUMNS', '240')
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-10-14-n703-uninstall-cli.json').read_text())['records']
+                          '2026-10-14-n703-uninstall-cli.json').read_text(encoding="utf-8"))['records']
     assert len(records) == 9
     expected = {row['source']: row['translation'] for row in records}
     for source, target in expected.items():
@@ -49,11 +49,11 @@ def test_extracted_helper_still_formats_message_when_application_cannot_import(m
 
 
 def test_each_added_cli_caption_is_a_literal_translation_call():
-    tree = ast.parse(Path(ic.__file__).read_text())
+    tree = ast.parse(Path(ic.__file__).read_text(encoding="utf-8"))
     calls = {node.args[0].value for node in ast.walk(tree)
              if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
              and node.func.id == 'tr' and node.args and isinstance(node.args[0], ast.Constant)}
-    records = json.loads((ROOT / 'docs/i18n/reviewed/runtime/sv/2026-10-14-n703-uninstall-cli.json').read_text())['records']
+    records = json.loads((ROOT / 'docs/i18n/reviewed/runtime/sv/2026-10-14-n703-uninstall-cli.json').read_text(encoding="utf-8"))['records']
     assert {row['source'] for row in records} <= calls
 
 
@@ -62,7 +62,7 @@ def test_installer_metadata_command_help_uses_exact_reviewed_locale(monkeypatch,
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setenv('COLUMNS', '240')
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
-                          '2026-10-14-n703-installer-metadata.json').read_text())['records']
+                          '2026-10-14-n703-installer-metadata.json').read_text(encoding="utf-8"))['records']
     assert len(records) == 1
     source, target = records[0]['source'], records[0]['translation']
     assert source != target

@@ -216,7 +216,7 @@ def _saved(tmp_path):
     session.apply_geometry(900, _box([(0, 2)] * 3))
     engine.save_volume_mask(session)
     sidecar = Path(session.mask_path + '.volume.json')
-    return session, sidecar, json.loads(sidecar.read_text())
+    return session, sidecar, json.loads(sidecar.read_text(encoding="utf-8"))
 
 
 def test_sidecar_with_non_volume_geometry_is_refused(tmp_path):

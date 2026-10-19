@@ -391,7 +391,7 @@ def _expected_parents(plate, role):
     import json
 
     merged = plate / "merged"
-    layout = json.loads((merged / ".spacr_plane_layout.json").read_text())
+    layout = json.loads((merged / ".spacr_plane_layout.json").read_text(encoding="utf-8"))
     dims = layout["mask_dims"]
     expected = {}
     for name in sorted(os.listdir(merged)):

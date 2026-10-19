@@ -651,7 +651,7 @@ def test_this_module_names_no_colour_dialog_of_its_own():
     "pass the flag"."""
     source = Path(__file__).resolve().parents[1] / "spacr" / "qt" / \
         "widgets" / "fast_plots.py"
-    text = source.read_text()
+    text = source.read_text(encoding="utf-8")
 
     assert not re.findall(r"QColorDialog\.getColor\(", text)
     assert "from .colour_picker import pick_colour" in text

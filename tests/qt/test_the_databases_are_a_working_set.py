@@ -193,7 +193,7 @@ def test_what_the_user_chose_about_a_collision_is_recorded(screen,
     chip._close.click()
 
     assert screen._merge_decision is not None
-    written = [json.loads(line) for line in log.read_text().splitlines()]
+    written = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
     outcomes = [record["outcome"] for record in written]
     assert "merged" in outcomes
     assert "resolved" in outcomes

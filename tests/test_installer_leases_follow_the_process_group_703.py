@@ -64,7 +64,7 @@ exec {REAL_PS} "$@"
 
 
 def _lease_source():
-    return UNIX.read_text().split("# @SPACR_INSTALLER_LEASE_BEGIN@\n", 1)[1].split("# @SPACR_INSTALLER_LEASE_END@", 1)[0]
+    return UNIX.read_text(encoding="utf-8").split("# @SPACR_INSTALLER_LEASE_BEGIN@\n", 1)[1].split("# @SPACR_INSTALLER_LEASE_END@", 1)[0]
 
 
 def _take(tmp_path, lease, env, root=None):
@@ -95,7 +95,7 @@ def test_a_new_lease_records_its_process_group(tmp_path):
     env = _fake_ps(tmp_path, [])
     lease = tmp_path / ".app.spacr-installer-lock"
     assert _take(tmp_path, lease, env).returncode == 0
-    assert f"pgid={GROUP}" in (lease / "owner").read_text().splitlines()
+    assert f"pgid={GROUP}" in (lease / "owner").read_text(encoding="utf-8").splitlines()
 
 
 def test_a_surviving_child_keeps_the_lease_and_is_named(tmp_path):
@@ -106,7 +106,7 @@ def test_a_surviving_child_keeps_the_lease_and_is_named(tmp_path):
     result = _take(tmp_path, lease, env)
     assert result.returncode != 0
     assert f"lease_held {lease} 4242" in result.stderr
-    assert (lease / "owner").read_text().startswith(f"pid={pid}\n")
+    assert (lease / "owner").read_text(encoding="utf-8").startswith(f"pid={pid}\n")
 
 
 def test_an_empty_group_is_taken_over_and_its_staging_removed(tmp_path):
@@ -192,7 +192,7 @@ def test_the_macos_first_run_check_follows_the_group_too(tmp_path):
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text())
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
     (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
     backend = support / "install-online.sh"
     backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n")

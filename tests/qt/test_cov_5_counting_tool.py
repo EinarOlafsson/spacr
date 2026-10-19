@@ -83,7 +83,7 @@ def test_exporting_the_clicks_writes_one_row_per_marker(
 
     assert written == str(target)
     assert os.path.basename(asked["suggested"]) == "counts.csv"
-    rows = list(csv.DictReader(target.read_text().splitlines()))
+    rows = list(csv.DictReader(target.read_text(encoding="utf-8").splitlines()))
     assert len(rows) == 3
 
 
@@ -113,7 +113,7 @@ def test_exporting_the_tally_writes_one_row_per_class(
 
     assert written == str(target)
     assert os.path.basename(asked["suggested"]) == "counts_summary.csv"
-    rows = list(csv.DictReader(target.read_text().splitlines()))
+    rows = list(csv.DictReader(target.read_text(encoding="utf-8").splitlines()))
     assert len(rows) == len(panel.session.classes)
 
 

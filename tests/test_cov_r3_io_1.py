@@ -342,7 +342,7 @@ def test_resume_refuses_an_unreadable_plane_layout_sidecar(tmp_path):
     # The refusal came before any work: merged/ still holds only the sidecar,
     # still exactly as written.
     assert os.listdir(str(merged)) == [MERGED_LAYOUT_SIDECAR]
-    assert (merged / MERGED_LAYOUT_SIDECAR).read_text() == "{not json at all"
+    assert (merged / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8") == "{not json at all"
 
 
 def test_a_failed_sidecar_write_leaves_no_half_written_temporary(tmp_path,

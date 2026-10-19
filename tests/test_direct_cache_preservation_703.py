@@ -22,7 +22,7 @@ CONSUMERS = [
 def consumer_root(consumer, home):
     variable, source, symbol, constant = consumer
     path = Path(cleanup.__file__).parent / source
-    node = next(node for node in ast.parse(path.read_text()).body
+    node = next(node for node in ast.parse(path.read_text(encoding="utf-8")).body
                 if isinstance(node, ast.FunctionDef) and node.name == symbol)
     namespace = {'os': os, 'sys': sys, 'Path': Path,
                  '_spacr_home': lambda: home / '.spacr'}

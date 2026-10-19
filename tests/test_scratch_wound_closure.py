@@ -591,7 +591,7 @@ def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(monkey
             pytest.fail('localized index refusal reached image selection')
 
     review = Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-14-wound-plane-index.json'
-    target = json.loads(review.read_text())['records'][0]['translation']
+    target = json.loads(review.read_text(encoding="utf-8"))['records'][0]['translation']
     with pytest.raises(ValueError) as error:
         _wound_plane(NoPixelSelection(), {'wound_source': source, 'wound_channel': 0.5, 'cell_mask_dim': 0.5})
     assert str(error.value) == target.format(index='0.5', planes=3)

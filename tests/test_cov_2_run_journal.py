@@ -133,7 +133,7 @@ def test_the_temp_file_refusing_to_go_does_not_lose_the_write(tmp_path,
     target = tmp_path / "manifest.json"
     RJ._atomic_write_text(target, '{"ok": true}')
 
-    assert json.loads(target.read_text()) == {"ok": True}
+    assert json.loads(target.read_text(encoding="utf-8")) == {"ok": True}
 
 
 # ---------------------------------------------------------------------------
@@ -331,7 +331,7 @@ def test_a_model_path_that_cannot_be_inspected_is_a_warning_not_a_crash(
     assert "cyto" not in run.model_files
     assert any("cyto" in w and "could not be recorded" in w
                for w in run.provenance_warnings)
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert any("could not be recorded" in w
                for w in manifest["provenance_warnings"])
 
@@ -478,7 +478,7 @@ def test_an_output_file_that_cannot_be_hashed_is_named_in_the_warnings(
         os.chmod(blocked, 0o644)
 
     manifest = json.loads(
-        next(runs_dir.glob("*/manifest.json")).read_text())
+        next(runs_dir.glob("*/manifest.json")).read_text(encoding="utf-8"))
     assert str(destination / "table.csv") in manifest["output_hashes"]
     assert str(blocked) not in manifest["output_hashes"]
     assert any("could not hash changed output file" in w
@@ -529,7 +529,7 @@ def test_a_final_provenance_failure_is_recorded_in_the_manifest(runs_dir,
     with RJ.open_run("measure", {}) as run:
         pass
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert any("final output provenance failed" in w
                for w in manifest["provenance_warnings"])
     assert "the disk went away" in " ".join(manifest["provenance_warnings"])
@@ -585,7 +585,7 @@ def test_a_workspace_that_cannot_be_saved_does_not_fail_the_run(runs_dir,
         with RJ.open_run("mask", {}) as run:
             pass
 
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "success"
     assert any("Could not save the workspace" in r.message
                for r in caplog.records)

@@ -136,13 +136,13 @@ def test_the_demo_uses_installed_translations_and_control_captions(
     records_path = (Path(__file__).resolve().parents[2]
                     / "docs/i18n/reviewed/runtime" / language
                     / "2026-10-16-embeddings-synthetic-demo.json")
-    records = json.loads(records_path.read_text())["records"]
+    records = json.loads(records_path.read_text(encoding="utf-8"))["records"]
     screen = EmbeddingsScreen(threaded=False)
     qtbot.addWidget(screen)
 
     assert screen._demo_button.text() == records[0]["translation"]
     dino = json.loads((records_path.parent
-                       / "2026-10-17-560-dinov2-drop-in.json").read_text())["records"]
+                       / "2026-10-17-560-dinov2-drop-in.json").read_text(encoding="utf-8"))["records"]
     assert screen._demo_button.toolTip() == next(
         row["translation"] for row in dino
         if row["source"].startswith("Load 24 generated shapes"))

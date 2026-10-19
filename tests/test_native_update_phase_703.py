@@ -28,7 +28,7 @@ with _UpdatePhaseClient(sys.argv[2], int(sys.argv[3]), sys.argv[4]) as channel:
     assert channel._receive({'confirmed'})['phase'] == 'confirmed'
 """
         command = [sys.executable, "-I", "-c", script, source, server.endpoint, str(os.getpid()), sys.executable]
-        assert descriptor.read_text().split(":")[1] not in " ".join(command)
+        assert descriptor.read_text(encoding="utf-8").split(":")[1] not in " ".join(command)
         child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             assert server._receive({"prepared"}, timeout=15)["details"] == {

@@ -1091,7 +1091,7 @@ def test_resume_imports_no_torch_or_cellpose():
 
 def test_resume_module_only_uses_light_imports():
     import spacr.resume as module
-    source = Path(module.__file__).read_text()
+    source = Path(module.__file__).read_text(encoding="utf-8")
     for banned in ('import torch', 'import cellpose', 'from torch',
                    'from cellpose', 'import numpy', 'import cv2'):
         assert banned not in source, banned
@@ -1264,7 +1264,7 @@ class TestIoWiring:
 
     def test_core_passes_the_resume_setting_through(self):
         source = (Path(__file__).resolve().parent.parent / 'spacr' /
-                  'core.py').read_text()
+                  'core.py').read_text(encoding="utf-8")
         assert "resume=settings.get('resume', False)" in source
 
     def test_save_settings_to_db_destroys_the_previous_record(self, tmp_path):
@@ -1299,7 +1299,7 @@ class TestIoWiring:
         *before* ``_save_settings_to_db``.
         """
         source = (Path(__file__).resolve().parent.parent / 'spacr' /
-                  'measure.py').read_text()
+                  'measure.py').read_text(encoding="utf-8")
         if 'plan_measure_resume(settings)' not in source:
             pytest.skip('measure.py resume wiring not applied yet')
         assert (source.index('plan_measure_resume(settings)')

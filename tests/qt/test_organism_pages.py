@@ -167,7 +167,7 @@ def test_command_palette_keeps_direct_assay_navigation(qtbot):
 
 
 def test_bundled_artwork_matches_its_attributed_source_records():
-    records = json.loads((_IMAGES / "organism_sources.json").read_text())
+    records = json.loads((_IMAGES / "organism_sources.json").read_text(encoding="utf-8"))
     # 634: the Trypanosoma SwissBioPics drawing and four drawn for spaCR.
     assert len(records) == 7
     for record in records:

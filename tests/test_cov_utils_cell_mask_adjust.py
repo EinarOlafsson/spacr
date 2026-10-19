@@ -515,7 +515,7 @@ def test_process_masks_batch_size_one_and_non_npy_files(tmp_path):
 
     process_masks(mask_dir, img_dir, channel=0, batch_size=1, n_clusters=2, plot=False)
 
-    assert (tmp_path / "masks" / "README.md").read_text() == "not a mask"
+    assert (tmp_path / "masks" / "README.md").read_text(encoding="utf-8") == "not a mask"
     for i in range(3):
         out = np.load(os.path.join(mask_dir, f"f{i}.npy"))
         assert set(np.unique(out)) == {0, 1, 2}

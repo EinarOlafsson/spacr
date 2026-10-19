@@ -14,7 +14,7 @@ import pytest
 
 
 def _source(module):
-    return pathlib.Path(inspect.getsourcefile(module)).read_text()
+    return pathlib.Path(inspect.getsourcefile(module)).read_text(encoding="utf-8")
 
 
 def _permutation_screen(n_genes=6, guides_per_gene=3, wells=90, seed=0):

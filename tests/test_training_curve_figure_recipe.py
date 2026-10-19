@@ -121,6 +121,6 @@ def test_training_curve_zip_recreates_fold_bands_and_selected_lines(
             assert process.returncode == 0, process.stdout + process.stderr
             assert (tmp_path / 'standalone/recreated.png').read_bytes().startswith(
                 b'\x89PNG\r\n\x1a\n')
-            assert '<svg' in (tmp_path / 'standalone/recreated.svg').read_text()
+            assert '<svg' in (tmp_path / 'standalone/recreated.svg').read_text(encoding="utf-8")
     finally:
         plt.close(figure)

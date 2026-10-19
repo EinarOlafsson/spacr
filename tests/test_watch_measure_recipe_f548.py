@@ -86,7 +86,7 @@ def test_equivalent_recipe_ignores_file_format_src_and_adjustable_timing(tmp_pat
     settings = _recipe(tmp_path, src='/irrelevant/old')
     _images(tmp_path, 'A01')
     first = core._watch_folder_and_analyse(settings)
-    before = json.loads(Path(first['ledger']).read_text())['fields']
+    before = json.loads(Path(first['ledger']).read_text(encoding="utf-8"))['fields']
     replacement = tmp_path / 'moved-recipe.json'
     replacement.write_text('{\n "save_png": false, "src": "/different", "channels": [0, 1]\n}')
     settings.update(watch_measure_settings=str(replacement), watch_poll_seconds=0.02,
@@ -94,7 +94,7 @@ def test_equivalent_recipe_ignores_file_format_src_and_adjustable_timing(tmp_pat
     _images(tmp_path, 'A02')
     result = core._watch_folder_and_analyse(settings)
     assert len(calls) == 2 and len(result['done']) == 2
-    assert json.loads(Path(result['ledger']).read_text())['fields']['plate1_A01_0001_001'] == before['plate1_A01_0001_001']
+    assert json.loads(Path(result['ledger']).read_text(encoding="utf-8"))['fields']['plate1_A01_0001_001'] == before['plate1_A01_0001_001']
 
 
 def test_measure_receives_independent_nested_copies(tmp_path, adapter):
@@ -117,7 +117,7 @@ def test_missing_legacy_recipe_is_not_assumed(tmp_path, adapter):
     _images(tmp_path, 'A01')
     result = core._watch_folder_and_analyse(settings)
     path = Path(result['ledger'])
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger.pop('measure_settings_sha256', None)
     path.write_text(json.dumps(ledger))
     before = _bytes(tmp_path)
@@ -141,7 +141,7 @@ def test_mask_only_does_not_read_or_bind_measure_recipe(tmp_path, adapter):
     _images(tmp_path, 'A01')
     result = core._watch_folder_and_analyse(settings)
     assert result['done'] and not adapter[0]
-    assert 'measure_settings_sha256' not in json.loads(Path(result['ledger']).read_text())
+    assert 'measure_settings_sha256' not in json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
 
 
 def test_empty_watch_can_change_measure_recipe(tmp_path, adapter):

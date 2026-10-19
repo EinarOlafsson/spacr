@@ -74,7 +74,7 @@ def test_changing_saved_backend_during_staging_refuses_activation(installation, 
         run=lambda argv: (0, _identity("1.5.1.1")) if "-c" in argv else (0, "Updated"),
         spawn=lambda *_: pytest.fail("changed choice cannot activate"))
     assert result != 0
-    assert "choices changed" in Path(plan["log"]).read_text()
+    assert "choices changed" in Path(plan["log"]).read_text(encoding="utf-8")
     assert kept.read_bytes() == before and path.exists()
     assert not list(Path(record.root).glob(".spacr-runtime-update-*"))
 

@@ -168,7 +168,7 @@ def test_a_helper_inside_the_doomed_copy_runs_the_bootstrap_uv_from_a_safe_copy(
         str(work / "plan.json"), machine)
     assert error is None
     copy = work / "uv"
-    assert copy.read_text() == uv.read_text()
+    assert copy.read_text(encoding="utf-8") == uv.read_text(encoding="utf-8")
     assert argv[:9] == [str(copy), "run", "--no-project", "--no-config", "--python",
                         "3.12", "--managed-python", "--", "python"]
     assert argv[9:] == ["-I", str(work / "install_cleanup.py"), "run-plan",

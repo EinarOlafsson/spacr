@@ -175,7 +175,7 @@ def test_cli_exit_code_and_json_report(tmp_path, capsys):
     ]) == 1
     payload = json.loads(capsys.readouterr().out)
     assert payload["passed"] is False
-    assert json.loads(output.read_text())["passed"] is False
+    assert json.loads(output.read_text(encoding="utf-8"))["passed"] is False
 
 
 def test_classifier_stops_before_training_on_leaked_dataset(tmp_path):

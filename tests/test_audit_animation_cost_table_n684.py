@@ -41,5 +41,5 @@ def test_automatic_cost_table_is_the_newest_workstation_receipt():
     receipts = sorted((ROOT / "features" / "data").glob("684_animation_gpu_audit_*/receipt.json"))
     receipt = receipts[-1]
     namespace = {}
-    exec(_tool().cost_table(json.loads(receipt.read_text())), namespace)
+    exec(_tool().cost_table(json.loads(receipt.read_text(encoding="utf-8"))), namespace)
     assert ambient._GRAPHICS_COST == namespace["_GRAPHICS_COST"]

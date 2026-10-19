@@ -313,7 +313,7 @@ def test_plan_apply_and_merge_write_the_pipelines_layout(tmp_path):
 
     assert len(result.merged) == 3
     from spacr.crops import MERGED_LAYOUT_SIDECAR
-    layout = json.loads((dest / "merged" / MERGED_LAYOUT_SIDECAR).read_text())
+    layout = json.loads((dest / "merged" / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8"))
     assert layout["mask_plane_order"] == ["cell", "nucleus"]
     for path in result.merged:
         merged = np.load(path)

@@ -179,7 +179,7 @@ def test_parquet_manifest_refuses_invalid_snapshot_control(tmp_path,
     store = str(tmp_path / 'measurements.parquetdb')
     tabular.write_database(_measurements(2), store, 'cell', if_exists='replace')
     path = tmp_path / 'measurements.parquetdb' / 'cell' / '.spacr-parts.json'
-    manifest = json.loads(path.read_text())
+    manifest = json.loads(path.read_text(encoding="utf-8"))
     if corruption == 'version':
         manifest['version'] = 2
     elif corruption == 'boolean_version':

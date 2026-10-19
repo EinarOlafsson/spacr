@@ -356,7 +356,7 @@ def test_the_index_finds_a_repeat_written_to_another_folder(tmp_path, monkeypatc
         ([1], 1, False), ([2], 2, True)]
     assert found[0]["prior_figure_path"] == str(tmp_path / "a" / "first.png")
     assert found[0]["correlation"] >= plot._DUPLICATE_CORRELATION
-    lines = shared.read_text().splitlines()
+    lines = shared.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
     assert (tmp_path / "a" / plot._INDEX_NAME).exists()
     assert (tmp_path / "b" / plot._INDEX_NAME).exists()
@@ -401,7 +401,7 @@ def test_the_index_skips_entries_it_cannot_verify(tmp_path, monkeypatch):
     old = _export(_figure(first), tmp_path / "old.png")
     sidecar = old + ".provenance.json"
     index = tmp_path / plot._INDEX_NAME
-    entry = json.loads(index.read_text().splitlines()[-1])
+    entry = json.loads(index.read_text(encoding="utf-8").splitlines()[-1])
     current = _figure([first[0], first[1][::-1] * 0.9])
     variants = []
     for change in ({"sidecar": None}, {"sidecar": str(tmp_path / "gone.json")},
@@ -445,7 +445,7 @@ def test_index_candidates_need_a_signature_and_pass_the_texture_test(
     image = _field(140)
     _export(_figure([image]), tmp_path / "old.png")
     index = tmp_path / plot._INDEX_NAME
-    entry = json.loads(index.read_text())
+    entry = json.loads(index.read_text(encoding="utf-8"))
     entry["panels"].append("not a panel")
     entry["panels"][0]["hash"] = "zz"
     index.write_text(json.dumps(entry) + "\n")

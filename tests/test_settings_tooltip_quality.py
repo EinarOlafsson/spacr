@@ -1034,7 +1034,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert not session_reference_arrivals & variants.keys()
     assert comparisons - len(session_reference_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
-                             '508_default_claim_census_2026-09-25.json').read_text())
+                             '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
     # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
     # + 8: item 541's four confluency claims in two apps, pinned above;
@@ -1089,7 +1089,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
-                         '491_default_claim_census_2026-09-23.json').read_text())
+                         '491_default_claim_census_2026-09-23.json').read_text(encoding="utf-8"))
     assert census['comparisons_after'] == census_508['comparisons_before']
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43

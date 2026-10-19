@@ -452,7 +452,7 @@ def test_a_saved_plan_reloads_with_its_answers(screen, corpus, tmp_path,
     saved = tmp_path / "plans" / "weekly.json"
     assert screen.save_plan(str(saved)) is True
     assert saved.exists()
-    assert json.loads(saved.read_text())["mapping"] == {"0": {"DAPI": 1,
+    assert json.loads(saved.read_text(encoding="utf-8"))["mapping"] == {"0": {"DAPI": 1,
                                                               "GFP": 2}}
 
     fresh = ImageImportScreen(threaded=False)

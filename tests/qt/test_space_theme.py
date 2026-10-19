@@ -385,7 +385,7 @@ class TestOffline:
 
         # The credit survives a restart: it is on disk, not in memory.
         credits_file = space.imagery_dir() / space.CREDITS_FILE
-        assert json.loads(credits_file.read_text())["credit"] == record["credit"]
+        assert json.loads(credits_file.read_text(encoding="utf-8"))["credit"] == record["credit"]
 
     def test_credits_pointing_at_a_missing_file_are_ignored(self, cache_dir):
         from spacr.qt import space

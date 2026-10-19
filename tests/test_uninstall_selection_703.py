@@ -70,7 +70,7 @@ def test_each_category_can_be_deleted_while_all_others_are_kept(installation, se
     assert not (root / "venv" / "bin" / "python").exists()
     assert not paths[selected].exists()
     assert all(path.exists() for category, path in paths.items() if category != selected)
-    assert project.read_text() == "x"
+    assert project.read_text(encoding="utf-8") == "x"
 
 
 def test_current_application_is_never_removed_before_shutdown(installation):
@@ -275,7 +275,7 @@ def test_approved_helper_requires_verified_process_exit_and_records_result(insta
     assert result == 0 and observed == [98765]
     assert not (root / "venv" / "bin" / "python").exists()
     assert not (box.home / ".spacr" / "logs").exists()
-    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text())["ok"]
+    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text(encoding="utf-8"))["ok"]
 
 
 def test_cancelled_helper_does_not_remove_application_or_data(installation, tmp_path):
@@ -308,7 +308,7 @@ def test_approval_without_process_exit_cannot_remove_application(installation, t
 def test_saved_plan_cannot_change_cleanup_after_approval(installation, tmp_path):
     box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
     path = tmp_path / "outside-helper" / "plan.json"
-    changed = json.loads(path.read_text())
+    changed = json.loads(path.read_text(encoding="utf-8"))
     changed["selection"]["categories"] = []
     path.write_text(json.dumps(changed))
     with pytest.raises(ValueError, match="binding"):
@@ -415,7 +415,7 @@ def test_native_removal_preserves_nested_opt_out_and_never_follows_links(tmp_pat
     assert native_removal(root, [models]) == 0
     assert (contents / "application").exists() and link.is_symlink()
     assert native_removal(root, [models], apply=True) == 0
-    assert model.read_text() == valuable.read_text() == "preserved"
+    assert model.read_text(encoding="utf-8") == valuable.read_text(encoding="utf-8") == "preserved"
     assert not link.exists() and not (contents / "application").exists()
 
 
@@ -713,7 +713,7 @@ def test_windows_native_scope_refuses_changed_or_unowned_paths(protected_windows
         target["keep"] = [str(tmp_path / "unrelated")]
     with pytest.raises(ValueError):
         ic._windows_uninstall_targets(request)
-    assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()
+    assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
 @pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
@@ -764,7 +764,7 @@ def test_windows_native_removal_keeps_projects_and_empty_optouts_until_actual_ex
     removed = decision == "activate" and exited
     assert (root / "spacr.exe").exists() is not removed
     assert shortcut.exists() is not removed
-    assert project.read_text() == "unrelated" and kept.is_dir() and staged.exists()
+    assert project.read_text(encoding="utf-8") == "unrelated" and kept.is_dir() and staged.exists()
     assert events[0] == ("request-owner", {"owner_sid": "desktop-sid", "private_read": True})
     if removed:
         assert events.index("prepared") < events.index("exited") < events.index("complete")
@@ -807,8 +807,8 @@ def test_frozen_macos_descriptor_removal_preserves_optouts_and_external_link_tar
     ic._macos_uninstall_tree(str(root), identity, [str(kept), str(empty)], owner=ic.os.getuid())
     assert executable.exists()
     ic._macos_uninstall_tree(str(root), identity, [str(kept), str(empty)], apply=True, owner=ic.os.getuid())
-    assert not executable.exists() and (kept / "weights").read_text() == "keep" and empty.is_dir()
-    assert (project / "analysis.csv").read_text() == "keep outside"
+    assert not executable.exists() and (kept / "weights").read_text(encoding="utf-8") == "keep" and empty.is_dir()
+    assert (project / "analysis.csv").read_text(encoding="utf-8") == "keep outside"
 
 
 @pytest.mark.parametrize("invalid", ["writable_subtree", "changed_root", "outside_keep"])
@@ -830,7 +830,7 @@ def test_frozen_macos_descriptor_preflight_refuses_before_mutation(tmp_path, inv
         keep = [str(tmp_path / "unrelated")]
     with pytest.raises((ValueError, PermissionError)):
         ic._macos_uninstall_tree(str(root), identity, keep, owner=ic.os.getuid())
-    assert payload.read_text() == "old application"
+    assert payload.read_text(encoding="utf-8") == "old application"
 
 
 @pytest.mark.parametrize("decision,exited", [("activate", True), ("cancel", True), ("activate", False)])
@@ -979,11 +979,11 @@ def test_windows_new_payload_marker_does_not_authorize_an_old_uninstaller(protec
     elif invalid == "old_uninstaller":
         (root / "Uninstall.exe").write_bytes(b"legacy uninstaller without the protocol")
     else:
-        receipt.write_text(receipt.read_text() + " " * 1024)
+        receipt.write_text(receipt.read_text(encoding="utf-8") + " " * 1024)
     with pytest.raises((OSError, ValueError)):
         ic._windows_uninstall_targets(request)
     assert (root / "_internal/spacr-uninstall-protocol.json").exists()
-    assert project.read_text() == "unrelated" and (root / "spacr.exe").exists()
+    assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
 def test_frozen_macos_authorizes_nonwritable_bundle_even_with_writable_applications(tmp_path, monkeypatch):

@@ -173,7 +173,7 @@ def test_verified_nsis_update_keeps_data_and_relaunches_after_actual_identity(up
     assert not list((update.runtime.home / '.spacr/update-locks').iterdir())
     results = list(update.runtime.helper.glob('windows-update-result-*.json'))
     assert len(results) == 1
-    assert json.loads(results[0].read_text())['state'] == 'desktop-ready'
+    assert json.loads(results[0].read_text(encoding="utf-8"))['state'] == 'desktop-ready'
 
 
 @pytest.mark.parametrize("failure", ["old-version", "exited", "never-ready", "cannot-stop"])
@@ -210,7 +210,7 @@ def test_unconfirmed_windows_desktop_retains_recovery_and_cannot_report_success(
     assert not list(update.runtime.helper.glob("windows-update-result-*.json"))
     journals = list((update.runtime.home / ".spacr/update-locks").glob("*/journal.json"))
     assert len(journals) == 1
-    journal = json.loads(journals[0].read_text())
+    journal = json.loads(journals[0].read_text(encoding="utf-8"))
     assert journal["state"] == "desktop-unconfirmed"
     assert journal["pid"] == (100 if failure == "cannot-stop" else None)
     assert (update.runtime.root / "user-data/keep.csv").read_bytes() == b"unchanged user data"
@@ -271,7 +271,7 @@ def test_failed_nsis_transaction_restores_old_bytes_and_never_relaunches(update)
     assert 'relaunch' not in update.actions
     locks = list((update.runtime.home / '.spacr/update-locks').iterdir())
     assert len(locks) == 1
-    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'desktop-unconfirmed'
+    assert json.loads((locks[0] / 'journal.json').read_text(encoding="utf-8"))['state'] == 'desktop-unconfirmed'
 
 
 def test_live_installer_timeout_retains_lock_stage_and_journal(update):
@@ -286,7 +286,7 @@ def test_live_installer_timeout_retains_lock_stage_and_journal(update):
     assert Path(update.plan['fetch']['path']).is_file()
     locks = list((update.runtime.home / '.spacr/update-locks').iterdir())
     assert len(locks) == 1
-    assert json.loads((locks[0] / 'journal.json').read_text())['state'] == 'installer-uncertain'
+    assert json.loads((locks[0] / 'journal.json').read_text(encoding="utf-8"))['state'] == 'installer-uncertain'
     assert 'relaunch' not in update.actions
     with pytest.raises(FileExistsError):
         run_update(update)
@@ -326,7 +326,7 @@ def test_wrong_installed_runtime_or_receipt_is_not_relaunched(update, change):
     def wrong_identity(argv):
         code, output = identity(argv)
         path = Path(argv[-1])
-        result = json.loads(path.read_text())
+        result = json.loads(path.read_text(encoding="utf-8"))
         result['frozen'] = False
         path.write_text(json.dumps(result))
         return code, output

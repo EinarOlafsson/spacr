@@ -423,7 +423,7 @@ def test_the_torch_route_trains_with_classify_and_reuses_its_model(
     assert report["torch"]["crop_size"] in range(32, 129, 8)
     model = report["torch"]["model"]
     order = json.loads((Path(model).parent / "cell_cycle_phases.json")
-                       .read_text())
+                       .read_text(encoding="utf-8"))
     assert order["phases"] == sorted(order["phases"])
     assert table["phase_torch"].notna().all()
     assert set(table["phase_torch"]) <= set(PHASES) | {"subG1", ">4N"}

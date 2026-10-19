@@ -87,7 +87,7 @@ def test_a_full_space_is_squashed_and_loses_only_unserved_files(site):
 
 
 def test_the_workflow_squashes_before_it_uploads():
-    text = (Path(__file__).resolve().parents[1] / ".github/workflows/docs.yml").read_text()
+    text = (Path(__file__).resolve().parents[1] / ".github/workflows/docs.yml").read_text(encoding="utf-8")
     squash = text.index("publish_docs_channels.py squash-nightly-if-needed")
     upload = text.index("publish_docs_channels.py upload-nightly")
     assert squash < upload

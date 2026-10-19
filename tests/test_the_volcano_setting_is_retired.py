@@ -37,7 +37,7 @@ def test_nothing_in_the_regression_reads_it():
     the first old settings file."""
     import spacr.ml
 
-    source = pathlib.Path(spacr.ml.__file__).read_text()
+    source = pathlib.Path(spacr.ml.__file__).read_text(encoding="utf-8")
     assert "settings['volcano']" not in source
     assert "settings.get('volcano')" not in source
 
@@ -47,7 +47,7 @@ def test_it_is_out_of_the_documented_settings():
     one: a reader sets it and nothing happens."""
     import spacr.settings
 
-    source = pathlib.Path(spacr.settings.__file__).read_text()
+    source = pathlib.Path(spacr.settings.__file__).read_text(encoding="utf-8")
     assert "'volcano': \"(str) - Which coefficient table" not in source
 
 

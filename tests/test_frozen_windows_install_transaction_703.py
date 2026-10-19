@@ -28,7 +28,7 @@ def payload(root, version, *, manifest=True):
 def identity(argv):
     root = Path(argv[0]).parent
     Path(argv[-1]).write_text(json.dumps({
-        'schema': 1, 'frozen': True, 'version': (root / 'spacr.exe').read_text(),
+        'schema': 1, 'frozen': True, 'version': (root / 'spacr.exe').read_text(encoding="utf-8"),
         'executable': argv[0], 'bundle_root': str(root),
         'import_root': str(root / '_internal'),
         'module': str(root / '_internal' / 'spacr' / '__init__.py')}))
@@ -50,11 +50,11 @@ def test_legacy_replacement_keeps_unknown_data_and_recovery(installation):
     (old / '_internal' / 'user-model.bin').write_bytes(b'model')
     result = cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity)
     assert result['ok']
-    assert (old / 'spacr.exe').read_text() == '1.5.1.5'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.5'
     assert (old / 'cache' / 'annotations.csv').read_bytes() == b'user data'
     assert (old / 'Uninstall.exe').read_bytes() == b'existing uninstaller'
     backup = Path(result['previous_runtime'])
-    assert (backup / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (backup / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
     assert (backup / '_internal' / 'user-model.bin').read_bytes() == b'model'
     assert not (old / '_internal' / 'user-model.bin').exists()
 
@@ -108,7 +108,7 @@ def test_failures_restore_the_working_copy(installation, monkeypatch, failure):
     monkeypatch.setattr(cleanup.shutil, 'copytree', copy_once)
     with pytest.raises((OSError, ValueError)):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=verify)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
     assert (old / '_internal' / 'runtime.dll').read_bytes() == b'1.5.1.4'
     assert (old / 'cache' / 'annotations.csv').read_bytes() == b'user data'
     assert not list(old.parent.glob('.spacr-frozen-install-*'))
@@ -128,7 +128,7 @@ def test_modified_activated_file_is_not_deleted_during_rollback(installation):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=change)
     assert (old / 'spacr.exe').read_bytes() == b'foreign replacement'
     backups = list(old.parent.glob('.spacr-frozen-install-*/previous/spacr.exe'))
-    assert len(backups) == 1 and backups[0].read_text() == '1.5.1.4'
+    assert len(backups) == 1 and backups[0].read_text(encoding="utf-8") == '1.5.1.4'
     assert (old / 'cache' / 'annotations.csv').read_bytes() == b'user data'
 
 
@@ -138,7 +138,7 @@ def test_newer_legacy_version_is_refused_without_running_or_mutating(tmp_path):
     with pytest.raises(ValueError, match='downgrade'):
         cleanup._install_frozen_windows(source, old, '1.5.1.5',
                                         run=lambda argv: pytest.fail('must not run'))
-    assert (old / 'spacr.exe').read_text() == '1.5.1.6'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.6'
 
 
 @pytest.mark.parametrize('change', ['hash', 'extra', 'linked', 'unreadable'])
@@ -161,7 +161,7 @@ def test_untrusted_payload_refused_before_live_mutation(installation, monkeypatc
         monkeypatch.setattr(cleanup.os, 'walk', unreadable)
     with pytest.raises((OSError, ValueError)):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
 
 
 def test_linked_legacy_metadata_is_not_used_for_version(installation, tmp_path):
@@ -172,7 +172,7 @@ def test_linked_legacy_metadata_is_not_used_for_version(installation, tmp_path):
     metadata.symlink_to(external, target_is_directory=True)
     with pytest.raises(ValueError, match='identity_unverified'):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
 
 
 def test_identity_output_cannot_be_a_link(installation, tmp_path):
@@ -186,7 +186,7 @@ def test_identity_output_cannot_be_a_link(installation, tmp_path):
 
     with pytest.raises((OSError, ValueError)):
         cleanup._frozen_windows_identity(source, '1.5.1.5', run=linked)
-    assert external.read_text() == '{}'
+    assert external.read_text(encoding="utf-8") == '{}'
 
 
 def test_native_uninstaller_and_receipt_activate_before_new_desktop_acknowledgment(installation):
@@ -200,15 +200,15 @@ def test_native_uninstaller_and_receipt_activate_before_new_desktop_acknowledgme
     def prepared():
         assert (old / 'Uninstall.exe').read_bytes() == b'existing uninstaller'
         assert (old / 'spacr-uninstaller.json').read_bytes() == old_receipt
-        assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+        assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
         phases.append('prepared')
 
     def activated():
         assert (old / 'Uninstall.exe').read_bytes() == candidate
-        assert json.loads((old / 'spacr-uninstaller.json').read_text()) == {
+        assert json.loads((old / 'spacr-uninstaller.json').read_text(encoding="utf-8")) == {
             'schema': 1, 'adapter': 'windows-frozen-uninstall-v1',
             'sha256': hashlib.sha256(candidate).hexdigest()}
-        assert (old / 'spacr.exe').read_text() == '1.5.1.5'
+        assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.5'
         phases.append('activated')
 
     result = cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity,
@@ -240,7 +240,7 @@ def test_native_uninstaller_replacement_rolls_back_with_application(installation
     with pytest.raises((OSError, RuntimeError)):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity,
             after_activate=fail_startup if failure == 'desktop' else None)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
     assert (old / 'Uninstall.exe').read_bytes() == b'existing uninstaller'
     assert (old / 'spacr-uninstaller.json').read_bytes() == previous
     assert (old / 'cache' / 'annotations.csv').read_bytes() == b'user data'
@@ -258,7 +258,7 @@ def test_changed_native_uninstaller_stops_before_application_activation(installa
     with pytest.raises(ValueError, match='changed_during_staging'):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity,
             before_activate=replace_during_approval)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
     expected = b'concurrent native replacement' if location == 'installed' else b'existing uninstaller'
     assert (old / 'Uninstall.exe').read_bytes() == expected
     assert not (old / 'spacr-uninstaller.json').exists()
@@ -278,7 +278,7 @@ def test_invalid_native_uninstaller_candidate_never_changes_the_old_install(inst
         (source / 'spacr-uninstaller.json').write_text('{}')
     with pytest.raises(ValueError, match='candidate_invalid'):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.4'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.4'
     assert (old / 'Uninstall.exe').read_bytes() == b'existing uninstaller'
 
 
@@ -292,7 +292,7 @@ def test_uncertain_new_desktop_retains_both_native_uninstaller_versions(installa
     with pytest.raises(cleanup._UpdateActivationUnconfirmed):
         cleanup._install_frozen_windows(source, old, '1.5.1.5', run=identity,
             after_activate=uncertain, preserve_previous=True)
-    assert (old / 'spacr.exe').read_text() == '1.5.1.5'
+    assert (old / 'spacr.exe').read_text(encoding="utf-8") == '1.5.1.5'
     assert (old / 'Uninstall.exe').read_bytes() == b'new native uninstaller'
     backup, = old.parent.glob('.spacr-frozen-install-*/previous/Uninstall.exe')
     assert backup.read_bytes() == b'existing uninstaller'

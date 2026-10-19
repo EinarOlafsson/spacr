@@ -82,7 +82,7 @@ def test_cancelled_process_run_resumes_only_unfinished_archives(tmp_path):
         environments, resumed, segmenter=_segment)
     assert result['workers'] == {}
     assert len(result['completed_batches']) == 3
-    document = resumed.store.path.read_text()
+    document = resumed.store.path.read_text(encoding="utf-8")
     assert 'CUDA_VISIBLE_DEVICES' not in document
     assert 'manifest' in document
 
@@ -197,7 +197,7 @@ def test_corrupt_receipt_is_refused(tmp_path):
     ledger.store.mark(records[0]['path'], {'wrong.npy': 'digest'})
     with pytest.raises(ValueError, match='Invalid output receipt'):
         ledger.verified()
-    payload = json.loads(ledger.store.path.read_text())
+    payload = json.loads(ledger.store.path.read_text(encoding="utf-8"))
     payload['completed']['unknown.npz'] = {}
     ledger.store.path.write_text(json.dumps(payload))
     with pytest.raises(ValueError, match='unknown archive'):

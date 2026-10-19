@@ -21,7 +21,7 @@ def _support(tmp_path):
     wrapper = support / 'install-for-user.sh'
     shutil.copyfile(ONLINE / 'install_for_macos_user.sh', wrapper)
     (support / 'installer_messages.sh').write_text('spacr_say() { printf "%s\\n" "$1"; }\n')
-    source = (ONLINE / 'install_spacr_unix.sh').read_text().split(
+    source = (ONLINE / 'install_spacr_unix.sh').read_text(encoding="utf-8").split(
         '# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split('# @SPACR_INSTALLER_LEASE_END@', 1)[0]
     journal = tmp_path / 'backend-entry'
     backend = support / 'install-online.sh'
@@ -61,7 +61,7 @@ def test_gui_wrapper_does_not_create_application_or_marker_before_backend_lease(
     wrapper, runtime, env, journal = _support(tmp_path)
     result = _run(wrapper, env)
     assert result.returncode == 0, result.stderr
-    assert journal.read_text().strip() == 'absent'
+    assert journal.read_text(encoding="utf-8").strip() == 'absent'
     assert runtime.is_dir()
     assert not (runtime / '.installing').exists()
     assert not (runtime / '.venv.spacr-update-lock').exists()

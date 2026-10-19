@@ -21,7 +21,7 @@ SOURCE_SHA256 = 'a2068b97a8973a64fa13febbd81b87e933befb7684779be50d356fe969ce457
 
 
 def test_managed_project_requirement_uses_the_immutable_archive_and_extra():
-    rows = (ROOT / 'tools/web_mask_generator/space/requirements.txt').read_text().splitlines()
+    rows = (ROOT / 'tools/web_mask_generator/space/requirements.txt').read_text(encoding="utf-8").splitlines()
     project = Requirement(rows[0])
     assert project.name == 'spacr' and project.extras == {'plaque'}
     assert project.url == ('https://huggingface.co/spaces/einarolafsson/spacr-mask-generator/resolve/'
@@ -33,7 +33,7 @@ def test_managed_project_requirement_uses_the_immutable_archive_and_extra():
     assert parsed.query == '' and parsed.fragment == 'sha256=' + SOURCE_SHA256
     assert rows[1:] == ['huggingface-hub==0.36.2', 'torch==2.13.0',
                         'torchvision==0.28.0', 'pypdfium2==5.13.0']
-    readme = (ROOT / 'tools/web_mask_generator/space/README.md').read_text()
+    readme = (ROOT / 'tools/web_mask_generator/space/README.md').read_text(encoding="utf-8")
     assert PIN in readme and SOURCE_SHA256 in readme
 
 

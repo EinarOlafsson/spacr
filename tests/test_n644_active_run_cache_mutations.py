@@ -83,7 +83,7 @@ def test_cache_mutation_refuses_active_worker_then_succeeds_after_finalization(c
         target = rj._relocate_cache('news', tmp_path / 'destination')
         assert (target / 'kept.json').read_bytes() == b'important cache bytes'
         assert not folder.exists()
-        assert json.loads(metadata.read_text()) == {'unrelated': 'preserve-me', 'SPACR_NEWS_CACHE': str(target)}
+        assert json.loads(metadata.read_text(encoding="utf-8")) == {'unrelated': 'preserve-me', 'SPACR_NEWS_CACHE': str(target)}
 
 
 def test_missing_source_relocation_cannot_write_metadata_during_active_run(cache, tmp_path):

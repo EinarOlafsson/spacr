@@ -244,12 +244,12 @@ def test_every_language_carries_the_same_keys():
                     reason="installer catalogs not in this checkout")
 def test_installer_catalogs_agree_with_english():
     """Same keys and same placeholders as ``en.json``, in every language."""
-    english = json.loads((INSTALLER_CATALOGS / "en.json").read_text())
+    english = json.loads((INSTALLER_CATALOGS / "en.json").read_text(encoding="utf-8"))
     problems = []
     for path in sorted(INSTALLER_CATALOGS.glob("*.json")):
         if path.stem == "en":
             continue
-        catalog = json.loads(path.read_text())
+        catalog = json.loads(path.read_text(encoding="utf-8"))
         for key in english:
             if key not in catalog:
                 problems.append(f"{path.stem}: missing key {key!r}")

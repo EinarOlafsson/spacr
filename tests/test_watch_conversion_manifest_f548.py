@@ -200,4 +200,4 @@ def test_map_symlink_swap_at_open_is_not_followed(tmp_path, monkeypatch):
     monkeypatch.setattr(os, 'open', swap_then_open)
     with pytest.raises(ValueError, match='conversion_map.csv'):
         core._watch_map_bytes(str(tmp_path))
-    assert target.read_text() == 'do not read this target'
+    assert target.read_text(encoding="utf-8") == 'do not read this target'

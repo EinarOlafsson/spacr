@@ -128,7 +128,7 @@ def test_native_inventory_rejects_unknown_fifo_in_actual_conditional_context(tmp
     script += "if matches_inventory " + shlex.quote(str(tree)) + " " + shlex.quote(str(expected)) + \
         "; then exit 91; fi\n"
     subprocess.run(["/bin/sh", "-c", script], check=True, timeout=10)
-    assert unknown.exists() and (tree / "known.txt").read_text() == "known"
+    assert unknown.exists() and (tree / "known.txt").read_text(encoding="utf-8") == "known"
 
 
 @pytest.mark.parametrize("change", ["file-mode", "directory-mode", "link-space-boundary", "link-trailing-newline"])
@@ -292,10 +292,10 @@ def test_native_journal_publication_propagates_printf_failure_in_conditional_con
         "\nprintf() { return 75; }\nif write_journal; then exit 91; fi\n"],
         capture_output=True, text=True, timeout=15)
     assert failed.returncode == 0
-    assert journal.read_text() == "previous durable state\n"
-    assert interrupted.read_text() == "retain partial data\n"
+    assert journal.read_text(encoding="utf-8") == "previous durable state\n"
+    assert interrupted.read_text(encoding="utf-8") == "retain partial data\n"
     partials = set(tmp_path.glob("journal.next.*"))
     assert len(partials) == 2
     subprocess.run(["/bin/sh", "-c", script + "\nwrite_journal\n"], check=True, timeout=15)
-    assert "state=recovering\n" in journal.read_text()
+    assert "state=recovering\n" in journal.read_text(encoding="utf-8")
     assert set(tmp_path.glob("journal.next.*")) == partials

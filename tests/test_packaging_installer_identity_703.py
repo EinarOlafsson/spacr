@@ -51,7 +51,7 @@ def test_frozen_identity_checks_imports_and_writes_exact_loaded_paths(monkeypatc
     monkeypatch.setattr(sys, "stdout", None)
     monkeypatch.setattr(sys, "stderr", None)
     assert launcher.main() == 0
-    assert json.loads(output.read_text()) == {
+    assert json.loads(output.read_text(encoding="utf-8")) == {
         "schema": 1, "version": "1.5.1.5", "module": package.__file__,
         "executable": str(root / "spacr.exe"), "frozen": True,
         "bundle_root": str(root), "import_root": str(root / "_internal"),
@@ -112,7 +112,7 @@ def test_nonfrozen_probe_reports_its_state_honestly(monkeypatch, tmp_path):
     output = tmp_path / "identity.json"
     monkeypatch.setattr(sys, "argv", ["python", "--installer-identity", str(output)])
     assert launcher.main() == 0
-    assert json.loads(output.read_text())["frozen"] is False
+    assert json.loads(output.read_text(encoding="utf-8"))["frozen"] is False
 
 
 def test_partial_write_is_not_left_as_a_receipt(monkeypatch, tmp_path):
@@ -159,7 +159,7 @@ runpy.run_path(sys.argv[0], run_name='__main__')
     result = subprocess.run([sys.executable, "-c", program, str(LAUNCHER), str(output)],
                             env=environment, capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    receipt = json.loads(output.read_text())
+    receipt = json.loads(output.read_text(encoding="utf-8"))
     assert receipt["schema"] == 1
     assert receipt["frozen"] is False
     assert Path(receipt["module"]) == LAUNCHER.parents[1] / "spacr/__init__.py"

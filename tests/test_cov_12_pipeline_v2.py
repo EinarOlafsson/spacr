@@ -175,7 +175,7 @@ class TestCheckpointProvenance:
         with rj.open_run('mask', {'src': '/x'}) as run:
             PV._record_cellpose_hash(model, 'cyto')
 
-        manifest = json.loads((run.dir / 'manifest.json').read_text())
+        manifest = json.loads((run.dir / 'manifest.json').read_text(encoding="utf-8"))
         assert manifest['model_hashes']['cyto'].startswith('a.pth:')
 
     def test_a_journal_that_refuses_the_record_does_not_stop_segmentation(

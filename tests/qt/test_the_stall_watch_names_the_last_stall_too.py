@@ -53,9 +53,9 @@ def _watch_one_stall(tmp_path, monkeypatch, seconds=3.0, echo=False):
         while time.monotonic() < deadline:
             app.processEvents()
             time.sleep(0.02)
-            if log.exists() and "WHERE THAT STALL SPENT" in log.read_text():
+            if log.exists() and "WHERE THAT STALL SPENT" in log.read_text(encoding="utf-8"):
                 break
-        return log.read_text() if log.exists() else ""
+        return log.read_text(encoding="utf-8") if log.exists() else ""
     finally:
         # THE WATCHER OUTLIVES THIS TEST UNLESS IT IS STOPPED, and the
         # `qapp` it is installed on is session-scoped, so what leaks here
@@ -288,7 +288,7 @@ def test_the_watch_keeps_no_frame_of_the_gui_thread(tmp_path, monkeypatch, qapp)
             time.sleep(0.01)
         assert left, "the stall never ran"
         assert (tmp_path / "stalls.log").exists() and "GUI THREAD STALLED" in (
-            tmp_path / "stalls.log").read_text(), "the watch did not sample the stall"
+            tmp_path / "stalls.log").read_text(encoding="utf-8"), "the watch did not sample the stall"
         assert left[0]() is None, "the watcher still holds the stalled call's frame"
     finally:
         if was_enabled:

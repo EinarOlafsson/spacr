@@ -124,7 +124,7 @@ def test_no_signed_artifact_is_published_until_every_check_passes(
         assert record['submission_id'] == 'submission-123'
         assert record['stapled'] and record['gatekeeper_verified']
         assert package.read_bytes() == b'signed and stapled'
-        assert json.loads(receipt.read_text()) == record
+        assert json.loads(receipt.read_text(encoding="utf-8")) == record
         assert [a[2] if a[0] == 'xcrun' else a[0] for a in calls] == [
             'productsign', 'pkgutil', 'submit', 'staple', 'validate', 'spctl']
     assert not list(tmp_path.glob('.spacr-notary-*'))
@@ -175,7 +175,7 @@ def test_ci_keychain_cleanup_restores_search_path_even_after_failed_import(
             signing.prepare_ci()
     else:
         signing.prepare_ci()
-    exports = dict(line.split('=', 1) for line in environment.read_text().splitlines())
+    exports = dict(line.split('=', 1) for line in environment.read_text(encoding="utf-8").splitlines())
     folder = Path(exports['SPACR_SIGNING_DIRECTORY'])
     assert not (folder / 'certificates.p12').exists()
     assert not any('private-cert' in v for v in exports.values())

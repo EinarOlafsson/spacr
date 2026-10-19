@@ -291,4 +291,4 @@ def test_publish_waits_out_a_reader_holding_the_file(tmp_path, monkeypatch):
     publish = engine._vvvv_publisher(tabular)
     target = tmp_path / "x.txt"
     publish(str(target), lambda pending: Path(pending).write_text("ok"))
-    assert target.read_text() == "ok" and len(calls) == 3
+    assert target.read_text(encoding="utf-8") == "ok" and len(calls) == 3

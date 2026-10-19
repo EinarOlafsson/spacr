@@ -283,7 +283,7 @@ def test_a_refresh_fetches_the_collection_and_measures_the_weights(
     monkeypatch.setattr(zoo, "_weights_size", measure)
     rows = _rows(allow_network=True, url=served.as_uri())
     cache = tmp_path / "home" / ".spacr" / "bioimageio_children.json"
-    assert json.loads(cache.read_text()) == COLLECTION
+    assert json.loads(cache.read_text(encoding="utf-8")) == COLLECTION
     assert sorted(asked) == sorted([
         FILES.format("famous-fish", "cyto3.pth"),
         FILES.format("thoughtful-chipmunk", "cellpose_model"),

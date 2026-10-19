@@ -885,7 +885,7 @@ def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
 
     assert col == "adjusted_infected"
     assert "Failed to save embedding QC plot" in capsys.readouterr().out
-    assert blocker.read_text() == "x"
+    assert blocker.read_text(encoding="utf-8") == "x"
 
 
 # ===========================================================================

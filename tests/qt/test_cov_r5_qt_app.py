@@ -739,7 +739,7 @@ def test_a_timing_report_that_was_written_says_where_it_went(
     assert app_mod.launch([]) == 0
     printed = capsys.readouterr().out
     assert f"spaCR timing report written to {target}" in printed
-    assert target.read_text().startswith("spaCR timing report")
+    assert target.read_text(encoding="utf-8").startswith("spaCR timing report")
 
     # Timing off: nothing is written, so nothing is announced.
     monkeypatch.setattr(app_mod._timing, "write_report", lambda: "")

@@ -208,7 +208,7 @@ class TestThePackagingPromotion:
         import re
         from pathlib import Path
 
-        text = Path("setup.py").read_text()
+        text = Path("setup.py").read_text(encoding="utf-8")
         block = re.search(r"^dependencies = \[(.*?)\n\]", text,
                           re.S | re.M).group(1)
         return block

@@ -63,7 +63,7 @@ def test_six_axis_tiff_and_foreign_files_leave_the_folder_alone(tmp_path):
     written = sorted(p.name for p in folder.iterdir())
     assert "three_C1.tif" in written and "three_C2.tif" in written
     assert not [n for n in written if n.startswith("six_")]
-    assert (folder / "notes.txt").read_text() == "not an image"
+    assert (folder / "notes.txt").read_text(encoding="utf-8") == "not an image"
     assert not (folder / "notes.tif").exists()
 
 
@@ -302,7 +302,7 @@ def test_non_numeric_well_field_channel_and_time_tokens_survive(tmp_path):
     moved = sorted(p.name for p in (src / "chanD").iterdir())
     assert len(moved) == 1
     assert "wellB" in moved[0] and "fieldC" in moved[0]
-    assert (src / "readme.md").read_text() == "ignore me"
+    assert (src / "readme.md").read_text(encoding="utf-8") == "ignore me"
     assert not (src / "chanD" / "readme.md").exists()
 
 

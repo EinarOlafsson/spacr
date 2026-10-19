@@ -494,7 +494,7 @@ def test_stamping_a_csv_writes_a_sibling_run_status_json(tmp_path):
 
     assert sidecar == tmp_path / ('rename_log' + RUN_STATUS_SUFFIX)
     assert sidecar.is_file()
-    payload = json.loads(sidecar.read_text())
+    payload = json.loads(sidecar.read_text(encoding="utf-8"))
     assert isinstance(payload, list) and len(payload) == 1
     assert payload[0]['status'] == STATUS_PARTIAL
 
@@ -555,7 +555,7 @@ def test_to_json_writes_the_whole_ledger_and_makes_parent_dirs(tmp_path):
     ledger.record_success('b', stage='s')
 
     target = ledger.to_json(tmp_path / 'deep' / 'ledger.json')
-    payload = json.loads(target.read_text())
+    payload = json.loads(target.read_text(encoding="utf-8"))
     assert payload['name'] == 'json_run'
     assert payload['status'] == STATUS_PARTIAL
     assert payload['n_attempted'] == 2

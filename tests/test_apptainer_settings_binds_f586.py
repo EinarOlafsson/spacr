@@ -58,7 +58,7 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
                        SLURM_CPUS_PER_TASK='2')
     result = subprocess.run(['bash', str(SCRIPT)], cwd=work, env=environment,
                             text=True, capture_output=True, check=False)
-    records = [json.loads(line) for line in calls.read_text().splitlines()] if calls.exists() else []
+    records = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()] if calls.exists() else []
     return result, records, mask, measure, plate
 
 
@@ -77,7 +77,7 @@ def test_both_settings_directories_are_visible(tmp_path, separate, linked, absol
         binds = args[args.index('--bind') + 1].split(',')
         assert set(binds) == {str(plate), str(mask.parent), str(measure.parent)}
         assert 'n_jobs=2' in args and f'src={plate}' in args
-    assert mask.read_text() == measure.read_text() == 'Key,Value\ncell_channel,1\n'
+    assert mask.read_text(encoding="utf-8") == measure.read_text(encoding="utf-8") == 'Key,Value\ncell_channel,1\n'
 
 
 def test_missing_measure_settings_refuses_before_mask(tmp_path):
@@ -87,4 +87,4 @@ def test_missing_measure_settings_refuses_before_mask(tmp_path):
     assert calls == []
     assert not measure.exists()
     assert list(plate.iterdir()) == []
-    assert mask.read_text() == 'Key,Value\ncell_channel,1\n'
+    assert mask.read_text(encoding="utf-8") == 'Key,Value\ncell_channel,1\n'

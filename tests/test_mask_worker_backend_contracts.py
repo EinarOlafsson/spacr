@@ -160,11 +160,11 @@ def test_dispatch_accepts_every_backend_with_a_contract(tmp_path, monkeypatch, c
 
     mw._generate_masks_in_parallel(str(masks), run, 'nucleus', plan, segmenter=_stub_segment)
 
-    calls = [line.split() for line in (masks.parent / 'calls.log').read_text().splitlines()]
+    calls = [line.split() for line in (masks.parent / 'calls.log').read_text(encoding="utf-8").splitlines()]
     assert sorted(name for _, name in calls) == [f'batch{i}.npz' for i in range(4)]
     assert {device for device, _ in calls} == {'0', '1'}
     assert len(list((masks / 'nucleus_mask_stack').glob('*.npy'))) == 8
-    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text())
+    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text(encoding="utf-8"))
     assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
     assert backend in capsys.readouterr().out
 

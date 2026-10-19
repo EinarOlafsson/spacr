@@ -42,7 +42,7 @@ def test_an_old_settings_file_still_loads_and_is_told_what_happened():
 def test_it_is_gone_from_the_settings_panel_and_the_catalogs():
     from spacr.qt.screens import settings_model
 
-    text = (ROOT / "spacr" / "qt" / "screens" / "settings_model.py").read_text()
+    text = (ROOT / "spacr" / "qt" / "screens" / "settings_model.py").read_text(encoding="utf-8")
     assert RETIRED not in text
     for catalog in sorted((ROOT / "spacr" / "qt" / "i18n_catalogs").glob("*.py")):
         assert RETIRED not in catalog.read_text(encoding="utf-8"), catalog.name

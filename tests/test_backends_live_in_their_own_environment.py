@@ -609,7 +609,7 @@ def test_cancel_stops_the_command_and_what_it_started(tmp_path):
         SB._run_step([sys.executable, "-c", script], on_line=_on_line,
                      cancel=cancel, poll=0.05)
     assert time.monotonic() - started < 30
-    child = int(marker.read_text())
+    child = int(marker.read_text(encoding="utf-8"))
     deadline = time.monotonic() + 10
     while time.monotonic() < deadline:
         try:
@@ -740,7 +740,7 @@ def test_an_install_builds_the_environment_and_marks_it_finished_last(
     assert progress[-1] == (5, 5, "Cellpose 3 is installed")
     assert (0, 5, "Create the environment: line from step 0") in progress
     assert not (_sandboxed_backends / "cellpose3.lock").exists()
-    log = (_sandboxed_backends / "cellpose3.log").read_text()
+    log = (_sandboxed_backends / "cellpose3.log").read_text(encoding="utf-8")
     assert "line from step 4" in log and "--selftest" in log
     again = SB._install_backend("cellpose3", runner=None, preflight=None)
     assert again.ready, "an installed backend is not installed twice"
@@ -838,7 +838,7 @@ def test_a_stale_lock_is_taken_over(_sandboxed_backends, monkeypatch):
     (root / "cellpose3.lock").write_text(json.dumps({"pid": 1}))
     monkeypatch.setattr(SB, "_pid_alive", lambda pid: pid == os.getpid())
     SB._acquire_lock(str(root), "cellpose3")
-    assert json.loads((root / "cellpose3.lock").read_text())["pid"] == \
+    assert json.loads((root / "cellpose3.lock").read_text(encoding="utf-8"))["pid"] == \
         os.getpid()
 
 

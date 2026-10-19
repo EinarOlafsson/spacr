@@ -353,7 +353,7 @@ class TestTheZip:
         assert omnibus["test_name"] == "Kruskal-Wallis"
         assert omnibus["chosen_by"] == "user"
         assert len(pd.read_csv(folder / "data.csv")) == 120
-        spec = json.loads((folder / "spec.json").read_text())
+        spec = json.loads((folder / "spec.json").read_text(encoding="utf-8"))
         assert spec["kind"] == "box" and spec["x"] == "group"
 
         done = subprocess.run(

@@ -13,7 +13,7 @@ from spacr import attribution as cf
 def test_actual_pinned_checkpoint_refusal_is_localized(tmp_path, monkeypatch, language):
     reviews = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language
                / '2026-10-15-counterfactual-pinned-reuse.json')
-    record = next(row for row in json.loads(reviews.read_text())['records']
+    record = next(row for row in json.loads(reviews.read_text(encoding="utf-8"))['records']
                   if row['table'] == 'ui' and row['key'] ==
                   'The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs.')
     assert hashlib.sha256(record['source'].encode()).hexdigest() == record['source_sha256']

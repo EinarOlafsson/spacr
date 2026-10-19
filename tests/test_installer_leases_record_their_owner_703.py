@@ -27,7 +27,7 @@ PLATFORM = "macos" if sys.platform == "darwin" else "linux"
 
 
 def _lease_source():
-    return UNIX.read_text().split("# @SPACR_INSTALLER_LEASE_BEGIN@\n", 1)[1].split("# @SPACR_INSTALLER_LEASE_END@", 1)[0]
+    return UNIX.read_text(encoding="utf-8").split("# @SPACR_INSTALLER_LEASE_BEGIN@\n", 1)[1].split("# @SPACR_INSTALLER_LEASE_END@", 1)[0]
 
 
 def _take(tmp_path, lease, extra="", env=None):
@@ -64,7 +64,7 @@ def test_a_new_lease_records_its_owner(tmp_path):
     lease = tmp_path / ".app.spacr-installer-lock"
     result = _take(tmp_path, lease)
     assert result.returncode == 0, result.stderr
-    fields = dict(line.split("=", 1) for line in (lease / "owner").read_text().splitlines())
+    fields = dict(line.split("=", 1) for line in (lease / "owner").read_text(encoding="utf-8").splitlines())
     assert set(fields) - {"pgid"} == {"pid", "started", "host", "pidns"} and fields["host"] == platform.node()
     assert fields["pid"].isdigit() and fields["started"].startswith(KIND + ":")
     assert fields["pidns"] == ic._pid_namespace()
@@ -77,7 +77,7 @@ def test_a_lease_whose_owner_ended_is_taken_over(tmp_path):
     result = _take(tmp_path, lease)
     assert result.returncode == 0, result.stderr
     assert "lease_cleared" in result.stderr
-    assert ic._lease_fields((lease / "owner").read_text())["pid"] != str(pid)
+    assert ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))["pid"] != str(pid)
     assert not Path(str(lease) + ".takeover").exists()
 
 
@@ -92,11 +92,11 @@ def test_a_live_owner_is_never_taken_over_and_is_named(tmp_path):
     holder = subprocess.Popen(["bash", "-c", "read -r line"], stdin=subprocess.PIPE, text=True)
     try:
         _stamp(lease, holder.pid, _started(holder.pid))
-        before = (lease / "owner").read_text()
+        before = (lease / "owner").read_text(encoding="utf-8")
         result = _take(tmp_path, lease)
         assert result.returncode != 0
         assert "already_running" in result.stderr and f"lease_held {lease} {holder.pid}" in result.stderr
-        assert (lease / "owner").read_text() == before
+        assert (lease / "owner").read_text(encoding="utf-8") == before
     finally:
         holder.communicate("done\n", timeout=10)
 
@@ -109,7 +109,7 @@ def test_a_retained_rollback_or_any_evidence_is_never_taken_over(tmp_path, evide
     (lease / evidence).write_text("preserve")
     result = _take(tmp_path, lease)
     assert result.returncode != 0
-    assert (lease / evidence).read_text() == "preserve"
+    assert (lease / evidence).read_text(encoding="utf-8") == "preserve"
 
 
 def test_another_hosts_lease_and_an_ownerless_lease_are_refused(tmp_path):
@@ -131,14 +131,14 @@ def test_a_retained_rollback_marks_every_lease(tmp_path):
              '\nwork_dir=/retained/work\nSPACR_INSTALLER_RETAIN_LEASE=1\nspacr_release_installer_lease\nexit 0\n')
     result = _take(tmp_path, tmp_path / "unused", extra)
     assert result.returncode == 0, result.stderr
-    assert (lease / "rollback").read_text() == "/retained/work\n"
+    assert (lease / "rollback").read_text(encoding="utf-8") == "/retained/work\n"
     assert ic._lease_owner_dead(str(lease)) is False
 
 
 def test_python_and_shell_record_the_same_owner_fields(tmp_path):
     lease = tmp_path / ".py.spacr-update-lock"
     ic._take_lease_dir(str(lease))
-    fields = ic._lease_fields((lease / "owner").read_text())
+    fields = ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))
     assert fields["pid"] == str(os.getpid()) and fields["host"] == platform.node()
     assert fields["started"] == _started(os.getpid()) and fields["pidns"] == ic._pid_namespace()
     ic._release_lease_dir(str(lease))
@@ -150,7 +150,7 @@ def test_python_takes_over_only_a_dead_owner(tmp_path):
     pid, started = _ended_pid()
     _stamp(dead, pid, started)
     ic._take_lease_dir(str(dead))
-    assert ic._lease_fields((dead / "owner").read_text())["pid"] == str(os.getpid())
+    assert ic._lease_fields((dead / "owner").read_text(encoding="utf-8"))["pid"] == str(os.getpid())
     holder = subprocess.Popen(["bash", "-c", "read -r line"], stdin=subprocess.PIPE, text=True)
     try:
         live = tmp_path / ".live.spacr-update-lock"
@@ -170,7 +170,7 @@ def test_the_macos_first_run_check_lets_only_a_dead_owner_through(tmp_path):
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text())
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
     (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
     backend = support / "install-online.sh"
     backend.write_text("#!/bin/sh\nprintf 'backend\\n'\n")
@@ -188,7 +188,7 @@ def test_the_macos_first_run_check_lets_only_a_dead_owner_through(tmp_path):
 
 
 def test_the_windows_installer_follows_the_same_contract():
-    source = WINDOWS.read_text()
+    source = WINDOWS.read_text(encoding="utf-8")
     assert "function Test-SpacrLeaseOwnerDead" in source
     assert 'pid=$PID`nstarted=$(Get-SpacrProcessStarted $PID)`nhost=$env:COMPUTERNAME' in source
     assert '"rollback=$WorkDir`n"' in source
@@ -208,7 +208,7 @@ def test_a_live_owner_checked_from_another_locale_and_time_zone_is_never_taken_o
         env = dict(os.environ, LANG="de_DE.UTF-8", LC_ALL="de_DE.UTF-8", TZ="Pacific/Kiritimati")
         result = _take(tmp_path, lease, env=env)
         assert result.returncode != 0 and f"lease_held {lease} {holder.pid}" in result.stderr
-        assert ic._lease_fields((lease / "owner").read_text())["pid"] == str(holder.pid)
+        assert ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))["pid"] == str(holder.pid)
     finally:
         holder.communicate("done\n", timeout=10)
 
@@ -231,7 +231,7 @@ def test_a_lease_from_another_pid_namespace_is_refused(tmp_path):
     _stamp(lease, pid, started, pidns="pid:[4026532999]")
     assert _take(tmp_path, lease).returncode != 0
     assert ic._lease_owner_dead(str(lease)) is False
-    assert ic._lease_fields((lease / "owner").read_text())["pid"] == str(pid)
+    assert ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))["pid"] == str(pid)
 
 
 def test_a_takeover_in_progress_makes_a_second_installer_refuse(tmp_path):
@@ -242,10 +242,10 @@ def test_a_takeover_in_progress_makes_a_second_installer_refuse(tmp_path):
     guard.mkdir(mode=0o700)
     result = _take(tmp_path, lease)
     assert result.returncode != 0 and guard.is_dir()
-    assert ic._lease_fields((lease / "owner").read_text())["pid"] == str(pid)
+    assert ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))["pid"] == str(pid)
     with pytest.raises(FileExistsError, match="takeover"):
         ic._take_lease_dir(str(lease))
-    assert ic._lease_fields((lease / "owner").read_text())["pid"] == str(pid)
+    assert ic._lease_fields((lease / "owner").read_text(encoding="utf-8"))["pid"] == str(pid)
 
 
 def test_python_refuses_another_users_lease_and_an_unreadable_process(tmp_path, monkeypatch):
@@ -319,7 +319,7 @@ def test_the_macos_first_run_check_reports_a_later_lease_the_same_way(tmp_path, 
     support = tmp_path / "support"
     support.mkdir()
     wrapper = support / "install-for-user.sh"
-    wrapper.write_text(WRAPPER.read_text())
+    wrapper.write_text(WRAPPER.read_text(encoding="utf-8"))
     (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
     (support / "install-online.sh").write_text("#!/bin/sh\nprintf 'backend\\n'\n")
     (support / "install-online.sh").chmod(0o755)
@@ -342,7 +342,7 @@ def test_the_macos_first_run_check_reports_a_later_lease_the_same_way(tmp_path, 
 
 
 def test_the_windows_installer_names_no_dead_holder_for_a_later_lease():
-    source = WINDOWS.read_text()
+    source = WINDOWS.read_text(encoding="utf-8")
     assert "function Test-SpacrLeaseHasUnknownFields" in source
     assert "'^(pid|started|host|tree|rollback)='" in source
     assert '(Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }' in source

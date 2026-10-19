@@ -97,7 +97,7 @@ def test_precision_counts_a_duplicate_against_the_model(tmp_path, capsys):
           "models": {V1: {"box_verdicts": ["tp", "dup", "tp"],
                           "found": {"well": 2, "other": 0}}}}])
     spike.stage_score(_args(root))
-    summary = json.loads((root / "result.json").read_text())["summary"][V1]
+    summary = json.loads((root / "result.json").read_text(encoding="utf-8"))["summary"][V1]
     assert summary["boxes"] == 3
     assert summary["tp"] == 2 and summary["dup"] == 1 and summary["fp"] == 0
     assert summary["precision"] == pytest.approx(2 / 3, abs=1e-4)
@@ -123,7 +123,7 @@ def test_the_two_recalls_disagree_and_both_are_reported(tmp_path, capsys):
           "models": {V1: {"box_verdicts": [],
                           "found": {"well": 0, "other": 0}}}}])
     spike.stage_score(_args(root))
-    summary = json.loads((root / "result.json").read_text())["summary"][V1]
+    summary = json.loads((root / "result.json").read_text(encoding="utf-8"))["summary"][V1]
     assert summary["recall_micro"] == pytest.approx(96 / 97, abs=1e-4)
     assert summary["recall_macro"] == pytest.approx(0.5)
 
@@ -142,7 +142,7 @@ def test_crops_and_wells_are_counted_apart(tmp_path, capsys):
           "models": {V1: {"box_verdicts": ["tp", "tp"],
                           "found": {"well": 2, "other": 0}}}}])
     spike.stage_score(_args(root))
-    summary = json.loads((root / "result.json").read_text())["summary"][V1]
+    summary = json.loads((root / "result.json").read_text(encoding="utf-8"))["summary"][V1]
     assert summary["recall_wells"] == 1.0
     assert summary["found_other"] == 0 and summary["regions_other"] == 2
     assert summary["recall_micro"] == pytest.approx(0.5)
@@ -174,7 +174,7 @@ def test_allow_partial_scores_what_was_judged_and_says_so(tmp_path, capsys):
           "models": {V1: {"box_verdicts": ["?"],
                           "found": {"well": None, "other": None}}}}])
     spike.stage_score(_args(root, allow_partial=True))
-    result = json.loads((root / "result.json").read_text())
+    result = json.loads((root / "result.json").read_text(encoding="utf-8"))
     assert result["summary"][V1]["figures"] == 1
     assert result["unjudged"] == ["PMC2__f1.jpg: regions"]
     assert "PARTIAL" in capsys.readouterr().out
@@ -347,7 +347,7 @@ def _evidence():
     """
     if not EVIDENCE.is_file():
         pytest.skip(f"{EVIDENCE} is not present")
-    return json.loads(EVIDENCE.read_text())
+    return json.loads(EVIDENCE.read_text(encoding="utf-8"))
 
 
 def test_the_committed_evidence_names_the_weights_the_zoo_names():
@@ -435,7 +435,7 @@ def test_the_merged_run_record_adds_up():
     """The 2026-09-21 record: 640 and 1280 reproduce the earlier totals, and
     the merged boxes split exactly into the kept 640 boxes and the new ones."""
     record = json.loads((ROOT / "tests/data/release_contracts" /
-                         "424_detector_transfer_merged_2026-09-21.json").read_text())
+                         "424_detector_transfer_merged_2026-09-21.json").read_text(encoding="utf-8"))
     totals = record["totals"]
     assert totals["v2_boxes"] == {"640": 148, "1280": 194, "merged": 206}
     rows = record["per_figure"]

@@ -162,7 +162,7 @@ def test_community_folders_without_a_checkpoint_are_left_out(home,
     assert [row.name for row in rows] == ["model.pth"]
     assert rows[0].trained_by == "a spaCR user", "no submission record read"
     cached = json.loads((home / ".spacr" / "community_models.json")
-                        .read_text())
+                        .read_text(encoding="utf-8"))
     assert [r["folder"] for r in cached] == ["good"]
 
 

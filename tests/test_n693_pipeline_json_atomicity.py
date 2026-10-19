@@ -99,7 +99,7 @@ def test_success_preserves_original_json_format_and_existing_mode(tmp_path):
     path.chmod(0o640)
     settings = {'z': np.int64(3), 'a': (1, False, None), 'unicode': 'μm'}
     _save_settings_json(settings, str(path))
-    assert path.read_text() == json.dumps({'z': 3, 'a': [1, False, None], 'unicode': 'μm'}, indent=2, sort_keys=True)
+    assert path.read_text(encoding="utf-8") == json.dumps({'z': 3, 'a': [1, False, None], 'unicode': 'μm'}, indent=2, sort_keys=True)
     assert stat.S_IMODE(path.stat().st_mode) == 0o640
     assert sorted(p.name for p in tmp_path.iterdir()) == ['settings.json']
 
@@ -117,7 +117,7 @@ def test_existing_symlink_remains_a_link_to_the_updated_snapshot(tmp_path):
         pytest.skip(str(error))
     _save_settings_json({'value': 3}, str(link))
     assert link.is_symlink()
-    assert json.loads(target.read_text()) == {'value': 3}
+    assert json.loads(target.read_text(encoding="utf-8")) == {'value': 3}
     assert stat.S_IMODE(target.stat().st_mode) == 0o640
     assert sorted(p.name for p in tmp_path.iterdir()) == ['actual.json', 'settings.json']
 
@@ -139,7 +139,7 @@ def test_new_json_uses_normal_file_creation_permissions(tmp_path):
         stream.write('peer')
     path = tmp_path / 'settings.json'
     _save_settings_json({'value': 3}, str(path))
-    assert json.loads(path.read_text()) == {'value': 3}
+    assert json.loads(path.read_text(encoding="utf-8")) == {'value': 3}
     assert stat.S_IMODE(path.stat().st_mode) == stat.S_IMODE(peer.stat().st_mode)
 
 

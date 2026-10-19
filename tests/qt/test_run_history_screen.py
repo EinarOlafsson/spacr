@@ -112,7 +112,7 @@ def test_history_displays_recorded_lock_verdict_and_evidence(
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
     record = next(row for row in screen.records if row["app_key"] == "classify")
     path = record["dir"] / "manifest.json"
-    manifest = json.loads(path.read_text())
+    manifest = json.loads(path.read_text(encoding="utf-8"))
     recorded = {
         "status": status, "summary": "Recorded verdict, retained verbatim.",
         "lock_id": "lock-original", "sha256": "a" * 64,
@@ -174,7 +174,7 @@ def test_hashes_pane_is_empty_when_hashing_is_off(qtbot, qt_theme_applied,
     run_dir = next(
         path for path in root.iterdir() if path.name.endswith("__classify")
     )
-    manifest = json.loads((run_dir / "manifest.json").read_text())
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["input_hashing"] == "skipped"
     assert manifest["input_hashes"] == {}
     assert manifest["output_hashes"] == {}

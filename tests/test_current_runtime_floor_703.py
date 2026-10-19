@@ -101,5 +101,5 @@ def test_readonly_current_identity_allows_repairing_broken_old_qt(installation, 
     identity = subprocess.run(cleanup._runtime_identity_command(record.python, '1.5.1.5'),
                               capture_output=True, text=True, timeout=15)
     assert identity.returncode == 0, identity.stderr
-    state = json.loads(next(prefix.parent.glob('.spacr-runtime-update-*/transaction.json')).read_text())
+    state = json.loads(next(prefix.parent.glob('.spacr-runtime-update-*/transaction.json')).read_text(encoding="utf-8"))
     assert _snapshot(Path(state['rollback_runtime'])) == before

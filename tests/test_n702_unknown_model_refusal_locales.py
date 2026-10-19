@@ -14,7 +14,7 @@ def test_actual_unknown_model_refusal_is_localized(isolated, monkeypatch, langua
     requested = "unpublished-cluster-model.CP_model"
     path = (Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language
             / "2026-10-15-cellpose-unknown-model-refusal.json")
-    record = json.loads(path.read_text())["records"][0]
+    record = json.loads(path.read_text(encoding="utf-8"))["records"][0]
     expected = record["translation"].format(name=repr(requested))
     monkeypatch.setenv("SPACR_LANGUAGE", language)
     monkeypatch.setattr(utilities.cp_models, "CellposeModel", lambda **kwargs:

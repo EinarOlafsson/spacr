@@ -52,7 +52,7 @@ def test_the_images_step_runs_the_tool_in_the_tree(tmp_path, monkeypatch):
     (tmp_path / "README.rst").write_text("x\n")
     monkeypatch.setattr(release, "README_IMAGE_MODULES", ())
     assert release.rebuild_readme_images(tmp_path, "1.5.1.1") is True
-    assert (tmp_path / "built").read_text() == "yes"
+    assert (tmp_path / "built").read_text(encoding="utf-8") == "yes"
 
 
 def test_the_images_step_skips_without_its_modules_or_tool(tmp_path,

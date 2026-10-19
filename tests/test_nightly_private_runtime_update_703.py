@@ -122,7 +122,7 @@ def test_real_offline_private_pip_nightly_update_requires_approval_and_keeps_old
     assert (prefix / 'unknown-user-folder/keep.bin').read_bytes() == b'not installer-owned data'
     journals = list(prefix.parent.glob('.spacr-runtime-update-*/transaction.json'))
     assert len(journals) == 1
-    state = json.loads(journals[0].read_text())
+    state = json.loads(journals[0].read_text(encoding="utf-8"))
     assert state['state'] == 'committed' and state['verified_version'] == version
     assert (Path(state['rollback_runtime']) / 'unknown-user-folder/keep.bin').read_bytes() == b'not installer-owned data'
 

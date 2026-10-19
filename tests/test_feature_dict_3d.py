@@ -592,7 +592,7 @@ def test_export_csv_carries_the_new_columns_and_their_units(tmp_path):
 
 def test_export_markdown_states_the_unit_basis(tmp_path):
     db = _write_db(tmp_path / "m.db", UNITS_UM)
-    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text()
+    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text(encoding="utf-8")
     assert "## Units" in text
     assert "measurement_units = 'um'" in text
     assert "`cell_volume_um3`" in text
@@ -604,14 +604,14 @@ def test_export_markdown_states_the_unit_basis(tmp_path):
 
 def test_export_markdown_says_when_the_basis_is_unknown(tmp_path):
     db = _write_db(tmp_path / "mixed.db", [UNITS_PX, UNITS_UM], rows=2)
-    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text()
+    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text(encoding="utf-8")
     assert "MIXED measurement_units" in text
     assert "Not pinned to one value" in text
 
 
 def test_export_markdown_notes_a_legacy_table(tmp_path):
     db = _write_db(tmp_path / "legacy.db", UNITS_PX, with_stamp=False)
-    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text()
+    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text(encoding="utf-8")
     assert "no measurement_units column" in text
     assert "2-D pixel measurement" in text
 
@@ -619,7 +619,7 @@ def test_export_markdown_notes_a_legacy_table(tmp_path):
 def test_export_json_carries_the_per_table_units(tmp_path):
     db = _write_db(tmp_path / "m.db", UNITS_PX_XY)
     out = export_dictionary(db, tmp_path / "d.json", fmt="json")
-    payload = json.loads(out.read_text())
+    payload = json.loads(out.read_text(encoding="utf-8"))
     assert payload["measurement_units"]["cell"]["measurement_units"] == UNITS_PX_XY
     assert "VOLUME" in payload["measurement_units"]["cell"]["geometric_columns"]
     entry = next(c for c in payload["columns"] if c["column"] == "cell_area")
@@ -631,7 +631,7 @@ def test_export_json_on_an_empty_database(tmp_path):
     db = tmp_path / "nothing.db"
     sqlite3.connect(db).close()
     payload = json.loads(
-        export_dictionary(db, tmp_path / "d.json", fmt="json").read_text())
+        export_dictionary(db, tmp_path / "d.json", fmt="json").read_text(encoding="utf-8"))
     assert payload["n_columns"] == 0
     assert payload["measurement_units"] == {}
 
@@ -639,6 +639,6 @@ def test_export_json_on_an_empty_database(tmp_path):
 def test_export_markdown_on_an_empty_database(tmp_path):
     db = tmp_path / "nothing.db"
     sqlite3.connect(db).close()
-    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text()
+    text = export_dictionary(db, tmp_path / "d.md", fmt="md").read_text(encoding="utf-8")
     assert "## Units" in text
     assert "Columns described: 0" in text

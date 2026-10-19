@@ -17,7 +17,7 @@ from i18n_caption_arrivals import load_arrival_contract, pinned_external_sources
 @pytest.fixture(scope='module')
 def state():
     declarations = {}
-    for node in ast.parse((ROOT/'tests/qt/test_i18n_caption_ratchet.py').read_text()).body:
+    for node in ast.parse((ROOT/'tests/qt/test_i18n_caption_ratchet.py').read_text(encoding="utf-8")).body:
         if isinstance(node,ast.Assign):
             for target in node.targets:
                 if isinstance(target,ast.Name) and target.id in ('EXTERNAL_SOURCE_COUNTS','EXTERNAL_SOURCE_KEY_SHA256'):

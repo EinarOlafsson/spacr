@@ -93,7 +93,7 @@ def test_absent_parent_column_still_has_no_explicit_links():
 @pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
 def test_installed_reviewed_language_at_actual_segment_boundary(language, monkeypatch):
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-lineage-parent-identity.json'
-    record = json.loads(review.read_text())['records'][0]
+    record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     frame = actual_tracks()
     before = frame.copy(deep=True)
     monkeypatch.setenv('SPACR_LANGUAGE', language)

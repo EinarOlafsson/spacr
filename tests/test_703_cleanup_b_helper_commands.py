@@ -20,7 +20,7 @@ def _plan(tmp_path, **values):
 
 
 def _log(tmp_path):
-    return (tmp_path / 'logs' / 'update.log').read_text()
+    return (tmp_path / 'logs' / 'update.log').read_text(encoding="utf-8")
 
 
 class _BrokenHandshake:
@@ -240,7 +240,7 @@ def test_metadata_restore_refuses_a_non_regular_journal(metadata):
 
 def test_metadata_restore_refuses_another_schema(metadata):
     journal = metadata.folder / 'metadata.json'
-    state = json.loads(journal.read_text())
+    state = json.loads(journal.read_text(encoding="utf-8"))
     state['schema'] = 2
     journal.write_text(json.dumps(state))
     assert _restore_code(metadata.folder) == 'invalid_metadata_binding'
@@ -261,7 +261,7 @@ def test_metadata_restore_refuses_a_retargeted_link_backup(metadata):
 
 def test_metadata_restore_refuses_an_unknown_record_kind(metadata):
     journal = metadata.folder / 'metadata.json'
-    state = json.loads(journal.read_text())
+    state = json.loads(journal.read_text(encoding="utf-8"))
     state['records'][_record_index(metadata, 'file')]['kind'] = 'device'
     journal.write_text(json.dumps(state))
     assert _restore_code(metadata.folder) == 'invalid_metadata_kind'

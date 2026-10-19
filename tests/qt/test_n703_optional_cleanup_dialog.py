@@ -171,7 +171,7 @@ def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(q
     assert keep.text() == catalog.UI["Keep all files"] and keep.isDefault()
     assert dialog.choices()["keys"] == []
     assert not tree.topLevelItem(0).flags() & Qt.ItemIsEnabled
-    assert (folder / "releases.json").read_text() == "{}"
+    assert (folder / "releases.json").read_text(encoding="utf-8") == "{}"
 
 
 def test_live_guard_preview_starts_unchecked_then_selected_gui_choice_reaches_backend(qtbot, tmp_path):

@@ -64,7 +64,7 @@ def test_valid_supplied_metadata_roundtrips_without_enrichment_or_model_io(snaps
         monkeypatch.setattr(zoo, name, lambda *a, **k: pytest.fail('snapshot performed model I/O/enrichment'))
     original = deepcopy(settings)
     utils.save_settings(settings, name='pipeline')
-    assert json.loads(js.read_text())['model_metadata'] == original['model_metadata']
+    assert json.loads(js.read_text(encoding="utf-8"))['model_metadata'] == original['model_metadata']
     rows = pd.read_csv(csv, dtype=str).set_index('Key')['Value']
     assert ast.literal_eval(rows['model_metadata']) == original['model_metadata']
     assert settings == original
@@ -76,6 +76,6 @@ def test_legacy_settings_without_model_metadata_never_call_pin_validator(snapsho
     original = deepcopy(settings)
     monkeypatch.setattr(zoo, '_validate_model_metadata', lambda *a, **k: pytest.fail('legacy snapshot validated absent pins'))
     utils.save_settings(settings, name='pipeline')
-    assert json.loads(js.read_text()) == original
+    assert json.loads(js.read_text(encoding="utf-8")) == original
     assert 'model_metadata' not in pd.read_csv(csv)['Key'].tolist()
     assert settings == original

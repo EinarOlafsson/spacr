@@ -334,7 +334,7 @@ def test_zero_qv_map_retires_verified_analyses_and_keeps_other_outputs(tmp_path,
     user_file = output / "user-notes.csv"
     user_file.write_text("keep,my notes\n")
     changed = pathlib.Path(first["files"]["infection"])
-    changed.write_text(changed.read_text() + "user edited this former output\n")
+    changed.write_text(changed.read_text(encoding="utf-8") + "user edited this former output\n")
     linked = pathlib.Path(first["files"]["region_summary"])
     linked.unlink()
     linked.symlink_to(user_file)
@@ -385,7 +385,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
                 "spatial_anndata": False}
     first = oe.run_spatial_map(settings)
     report_path = pathlib.Path(first["output"]) / "spatial_map_report.json"
-    report = json.loads(report_path.read_text())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
     outside = dst / "outside.csv"
     outside.write_text("preserve me\n")
     if prior_state == "legacy":
@@ -416,7 +416,7 @@ def test_zero_qv_map_keeps_unverified_outputs(tmp_path, monkeypatch, prior_state
         zero = oe.run_spatial_map(dict(settings, spatial_min_qv=100))
         assert zero["objects"]["cell"]["objects"] == 0
     assert {path: pathlib.Path(path).read_bytes() for path in old_files} == old_files
-    assert outside.read_text() == "preserve me\n"
+    assert outside.read_text(encoding="utf-8") == "preserve me\n"
 
 
 
@@ -444,7 +444,7 @@ def test_zero_qv_map_replaces_report_symlink_without_touching_target(tmp_path):
     zero = oe.run_spatial_map(dict(settings, spatial_min_qv=100))
     assert outside.read_bytes() == outside_bytes
     assert not report_path.is_symlink()
-    report = json.loads(report_path.read_text())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["objects"]["cell"]["objects"] == zero["points"] == 0
     assert set(report["files"]) == {"overlay"}
     assert report["messages"] == ["No object received any count."]

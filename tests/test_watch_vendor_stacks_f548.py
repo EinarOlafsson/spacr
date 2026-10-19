@@ -137,7 +137,7 @@ def test_vendor_series_waits_for_declared_planes_then_matches_batch(
     for name in names:
         np.testing.assert_array_equal(np.load(batch / 'merged' / name),
                                       np.load(watched / 'spacr_watch/merged' / name))
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     entry = ledger['fields']['plate1']
     assert ledger['vendor_stacks'] == 'series'
     assert entry['vendor_sha256'] == {'plate1.ome.tif': acquired}
@@ -269,7 +269,7 @@ def test_vendor_collection_resume_binds_the_stack_copy(tmp_path, monkeypatch, da
         assert (tmp_path / 'spacr_watch/merged/acq_A01_1_1.npy').exists()
     else:
         assert resumed['failed'] == ['acq']
-        ledger = json.loads((tmp_path / 'spacr_watch/watch_ledger.json').read_text())
+        ledger = json.loads((tmp_path / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
         assert 'vendor stack copy changed' in ledger['fields']['acq']['error']
 
 
@@ -290,7 +290,7 @@ def test_a_per_plane_file_arriving_later_stops_the_watch(tmp_path):
         core._watch_folder_and_analyse(
             {**MASK, **_fast(watched), 'timelapse': True, 'channels': [0],
              'cell_channel': None}, analyse)
-    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert ledger['fields']['acq']['status'] == 'done'
 
 

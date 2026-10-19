@@ -52,7 +52,7 @@ def test_native_short_or_case_alias_snapshots_and_restores_the_same_folder(tmp_p
     restored = cleanup._installer_metadata_restore(str(folder))
     assert restored['folder'] == str(actual)
     assert sidecar.read_bytes() == b'previous verified identity'
-    assert json.loads((actual / 'metadata.json').read_text()) == state
+    assert json.loads((actual / 'metadata.json').read_text(encoding="utf-8")) == state
 
 
 @pytest.mark.parametrize('operation', ['snapshot', 'restore'])

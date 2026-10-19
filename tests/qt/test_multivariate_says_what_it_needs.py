@@ -144,7 +144,7 @@ class TestThePrefixIsMeasuredNotHardCoded:
         import pathlib
 
         source = pathlib.Path(
-            "spacr/qt/widgets/cell_montage_view.py").read_text()
+            "spacr/qt/widgets/cell_montage_view.py").read_text(encoding="utf-8")
         # The comment explaining the fix may name it; the CODE must not.
         code = [line for line in source.splitlines()
                 if 'TGGT1_' in line and not line.strip().startswith("#")]

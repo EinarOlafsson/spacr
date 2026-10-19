@@ -1059,7 +1059,7 @@ def _declared_category_names():
     reading ``S.categories`` cannot detect a name typed twice -- the source has
     to be parsed.
     """
-    src = pathlib.Path(S.__file__).read_text()
+    src = pathlib.Path(S.__file__).read_text(encoding="utf-8")
     tree = ast.parse(src)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Assign):
@@ -1421,7 +1421,7 @@ def test_category_names_referenced_elsewhere_still_exist(name):
 def test_qt_hidden_category_names_all_resolve():
     """Read the real strings out of the Qt bridge rather than restating them."""
     src = pathlib.Path(S.__file__).parent / "qt" / "screens" / "settings_model.py"
-    tree = ast.parse(src.read_text())
+    tree = ast.parse(src.read_text(encoding="utf-8"))
     hidden = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.AnnAssign) and getattr(node.target, "id", "") == "_APP_HIDDEN_CATEGORIES":

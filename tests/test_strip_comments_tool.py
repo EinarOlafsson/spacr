@@ -97,9 +97,9 @@ def test_check_and_apply(tmp_path, capsys):
     f = tmp_path / "m.py"
     f.write_text("x = 1  # c\n# d\n")
     assert sc.main([str(tmp_path), "--check"]) == 1
-    assert f.read_text() == "x = 1  # c\n# d\n"
+    assert f.read_text(encoding="utf-8") == "x = 1  # c\n# d\n"
     assert sc.main([str(tmp_path), "--apply"]) == 0
-    assert f.read_text() == "x = 1\n"
+    assert f.read_text(encoding="utf-8") == "x = 1\n"
     assert sc.main([str(tmp_path), "--check"]) == 0
     assert "0 comments removable in 0 files" in capsys.readouterr().out
 

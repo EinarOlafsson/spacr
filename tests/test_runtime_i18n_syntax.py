@@ -110,7 +110,7 @@ def test_make_masks_short_group_headings_enter_translation():
     import build_i18n_catalogs as builder
 
     source = ROOT / "spacr/qt/screens/make_masks.py"
-    tree = ast.parse(source.read_text())
+    tree = ast.parse(source.read_text(encoding="utf-8"))
     captions = {node.args[0].value for node in ast.walk(tree)
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
                 and node.func.id == "tr" and node.args
@@ -148,7 +148,7 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     sources: set[str] = set()
     for filename, expected in (("import-examples", 9), ("synthetic-invasion", 1)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                               f"2026-09-21-{filename}.json").read_text())
+                               f"2026-09-21-{filename}.json").read_text(encoding="utf-8"))
         added = {record["source"] for record in document["records"]}
         # A record moved to retired_records (its English source changed) still
         # counts toward the historical totals, but is no longer live review.
@@ -162,7 +162,7 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     # Item463 replaced the unsegmented-example tooltip. Preserve the original
     # two-record evidence and prove that only the superseded tooltip retired.
     archive = json.loads((ROOT / "features/data/463_retired_runtime_review_2026-09-27" /
-                          f"{language}.json").read_text())["records"]
+                          f"{language}.json").read_text(encoding="utf-8"))["records"]
     old_invasion = {record["source"] for record in archive}
     assert len(archive) == len(old_invasion) == 2
     assert len(old_invasion - sources) == 1
@@ -175,7 +175,7 @@ def _later_cohort_records(path, expected, language, reviewed):
     """Retain the frozen cohort bytes while proving two removed brush captions."""
     if path.name != "2026-09-22-lock-levels-parascape-controls.json":
         assert hashlib.sha256(path.read_bytes()).hexdigest() == expected["sha256"]
-        return json.loads(path.read_text())["records"], set()
+        return json.loads(path.read_text(encoding="utf-8"))["records"], set()
     import gzip
 
     archive = ROOT / "tests/data/release_contracts/697_retired_runtime_controls_2026-10-15" / (language + ".json.gz")
@@ -200,7 +200,7 @@ def _later_cohort_records(path, expected, language, reviewed):
 
 
 def _later_cohort_retirements(language: str, reviewed: dict[str, str]) -> set[str]:
-    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
+    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text(encoding="utf-8"))["languages"][language]
     name = "2026-09-22-lock-levels-parascape-controls.json"
     expected = [row for row in report["files"] if row["name"] == name]
     assert len(expected) == 1
@@ -227,7 +227,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         ("2026-09-22-inversion-controls.json", 2 if language == "sv" else 1),
     ):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                               filename).read_text())
+                               filename).read_text(encoding="utf-8"))
         added = {record["source"] for record in document["records"]}
         # A record moved to retired_records (its English source changed) still
         # counts toward the historical totals, but is no longer live review.
@@ -240,7 +240,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         sources.update(added | retired)
     assert len(sources) == (142 if language == "sv" else 141)
     overlay = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                          "2026-09-22-plaque-overlays.json").read_text())
+                          "2026-09-22-plaque-overlays.json").read_text(encoding="utf-8"))
     overlay_sources = {record["source"] for record in overlay["records"]}
     # Plaque model has both a UI caption and a setting-label record.
     assert len(overlay["records"]) == 12
@@ -250,7 +250,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     sources.update(overlay_sources)
     assert len(sources) == (153 if language == "sv" else 152)
     panel = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                        "2026-09-22-detection-panel.json").read_text())
+                        "2026-09-22-detection-panel.json").read_text(encoding="utf-8"))
     panel_sources = {record["source"] for record in panel["records"]}
     panel_retired = _requested_detection_retirements(
         language, '2026-09-22-detection-panel.json')
@@ -266,7 +266,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
                                ("organism-identities", 2),
                                ("threshold-and-histogram", 13)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                               f"2026-09-22-{filename}.json").read_text())
+                               f"2026-09-22-{filename}.json").read_text(encoding="utf-8"))
         added = {record["source"] for record in document["records"]}
         assert len(document["records"]) == len(added) == expected
         assert added <= reviewed.keys()
@@ -277,7 +277,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         assert not added & sources
         sources.update(added)
     assert len(sources) + len(panel_retired) == (259 if language == "sv" else 258)
-    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
+    report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text(encoding="utf-8"))["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
     later_retired: set[str] = set()
@@ -293,7 +293,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         later_retired.update(retired)
     earlier_sources = {
         record["source"] for path in folder.glob("*.json") if path.name not in later_names
-        for record in json.loads(path.read_text())["records"]
+        for record in json.loads(path.read_text(encoding="utf-8"))["records"]
     }
     additions = later_sources - earlier_sources
     # 781 -> 780 on 2026-09-25: nightly merge 5c03e8bda removed one retired PSF
@@ -315,7 +315,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             # category, so its caption record was deleted (key gone).
             ("2026-09-27-mask-cloud-category.json", 2, 1),
             ("2026-09-28-runtime-577-585.json", 20, 20)):
-        document = json.loads((folder / filename).read_text())
+        document = json.loads((folder / filename).read_text(encoding="utf-8"))
         records = document["records"]
         values = {record["source"] for record in records}
         assert len(records) == record_count and len(values) == source_count
@@ -331,7 +331,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
 def _compact_tooltip_sources(language: str) -> set[str]:
     """Two concise replacements retain the scientific review cohort's size."""
     path = ROOT / "docs/i18n/reviewed/runtime" / language / "2026-09-22-compact-tooltips.json"
-    records = json.loads(path.read_text())["records"]
+    records = json.loads(path.read_text(encoding="utf-8"))["records"]
     assert len(records) == 2
     assert {record["table"] for record in records} == {"setting_tooltips"}
     assert {record["key"] for record in records} == {"annotation_source", "metadata_type"}
@@ -403,7 +403,7 @@ def _published_panel_retirements(language, filename):
         "so the install-and-sign-in panel that showed this caption "
         "(spacr/qt/widgets/cli_setup_panel.py) left the package."
     )
-    document = json.loads((folder / filename).read_text())
+    document = json.loads((folder / filename).read_text(encoding="utf-8"))
     entries = [row for row in document.get("retired_records", []) if row.get("reason") == reason]
     assert all(set(row) == {"reason", "record"} for row in entries)
     records = [row["record"] for row in entries]
@@ -429,12 +429,12 @@ def _requested_detection_retirements(language, filename):
     assert hashlib.sha256(receipt.read_bytes()).hexdigest() == (
         '3c795473005f52251d3197dc8c45be8e41d8b787bbf60de867090cd00318cc53')
     relative = f'docs/i18n/reviewed/runtime/{language}/{filename}'
-    entries = [entry for entry in json.loads(receipt.read_text())
+    entries = [entry for entry in json.loads(receipt.read_text(encoding="utf-8"))
                if entry['file'] == relative]
     # 2026-10-10: records whose English source changed when
     # toxoplasma_plaque_v3 became the default are moved to retired_records with
     # a dated reason; they count as retired here.
-    current_doc = json.loads((ROOT / relative).read_text())
+    current_doc = json.loads((ROOT / relative).read_text(encoding="utf-8"))
     later = [row for row in current_doc.get('retired_records', [])
              if str(row.get('retired', '')).startswith('2026-10-10')]
     later_sources = {row['source'] for row in later}
@@ -445,8 +445,8 @@ def _requested_detection_retirements(language, filename):
     entry = entries[0]
     archived = originals / relative
     assert hashlib.sha256(archived.read_bytes()).hexdigest() == entry['original_sha256']
-    original = json.loads(archived.read_text())['records']
-    current = json.loads((ROOT / relative).read_text())
+    original = json.loads(archived.read_text(encoding="utf-8"))['records']
+    current = json.loads((ROOT / relative).read_text(encoding="utf-8"))
     retired = [row for row in original if row['key'] in entry['keys']]
     assert len(retired) == len(entry['keys'])
     assert all(hashlib.sha256(row['source'].encode()).hexdigest()
@@ -476,12 +476,12 @@ def _figure_export_retirements(language, filename):
     archive = folder / "archive/2026-10-15-figure-export-prose" / filename
     archive_hashes = {'fr': '30e2bd2724ef34c3cb52e533fe6f2b280f926b83599b99e91b95f07d41fbdd08', 'sv': '297c6f8f924c71ec2bf1a2e84b71c3a819bdf61318c18779a509adb15d456526'}
     assert hashlib.sha256(archive.read_bytes()).hexdigest() == archive_hashes[language]
-    original = json.loads(archive.read_text())["records"]
+    original = json.loads(archive.read_text(encoding="utf-8"))["records"]
     reason = (
         "2026-10-15: exact old source is no longer canonical after N678 "
         "figure-export factual corrections c1be6383a7c; superseded by "
         "2026-10-15-figure-export-factual.json. Original bytes archived beside this review.")
-    retired = [row for row in json.loads((folder / filename).read_text())
+    retired = [row for row in json.loads((folder / filename).read_text(encoding="utf-8"))
                .get("retired_records", []) if row.get("retired") == reason]
     expected = {
         "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
@@ -512,8 +512,8 @@ def _theme_cohort_retirements(language, filename):
         return requested
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     original = json.loads((folder / "archive/2026-10-06-home-cell-dino-save-themes"
-                           / filename).read_text())["records"]
-    current = json.loads((folder / filename).read_text())["records"]
+                           / filename).read_text(encoding="utf-8"))["records"]
+    current = json.loads((folder / filename).read_text(encoding="utf-8"))["records"]
     retired_hashes = {hashes[filename]}
     if filename == "2026-09-15-integration-review.json":
         retired_hashes.add(
@@ -526,7 +526,7 @@ def _theme_cohort_retirements(language, filename):
     # 2026-10-11: records whose English the N678 factual review rewrote are
     # moved to retired_records; they leave the live list but are not part of
     # this cohort's count.
-    n678 = {row['source'] for row in json.loads((folder / filename).read_text())
+    n678 = {row['source'] for row in json.loads((folder / filename).read_text(encoding="utf-8"))
             .get('retired_records', [])
             if str(row.get('retired', '')).startswith(
                 ('2026-10-11', '2026-10-16', '2026-10-17', TUTORIAL_RENDERER_RETIRED))}
@@ -541,7 +541,7 @@ def _with_training_sample_replacements(document, language, filename):
     archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
     if not archive.exists():
         return document
-    original = json.loads(archive.read_text())["records"]
+    original = json.loads(archive.read_text(encoding="utf-8"))["records"]
     retained = document["records"]
     # 600b, 2026-09-29: Make Masks' Features button was removed, so its
     # tooltip's reviewed record was deleted (key gone); it is not one of the
@@ -573,7 +573,7 @@ def _with_training_sample_replacements(document, language, filename):
     assert all(row in document["retired_records"] for row in retired)
     assert retained == [row for row in original if row not in retired]
     replacement = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                              "2026-09-27-training-samples.json").read_text())["records"]
+                              "2026-09-27-training-samples.json").read_text(encoding="utf-8"))["records"]
     assert len(replacement) == 3
     assert {row["source"] for row in replacement} == set(replacements.values())
     from build_i18n_catalogs import reviewed_runtime_translations
@@ -600,7 +600,7 @@ def _inherited_2026_09_28_sources(language: str, reviewed) -> set[str]:
     sources = set()
     for name in INHERITED_2026_09_28:
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language
-                               / name).read_text())
+                               / name).read_text(encoding="utf-8"))
         sources |= {record["source"] for record in document["records"]}
     # 31 -> 30 on 2026-09-29: the "Measurement Backend (Alpha)" caption was
     # renamed to its "α" form (591-597); the old record was deleted.
@@ -622,12 +622,12 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     paths = sorted(folder.glob("2026-09-25-runtime-debt-*.json"))
     first = [record for path in paths if "-second-pass-" not in path.name
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     # The second pass covers sources added on nightly after the first pass
     # was prepared (items 509-530); it is optional here so a locale can land
     # its first pass alone, and it must not overlap the first.
     second = [record for path in paths if "-second-pass-" in path.name
-              for record in json.loads(path.read_text())["records"]]
+              for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     sources = {record["source"] for record in first}
     retired = set().union(*(_requested_detection_retirements(language, path.name)
                             for path in paths if '-second-pass-' not in path.name))
@@ -644,7 +644,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # the older counts are unchanged; every source was pending before, so
     # it overlaps neither earlier pass.
     third = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-third-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest = {record["source"] for record in third}
     assert len(third) == len(latest) and not latest & sources
     sources |= latest
@@ -655,7 +655,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # enhance_clahe, timelapse_mode, Make Masks' CLAHE caption). The stale
     # records those edits left were deleted, as the loader directs.
     fourth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fourth-pass-*.json"))
-              for record in json.loads(path.read_text())["records"]]
+              for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     newest = {record["source"] for record in fourth}
     assert len(fourth) == len(newest) and not newest & sources
     sources |= newest
@@ -663,20 +663,20 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # the profiling and cell-cycle settings that reached nightly after the
     # fourth. Every source was pending, so it overlaps no earlier pass.
     fifth = [record for path in sorted(folder.glob("2026-09-26-runtime-debt-fifth-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest5 = {record["source"] for record in fifth}
     assert len(fifth) == len(latest5) and not latest5 & sources
     sources |= latest5
     # The sixth pass (2026-09-27) is one more slice: items 539, 571, 579,
     # 582 and the other captions nightly added after the fifth.
     sixth = [record for path in sorted(folder.glob("2026-09-27-runtime-debt-sixth-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest6 = {record["source"] for record in sixth}
     assert len(sixth) == len(latest6) and not latest6 & sources
     sources |= latest6
     # Direct Codex-reviewed delta: 129 new sources plus11 extraction repairs,
     # minus the Spotiflow identity; Hindi also resolves35 historical fallbacks.
-    seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+    seventh = json.loads((folder / "2026-09-27-runtime-codex-delta.json").read_text(encoding="utf-8"))["records"]
     latest7 = {record["source"] for record in seventh}
     # 139 -> 136 (hi 174 -> 171) on 2026-09-29: items 591-597 renamed the
     # Event Detection, GPU Measurement and Segmentation Robustness categories
@@ -688,7 +688,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # retired_records; the current wording is in the alpha-batch file.
     # 2026-10-05: the watch_folder microscope-feedback tooltip was rewritten.
     original = json.loads((folder / "archive/2026-10-06-subcell-rybg/"
-                           "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+                           "2026-09-27-runtime-codex-delta.json").read_text(encoding="utf-8"))["records"]
     retired_hashes = {
         "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
         "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
@@ -706,7 +706,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert len(seventh) == len(latest7) == len(original) - len(retired)
     assert not {record["source"] for record in retired} & reviewed.keys()
     replacements = json.loads((folder / "2026-10-06-home-cell-dino-save-themes.json"
-                               ).read_text())["records"]
+                               ).read_text(encoding="utf-8"))["records"]
     replacement = [record for record in replacements if record["source"].startswith(
         "A model trained on microscopy rather than photographs.")]
     assert len(replacement) == 1
@@ -714,7 +714,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert reviewed[replacement[0]["source"]] == replacement[0]["translation"]
     from tools.build_i18n_catalogs import canonical_sources
 
-    diameter_reviews = json.loads((folder / "2026-10-14-magnification-default-and-auto-diameter.json").read_text())["records"]
+    diameter_reviews = json.loads((folder / "2026-10-14-magnification-default-and-auto-diameter.json").read_text(encoding="utf-8"))["records"]
     diameter = [record for record in diameter_reviews
                 if record["table"] == "setting_tooltips"
                 and record["key"] == "robustness_diameter_factors"]
@@ -731,7 +731,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert current_timelapse in reviewed
     assert not latest7 & sources
     sources |= latest7
-    discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
+    discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text(encoding="utf-8"))["records"]
     discovery_sources = {record["source"] for record in discovery}
     assert len(discovery) == 1
     assert discovery_sources == {"Checking compatible GPUs…"}
@@ -741,14 +741,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # channel-sort and consolidate dialogs, Noise2Void and the new category
     # help (items 591-597), one more slice that overlaps nothing earlier.
     pass7 = [record for path in sorted(folder.glob("2026-09-29-runtime-debt-seventh-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p7 = {record["source"] for record in pass7}
     assert len(pass7) == len(latest_p7) and not latest_p7 & sources
     sources |= latest_p7
     # 2026-09-29 (474): the eight organism tile usage notes ("Opens ..."),
     # which entered the runtime inventory only now; another disjoint slice.
     notes = json.loads((folder / "2026-09-29-organism-workflow-notes.json")
-                       .read_text())["records"]
+                       .read_text(encoding="utf-8"))["records"]
     note_sources = {record["source"] for record in notes}
     assert len(notes) == len(note_sources) == 8 and not note_sources & sources
     sources |= note_sources
@@ -756,14 +756,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # its regex teaching and drop-classification dialogs and the popup
     # table's view options (items 600 and 592); another disjoint slice.
     pass8 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eighth-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p8 = {record["source"] for record in pass8}
     assert len(pass8) == len(latest_p8) and not latest_p8 & sources
     sources |= latest_p8
     # The 2026-09-30 ninth runtime pass: the colony_detector setting label
     # and tooltip (item 542); another disjoint slice.
     pass9 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-ninth-pass-*.json"))
-             for record in json.loads(path.read_text())["records"]]
+             for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p9 = {record["source"] for record in pass9}
     assert len(pass9) == len(latest_p9) and not latest_p9 & sources
     sources |= latest_p9
@@ -772,7 +772,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # in place) and the Make Masks button re-layout (Upload data, the Load
     # test data menu, the Uncertainty setting).
     pass10 = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-tenth-pass-*.json"))
-              for record in json.loads(path.read_text())["records"]]
+              for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p10 = {record["source"] for record in pass10}
     assert len(pass10) == len(latest_p10) and not latest_p10 & sources
     sources |= latest_p10
@@ -780,7 +780,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # tooltips item 536 rewrote (their fourth-pass records retired in place)
     # and item 603's tooltip-delay row; disjoint from every earlier slice.
     pass11a = [record for path in sorted(folder.glob("2026-09-30-runtime-debt-eleventh-pass-*.json"))
-               for record in json.loads(path.read_text())["records"]]
+               for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p11a = {record["source"] for record in pass11a}
     assert len(pass11a) == len(latest_p11a) and not latest_p11a & sources
     sources |= latest_p11a
@@ -788,14 +788,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # translated names (train, model zoo, batch, run, seed, hit, well, ...)
     # that had no reviewed record before; another disjoint slice.
     pass11 = [record for path in sorted(folder.glob("2026-09-30-runtime-meaning-fixes-eleventh-pass*.json"))
-              for record in json.loads(path.read_text())["records"]]
+              for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p11 = {record["source"] for record in pass11}
     assert len(pass11) == len(latest_p11) and not latest_p11 & sources
     sources |= latest_p11
     # The 2026-10-01 twelfth runtime pass: the AI meaning review of setting
     # labels and tooltips that had only a machine translation; disjoint.
     pass12 = [record for path in sorted(folder.glob("2026-10-01-runtime-review-twelfth-pass-*.json"))
-              for record in json.loads(path.read_text())["records"]]
+              for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_p12 = {record["source"] for record in pass12}
     assert len(pass12) == len(latest_p12) and not latest_p12 & sources
     sources |= latest_p12
@@ -804,7 +804,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # dated file in the folder, each one more disjoint slice of new sources.
     batches = [record for path in sorted(folder.glob("2026-1[0-2]-*.json"))
                if "-runtime-review-twelfth-pass-" not in path.name
-               for record in json.loads(path.read_text())["records"]]
+               for record in json.loads(path.read_text(encoding="utf-8"))["records"]]
     latest_batches = {record["source"] for record in batches}
     repeated_sources = {
         "Batch size": "8cfe32a04155c2ea30704f9c105e6ff553fdb51ad8e1b153ab4296b554c97f7c",
@@ -824,7 +824,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
                      "Object type": "object_type", "Save measurements": "save_measurements"}
     for source, source_hash in repeated_sources.items():
         current_file = current_files.get(source, "2026-10-15-f561-classifier-ui-runtime-home-b.json")
-        current = [row for row in json.loads((folder / current_file).read_text())["records"]
+        current = [row for row in json.loads((folder / current_file).read_text(encoding="utf-8"))["records"]
                    if row["source"] == source]
         assert len(current) == 1
         current = current[0]
@@ -836,7 +836,7 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
             if source == "Train" or (language == "sv" and source == "Batch size")
             else "2026-10-01-runtime-review-twelfth-pass-labels.json"
         )
-        previous = [row for row in json.loads((folder / previous_file).read_text())["records"]
+        previous = [row for row in json.loads((folder / previous_file).read_text(encoding="utf-8"))["records"]
                     if row["source"] == source]
         assert len(previous) == 1
         previous = previous[0]
@@ -884,7 +884,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # between both tables (272 records). The detection-panel consolidation
     # retired five source captions, preserving their records in the archive.
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                              "2026-09-21-runtime-ui-refresh.json").read_text())
+                              "2026-09-21-runtime-ui-refresh.json").read_text(encoding="utf-8"))
     ui_refresh = _with_training_sample_replacements(
         ui_refresh, "sv", "2026-09-21-runtime-ui-refresh.json")
     ui_sources = {record["source"] for record in ui_refresh["records"]}
@@ -904,19 +904,19 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                            "2026-09-21-assay-and-plate-examples.json").read_text())
+                            "2026-09-21-assay-and-plate-examples.json").read_text(encoding="utf-8"))
     example_sources = {record["source"] for record in examples["records"]}
     assert len(example_sources) == 7
     assert example_sources <= all_reviewed.keys()
     assert not example_sources & ui_sources
     previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                            "2026-09-21-preview-refresh.json").read_text())
+                            "2026-09-21-preview-refresh.json").read_text(encoding="utf-8"))
     preview_sources = {record["source"] for record in previews["records"]}
     assert len(preview_sources) == 5
     assert preview_sources <= all_reviewed.keys()
     assert not preview_sources & example_sources
     normalized = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                              "2026-09-21-normalized-detection.json").read_text())
+                              "2026-09-21-normalized-detection.json").read_text(encoding="utf-8"))
     normalized_sources = {record["source"] for record in normalized["records"]}
     assert len(normalized_sources) == 5
     assert normalized_sources <= all_reviewed.keys()
@@ -1064,18 +1064,18 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
     # this file's distinct sources restores the previously verified count.
     readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                           "2026-09-21-make-masks-readouts.json").read_text())
+                           "2026-09-21-make-masks-readouts.json").read_text(encoding="utf-8"))
     added_sources = {record["source"] for record in readouts["records"]}
     assert len(added_sources) == 7  # Quality already has a compact owner.
     assert added_sources <= reviewed.keys()
     background = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                              "2026-09-21-organelle-background.json").read_text())
+                              "2026-09-21-organelle-background.json").read_text(encoding="utf-8"))
     background_sources = {record["source"] for record in background["records"]}
     assert len(background_sources) == 8
     assert not added_sources & background_sources
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                           "2026-09-21-dataset-sample-counts.json").read_text())
+                           "2026-09-21-dataset-sample-counts.json").read_text(encoding="utf-8"))
     samples = _with_training_sample_replacements(
         samples, "sv", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}
@@ -1083,7 +1083,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert sample_sources <= reviewed.keys()
     assert not sample_sources & (added_sources | background_sources)
     scientific = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
-                              "2026-09-21-scientific-settings.json").read_text())
+                              "2026-09-21-scientific-settings.json").read_text(encoding="utf-8"))
     scientific_sources = {record["source"] for record in scientific["records"]}
     assert len(scientific_sources) == 35  # 37 -> 35 on 2026-10-11: two records retired by the N678 factual review
     assert not scientific_sources & _compact_tooltip_sources("sv")
@@ -1150,7 +1150,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(base_retired) == 4 and len(refresh_retired) == 2
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                          "2026-09-21-runtime-first-slice.json").read_text())
+                          "2026-09-21-runtime-first-slice.json").read_text(encoding="utf-8"))
     refresh_sources = {record["source"] for record in refresh["records"]}
     # Item 511 retired one filter caption from each of the four slices, and
     # instruction 316 retired the setup and sign-in captions that moved to
@@ -1164,7 +1164,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(refresh_sources) == 67  # 72 -> 67 on 2026-10-17 (item 678 Home app-text retirements)
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                         "2026-09-21-runtime-second-slice.json").read_text())
+                         "2026-09-21-runtime-second-slice.json").read_text(encoding="utf-8"))
     second = _with_training_sample_replacements(
         second, "fr", "2026-09-21-runtime-second-slice.json")
     second_sources = {record["source"] for record in second["records"]}
@@ -1179,7 +1179,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-10-17, item 678: three fourth-slice records retired: 71 -> 68.
     for filename, expected in (("third", 67), ("fourth", 68)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                               f"2026-09-21-runtime-{filename}-slice.json").read_text())
+                               f"2026-09-21-runtime-{filename}-slice.json").read_text(encoding="utf-8"))
         document = _with_training_sample_replacements(
             document, "fr", f"2026-09-21-runtime-{filename}-slice.json")
         added = {record["source"] for record in document["records"]}
@@ -1192,25 +1192,25 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-10-11: -3, the N678 factual-review retirements (see the first slice).
     assert len(refresh_sources) + len(refresh_retired) + len(published_retired) == 265  # 707 (2026-10-16): -1, Prev image retired.  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.  # 273 -> 265 on 2026-10-17 (item 678 Home app-text retirements)
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                          "2026-09-21-action-labels.json").read_text())
+                          "2026-09-21-action-labels.json").read_text(encoding="utf-8"))
     action_sources = {record["source"] for record in actions["records"]}
     assert len(actions["records"]) == len(action_sources) == 5
     assert action_sources <= all_reviewed.keys()
     assert not action_sources & refresh_sources
     refresh_sources |= action_sources
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                            "2026-09-21-assay-and-plate-examples.json").read_text())
+                            "2026-09-21-assay-and-plate-examples.json").read_text(encoding="utf-8"))
     example_sources = {record["source"] for record in examples["records"]}
     assert len(example_sources) == 7
     assert example_sources <= all_reviewed.keys()
     previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                            "2026-09-21-preview-refresh.json").read_text())
+                            "2026-09-21-preview-refresh.json").read_text(encoding="utf-8"))
     preview_sources = {record["source"] for record in previews["records"]}
     assert len(preview_sources) == 5
     assert preview_sources <= all_reviewed.keys()
     assert not preview_sources & example_sources
     normalized = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                              "2026-09-21-normalized-detection.json").read_text())
+                              "2026-09-21-normalized-detection.json").read_text(encoding="utf-8"))
     normalized_sources = {record["source"] for record in normalized["records"]}
     assert len(normalized_sources) == 5
     assert normalized_sources <= all_reviewed.keys()
@@ -1357,18 +1357,18 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
     # this file's distinct sources restores the previously verified count.
     readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                           "2026-09-21-make-masks-readouts.json").read_text())
+                           "2026-09-21-make-masks-readouts.json").read_text(encoding="utf-8"))
     added_sources = {record["source"] for record in readouts["records"]}
     assert len(added_sources) == 7  # Quality already has a compact owner.
     assert added_sources <= reviewed.keys()
     background = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                              "2026-09-21-organelle-background.json").read_text())
+                              "2026-09-21-organelle-background.json").read_text(encoding="utf-8"))
     background_sources = {record["source"] for record in background["records"]}
     assert len(background_sources) == 8
     assert not added_sources & background_sources
     assert background_sources <= reviewed.keys()
     samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
-                           "2026-09-21-dataset-sample-counts.json").read_text())
+                           "2026-09-21-dataset-sample-counts.json").read_text(encoding="utf-8"))
     samples = _with_training_sample_replacements(
         samples, "fr", "2026-09-21-dataset-sample-counts.json")
     sample_sources = {record["source"] for record in samples["records"]}

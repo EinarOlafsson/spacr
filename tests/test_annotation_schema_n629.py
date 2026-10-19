@@ -40,12 +40,12 @@ def test_roundtrip_rebinds_to_different_table_without_exporting_source_data(tmp_
     before = frame.copy(deep=True)
     path = tmp_path / "schema α.json"
     assert annotations._save_schema(path, frame, definition, source) == 0
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload["format"] == "spacr.annotation-schema"
     assert set(payload) == {"format", "version", "recipe_version", "manual_rows", "columns"}
-    assert "source.csv" not in path.read_text()
-    assert "HeLa_rep1.tif" not in path.read_text()
-    assert "control α" in path.read_text()
+    assert "source.csv" not in path.read_text(encoding="utf-8")
+    assert "HeLa_rep1.tif" not in path.read_text(encoding="utf-8")
+    assert "control α" in path.read_text(encoding="utf-8")
     other = pd.DataFrame({"filename": ["HeLa_rep9.tif", "HeLa_rep8.tif", None],
                           "measurement": [20, 30, 40]}, index=[4, 2, 4])
     context = annotations.source_context(tmp_path / "other.db", "cells")
@@ -71,7 +71,7 @@ def test_manual_assignments_are_not_replayed_even_on_identical_rows(tmp_path):
     snapshot = copy.deepcopy(definition)
     path = tmp_path / "manual.json"
     assert annotations._save_schema(path, frame, definition, source) == 1
-    assert token not in path.read_text()
+    assert token not in path.read_text(encoding="utf-8")
     loaded, report = annotations._load_schema(path, frame, source)
     assert loaded["version"] == 1
     assert loaded["conditions"][0]["manual_rows"] == []
@@ -146,7 +146,7 @@ def test_malformed_rule_types_fail_before_save_or_load_evaluation(tmp_path, fiel
     path.write_text("previous schema")
     with pytest.raises(annotations.AnnotationError):
         annotations._save_schema(path, frame, definition, source)
-    assert path.read_text() == "previous schema"
+    assert path.read_text(encoding="utf-8") == "previous schema"
     payload = {"format": "spacr.annotation-schema", "version": 1, "recipe_version": 3,
                "manual_rows": "excluded", "columns": definition["columns"]}
     path.write_text(json.dumps(payload))
@@ -171,7 +171,7 @@ def test_legacy_dormant_criteria_cannot_create_an_unloadable_schema(tmp_path, ve
     path.write_text("previous schema")
     with pytest.raises(annotations.AnnotationError, match="version 3"):
         annotations._save_schema(path, frame, definition, source)
-    assert path.read_text() == "previous schema"
+    assert path.read_text(encoding="utf-8") == "previous schema"
 
 
 @pytest.mark.parametrize("mode", ["regex", "values"])
@@ -214,7 +214,7 @@ def test_invalid_schema_never_modifies_source(tmp_path, alter):
     frame, source, definition = fixture_recipe(tmp_path)
     path = tmp_path / "recipe.json"
     annotations._save_schema(path, frame, definition, source)
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     alter(payload)
     path.write_text(json.dumps(payload))
     before = frame.copy(deep=True)
@@ -257,7 +257,7 @@ def test_save_refuses_source_path_and_hardlink(tmp_path):
     for path in (source_path, alias):
         with pytest.raises(annotations.AnnotationError, match="separately"):
             annotations._save_schema(path, frame, definition, source)
-    assert source_path.read_text() == alias.read_text() == "original measurements"
+    assert source_path.read_text(encoding="utf-8") == alias.read_text(encoding="utf-8") == "original measurements"
 
 
 def test_failed_atomic_replace_preserves_existing_schema(tmp_path, monkeypatch):
@@ -273,5 +273,5 @@ def test_failed_atomic_replace_preserves_existing_schema(tmp_path, monkeypatch):
     monkeypatch.setattr(run_journal.os, "replace", fail)
     with pytest.raises(OSError, match="disk failure"):
         annotations._save_schema(path, frame, definition, source)
-    assert path.read_text() == "previous schema"
+    assert path.read_text(encoding="utf-8") == "previous schema"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["schema.json"]

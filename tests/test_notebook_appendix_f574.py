@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _layout_helpers():
     """Load only the generator's real layout helpers without pipeline imports."""
-    tree = ast.parse((ROOT / "tools/build_notebook_settings.py").read_text())
+    tree = ast.parse((ROOT / "tools/build_notebook_settings.py").read_text(encoding="utf-8"))
     names = {"_cell_kind", "_insertion_point", "_place_generated_cells", "_place_run_cell"}
     nodes = [ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)]
     nodes.extend(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names)
@@ -22,7 +22,7 @@ def _layout_helpers():
 
 def test_regeneration_layout_keeps_archive_after_measurement():
     helpers = _layout_helpers()
-    notebook = json.loads((ROOT / "Notebooks/02_measure_and_crop.ipynb").read_text())
+    notebook = json.loads((ROOT / "Notebooks/02_measure_and_crop.ipynb").read_text(encoding="utf-8"))
     cells = copy.deepcopy(notebook["cells"])
     kind = helpers["_cell_kind"]
     help_cell = next(cell for cell in cells if kind(cell) == "settings-help")
@@ -47,7 +47,7 @@ def test_unmarked_notebooks_retain_heading_and_last_code_fallback():
 
 
 def test_archive_notebook_cell_ids_and_python_are_valid():
-    notebook = json.loads((ROOT / "Notebooks/02_measure_and_crop.ipynb").read_text())
+    notebook = json.loads((ROOT / "Notebooks/02_measure_and_crop.ipynb").read_text(encoding="utf-8"))
     identifiers = [cell["id"] for cell in notebook["cells"]]
     assert len(identifiers) == len(set(identifiers))
     for cell in notebook["cells"]:

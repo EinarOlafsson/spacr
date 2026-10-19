@@ -95,7 +95,7 @@ def setup(app):
         capture_output=True, text=True, timeout=45,
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    return (output / 'autoapi/projection_fixture/engine/index.html').read_text()
+    return (output / 'autoapi/projection_fixture/engine/index.html').read_text(encoding="utf-8")
 
 
 def test_actual_projection_renders_existing_source_without_imported_duplicates(tmp_path):
@@ -214,8 +214,8 @@ def test_actual_source_branches_render_once_with_source_defaults(tmp_path):
     before = _build_branches(tmp_path / 'before', supplemented=False)
     after = _build_branches(tmp_path / 'after', supplemented=True)
     relative = 'autoapi/projection_fixture/engine/index.html'
-    old = (before / relative).read_text()
-    rendered = (after / relative).read_text()
+    old = (before / relative).read_text(encoding="utf-8")
+    rendered = (after / relative).read_text(encoding="utf-8")
     inventory = zlib.decompress((after / 'objects.inv').read_bytes().split(b'\n', 4)[4]).decode()
     for suffix, kind in (('Optional', 'class'), ('Optional.mode', 'property'),
                          ('Optional.step', 'method'), ('branch', 'function')):

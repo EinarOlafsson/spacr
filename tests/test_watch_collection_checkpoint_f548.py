@@ -108,14 +108,14 @@ def test_unverifiable_collection_refuses_without_reanalysis(tmp_path, monkeypatc
     before.pop('spacr_watch/watch_ledger.json')
     after.pop('spacr_watch/watch_ledger.json')
     assert after == before
-    entry = json.loads(Path(result['ledger']).read_text())['fields']['plate1_A01_0001_001']
+    entry = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))['fields']['plate1_A01_0001_001']
     assert 'collection' in entry['error'].lower()
 
 
 def test_running_checkpoint_after_process_exit_is_recoverable(tmp_path, monkeypatch):
     analysis = _fail_collection(tmp_path, monkeypatch)
     path = tmp_path / 'spacr_watch/watch_ledger.json'
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger['fields']['plate1_A01_0001_001']['status'] = 'running'
     path.write_text(json.dumps(ledger))
     assert core._watch_folder_and_analyse(_settings(tmp_path, 'mask_measure'), analysis)['done']

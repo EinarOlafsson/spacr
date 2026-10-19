@@ -715,7 +715,7 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
             f"was removed or made private; that is a source change, not a "
             f"build one")
     arrivals = json.loads((ROOT / "tests/data/release_contracts"
-                          / "615_api_browser_arrivals_2026-10-07.json").read_text())
+                          / "615_api_browser_arrivals_2026-10-07.json").read_text(encoding="utf-8"))
     assert len(arrivals) == 33
     # 2026-10-18: item 560's Cell-DINO checkpoint picker rewrote two of these
     # arrivals; the contract keeps the 2026-10-07 wording and the current
@@ -742,13 +742,13 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     assert {key: docs[key] for key in unchanged} == unchanged
     assert {key: english["symbols"][key]["text"] for key in unchanged} == unchanged
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
     assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
     assert not worker_arrivals.keys() & arrivals.keys()
     assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10  # + LiveSettingsDialog.close (39bfe8e19)
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
@@ -766,13 +766,13 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     assert "tutorial_cli_api_changes_2026-10-12.json" in documented_contracts
     documented_arrivals = {}
     for filename in (*documented_contracts, "parascape_rename_api_arrivals_2026-10-18.json"):
-        payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text())
+        payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text(encoding="utf-8"))
         payload = payload.get("added", payload.get("API_arrivals", payload))
         assert payload
         assert {key: docs[key] for key in payload} == payload
         documented_arrivals.update(payload)
     rename = json.loads((ROOT / "tests/data/release_contracts"
-        / "parascape_rename_api_arrivals_2026-10-18.json").read_text())
+        / "parascape_rename_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
     assert len(rename) == 26
     assert not {
         key for key in catalog

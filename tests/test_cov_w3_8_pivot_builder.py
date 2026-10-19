@@ -331,5 +331,5 @@ def test_a_written_table_is_named_in_the_notice(panel, tmp_path):
     panel.recompute()
     target = tmp_path / "tabulate.csv"
     assert panel.export_csv(str(target)) == str(target)
-    assert target.read_text().strip()
+    assert target.read_text(encoding="utf-8").strip()
     assert f"wrote {target}" in panel.notice.text()

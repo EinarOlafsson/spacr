@@ -52,7 +52,7 @@ def test_pyqtgraph_is_a_declared_dependency():
     import spacr
 
     source = pathlib.Path(spacr.__file__).parent.parent / "setup.py"
-    text = source.read_text()
+    text = source.read_text(encoding="utf-8")
     assert "pyqtgraph" in text
     core = text.split("dependencies = [", 1)[1].split("\n]", 1)[0]
     assert "pyqtgraph" in core, core

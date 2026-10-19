@@ -319,7 +319,7 @@ def test_exhausted_final_retry_retains_data_and_full_original_traceback(tmp_path
     assert isinstance(outcomes[0][2].__cause__, sqlite3.OperationalError)
     spool = Path(writer.endpoint.folder) / (ticket + '.pkl')
     assert spool.exists()
-    evidence = Path(str(spool) + '.error.json').read_text()
+    evidence = Path(str(spool) + '.error.json').read_text(encoding="utf-8")
     assert 'in busy' in evidence and 'database is locked' in evidence
 
 

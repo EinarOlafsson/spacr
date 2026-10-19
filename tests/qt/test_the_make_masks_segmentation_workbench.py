@@ -661,7 +661,7 @@ def test_the_gui_only_sentence_is_written_in_cli_not_borrowed_from_a_row():
 
     import spacr.cli as cli_module
 
-    source = pathlib.Path(cli_module.__file__).read_text()
+    source = pathlib.Path(cli_module.__file__).read_text(encoding="utf-8")
     written = set()
     for node in ast.walk(ast.parse(source)):
         if not isinstance(node, ast.AnnAssign):

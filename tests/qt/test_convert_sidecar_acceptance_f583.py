@@ -69,7 +69,7 @@ def test_threaded_buttons_discover_sidecar_fill_map_and_report_mismatch(
     assert len(observed) == 2 and all(not on_gui for on_gui, _ in observed)
     assert all(not settings['plate_barcodes'] for _, settings in observed)
     bundle = dst / 'plate_barcode_linkage'
-    receipt = json.loads((bundle / 'complete.json').read_text())
+    receipt = json.loads((bundle / 'complete.json').read_text(encoding="utf-8"))
     assert receipt['complete'] and receipt['plate_barcodes'] == {'plate1': '0001'}
     assert receipt['barcode_origins']['plate1'] == [
         {'kind': 'barcode.txt', 'path': str(sidecar), 'source_plate': 'raw'}]

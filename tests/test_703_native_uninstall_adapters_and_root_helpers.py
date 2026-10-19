@@ -333,7 +333,7 @@ def test_a_directory_replaced_while_it_is_opened_is_refused(tmp_path, monkeypatc
     monkeypatch.setattr(ic.os, "fstat", moved)
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(root), identity, [], apply=True, owner=os.getuid())
-    assert payload.read_text() == "software"
+    assert payload.read_text(encoding="utf-8") == "software"
 
 
 def test_a_file_replaced_between_check_and_removal_is_refused(tmp_path, monkeypatch):
@@ -353,7 +353,7 @@ def test_a_file_replaced_between_check_and_removal_is_refused(tmp_path, monkeypa
     monkeypatch.setattr(ic.os, "stat", replaced)
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(root), identity, [], apply=True, owner=os.getuid())
-    assert payload.read_text() == "software"
+    assert payload.read_text(encoding="utf-8") == "software"
 
 
 class _Channel:
@@ -536,7 +536,7 @@ def test_a_native_choice_that_changed_since_review_stops_the_plan(installation, 
     with pytest.raises(ValueError, match="installation changed"):
         ic._run_uninstall_plan(str(path), system=machine, wait=lambda pid: True)
     assert (root / "venv" / "bin" / "python").exists()
-    readiness = json.loads((tmp_path / "outside-helper" / "readiness.json").read_text())
+    readiness = json.loads((tmp_path / "outside-helper" / "readiness.json").read_text(encoding="utf-8"))
     assert readiness["state"] == "error" and "installation changed" in readiness["error"]
 
 
@@ -571,7 +571,7 @@ def test_after_the_native_removal_only_the_reviewed_remainder_is_deleted(install
     assert ic._run_uninstall_plan(str(path), system=machine, wait=lambda pid: True) == 0
     assert ran and not leftover.exists()
     assert (root / "venv" / "bin" / "python").exists()
-    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text())["ok"]
+    assert json.loads((tmp_path / "outside-helper" / "result.json").read_text(encoding="utf-8"))["ok"]
 
 
 @pytest.mark.parametrize("problem, error", [

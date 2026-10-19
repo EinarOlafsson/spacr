@@ -59,7 +59,7 @@ def test_a_failed_replace_keeps_the_previous_report_and_cleans_up(
     monkeypatch.setattr("os.replace", refuse_replace)
     with pytest.raises(OSError, match="destination is unavailable"):
         sp_stats._write_hit_structures_svg(structure, tmp_path)
-    assert destination.read_text() == "previous complete report"
+    assert destination.read_text(encoding="utf-8") == "previous complete report"
     assert list(tmp_path.iterdir()) == [destination]
 
 
@@ -74,5 +74,5 @@ def test_a_failed_scratch_creation_does_not_touch_the_previous_report(
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", refuse_scratch)
     with pytest.raises(OSError, match="cannot create scratch file"):
         sp_stats._write_hit_structures_svg(structure, tmp_path)
-    assert destination.read_text() == "previous complete report"
+    assert destination.read_text(encoding="utf-8") == "previous complete report"
     assert list(tmp_path.iterdir()) == [destination]

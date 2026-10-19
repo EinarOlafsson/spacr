@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_the_compat_matrix_parses_powershell_with_both_shells():
-    workflow = yaml.safe_load((ROOT / ".github/workflows/compat-matrix.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/compat-matrix.yml").read_text(encoding="utf-8"))
     triggers = workflow.get("on", workflow.get(True))
     assert "nightly" in triggers["push"]["branches"]
     job = workflow["jobs"]["powershell-parse"]

@@ -12,7 +12,7 @@ BUILDER = ROOT / "packaging/build_windows.ps1"
 
 
 def _run(source, version="1.5.1.4"):
-    text = BUILDER.read_text()
+    text = BUILDER.read_text(encoding="utf-8")
     assert "$ManifestBuilder = @'\n" in text, "Frozen payload ownership must be recorded before packaging"
     script = text.split("$ManifestBuilder = @'\n", 1)[1].split("\n'@", 1)[0]
     script_path = source.parent / "manifest builder.py"
@@ -37,9 +37,9 @@ def test_manifest_binds_every_payload_file_and_exact_requested_version(tmp_path)
     result = _run(source)
     assert result.returncode == 0, result.stderr
     protocol = source / "_internal/spacr-uninstall-protocol.json"
-    assert json.loads(protocol.read_text()) == {"schema": 1, "adapter": "windows-frozen-uninstall-v1"}
+    assert json.loads(protocol.read_text(encoding="utf-8")) == {"schema": 1, "adapter": "windows-frozen-uninstall-v1"}
     before[protocol.relative_to(source).as_posix()] = protocol.read_bytes()
-    manifest = json.loads((source / "spacr-payload.json").read_text())
+    manifest = json.loads((source / "spacr-payload.json").read_text(encoding="utf-8"))
     assert manifest == {"schema": 1, "version": "1.5.1.4", "files": {
         name: hashlib.sha256(content).hexdigest() for name, content in before.items()}}
     assert all((source / name).read_bytes() == content for name, content in before.items())

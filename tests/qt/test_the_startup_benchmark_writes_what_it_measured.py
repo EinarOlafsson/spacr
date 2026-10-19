@@ -103,7 +103,7 @@ def test_the_artifact_is_replaced_atomically_not_written_in_place(controller,
     error = controller._persist("registry sweep complete")
 
     assert error == ""
-    written = json.loads((tmp_path / "benchmark.json").read_text())
+    written = json.loads((tmp_path / "benchmark.json").read_text(encoding="utf-8"))
     assert written["benchmark"]["exit_reason"] == "registry sweep complete"
     leftovers = [p.name for p in tmp_path.iterdir()
                  if p.name != "benchmark.json"]
@@ -156,7 +156,7 @@ def test_a_successful_write_is_not_repeated(controller, tmp_path):
     controller._write("a different reason entirely")
 
     assert (tmp_path / "benchmark.json").stat().st_mtime_ns == first
-    written = json.loads((tmp_path / "benchmark.json").read_text())
+    written = json.loads((tmp_path / "benchmark.json").read_text(encoding="utf-8"))
     assert written["benchmark"]["exit_reason"] == "registry sweep complete"
 
 
@@ -169,6 +169,6 @@ def test_quitting_early_still_leaves_an_artifact_saying_so(controller,
     """
     controller._application_quit()
 
-    written = json.loads((tmp_path / "benchmark.json").read_text())
+    written = json.loads((tmp_path / "benchmark.json").read_text(encoding="utf-8"))
     assert written["benchmark"]["exit_reason"] == (
         "application quit before registry sweep completed")

@@ -34,7 +34,7 @@ def test_fasta_and_csv_agree(synth_barcodes):
     """Every FASTA entry must appear in the CSV with the same sequence."""
     p = synth_barcodes["paths"]
     for label in ("column", "row", "grna"):
-        fasta = Path(p[f"{label}_fasta"]).read_text()
+        fasta = Path(p[f"{label}_fasta"]).read_text(encoding="utf-8")
         csv_df = pd.read_csv(p[f"{label}_csv"])
         fasta_map = {}
         current = None

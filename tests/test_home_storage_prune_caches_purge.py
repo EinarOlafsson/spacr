@@ -135,7 +135,7 @@ def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
     removed, refused = rj._clear_cache("torch")
     assert refused == [] and removed >= 1
     assert torch_dir.is_dir() and list(torch_dir.iterdir()) == []
-    assert precious.read_text() == "keep"
+    assert precious.read_text(encoding="utf-8") == "keep"
 
 
 def test_clearing_refuses_the_home_folder(home, monkeypatch):
@@ -156,7 +156,7 @@ def test_relocating_moves_records_and_reapplies(home, tmp_path, monkeypatch):
     monkeypatch.delenv("SPACR_NEWS_CACHE")
     assert rj._apply_cache_locations() == 1
     assert rj._cache_folder("news") == target
-    recorded = json.loads((home / ".spacr" / "cache_locations.json").read_text())
+    recorded = json.loads((home / ".spacr" / "cache_locations.json").read_text(encoding="utf-8"))
     assert recorded == {"SPACR_NEWS_CACHE": str(target)}
 
 
@@ -294,7 +294,7 @@ def test_failed_cache_location_write_can_be_retried_without_losing_cache(home, t
     record.rmdir()
     assert rj._relocate_cache('news', parent) == target
     assert (target / 'releases.json').read_bytes() == payload
-    assert json.loads(record.read_text()) == {'SPACR_NEWS_CACHE': str(target)}
+    assert json.loads(record.read_text(encoding="utf-8")) == {'SPACR_NEWS_CACHE': str(target)}
 
 
 def test_failed_move_keeps_both_caches_when_original_path_was_recreated(home, tmp_path, monkeypatch):

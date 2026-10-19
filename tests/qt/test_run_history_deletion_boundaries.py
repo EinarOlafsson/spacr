@@ -66,7 +66,7 @@ def test_confirmation_defaults_to_cancel_and_deletes_only_selected_journals(
     expected_remaining = answer == history.QMessageBox.Cancel
     assert records[0]['dir'].exists() is expected_remaining
     assert records[2]['dir'].exists() is expected_remaining
-    assert output.read_text() == 'cell,area\n1,42\n'
+    assert output.read_text(encoding="utf-8") == 'cell,area\n1,42\n'
     assert widget._table.rowCount() == (3 if expected_remaining else 1)
 
 

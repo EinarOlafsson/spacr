@@ -25,7 +25,7 @@ def test_mask_recipe_is_captured_before_first_field(tmp_path):
     assert result['done'] == ['plate1_A01_0001_001', 'plate1_A02_0001_001']
     assert seen == [18, 18]
     assert settings['diameter'] == 38
-    assert 'mask_settings_sha256' in json.loads(Path(result['ledger']).read_text())
+    assert 'mask_settings_sha256' in json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
 
 
 def test_changed_mask_recipe_refuses_resume_before_any_output_write(tmp_path):
@@ -46,7 +46,7 @@ def test_missing_legacy_mask_provenance_refuses_a_populated_resume(tmp_path):
     _images(tmp_path, 'A01')
     first = core._watch_folder_and_analyse(_settings(tmp_path, 'mask'), Recorder())
     path = Path(first['ledger'])
-    ledger = json.loads(path.read_text())
+    ledger = json.loads(path.read_text(encoding="utf-8"))
     ledger.pop('mask_settings_sha256')
     path.write_text(json.dumps(ledger))
     before = _bytes(tmp_path)

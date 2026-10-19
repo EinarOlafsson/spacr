@@ -296,7 +296,7 @@ def test_parquet_publication_keeps_a_concurrent_destination(tmp_path, monkeypatc
     monkeypatch.setattr(os, "mkdir", competing_mkdir)
     with pytest.raises(FileExistsError):
         _copy_measurement_store(str(source), str(target), None)
-    assert (target / "another-writer.txt").read_text() == "keep this"
+    assert (target / "another-writer.txt").read_text(encoding="utf-8") == "keep this"
     assert hashlib.sha256(source.read_bytes()).hexdigest() == original
     assert not list(tmp_path.glob(".spacr-migration-*"))
 

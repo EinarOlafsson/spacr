@@ -215,7 +215,7 @@ def test_the_legend_leaves_with_it(tmp_path):
     _panel, written = _export("volcano", tmp_path)
 
     assert "volcano_legend.txt" in written
-    text = (tmp_path / "volcano_legend.txt").read_text()
+    text = (tmp_path / "volcano_legend.txt").read_text(encoding="utf-8")
     assert "tested coefficients" in text
 
 

@@ -122,7 +122,7 @@ def test_the_saved_backend_and_wgpu_choice_are_kept(online, without_wgpu):
     assert ('--override' in install) is without_wgpu
     if without_wgpu:
         override = Path(install[install.index('--override') + 1])
-        assert override.parent == online.helper and 'never' in override.read_text()
+        assert override.parent == online.helper and 'never' in override.read_text(encoding="utf-8")
 
 
 def test_the_detached_helper_reads_saved_choices_without_importing_spacr(online, monkeypatch):
@@ -238,10 +238,10 @@ def test_a_verified_uv_update_swaps_in_and_retains_the_previous_runtime(online):
     assert version == '1.5.1.6'
     recovery = next(online.root.glob('.spacr-windows-update-*'))
     assert snapshot(recovery / 'previous') == before
-    journal = json.loads((recovery / 'transaction.json').read_text())
+    journal = json.loads((recovery / 'transaction.json').read_text(encoding="utf-8"))
     assert journal['family'] == 'windows-online-uv' and journal['state'] == 'committed'
     assert journal['entrypoints'] == {'verified': True, 'relocatable': True, 'scripts': 3}
-    assert '__version__ = "1.5.1.6"' in (online.venv / 'Lib/site-packages/spacr/__init__.py').read_text()
+    assert '__version__ = "1.5.1.6"' in (online.venv / 'Lib/site-packages/spacr/__init__.py').read_text(encoding="utf-8")
     assert not (online.root / '.venv.spacr-update-lock').exists()
     install = [command for command in runner.commands if command[1:4] == ['pip', 'install', '--upgrade']]
     assert len(install) == 1 and install[0][0] == str(online.root / 'bootstrap' / 'uv.exe')
@@ -261,7 +261,7 @@ def test_a_failed_uv_update_leaves_or_restores_the_exact_runtime(online, failure
     assert snapshot(online.venv) == before
     assert not (online.root / '.venv.spacr-update-lock').exists()
     recovery = next(online.root.glob('.spacr-windows-update-*'))
-    assert json.loads((recovery / 'transaction.json').read_text())['state'] in {'staging_failed', 'rolled_back'}
+    assert json.loads((recovery / 'transaction.json').read_text(encoding="utf-8"))['state'] in {'staging_failed', 'rolled_back'}
 
 
 def test_a_runtime_that_is_not_relocatable_is_never_swapped(online):
@@ -317,4 +317,4 @@ def test_pruning_removes_a_link_inside_a_copy_without_entering_it(online, tmp_pa
     else:
         link.symlink_to(keep.parent, target_is_directory=True)
     cleanup._prune_windows_online_recovery(str(online.root))
-    assert not old.exists() and keep.read_text() == 'must survive'
+    assert not old.exists() and keep.read_text(encoding="utf-8") == 'must survive'

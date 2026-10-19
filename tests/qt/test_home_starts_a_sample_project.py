@@ -27,7 +27,7 @@ def test_the_pathways_come_from_the_shared_map_when_it_is_there(tmp_path):
 def test_bundled_map_supplies_every_home_pathway_and_folded_module_name():
     from spacr.qt.widgets import sample_project as sp
 
-    data = json.loads(sp.MAP_FILE.read_text())
+    data = json.loads(sp.MAP_FILE.read_text(encoding="utf-8"))
     offered = sp.pathways()
     assert [entry["id"] for entry in offered] == list(data["pathways"])
     for entry in offered:

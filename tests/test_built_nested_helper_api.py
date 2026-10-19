@@ -112,7 +112,7 @@ def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
     monkeypatch.setattr(helpers, "inventory", forbidden)
     measured = builder.public_docstrings()
     assert measured
-    manifest = json.loads((ROOT / "docs/source/_static/i18n/api/en.json").read_text())
+    manifest = json.loads((ROOT / "docs/source/_static/i18n/api/en.json").read_text(encoding="utf-8"))
     assert set(measured) == set(manifest["symbols"]) - previously_enabled
     assert before == {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
@@ -128,7 +128,7 @@ def test_sphinx_and_extractor_import_the_same_switch(monkeypatch, fixture_source
 
     monkeypatch.setattr(build_module_workflows, "prepare_jinja", fixture_workflows)
 
-    tree = ast.parse((ROOT / "docs/source/conf.py").read_text())
+    tree = ast.parse((ROOT / "docs/source/conf.py").read_text(encoding="utf-8"))
     hook = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
                 and node.name == "autoapi_prepare_jinja_env")
     namespace = {"_nested_helper_docs": helpers, "_SOURCE_ROOT": fixture_source,
@@ -165,7 +165,7 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
     (templates / "index.rst").write_text(
         "API\n===\n\n.. toctree::\n\n   spacr/index\n", encoding="utf-8",
     )
-    conf_tree = ast.parse((ROOT / "docs/source/conf.py").read_text())
+    conf_tree = ast.parse((ROOT / "docs/source/conf.py").read_text(encoding="utf-8"))
     # setup() connects _qualify_helper_annotations (68884079c), which reads
     # _HELPER_ANNOTATION_TARGETS, so both travel with the hooks.
     hooks = "\n\n".join(ast.unparse(node) for node in conf_tree.body
@@ -214,7 +214,7 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
 
 def test_empty_rollout_builds_without_helpers_and_keeps_private_api_hidden(fixture_source):
     output = _build_site(fixture_source, (), "empty")
-    page = (output / "api/spacr/example/index.html").read_text()
+    page = (output / "api/spacr/example/index.html").read_text(encoding="utf-8")
     assert 'id="spacr.example.outer"' in page
     assert 'id="spacr.example.Public.method"' in page
     assert 'id="spacr.example.outer.choose"' not in page
@@ -227,7 +227,7 @@ def test_changing_only_the_rollout_invalidates_sphinx_incremental_state(fixture_
     source = fixture_source / "docs-incremental"
     config = source / "conf.py"
     before_sources = {path: path.read_bytes() for path in (fixture_source / "spacr").glob("*.py")}
-    text = config.read_text()
+    text = config.read_text(encoding="utf-8")
     old = "_nested_helper_docs.ENABLED_MODULES = frozenset([])"
     assert text.count(old) == 1
     config.write_text(text.replace(old,
@@ -241,9 +241,9 @@ def test_changing_only_the_rollout_invalidates_sphinx_incremental_state(fixture_
     )
     assert result.returncode == 0, result.stdout[-8000:] + result.stderr[-8000:]
     assert before_sources == {path: path.read_bytes() for path in before_sources}
-    page = (output / "api/spacr/example/index.html").read_text()
+    page = (output / "api/spacr/example/index.html").read_text(encoding="utf-8")
     assert 'id="spacr.example.outer.choose"' in page
-    hidden = (output / "api/spacr/_v1_v2_bridge/index.html").read_text()
+    hidden = (output / "api/spacr/_v1_v2_bridge/index.html").read_text(encoding="utf-8")
     assert 'id="spacr._v1_v2_bridge.public_top._leaf"' in hidden
 
 
@@ -259,16 +259,16 @@ def test_actual_sphinx_html_and_objects_inventory_have_exactly_the_helper_keys(
     for key in keys:
         module = next(name for name in MODULES if key.startswith(name + "."))
         page = built_site / "api" / Path(*module.split(".")) / "index.html"
-        text = page.read_text()
+        text = page.read_text(encoding="utf-8")
         assert text.count(f'id="{key}"') == 1
         matches = [line for line in inventory_lines if line.startswith(key + " ")]
         assert len(matches) == 1, matches
         assert matches[0].split()[1] == "py:function"
-    hidden = (built_site / "api/spacr/_v1_v2_bridge/index.html").read_text()
+    hidden = (built_site / "api/spacr/_v1_v2_bridge/index.html").read_text(encoding="utf-8")
     assert 'id="spacr._v1_v2_bridge.public_top._leaf"' in hidden
     assert 'id="spacr._v1_v2_bridge.public_top"' not in hidden
     assert "original prose must stay hidden" not in hidden
-    page = (built_site / "api/spacr/example/index.html").read_text()
+    page = (built_site / "api/spacr/example/index.html").read_text(encoding="utf-8")
     assert 'id="spacr.example._private_parent.leaf"' in page
     assert 'id="spacr.example._private_parent"' not in page
     assert "Return the first value." in page
@@ -293,7 +293,7 @@ def test_real_google_style_helpers_render_both_parameter_contracts(tmp_path):
     ], type_ignores=[])
     (package / "io.py").write_text(ast.unparse(module), encoding="utf-8")
     output = _build_site(root, {"spacr.io"}, "google")
-    page = BeautifulSoup((output / "api/spacr/io/index.html").read_text(), "html.parser")
+    page = BeautifulSoup((output / "api/spacr/io/index.html").read_text(encoding="utf-8"), "html.parser")
     signature = page.find(id="spacr.io._check_masks.needs_processing")
     assert signature is not None
     body = signature.parent.find("dd", recursive=False)
@@ -337,7 +337,7 @@ def test_tabular_and_palette_helpers_render_without_exposing_private_parents(tmp
     for key, prose in expected.items():
         module = next(module for module in modules if key.startswith(module + "."))
         page = BeautifulSoup(
-            (output / "api" / Path(*module.split(".")) / "index.html").read_text(),
+            (output / "api" / Path(*module.split(".")) / "index.html").read_text(encoding="utf-8"),
             "html.parser",
         )
         signatures = page.find_all(id=key)
@@ -355,7 +355,7 @@ def test_source_default_expressions_survive_the_sphinx_signature_parser(built_si
     pytest.importorskip("bs4")
     from bs4 import BeautifulSoup
 
-    page = BeautifulSoup((built_site / "api/spacr/example/index.html").read_text(), "html.parser")
+    page = BeautifulSoup((built_site / "api/spacr/example/index.html").read_text(encoding="utf-8"), "html.parser")
     signature = page.find(id="spacr.example.outer._hidden")
     assert signature is not None
     defaults = [node.get_text() for node in signature.select(".default_value")]
@@ -411,7 +411,7 @@ def test_real_helper_corpus_builds_in_an_isolated_english_fixture(tmp_path):
                       if line.split()[1] == "py:function"}
     assert inventory_keys == {entry.qualified_key for entry in entries}
     pages = {module: BeautifulSoup(
-        (output / "api" / Path(*module.split(".")) / "index.html").read_text(), "html.parser",
+        (output / "api" / Path(*module.split(".")) / "index.html").read_text(encoding="utf-8"), "html.parser",
     ) for module in modules}
     signature_count = default_count = 0
     for entry in entries:
@@ -466,7 +466,7 @@ def test_language_switch_targets_the_built_helper_not_its_parent(
                 builder._source_hash(builder._api_translation_source(block)) for block in blocks
             ],
         }
-    page = (built_site / "api/spacr/example/index.html").read_text()
+    page = (built_site / "api/spacr/example/index.html").read_text(encoding="utf-8")
     harness = '''
 <script src="/api/api_i18n.js" data-api-catalog-version="feature-411-fixture"></script>
 <script>
@@ -524,7 +524,7 @@ def test_enabled_helpers_exist_in_the_full_built_site():
     for entry in active:
         page = output / "api" / Path(*entry.module.split(".")) / "index.html"
         assert page.is_file(), page
-        assert page.read_text().count(f'id="{entry.qualified_key}"') == 1
+        assert page.read_text(encoding="utf-8").count(f'id="{entry.qualified_key}"') == 1
 
 
 @pytest.mark.skipif(not os.environ.get("SPACR_DOCS_BUILT"), reason="requires a fresh full docs build")
@@ -549,11 +549,11 @@ def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
     keys = [entry.qualified_key for entry in active if entry.module == module]
     assert len(keys) == count
     output = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", ROOT / "docs/_build/html"))
-    page = (output / "api" / Path(*module.split('.')) / "index.html").read_text()
+    page = (output / "api" / Path(*module.split('.')) / "index.html").read_text(encoding="utf-8")
     for name in hidden:
         assert f'id="{module}.{name}"' not in page
-    english = json.loads((builder.API_DIR / "en.json").read_text())
-    catalog = json.loads((builder.API_DIR / f"{language}.json").read_text())
+    english = json.loads((builder.API_DIR / "en.json").read_text(encoding="utf-8"))
+    catalog = json.loads((builder.API_DIR / f"{language}.json").read_text(encoding="utf-8"))
     expected = {key: catalog["symbols"][key]["text"] for key in keys}
     for key in keys:
         assert catalog["symbols"][key]["source_sha256"] == english["symbols"][key]["source_sha256"]

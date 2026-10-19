@@ -136,7 +136,7 @@ def test_series_emit_writes_its_map_and_plan(tmp_path):
         str(tmp_path), 'series', {'channels': [0], 'nucleus_channel': 0},
         ('acq', 'A01', 1), {'T': 2, 'Z': 2, 'C': 1}, planes)
     assert len(digests) == 4 and plan['names'] == sorted(digests)
-    assert (tmp_path / 'conversion_map.csv').read_text().startswith('target,source,')
+    assert (tmp_path / 'conversion_map.csv').read_text(encoding="utf-8").startswith('target,source,')
 
 
 def test_old_czifile_without_czi_image_is_refused(monkeypatch):

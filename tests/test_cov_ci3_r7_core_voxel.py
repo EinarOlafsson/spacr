@@ -13,7 +13,7 @@ from tests.test_watch_nested_f548 import _fast
 
 
 def _ledger(folder):
-    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text())['fields']
+    return json.loads((folder / 'spacr_watch' / 'watch_ledger.json').read_text(encoding="utf-8"))['fields']
 
 
 def _ome_volume(path, **physical):

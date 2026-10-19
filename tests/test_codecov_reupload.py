@@ -42,7 +42,7 @@ def test_complete_measurement_can_be_uploaded_without_overriding_ratchet_failure
     coverage["meta"]["timestamp"] = "a later rendering of the same measurement"
     regenerated.write_text(json.dumps(coverage))
     assert verify_report(original, regenerated) == "7.16.2"
-    assert json.loads((original / "module-coverage-ratchet.json").read_text())["status"] == "fail"
+    assert json.loads((original / "module-coverage-ratchet.json").read_text(encoding="utf-8"))["status"] == "fail"
 
 
 @pytest.mark.parametrize("damage", ["missing_shard", "missing_issues", "unchecked"])
@@ -91,13 +91,13 @@ def test_replay_must_preserve_all_measurements(report, damage):
 
 
 def test_upload_mode_is_isolated_and_codecov_identity_is_original():
-    docs = yaml.safe_load((ROOT / ".github/workflows/docs.yml").read_text())
+    docs = yaml.safe_load((ROOT / ".github/workflows/docs.yml").read_text(encoding="utf-8"))
     upload = docs["jobs"]["upload-coverage"]
     assert upload["if"] == "github.event_name == 'workflow_dispatch' && inputs.mode == 'upload-coverage'"
     assert docs["jobs"]["resolve"]["if"] == "github.event_name != 'workflow_dispatch' || inputs.mode == 'publish'"
     assert docs["jobs"]["build"]["needs"] == "resolve"
     assert upload["with"]["source_run_id"] == "${{ inputs.coverage_run_id }}"
-    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text(encoding="utf-8"))
     steps = workflow["jobs"]["upload"]["steps"]
     codecov = next(step for step in steps if step.get("uses") == "codecov/codecov-action@v7")
     assert codecov["with"]["override_branch"] == "main"
@@ -111,7 +111,7 @@ def test_upload_mode_is_isolated_and_codecov_identity_is_original():
 @pytest.mark.skipif(shutil.which("node") is None, reason="Node is required to exercise the Actions resolver")
 @pytest.mark.parametrize("damage", [None, "nightly", "foreign", "pr", "unfinished", "diverged", "combine", "expired"])
 def test_actual_actions_resolver_refuses_wrong_source_and_missing_measurement(damage):
-    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text())
+    workflow = yaml.safe_load((ROOT / ".github/workflows/coverage-reupload.yml").read_text(encoding="utf-8"))
     script = workflow["jobs"]["upload"]["steps"][0]["with"]["script"]
     run = {
         "repository": {"full_name": "owner/repo"},

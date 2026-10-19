@@ -74,7 +74,7 @@ def _scheduler(tmp_path, pid, *, blocked=False, unreadable=False):
     marker = tmp_path / 'started'
     command = ['bash', str(SCRIPT), 'cpu-only-browser-admission', sys.executable, '-c',
                'from pathlib import Path; import sys; '
-               'Path(sys.argv[1]).write_text(Path(sys.argv[2]).read_text())',
+               'Path(sys.argv[1]).write_text(Path(sys.argv[2]).read_text(encoding="utf-8"))',
                str(marker), str(clock)]
     return command, environment, marker, directory, query_log
 
@@ -83,9 +83,9 @@ def _run_scheduler(settings):
     command, environment, marker, directory, queries = settings
     result = subprocess.run(command, env=environment, capture_output=True, text=True, timeout=25)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert (directory / 'holder').read_text() == ''
-    assert (directory / 'last_release').read_text().strip() == marker.read_text()
-    return int(marker.read_text()), queries.read_text().splitlines()
+    assert (directory / 'holder').read_text(encoding="utf-8") == ''
+    assert (directory / 'last_release').read_text(encoding="utf-8").strip() == marker.read_text(encoding="utf-8")
+    return int(marker.read_text(encoding="utf-8")), queries.read_text(encoding="utf-8").splitlines()
 
 
 @pytest.mark.parametrize('name', ['chrome', 'chromium', 'chromium-browser',
@@ -145,7 +145,7 @@ def test_browser_exclusion_does_not_bypass_the_shared_queue_lock(tmp_path):
                 fcntl.flock(lock, fcntl.LOCK_UN)
                 output, error = scheduler.communicate(timeout=25)
                 assert scheduler.returncode == 0, output + error
-                assert marker.read_text() == '1600'
+                assert marker.read_text(encoding="utf-8") == '1600'
             finally:
                 if scheduler.poll() is None:
                     scheduler.terminate()

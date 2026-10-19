@@ -70,6 +70,6 @@ def test_a_real_segfault_lands_in_the_file(tmp_path):
     assert result.returncode != 0
     dump = tmp_path / "spacr-crash.log"
     assert dump.exists()
-    text = dump.read_text()
+    text = dump.read_text(encoding="utf-8")
     assert "Fatal Python error" in text
     assert "ctypes" in text, "the stack must name the frame that died"

@@ -142,7 +142,7 @@ def test_stream_originals_records_channel_order_sidecar(tmp_path):
         plate, mp, channels=(1, 2, 3, 4),
         channel_names=["nucleus", "cell", "pathogen", "organelle"],
     )
-    meta = json.loads((plate / "merged" / "channel_order.json").read_text())
+    meta = json.loads((plate / "merged" / "channel_order.json").read_text(encoding="utf-8"))
     assert meta["image_channels"] == ["nucleus", "cell", "pathogen",
                                          "organelle"]
     assert meta["mask_channels"] == []   # populated by streaming Cellpose

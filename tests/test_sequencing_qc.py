@@ -952,7 +952,7 @@ def test_barcode_qc_writes_its_tables_figures_and_recommendation(tmp_path):
                  "barcode_qc.pdf"):
         assert (dst / name).is_file(), name
     assert f"{out['threshold']:.4f}" in (
-        dst / "threshold_recommendation.txt").read_text()
+        dst / "threshold_recommendation.txt").read_text(encoding="utf-8")
     assert out["choice"].achieved == pytest.approx(4.0)
     assert out["unmapped"]["total_reads"] == 2_000_000
     assert set(out) >= {"choice", "threshold", "sweep", "recommendation",

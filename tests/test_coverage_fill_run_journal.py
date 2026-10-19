@@ -48,7 +48,7 @@ def test_open_run_success(runs_dir, tmp_path):
         assert RJ.current_run() is run
         run.set_status("success")
     # manifest written on exit
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "success"
     assert "cellpose_cyto" in manifest["model_hashes"]
 
@@ -57,7 +57,7 @@ def test_open_run_failure_reraises(runs_dir):
     with pytest.raises(ValueError):
         with RJ.open_run("measure", {}) as run:
             raise ValueError("boom")
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] == "failed"
     assert "boom" in run.error_traceback   # captured on the Run object
 

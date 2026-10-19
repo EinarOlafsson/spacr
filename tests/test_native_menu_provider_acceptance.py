@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_cocoa_menu_check_is_enabled_only_for_the_real_macos_artifact():
-    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text())
+    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text(encoding="utf-8"))
     steps = workflow['jobs']['smoke-frozen']['steps']
     macos = next(s for s in steps if s.get('if') == "matrix.platform == 'macos'")
     windows = next(s for s in steps if s.get('if') == "matrix.platform == 'windows'")
@@ -19,13 +19,13 @@ def test_cocoa_menu_check_is_enabled_only_for_the_real_macos_artifact():
 
 
 def test_command_checks_require_real_smoke_receipts_and_both_windows_shells():
-    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text())
+    workflow = yaml.safe_load((ROOT / '.github/workflows/frozen-installers.yml').read_text(encoding="utf-8"))
     job = workflow['jobs']['claude-native-windows']
     assert job['needs'] == 'smoke-frozen'
     assert set(job['strategy']['matrix']['shell']) == {'cmd', 'powershell51'}
     download = next(s for s in job['steps'] if s.get('uses', '').startswith('actions/download-artifact@'))
     assert download['with']['name'] == 'legacy-smoke-windows'
-    script = (ROOT / 'packaging/verify_claude_native_install.ps1').read_text()
+    script = (ROOT / 'packaging/verify_claude_native_install.ps1').read_text(encoding="utf-8")
     assert '$Hint = [string]$Proof.claude_install_hint' in script
     assert '[string]$SourceCommit = $env:GITHUB_SHA' in script
     assert '$Proof.source_commit -ne $SourceCommit' in script

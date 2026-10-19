@@ -757,7 +757,7 @@ def test_cancel_ends_every_process_the_installer_started(monkeypatch,
     outcome = cli_install.run_install(plan, on_output, stop)
     assert outcome.kind == cli_install.CANCELLED
     assert time.monotonic() - began < 10
-    child = int(pid_file.read_text())
+    child = int(pid_file.read_text(encoding="utf-8"))
     for _ in range(50):
         try:
             os.kill(child, 0)
@@ -796,7 +796,7 @@ def test_cancel_ends_a_child_left_holding_the_output(monkeypatch, tmp_path):
     outcome = cli_install.run_install(plan, on_output, stop)
     assert time.monotonic() - began < 10
     assert outcome.kind == cli_install.CANCELLED
-    child = int(pid_file.read_text())
+    child = int(pid_file.read_text(encoding="utf-8"))
     for _ in range(50):
         try:
             os.kill(child, 0)

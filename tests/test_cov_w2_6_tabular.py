@@ -296,8 +296,8 @@ def test_a_csv_write_uses_the_separator_its_suffix_implies(tmp_path,
                                                            legacy_frame):
     path = tmp_path / "out.tsv"
     tabular.write_table(legacy_frame, path)
-    assert "\t" in path.read_text().splitlines()[0]
-    assert path.read_text().splitlines()[0].split("\t")[0] == "columnID"
+    assert "\t" in path.read_text(encoding="utf-8").splitlines()[0]
+    assert path.read_text(encoding="utf-8").splitlines()[0].split("\t")[0] == "columnID"
 
 
 def test_a_write_creates_the_directory_it_was_pointed_at(tmp_path,

@@ -55,7 +55,7 @@ def test_two_committed_copies_leave_the_newest(runtime, tmp_path):
     assert [path for path, _size in removed] == [str(older)]
     assert removed[0][1] >= 2048
     assert not older.exists() and newer.is_dir()
-    assert str(older) in (tmp_path / "home" / ".spacr" / "logs" / "update.log").read_text()
+    assert str(older) in (tmp_path / "home" / ".spacr" / "logs" / "update.log").read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("state", ["rolling_back", "launch_unconfirmed", "staging", "something-new"])
@@ -73,7 +73,7 @@ def test_an_unreadable_or_foreign_journal_is_kept(runtime):
     broken = _copy(root, prefix, "broken", "committed", 100)
     (broken / "transaction.json").write_text("{not json")
     other = _copy(root, prefix, "other", "committed", 200)
-    data = json.loads((other / "transaction.json").read_text())
+    data = json.loads((other / "transaction.json").read_text(encoding="utf-8"))
     data["prefix"] = prefix + "-elsewhere"
     (other / "transaction.json").write_text(json.dumps(data))
     _copy(root, prefix, "older", "committed", 1000)
@@ -89,14 +89,14 @@ def test_a_link_is_never_followed(runtime, tmp_path):
     (outside / "data").write_text("keep")
     real = _copy(root, prefix, "real", "committed", 1000)
     (real / "transaction.json").rename(outside / "transaction.json")
-    data = json.loads((outside / "transaction.json").read_text())
+    data = json.loads((outside / "transaction.json").read_text(encoding="utf-8"))
     (outside / "transaction.json").write_text(json.dumps(dict(data, rollback_runtime=str(root / ".spacr-runtime-update-link" / "runtime"))))
     (root / ".spacr-runtime-update-link").symlink_to(outside, target_is_directory=True)
     (real / "transaction.json").symlink_to(outside / "transaction.json")
     _copy(root, prefix, "older", "committed", 1500)
     _copy(root, prefix, "newer", "committed", 2000)
     ic._prune_runtime_transactions(prefix, "posix-runtime")
-    assert (outside / "data").read_text() == "keep" and (root / ".spacr-runtime-update-link").is_symlink()
+    assert (outside / "data").read_text(encoding="utf-8") == "keep" and (root / ".spacr-runtime-update-link").is_symlink()
     assert real.is_dir()
 
 

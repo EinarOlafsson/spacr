@@ -45,7 +45,7 @@ class TestPlateQueue:
         q = PlateQueue(path=path)
         q.add(QueueItem.build("mask", {"src": "/tmp/a"}))
         assert path.exists()
-        payload = json.loads(path.read_text())
+        payload = json.loads(path.read_text(encoding="utf-8"))
         assert payload["items"][0]["app_key"] == "mask"
 
     def test_load_roundtrips(self, tmp_path):

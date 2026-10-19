@@ -58,7 +58,7 @@ def test_prune_planning_skips_an_entry_whose_type_cannot_be_read(
     monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
     plan = journal._prune_plan("logs", 7, 0)
     assert plan["delete"] == []
-    assert candidate.read_text() == "old log"
+    assert candidate.read_text(encoding="utf-8") == "old log"
 
 
 def test_prune_refuses_an_entry_that_cannot_be_resolved(
@@ -74,7 +74,7 @@ def test_prune_refuses_an_entry_that_cannot_be_resolved(
 
     assert (deleted, freed) == (0, 0)
     assert refused == [f"{candidate.name}: path cannot be resolved"]
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_failed_run_deletion_stays_a_refusal_in_the_prune_result(
@@ -109,7 +109,7 @@ def test_unreadable_log_types_are_excluded_from_clear_plans(
     monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
     plan = journal._clear_logs_plan()
     assert plan["groups"]["run_logs"] == []
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_a_log_that_becomes_unreadable_is_refused_during_clear(
@@ -132,7 +132,7 @@ def test_a_log_that_becomes_unreadable_is_refused_during_clear(
 
     assert journal._clear_logs(plan) == (
         0, 0, 0, [f"{candidate.name}: log cannot be read"])
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
@@ -154,7 +154,7 @@ def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
     monkeypatch.setattr(Path, "unlink", cannot_remove)
     removed, refused = journal._clear_cache("torch")
     assert removed == 1 and refused == ["busy.bin: file is in use"]
-    assert busy.read_text() == "keep" and not free.exists()
+    assert busy.read_text(encoding="utf-8") == "keep" and not free.exists()
 
 
 def test_a_protected_cache_cannot_be_relocated(tmp_path, monkeypatch):

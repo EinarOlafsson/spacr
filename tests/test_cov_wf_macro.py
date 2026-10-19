@@ -80,7 +80,7 @@ def test_a_bare_filename_writes_beside_the_caller_not_at_the_root(
 
     assert bare == "macro.py"
     assert (workdir / "macro.py").is_file()
-    assert (workdir / "macro.py").read_text().startswith("#!")
+    assert (workdir / "macro.py").read_text(encoding="utf-8").startswith("#!")
     # The nested call created its parents; the bare one had none to create.
     assert (workdir / "deep" / "sub" / "macro.py").is_file()
     assert nested == os.path.join("deep", "sub", "macro.py")
@@ -102,7 +102,7 @@ def test_the_script_appears_whole_or_not_at_all(isolated_macros):
     written = chain.write(target)
 
     assert written == str(target)
-    compile(target.read_text(), str(target), "exec")
+    compile(target.read_text(encoding="utf-8"), str(target), "exec")
     leftovers = [p.name for p in (isolated_macros / "out").iterdir()
                  if p.name != "macro.py"]
     assert leftovers == [], f"temporary file left behind: {leftovers}"
@@ -171,7 +171,7 @@ def test_a_recording_with_no_log_capture_still_records_its_step(
     assert logging.getLogger().handlers == handlers_before
     scripts = list(Path(os.environ[macro.MACRO_DIR_ENV]).glob("*.py"))
     assert len(scripts) == 1
-    assert "ab12cd34" in scripts[0].read_text()
+    assert "ab12cd34" in scripts[0].read_text(encoding="utf-8")
 
 
 def test_a_capture_holding_recording_is_detached_when_it_finishes(
@@ -228,7 +228,7 @@ def test_a_macro_folder_that_is_a_file_still_leaves_the_run_its_copy(
     assert macro.current_macro().modules == ("mask",)
     run_copy = run_dir / macro.MACRO_FILENAME
     assert run_copy.is_file()
-    compile(run_copy.read_text(), str(run_copy), "exec")
+    compile(run_copy.read_text(encoding="utf-8"), str(run_copy), "exec")
     messages = [record.getMessage() for record in caplog.records]
     assert any("could not write the macro for chain" in text
                for text in messages), messages

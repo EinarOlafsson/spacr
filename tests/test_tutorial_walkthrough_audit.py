@@ -30,7 +30,7 @@ def test_current_alpha_and_unlisted_lessons_are_audited_without_network(tmp_path
          "--output", str(report_path)],
         check=True, capture_output=True, text=True,
     )
-    report = json.loads(report_path.read_text())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["narration_and_caption_refresh_required"] == list(identities[1:])
     assert report["manual_review_pending"] == [identities[2]]
     rows = {row["lesson"]: row for row in report["rows"]}
