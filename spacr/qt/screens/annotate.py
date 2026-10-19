@@ -7632,9 +7632,9 @@ class AnnotateScreen(QWidget):
             "answers, or by the last model's probability. The order stays "
             "while you page through; a crop you label moves when the pages "
             "are next read, for example when the order is chosen again.")
-        combo.setToolTip(tip)
         label.setToolTip(tip)
         label.setBuddy(combo)
+        combo.setAccessibleDescription(tip)
         combo.currentIndexChanged.connect(self._on_sort_changed)
         layout.addWidget(label)
         layout.addWidget(combo)
