@@ -5184,10 +5184,23 @@ class MainWindow(QMainWindow):
                    "No package upgrade was performed.", path=checkout))
             return
         from .bridge import registry
-        if registry().is_busy():
+        runs = registry()
+        if runs.of_kind("analysis"):
             QMessageBox.information(
                 self, tr("Updates"),
                 tr("Finish or stop the active analyses before updating spaCR."))
+            return
+        if runs.of_kind("package_install"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A package is being installed into this spaCR environment. "
+                   "Wait for it to finish before updating spaCR."))
+            return
+        if runs.of_kind("model_download"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A model download is in progress. Wait for it to finish, or "
+                   "cancel it in the Jobs window, before updating spaCR."))
             return
 
         msg = (f"A new version is available.\n\n"

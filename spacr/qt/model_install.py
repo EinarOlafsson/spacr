@@ -136,20 +136,22 @@ def confirm_backend_install(parent: Optional[QWidget], label: str,
 
 
 def _list_in_jobs_window(name: str, cancel: Callable[[], Any],
-                         stop_on_quit: bool = True):
+                         stop_on_quit: bool = True, kind: str = "external"):
     """Put a running install or download in the Jobs window, with Cancel.
 
     :param name: the row's name.
     :param cancel: the zero-argument stop request.
     :param stop_on_quit: whether closing spaCR cancels it; false for ``pip``,
         which killed half way can leave the environment broken.
+    :param kind: "package_install" or "model_download", which the update
+        check names when it waits for the job.
     :returns: the registry handle, or ``None`` when there is no registry.
     """
     try:
         from .bridge import _track_external_job
 
         return _track_external_job(name, lambda _reason: cancel(),
-                                   stop_on_quit=stop_on_quit)
+                                   stop_on_quit=stop_on_quit, kind=kind)
     except Exception:                                        # noqa: BLE001
         return None
 
@@ -234,7 +236,8 @@ class PackageInstall(QObject):
             return False
         if not self._done:
             self._job = _list_in_jobs_window(
-                f"install {self.requirement}", self.cancel, stop_on_quit=False)
+                f"install {self.requirement}", self.cancel, stop_on_quit=False,
+                kind="package_install")
             self.progressed.connect(
                 lambda line: _report_job(self._job, line=line))
         return True
@@ -388,7 +391,7 @@ class CheckpointDownload(QObject):
         _RUNNING.add(self)
         name = getattr(self.entry, "name", "") or getattr(self.entry, "key", "")
         self._job = _list_in_jobs_window(f"download {name or 'model'}",
-                                         self.cancel)
+                                         self.cancel, kind="model_download")
         self.progressed.connect(
             lambda got, total: _report_job(self._job, got, total))
         self._thread.start()

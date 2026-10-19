@@ -624,6 +624,10 @@ class RunHandle(QObject):
         #: seconds, so without this Home flashes "<module> usage - running"
         #: on and off for as long as a module screen is open.
         self.user_visible = bool(getattr(worker, "user_visible", True))
+        #: "analysis" for a run that writes results (see
+        #: :attr:`blocks_shutdown`), "housekeeping" for read-only UI work.
+        #: The update check refuses only while an analysis is registered.
+        self.kind = "analysis" if self.blocks_shutdown else "housekeeping"
         worker.line_ready.connect(self._on_line)
 
     @property
@@ -763,6 +767,19 @@ class RunRegistry(QObject):
         """
         return list(self._handles)
 
+    def of_kind(self, *kinds: str) -> List[RunHandle]:
+        """Registered handles of the given kinds, in registration order.
+
+        A handle that names no kind counts as an analysis, so an unknown job
+        is never mistaken for housekeeping.
+
+        :param kinds: "analysis", "housekeeping", "package_install",
+            "model_download" or "external".
+        :returns: the matching handles, started or not.
+        """
+        return [handle for handle in self._handles
+                if getattr(handle, "kind", "analysis") in kinds]
+
     def is_busy(self) -> bool:
         """Whether any run is still registered.
 
@@ -860,6 +877,7 @@ class _ExternalJobHandle(QObject):
         refuse to close the window.
     :param user_visible: whether the job is shown to the user at all.
     :param stop_on_quit: whether closing spaCR cancels the job.
+    :param kind: "package_install", "model_download" or "external".
     :param parent: parent object, or ``None``.
     """
 
@@ -867,7 +885,7 @@ class _ExternalJobHandle(QObject):
 
     def __init__(self, app_key: str, cancel: Optional[Callable[[str], Any]] = None,
                  *, blocks_shutdown: bool = False, user_visible: bool = True,
-                 stop_on_quit: bool = True, parent=None):
+                 stop_on_quit: bool = True, kind: str = "external", parent=None):
         """Describe one running external job.
 
         :param app_key: what the job is called.
@@ -875,10 +893,12 @@ class _ExternalJobHandle(QObject):
         :param blocks_shutdown: whether it vetoes closing the window.
         :param user_visible: whether it is listed.
         :param stop_on_quit: whether closing spaCR cancels it.
+        :param kind: what the job is, for the update check.
         :param parent: parent object, or ``None``.
         """
         super().__init__(parent)
         self.app_key = app_key or "job"
+        self.kind = str(kind or "external")
         self.worker = None
         self.thread = None
         self.worker_count = 1
@@ -949,8 +969,8 @@ def _track_external_job(app_key: str,
 
     :param app_key: what the job is called in the Jobs window.
     :param cancel: called with the reason on Cancel, or ``None``.
-    :param options: ``blocks_shutdown``, ``user_visible`` and
-        ``stop_on_quit`` for the handle.
+    :param options: ``blocks_shutdown``, ``user_visible``,
+        ``stop_on_quit`` and ``kind`` for the handle.
     :returns: the registered handle.
     """
     reg = registry()
