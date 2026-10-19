@@ -24,7 +24,7 @@ import math
 import weakref
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QRectF, Qt
+from PySide6.QtCore import QEvent, QObject, QRectF, Qt, QTimer
 from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QPen, QPixmap)
 from PySide6.QtWidgets import (
@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
     QComboBox,
+    QLabel,
     QLineEdit,
 )
 
@@ -101,6 +102,7 @@ def invalidate_field_fade() -> None:
     _forget_painting_theme()
     _CHROME.clear()
     _recall_chrome()
+    _sync_underlays()
 
 
 def fades(widget) -> bool:
@@ -309,7 +311,7 @@ def _lend_chrome(widget, give_back) -> None:
     """
     _LENT[widget] = give_back
     if _filter is not None:
-        widget.removeEventFilter(_filter)
+        _detach(widget)
 
 
 def _take_back_chrome(widget) -> None:
@@ -322,13 +324,161 @@ def _take_back_chrome(widget) -> None:
 
     _LENT.pop(widget, None)
     if _filter is not None and isValid(widget):
-        widget.installEventFilter(_filter)
+        _attach(widget)
 
 
 def _recall_chrome() -> None:
     """Ask for every lent field back."""
     for give_back in set(_LENT.values()):
         give_back()
+
+
+#: The ramp of each field with a parent, drawn by a plain label right under
+#: it rather than by a Python paint hook. Over the window's animated field
+#: every widget is painted on every frame, and the hook re-entered Python
+#: once per field per frame: 27 times on the Regression screen at
+#: 3840x2160, each waiting behind a running pipeline's hold on the
+#: interpreter lock. The label shows the same cached chrome pixmap, at the
+#: field's place one step down the stacking order, so the window shows the
+#: same pixels; the label follows the field's geometry, state and stacking
+#: through the application hub. A field with no parent, which has no place
+#: for a label, keeps the paint hook.
+_UNDERLAYS: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+#: The field events the underlay follows.
+_UNDERLAY_KINDS = (
+    QEvent.Type.Move, QEvent.Type.Resize, QEvent.Type.Show,
+    QEvent.Type.Hide, QEvent.Type.ShowToParent, QEvent.Type.HideToParent,
+    QEvent.Type.FocusIn, QEvent.Type.FocusOut, QEvent.Type.EnabledChange,
+    QEvent.Type.ParentChange, QEvent.Type.ZOrderChange,
+    QEvent.Type.StyleChange, QEvent.Type.PaletteChange,
+    QEvent.Type.DynamicPropertyChange, QEvent.Type.ScreenChangeInternal)
+
+
+class _UnderlayFollower(QObject):
+    """Keeps each field's underlay where and as the field is."""
+
+    def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
+        """Re-place or redraw the underlay of ``obj``; never consumes."""
+        if event.type() == QEvent.Type.ParentChange:
+            _attach(obj)
+        else:
+            _sync_underlay(obj)
+        return False
+
+
+_FOLLOWER: list = []
+
+
+def _follower() -> "_UnderlayFollower":
+    """The one follower every underlaid field is watched by."""
+    if not _FOLLOWER:
+        _FOLLOWER.append(_UnderlayFollower())
+    return _FOLLOWER[0]
+
+
+def _attach(widget) -> None:
+    """Fade ``widget``: an underlay when it has a parent, else the hook."""
+    from shiboken6 import isValid
+
+    from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+    if _filter is None or not isValid(widget):
+        return
+    widget.removeEventFilter(_filter)
+    if widget.parentWidget() is None:
+        _stop_watching_object_events(widget, _follower())
+        layer = _UNDERLAYS.pop(widget, None)
+        if layer is not None and isValid(layer):
+            layer.hide()
+            layer.deleteLater()
+        widget.installEventFilter(_filter)
+        return
+    _watch_object_events(widget, _follower(), _UNDERLAY_KINDS)
+    _sync_underlay(widget)
+
+
+def _attach_if_alive(widget) -> None:
+    """:func:`_attach` a field that is still there."""
+    from shiboken6 import isValid
+
+    if isValid(widget) and widget not in _LENT:
+        _attach(widget)
+
+
+def _detach(widget) -> None:
+    """Stop fading ``widget`` here: no hook, no underlay."""
+    from shiboken6 import isValid
+
+    from ..gil_priority import _stop_watching_object_events
+
+    if not isValid(widget):
+        return
+    if _filter is not None:
+        widget.removeEventFilter(_filter)
+    _stop_watching_object_events(widget, _follower())
+    layer = _UNDERLAYS.get(widget)
+    if layer is not None and isValid(layer):
+        layer.hide()
+
+
+def _sync_underlay(widget) -> None:
+    """Show ``widget``'s chrome under it, as the paint hook would draw it."""
+    from shiboken6 import isValid
+
+    if not isValid(widget):
+        return
+    layer = _UNDERLAYS.get(widget)
+    parent = widget.parentWidget()
+    pixmap = None
+    if (_filter is not None and parent is not None and widget not in _LENT
+            and not widget.isHidden() and field_fade_enabled()
+            and fades(widget)):
+        pixmap = _chrome_of(widget, widget.devicePixelRatioF())
+    if pixmap is None:
+        if layer is not None and isValid(layer):
+            layer.hide()
+        return
+    if layer is None or not isValid(layer) or layer.parentWidget() is not parent:
+        if layer is not None and isValid(layer):
+            layer.deleteLater()
+        layer = QLabel(parent)
+        layer.setObjectName("spacrFieldChrome")
+        layer.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        layer.setFocusPolicy(Qt.NoFocus)
+        layer.setStyleSheet("QLabel#spacrFieldChrome { background: transparent;"
+                            " border: none; padding: 0px; margin: 0px; }")
+        layer.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        layer.setContentsMargins(0, 0, 0, 0)
+        layer.setProperty(OPT_OUT_PROPERTY, True)
+        _UNDERLAYS[widget] = layer
+    layer.setGeometry(widget.geometry())
+    if layer.property("spacrChromeKey") != pixmap.cacheKey():
+        layer.setPixmap(pixmap)
+        layer.setProperty("spacrChromeKey", pixmap.cacheKey())
+    layer.stackUnder(widget)
+    layer.show()
+
+
+def _live_underlaid() -> list:
+    """The fields with an underlay whose Qt objects still exist."""
+    from shiboken6 import isValid
+
+    live = []
+    for widget, layer in list(_UNDERLAYS.items()):
+        if isValid(widget):
+            live.append(widget)
+        else:
+            _UNDERLAYS.pop(widget, None)
+            if isValid(layer):
+                layer.deleteLater()
+    return live
+
+
+def _sync_underlays() -> None:
+    """Redraw every underlay, after a theme, preference or cache change."""
+    for widget in _live_underlaid():
+        _sync_underlay(widget)
 
 
 class _FieldFadeFilter(QObject):
@@ -351,12 +501,18 @@ class _FieldFadeFilter(QObject):
         kind = event.type()
         if kind == QEvent.Type.Polish:
             if isinstance(obj, FIELD_TYPES) and obj not in _LENT:
-                obj.installEventFilter(self)
+                _attach(obj)
+            return False
+        if kind == QEvent.Type.ParentChange:
+            _attach(obj)
             return False
         if kind != QEvent.Type.Paint:
             return False
         if not field_fade_enabled() or not fades(obj):
             return False
+        if (self is _filter and obj.parentWidget() is not None
+                and obj not in _LENT):
+            QTimer.singleShot(0, lambda field=obj: _attach_if_alive(field))
         paint_owner = obj.window()
         painter = None
         try:
@@ -378,7 +534,7 @@ def _watch_fields(app) -> None:
     _watch_application_events(app, _filter, (QEvent.Type.Polish,))
     for widget in app.allWidgets():
         if isinstance(widget, FIELD_TYPES) and widget not in _LENT:
-            widget.installEventFilter(_filter)
+            _attach(widget)
 
 
 def install_field_fade(app=None) -> bool:
@@ -411,6 +567,8 @@ def uninstall_field_fade(app=None) -> bool:
         _stop_watching_application_events(app, _filter)
         for widget in app.allWidgets():
             widget.removeEventFilter(_filter)
+    for field in _live_underlaid():
+        _detach(field)
     _filter = None
     return True
 
@@ -431,6 +589,7 @@ def repaint_fields(app=None) -> int:
         if fades(widget):
             widget.update()
             count += 1
+    _sync_underlays()
     return count
 
 
