@@ -44,7 +44,8 @@ from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
+from PySide6.QtGui import (QColor, QIcon, QPainter, QPixmap,
+                           QTextDocumentFragment)
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -1490,6 +1491,7 @@ class NewsPanel(Panel):
 
         self._notes = QScrollArea()
         self._notes.setObjectName("HomeNewsScroll")
+        self._notes.setFocusPolicy(Qt.NoFocus)
         self._notes.setWidgetResizable(True)
         self._notes.setFrameShape(QFrame.NoFrame)
         self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -1662,6 +1664,9 @@ class NewsPanel(Panel):
             f'{escape(name)}</a>' if url else escape(name))
         title.setOpenExternalLinks(True)
         title.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        title.setAccessibleName(name)
+        if not url:
+            title.setFocusPolicy(Qt.NoFocus)
         title.setWordWrap(True)
         title.setStyleSheet(
             f"color: {P['fg']}; font-size: {font_px(12)}px;"
@@ -1680,6 +1685,11 @@ class NewsPanel(Panel):
             notes.setWordWrap(True)
             notes.setOpenExternalLinks(True)
             notes.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            notes.setAccessibleName(name)
+            notes.setAccessibleDescription(QTextDocumentFragment.fromHtml(
+                body).toPlainText())
+            if "<a " not in body:
+                notes.setFocusPolicy(Qt.NoFocus)
             notes.setStyleSheet(
                 f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
                 "background: transparent;")
@@ -2547,6 +2557,7 @@ class HomePage(QWidget):
         :returns: the scroll area.
         """
         scroll = QScrollArea()
+        scroll.setFocusPolicy(Qt.NoFocus)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -2778,6 +2789,8 @@ class HomePage(QWidget):
         readout.setMinimumWidth(QLabel("200%").sizeHint().width())
         for widget in (label, slider, readout):
             widget.setToolTip(tip)
+        slider.setAccessibleName(label.text())
+        label.setBuddy(slider)
         slider.valueChanged.connect(lambda v: readout.setText(f"{v}%"))
         slider.valueChanged.connect(self._on_aside_text)
         row.addWidget(label)
