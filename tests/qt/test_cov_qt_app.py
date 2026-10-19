@@ -2689,6 +2689,7 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
         finally:
             nesting[0] -= 1
 
+    app_mod._HEAVY_WARM_GATE.set()
     with monkeypatch.context() as m:
         m.setattr(importlib, "import_module", _record)
         thread.target()

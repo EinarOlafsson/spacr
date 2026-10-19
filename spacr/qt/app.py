@@ -8297,15 +8297,52 @@ def _module_source_mentions_pyside(original, module) -> bool:
     return original(module)
 
 
-def _start_settings_prewarm() -> threading.Thread:
+_HEAVY_WARM_GATE = threading.Event()
+_HEAVY_WARM_AFTER_HOME_MS = 1500
+_HEAVY_WARM_FROM = "spacr.settings_advisor"
+
+
+def _open_the_heavy_warm_after_home() -> None:
+    """Let the warm thread import the numerical stack once Home is usable.
+
+    Home must come up without pandas, scipy, matplotlib or scikit-image, so
+    the warm holds those back till Home reports it is painted and then has
+    been left alone for a moment. With timing off there is no Home record, so
+    a fixed delay after launch stands in for it; the thread also starts them
+    anyway after its own timeout.
+    """
+    from PySide6.QtCore import QTimer
+
+    gate = _HEAVY_WARM_GATE
+
+    def on_home(entry: dict) -> None:
+        if entry.get("detail") == "__home__":
+            _timing.unsubscribe_readiness(on_home)
+            QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS, gate.set)
+
+    if _timing.ENABLED:
+        _timing.subscribe_readiness(on_home)
+    else:
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS * 2, gate.set)
+
+
+def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
     Settings imports reach ``path_probe`` through the file-list widgets.
     Its process-wide signal source must outlive the temporary import thread
     and deliver redraw callbacks on the GUI thread. Only its lightweight
     initialization runs here; the slow settings imports remain background work.
+
+    :param wait_for_home: hold the numerical stack back till
+        :func:`_open_the_heavy_warm_after_home` opens the gate; the default
+        imports everything at once, for callers that join the thread.
     """
+    global _HEAVY_WARM_GATE
     _importlib.import_module("spacr.qt.path_probe")
+    gate = _HEAVY_WARM_GATE = threading.Event()
+    if not wait_for_home:
+        gate.set()
 
     def warm():
         """Import the remaining settings dependencies without building widgets."""
@@ -8316,11 +8353,6 @@ def _start_settings_prewarm() -> threading.Thread:
     def _warm_the_settings_imports():
         """Import each module, logging rather than raising a failure."""
         try:
-            try:
-                from .widgets.ambient import _import_numba
-                _import_numba()
-            except ImportError:
-                LOG.debug("numba is not available to prewarm", exc_info=True)
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
                         "spacr.qt.imagery", "spacr.settings_advisor",
@@ -8328,6 +8360,14 @@ def _start_settings_prewarm() -> threading.Thread:
                         "matplotlib.figure", "matplotlib.font_manager",
                         "skimage.data", "skimage.draw", "skimage.filters",
                         "skimage.measure", "skimage.morphology"):
+                if mod == _HEAVY_WARM_FROM:
+                    gate.wait(60)
+                    try:
+                        from .widgets.ambient import _import_numba
+                        _import_numba()
+                    except ImportError:
+                        LOG.debug("numba is not available to prewarm",
+                                  exc_info=True)
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
@@ -8726,7 +8766,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
         _warm_the_preferences(win)
         _start_the_font_cache_in_a_child()
-        _start_settings_prewarm()
+        _start_settings_prewarm(wait_for_home=True)
+        _open_the_heavy_warm_after_home()
         from PySide6.QtCore import QTimer
 
         QTimer.singleShot(0, _freeze_what_survived)
