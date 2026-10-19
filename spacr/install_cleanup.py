@@ -1694,13 +1694,23 @@ def _lease_owner_dead(path):
     return _process_group_live_member(group) == ""
 
 
+_LEASE_KNOWN_FIELDS = frozenset({"pid", "started", "host", "pidns", "pgid", "tree", "rollback"})
+
+
 def _lease_held_message(path):
-    """A refusal naming the lease and, when recorded, its owning process."""
+    """A refusal naming the lease and, when recorded, its owning process.
+
+    A lease with fields a later installer added, whose pid is gone, names no holder: this version cannot check
+    it, and the dead pid holds nothing.
+    """
     owner = os.path.join(path, _LEASE_OWNER) if os.path.isdir(path) else path
     try:
         with open(owner, encoding="utf-8") as handle:
-            pid = _lease_fields(handle.read(4096)).get("pid")
+            fields = _lease_fields(handle.read(4096))
     except (OSError, UnicodeDecodeError):
+        fields = {}
+    pid = fields.get("pid")
+    if pid and set(fields) - _LEASE_KNOWN_FIELDS and pid.isdigit() and _process_gone(int(pid)):
         pid = None
     if pid:
         return tr("Another spaCR installation holds {path} (process {pid}). Wait for it to finish; "

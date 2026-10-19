@@ -242,6 +242,23 @@ function Get-SpacrLeaseOwner {
     } catch { }
     return ""
 }
+# A lease written by a later installer may carry fields unknown here. It is
+# never taken over, and when its pid is gone it is reported as a lease this
+# version cannot check, not as held by that dead pid.
+function Test-SpacrLeaseHasUnknownFields {
+    param([string]$LeasePath)
+    try {
+        $Reader = [System.IO.StreamReader]::new([System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::Open,
+            [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite))
+        try {
+            foreach ($Line in ($Reader.ReadToEnd() -split "`n")) {
+                $Line = $Line.TrimEnd("`r")
+                if ($Line -and $Line -notmatch '^(pid|started|host|tree|rollback)=') { return $true }
+            }
+        } finally { $Reader.Dispose() }
+    } catch { }
+    return $false
+}
 function New-SpacrInstallerLeaseFile {
     param([string]$LeasePath)
     $Stream = [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
@@ -264,6 +281,9 @@ function Open-SpacrInstallerLease {
                 return New-SpacrInstallerLeaseFile $LeasePath
             }
             $Owner = Get-SpacrLeaseOwner $LeasePath
+            $OwnerId = 0
+            if ($Owner -and [int]::TryParse($Owner, [ref]$OwnerId) -and ((Get-SpacrProcessStarted $OwnerId) -eq "")
+                    -and (Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }
             if ($Owner) {
                 throw ((Get-SpacrInstallerMessage "already_running") + " " + (Get-SpacrInstallerMessage "lease_held" @($LeasePath, $Owner)))
             }

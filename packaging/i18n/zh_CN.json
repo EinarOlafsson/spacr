@@ -103,7 +103,7 @@
   "gui_category_downloads": "下载",
   "gui_category_other": "其他 spaCR 数据",
   "lease_held": "%s 被 spaCR 安装进程 %s 占用。请等待其完成；如果它在回滚过程中停止，请先按照其安装日志处理后再重试。",
-  "lease_held_unknown": "%s 由未记录所有者的早期 spaCR 安装程序遗留。请关闭所有 spaCR 安装程序，然后将其删除并重试。",
+  "lease_held_unknown": "%s 被此版本无法检查的 spaCR 安装程序占用。如果没有 spaCR 安装程序在运行，请将其删除并重试。",
   "lease_cleared": "已移除被中断的 spaCR 安装遗留的锁（其进程已结束）：%s",
   "staging_removed": "已移除被中断的 spaCR 安装遗留的暂存运行时：%s"
 }

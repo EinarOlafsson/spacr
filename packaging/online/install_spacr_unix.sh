@@ -612,6 +612,12 @@ spacr_group_live_member() {
             }
         }' <<< "$listing"
 }
+# Fields a lease written by a later installer may add are unknown here. Such a
+# lease is never taken over, and when its pid is gone it is reported as a
+# lease this version cannot check, not as held by that dead pid.
+spacr_lease_has_unknown_fields() {
+    [[ -f "$1/owner" ]] && grep -qvE '^(pid|started|host|pidns|pgid)=' "$1/owner"
+}
 spacr_lease_field() {
     [[ -f "$1/owner" ]] || return 0
     sed -n "s/^$2=//p" "$1/owner" 2>/dev/null | head -n 1 || true
@@ -675,7 +681,11 @@ spacr_take_installer_lease() {
     if [[ -n "$pid" ]] && spacr_process_gone "$pid"; then
         member="$(spacr_lease_field "$lease" pgid)"
         [[ -n "$member" ]] && member="$(spacr_group_live_member "$member")"
-        [[ "$member" =~ ^[0-9]+$ ]] && pid="$member"
+        if [[ "$member" =~ ^[0-9]+$ ]]; then
+            pid="$member"
+        elif spacr_lease_has_unknown_fields "$lease"; then
+            pid=""
+        fi
     fi
     if [[ -n "$pid" ]]; then spacr_say lease_held "$lease" "$pid" >&2; else spacr_say lease_held_unknown "$lease" >&2; fi
     return 1

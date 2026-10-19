@@ -279,3 +279,70 @@ def test_an_open_windows_lease_file_is_never_taken_over(tmp_path, monkeypatch):
     assert ic._lease_owner_dead(str(lease)) is True
     monkeypatch.setattr(ic, "_lease_file_in_use", lambda path: True)
     assert ic._lease_owner_dead(str(lease)) is False
+
+
+def _future(lease, pid, started):
+    """A lease from a later installer: everything this version records, plus a field it does not know."""
+    _stamp(lease, pid, started)
+    with open(lease / "owner", "a") as handle:
+        handle.write("futurefield=1\n")
+
+
+def test_a_later_installers_lease_with_a_dead_pid_names_no_holder(tmp_path):
+    """Found on a Mac 2026-10-19: 1.5.1.5 refused a 1.5.1.6 lease (pgid=) forever, naming its dead pid."""
+    lease = tmp_path / ".app.spacr-installer-lock"
+    pid, started = _ended_pid()
+    _future(lease, pid, started)
+    result = _take(tmp_path, lease)
+    assert result.returncode != 0 and f"lease_held_unknown {lease}" in result.stderr
+    assert f"lease_held {lease}" not in result.stderr and (lease / "owner").is_file()
+    assert ic._lease_owner_dead(str(lease)) is False
+    message = ic._lease_held_message(str(lease))
+    assert str(pid) not in message and "remove that folder" in message
+
+
+def test_a_later_installers_lease_with_a_live_pid_names_it(tmp_path):
+    lease = tmp_path / ".app.spacr-installer-lock"
+    holder = _holder()
+    try:
+        _future(lease, holder.pid, _started(holder.pid))
+        result = _take(tmp_path, lease)
+        assert result.returncode != 0 and f"lease_held {lease} {holder.pid}" in result.stderr
+        assert ic._lease_owner_dead(str(lease)) is False
+        assert str(holder.pid) in ic._lease_held_message(str(lease))
+    finally:
+        holder.communicate("done\n", timeout=10)
+
+
+@pytest.mark.parametrize("alive", [False, True])
+def test_the_macos_first_run_check_reports_a_later_lease_the_same_way(tmp_path, alive):
+    support = tmp_path / "support"
+    support.mkdir()
+    wrapper = support / "install-for-user.sh"
+    wrapper.write_text(WRAPPER.read_text())
+    (support / "installer_messages.sh").write_text('spacr_say() { printf "%s\\n" "$*"; }\n')
+    (support / "install-online.sh").write_text("#!/bin/sh\nprintf 'backend\\n'\n")
+    (support / "install-online.sh").chmod(0o755)
+    runtime = tmp_path / "runtime"
+    runtime.mkdir()
+    env = dict(os.environ, SPACR_USER_INSTALL_ROOT=str(runtime), SPACR_NO_RELAUNCH="1")
+    holder = _holder() if alive else None
+    try:
+        pid, started = (holder.pid, _started(holder.pid)) if alive else _ended_pid()
+        _future(runtime / ".installing", pid, started)
+        refused = subprocess.run(["/bin/sh", str(wrapper)], env=env, text=True, capture_output=True, timeout=20)
+        assert refused.returncode == 75 and "backend" not in refused.stdout
+        if alive:
+            assert f"lease_held {runtime / '.installing'} {pid}" in refused.stdout
+        else:
+            assert f"lease_held_unknown {runtime / '.installing'}" in refused.stdout
+    finally:
+        if holder is not None:
+            holder.communicate("done\n", timeout=10)
+
+
+def test_the_windows_installer_names_no_dead_holder_for_a_later_lease():
+    source = WINDOWS.read_text()
+    assert "function Test-SpacrLeaseHasUnknownFields" in source
+    assert "'^(pid|started|host|tree|rollback)='" in source
+    assert '-and (Test-SpacrLeaseHasUnknownFields $LeasePath)) { $Owner = "" }' in source

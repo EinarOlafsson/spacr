@@ -103,7 +103,7 @@
   "gui_category_downloads": "Transferências",
   "gui_category_other": "Outros dados do spaCR",
   "lease_held": "%s está retido pelo processo de instalação do spaCR %s. Aguarde que termine; se parou durante um restauro, siga o seu registo de instalação antes de tentar novamente.",
-  "lease_held_unknown": "%s foi deixado por um instalador anterior do spaCR que não registou o seu proprietário. Feche todos os instaladores do spaCR, remova-o e tente novamente.",
+  "lease_held_unknown": "%s está retido por um instalador do spaCR que esta versão não consegue verificar. Se nenhum instalador do spaCR estiver em execução, remova-o e tente novamente.",
   "lease_cleared": "Removido um bloqueio deixado por uma instalação do spaCR interrompida cujo processo terminou: %s",
   "staging_removed": "Removido o ambiente de preparação deixado por uma instalação do spaCR interrompida: %s"
 }

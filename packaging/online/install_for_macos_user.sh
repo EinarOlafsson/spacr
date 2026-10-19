@@ -72,6 +72,16 @@ lease_owner_dead() {
 if { [ -e "$LOCK_DIR" ] || [ -L "$LOCK_DIR" ]; } && ! lease_owner_dead "$LOCK_DIR"; then
     spacr_say already_running
     owner="$(lease_field "$LOCK_DIR" pid)"
+    if [ -n "$owner" ] && lease_gone "$owner"; then
+        group="$(lease_field "$LOCK_DIR" pgid)"
+        member=""
+        [ -z "$group" ] || member="$(lease_group_live_member "$group")"
+        case "$member" in
+            ''|*[!0-9]*)
+                if grep -qvE '^(pid|started|host|pidns|pgid)=' "$LOCK_DIR/owner" 2>/dev/null; then owner=""; fi ;;
+            *) owner="$member" ;;
+        esac
+    fi
     if [ -n "$owner" ]; then spacr_say lease_held "$LOCK_DIR" "$owner"; else spacr_say lease_held_unknown "$LOCK_DIR"; fi
     exit 75
 fi
