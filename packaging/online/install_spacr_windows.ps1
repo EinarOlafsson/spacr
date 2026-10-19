@@ -259,6 +259,81 @@ function Test-SpacrLeaseHasUnknownFields {
     } catch { }
     return $false
 }
+# A killed installer leaves its staging runtime, staging profile and temporary
+# work folder behind. They are removed only for an owner whose lease this
+# installer just took over, only once this installer holds every lease, and
+# only while that owner is still provably gone. A link or junction is never
+# followed or removed, and nothing outside the install root and TEMP is named.
+$SpacrAbandonedOwners = @()
+function Add-SpacrAbandonedOwner {
+    param([string]$LeasePath)
+    $Fields = @{}
+    try {
+        $Reader = [System.IO.StreamReader]::new([System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::Open,
+            [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite))
+        try {
+            foreach ($Line in ($Reader.ReadToEnd() -split "`n")) {
+                $Pair = $Line.TrimEnd("`r") -split "=", 2
+                if ($Pair.Count -eq 2) { $Fields[$Pair[0]] = $Pair[1] }
+            }
+        } finally { $Reader.Dispose() }
+    } catch { return }
+    if ($Fields["pid"] -notmatch '^[1-9][0-9]*$' -or -not $Fields["started"]) { return }
+    foreach ($Known in $script:SpacrAbandonedOwners) {
+        if ($Known.Id -eq $Fields["pid"]) { return }
+    }
+    $script:SpacrAbandonedOwners += @{ Id = $Fields["pid"]; Started = $Fields["started"] }
+}
+# Directory.Delete(path, $true) on .NET Framework treats a junction inside the
+# tree as a volume mount point and fails, and uv's Python download contains
+# one. A link is removed as a link, never entered; read-only files are cleared.
+function Remove-SpacrTree {
+    param([string]$Folder)
+    foreach ($Entry in ([System.IO.DirectoryInfo]::new($Folder)).GetFileSystemInfos()) {
+        if ($Entry.Attributes -band [System.IO.FileAttributes]::ReadOnly) {
+            $Entry.Attributes = $Entry.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+        }
+        if ($Entry -is [System.IO.DirectoryInfo]) {
+            if ($Entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+                [System.IO.Directory]::Delete($Entry.FullName, $false)
+            } else {
+                Remove-SpacrTree $Entry.FullName
+            }
+        } else {
+            [System.IO.File]::Delete($Entry.FullName)
+        }
+    }
+    [System.IO.Directory]::Delete($Folder, $false)
+}
+function Remove-SpacrAbandonedPath {
+    param([string]$Parent, [string]$Name)
+    if ([string]::IsNullOrWhiteSpace($Parent)) { return }
+    $Base = [System.IO.Path]::GetFullPath($Parent).TrimEnd("\")
+    $Path = [System.IO.Path]::GetFullPath((Join-Path $Base $Name))
+    if ([System.IO.Path]::GetDirectoryName($Path).TrimEnd("\") -ne $Base) { return }
+    $Item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+    if ($null -eq $Item) { return }
+    if ($Item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return }
+    try {
+        if ($Item.PSIsContainer) {
+            Remove-SpacrTree $Path
+        } else {
+            [System.IO.File]::Delete($Path)
+        }
+        Write-Host (Get-SpacrInstallerMessage "staging_removed" @($Path))
+    } catch { }
+}
+function Remove-SpacrAbandonedStaging {
+    foreach ($Owner in $script:SpacrAbandonedOwners) {
+        $OwnerId = [int]$Owner.Id
+        if ($OwnerId -eq $PID) { continue }
+        $Now = Get-SpacrProcessStarted $OwnerId
+        if ($null -eq $Now -or ($Now -ne "" -and $Now -eq $Owner.Started)) { continue }
+        Remove-SpacrAbandonedPath $InstallRoot (".venv-staging-" + $OwnerId)
+        Remove-SpacrAbandonedPath $InstallRoot (".install-profile-staging-" + $OwnerId + ".json")
+        Remove-SpacrAbandonedPath $env:TEMP ("spacr-install-" + $OwnerId)
+    }
+}
 function New-SpacrInstallerLeaseFile {
     param([string]$LeasePath)
     $Stream = [System.IO.FileStream]::new($LeasePath, [System.IO.FileMode]::CreateNew,
@@ -276,6 +351,7 @@ function Open-SpacrInstallerLease {
     } catch [System.IO.IOException] {
         if (Test-Path -LiteralPath $LeasePath) {
             if (Test-SpacrLeaseOwnerDead $LeasePath) {
+                Add-SpacrAbandonedOwner $LeasePath
                 Remove-Item -LiteralPath $LeasePath -Force
                 Write-Host (Get-SpacrInstallerMessage "lease_cleared" @($LeasePath))
                 return New-SpacrInstallerLeaseFile $LeasePath
@@ -306,6 +382,7 @@ try {
     New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
     $RuntimeLease = Join-Path $InstallRoot ".venv.spacr-update-lock"
     $InstallerLeaseHandles += @{ Path = $RuntimeLease; Handle = (Open-SpacrInstallerLease $RuntimeLease) }
+    Remove-SpacrAbandonedStaging
     $InstallerStarted = $true
     Start-Transcript -Path $LogPath -Append | Out-Null
     $TranscriptStarted = $true

@@ -100,3 +100,39 @@ def test_the_powershell_installer_follows_the_same_rule():
     assert "ParentProcessId = $OwnerId" in source and "-ge $Since" in source
     assert 'if ($Tree -ne "1") { return $false }' in source
     assert "($false -eq (Test-SpacrOwnerChildrenLive" in source
+
+
+def test_the_powershell_installer_sweeps_only_what_a_taken_over_owner_left():
+    """Mirrors spacr_remove_abandoned_staging: a killed installer's staging runtime, staging profile and TEMP
+    work folder go only for an owner whose lease was just taken over, after every lease is held, and only while
+    that owner is still gone. Found natively on Windows 11 2026-10-19: four killed installs left four of each."""
+    source = WINDOWS.read_text(encoding="utf-8")
+    take_over = source.index("if (Test-SpacrLeaseOwnerDead $LeasePath) {")
+    assert source.index("Add-SpacrAbandonedOwner $LeasePath", take_over) < source.index(
+        "Remove-Item -LiteralPath $LeasePath -Force", take_over)
+    assert source.count("Add-SpacrAbandonedOwner $LeasePath") == 1
+    runtime_lease = source.index("Open-SpacrInstallerLease $RuntimeLease")
+    sweep = source.index("    Remove-SpacrAbandonedStaging\n")
+    assert runtime_lease < sweep < source.index("$InstallerStarted = $true")
+    body = source[source.index("function Remove-SpacrAbandonedStaging"):]
+    body = body[:body.index("\n}\n")]
+    assert "if ($OwnerId -eq $PID) { continue }" in body
+    assert '($Now -ne "" -and $Now -eq $Owner.Started)' in body
+    assert 'Remove-SpacrAbandonedPath $InstallRoot (".venv-staging-" + $OwnerId)' in body
+    assert 'Remove-SpacrAbandonedPath $InstallRoot (".install-profile-staging-" + $OwnerId + ".json")' in body
+    assert 'Remove-SpacrAbandonedPath $env:TEMP ("spacr-install-" + $OwnerId)' in body
+    remover = source[source.index("function Remove-SpacrAbandonedPath"):]
+    remover = remover[:remover.index("\n}\n")]
+    assert "GetDirectoryName($Path).TrimEnd(\"\\\") -ne $Base) { return }" in remover
+    assert "[System.IO.FileAttributes]::ReparsePoint) { return }" in remover
+    assert remover.index("ReparsePoint) { return }") < remover.index("Remove-SpacrTree $Path")
+    tree = source[source.index("function Remove-SpacrTree"):]
+    tree = tree[:tree.index("\n}\n")]
+    assert "Delete($Path, $true)" not in source and "Delete($Folder, $true)" not in tree
+    link = tree.index("if ($Entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {")
+    assert link < tree.index("[System.IO.Directory]::Delete($Entry.FullName, $false)") < tree.index(
+        "} else {", link) < tree.index("Remove-SpacrTree $Entry.FullName")
+    assert tree.count("Remove-SpacrTree $Entry.FullName") == 1
+    assert tree.rstrip().endswith("[System.IO.Directory]::Delete($Folder, $false)")
+    assert 'Get-SpacrInstallerMessage "staging_removed"' in remover
+    assert "'^[1-9][0-9]*$'" in source[source.index("function Add-SpacrAbandonedOwner"):]
