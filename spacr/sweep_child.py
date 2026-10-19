@@ -15,7 +15,7 @@ for _variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
     os.environ.setdefault(_variable, "1")
 
 try:
-    with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as _handle:
+    with open(f"/proc/{os.getpid()}/oom_score_adj", "w", encoding="utf-8") as _handle:
         _handle.write("800")
 except OSError:
     pass
@@ -55,7 +55,7 @@ def main(argv=None) -> int:
         return 2
     settings_path, out_path = argv
 
-    with open(settings_path) as handle:
+    with open(settings_path, encoding="utf-8") as handle:
         payload = json.load(handle)
     settings = payload.get("settings", payload)
 
@@ -116,7 +116,7 @@ def main(argv=None) -> int:
                 pass
     result["seconds"] = round(time.time() - began, 2)
 
-    with open(out_path, "w") as handle:
+    with open(out_path, "w", encoding="utf-8") as handle:
         json.dump(result, handle, indent=2, default=str)
     return 0
 

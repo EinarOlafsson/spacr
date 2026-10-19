@@ -165,7 +165,7 @@ def _open_wheel_cuda_libraries(dlopen, maps_path: str = "/proc/self/maps") -> bo
     import os
 
     try:
-        with open(maps_path) as maps:
+        with open(maps_path, encoding="utf-8") as maps:
             if "nvidia/cuda_runtime/lib/libcudart.so" not in maps.read():
                 return True
     except OSError:

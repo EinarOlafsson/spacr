@@ -8308,7 +8308,7 @@ def _install_crash_dump():
     try:
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, CRASH_DUMP_NAME)
-        handle = open(path, "a", buffering=1)
+        handle = open(path, "a", buffering=1, encoding="utf-8")
         handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
         faulthandler.enable(file=handle, all_threads=True)
         globals()["_CRASH_DUMP_FILE"] = handle

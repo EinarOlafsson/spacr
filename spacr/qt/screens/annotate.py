@@ -182,6 +182,7 @@ from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
 #: numpy and nothing heavier -- both are already imported by the time this
 #: screen exists -- so this costs nothing at launch.
 from ...suggest import SUGGESTION_OFFSET
+from ...logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger(__name__)
 
@@ -3348,7 +3349,7 @@ def _read_example_settings(path) -> Dict[str, str]:
     if not path.is_file():
         return {}
     try:
-        with path.open(newline="") as handle:
+        with path.open(newline="", encoding=_legacy_text_encoding(path)) as handle:
             return {str(row[0]).strip(): str(row[1]).strip()
                     for row in csv.reader(handle)
                     if len(row) >= 2 and row[0] != "Key"}

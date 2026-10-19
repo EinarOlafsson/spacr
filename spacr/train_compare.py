@@ -665,7 +665,7 @@ def _load_settings(path: Path) -> Tuple[Dict[str, Any], str, List[str]]:
     j = path / "settings.json"
     if j.is_file():
         try:
-            data = json.loads(j.read_text())
+            data = json.loads(j.read_text(encoding="utf-8"))
             if isinstance(data, dict):
                 return data, str(j), notes
             notes.append(f"settings.json is a {type(data).__name__}, not an "
@@ -759,7 +759,7 @@ def _load_manifest(path: Path) -> Dict[str, Any]:
     if not mp.is_file():
         return {}
     try:
-        data = json.loads(mp.read_text())
+        data = json.loads(mp.read_text(encoding="utf-8"))
         return data if isinstance(data, dict) else {}
     except Exception:
         return {}

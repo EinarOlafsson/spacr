@@ -91,6 +91,7 @@ from .crops import (
     to_cv2_bgr,
 )
 from . import settings as _settings_module
+from .logging_util import _legacy_text_encoding
 settings = _settings_module
 from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
@@ -5304,7 +5305,7 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
                 f"Setting: cell_cycle_model {model_path} has no "
                 f"cell_cycle_phases.json beside it, so the order of its "
                 f"phases is unknown; use a model this step trained.")
-        with open(order_file) as handle:
+        with open(order_file, encoding=_legacy_text_encoding(order_file)) as handle:
             meta = json.load(handle)
         classes, size = list(meta['phases']), int(meta.get('crop_size', size))
         report['model'] = model_path
@@ -5362,7 +5363,7 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
                 f"Training the torch phase classifier produced no model "
                 f"({model_path!r}).")
         with open(os.path.join(os.path.dirname(model_path),
-                               'cell_cycle_phases.json'), 'w') as handle:
+                               'cell_cycle_phases.json'), 'w', encoding="utf-8") as handle:
             json.dump({'phases': classes, 'crop_size': size,
                        'channel': int(channel), 'split_group_by': level,
                        'split': split_report.to_dict()}, handle)

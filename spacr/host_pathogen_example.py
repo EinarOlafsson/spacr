@@ -31,7 +31,7 @@ def is_present(folder):
     """
     folder = Path(folder)
     try:
-        record = json.loads((folder / 'example_manifest.json').read_text())
+        record = json.loads((folder / 'example_manifest.json').read_text(encoding="utf-8"))
         return (record['version'] == VERSION and record['synthetic'] is True
                 and all((folder / name).is_file() for name in record['files'])
                 and (folder / 'measurements/measurements.db').stat().st_size > 0)
@@ -181,7 +181,7 @@ def build_example(destination, *, progress=None, cancelled=None):
         (root / 'merged' / '.spacr_plane_layout.json').write_text(json.dumps(dict(
             version=1, intensity_channels=[0, 1, 2, 3],
             mask_plane_order=['cell', 'nucleus', 'pathogen', 'organelle'],
-            mask_dims=dict(cell=4, nucleus=5, pathogen=6, organelle=7)), indent=2) + '\n')
+            mask_dims=dict(cell=4, nucleus=5, pathogen=6, organelle=7)), indent=2) + '\n', encoding="utf-8")
         _write_csv(root / 'expected' / 'vacuoles.csv', truth)
         _write_csv(root / 'expected' / 'wells.csv', [dict(
             plateID='synthetic_hp', rowID='r1', columnID=f'c{column}',
@@ -198,7 +198,7 @@ def build_example(destination, *, progress=None, cancelled=None):
                         files=sorted(str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()),
                         merged_planes=['marker_0', 'marker_1', 'DNA', 'parasites',
                                        'cell_mask', 'nucleus_mask', 'vacuole_mask', 'parasite_mask'])
-        (root / 'example_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        (root / 'example_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding="utf-8")
         if cancelled and cancelled():
             raise RuntimeError('Synthetic example generation cancelled.')
         if destination.exists():

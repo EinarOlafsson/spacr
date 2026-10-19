@@ -650,7 +650,7 @@ def save_style(style, path) -> str:
     payload = {"spacr_style_kind": style_kind(style),
                "fields": style_as_dict(style)}
     target.write_text(json.dumps(payload, indent=2, sort_keys=True,
-                                 default=str))
+                                 default=str), encoding="utf-8")
     return str(target)
 
 
@@ -668,7 +668,7 @@ def load_style(style, path, on_change=None) -> list:
     from pathlib import Path
 
     try:
-        payload = json.loads(Path(str(path)).read_text())
+        payload = json.loads(Path(str(path)).read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise ValueError(f"{path} is not a readable style file: {exc}") from exc
     if not isinstance(payload, dict) or "fields" not in payload:

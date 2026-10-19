@@ -6916,7 +6916,7 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
     session._saved_mask_sha256 = _yolo_source_hash(mask_path) if mask_path.exists() else None
     session._saved_geometry_sha256 = _yolo_source_hash(sidecar) if sidecar.exists() else None
     if sidecar.exists():
-        record = json.loads(sidecar.read_text())
+        record = json.loads(sidecar.read_text(encoding="utf-8"))
         expected = {'source_sha256': digest, 'shape': list(image.shape), 'axes': axes,
                     'spacing': list(session.spacing), 'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest()}
         if any(record.get(key) != value for key, value in expected.items()) or record.get('version') != 1:

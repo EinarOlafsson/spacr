@@ -107,7 +107,7 @@ def uniprot_accessions() -> Dict[str, str]:
     try:
         import csv
 
-        with open(UNIPROT_TABLE, newline="") as handle:
+        with open(UNIPROT_TABLE, newline="", encoding="utf-8") as handle:
             for row in csv.DictReader(handle):
                 gene = str(row.get("gene_nr", "")).strip()
                 accession = str(row.get("uniprot", "")).strip()

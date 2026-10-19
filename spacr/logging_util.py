@@ -511,6 +511,27 @@ def _portable_root_for(raw: str, launcher: str) -> Optional[Path]:
     return None
 
 
+def _legacy_text_encoding(path: Any) -> str:
+    """The encoding to read a text file spaCR or the user wrote earlier with.
+
+    Files written by older spaCR on Windows used the locale code page
+    (``cp1252``); current spaCR writes UTF-8. A file that decodes as UTF-8 is
+    read as UTF-8, and one that does not is read as ``cp1252``.
+
+    :param path: the file to probe.
+    :returns: ``"utf-8"`` or ``"cp1252"``.
+    """
+    try:
+        with open(path, encoding="utf-8") as probe:
+            while probe.read(1 << 20):
+                pass
+    except UnicodeDecodeError:
+        return "cp1252"
+    except OSError:
+        return "utf-8"
+    return "utf-8"
+
+
 def _spacr_home() -> Path:
     """Return the folder spaCR keeps settings, caches, logs and runs in.
 

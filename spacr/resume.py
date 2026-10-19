@@ -158,6 +158,7 @@ from . import schema
 from .object_roles import ORGANELLE_ROLES
 from .database_concurrency import connect as connect_database, transaction
 from .errors import ConfigurationError, read_run_status
+from .logging_util import _legacy_text_encoding
 
 __all__ = [
     'ResumeState',
@@ -1600,7 +1601,7 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
         import csv
         out: Dict[str, Any] = {}
         try:
-            with open(path, newline='') as handle:
+            with open(path, newline='', encoding=_legacy_text_encoding(path)) as handle:
                 for row in csv.reader(handle):
                     if row and row[0] and row[0] not in ('Key', 'setting_key'):
                         out[row[0]] = row[1] if len(row) > 1 else ''
@@ -1610,7 +1611,7 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
     if path.lower().endswith('.json'):
         import json
         try:
-            with open(path) as handle:
+            with open(path, encoding=_legacy_text_encoding(path)) as handle:
                 data = json.load(handle)
         except (OSError, ValueError):
             return {}

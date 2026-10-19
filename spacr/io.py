@@ -9103,7 +9103,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                 destination.append(item)
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
-            with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
+            with open(os.path.join(dst, '.spacr_split.json'), 'w', encoding="utf-8") as handle:
                 json.dump(split_report.to_dict(), handle, indent=2,
                           sort_keys=True)
 

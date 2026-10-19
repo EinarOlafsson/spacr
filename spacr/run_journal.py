@@ -81,6 +81,7 @@ from typing import (Any, Dict, Iterable, Iterator, List, Mapping, Optional,
 
 from .macro import begin_recording, finish_recording
 from .logging_util import _spacr_home
+from .logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger("spacr.run_journal")
 
@@ -2159,7 +2160,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("skipping run folder %s: its manifest.json could not "
                         "be read (%s)", d.name, exc)
@@ -2364,7 +2365,7 @@ def _read_totals_cache():
     run count on the Home dashboard is worse than a slow one.
     """
     try:
-        raw = json.loads(_totals_cache_path().read_text())
+        raw = json.loads(_totals_cache_path().read_text(encoding="utf-8"))
         if int(raw.get("version", 0)) != _TOTALS_CACHE_VERSION:
             return None
         return {
@@ -2387,7 +2388,7 @@ def _write_totals_cache(totals, counted, models) -> None:
             "totals": dict(totals),
             "counted": sorted(counted),
             "models": sorted(models),
-        }))
+        }), encoding="utf-8")
         os.replace(tmp, path)
     except Exception:
         pass
@@ -2433,7 +2434,7 @@ def journal_totals() -> Dict[str, int]:
         if not manifest_path.exists():
             continue
         try:
-            m = json.loads(manifest_path.read_text())
+            m = json.loads(manifest_path.read_text(encoding="utf-8"))
         except Exception as exc:
             LOG.warning("run folder %s is not counted: its manifest.json "
                         "could not be read (%s)", d.name, exc)
@@ -2465,7 +2466,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
     run_dir = Path(run_dir)
     j = run_dir / "settings.json"
     if j.exists():
-        return json.loads(j.read_text())
+        return json.loads(j.read_text(encoding="utf-8"))
     c = run_dir / "settings.csv"
     if not c.exists():
         raise FileNotFoundError(f"no settings in {run_dir}")
@@ -2475,7 +2476,7 @@ def load_run_settings(run_dir: Path) -> Dict[str, Any]:
 def _read_settings_csv(path: Path) -> Dict[str, Any]:
     """Parse a ``Key,Value`` settings CSV into a plain dict."""
     out: Dict[str, Any] = {}
-    with open(path) as f:
+    with open(path, encoding=_legacy_text_encoding(path)) as f:
         for row in csv.reader(f):
             if any("\x00" in cell for cell in row):
                 raise csv.Error("embedded NUL byte in settings CSV")
@@ -2688,7 +2689,7 @@ def _read_run_record(ref: Any) -> Dict[str, Any]:
         rec["errors"].append("no manifest.json (run may still be in flight)")
     else:
         try:
-            m = json.loads(mp.read_text())
+            m = json.loads(mp.read_text(encoding="utf-8"))
             rec["manifest"] = m if isinstance(m, dict) else {}
             if not isinstance(m, dict):
                 rec["errors"].append(

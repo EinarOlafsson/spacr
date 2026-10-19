@@ -43,7 +43,7 @@ def _print_manifest(run_dir: Path) -> None:
     :param run_dir: Run-journal directory containing ``manifest.json``.
     :returns: ``None``; the formatted summary is written to standard output.
     """
-    m = json.loads((run_dir / "manifest.json").read_text())
+    m = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     print(f"run:       {run_dir.name}")
     print(f"app:       {m.get('app_key')}")
     print(f"status:    {m.get('status')}")
@@ -431,7 +431,7 @@ def main(argv=None) -> int:
         print(f"wrote {main_file}")
         return 0
 
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     app_key = manifest.get("app_key")
     settings = load_run_settings(run_dir)
 

@@ -55,7 +55,7 @@ def _read_manifest(run_dir: Path) -> Dict[str, Any]:
     if not manifest_path.exists():
         return {}
     try:
-        return json.loads(manifest_path.read_text())
+        return json.loads(manifest_path.read_text(encoding="utf-8"))
     except Exception:
         return {}
 
@@ -78,7 +78,7 @@ def _read_settings(run_dir: Path) -> Dict[str, Any]:
     settings_path = run_dir / "settings.json"
     if not settings_path.exists():
         return {}
-    return json.loads(settings_path.read_text())
+    return json.loads(settings_path.read_text(encoding="utf-8"))
 
 
 
@@ -235,6 +235,6 @@ def export_run(run_dir: Any,
         out_path = run_dir / "notebook.ipynb"
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(nb, indent=2))
+    out_path.write_text(json.dumps(nb, indent=2), encoding="utf-8")
     LOG.info("exported run notebook → %s", out_path)
     return out_path

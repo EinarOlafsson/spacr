@@ -2654,7 +2654,7 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
     """
     p = Path(path)
     try:
-        data = json.loads(p.read_text())
+        data = json.loads(p.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise ModelZooError(f"no such catalogue file: {p}") from None
     except (OSError, ValueError) as e:
@@ -2829,7 +2829,7 @@ def _bioimageio_payload(timeout: float, url: Optional[str],
     stale = None
     try:
         if cache.is_file():
-            stale = json.loads(cache.read_text())
+            stale = json.loads(cache.read_text(encoding="utf-8"))
             if (time.time() - cache.stat().st_mtime
                     < BIOIMAGEIO_CACHE_HOURS * 3600):
                 return stale, False
@@ -2842,7 +2842,7 @@ def _bioimageio_payload(timeout: float, url: Optional[str],
                                     timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
         cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps(payload))
+        cache.write_text(json.dumps(payload), encoding="utf-8")
         return payload, True
     except Exception:
         return stale, False
@@ -2852,7 +2852,7 @@ def _bioimageio_sizes() -> Dict[str, int]:
     """The weights sizes measured so far, by URL; empty when none were."""
     try:
         sizes = json.loads(
-            _bioimageio_cache("bioimageio_weight_sizes.json").read_text())
+            _bioimageio_cache("bioimageio_weight_sizes.json").read_text(encoding="utf-8"))
     except Exception:
         return {}
     if not isinstance(sizes, Mapping):
@@ -2896,7 +2896,7 @@ def _measure_bioimageio_weights(uris: Iterable[str], sizes: Dict[str, int],
     try:
         cache = _bioimageio_cache("bioimageio_weight_sizes.json")
         cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps(sizes))
+        cache.write_text(json.dumps(sizes), encoding="utf-8")
     except Exception:
         pass
     return sizes
@@ -3328,7 +3328,7 @@ def community_entries(allow_network: bool = False,
     try:
         if (not allow_network and cache.is_file()
                 and _time.time() - cache.stat().st_mtime < 6 * 3600):
-            records = _json.loads(cache.read_text())
+            records = _json.loads(cache.read_text(encoding="utf-8"))
     except Exception:                                        # noqa: BLE001
         records = None
     if records is None and not allow_network:
@@ -3347,7 +3347,7 @@ def community_entries(allow_network: bool = False,
                 sub = f"{COMMUNITY_PREFIX}{folder}/submission.json"
                 if sub in files:
                     try:
-                        meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
+                        meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text(encoding="utf-8"))
                     except Exception:                        # noqa: BLE001
                         meta = {}
                 inside = [f for f in files
@@ -3359,7 +3359,7 @@ def community_entries(allow_network: bool = False,
                     continue
                 records.append(dict(folder=folder, path=weights[0], meta=meta))
             cache.parent.mkdir(parents=True, exist_ok=True)
-            cache.write_text(_json.dumps(records))
+            cache.write_text(_json.dumps(records), encoding="utf-8")
         except Exception:                                    # noqa: BLE001
             return []
 

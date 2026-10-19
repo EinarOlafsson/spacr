@@ -661,7 +661,7 @@ def _prepare_measure_unmixing(settings):
     settings[_UNMIX_RECORD_KEY] = json.dumps(record)
     folder = Path(settings['src']).parent / 'measurements'
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / 'bleed_through.json').write_text(json.dumps(record, indent=2))
+    (folder / 'bleed_through.json').write_text(json.dumps(record, indent=2), encoding="utf-8")
     _describe_unmixing(plan)
     return plan
 
@@ -803,7 +803,7 @@ def _prepare_n2v(settings, root, channels, *, stack_dir=None, load=None,
         record = None
         if path.is_file():
             try:
-                record = json.loads(sidecar.read_text())
+                record = json.loads(sidecar.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 record = {}
             if not given and record.get('epochs') != epochs:
@@ -909,7 +909,7 @@ def validate_psf_resume(settings, root, channels, *, expected_fields):
                'Mask inputs. Enable preprocessing to rebuild the complete '
                'archive set from stack/ before generating masks.')
     try:
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         if (record['configuration'] != _configuration(
                 plan, channels, 'v1', chain, unmix, n2v)
                 or not record['complete']
