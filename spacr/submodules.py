@@ -1087,10 +1087,10 @@ def analyze_recruitment(settings):
 
     settings = get_analyze_recruitment_default_settings(settings=settings)
     
-    if settings['src'].endswith('/measurements.db'):
+    if settings['src'].replace('\\', '/').endswith('/measurements.db'):
         src_orig = settings['src']
         settings['src'] = os.path.dirname(settings['src'])
-        if settings['src'].endswith('/measurements'):
+        if settings['src'].replace('\\', '/').endswith('/measurements'):
             settings['src'] = os.path.dirname(settings['src'])
         else:
             src_mes = os.path.join(settings['src'], 'measurements')
@@ -2061,7 +2061,7 @@ def count_phenotypes(settings):
     """
     from .io import _read_db
 
-    if not settings['src'].endswith('/measurements/measurements.db'):
+    if not settings['src'].replace('\\', '/').endswith('/measurements/measurements.db'):
         settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
 
     df = _read_db(settings['src'], tables=['png_list'])[0]

@@ -5310,7 +5310,7 @@ def annotate_predictions(csv_loc):
         (``'screen'``/``'pc'``/``'nc'`` from the plate/well convention).
     """
     df = tabular.read_table(csv_loc, report=None)
-    df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
+    df['filename'] = df['path'].apply(lambda x: str(x).replace('\\', '/').split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
     
