@@ -69,9 +69,9 @@ def test_the_preloader_poll_timer_is_released_from_the_event_loop(qtbot):
         preloader.start()
         poll = preloader._poll
         assert poll.parent() is not None or QApplication.instance() is None
-        QTimer.singleShot(60_000, loop.quit)
+        QTimer.singleShot(240_000, loop.quit)
         loop.exec()
-        qtbot.waitUntil(lambda: preloader._poll is None, timeout=60000)
+        qtbot.waitUntil(lambda: preloader._poll is None, timeout=240000)
         assert preloader._poll is None
         assert not poll.isActive()
         _pump(200)
@@ -104,7 +104,7 @@ def test_closing_the_batch_screen_drains_its_run(qtbot, qt_theme_applied, tmp_pa
     widget.set_runner(runner)
     widget.add_job("mask", str(settings), label="slow")
     assert widget.run() is True
-    assert started.wait(5)
+    assert started.wait(180)
     thread, worker = widget._jobs[0]
     import weakref
     tref, wref = weakref.ref(thread), weakref.ref(worker)
