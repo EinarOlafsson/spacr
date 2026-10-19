@@ -5563,6 +5563,36 @@ _RUNTIME_TRANSACTIONS = {
 #: Journal states of an update that stopped before touching the live runtime: only its staged copy is left.
 _ABANDONED_TRANSACTION_STATES = frozenset({"staging_failed", "cancelled"})
 
+#: Journal states of an update still staging; abandoned once its owner is provably gone.
+_STAGING_TRANSACTION_STATES = frozenset({"staging", "ready"})
+
+
+def _transaction_owner(pid=None):
+    """The owner a new transaction journal records: this process and its start stamp."""
+    pid = os.getpid() if pid is None else pid
+    return {"pid": pid, "started": _process_started(pid) or ""}
+
+
+def _transaction_owner_gone(state):
+    """Whether the process that staged a transaction is provably gone.
+
+    The caller holds the runtime lease, which every staging update holds for its whole run, so a journal
+    from a version that recorded no owner has none left. A recorded owner counts as gone only when its pid
+    no longer exists or carries another start stamp of the same kind.
+    """
+    owner = state.get("owner")
+    if owner is None:
+        return True
+    if not isinstance(owner, dict) or isinstance(owner.get("pid"), bool) or not isinstance(owner.get("pid"), int):
+        return False
+    pid, started = owner["pid"], str(owner.get("started") or "")
+    if pid <= 0 or pid == os.getpid():
+        return False
+    if _process_gone(pid):
+        return True
+    now = _process_started(pid)
+    return bool(now and started and now.partition(":")[0] == started.partition(":")[0] and now != started)
+
 
 def _runtime_transaction_folders(parent):
     """Retained update transaction folders directly inside ``parent``, as plain directories only.
@@ -5654,8 +5684,17 @@ def _prune_runtime_transactions(prefix, family, *, live=False, inventory=None):
             journals.append((found[1], path, found[0]))
     journals.sort(key=lambda row: (row[0], row[1]))
     _marker, _schema, child = _RUNTIME_TRANSACTIONS[family]
+    try:
+        details = os.stat(prefix, follow_symlinks=False)
+        live_identity = [details.st_dev, details.st_ino]
+    except OSError:
+        live_identity = None
     abandoned = [row for row in journals if row[2].get("state") in _ABANDONED_TRANSACTION_STATES
                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))]
+    abandoned += [row for row in journals if row[2].get("state") in _STAGING_TRANSACTION_STATES
+                  and live_identity is not None and row[2].get("old_identity") == live_identity
+                  and not (family != "posix-runtime" and os.path.lexists(os.path.join(row[1], child)))
+                  and _transaction_owner_gone(row[2])]
     committed = [row for row in journals if row[2].get("state") == "committed"]
     candidates = list(abandoned)
     if len(committed) >= 2 and _newest_copy_is_live(prefix, family, journals, live, inventory):
@@ -5804,6 +5843,7 @@ def _transactional_runtime_update(record, version, install, *, machine, runner=N
         staged = os.path.join(transaction, "runtime")
         journal = os.path.join(transaction, "transaction.json")
         state = {"schema": 2, "family": "posix-runtime", "prefix": prefix, "rollback_runtime": staged,
+                 "owner": _transaction_owner(),
                  "old_identity": [os.stat(prefix).st_dev, os.stat(prefix).st_ino],
                  "old_inventory": _runtime_recovery_inventory(prefix),
                  "requested_version": str(version), "state": "staging"}
@@ -7116,7 +7156,7 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
         previous = os.path.join(root, "previous")
         details = os.stat(prefix, follow_symlinks=False)
         state = {"schema": 1, "family": "windows-online-uv" if uv_tool else "windows-private-pip", "prefix": prefix,
-                 "rollback_runtime": previous, "staged_runtime": staged,
+                 "rollback_runtime": previous, "staged_runtime": staged, "owner": _transaction_owner(),
                  "requested_version": version, "old_identity": [details.st_dev, details.st_ino],
                  "old_inventory": _windows_pip_tree(prefix), "state": "staging"}
         _runtime_recovery_journal(root, state)
