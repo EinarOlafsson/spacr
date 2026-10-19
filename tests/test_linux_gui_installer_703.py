@@ -77,7 +77,8 @@ spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fa
 
 
 @pytest.mark.parametrize('choices', ['', 'diagnostics'])
-def test_gui_choices_default_off_and_only_current_selection_reaches_headless_child(gui, choices):
+def test_gui_consent_choices_default_on_wgpu_off_and_only_current_selection_reaches_headless_child(gui, choices):
+    """Maintainer 2026-10-19 (cc56a5857): every consent box starts ticked; Install without wgpu starts clear."""
     tmp, harness, environment = gui
     result = subprocess.run(['bash', str(harness)], env=dict(environment, GUI_CASE='success', GUI_CHOICES=choices),
                             capture_output=True, text=True, timeout=15)
@@ -91,7 +92,9 @@ def test_gui_choices_default_off_and_only_current_selection_reaches_headless_chi
     assert '--sign-in-now' not in arguments
     dialogs = [json.loads(line) for line in (tmp / 'dialogs.jsonl').read_text().splitlines()]
     checklist, = [args for args in dialogs if '--checklist' in args]
-    assert checklist.count('FALSE') == 3
+    defaults = {checklist[index + 1]: checklist[index] for index, value in enumerate(checklist)
+                if value in ('TRUE', 'FALSE') and index + 1 < len(checklist)}
+    assert defaults == {'diagnostics': 'TRUE', 'issues': 'TRUE', 'without_wgpu': 'FALSE'}
     assert 'without_wgpu' in checklist and '--without-wgpu' not in arguments
     assert any('--text-info' in args for args in dialogs)
     logs = list((tmp / 'cache/spacr/installer').glob('gui.*/install.log'))
