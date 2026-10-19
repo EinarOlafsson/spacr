@@ -105,5 +105,5 @@
   "lease_held": "%s est détenu par le processus d’installation spaCR %s. Attendez qu’il se termine ; s’il s’est arrêté pendant une restauration, suivez son journal d’installation avant de réessayer.",
   "lease_held_unknown": "%s a été laissé par un ancien programme d’installation spaCR qui n’a pas enregistré son propriétaire. Fermez tous les programmes d’installation spaCR, supprimez-le puis réessayez.",
   "lease_cleared": "Verrou supprimé, laissé par une installation spaCR interrompue dont le processus est terminé : %s",
-  "staging_removed": "Environnement de préparation laissé par une installation spaCR interrompue supprimé : %s"
+  "staging_removed": "Environnement de préparation supprimé, laissé par une installation spaCR interrompue : %s"
 }

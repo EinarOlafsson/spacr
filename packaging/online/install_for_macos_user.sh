@@ -39,7 +39,8 @@ lease_group_live_member() {
             for (i = 1; i <= NR; i++) {
                 p = pid[i]
                 if (pg[p] != group || owner[p] != uid || (p in mine)) continue
-                for (q = parent[p]; q != "" && q != 0 && q != 1; q = parent[q]) if (q == me) break
+                steps = 0
+                for (q = parent[p]; q != "" && q != 0 && q != 1 && steps++ < 4096; q = parent[q]) if (q == me) break
                 if (q == me) continue
                 print p; exit
             }

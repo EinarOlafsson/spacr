@@ -205,3 +205,15 @@ def test_the_macos_first_run_check_follows_the_group_too(tmp_path):
         env = dict(_fake_ps(tmp_path, rows), SPACR_USER_INSTALL_ROOT=str(runtime), SPACR_NO_RELAUNCH="1")
         result = subprocess.run(["/bin/sh", str(wrapper)], env=env, text=True, capture_output=True, timeout=20)
         assert result.returncode == expected, result.stdout + result.stderr
+
+
+def test_a_parent_cycle_in_the_process_table_ends_and_refuses(tmp_path):
+    """ps does not snapshot atomically; a reused pid can make two rows each other's parent. The walk ends and
+    the member counts as live."""
+    pid, started = _ended_pid()
+    lease = tmp_path / ".app.spacr-installer-lock"
+    _stamp(lease, pid, started)
+    env = _fake_ps(tmp_path, [(5001, 5002, GROUP, UID), (5002, 5001, GROUP + 7, UID)])
+    result = _take(tmp_path, lease, env)
+    assert result.returncode != 0 and "5001" in result.stderr
+    assert lease.is_dir()
