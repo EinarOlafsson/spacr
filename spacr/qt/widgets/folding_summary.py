@@ -213,8 +213,12 @@ class FoldingSummaryView(QScrollArea):
 
         :param text: the summary text.
         """
-        self._text = str(text or "")
+        text = str(text or "")
+        if self.__dict__.get("_built_text") == text:
+            return
+        self._text = text
         self._rebuild()
+        self._built_text = text
 
     def toPlainText(self) -> str:                   # noqa: N802 - Qt naming
         """The text as set, whatever is folded away right now.
