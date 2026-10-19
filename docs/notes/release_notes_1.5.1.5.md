@@ -53,6 +53,11 @@ On every platform, a new install of 1.5.1.3 or 1.5.1.4, or an update to either, 
 - Mask screens render their field backgrounds more efficiently.
 - Preferences opens, applies and closes faster, and Apply, Keep and Revert no longer freeze the app.
 - Make Masks costs less per frame.
+- Make Masks timelapse: the Track preview keeps each frame's pictures, so scrubbing and playback no longer slow the window, and zoom and pan stay put while the movie plays.
+- Curate keeps its picture between repaints and redraws only the area a brush stroke changes.
+- The Methods & Results page and Regression open faster; the libraries they need are loaded in the background at startup.
+- Dropping a large folder on Make Masks keeps the window responsive: the folder is walked faster, and the report, regex editor and metadata table are built in small steps.
+- Switching between Essentials and All settings no longer pauses the app while the choice is saved.
 - Every saved mask records its field's size, and a mask of a different size is never reused.
 - The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface text are translated into nine languages.
 - Apptainer (SIF) images are published with each release, after the Docker images.
@@ -77,6 +82,9 @@ On every platform, a new install of 1.5.1.3 or 1.5.1.4, or an update to either, 
 - Make Masks: a linked image with no box ledger opens and saves without the "Cannot load box annotations" popup.
 - A source checkout or editable install reports its own version.
 - Wells named F01, F02 are read as wells, and class counts ignore the `.spacr_crop_format.json` file.
+- Fixed crashes after Delete selected in Curate's track list and when choosing a folder in Data Manager. Lists, tables and trees now reuse their rows when they redraw.
+- Fixed a crash during garbage collection after the first job of a session.
+- Installer: an interrupted install no longer blocks later installs as "already running". A lock is taken over only when its installer is provably gone, including the rest of its process group on macOS and Linux and the processes it started on Windows. The message names the lock and the process that holds it, in every installer language.
 
 ### Alpha
 
