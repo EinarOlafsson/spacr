@@ -1409,7 +1409,12 @@ _LEASE_ROLLBACK = "rollback"
 
 
 def _process_started(pid):
-    """The start time the system reports for ``pid``: "" when no such process exists, None when unknown."""
+    """A start stamp for ``pid`` that no clock step, locale or time zone changes; None when it cannot be read.
+
+    Linux reads the start tick from ``/proc/<pid>/stat``; other POSIX systems read ``ps -o lstart=`` in the C
+    locale and UTC; Windows reads the creation FILETIME and answers "" when no such process exists. A missing
+    POSIX process is decided by :func:`_process_gone`, never by an unreadable stamp.
+    """
     if os.name == "nt":
         import ctypes
         from ctypes import wintypes
@@ -1427,13 +1432,46 @@ def _process_started(pid):
         finally:
             kernel.CloseHandle(handle)
     try:
-        done = subprocess.run(["ps", "-o", "lstart=", "-p", str(int(pid))],
-                              capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.SubprocessError, ValueError):
+        pid = int(pid)
+    except (TypeError, ValueError):
         return None
-    if done.returncode not in (0, 1):
+    if sys.platform.startswith("linux"):
+        try:
+            with open(f"/proc/{pid}/stat", encoding="utf-8", errors="replace") as handle:
+                ticks = handle.read().rsplit(")", 1)[1].split()[19]
+        except (OSError, IndexError):
+            return None
+        return "ticks:" + ticks if ticks.isdigit() else None
+    try:
+        done = subprocess.run(["ps", "-o", "lstart=", "-p", str(pid)], capture_output=True, text=True,
+                              timeout=10, env=dict(os.environ, LC_ALL="C", TZ="UTC0"))
+    except (OSError, subprocess.SubprocessError):
         return None
-    return " ".join(done.stdout.split())
+    text = " ".join(done.stdout.split())
+    return "lstart:" + text if done.returncode == 0 and text else None
+
+
+def _process_gone(pid):
+    """True only when the system says no process has ``pid``; a process it will not signal counts as present."""
+    if os.name == "nt":
+        return _process_started(pid) == ""
+    try:
+        os.kill(int(pid), 0)
+    except ProcessLookupError:
+        return True
+    except (OSError, ValueError):
+        return False
+    return False
+
+
+def _pid_namespace():
+    """The pid namespace this process sees on Linux, "unknown" when it cannot be read, and "" elsewhere."""
+    if not sys.platform.startswith("linux"):
+        return ""
+    try:
+        return os.readlink("/proc/self/ns/pid")
+    except OSError:
+        return "unknown"
 
 
 def _lease_host():
@@ -1447,10 +1485,17 @@ _OWN_LEASE_RECORD = {}
 
 
 def _lease_owner_text():
-    """The owner record a new lease carries: process id, start time and host, measured once per process."""
+    """The owner record a new lease carries, measured once per process.
+
+    Process id, start stamp and host everywhere, plus the pid namespace on POSIX, so a lease written inside a
+    container that shares this host name is never judged by pids it cannot see.
+    """
     pid = os.getpid()
     if pid not in _OWN_LEASE_RECORD:
-        _OWN_LEASE_RECORD[pid] = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
+        text = f"pid={pid}\nstarted={_process_started(pid) or ''}\nhost={_lease_host()}\n"
+        if os.name != "nt":
+            text += f"pidns={_pid_namespace()}\n"
+        _OWN_LEASE_RECORD[pid] = text
     return _OWN_LEASE_RECORD[pid]
 
 
@@ -1459,11 +1504,31 @@ def _lease_fields(text):
     return dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
 
 
-def _lease_owner_dead(path):
-    """True only when a lease records an owner on this host that is provably gone and holds nothing else.
+def _lease_file_in_use(path):
+    """On Windows, whether another handle holds the lease file open; POSIX has no such lock and answers False."""
+    if os.name != "nt":
+        return False
+    import ctypes
+    from ctypes import wintypes
 
-    A rollback marker, a journal, any unknown file, or a lease from a version that recorded no owner is
-    never treated as abandoned.
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateFileW.restype = wintypes.HANDLE
+    kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+                                   wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    handle = kernel.CreateFileW(path, 0x80000000, 0, None, 3, 0x80, None)
+    if handle in (None, 0, ctypes.c_void_p(-1).value):
+        return True
+    kernel.CloseHandle(handle)
+    return False
+
+
+def _lease_owner_dead(path):
+    """True only when a lease's recorded owner is provably gone and the lease holds nothing else.
+
+    The record must be this user's, written in this host's format with this host name and pid namespace, and
+    its process must be absent or carry another start stamp of the same kind. A rollback marker, a journal,
+    any unknown file, an open lease file, another user's or another host's or container's lease, an unreadable
+    process, or a lease from a version that recorded no owner is never treated as abandoned.
     """
     try:
         if os.path.islink(path):
@@ -1471,17 +1536,25 @@ def _lease_owner_dead(path):
         if os.path.isdir(path):
             if os.listdir(path) != [_LEASE_OWNER]:
                 return False
-            with open(os.path.join(path, _LEASE_OWNER), encoding="utf-8") as handle:
-                text = handle.read(4096)
+            record = os.path.join(path, _LEASE_OWNER)
+            if os.path.islink(record) or not os.path.isfile(record):
+                return False
         elif os.path.isfile(path):
-            with open(path, encoding="utf-8") as handle:
-                text = handle.read(4096)
+            record = path
+            if _lease_file_in_use(path):
+                return False
         else:
             return False
+        if os.name != "nt" and any(os.lstat(item).st_uid != os.geteuid() for item in (path, record)):
+            return False
+        with open(record, encoding="utf-8") as handle:
+            text = handle.read(4096)
     except (OSError, UnicodeDecodeError):
         return False
     fields = _lease_fields(text)
-    if set(fields) != {"pid", "started", "host"} or fields["host"] != _lease_host() or not fields["started"]:
+    expected = _lease_fields(_lease_owner_text())
+    if (set(fields) != set(expected) or not fields["started"] or fields["host"] != expected["host"]
+            or fields.get("pidns") != expected.get("pidns") or expected.get("pidns") == "unknown"):
         return False
     try:
         pid = int(fields["pid"])
@@ -1489,8 +1562,12 @@ def _lease_owner_dead(path):
         return False
     if pid <= 0 or pid == os.getpid():
         return False
-    started = _process_started(pid)
-    return started is not None and (started == "" or started != fields["started"])
+    if _process_gone(pid):
+        return True
+    now = _process_started(pid)
+    if not now or now.partition(":")[0] != fields["started"].partition(":")[0]:
+        return False
+    return now != fields["started"]
 
 
 def _lease_held_message(path):
@@ -1508,6 +1585,29 @@ def _lease_held_message(path):
               "no spaCR installer is running.", path=path)
 
 
+@contextmanager
+def _lease_takeover(path):
+    """Let one installer at a time replace an abandoned lease; a second one judging the same lease refuses.
+
+    The guard is a sibling directory stamped with its owner. Under it the caller judges the lease again, so a
+    lease another installer has just taken over is never replaced.
+    """
+    guard = path + ".takeover"
+    try:
+        os.mkdir(guard, 0o700)
+    except FileExistsError:
+        raise FileExistsError(errno.EEXIST, _lease_held_message(guard), guard) from None
+    try:
+        with open(os.path.join(guard, _LEASE_OWNER), "x", encoding="utf-8") as handle:
+            handle.write(_lease_owner_text())
+        yield
+    finally:
+        try:
+            _release_lease_dir(guard)
+        except OSError:
+            pass
+
+
 def _take_lease_dir(path):
     """Create a directory lease stamped with its owner, replacing only a provably abandoned one."""
     try:
@@ -1515,13 +1615,36 @@ def _take_lease_dir(path):
     except FileExistsError:
         if not _lease_owner_dead(path):
             raise FileExistsError(errno.EEXIST, _lease_held_message(path), path) from None
-        os.unlink(os.path.join(path, _LEASE_OWNER))
-        os.rmdir(path)
-        os.mkdir(path, 0o700)
+        with _lease_takeover(path):
+            if not _lease_owner_dead(path):
+                raise FileExistsError(errno.EEXIST, _lease_held_message(path), path) from None
+            os.unlink(os.path.join(path, _LEASE_OWNER))
+            os.rmdir(path)
+            os.mkdir(path, 0o700)
     descriptor = os.open(os.path.join(path, _LEASE_OWNER), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
         handle.write(_lease_owner_text())
     return os.stat(path, follow_symlinks=False)
+
+
+def _take_lease_file(path):
+    """Create a Windows file lease stamped with its owner and kept open, replacing only an abandoned one."""
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        if not _lease_owner_dead(path):
+            raise
+        with _lease_takeover(path):
+            if not _lease_owner_dead(path):
+                raise
+            os.unlink(path)
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        os.write(descriptor, _lease_owner_text().encode("utf-8"))
+    except OSError:
+        os.close(descriptor)
+        raise
+    return descriptor
 
 
 def _release_lease_dir(path):
@@ -1566,14 +1689,7 @@ def _removal_transaction_lease(record, machine):
             descriptor = None
             try:
                 if machine.platform == "windows":
-                    try:
-                        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-                    except FileExistsError:
-                        if not _lease_owner_dead(path):
-                            raise
-                        os.unlink(path)
-                        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-                    os.write(descriptor, _lease_owner_text().encode("utf-8"))
+                    descriptor = _take_lease_file(path)
                     identity = os.fstat(descriptor)
                 else:
                     identity = _take_lease_dir(path)
@@ -6582,8 +6698,11 @@ def _windows_pip_transaction(record, version, install, *, machine, runner=None, 
             _runtime_recovery_journal(root, state)
         raise
     finally:
-        current = os.stat(lock, follow_symlinks=False)
-        if (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
+        try:
+            current = os.stat(lock, follow_symlinks=False)
+        except FileNotFoundError:
+            current = None
+        if current is not None and (current.st_dev, current.st_ino) == (lease.st_dev, lease.st_ino):
             if safe_release:
                 _release_lease_dir(lock)
             else:

@@ -549,32 +549,65 @@ SPACR_INSTALLER_RETAIN_LEASE=0
 spacr_installer_lease_identity() {
     if [[ "$PLATFORM" == "macos" ]]; then stat -f '%d:%i' "$1"; else stat -c '%d:%i' "$1"; fi
 }
-# Each lease records its owner (pid, start time, host). A later installer
-# takes a lease over only when that owner is provably gone -- no such pid,
-# or the pid now belongs to a process started at another time -- on this
-# host, and the lease holds nothing but that record. A rollback marker, a
-# journal, any other file, or a lease from a version that recorded no owner
-# is never taken over.
+# Each lease records its owner: pid, start stamp, host and (Linux) pid
+# namespace. A later installer takes a lease over only when it is this
+# user's, written on this host in this pid namespace, holds nothing but
+# that record, and the system says the pid is gone or now belongs to a
+# process with another start stamp of the same kind. Linux stamps the start
+# tick from /proc (immune to clock steps, locale and time zone); macOS reads
+# ps lstart in the C locale and UTC. A rollback marker, a journal, any other
+# file, another user's, host's or container's lease, an unreadable process
+# or a lease that recorded no owner is never taken over. One takeover at a
+# time: a second installer judging the same lease refuses.
 spacr_process_started() {
-    ps -o lstart= -p "$1" 2>/dev/null | tr -s ' \t' ' ' | sed 's/^ //; s/ $//'
+    local text fields
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        text="$(cat "/proc/$1/stat" 2>/dev/null)" || return 0
+        text="${text##*) }"
+        read -r -a fields <<< "$text"
+        if [[ "${fields[19]:-}" =~ ^[0-9]+$ ]]; then printf 'ticks:%s\n' "${fields[19]}"; fi
+        return 0
+    fi
+    text="$(LC_ALL=C TZ=UTC0 ps -o lstart= -p "$1" 2>/dev/null | tr -s ' \t' ' ' | sed 's/^ //; s/ $//')" || true
+    if [[ -n "$text" ]]; then printf 'lstart:%s\n' "$text"; fi
+    return 0
+}
+spacr_process_gone() {
+    local message
+    kill -0 "$1" 2>/dev/null && return 1
+    message="$( (export LC_ALL=C; kill -0 "$1") 2>&1 )" || true
+    [[ "$message" == *"No such process"* ]]
+}
+spacr_pid_namespace() {
+    if [[ "$(uname -s)" == "Linux" ]]; then readlink "/proc/$$/ns/pid" 2>/dev/null || printf 'unknown\n'; fi
+    return 0
 }
 spacr_lease_field() {
     [[ -f "$1/owner" ]] || return 0
     sed -n "s/^$2=//p" "$1/owner" 2>/dev/null | head -n 1 || true
 }
 spacr_stamp_installer_lease() {
-    printf 'pid=%s\nstarted=%s\nhost=%s\n' "$$" "$(spacr_process_started "$$")" "$(uname -n)" > "$1/owner"
+    printf 'pid=%s\nstarted=%s\nhost=%s\npidns=%s\n' "$$" "$(spacr_process_started "$$")" "$(uname -n)" \
+        "$(spacr_pid_namespace)" > "$1/owner"
 }
 spacr_lease_owner_dead() {
-    local lease="$1" pid started now
+    local lease="$1" key pid started now namespace
     [[ -d "$lease" && ! -L "$lease" && -f "$lease/owner" && ! -L "$lease/owner" ]] || return 1
+    [[ -O "$lease" && -O "$lease/owner" ]] || return 1
     [[ "$(ls -A "$lease")" == "owner" ]] || return 1
+    grep -qvE '^(pid|started|host|pidns)=' "$lease/owner" && return 1
+    for key in pid started host pidns; do
+        [[ "$(grep -c "^$key=" "$lease/owner")" == "1" ]] || return 1
+    done
     pid="$(spacr_lease_field "$lease" pid)"
     started="$(spacr_lease_field "$lease" started)"
-    [[ "$pid" =~ ^[0-9]+$ && "$pid" != "$$" && -n "$started" ]] || return 1
+    [[ "$pid" =~ ^[1-9][0-9]*$ && "$pid" != "$$" && -n "$started" ]] || return 1
     [[ "$(spacr_lease_field "$lease" host)" == "$(uname -n)" ]] || return 1
+    namespace="$(spacr_pid_namespace)"
+    [[ "$namespace" != "unknown" && "$(spacr_lease_field "$lease" pidns)" == "$namespace" ]] || return 1
+    spacr_process_gone "$pid" && return 0
     now="$(spacr_process_started "$pid")"
-    [[ -z "$now" || "$now" != "$started" ]]
+    [[ -n "$now" && "${now%%:*}" == "${started%%:*}" && "$now" != "$started" ]]
 }
 spacr_take_installer_lease() {
     local lease="$1" pid
@@ -582,13 +615,20 @@ spacr_take_installer_lease() {
         spacr_stamp_installer_lease "$lease"
         return 0
     fi
-    if spacr_lease_owner_dead "$lease"; then
-        rm -f "$lease/owner"
-        if rmdir "$lease" 2>/dev/null && (umask 077; mkdir "$lease") 2>/dev/null; then
-            spacr_say lease_cleared "$lease" >&2
-            spacr_stamp_installer_lease "$lease"
-            return 0
+    if spacr_lease_owner_dead "$lease" && (umask 077; mkdir "$lease.takeover") 2>/dev/null; then
+        spacr_stamp_installer_lease "$lease.takeover"
+        if spacr_lease_owner_dead "$lease"; then
+            rm -f "$lease/owner"
+            if rmdir "$lease" 2>/dev/null && (umask 077; mkdir "$lease") 2>/dev/null; then
+                spacr_stamp_installer_lease "$lease"
+                rm -f "$lease.takeover/owner"
+                rmdir "$lease.takeover" 2>/dev/null || true
+                spacr_say lease_cleared "$lease" >&2
+                return 0
+            fi
         fi
+        rm -f "$lease.takeover/owner"
+        rmdir "$lease.takeover" 2>/dev/null || true
     fi
     spacr_say already_running >&2
     pid="$(spacr_lease_field "$lease" pid)"
