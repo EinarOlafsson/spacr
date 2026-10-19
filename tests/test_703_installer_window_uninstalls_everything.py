@@ -116,3 +116,17 @@ def test_nothing_is_imported_after_the_first_removal(tmp_path, monkeypatch):
     assert any("venv" in path for path in removed), outcome
     assert "modules" in snapshot, "nothing was removed"
     assert set(sys.modules) - snapshot["modules"] == set()
+
+
+def test_an_update_error_with_a_traceback_is_shown_as_one_sentence(tmp_path, monkeypatch):
+    """Seen natively 2026-10-19: the dialog showed a whole Python traceback from the staged identity probe."""
+    from spacr.qt.app import MainWindow
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    why = ("The staged application identity could not be verified: Traceback (most recent call last):\n"
+           '  File "<string>", line 40, in <module>\nAssertionError: Requested spaCR version differs\n')
+    shown = MainWindow._removal_reason_text(why)
+    assert "Traceback" not in shown and "File" not in shown
+    assert shown.startswith("The staged application identity could not be verified: Requested spaCR version differs")
+    assert str(tmp_path / ".spacr" / "logs" / "update.log") in shown
+    assert MainWindow._removal_reason_text("Plain reason.") == "Plain reason."

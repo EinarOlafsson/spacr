@@ -5173,7 +5173,7 @@ class MainWindow(QMainWindow):
         try:
             from spacr.updater import editable_install_location
         except ImportError as exc:
-            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=str(exc)))
+            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(exc))))
             return
         checkout = editable_install_location()
         if checkout:
@@ -5340,7 +5340,7 @@ class MainWindow(QMainWindow):
                 self._frozen_update_handshake = handshake_type(plan)
             except Exception as error:
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
                 return
             self._frozen_update_timer = QTimer(self)
             self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
@@ -5453,7 +5453,7 @@ class MainWindow(QMainWindow):
                 LOG.exception("Frozen update shutdown approval failed; the installed app is retained")
             else:
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
 
     def _confirm_update_restart(self, message):
         """Offer an explicit Restart action only after update preparation succeeds."""
@@ -5579,6 +5579,15 @@ class MainWindow(QMainWindow):
                 tr("no Python outside the installation could be found to "
                    "finish the update; run the new installer instead"),
         }
+        marker = "Traceback (most recent call last):"
+        if marker in why:
+            from pathlib import Path
+            sentence = why.split(marker, 1)[0].rstrip().rstrip(":").strip()
+            last = next((line.strip() for line in reversed(why.splitlines()) if line.strip()), "")
+            cause = last.split(": ", 1)[1] if ": " in last and last.split(": ", 1)[0].endswith(("Error", "Exception")) else last
+            summary = ": ".join(part for part in (sentence, cause) if part)
+            return tr("{summary}\n\nThe full report is in {path}.", summary=summary,
+                      path=str(Path.home() / ".spacr" / "logs" / "update.log"))
         return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
@@ -5651,7 +5660,7 @@ class MainWindow(QMainWindow):
             except Exception as error:
                 self._cancel_frozen_update()
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
                 event.ignore()
                 self._closing = False
                 return
