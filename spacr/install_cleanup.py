@@ -82,6 +82,10 @@ _ASSET_SUFFIX = {
 }
 _WAIT_SECONDS = 600.0
 _FROZEN_PREPARATION_SECONDS = 3600.0
+#: An update preparing without any sign of progress for this long has stalled.
+_PREPARATION_STALL_SECONDS = 900.0
+#: However much progress it reports, an update plan expires this long after its deadline.
+_PROGRESS_CAP_SECONDS = 24 * 3600.0
 _RMTREE_TAKES_ONEXC = sys.version_info >= (3, 12)
 _PRIVILEGED_DEBIAN_HELPER = False
 _MACOS_FROZEN_PHASE_COMMANDS = ("apply-macos-root", "uninstall-macos-root")
@@ -4094,15 +4098,45 @@ class _FrozenUpdateHandshake:
             os.fsync(stream.fileno())
         os.replace(temporary, os.path.join(self.root, name))
 
+    def progress(self):
+        """Record that preparation, or the desktop waiting on its Restart prompt, is still alive.
+
+        Each record moves the stall deadline: preparation times out after
+        :data:`_PREPARATION_STALL_SECONDS` without progress, and readiness after
+        :data:`_WAIT_SECONDS` without the desktop, rather than on total time.
+        """
+        self._write("progress.json", "progress", expires=time.time())
+
+    def _last_progress(self):
+        """When progress was last recorded, or 0 when never or unreadable."""
+        try:
+            message = self._read("progress.json")
+        except (OSError, ValueError):
+            return 0.0
+        if message is None or message.get("state") != "progress":
+            return 0.0
+        try:
+            at = float(message["expires"])
+        except (KeyError, TypeError, ValueError):
+            return 0.0
+        return at if 0 < at <= time.time() + 60 else 0.0
+
     def check(self):
-        """Refuse expired or cancelled work, even if ready or approved arrived later."""
+        """Refuse expired or cancelled work, even if ready or approved arrived later.
+
+        The deadline follows progress: the original deadline, or the last progress plus the stall
+        allowance, whichever is later, and never past :data:`_PROGRESS_CAP_SECONDS` beyond the plan.
+        """
         if self._read("cancelled.json") is not None:
             raise RuntimeError("frozen update cancelled; nothing was changed")
         message = self._read("readiness.json")
-        deadline = (float(message["expires"]) if message is not None
-                    and message.get("state") == "ready" else self.expires)
-        if not 0 < deadline <= self.expires + _WAIT_SECONDS:
+        ready = message is not None and message.get("state") == "ready"
+        initial = float(message["expires"]) if ready else self.expires
+        cap = self.expires + _PROGRESS_CAP_SECONDS
+        if not 0 < initial <= cap:
             raise ValueError("invalid frozen updater readiness deadline")
+        last = self._last_progress()
+        deadline = min(cap, max(initial, last + (_WAIT_SECONDS if ready else _PREPARATION_STALL_SECONDS)))
         if time.time() >= deadline:
             raise RuntimeError("frozen update preparation or shutdown timed out; nothing was changed")
 
@@ -4154,6 +4188,69 @@ class _FrozenUpdateHandshake:
                     self.check()
                     return
             time.sleep(0.05)
+
+
+def _process_tree_activity(pid):
+    """A total that grows while ``pid`` or a descendant uses the CPU or moves bytes; None when unknown."""
+    try:
+        import psutil
+    except ImportError:
+        return None
+    try:
+        root = psutil.Process(pid)
+        members = [root] + root.children(recursive=True)
+    except psutil.Error:
+        return None
+    total = 0.0
+    for member in members:
+        try:
+            times = member.cpu_times()
+            total += times.user + times.system
+        except (psutil.Error, AttributeError):
+            pass
+        try:
+            counters = member.io_counters()
+        except (psutil.Error, AttributeError, NotImplementedError):
+            continue
+        total += sum(getattr(counters, name, 0) for name in
+                     ("read_bytes", "write_bytes", "read_chars", "write_chars", "other_bytes"))
+    return total
+
+
+@contextmanager
+def _preparation_heartbeat(handshake, *, interval=30.0, activity=None):
+    """Record progress while this helper or its children are doing work, for as long as the block runs.
+
+    A download, a pip resolve or a copy shows up as CPU or byte counts that keep growing; a hung child
+    shows none, so its update still times out after the stall allowance. When activity cannot be read
+    (no psutil), nothing is recorded and the original deadlines apply.
+
+    :param handshake: the plan's readiness channel.
+    :param interval: seconds between activity samples.
+    :param activity: replaces :func:`_process_tree_activity` for tests.
+    """
+    measure = activity or (lambda: _process_tree_activity(os.getpid()))
+    stop = threading.Event()
+
+    def beat():
+        """Sample activity and record progress whenever it moved."""
+        previous = measure()
+        while not stop.wait(interval):
+            current = measure()
+            if current is not None and previous is not None and current != previous:
+                try:
+                    handshake.progress()
+                except (OSError, ValueError):
+                    pass
+            previous = current
+
+    worker = threading.Thread(target=beat, name="spacr-update-heartbeat", daemon=True)
+    worker.start()
+    try:
+        yield
+    finally:
+        stop.set()
+        worker.join(timeout=interval + 5)
 
 
 def _run_macos_frozen_update(plan, *, run=None, download=None, wait=None, swap=None):
@@ -8366,7 +8463,10 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
             operation = (_run_pip_environment_update if plan["adapter"] in {"pip-private-posix-v1", "pip-private-windows-v1"}
                          else _run_windows_online_update if plan["adapter"] == "windows-online-uv-v1"
                          else _run_macos_online_update)
-            observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
+            channel = (_WindowsPipHandshake if plan["adapter"] in {"pip-private-windows-v1", "windows-online-uv-v1"}
+                       else _FrozenUpdateHandshake)(plan)
+            with _preparation_heartbeat(channel):
+                observed, output = operation(plan, machine, wait=wait, run=run, spawn=spawn)
         except Exception as error:
             lines.append(f"macOS environment update stopped: {error}" if plan["adapter"] == "macos-online-uv-v1"
                          else f"Windows environment update stopped: {error}" if plan["adapter"] == "windows-online-uv-v1"
@@ -8381,8 +8481,9 @@ def _run_plan(plan_path: str, *, wait=None, fetch=None, run=None, remove=None,
         return _finish(0)
     if plan.get("adapter") == "windows-frozen-nsis-v1":
         try:
-            observed, output = _run_windows_frozen_update(
-                plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
+            with _preparation_heartbeat(_WindowsPipHandshake(plan)):
+                observed, output = _run_windows_frozen_update(
+                    plan, machine, wait=wait, download=fetch, run=run, spawn=spawn)
             lines.extend([output, json.dumps({"version": observed, "relaunch": "ready"})])
             return _finish(0)
         except Exception as error:

@@ -5486,7 +5486,17 @@ class MainWindow(QMainWindow):
                 "spaCR {version} is ready. Restart to use the update. "
                 "Your data and caches will be kept.",
                 version=self._frozen_update_plan["version"])
-            answer = self._confirm_update_restart(message)
+            from PySide6.QtCore import QTimer
+
+            keep_alive = QTimer(self)
+            keep_alive.setInterval(30000)
+            keep_alive.timeout.connect(handshake.progress)
+            keep_alive.start()
+            try:
+                answer = self._confirm_update_restart(message)
+            finally:
+                keep_alive.stop()
+                keep_alive.deleteLater()
             if answer != QMessageBox.Ok or self._closing:
                 self._cancel_frozen_update()
                 return
