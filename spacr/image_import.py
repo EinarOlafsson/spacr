@@ -767,11 +767,9 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
 
     Images are symlinked by default. ``consolidate`` copies every image to
     rename it, so a 300 GB plate needs 600 GB to import; renaming does not
-    require duplicating bytes. Where a symlink cannot be created (Windows
-    without the symbolic-link privilege) the image is hard-linked, which
-    needs no privilege on the same volume; only where neither link can be
-    made is the file copied. The result reports how many were linked and how
-    many bytes linking saved.
+    require duplicating bytes. Where a symlink cannot be created the file is
+    copied, and the result reports how many were linked and how many bytes
+    linking saved.
 
     A plan with problems is refused. Every problem the plan reports can make
     the result wrong -- an unnamed axis means images that cannot be told
