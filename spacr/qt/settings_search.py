@@ -60,7 +60,7 @@ from PySide6.QtWidgets import (
 from .i18n import tr
 from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
-from .prefs import _store_args
+from .prefs import _flush_stores, _store_args, _store_later, _stored_later
 
 LOG = logging.getLogger("spacr.qt.settings_search")
 
@@ -110,7 +110,11 @@ def disclosure_for(app_key: str) -> str:
 
     :param app_key: the module's app key.
     """
-    raw = _settings().value(f"{_KEY_DISCLOSURE}/{app_key}", ESSENTIALS)
+    key = f"{_KEY_DISCLOSURE}/{app_key}"
+    store = _settings()
+    raw = _stored_later(store, key)
+    if raw is None:
+        raw = store.value(key, ESSENTIALS)
     return ALL if str(raw) == ALL else ESSENTIALS
 
 
@@ -121,8 +125,8 @@ def remember_disclosure(app_key: str, level: str) -> None:
     :param level: disclosure level; ``'all'`` is stored as is and any other
         value as ``'essentials'``.
     """
-    _settings().setValue(f"{_KEY_DISCLOSURE}/{app_key}",
-                         ALL if level == ALL else ESSENTIALS)
+    _store_later(_settings(), f"{_KEY_DISCLOSURE}/{app_key}",
+                 ALL if level == ALL else ESSENTIALS)
 
 
 def forget_disclosure(app_key: Optional[str] = None) -> None:
@@ -130,6 +134,7 @@ def forget_disclosure(app_key: Optional[str] = None) -> None:
 
     :param app_key: the module to forget, or ``None`` for all of them.
     """
+    _flush_stores()
     store = _settings()
     if app_key is None:
         store.remove(_KEY_DISCLOSURE)
