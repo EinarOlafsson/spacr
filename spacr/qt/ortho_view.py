@@ -37,7 +37,8 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
                                QSizePolicy, QSlider, QVBoxLayout, QWidget)
 
-from ..layers import Canvas, LabelsLayer, LayerError, LayerStack, OrthoViews
+from ..layers import (Canvas, LabelsLayer, LayerError, LayerEvent, LayerStack,
+                      OrthoViews)
 from .linked_selection import LinkedView
 from .theme import font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton
@@ -123,6 +124,32 @@ class OrthoPanel(QFrame):
         self._stack: Optional[LayerStack] = None
         self._canvas: Optional[Canvas] = None
         self._crosshair: Optional[Tuple[float, float]] = None
+        self._picture = None
+        self._picture_for: Tuple[Any, Any] = (None, None)
+
+    def _redraw(self) -> None:
+        """Composite the slice again at the next paint, and ask for it."""
+        self._picture = None
+        self.update()
+
+    def _composited(self):
+        """The stack composited through the panel's canvas, made once.
+
+        The window repaints everything over its animated backdrop on every
+        backdrop frame; compositing the stack on each of those paints is
+        what held the layer canvases to a few frames a second. The picture
+        is kept until :meth:`_redraw`, or until the stack or the world
+        window is another one.
+
+        :returns: the pixmap to draw.
+        """
+        if (self._picture is None or self._picture_for[0] is not self._stack
+                or self._picture_for[1] is not self._canvas):
+            from .widgets.live_preview import numpy_to_qpixmap
+            self._picture = numpy_to_qpixmap(
+                self._stack.render_uint8(self._canvas), normalise=False)
+            self._picture_for = (self._stack, self._canvas)
+        return self._picture
 
     @property
     def name(self) -> str:
@@ -166,10 +193,7 @@ class OrthoPanel(QFrame):
                 painter.setPen(Qt.gray)
                 painter.drawText(self.rect(), Qt.AlignCenter, "No volume")
                 return
-            from .widgets.live_preview import numpy_to_qpixmap
-            pixmap = numpy_to_qpixmap(self._stack.render_uint8(self._canvas),
-                                      normalise=False)
-            painter.drawPixmap(1, 1, pixmap)
+            painter.drawPixmap(1, 1, self._composited())
             if self._crosshair is not None:
                 row, column = self._crosshair
                 painter.setPen(Qt.yellow)
@@ -239,6 +263,7 @@ class OrthoView(LinkedView, QWidget):
         super().__init__(parent)
         self.setObjectName("OrthoView")
         self._stack = stack if stack is not None else LayerStack()
+        self._listening: Optional[LayerStack] = None
         self._axes = tuple(str(a) for a in axes)
         self._width = int(width)
         self._frames = max(0, int(frames))
@@ -320,7 +345,28 @@ class OrthoView(LinkedView, QWidget):
             status line.
         """
         self._stack = stack
+        self._listen_to(stack)
         self.reset_view()
+
+    def _listen_to(self, stack: Optional[LayerStack]) -> None:
+        """Hear the stack's changes, and stop hearing the previous one's.
+
+        The panels keep their composited slice between paints, so an edit
+        to a layer has to tell them to composite it again.
+
+        :param stack: the stack now shown, or None to stop listening.
+        """
+        if self._listening is not None:
+            self._listening.unsubscribe(self._on_layers_changed)
+        self._listening = stack
+        if stack is not None:
+            stack.subscribe(self._on_layers_changed)
+
+    def _on_layers_changed(self, event: LayerEvent) -> None:
+        """Composite every panel again for a change that alters the picture."""
+        if event.kind in LayerEvent.REPAINT:
+            for panel in self.panels.values():
+                panel._redraw()
 
     def reset_view(self) -> None:
         """Fit the whole volume in all three panels."""
@@ -632,4 +678,5 @@ class OrthoView(LinkedView, QWidget):
             view leaves the shared selection.
         """
         self.unlink_selection()
+        self._listen_to(None)
         super().closeEvent(event)
