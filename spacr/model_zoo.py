@@ -4538,7 +4538,12 @@ def open_uri(uri: str, timeout: int = DEFAULT_TIMEOUT,
                                chunk_size), total
 
     if text.startswith("file://"):
-        local = Path(text[len("file://"):])
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+
+        parsed = urlparse(text)
+        host = parsed.netloc if parsed.netloc not in ("", "localhost") else ""
+        local = Path(url2pathname(("//" + host if host else "") + parsed.path))
     elif os.path.exists(text):
         local = Path(text)
     else:

@@ -607,8 +607,9 @@ def _editable_source(dist_info: str) -> Optional[str]:
         return None
     url = str(record.get("url") or "")
     if url.startswith("file://"):
-        from urllib.parse import unquote, urlparse
-        return unquote(urlparse(url).path) or url
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+        return url2pathname(urlparse(url).path) or url
     return url or None
 
 

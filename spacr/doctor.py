@@ -400,10 +400,11 @@ def _editable_url_target(raw: Optional[str]) -> Optional[Path]:
     url = payload.get("url", "")
     if not url.startswith("file://"):
         return None
-    from urllib.parse import unquote, urlparse
+    from urllib.parse import urlparse
+    from urllib.request import url2pathname
 
     try:
-        return Path(unquote(urlparse(url).path)).resolve()
+        return Path(url2pathname(urlparse(url).path)).resolve()
     except OSError:
         return None
 
