@@ -8414,6 +8414,28 @@ def _module_source_mentions_pyside(original, module) -> bool:
 _HEAVY_WARM_GATE = threading.Event()
 _HEAVY_WARM_AFTER_HOME_MS = 1500
 _HEAVY_WARM_FROM = "spacr.settings_advisor"
+_SETTINGS_PREWARM_THREAD: Optional[threading.Thread] = None
+
+
+def _heavy_warm_allowed() -> bool:
+    """Whether the start-up warm may import the numerical stack on its thread.
+
+    Not in a frozen build or a distribution smoke run: there the GUI thread
+    imports torch, NumPy and spaCR itself while the warm thread would be
+    importing pandas, SciPy, Matplotlib, scikit-image and numba, and two
+    threads importing the same native stack through PyInstaller's frozen
+    importer hung the macOS .dmg smoke on its first pass (release run
+    39355725517). Those modules are then imported where they are first used.
+    """
+    if getattr(sys, "frozen", False):
+        return False
+    return os.environ.get("SPACR_DISTRIBUTION_SMOKE", "").strip() != "1"
+
+
+def _settings_prewarm_running() -> bool:
+    """Whether the start-up settings warm thread is still importing."""
+    alive = getattr(_SETTINGS_PREWARM_THREAD, "is_alive", None)
+    return bool(alive is not None and alive())
 
 
 def _open_the_heavy_warm_after_home() -> None:
@@ -8454,10 +8476,11 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
         :func:`_open_the_heavy_warm_after_home` opens the gate; the default
         imports everything at once, for callers that join the thread.
     """
-    global _HEAVY_WARM_GATE
+    global _HEAVY_WARM_GATE, _SETTINGS_PREWARM_THREAD
     _importlib.import_module("spacr.qt.path_probe")
     gate = _HEAVY_WARM_GATE = threading.Event()
-    if not wait_for_home:
+    heavy = _heavy_warm_allowed()
+    if not wait_for_home or not heavy:
         gate.set()
 
     def warm():
@@ -8477,6 +8500,10 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
                         "skimage.data", "skimage.draw", "skimage.filters",
                         "skimage.measure", "skimage.morphology"):
                 if mod == _HEAVY_WARM_FROM:
+                    if not heavy:
+                        LOG.info("start-up warm leaves the numerical stack "
+                                 "to its first use (frozen build or smoke run)")
+                        break
                     gate.wait(60)
                     try:
                         from .widgets.ambient import _import_numba
@@ -8489,6 +8516,7 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
+    _SETTINGS_PREWARM_THREAD = thread
     thread.start()
     return thread
 

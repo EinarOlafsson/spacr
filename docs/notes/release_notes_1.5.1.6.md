@@ -2,6 +2,7 @@
 
 ### Upgrading
 
+- The frozen macOS `.dmg` runs on Apple silicon (arm64) only. On an Intel Mac, install spaCR with the universal online `.pkg` installer instead.
 - If you go back to 1.5.1.5 after an interrupted 1.5.1.6 installation, 1.5.1.5 reports that another installer holds the installation, because it cannot read the newer lock. If no spaCR installer is running, remove the locks, then retry:
   - macOS: `~/Library/Application Support/.spaCR.spacr-installer-lock`, `~/Library/Application Support/spaCR/.venv.spacr-update-lock` and `~/Library/Application Support/spaCR/.installing` (folders).
   - Linux: `~/.local/share/.spacr.spacr-installer-lock` and `~/.local/share/spacr/.venv.spacr-update-lock` (folders; under `$XDG_DATA_HOME` when it is set).
