@@ -12,6 +12,7 @@ from spacr.qt.screens.make_masks import MODE_BOX, MODE_DRAW, MakeMasksScreen
 
 
 @pytest.mark.parametrize('layout', ['nested', 'sibling'])
+@pytest.mark.needs_symlink
 def test_linked_images_curate_save_and_resume_without_box_popups(
         qtbot, qt_theme_applied, tmp_path, monkeypatch, layout):
     """An unannotated source link must not interrupt an ordinary mask queue."""
@@ -71,6 +72,7 @@ def test_linked_images_curate_save_and_resume_without_box_popups(
         resumed.close()
 
 
+@pytest.mark.needs_symlink
 def test_linked_source_with_box_ledger_still_warns(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """An existing box project keeps its source confinement warning."""

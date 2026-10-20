@@ -197,7 +197,7 @@ def default_plane_layout(n_planes: int, n_channels: int) -> "Tuple[int, Optional
 
 def _plane(arr: np.ndarray, index: int, n_channels: int) -> np.ndarray:
     """Return plane ``index`` of a merged array in either stored orientation."""
-    from spacr.timelapse import _reorient_merged_array
+    from spacr._merged_names import _reorient_merged_array
     oriented, planes, _h, _w = _reorient_merged_array(arr, n_channels=n_channels)
     return np.asarray(oriented[int(index) % planes])
 
@@ -985,7 +985,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         for url in mime.urls():
             if not url.isLocalFile():
                 continue
-            text = url.toLocalFile()
+            text = os.path.normpath(url.toLocalFile()) if url.toLocalFile() else ""
             if text and path_probe.exists(text, default=True, want_dir=True):
                 return text
         return None

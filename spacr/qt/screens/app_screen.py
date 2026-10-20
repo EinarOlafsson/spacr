@@ -9775,17 +9775,18 @@ class AppScreen(QWidget):
         match = re.search(r"No such file or directory: '([^']+)'", last)
         if not match:
             return False
-        missing = os.path.normpath(match.group(1))
+        missing = os.path.normcase(os.path.normpath(match.group(1)))
         values = []
         for value in (settings or {}).values():
             if isinstance(value, (list, tuple)):
                 values.extend(value)
             else:
                 values.append(value)
+        separators = {os.sep, os.altsep} - {None}
         for value in values:
-            if not isinstance(value, str) or os.sep not in value:
+            if not isinstance(value, str) or not any(s in value for s in separators):
                 continue
-            root = os.path.normpath(value.strip())
+            root = os.path.normcase(os.path.normpath(value.strip()))
             if missing == root or missing.startswith(root + os.sep):
                 return True
         return False

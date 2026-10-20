@@ -679,3 +679,15 @@ class TestDynamicAllowanceAndModes:
             traceback_text="spacr.errors.ConfigurationError: x") == \
             "user_error"
         assert _summary()["kind"] == "fault"
+
+def test_a_drive_relative_windows_path_is_scrubbed():
+    """`\\lab-share\\plate1` -- a rooted path without a drive letter, which is
+    how Windows prints the parent of `/lab-share/plate1` -- once went out
+    in an issue report untouched."""
+    from spacr import crashreport
+
+    text = crashreport.scrub_public_text(
+        "src does not exist (its parent folder \\secret-lab-700\\plate1 does "
+        "not exist either)")
+    assert "secret-lab-700" not in text
+    assert "<PATH>" in text

@@ -63,7 +63,7 @@ def test_usable_cores_survives_an_affinity_call_that_fails(monkeypatch):
     def _refuse(_pid):
         raise OSError("no such process")
 
-    monkeypatch.setattr(os, "sched_getaffinity", _refuse)
+    monkeypatch.setattr(os, "sched_getaffinity", _refuse, raising=False)
     monkeypatch.setattr(os, "cpu_count", lambda: 3)
     assert LM.usable_cores() == 3
 
@@ -73,7 +73,7 @@ def test_unreadable_memory_is_none_rather_than_an_exception(monkeypatch):
     def _refuse(_name):
         raise ValueError("unrecognised configuration name")
 
-    monkeypatch.setattr(os, "sysconf", _refuse)
+    monkeypatch.setattr(os, "sysconf", _refuse, raising=False)
     assert LM.total_memory_gib() is None
 
 
@@ -82,7 +82,7 @@ def test_a_reading_with_no_memory_still_decides_and_omits_the_memory_phrase(monk
     def _refuse(_name):
         raise ValueError("unrecognised configuration name")
 
-    monkeypatch.setattr(os, "sysconf", _refuse)
+    monkeypatch.setattr(os, "sysconf", _refuse, raising=False)
     monkeypatch.delenv(LM.OVERRIDE_VARIABLE, raising=False)
     reading = LM.measure()
     assert reading["memory_gib"] is None

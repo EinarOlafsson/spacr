@@ -1418,7 +1418,8 @@ class VolcanoExplorer(QWidget):
         mime = event.mimeData()
         if not mime.hasUrls():
             return []
-        return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+        return [os.path.normpath(url.toLocalFile()) for url in mime.urls()
+                if url.isLocalFile()]
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
         """Accept a drag carrying a table this explorer can plot.

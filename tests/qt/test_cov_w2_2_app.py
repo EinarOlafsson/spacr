@@ -692,6 +692,9 @@ def test_a_build_with_no_logging_helper_still_writes_a_crash_dump(tmp_path,
 
     monkeypatch.setitem(sys.modules, "spacr.logging_util", None)
     monkeypatch.setattr(os.path, "expanduser", lambda _p: str(tmp_path))
+    # The fallback asks spaCR's home, which on Windows comes from
+    # USERPROFILE rather than expanduser; pin it to the same sandbox.
+    monkeypatch.setenv("SPACR_HOME", os.path.join(str(tmp_path), ".spacr"))
     monkeypatch.setattr(faulthandler, "enable",
                         lambda file=None, all_threads=True: None)
 

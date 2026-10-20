@@ -39,7 +39,10 @@ spec.loader.exec_module(ref)
 
 def digest(path):
     with Path(path).open('rb') as stream:
-        return hashlib.file_digest(stream, 'sha256').hexdigest()
+        value = hashlib.sha256()
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            value.update(chunk)
+        return value.hexdigest()
 
 meta = tabular.read_table(reference/'input_cyst_metadata.csv', canonicalise=False)
 gold = tabular.read_table(reference/'all_detection_candidates_including_below_threshold.csv', canonicalise=False)

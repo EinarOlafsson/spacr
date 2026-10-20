@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 
 import numpy as np
 import pytest
@@ -88,7 +89,7 @@ def test_actual_save_button_writes_then_shows_actionable_findings(
     opened = []
     monkeypatch.setattr("PySide6.QtGui.QDesktopServices.openUrl", lambda url: opened.append(url) or True)
     notice.findChild(QPushButton, "FigureIntegrityOpenFolder").click()
-    assert opened[0].toLocalFile() == str(tmp_path)
+    assert os.path.normpath(opened[0].toLocalFile()) == str(tmp_path)
     notice.close()
     assert [hashlib.sha256(p.read_bytes()).hexdigest() for p in (target, sidecar)] == hashes
 

@@ -212,7 +212,13 @@ def test_demo_settings_survive_the_widget_round_trip(qtbot, qt_theme_applied,
         + "\n\nA demo that writes a setting the GUI then rewrites is worse "
           "than a demo that omits it: the CSV and the form disagree and the "
           "run uses the form.")
-    assert str(layout.src) in str(collected["src"])
+    # Each source as text, not a list's repr, which doubles every backslash
+    # of a Windows path.
+    sources = collected["src"]
+    shown = (
+        " ".join(map(str, sources)) if isinstance(sources, (list, tuple))
+        else str(sources))
+    assert str(layout.src) in shown
 
 
 def test_apply_classify_demo_opens_annotate_screen(qtbot,

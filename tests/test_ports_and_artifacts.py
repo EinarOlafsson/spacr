@@ -22,6 +22,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from spacr import artifacts, ports  # noqa: E402
+from tests.refused_access import refused  # noqa: E402
 from spacr.database_concurrency import DatabaseConfigurationError  # noqa: E402
 from spacr.validate import ERROR, WARNING  # noqa: E402
 
@@ -429,15 +430,13 @@ def test_something_that_is_not_a_database_is_named_as_such(tmp_path):
     assert "is not a SQLite database" in readiness.errors[0].message
 
 
-@pytest.mark.skipif(os.geteuid() == 0, reason="root can read anything")
+@pytest.mark.skipif(hasattr(os, "geteuid") and os.geteuid() == 0,
+                    reason="root can read anything")
 def test_an_unreadable_database_is_reported_not_crashed(tmp_path):
     root = Path(make_project(tmp_path / "plate"))
     database = root / "measurements" / "measurements.db"
-    os.chmod(database, 0o000)
-    try:
+    with refused(database, 0o000, windows="read"):
         readiness = ports.check_ready("classify", {"src": str(root)})
-    finally:
-        os.chmod(database, 0o644)
     assert not readiness
     assert "cannot be opened" in readiness.errors[0].message
 
@@ -500,6 +499,7 @@ def test_settings_hash_ignores_cosmetics_and_notices_science():
         {"src": "/a", "cell_diameter": 60})
 
 
+@pytest.mark.needs_symlink
 def test_content_fingerprint_covers_files_folders_and_absence(tmp_path):
     missing = artifacts.content_fingerprint(tmp_path / "nope")
     assert missing.method == "missing" and not missing

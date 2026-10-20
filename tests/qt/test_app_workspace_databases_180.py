@@ -1,4 +1,5 @@
 """The actual UMAP screen contributes its selected databases to saved runs."""
+import contextlib
 import copy
 import shutil
 import sqlite3
@@ -13,7 +14,9 @@ def test_actual_umap_registry_copy_restore_reads_carried_sqlite(qtbot, qt_theme_
     plate = tmp_path / "plate"
     database = plate / "measurements" / "measurements.db"
     database.parent.mkdir(parents=True)
-    with sqlite3.connect(database) as connection:
+    # Closed, not just committed: sqlite3's `with` only ends the transaction,
+    # and on Windows the open handle stops the folder being removed below.
+    with contextlib.closing(sqlite3.connect(database)) as connection, connection:
         connection.execute("CREATE TABLE cell (plateID TEXT, rowID TEXT, columnID TEXT, area REAL)")
         connection.execute("INSERT INTO cell VALUES ('p1', 'r1', 'c1', 12.0)")
     first = AppScreen("umap")

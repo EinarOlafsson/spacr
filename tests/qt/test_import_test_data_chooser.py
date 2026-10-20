@@ -228,7 +228,7 @@ def test_an_images_only_sample_goes_to_the_format_converter(
     monkeypatch.setattr(demo, "_converter_for", lambda _screen: converter)
     assert demo.load_import_test_data(screen, "nikon_nd2",
                                       plate=tmp_path / "plate")
-    assert converter.source_path().endswith("nikon_nd2/plate1")
+    assert Path(converter.source_path()).as_posix().endswith("nikon_nd2/plate1")
     assert converter.preview_row_count() == 1
 
 

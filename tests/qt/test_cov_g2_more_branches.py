@@ -1,6 +1,7 @@
 """Branches in simulation sizing, crop paths, LIMS paging, the layer viewer and the dock."""
 from __future__ import annotations
 
+import os
 import sqlite3
 
 import pandas as pd
@@ -140,7 +141,7 @@ def test_layer_viewer_opens_one_field_and_its_existing_masks(qtbot, tmp_path):
     viewer._use_test_data({"images": tmp_path / "images",
                            "masks": {"cell": tmp_path / "masks",
                                      "nucleus": tmp_path / "none"}})
-    assert [p.rsplit("/", 1)[-1] for p in opened] == ["A01_f1_ch1.tif",
+    assert [os.path.basename(p) for p in opened] == ["A01_f1_ch1.tif",
                                                       "A01_f1_ch2.tif"]
     assert len(labels) == 1
 

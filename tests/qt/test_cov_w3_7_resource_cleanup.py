@@ -64,6 +64,7 @@ def test_a_disk_report_prints_its_note_under_the_drives_not_instead_of_them():
 # Measurement
 # ---------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_the_process_size_is_still_read_when_psutil_is_missing(monkeypatch):
     """``/proc/self/statm`` is the fallback, and it has to give a real figure.
 
@@ -84,7 +85,8 @@ def test_a_process_size_that_cannot_be_read_reports_zero_not_a_guess(
     """Zero means "could not measure", and a cleanup then says so."""
     monkeypatch.setitem(sys.modules, "psutil", None)
     monkeypatch.setattr(os, "sysconf",
-                        lambda *a, **k: (_ for _ in ()).throw(OSError("no")))
+                        lambda *a, **k: (_ for _ in ()).throw(OSError("no")),
+                        raising=False)
     assert rc.process_rss() == 0
 
     reclaim = rc.clear_ram()

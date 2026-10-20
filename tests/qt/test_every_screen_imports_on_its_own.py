@@ -21,6 +21,7 @@ that names a Qt symbol and says nothing about ordering.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -50,7 +51,11 @@ def test_the_module_imports_in_a_fresh_interpreter(module):
         [sys.executable, "-c", f"import {module}"],
         capture_output=True, text=True, timeout=300,
         env={"QT_QPA_PLATFORM": "offscreen", "PATH": "/usr/bin:/bin",
-             "HOME": str(Path.home())},
+             "HOME": str(Path.home()),
+             # Windows cannot start Python without SYSTEMROOT (no random
+             # seed), and finds the home through USERPROFILE.
+             **{key: os.environ[key] for key in ("SYSTEMROOT", "USERPROFILE")
+                if os.name == "nt" and key in os.environ}},
     )
     if done.returncode != 0:
         tail = (done.stderr or "").strip().splitlines()[-4:]

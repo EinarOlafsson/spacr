@@ -173,11 +173,13 @@ class TestTheTracebackFrameFilter:
         root, and excluding it would filter out every spaCR frame -- the
         only ones the trace is for.
         """
-        for spacr_root, library in ((("/repo/spacr" + os.sep), "/repo"),
-                                    (("/repo/spacr" + os.sep), "/usr/lib")):
+        repo = os.path.join(os.sep, "repo")
+        for spacr_root, library in (((os.path.join(repo, "spacr") + os.sep), repo),
+                                    ((os.path.join(repo, "spacr") + os.sep),
+                                     os.path.join(os.sep, "usr", "lib"))):
             excluded = not spacr_root or not spacr_root.startswith(
                 library + os.sep)
-            if library == "/repo":
+            if library == repo:
                 assert not excluded, (
                     "a library path containing the checkout was excluded, so "
                     "every spaCR frame is filtered out of the trace")

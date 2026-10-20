@@ -17,6 +17,7 @@ says that "alpha" will be reset before the run starts.
 
 from __future__ import annotations
 
+import os
 from typing import Optional
 
 from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
@@ -178,7 +179,7 @@ class RefitDialog(QDialog):
             self._notice.setText(" ".join(lines))
             self._ok(False)
             return
-        lines.append(f"Writes to {where}.")
+        lines.append(f"Writes to {os.path.normpath(where)}.")
         self._notice.setText(" ".join(lines))
         self._ok(True)
 

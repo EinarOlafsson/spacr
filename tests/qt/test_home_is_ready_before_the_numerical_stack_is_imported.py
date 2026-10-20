@@ -50,6 +50,12 @@ def _once(tmp_path, index):
                XDG_CONFIG_HOME=str(tmp_path / str(index)),
                SPACR_HOME=str(tmp_path / str(index) / "spacr"),
                PYTHONPATH=os.pathsep.join([str(ROOT)] + sys.path))
+    if os.name == "nt":
+        # The child has no conftest: on Windows HOME moves nothing and Qt's
+        # store is the registry, so the app would start from (and write to)
+        # the developer's real profile. Portable mode keeps both in tmp_path.
+        env.update(USERPROFILE=str(tmp_path / str(index)),
+                   SPACR_PORTABLE=str(tmp_path / str(index)))
     (tmp_path / str(index)).mkdir()
     done = subprocess.run([sys.executable, "-c", SCRIPT], env=env,
                           capture_output=True, text=True, timeout=300)

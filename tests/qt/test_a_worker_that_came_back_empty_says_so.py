@@ -30,7 +30,7 @@ def test_memory_that_cannot_be_read_is_none_not_a_crash(error, monkeypatch):
     def _refuse(_name):
         raise error("no sysconf here")
 
-    monkeypatch.setattr(laptop_mode.os, "sysconf", _refuse)
+    monkeypatch.setattr(laptop_mode.os, "sysconf", _refuse, raising=False)
 
     assert laptop_mode.total_memory_gib() is None
 

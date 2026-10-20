@@ -11,6 +11,7 @@ screen the handler is registered for, and asserts on what reached the screen
 """
 from __future__ import annotations
 
+import re
 import sqlite3
 import sys
 import threading
@@ -448,6 +449,7 @@ def test_a_dropped_csv_is_not_asked_for_its_tables(tmp_path):
     assert dh.table_names(_touch(tmp_path / "scores.csv")) == []
 
 
+@pytest.mark.posix_only
 def test_a_database_under_a_folder_with_a_question_mark_still_opens(tmp_path):
     """Unquoted, everything after the `?` reads as URI query parameters and
     the open fails on a database that is perfectly fine."""
@@ -642,7 +644,7 @@ def test_a_database_that_refused_to_open_reports_the_screens_own_reason(
 def test_a_database_that_refused_without_a_reason_still_names_the_path(
         tmp_path):
     screen = _Screen(set_database=lambda path: False)
-    with pytest.raises(ValueError, match=str(tmp_path)):
+    with pytest.raises(ValueError, match=re.escape(str(tmp_path))):
         dh.DatabaseDropHandler().apply(tmp_path, screen)
 
 
@@ -1209,7 +1211,7 @@ def test_a_queue_file_that_would_not_load_reports_the_screens_reason(tmp_path):
 def test_a_queue_file_that_would_not_load_still_names_the_path(tmp_path):
     saved = _touch(tmp_path / "queue.yml", "[]")
     screen = _Screen(load_queue_from=lambda p: False)
-    with pytest.raises(ValueError, match=str(saved)):
+    with pytest.raises(ValueError, match=re.escape(str(saved))):
         dh.BatchDropHandler().apply(saved, screen)
 
 
@@ -1318,7 +1320,7 @@ def test_a_results_database_that_was_refused_reports_the_screens_reason(
 
 def test_a_results_database_refused_without_a_reason_names_the_path(tmp_path):
     screen = _Screen(set_database=lambda p: False)
-    with pytest.raises(ValueError, match=str(tmp_path)):
+    with pytest.raises(ValueError, match=re.escape(str(tmp_path))):
         dh.ResultsDatabaseDropHandler().apply(tmp_path, screen)
 
 

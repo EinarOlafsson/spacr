@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import glob as _glob
 import os
+import posixpath
 import sqlite3
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
@@ -233,7 +234,7 @@ class Port:
     def relative(self) -> str:
         """Return the port's location relative to the project root, for display."""
         parts = [p for p in (self.path, self.pattern) if p]
-        return os.path.join(*parts) if parts else "."
+        return posixpath.join(*parts) if parts else "."
 
 
 @dataclass(frozen=True)
@@ -612,15 +613,15 @@ def resolve_port(port: Port, root: str) -> ResolvedPort:
     :returns: a :class:`ResolvedPort`. A missing path is not an exception —
         absence is an answer, and :func:`check_ready` is what judges it.
     """
-    target = os.path.join(root, port.path) if port.path else root
+    target = os.path.normpath(os.path.join(root, port.path)) if port.path else root
     if not port.pattern:
         exists = os.path.exists(target)
         return ResolvedPort(port=port, root=root, target=target, paths=(),
                             exists=exists, count=1 if exists else 0)
     found: set = set()
     for alternative in port.pattern.split("|"):
-        found.update(_glob.glob(os.path.join(target, alternative),
-                                recursive=True))
+        found.update(os.path.normpath(match) for match in _glob.glob(
+            os.path.join(target, alternative), recursive=True))
     if port.extensions:
         found = {p for p in found if p.lower().endswith(port.extensions)}
     matches = tuple(sorted(found))
@@ -824,7 +825,7 @@ def _where(resolved: ResolvedPort) -> str:
     port = resolved.port
     if not port.pattern:
         return resolved.target
-    return " or ".join(os.path.join(resolved.target, alternative)
+    return " or ".join(os.path.normpath(os.path.join(resolved.target, alternative))
                        for alternative in port.pattern.split("|"))
 
 

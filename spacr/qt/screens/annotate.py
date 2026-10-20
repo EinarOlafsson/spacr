@@ -2907,11 +2907,11 @@ def _reanchor_png_path(path: str, db_path: str) -> str:
     norm = str(path).replace("\\", "/")
     i = norm.rfind("/data/")
     if i != -1:
-        cand = os.path.join(root, norm[i + 1:])
+        cand = os.path.join(root, *norm[i + 1:].split("/"))
         if os.path.isfile(cand):
             return cand
     if norm.startswith("data/"):
-        cand = os.path.join(root, norm)
+        cand = os.path.join(root, *norm.split("/"))
         if os.path.isfile(cand):
             return cand
     return path

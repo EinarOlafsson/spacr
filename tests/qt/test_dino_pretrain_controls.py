@@ -39,6 +39,7 @@ def test_controls_offer_existing_checkpoint_and_twenty_epochs(screen):
     assert container.findChild(QProgressBar, "EmbeddingsDinoProgress")
 
 
+@pytest.mark.needs_symlink
 def test_existing_checkpoint_picker_cancel_dedup_and_no_computation(
         screen, monkeypatch, tmp_path):
     import spacr.embeddings as emb

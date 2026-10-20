@@ -239,6 +239,18 @@ if (os.name == "nt"
     _windows_fonts = os.path.join(_windows_root, "Fonts")
     if _windows_root and os.path.isdir(_windows_fonts):
         os.environ["QT_QPA_FONTDIR"] = _windows_fonts
+        # FreeType keeps every face it opens as a C stdio stream, and the
+        # system font folder holds ~540 files: the C runtime's default
+        # ceiling of 512 streams was exhausted, after which numpy could not
+        # open a FILE* to write any TIFF ("_fdopen failed") and Qt logged
+        # "Failed to create FreeType font engine". One process-wide raise of
+        # that ceiling, in the runtime Qt and numpy share.
+        try:
+            import ctypes
+
+            ctypes.cdll.ucrtbase._setmaxstdio(8192)
+        except (OSError, AttributeError):
+            pass
 
 
 # WHERE THE NATIVE QSETTINGS STORE CANNOT BE MOVED, NOTHING MAY USE IT.

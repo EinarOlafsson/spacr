@@ -10,6 +10,7 @@ renders for a given record, not what the journal writer produces.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -213,7 +214,7 @@ def test_the_run_actions_stay_silent_until_a_run_is_selected(
     class _Desktop:
         @staticmethod
         def openUrl(url):
-            opened.append(url.toLocalFile())
+            opened.append(os.path.normpath(url.toLocalFile()))
             return True
 
     class _Clipboard:

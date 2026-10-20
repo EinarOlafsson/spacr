@@ -247,7 +247,7 @@ def ui_glyphs(root: Path = SCAN, have: set | None = None) -> dict:
                 if (ord(char) > 0x7F and ord(char) not in have
                         and unicodedata.category(char)[0] not in "CZ"):
                     found.setdefault(char, []).append(
-                        f"{path.relative_to(REPO)}:{node.lineno}")
+                        f"{path.relative_to(REPO).as_posix()}:{node.lineno}")
     return found
 
 

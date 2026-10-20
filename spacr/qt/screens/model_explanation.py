@@ -637,12 +637,16 @@ class InvestigateHitPanel(QWidget):
             effect, adjusted P value and support.
         """
         root = str(folder)
-        self.database.setText(os.path.join(root, hit["db_path"]))
-        self.predictions.setText(os.path.join(root, hit["predictions_file"]))
-        self.fractions.setText(os.path.join(root, hit["guide_fractions_file"]))
+
+        def under(relative):
+            return os.path.normpath(os.path.join(root, relative))
+
+        self.database.setText(under(hit["db_path"]))
+        self.predictions.setText(under(hit["predictions_file"]))
+        self.fractions.setText(under(hit["guide_fractions_file"]))
         self._refresh_prediction_columns()
         self.configure_hit(
-            folder=os.path.join(root, hit["results_folder"]),
+            folder=under(hit["results_folder"]),
             gene=str(hit["target_gene"]),
             effect=float(hit.get("hit_effect", 0.0)),
             guides=tuple(hit["target_guides"]),
