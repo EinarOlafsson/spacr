@@ -53,6 +53,20 @@ def test_exact_builtin_preserves_all_six_approved_matched_scores_and_dataset(mon
     assert raw == before
 
 
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
+def test_card_binding_survives_checkout_line_endings(monkeypatch, tmp_path, newline):
+    raw = _raw()
+    resource = zoo._CURATED_SCORECARD_BINDINGS[raw["key"]]["resource"]
+    payload = (model_cards._CARD_DIR / resource).read_bytes().replace(b"\r\n", b"\n")
+    (tmp_path / resource).write_bytes(payload.replace(b"\n", newline))
+    monkeypatch.setattr(model_cards, "_CARD_DIR", tmp_path)
+    entry = _construct(raw)
+    assert entry.metrics["scorecard_provenance"]["boundary_tolerance_px"] == 2
+    tampered = payload.replace(b"\n", newline).replace(b'"', b"'", 1)
+    (tmp_path / resource).write_bytes(tampered)
+    assert "scorecard_provenance" not in _construct(raw).metrics
+
+
 @pytest.mark.parametrize("change", ["custom", "local", "sha", "uri", "unknown"])
 def test_other_entries_keep_their_own_measurements(monkeypatch, change):
     raw = deepcopy(_raw())

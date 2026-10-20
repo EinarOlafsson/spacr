@@ -201,7 +201,7 @@ def test_a_drop_of_nothing_is_not_a_drop_on_the_filesystem_root():
     directory -- a real folder, silently offered as the user's project.
     """
     assert chaining.project_root_of(None) == ""
-    assert chaining.project_root_of(os.sep) == os.sep
+    assert chaining.project_root_of(os.sep) == os.path.abspath(os.sep)
 
 
 def test_a_folder_that_cannot_be_listed_contributes_no_database(

@@ -2365,6 +2365,7 @@ def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
         payload = (model_cards._CARD_DIR / binding["resource"]).read_bytes()
     except OSError:
         return entry
+    payload = payload.replace(b"\r\n", b"\n")
     if hashlib.sha256(payload).hexdigest() != binding["resource_sha256"]:
         return entry
     card = json.loads(payload)

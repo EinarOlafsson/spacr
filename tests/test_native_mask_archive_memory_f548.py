@@ -44,6 +44,17 @@ def _private_dirs(path):
     return list(Path(path).parent.rglob('.spacr-native-mask-*'))
 
 
+def test_newline_payload_bytes_are_staged_verbatim(tmp_path):
+    """Payload bytes 0x0A and 0x1A must not be text-translated on Windows."""
+    values = np.full((3, 2, 4, 5, 1), 0x0A, dtype=np.uint8)
+    values[1] = 0x1A
+    values[2] = 0x0D
+    path = _archive(tmp_path / 'batch.npz', values)
+    with O._mask_archive_arrays(path, native=True) as (stack, _filenames, owner):
+        assert Path(owner.filename).stat().st_size == owner.offset + values.nbytes
+        assert np.array_equal(stack, values)
+
+
 @pytest.mark.parametrize('dtype', ['<f4', '>u2'])
 @pytest.mark.parametrize('order', ['C', 'F'])
 @pytest.mark.parametrize('t_axis', [0, 1])

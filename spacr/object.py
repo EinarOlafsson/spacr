@@ -1298,7 +1298,8 @@ def _mask_archive_arrays(path, *, native=False, workspace=None):
             if shutil.disk_usage(stage.name).free < member.file_size:
                 raise OSError(errno.ENOSPC,
                               tr('Native mask workspace needs more free disk space'), stage.name)
-            descriptor = os.open(target, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+            descriptor = os.open(target, os.O_RDWR | os.O_CREAT | os.O_EXCL
+                                 | getattr(os, 'O_BINARY', 0), 0o600)
             try:
                 _reserve_native_mask_file(descriptor, member.file_size)
                 os.lseek(descriptor, 0, os.SEEK_SET)

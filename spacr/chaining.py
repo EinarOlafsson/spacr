@@ -1283,7 +1283,7 @@ def db_candidates(root: str) -> Tuple[str, ...]:
     found: List[str] = []
     folders: List[str] = [root]
     for port in declared:
-        target = os.path.join(root, port.path) if port.path else root
+        target = os.path.join(root, os.path.normpath(port.path)) if port.path else root
         if os.path.isfile(target):
             found.append(target)
         holder = os.path.dirname(target)
@@ -1318,7 +1318,7 @@ def result_tables(root: str) -> Tuple[str, ...]:
     kinds = (_ports.REGRESSION_RESULTS, _ports.EMBEDDING, _ports.SETTINGS_CSV)
     folders: List[str] = []
     for port in ports_for_kinds(kinds):
-        target = os.path.join(root, port.path) if port.path else root
+        target = os.path.join(root, os.path.normpath(port.path)) if port.path else root
         holder = target if not os.path.splitext(target)[1] else os.path.dirname(target)
         if os.path.isdir(holder) and holder not in folders:
             folders.append(holder)
