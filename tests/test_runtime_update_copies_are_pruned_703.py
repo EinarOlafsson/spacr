@@ -189,6 +189,58 @@ def test_a_failed_or_cancelled_stage_is_removed_and_the_live_runtime_kept(runtim
     assert committed.is_dir() and os.path.isfile(os.path.join(prefix, "bin", "python"))
 
 
+def _staged_only(root, prefix, name, state, mtime, family, **journal):
+    """A Windows transaction folder holding only its staged runtime, as a stopped update leaves it."""
+    folder = _copy(root, prefix, name, state, mtime, family=family)
+    (folder / "previous").rename(folder / "staged")
+    path = folder / "transaction.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data.update(journal)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    os.utime(path, (mtime, mtime))
+    return folder
+
+
+@pytest.mark.parametrize("live", [False, True])
+@pytest.mark.parametrize("family", ["windows-private-pip", "windows-online-uv"])
+def test_stopped_windows_stages_go_and_one_recovery_copy_stays(runtime, family, live):
+    """Found natively 2026-10-20: four ~2.4 GB stages outlived every launch beside a 1.5.1.5 install.
+
+    A rolled-back update, a stage from before a reinstall, a failed stage and a killed stage hold only a
+    staged runtime; the live runtime was never moved into them, so each is removed. The one committed
+    recovery copy is kept.
+    """
+    root, prefix = runtime
+    recovery = _copy(root, prefix, "recovery", "committed", 1000, family=family)
+    stopped = [
+        _staged_only(root, prefix, "i24seux4", "rolled_back", 2000, family, old_identity=[1, 2]),
+        _staged_only(root, prefix, "mal6h3g0", "ready", 3000, family, old_identity=[1, 3]),
+        _staged_only(root, prefix, "uhdowu2r", "staging_failed", 4000, family),
+        _staged_only(root, prefix, "_zik1n0b", "staging", 5000, family),
+    ]
+    removed = ic._prune_runtime_transactions(prefix, family, live=live, inventory={"live": True})
+    assert sorted(path for path, _ in removed) == sorted(str(folder) for folder in stopped)
+    assert recovery.is_dir() and (recovery / "previous").is_dir()
+    assert os.path.isfile(os.path.join(prefix, "bin", "python"))
+
+
+def test_a_rolled_back_or_stale_stage_that_holds_a_retired_runtime_or_a_live_owner_is_kept(runtime):
+    import subprocess
+    import sys
+
+    root, prefix = runtime
+    retired = _copy(root, prefix, "retired", "rolled_back", 1000, family="windows-online-uv")
+    holder = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+    try:
+        owned = _staged_only(root, prefix, "owned", "ready", 2000, "windows-online-uv", old_identity=[1, 3],
+                             owner={"pid": holder.pid, "started": ic._process_started(holder.pid)})
+        assert ic._prune_runtime_transactions(prefix, "windows-online-uv") == []
+        assert (retired / "previous").is_dir() and owned.is_dir()
+    finally:
+        holder.kill()
+        holder.wait()
+
+
 def test_a_failed_stage_that_still_holds_the_previous_runtime_is_kept(runtime):
     root, prefix = runtime
     held = _copy(root, prefix, "held", "staging_failed", 3000, family="windows-online-uv")
