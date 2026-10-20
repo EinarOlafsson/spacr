@@ -1,4 +1,5 @@
 """N684: the audit receipt regenerates Automatic's cost table, and spinn is timed moving."""
+import pytest
 import importlib.util
 from pathlib import Path
 
@@ -13,6 +14,7 @@ def _tool():
     return module
 
 
+@pytest.mark.posix_only
 def test_cost_table_keeps_only_rows_drawn_entirely_on_the_gpu():
     report = {"rows": [
         {"theme": "a", "size": [10, 10], "density": 1.0,
@@ -26,6 +28,7 @@ def test_cost_table_keeps_only_rows_drawn_entirely_on_the_gpu():
     assert namespace["_GRAPHICS_COST"] == {"a": ((100, 1.0, 2.0, 1.0),)}
 
 
+@pytest.mark.posix_only
 def test_spinn_is_audited_under_a_moving_pointer():
     tool = _tool()
     assert "data_art_tissue_facets" in tool.POINTER_THEMES
@@ -33,6 +36,7 @@ def test_spinn_is_audited_under_a_moving_pointer():
                                       "data_art_tissue_facets"}
 
 
+@pytest.mark.posix_only
 def test_automatic_cost_table_is_the_newest_workstation_receipt():
     import json
 

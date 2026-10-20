@@ -250,6 +250,7 @@ def test_the_summary_names_every_failing_batch(monkeypatch, tmp_path, capsys):
     assert "batch 2" in out and "batch 3" in out
 
 
+@pytest.mark.posix_only
 def test_a_batch_past_its_ceiling_is_killed_with_its_children(tmp_path):
     """--batch-timeout ends the controller AND anything it started."""
     import sys

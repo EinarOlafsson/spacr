@@ -65,6 +65,7 @@ def _run_wrapper(tmp_path, *, separate=True, linked=False, missing=False, absolu
 @pytest.mark.parametrize('separate,linked,absolute', [
     (True, False, False), (False, False, False), (True, True, False), (True, False, True),
 ])
+@pytest.mark.needs_symlink
 def test_both_settings_directories_are_visible(tmp_path, separate, linked, absolute):
     result, calls, mask, measure, plate = _run_wrapper(
         tmp_path, separate=separate, linked=linked, absolute=absolute)

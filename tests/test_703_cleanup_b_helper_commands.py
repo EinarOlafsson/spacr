@@ -226,11 +226,13 @@ def _restore_code(folder):
     return error.value.args[0]['code']
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_refuses_a_shared_folder(metadata):
     os.chmod(metadata.folder, 0o755)
     assert _restore_code(metadata.folder) == 'untrusted_metadata_folder'
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_refuses_a_non_regular_journal(metadata):
     journal = metadata.folder / 'metadata.json'
     journal.unlink()
@@ -238,6 +240,7 @@ def test_metadata_restore_refuses_a_non_regular_journal(metadata):
     assert _restore_code(metadata.folder) == 'invalid_metadata_journal'
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_refuses_another_schema(metadata):
     journal = metadata.folder / 'metadata.json'
     state = json.loads(journal.read_text(encoding="utf-8"))
@@ -250,6 +253,7 @@ def _record_index(metadata, kind):
     return next(i for i, record in enumerate(metadata.state['records']) if record['kind'] == kind)
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_refuses_a_retargeted_link_backup(metadata):
     record = metadata.state['records'][_record_index(metadata, 'link')]
     backup = metadata.folder / record['backup']
@@ -259,6 +263,7 @@ def test_metadata_restore_refuses_a_retargeted_link_backup(metadata):
     assert os.readlink(metadata.link) == 'uninstall.dat'
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_refuses_an_unknown_record_kind(metadata):
     journal = metadata.folder / 'metadata.json'
     state = json.loads(journal.read_text(encoding="utf-8"))
@@ -268,6 +273,7 @@ def test_metadata_restore_refuses_an_unknown_record_kind(metadata):
     assert metadata.sidecar.read_bytes() == b'original sidecar'
 
 
+@pytest.mark.needs_symlink
 def test_metadata_restore_puts_back_both_file_and_link(metadata):
     metadata.sidecar.write_bytes(b'changed by installer')
     metadata.link.unlink()

@@ -106,6 +106,7 @@ def test_the_native_scope_refuses_a_request_that_no_longer_matches(protected_win
     assert project.read_text(encoding="utf-8") == "unrelated" and (root / "spacr.exe").exists()
 
 
+@pytest.mark.posix_only
 def test_a_special_file_is_never_taken_for_a_system_owned_path(tmp_path, monkeypatch):
     fifo = tmp_path / "pipe"
     os.mkfifo(fifo)
@@ -263,6 +264,7 @@ def _windows_plan(installation, tmp_path, monkeypatch, *, events, authorize,
     return plan, adapter, handshake
 
 
+@pytest.mark.posix_only
 def test_a_native_uninstaller_that_cannot_start_is_reported_and_cancelled(
         installation, tmp_path, monkeypatch):
     events = []
@@ -278,6 +280,7 @@ def test_a_native_uninstaller_that_cannot_start_is_reported_and_cancelled(
     assert "activate" not in events and events[-1] == "cancel"
 
 
+@pytest.mark.posix_only
 def test_a_native_uninstaller_that_reports_failure_after_completion_is_an_error(
         installation, tmp_path, monkeypatch):
     events = []
@@ -300,6 +303,7 @@ def test_a_native_uninstaller_that_reports_failure_after_completion_is_an_error(
     ("quote", "invalid_windows_uninstall_argument"),
     ("long", "windows_uninstall_scope_too_large"),
 ])
+@pytest.mark.posix_only
 def test_native_uninstaller_arguments_cannot_be_injected_or_overflow(
         installation, tmp_path, monkeypatch, problem, error):
     events = []

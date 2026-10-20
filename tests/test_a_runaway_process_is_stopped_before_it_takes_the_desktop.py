@@ -122,6 +122,7 @@ def test_nothing_to_act_on_is_said_rather_than_passed_over(monkeypatch):
     assert "nothing to do" in said[0]
 
 
+@pytest.mark.posix_only
 def test_a_frozen_process_is_killed_only_if_memory_keeps_climbing(monkeypatch):
     """The second threshold, driven through two turns of the real loop.
 

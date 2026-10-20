@@ -126,6 +126,7 @@ def test_late_sidecar_change_never_publishes_success(tmp_path, monkeypatch, kind
     assert not (Path(settings['dst']) / 'plate_barcode_linkage').exists()
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('kind', ['symlink', 'directory', 'oversized', 'invalid_utf8'])
 def test_unsafe_sidecar_refused(tmp_path, kind):
     settings = _input(tmp_path)

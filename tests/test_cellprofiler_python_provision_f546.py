@@ -183,6 +183,7 @@ def test_bundled_uv_precedes_path_and_other_backends_are_unchanged(tmp_path, mon
     assert backend._provisioning_uv(backend._spec("cellpose3")) is None
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize("cache_link", [False, True])
 def test_symlinked_managed_destination_is_refused_before_download(isolated, cache_link):
     """Existing links cannot redirect managed Python or its cache elsewhere."""
