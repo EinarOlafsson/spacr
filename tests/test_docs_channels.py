@@ -443,6 +443,8 @@ def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monk
     'host-script', 'wrong-variable', 'extra-variable', 'invalid-id', 'uppercase-id',
     'duplicate', 'misplaced', 'truncated', 'trailing', 'large-trailing',
     'other-script', 'changed-prefix', 'changed-body', 'foreign-host', 'lookalike-host',
+    'host-script-and-card', 'card-only', 'card-foreign-image', 'card-duplicate',
+    'card-after-head', 'card-changed-tag',
 ])
 def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         tmp_path, monkeypatch, state):
@@ -458,6 +460,13 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
               b'"651dd0c2e956b4858bd2f10e"}};</script>')
     assert len(script) == 101
     hosted = index.replace(b'<head>', b'<head>' + script, 1)
+    card = (b'<meta property="og:title" content="spaCR nightly documentation">'
+            b'<meta property="og:description" content="Nightly preview">'
+            b'<meta property="og:image" content="https://cdn-thumbnails.huggingface.co/'
+            b'social-thumbnails/spaces/einarolafsson/spacr-docs-nightly.png">'
+            b'<meta name="twitter:card" content="summary_large_image">'
+            b'<meta name="twitter:image" content="https://cdn-thumbnails.huggingface.co/'
+            b'social-thumbnails/spaces/einarolafsson/spacr-docs-nightly.png">')
     url = publisher.NIGHTLY_URL
     if state == 'wrong-variable':
         hosted = hosted.replace(b'SPACE_CREATOR_USER_ID', b'SPACE_UNRECOGNIZED_ID')
@@ -487,12 +496,27 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         url = 'https://example.com/'
     elif state == 'lookalike-host':
         url = 'https://docs.static.hf.space.example.com/'
+    elif state == 'host-script-and-card':
+        hosted = hosted.replace(b'</head>', card + b'</head>', 1)
+    elif state == 'card-only':
+        hosted = index.replace(b'</head>', card + b'</head>', 1)
+    elif state == 'card-foreign-image':
+        hosted = hosted.replace(b'</head>', card.replace(
+            b'cdn-thumbnails.huggingface.co', b'thumbnails.example.com', 1) + b'</head>', 1)
+    elif state == 'card-duplicate':
+        hosted = hosted.replace(b'</head>', card + card + b'</head>', 1)
+    elif state == 'card-after-head':
+        hosted = hosted.replace(script, script + card, 1)
+    elif state == 'card-changed-tag':
+        hosted = hosted.replace(b'</head>', card.replace(
+            b'twitter:card', b'twitter:site', 1) + b'</head>', 1)
     read_sizes = []
 
     class Homepage(io.BytesIO):
         def read(self, size=-1):
             read_sizes.append(size)
-            assert 0 < size <= len(index) + len(script) + 1
+            assert 0 < size <= (len(index) + len(script)
+                                + publisher._HF_STATIC_SOCIAL_BYTES + 1)
             return super().read(size)
 
     def fetch(request, timeout):
@@ -502,7 +526,7 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         return io.BytesIO((space / name).read_bytes())
 
     monkeypatch.setattr(publisher, 'urlopen', fetch)
-    if state == 'host-script':
+    if state in ('host-script', 'host-script-and-card', 'card-only'):
         assert publisher.verify_nightly(space, url=url, attempts=1, interval=0) == 'nightly-sha'
     else:
         with pytest.raises(RuntimeError, match='public index.html does not match'):
