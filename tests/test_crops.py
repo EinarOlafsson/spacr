@@ -565,6 +565,7 @@ def test_extract_crops_opens_the_file_once(tmp_path, monkeypatch):
             data, "cell", spec.label, width=48, height=48))
 
 
+@pytest.mark.posix_only
 def test_field_cache_is_keyed_on_file_contents(tmp_path):
     """A regenerated merged file is never served from the cache."""
     data = _make_field(seed=59)

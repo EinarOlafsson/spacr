@@ -19,6 +19,8 @@ import pytest
 from spacr import cli_remote
 from spacr.remote_execution import RemoteExecutionError
 
+pytestmark = pytest.mark.posix_only
+
 
 @pytest.fixture
 def state_dir(tmp_path, monkeypatch):

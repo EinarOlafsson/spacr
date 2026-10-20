@@ -2,6 +2,8 @@
 import hashlib
 from dataclasses import replace
 from pathlib import Path
+from urllib.parse import urlparse
+from urllib.request import url2pathname
 
 import pytest
 
@@ -71,7 +73,7 @@ def test_existing_local_path_wins_without_catalogue_lookup(checkpoint, tmp_path,
 
 def test_exact_missing_path_still_verifies_downloaded_checksum(checkpoint, tmp_path):
     entry, _data = checkpoint
-    Path(entry.uri.removeprefix('file://')).write_bytes(b'corrupt mirror')
+    Path(url2pathname(urlparse(entry.uri).path)).write_bytes(b'corrupt mirror')
     with pytest.raises(zoo.ChecksumMismatch):
         zoo._ensure_model_file('/laptop/' + entry.name)
     assert list((tmp_path / 'node' / 'models').iterdir()) == []
