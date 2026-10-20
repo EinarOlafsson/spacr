@@ -10355,13 +10355,19 @@ class PreferencesDialog:
                     return
 
         def _apply_the_scales_live() -> None:
-            """Apply the two scales now and ask whether to keep them."""
+            """Apply the two scales now and ask whether to keep them.
+
+            The question belongs to this dialog while it is open. Owned by
+            the main window, it opened as that window's sheet behind the
+            modal Preferences, and on macOS neither Keep nor Revert could
+            be clicked (acceptance 2026-10-20); only Enter reached it.
+            """
             gui = gui_scale_slider.value() / 100.0
             font = scale_slider.value() / 100.0
             if (abs(gui - get_gui_scale()) < 1e-9
                     and abs(font - get_font_scale()) < 1e-9):
                 return
-            owner = parent if parent is not None else dlg
+            owner = dlg if dlg.isVisible() or parent is None else parent
             change_scales(owner, gui=gui, font=font,
                           on_done=_put_the_sliders_back)
 
