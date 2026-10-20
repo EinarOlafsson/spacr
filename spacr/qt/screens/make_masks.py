@@ -23221,11 +23221,11 @@ class MakeMasksScreen(QWidget):
         self._refresh_lineage_rows()
 
     def _start_field_timer(self, filename: str, mask) -> None:
-        """Start timing the field just loaded (see :mod:`..curation_timing`)."""
+        """Start timing the field just loaded (see :mod:`spacr.curation_queue`)."""
         try:
-            from ..curation_timing import FieldTimer
+            from ...curation_queue import _FieldTimer
 
-            self._field_timer = FieldTimer(
+            self._field_timer = _FieldTimer(
                 os.path.join(self._folder or "", filename), mask,
                 len(self._log) if self._log is not None else 0)
         except Exception:                                    # noqa: BLE001
@@ -23238,7 +23238,7 @@ class MakeMasksScreen(QWidget):
             timer = getattr(self, "_field_timer", None)
             if self._queue is None or timer is None:
                 return
-            from ..curation_timing import log_visit
+            from ...curation_queue import _log_field_visit as log_visit
 
             if mask is None:
                 mask = self._canvas.mask

@@ -145,8 +145,6 @@ PROMOTIONS: Dict[str, Tuple[str, str]] = {
               "197 tests and 465 assertions across five files, and the only "
               "module in the Design section — but one commit old with no "
               "documentation."),
-    # Signed off 2026-10-20 for the BMC Bioinformatics submission, which
-    # uses all four; they were beta until then.
     "make_masks": ("stable",
                    "83 test files and about 5,100 assertions, the curation "
                    "and Cellpose workbench the paper's masks were made in, "

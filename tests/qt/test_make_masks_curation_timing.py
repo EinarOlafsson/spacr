@@ -9,7 +9,7 @@ import pytest
 
 from spacr import cli_make_masks
 from spacr.curation_queue import build_queue
-from spacr.qt import curation_timing as ct
+from spacr import curation_queue as ct
 from spacr.qt.screens.make_masks import MakeMasksScreen
 
 
@@ -22,7 +22,7 @@ def _lab(*boxes):
 
 def test_identical_masks_have_no_changes():
     m = _lab((2, 10, 2, 10), (20, 30, 20, 30))
-    assert ct.count_object_changes(m, m.copy()) == (2, 2, 0, 0, 0)
+    assert ct._timing_object_changes(m, m.copy()) == (2, 2, 0, 0, 0)
 
 
 def test_added_removed_modified():
@@ -31,20 +31,20 @@ def test_added_removed_modified():
     after[2:10, 2:10] = 1            # unchanged
     after[20:30, 20:26] = 2          # shrunk: IoU 0.6 -> modified
     after[0:2, 30:40] = 3            # new object; third removed
-    assert ct.count_object_changes(before, after) == (3, 3, 1, 1, 1)
+    assert ct._timing_object_changes(before, after) == (3, 3, 1, 1, 1)
 
 
 def test_relabelled_ids_and_empty_masks():
     a = _lab((2, 10, 2, 10))
-    assert ct.count_object_changes(a, a * 7) == (1, 1, 0, 0, 0)
+    assert ct._timing_object_changes(a, a * 7) == (1, 1, 0, 0, 0)
     z = np.zeros_like(a)
-    assert ct.count_object_changes(z, a) == (0, 1, 1, 0, 0)
-    assert ct.count_object_changes(a, z) == (1, 0, 0, 1, 0)
-    assert ct.count_object_changes(a, np.zeros((3, 3))) == (1, 0, 0, 1, 0)
+    assert ct._timing_object_changes(z, a) == (0, 1, 1, 0, 0)
+    assert ct._timing_object_changes(a, z) == (1, 0, 0, 1, 0)
+    assert ct._timing_object_changes(a, np.zeros((3, 3))) == (1, 0, 0, 1, 0)
 
 
 def test_idle_gaps_are_not_active_time():
-    t = ct.FieldTimer("/x/f.tif", _lab((2, 10, 2, 10)))
+    t = ct._FieldTimer("/x/f.tif", _lab((2, 10, 2, 10)))
     base = t._last
     t.touch(base + 10)
     t.touch(base + 200)          # idle gap, dropped
@@ -53,15 +53,15 @@ def test_idle_gaps_are_not_active_time():
 
 
 def test_row_is_appended_with_one_header(tmp_path, monkeypatch):
-    monkeypatch.setenv(ct.SESSION_TAG_ENV, "armA")
+    monkeypatch.setenv(ct._TIMING_SESSION_TAG_ENV, "armA")
     pre = _lab((2, 10, 2, 10))
-    t = ct.FieldTimer(str(tmp_path / "f_01.tif"), pre, n_log_open=1)
-    ct.log_visit(tmp_path, t, "save", _lab((2, 10, 2, 10), (20, 30, 20, 30)), 4)
-    ct.log_visit(tmp_path, t, "skip", pre, 1)
-    with open(tmp_path / ct.TIMING_FILE, encoding="utf-8") as handle:
+    t = ct._FieldTimer(str(tmp_path / "f_01.tif"), pre, n_log_open=1)
+    ct._log_field_visit(tmp_path, t, "save", _lab((2, 10, 2, 10), (20, 30, 20, 30)), 4)
+    ct._log_field_visit(tmp_path, t, "skip", pre, 1)
+    with open(tmp_path / ct._TIMING_FILE, encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert [r["decision"] for r in rows] == ["save", "skip"]
-    assert tuple(rows[0]) == ct.COLUMNS
+    assert tuple(rows[0]) == ct._TIMING_COLUMNS
     assert rows[0]["stem"] == "f_01" and rows[0]["session_tag"] == "armA"
     assert rows[0]["n_edits"] == "3" and rows[0]["n_added"] == "1"
     assert rows[0]["n_objects_premask"] == "1" and rows[0]["n_objects_final"] == "2"
@@ -69,9 +69,9 @@ def test_row_is_appended_with_one_header(tmp_path, monkeypatch):
 
 
 def test_unwritable_folder_never_raises(tmp_path):
-    t = ct.FieldTimer("f.tif", _lab((2, 10, 2, 10)))
-    assert ct.log_visit(tmp_path / "missing" / "dir", t, "save", None, 0) is None
-    assert ct.log_visit(None, t, "save", None, 0) is None
+    t = ct._FieldTimer("f.tif", _lab((2, 10, 2, 10)))
+    assert ct._log_field_visit(tmp_path / "missing" / "dir", t, "save", None, 0) is None
+    assert ct._log_field_visit(None, t, "save", None, 0) is None
 
 
 @pytest.fixture
@@ -96,7 +96,7 @@ def test_screen_skip_and_save_write_rows(screen, tmp_path):
     assert screen._field_timer is not None
     screen._on_skip()
     screen._save_mask()
-    with open(folder / ct.TIMING_FILE, encoding="utf-8") as handle:
+    with open(folder / ct._TIMING_FILE, encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert [r["decision"] for r in rows] == ["skip", "save"]
     assert rows[0]["stem"] == "f_00" and rows[0]["n_objects_premask"] == "1"

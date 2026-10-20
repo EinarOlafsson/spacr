@@ -1426,9 +1426,6 @@ APP_STAGE = {
     "train_compare":   STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
-    # Make Masks, Analyze Plaques, Replication and Image UMAP were beta
-    # until 2026-10-20, when they were signed off as stable for the
-    # BMC Bioinformatics submission that uses them.
 }
 
 for _row in _BUILTIN_APPS:
