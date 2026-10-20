@@ -6853,6 +6853,9 @@ class MainWindow(QMainWindow):
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
         """
+        if _a_modal_dialog_is_open():
+            self._after_the_modal_closes("rebuild_app_screen", key, values)
+            return
         with self.breathing_like_an_open():
             self._rebuild_app_screen_in_steps(key, values)
 
@@ -6910,9 +6913,6 @@ class MainWindow(QMainWindow):
 
         from .screens.app_screen import AppScreen
 
-        if _a_modal_dialog_is_open():
-            self._after_the_modal_closes("rebuild_app_screen", key, values)
-            return
         gc.unfreeze()
         old = self._screens.get(key)
         old_preset_owned = {}
