@@ -5008,6 +5008,8 @@
     {
       "context": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's image data channel names an image layer -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
+      "retired": "2026-10-19",
+      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's channel names a plane -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "source_sha256": "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
       "translation": "整个筛选重建。 因为一个形式的设置取决于其自己的价值的一些。 -- 有机数计, 对象的图像数据通道是否命名图像层 -- 因此,承诺改变其中一个意味着一个不同的形式,而不是一个改变的形式。"

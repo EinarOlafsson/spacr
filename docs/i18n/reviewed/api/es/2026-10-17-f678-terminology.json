@@ -3119,20 +3119,22 @@
     {
       "context": "Build ``key``'s screen again, carrying ``values`` across.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#0",
+      "retired": "2026-10-19",
+      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "Build ``key``'s screen again, carrying ``values`` across.",
       "source_sha256": "a01e13d2eecdd90ec3260902fdea7be6b1a7ed5fff17169dfcb7b64ba31078ce",
       "translation": "Construir la pantalla de ``key`` de nuevo, llevando ``values`` a través."
     },
     {
       "context": "the app whose screen is to be rebuilt.",
-      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#1",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
       "source": "the app whose screen is to be rebuilt.",
       "source_sha256": "ee74bea186bafe32a7dc587376b1b9f6538644a6ef5e89a93ad9745a9859408b",
       "translation": "la aplicación cuya pantalla se va a reconstruir."
     },
     {
       "context": "settings to apply to the new screen.",
-      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#2",
+      "label": "spacr.qt.app.MainWindow.rebuild_app_screen#4",
       "source": "settings to apply to the new screen.",
       "source_sha256": "27f28b28765c600273a4f33ed8b542553252272638a6fe24456300258493b589",
       "translation": "configuración para aplicar a la nueva pantalla."
@@ -3140,6 +3142,8 @@
     {
       "context": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's image data channel names an image layer -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#3",
+      "retired": "2026-10-19",
+      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The whole screen is rebuilt because which settings a form holds depends on a few of its own values -- the organelle count, and whether an object's channel names a plane -- so a committed change to one of those means a different form, not a changed one. Rebuilding is the same path every module open already takes.",
       "source_sha256": "da2ecd63a868752ab4849fbdbfc1deb35c3e6047820d50d7d2bddaf5bf3fff9b",
       "translation": "Toda la pantalla se reconstruye porque la configuración de un formulario depende de algunos de sus propios valores -- el conteo de orgánulos, y si el canal de datos de imagen de un objeto nombra una capa de imagen -- por lo que un cambio comprometido a uno de esos significa una forma diferente, no uno cambiado. Reconstruir es la misma ruta que cada módulo abierto ya toma."
@@ -3147,6 +3151,8 @@
     {
       "context": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "label": "spacr.qt.app.MainWindow.rebuild_app_screen#4",
+      "retired": "2026-10-19",
+      "retired_reason": "MainWindow.rebuild_app_screen docstring rewritten in af94d4ebde/f8afacf74c; the current blocks have records in 2026-10-19-mainwindow-rebuild-breathing-api.json",
       "source": "The old screen is dropped from the cache and destroyed, so the new one is built from scratch rather than reusing widgets that belong to a shape that no longer applies.",
       "source_sha256": "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc",
       "translation": "La vieja pantalla se suelta de la caché y se destruye, por lo que la nueva se construye desde cero en lugar de reutilizar widgets que pertenecen a una forma que ya no se aplica."
