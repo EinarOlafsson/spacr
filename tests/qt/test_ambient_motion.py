@@ -32,6 +32,7 @@ import math
 import subprocess
 import sys
 import types
+from pathlib import Path
 
 import pytest
 
@@ -1474,7 +1475,7 @@ def prefs(monkeypatch, tmp_path):
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(module, "_settings", lambda: store)
     resolved = module._settings().fileName()
-    assert str(tmp_path) in resolved, (
+    assert tmp_path in Path(resolved).parents, (
         f"preference isolation failed: {resolved} is outside {tmp_path}")
     return module
 

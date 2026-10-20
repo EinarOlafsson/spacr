@@ -4378,7 +4378,8 @@ def _manual_model_copy_command(entry, cached) -> str:
     """
     import shlex
 
-    target = shlex.quote(str(cached))
+    cached = Path(cached).as_posix()
+    target = shlex.quote(cached)
     uri = str(entry.uri or "")
     if uri.startswith(("http://", "https://")):
         get = f"curl -fL -o {target} {shlex.quote(uri)}"
@@ -4386,7 +4387,7 @@ def _manual_model_copy_command(entry, cached) -> str:
         source = uri[len("file://"):] if uri.startswith("file://") else uri
         get = f"cp {shlex.quote(source)} {target}"
     check = shlex.quote(f"{str(entry.sha256 or '').lower()}  {cached}")
-    return (f"mkdir -p {shlex.quote(str(Path(cached).parent))} && {get} "
+    return (f"mkdir -p {shlex.quote(Path(cached).parent.as_posix())} && {get} "
             f"&& echo {check} | sha256sum -c -")
 
 

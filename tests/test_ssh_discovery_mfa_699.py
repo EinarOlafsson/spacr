@@ -42,6 +42,31 @@ def test_windows_userprofile_and_backslashes_survive(tmp_path):
                      'identityfile': r'C:\Users\Ada\.ssh\key', 'port': '22'}]
 
 
+def test_the_system_config_is_where_each_platforms_openssh_reads_it(tmp_path):
+    """Windows OpenSSH reads %PROGRAMDATA%\\ssh\\ssh_config, never /etc/ssh/ssh_config."""
+    assert remote._system_ssh_config({'PROGRAMDATA': str(tmp_path)}, windows=True) == tmp_path / 'ssh' / 'ssh_config'
+    assert remote._system_ssh_config({}, windows=True) == remote.Path(r'C:\ProgramData') / 'ssh' / 'ssh_config'
+    assert remote._system_ssh_config({'PROGRAMDATA': str(tmp_path)}, windows=False) == remote.Path('/etc/ssh/ssh_config')
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='the ProgramData system config is a Windows location')
+def test_windows_discovery_and_resolution_honour_the_programdata_system_config(tmp_path, monkeypatch):
+    programdata = tmp_path / 'ProgramData'
+    (programdata / 'ssh').mkdir(parents=True)
+    (programdata / 'ssh' / 'ssh_config').write_text('Host cluster\n HostName cluster.example\n User systemwide\n Port 2200\n', encoding="utf-8")
+    home = tmp_path / 'home'
+    (home / '.ssh').mkdir(parents=True)
+    (home / '.ssh' / 'known_hosts').write_text('cluster ssh-ed25519 PUBLIC\n', encoding="utf-8")
+    rows = {row['alias']: row for row in remote._discover_ssh_settings(home=home, environ={'PROGRAMDATA': str(programdata)})}
+    assert rows['cluster']['hostname'] == 'cluster.example'
+    assert rows['cluster']['user'] == 'systemwide'
+    assert rows['cluster']['port'] == '2200'
+    monkeypatch.setenv('PROGRAMDATA', str(programdata))
+    monkeypatch.setattr(remote.Path, 'home', classmethod(lambda cls: home))
+    resolved = remote._ssh_resolve('cluster', {})
+    assert (resolved['hostname'], resolved['user'], resolved['port']) == ('cluster.example', 'systemwide', '2200')
+
+
 def test_known_hosts_only_does_not_select_missing_config(tmp_path):
     (tmp_path / 'known_hosts').write_text('@cert-authority host.example ssh-ed25519 PUBLIC\n', encoding="utf-8")
     assert remote._discover_ssh_settings(tmp_path)[0]['config'] == ''
@@ -579,8 +604,15 @@ def test_discovery_never_opens_private_key_files(tmp_path, monkeypatch):
     def recording_open(file, *args, **kwargs):
         opened.append(str(file))
         return real_open(file, *args, **kwargs)
+    real_path_open = remote.Path.open
+
+    def recording_path_open(self, *args, **kwargs):
+        opened.append(str(self))
+        return real_path_open(self, *args, **kwargs)
     monkeypatch.setattr(builtins, 'open', recording_open)
     monkeypatch.setattr(io, 'open', recording_open)
+    # Python before 3.11 binds Path.open to io.open at import, past the patch above.
+    monkeypatch.setattr(remote.Path, 'open', recording_path_open)
     rows = {row['alias']: row for row in remote._discover_ssh_settings(home=tmp_path, environ={}, system_config=tmp_path / 'none')}
     assert rows['gl']['identityfile'] == str(ssh / 'greatlakes_key')
     assert opened and not ({str(key) for key in keys} & set(opened))

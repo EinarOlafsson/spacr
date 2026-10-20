@@ -177,7 +177,7 @@ IMMUTABLE_QUOTED_REPORTS = {
 
 def _project_files():
     for path in sorted(ROOT.rglob("*")):
-        rel = str(path.relative_to(ROOT))
+        rel = path.relative_to(ROOT).as_posix()
         if any(part in rel for part in SKIP_PARTS):
             continue
         if path.suffix not in EXTENSIONS or not path.is_file():
@@ -198,7 +198,7 @@ def _offenders():
     for path, rel in _project_files():
         if rel in IMMUTABLE_QUOTED_REPORTS:
             continue
-        if rel == str(Path(__file__).relative_to(ROOT)):
+        if rel == Path(__file__).relative_to(ROOT).as_posix():
             continue          # this file quotes the wrong spellings on purpose
         try:
             text = path.read_text(encoding="utf-8")
@@ -325,14 +325,14 @@ def test_historical_quotation_drift_is_not_laundered_by_correct_branding(
     report, _raw = quoted_report_tree
     report.write_bytes(replacement)
     assert _offenders() == [
-        f"{report.relative_to(ROOT)}: immutable quoted-source report digest changed"]
+        f"{report.relative_to(ROOT).as_posix()}: immutable quoted-source report digest changed"]
 
 
 def test_missing_historical_report_is_not_silently_omitted(quoted_report_tree):
     report, _raw = quoted_report_tree
     report.unlink()
     assert _offenders() == [
-        f"{report.relative_to(ROOT)}: immutable quoted-source report is missing or unreadable"]
+        f"{report.relative_to(ROOT).as_posix()}: immutable quoted-source report is missing or unreadable"]
 
 
 def test_unreadable_historical_report_is_not_silently_omitted(quoted_report_tree):
@@ -340,7 +340,7 @@ def test_unreadable_historical_report_is_not_silently_omitted(quoted_report_tree
     report.unlink()
     report.mkdir()
     assert _offenders() == [
-        f"{report.relative_to(ROOT)}: immutable quoted-source report is missing or unreadable"]
+        f"{report.relative_to(ROOT).as_posix()}: immutable quoted-source report is missing or unreadable"]
 
 
 @pytest.mark.parametrize("relative, text", [

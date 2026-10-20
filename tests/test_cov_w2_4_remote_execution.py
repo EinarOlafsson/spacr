@@ -289,15 +289,30 @@ def test_a_state_file_that_is_not_json_names_it(tmp_path):
     assert "JSONDecodeError" in str(caught.value)
 
 
+@pytest.mark.timeout(60)
 def test_a_state_file_that_cannot_be_written_names_it(tmp_path):
+    """Refused promptly: tempfile.mkstemp spun for minutes on a Windows deny ACL."""
+    import getpass
+    import subprocess
+
     unwritable = tmp_path / "read_only"
     unwritable.mkdir()
-    os.chmod(unwritable, 0o500)
+    # Windows ignores a folder's mode bits; an ACL deny is what refuses a new file there.
+    if os.name == "nt":
+        account = getpass.getuser()
+        subprocess.run(["icacls", str(unwritable), "/deny", f"{account}:(OI)(CI)(W)"],
+                       check=True, capture_output=True, timeout=30)
+    else:
+        os.chmod(unwritable, 0o500)
     try:
         with pytest.raises(RemoteExecutionError, match="Could not write"):
             rx._write_json_atomic(unwritable / "jobs.json", {"jobs": []})
     finally:
-        os.chmod(unwritable, 0o700)
+        if os.name == "nt":
+            subprocess.run(["icacls", str(unwritable), "/remove:d", account],
+                           check=True, capture_output=True, timeout=30)
+        else:
+            os.chmod(unwritable, 0o700)
 
 
 def test_a_failed_replace_leaves_no_temporary_file_behind(tmp_path,
