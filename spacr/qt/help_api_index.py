@@ -5478,7 +5478,6 @@ API_ENTRIES = (
     ('spacr.qt.preferences._NotificationsPage.__init__.line', 'A text field with its tooltip and placeholder.'),
     ('spacr.qt.preferences._StoragePage.relocate.finished', 'Retarget a matching remembered model cache, then report the move.'),
     ('spacr.qt.preferences._count_store_moves.set_path', 'Forward to Qt, counting a change of folder as a move.'),
-    ('spacr.qt.preferences._count_store_writes.write', 'Forward to Qt, then forget what was remembered.'),
     ('spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__', 'Listen for messages on the thread this object lives in.'),
     ('spacr.qt.preferences._install_run_notifier._RunFinishedRelay._show', 'Show one message from the tray, or without Qt when none.'),
     ('spacr.qt.preferences._install_run_notifier._without_qt', "The operating system's notification, any failure logged."),

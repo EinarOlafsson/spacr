@@ -99,8 +99,7 @@ def test_a_write_in_this_process_is_seen_at_once(clock):
     assert prefs.get_reduce_motion() is False
     prefs.set_reduce_motion(True)
     assert prefs.get_reduce_motion() is True
-    other = QSettings(*prefs._store_args(prefs._ORG, prefs._APP))
-    other.setValue(prefs._KEY_REDUCE_MOTION, False)
+    prefs._settings().setValue(prefs._KEY_REDUCE_MOTION, False)
     assert prefs.get_reduce_motion() is False
     prefs.set_font_scale(1.25)
     assert prefs.get_font_scale() == pytest.approx(1.25)
@@ -133,3 +132,18 @@ def test_another_process_write_is_seen_within_a_second(clock):
     assert prefs.get_reduce_motion() is False
     clock[0] += prefs._STORE_WATCH_SECONDS
     assert prefs.get_reduce_motion() is True
+
+
+def test_a_write_by_an_unrelated_store_is_seen_by_the_next_look(clock):
+    """Only the preference store counts its writes; Qt's type is left alone.
+
+    Another ``QSettings`` on the same file in this process is seen once it
+    has reached the file, at the next once-a-second look.
+    """
+    prefs.set_reduce_motion(True)
+    assert prefs.get_reduce_motion() is True
+    other = QSettings(*prefs._store_args(prefs._ORG, prefs._APP))
+    other.setValue(prefs._KEY_REDUCE_MOTION, False)
+    other.sync()
+    clock[0] += prefs._STORE_WATCH_SECONDS
+    assert prefs.get_reduce_motion() is False
