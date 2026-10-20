@@ -168,6 +168,7 @@ def test_spacr_home_changed_during_inspection_is_unverified(home, monkeypatch):
     assert news['reason'] == 'unverified' and not news['selectable']
 
 
+@pytest.mark.posix_only
 def test_failing_guard_leaves_every_cache_unselectable(home):
     @contextmanager
     def guard(paths):
@@ -340,6 +341,7 @@ def test_remove_retains_a_private_folder_replaced_before_cleanup(held, monkeypat
     assert (held.base / 'news').is_dir() and not list((held.base / 'news').iterdir())
 
 
+@pytest.mark.posix_only
 def test_apply_refuses_a_cache_changed_after_its_guarded_reinspection(caches, monkeypatch):
     machine, base, files, state, guard = caches
     preview = fresh(caches)
@@ -357,6 +359,7 @@ def test_apply_refuses_a_cache_changed_after_its_guarded_reinspection(caches, mo
     assert Path(base / 'icons' / 'late-abcdefabcdefabcdefab.png').read_bytes() == b'late icon'
 
 
+@pytest.mark.posix_only
 def test_apply_reports_an_unavailable_coordinator_when_the_guard_fails(caches):
     machine, base, files, state, guard = caches
     preview = fresh(caches)
