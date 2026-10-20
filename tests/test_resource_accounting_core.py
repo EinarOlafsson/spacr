@@ -506,6 +506,7 @@ def test_atomic_writer_tolerates_directory_sync_unavailability(tmp_path, monkeyp
     assert json.loads(output.read_text(encoding="utf-8")) == {"complete": True}
 
 
+@pytest.mark.posix_only
 def test_atomic_writer_tolerates_directory_fsync_unavailability(tmp_path, monkeypatch):
     output = tmp_path / "resources.json"
     real_fsync = os.fsync

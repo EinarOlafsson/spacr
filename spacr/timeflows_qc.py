@@ -675,8 +675,10 @@ def dataset_names(paths):
     :param paths: the stack paths, in order.
     :returns: one name per path, in the same order.
     """
-    parts = [[p for p in str(path).rstrip(os.sep).split(os.sep) if p]
+    texts = [str(path).replace(os.altsep, os.sep) if os.altsep else str(path)
              for path in paths]
+    parts = [[p for p in text.rstrip(os.sep).split(os.sep) if p]
+             for text in texts]
     for index, pieces in enumerate(parts):
         if pieces:
             pieces[-1] = os.path.splitext(pieces[-1])[0] or pieces[-1]

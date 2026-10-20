@@ -241,6 +241,25 @@ def is_busy_error(error: BaseException) -> bool:
     return "locked" in message or "busy" in message
 
 
+def _long_path(path) -> Path:
+    """Return ``path`` absolute and, on Windows, in extended-length form.
+
+    The write spool lives several levels below an output folder and names
+    its files by 64-character tickets, which passes the 260-character Windows
+    path limit for an ordinary watched folder. The ``\\\\?\\`` form has no such
+    limit. Elsewhere the path is only made absolute.
+
+    :param path: the spool directory.
+    :returns: the path to create and use.
+    """
+    text = os.path.abspath(os.fspath(path))
+    if os.name != 'nt' or text.startswith('\\\\?\\'):
+        return Path(text)
+    if text.startswith('\\\\'):
+        return Path('\\\\?\\UNC\\' + text[2:])
+    return Path('\\\\?\\' + text)
+
+
 @dataclass(frozen=True)
 class _WriteQueueEndpoint:
     """Spawn-safe producer handles for bounded serialized database writes.
@@ -339,7 +358,7 @@ class _DatabaseWriteQueue:
             raise ValueError('Database queue RAM must be finite and nonnegative')
         context = context or multiprocessing.get_context()
         run_id = uuid.uuid4().hex
-        folder = Path(folder) / run_id
+        folder = _long_path(Path(folder) / run_id)
         folder.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.endpoint = _WriteQueueEndpoint(
             context.Queue(maxsize=max(1, int(slots))),

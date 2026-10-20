@@ -3854,8 +3854,8 @@ def _preprocess_mapped_volume_series(settings):
                                      | getattr(os, 'O_NONBLOCK', 0))
                             with os.fdopen(os.open(path, flags), 'rb') as handle:
                                 info = os.fstat(handle.fileno())
-                                opened = [info.st_dev, info.st_ino, info.st_size,
-                                          info.st_mtime_ns, info.st_ctime_ns]
+                                opened = core._watch_stat_identity(
+                                    info, descriptor=handle.fileno())
                                 if opened != inputs[name]['identity']:
                                     raise ValueError(f'Native T-by-Z input changed: {name}')
                                 with tifffile.TiffFile(handle, name=path) as image:
@@ -3863,8 +3863,8 @@ def _preprocess_mapped_volume_series(settings):
                                         raise ValueError(f'Native T-by-Z input must be one YX plane: {name}')
                                     plane = image.series[0].asarray()
                                 info = os.fstat(handle.fileno())
-                                if [info.st_dev, info.st_ino, info.st_size,
-                                    info.st_mtime_ns, info.st_ctime_ns] != opened:
+                                if core._watch_stat_identity(
+                                        info, descriptor=handle.fileno()) != opened:
                                     raise ValueError(f'Native T-by-Z input changed: {name}')
                             if (plane.ndim != 2 or plane.dtype.kind not in 'uif'
                                     or not np.isfinite(plane).all()):

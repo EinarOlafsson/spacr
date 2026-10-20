@@ -27,6 +27,7 @@ def _fast(folder):
                      watch_poll_seconds=0.01, watch_idle_minutes=0.001)
 
 
+@pytest.mark.needs_symlink
 def test_scan_preserves_top_level_names_and_prunes_outputs_hidden_and_links(tmp_path):
     root = _write(tmp_path, _name('A01', 1))
     nested = _write(tmp_path / 'plate' / 'well', _name('A02', 1))
@@ -38,7 +39,7 @@ def test_scan_preserves_top_level_names_and_prunes_outputs_hidden_and_links(tmp_
     (tmp_path / 'linked-folder').symlink_to(nested.parent, target_is_directory=True)
     (nested.parent / 'loop').symlink_to(tmp_path, target_is_directory=True)
     assert core._watch_images(str(tmp_path)) == sorted([
-        root.name, str(nested.relative_to(tmp_path))])
+        root.name, nested.relative_to(tmp_path).as_posix()])
 
 
 def test_nested_complete_fields_keep_flat_metadata_names_and_resume(tmp_path):
@@ -53,7 +54,7 @@ def test_nested_complete_fields_keep_flat_metadata_names_and_resume(tmp_path):
     assert not result['failed'] and not result['incomplete']
     assert recorder.calls[1][1] == [_name('A02', 1), _name('A02', 2)]
     nested = _ledger(tmp_path)['plate1_A02_0001_001']
-    assert set(nested['files']) == {str(Path('plate/A02') / _name('A02', n)) for n in [1, 2]}
+    assert set(nested['files']) == {f'plate/A02/{_name("A02", n)}' for n in [1, 2]}
     resumed = Recorder()
     assert core._watch_folder_and_analyse(_fast(tmp_path), resumed)['done'] == result['done']
     assert not resumed.calls

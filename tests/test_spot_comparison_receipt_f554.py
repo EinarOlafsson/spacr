@@ -115,7 +115,8 @@ def test_incomplete_run_writes_explicit_failed_receipt(comparison, monkeypatch, 
     assert report['acceptance']['failures']
 
 
-@pytest.mark.parametrize('alias', ['file', 'symlink', 'hardlink'])
+@pytest.mark.parametrize('alias', [
+    'file', pytest.param('symlink', marks=pytest.mark.needs_symlink), 'hardlink'])
 def test_existing_destination_or_input_alias_is_refused_before_decode(comparison, alias):
     tool, args, out, source, seen, _ = comparison
     if alias == 'file':
@@ -158,7 +159,8 @@ def test_database_mutation_while_tasks_are_read_is_refused(comparison, monkeypat
     assert not seen and not out.exists()
 
 
-@pytest.mark.parametrize('symlink', [False, True])
+@pytest.mark.parametrize('symlink', [
+    False, pytest.param(True, marks=pytest.mark.needs_symlink)])
 def test_database_with_live_wal_is_refused_even_through_symlink(comparison, symlink):
     tool, args, out, _, seen, _ = comparison
     index = args.index('--db') + 1

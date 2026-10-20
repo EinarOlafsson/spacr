@@ -135,7 +135,8 @@ def test_bad_manifest_fails_before_watch_outputs(tmp_path, case):
     assert not (tmp_path / 'spacr_watch').exists()
 
 
-@pytest.mark.parametrize('case', ['schema', 'symlink', 'large', 'incompatible_pattern'])
+@pytest.mark.parametrize('case', ['schema', pytest.param('symlink', marks=pytest.mark.needs_symlink), 'large',
+                                  'incompatible_pattern'])
 def test_unsupported_metadata_refused_without_fallback(tmp_path, case):
     _map(tmp_path)
     path = tmp_path / convert.MAP_FILENAME

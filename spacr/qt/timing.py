@@ -280,7 +280,7 @@ def _the_spacr_frame(path: str) -> str:
                 dirs.append(got + os.sep)
         _LIBRARY_DIRS = tuple(dirs)
     if _SPACR_ROOT and path.startswith(_SPACR_ROOT):
-        return path[len(_SPACR_ROOT):]
+        return path[len(_SPACR_ROOT):].replace("\\", "/")
     if "/spacr/" not in path:
         return ""
     if _LIBRARY_DIRS and path.startswith(_LIBRARY_DIRS):

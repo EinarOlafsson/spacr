@@ -217,6 +217,8 @@ def test_mask_commit_preserves_filtered_pixels_and_permissions_before_notificati
     for path in paths:
         np.save(path, mask)
         os.chmod(path, 0o640)
+    mode = stat.S_IMODE(paths[0].stat().st_mode)
+    assert mode == 0o640 or os.name == 'nt'
     seen = []
 
     def notify(index, total, duration, operation):
@@ -240,7 +242,7 @@ def test_mask_commit_preserves_filtered_pixels_and_permissions_before_notificati
     for path in paths:
         saved = np.load(path)
         assert np.array_equal(saved > 0, mask == 2)
-        assert stat.S_IMODE(path.stat().st_mode) == 0o640
+        assert stat.S_IMODE(path.stat().st_mode) == mode
     assert not list(tmp_path.glob('.spacr-mask-*'))
 
 
@@ -309,6 +311,7 @@ def _simulation_rows_for_writer_failure(index, settings, times, total):
     return index, os.getpid()
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('failure', ['producer', 'invalid_sql', 'overloaded_sql'])
 def test_simulation_failures_raise_and_join_the_only_writer(tmp_path, monkeypatch, failure):
     import multiprocessing

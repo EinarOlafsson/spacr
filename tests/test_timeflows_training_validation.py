@@ -298,6 +298,7 @@ def test_cli_rejects_duplicate_frames_before_writing_outputs(tmp_path, monkeypat
     assert not list(tmp_path.glob('result*'))
 
 
+@pytest.mark.needs_symlink
 def test_cli_rejects_training_movie_alias_and_orphan_validation_interval(tmp_path, monkeypatch):
     training, _, output, args = cli_setup(tmp_path, monkeypatch)
     alias = tmp_path / 'alias'

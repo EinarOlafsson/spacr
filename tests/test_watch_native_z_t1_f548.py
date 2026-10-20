@@ -155,7 +155,7 @@ def test_native_z_t1_matches_raw_volume_batch_and_measure(tmp_path, fake_model,
         assert artifacts[name] == hashlib.sha256((field / name).read_bytes()).hexdigest()
 
 
-@pytest.mark.parametrize('damage', ['none', 'planar', 'derived', 'linked_planar'])
+@pytest.mark.parametrize('damage', ['none', 'planar', 'derived', pytest.param('linked_planar', marks=pytest.mark.needs_symlink)])
 def test_native_z_collection_resume_binds_both_inputs(tmp_path, monkeypatch,
                                                        damage):
     """An interrupted collection reuses only unchanged planar and ZYX bytes."""
