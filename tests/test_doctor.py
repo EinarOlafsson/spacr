@@ -930,6 +930,28 @@ def test_path_check_fails_when_another_environment_shadows_it(
     assert str(Path(sys.executable).parent) in row.fix
 
 
+def test_path_check_accepts_the_macos_app_launcher_for_its_own_runtime(ctx, tmp_path, monkeypatch):
+    """2026-10-19 macOS acceptance: every pkg install reported FAIL PATH, because
+    /usr/local/bin/spacr is the spaCR.app launcher rather than a script in the
+    runtime's bin, and told the user to edit PATH."""
+    launcher = tmp_path / "Applications" / "spaCR.app" / "Contents" / "MacOS" / "spaCR"
+    launcher.parent.mkdir(parents=True)
+    launcher.write_text("launcher")
+    runtime = tmp_path / "Library" / "Application Support" / "spaCR" / "venv"
+    runtime.mkdir(parents=True)
+    monkeypatch.setattr(doctor.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setattr(doctor.shutil, "which", lambda name: str(launcher))
+    monkeypatch.setattr(doctor.sys, "prefix", str(runtime))
+    monkeypatch.setattr(doctor.sys, "platform", "darwin")
+    assert doctor.check_command_on_path(ctx).status == PASS
+
+    monkeypatch.setattr(doctor.sys, "prefix", str(tmp_path / "other-env"))
+    assert doctor.check_command_on_path(ctx).status == FAIL
+    monkeypatch.setattr(doctor.sys, "prefix", str(runtime))
+    monkeypatch.setattr(doctor.sys, "platform", "linux")
+    assert doctor.check_command_on_path(ctx).status == FAIL
+
+
 def test_path_check_warns_when_no_command_is_on_path(ctx, monkeypatch):
     monkeypatch.setattr(doctor.shutil, "which", lambda _name: None)
     row = doctor.check_command_on_path(ctx)

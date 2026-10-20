@@ -889,6 +889,30 @@ def check_console_scripts(ctx: Context) -> Result:
     )
 
 
+def _macos_launcher_starts(script: Path, prefix: Path) -> bool:
+    """Whether ``script`` is the macOS app launcher that starts the runtime at ``prefix``.
+
+    The macOS package links ``/usr/local/bin/spacr`` to the native launcher
+    inside ``spaCR.app``, which runs the per-user runtime in
+    ``~/Library/Application Support/spaCR/venv``. That command is outside the
+    runtime's own ``bin`` yet starts exactly this environment, so it must not
+    read as a second installation (macOS acceptance, 2026-10-19).
+
+    :param script: the resolved command found on ``PATH``.
+    :param prefix: the resolved ``sys.prefix`` of this interpreter.
+    :returns: true only on macOS, for a ``spaCR.app/Contents/MacOS/spaCR``
+        launcher and the per-user runtime it starts.
+    """
+    if sys.platform != "darwin":
+        return False
+    if script.name != "spaCR" or script.parent.name != "MacOS" or script.parent.parent.name != "Contents":
+        return False
+    if not script.parent.parent.parent.name.endswith(".app"):
+        return False
+    runtime = (Path.home() / "Library" / "Application Support" / "spaCR" / "venv").resolve()
+    return prefix == runtime
+
+
 @_register("PATH")
 def check_command_on_path(ctx: Context) -> Result:
     """Check that the ``spacr`` command on ``PATH`` belongs to the running Python environment.
@@ -914,6 +938,13 @@ def check_command_on_path(ctx: Context) -> Result:
         )
     script = Path(located).resolve()
     prefix = Path(sys.prefix).resolve()
+    if _macos_launcher_starts(script, prefix):
+        return Result(
+            "PATH",
+            PASS,
+            f"`spacr` on PATH is the spaCR app launcher ({script}), which starts "
+            f"this runtime ({prefix}).",
+        )
     if prefix not in script.parents:
         return Result(
             "PATH",
