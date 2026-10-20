@@ -944,8 +944,7 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
 
     scores = build_model_cards.score_cards()
     published = _published_models()
-    families = build_model_cards.families(published)
-    defaults = [family["default"] for family in families]
+    defaults = build_model_cards.default_records(published)
     picture = build_readme_images.picture_html
     heading = picture(
         f"{prefix}{scores.heading_name('phone')}",

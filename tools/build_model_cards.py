@@ -218,7 +218,10 @@ def families(entries: Optional[Sequence[Mapping[str, Any]]] = None
             [(key_of(e), SimpleNamespace(key=key_of(e))) for e in versions])]
         status = {}
         for entry in versions:
-            if entry is default:
+            # A family whose every version is an alternative (live_cell_v1:
+            # stock Cellpose-SAM stays the default) has no default of its
+            # own, so its first row keeps its marker instead of "default".
+            if entry is default and not marker_of(entry):
                 status[key_of(entry)] = "default"
             else:
                 status[key_of(entry)] = marker_of(entry) or "older"
@@ -228,8 +231,13 @@ def families(entries: Optional[Sequence[Mapping[str, Any]]] = None
 
 
 def default_records(entries=None) -> List[Mapping[str, Any]]:
-    """The default version of every family, in catalogue order."""
-    return [family["default"] for family in families(entries)]
+    """The default version of every family that has one, in catalogue order.
+
+    A family whose only versions are alternatives has none: the stock model
+    stays its default.
+    """
+    return [family["default"] for family in families(entries)
+            if family["status"][key_of(family["default"])] == "default"]
 
 
 def other_records(entries=None) -> List[Tuple[Mapping[str, Any], str]]:
@@ -493,7 +501,11 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
     if segments:
         lines += [f"{segments}. {why}".strip(), ""]
     default = family["default"]
-    if status != "default":
+    if family["status"][key_of(default)] != "default":
+        lines += ["The family has no default of its own: the stock model "
+                  "stays the default, and this version is an optional "
+                  "alternative.", ""]
+    elif status != "default":
         lines += [f"The family's default is {_link(default)}.", ""]
     others = [(e, family["status"][key_of(e)]) for e in family["versions"]
               if key_of(e) != key]
@@ -574,6 +586,8 @@ def render_index(entries=None) -> str:
              "| --- | --- | --- | --- |"]
     for family in fams:
         entry = family["default"]
+        if family["status"][key_of(entry)] != "default":
+            continue
         lines.append(f"| {_link(entry)} | {_cell(entry.get('architecture') or '')}"
                      f" | `{family['stem']}` | {STATE_WORDS[state_of(entry)]} |")
     rest = [(entry, family) for family in fams for entry in family["versions"]

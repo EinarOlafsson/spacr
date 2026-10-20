@@ -2,7 +2,7 @@
 
 # Live cells
 
-v1
+v1 · alt
 
 **0.694** — F1 · 2,199 held-out fields
 
@@ -15,13 +15,15 @@ v1
 | Brightfield | 0.964 | 0.912 |
 
 
-![Score card of Live cells v1 (live_cell_v1, default): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2.](cards/live_cell_v1.svg)
+![Score card of Live cells v1 (live_cell_v1, alternative): F1 0.694 on 2,199 held-out fields against 0.738 for stock cpsam_v2.](cards/live_cell_v1.svg)
 
-## Live cell v1 (phase, brightfield, DIC)
+## Live cell v1 (phase, brightfield, DIC; alternative)
 
-`live_cell_v1` · Cellpose-SAM (cpsam_v2) · default in the `live_cell` family
+`live_cell_v1` · Cellpose-SAM (cpsam_v2) · alternative in the `live_cell` family
 
 Unstained cells in phase contrast, brightfield and DIC. Generalises to transmitted-light data stock was not trained on; stock still wins on LIVECell-style phase.
+
+The family has no default of its own: the stock model stays the default, and this version is an optional alternative.
 
 ## Training data
 
@@ -46,6 +48,7 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 
 ## Notes
 
+- An optional alternative: stock Cellpose-SAM (cpsam_v2) stays the default for label-free and live-cell segmentation.
 - TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell and YeaZ, so its score there is partly memorisation. On the datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, QPI, Revvity, yeast microstructures) this model scores F1 0.960 against 0.885.
 - It does NOT replace stock on LIVECell-style Incucyte phase: 0.671 against 0.724 there, and it missed its own pre-registered promotion bar.
 - By modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC +0.026 over stock, phase 0.689 (stock 0.735).
