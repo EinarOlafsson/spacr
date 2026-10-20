@@ -53,6 +53,29 @@ COLORBAR_PX = 96
 _APPLICATION = None
 
 
+def _choose_offscreen_without_a_display() -> None:
+    """Pick Qt's offscreen platform when no display is named, with real fonts.
+
+    Windows never sets ``DISPLAY`` or ``WAYLAND_DISPLAY``, so every headless
+    figure there takes this route. The offscreen plugin reads fonts only from
+    ``QT_QPA_FONTDIR`` and, on Windows, finds none of the system's, so every
+    family fell back to one built-in face and figure text was drawn in the
+    wrong font. The Windows font folder is named for it unless the caller
+    chose one.
+    """
+    if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"):
+        return
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    if os.name != "nt" or os.environ.get("QT_QPA_FONTDIR"):
+        return
+    if not os.environ["QT_QPA_PLATFORM"].startswith("offscreen"):
+        return
+    windows = os.environ.get("WINDIR") or os.environ.get("SystemRoot") or ""
+    fonts = os.path.join(windows, "Fonts")
+    if windows and os.path.isdir(fonts):
+        os.environ["QT_QPA_FONTDIR"] = fonts
+
+
 @dataclass
 class SceneReport:
     """What the translation could and could not carry.
@@ -185,9 +208,7 @@ def pyqtgraph_ready() -> Tuple[bool, str]:
         return False, f"pyqtgraph is unavailable here: {error}"
     try:
         if QApplication.instance() is None:
-            if not os.environ.get("DISPLAY") and not os.environ.get(
-                    "WAYLAND_DISPLAY"):
-                os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+            _choose_offscreen_without_a_display()
             _APPLICATION = QApplication.instance() or QApplication([])
     except Exception as error:                                 # noqa: BLE001
         return False, f"no QApplication could be started: {error}"

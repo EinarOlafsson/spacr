@@ -161,9 +161,9 @@ def _pyqtgraph_ready(create: bool = True) -> tuple:
         try:
             from PySide6.QtWidgets import QApplication
 
-            if not os.environ.get("DISPLAY") and not os.environ.get(
-                    "WAYLAND_DISPLAY"):
-                os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+            from .scene import _choose_offscreen_without_a_display
+
+            _choose_offscreen_without_a_display()
             _APPLICATION = QApplication.instance() or QApplication([])
         except Exception as error:                             # noqa: BLE001
             return False, f"no QApplication could be started: {error}"
