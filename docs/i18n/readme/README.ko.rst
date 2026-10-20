@@ -263,7 +263,7 @@
 
 .. raw:: html
 
-   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 4657 MB를 차지합니다(2026-10-15 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
+   <div><a href="../../readme_text/ko/install-from-source-light-2.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/install-from-source-light-2.desktop.svg"><img src="../../readme_images/ko/install-from-source-light-2.svg" alt="nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 --filter=blob:none을 추가해도 체크아웃 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. Git은 필요할 때 나중에 가져오는 객체를 보고하지 않으므로 전체 다운로드 총량은 측정하지 않았습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 1178 MB를 차지합니다(2026-10-20 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."></picture></a></div>
 
 .. raw:: html
 
