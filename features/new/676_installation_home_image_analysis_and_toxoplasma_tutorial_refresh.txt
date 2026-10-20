@@ -4,7 +4,7 @@ INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
 
 Status:    in progress
 Requested: 2026-10-08
-Owner:     Workstation tutorial agent; workstation root integration and publication;
+Owner:     Codex workstation tutorial lane; integration and publication;
            API/docs/runtime agents supporting current source and translations;
            Home owns the actual Home Organism category and module layout.
 Related:   N615 tutorial publication, N649 Edit menu, N667 inline help,
@@ -224,3 +224,8 @@ data/n676_selective04_independent_source_peer_2026-10-15/ and
 data/ci_current_publication_selector04_2026-10-15/.
 
 2026-10-16 — Landed707/59ce785b443 requires Work/tutorial lane to re-record14/42/46/79 and check05/19–22/54/57/80 for old Make Masks clips; use current layout and fresh capture under existing lane ownership.
+
+2026-10-20 — Maintainer transfers item 676 workstation tutorials to Codex.
+Re-record GUI lessons on the current app; gate each part, publish passes end to end.
+Dry-run driver fixes and fresh retakes before 86/87; send freeze/crash stacks to Home.
+Lock commits; push only HEAD:nightly; deletion needs approval; restart AF3 on completion.
