@@ -607,11 +607,16 @@ class _StdoutBlock(QPlainTextEdit):
         The block is reused for a whole run rather than made per line: a
         widget per line fragments the console, and :data:`MAX_CHARS` drops
         text from the HEAD so a long run cannot grow without bound.
+
+        Its accessible name, "Log" or "Error", is what VoiceOver says when the
+        block takes focus; without one it was the only unnamed control the
+        macOS accessibility audit found (2026-10-19).
         """
         super().__init__(parent)
         self.viewport().setAutoFillBackground(False)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")
+        self.setAccessibleName(tr("Error") if error else tr("Log"))
         self.setReadOnly(True)
         self.setFrameShape(QFrame.NoFrame)
         self.setLineWrapMode(QPlainTextEdit.WidgetWidth)
