@@ -19,6 +19,7 @@ def installation(tmp_path, **environment):
     return home, root, code, machine, record
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('variable', ['SPACR_HOME', 'HF_HOME'])
 @pytest.mark.parametrize('alias_kind', ['directory', 'parent'])
 def test_configured_external_alias_into_old_runtime_preserves_real_user_bytes(
@@ -44,6 +45,7 @@ def test_configured_external_alias_into_old_runtime_preserves_real_user_bytes(
     assert not (home / '.spacr-old.spacr-installer-lock').exists()
 
 
+@pytest.mark.needs_symlink
 def test_final_lease_cleanup_keeps_empty_aliased_user_root(tmp_path):
     home, root, code, machine, record = installation(tmp_path)
     code.unlink()
@@ -59,6 +61,7 @@ def test_final_lease_cleanup_keeps_empty_aliased_user_root(tmp_path):
     assert not (home / '.spacr-old.spacr-installer-lock').exists()
 
 
+@pytest.mark.needs_symlink
 def test_configured_link_inside_runtime_does_not_follow_or_delete_external_data(tmp_path):
     home, root, code, machine, record = installation(tmp_path)
     state = home / 'external-user-data'
@@ -75,6 +78,7 @@ def test_configured_link_inside_runtime_does_not_follow_or_delete_external_data(
     assert not code.exists()
 
 
+@pytest.mark.needs_symlink
 def test_moved_and_retargeted_configured_alias_is_resolved_at_removal(tmp_path):
     home, root, code, machine, record = installation(tmp_path)
     state = root / 'venv' / 'before-move'
@@ -96,6 +100,7 @@ def test_moved_and_retargeted_configured_alias_is_resolved_at_removal(tmp_path):
     assert report.ok
 
 
+@pytest.mark.needs_symlink
 def test_broken_external_alias_does_not_protect_or_delete_unrelated_roots(tmp_path):
     home, root, code, machine, record = installation(tmp_path)
     unrelated = home / 'unrelated'
@@ -112,6 +117,7 @@ def test_broken_external_alias_does_not_protect_or_delete_unrelated_roots(tmp_pa
     assert not root.exists() and not code.exists()
 
 
+@pytest.mark.needs_symlink
 def test_aliased_installer_parent_and_separate_data_alias_preserve_same_native_bytes(tmp_path):
     home, root, code, machine, record = installation(tmp_path)
     state = root / 'venv' / 'user-state'
@@ -132,6 +138,7 @@ def test_aliased_installer_parent_and_separate_data_alias_preserve_same_native_b
     assert report.ok
 
 
+@pytest.mark.needs_symlink
 def test_relative_configured_alias_preserves_data_through_installer_parent_alias(tmp_path, monkeypatch):
     home, root, code, machine, record = installation(tmp_path)
     state = root / 'venv' / 'user-state'

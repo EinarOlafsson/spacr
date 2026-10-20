@@ -153,6 +153,7 @@ def test_runtime_update_refuses_unverified_or_newer_current_runtime(tmp_path, mo
     assert sorted(path.name for path in prefix.parent.iterdir()) == ["venv"]
 
 
+@pytest.mark.posix_only
 def test_runtime_update_refuses_staged_source_whose_timestamp_cannot_change(tmp_path, monkeypatch):
     prefix, record = _fake_runtime(tmp_path)
     original = prefix / "lib" / "module.py"
@@ -188,6 +189,7 @@ def test_macos_online_update_refuses_unverified_current_runtime(tmp_path, monkey
         ic._run_macos_online_update(plan, types.SimpleNamespace(platform="macos"))
 
 
+@pytest.mark.posix_only
 def test_debian_frontend_lock_refuses_a_group_writable_lock(tmp_path):
     lock = tmp_path / "lock-frontend"
     lock.write_text("")
@@ -199,6 +201,7 @@ def test_debian_frontend_lock_refuses_a_group_writable_lock(tmp_path):
     assert entered == []
 
 
+@pytest.mark.posix_only
 def test_debian_archive_requires_private_staging_before_download(tmp_path):
     tmp_path.chmod(0o755)
     fetched = []
@@ -208,6 +211,7 @@ def test_debian_archive_requires_private_staging_before_download(tmp_path):
     assert fetched == []
 
 
+@pytest.mark.posix_only
 def test_debian_archive_refuses_shared_writable_download(tmp_path):
     stage = tmp_path / "stage"
     stage.mkdir(mode=0o700)
@@ -387,6 +391,7 @@ def test_debian_update_must_run_from_its_extracted_helper(tmp_path):
         ic._run_debian_update(plan, types.SimpleNamespace(platform="linux"))
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("fault", ["changed", "no-receipt", "invalid-receipt"])
 def test_debian_update_rechecks_identity_and_requires_a_receipt(tmp_path, monkeypatch, fault):
     plan, helper, command, relaunch = _debian_plan(tmp_path)
@@ -483,6 +488,7 @@ def test_debian_journal_removes_temporary_record_when_replacement_fails(tmp_path
     assert list(tmp_path.iterdir()) == []
 
 
+@pytest.mark.posix_only
 def test_debian_root_preparation_forwards_the_phase_channel(tmp_path, monkeypatch):
     from contextlib import nullcontext
 

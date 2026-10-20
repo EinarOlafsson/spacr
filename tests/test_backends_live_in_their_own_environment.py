@@ -643,6 +643,7 @@ class _Proc:
         return -9
 
 
+@pytest.mark.posix_only
 def test_kill_tree_escalates_when_asking_is_not_enough(monkeypatch):
     sent = []
     monkeypatch.setattr(SB.os, "killpg", lambda pid, sig: sent.append(sig))
@@ -652,6 +653,7 @@ def test_kill_tree_escalates_when_asking_is_not_enough(monkeypatch):
     SB._kill_tree(_Proc(exited=True))
 
 
+@pytest.mark.posix_only
 def test_kill_tree_survives_a_process_that_is_already_gone(monkeypatch):
     sent = []
 

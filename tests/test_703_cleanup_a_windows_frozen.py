@@ -347,12 +347,14 @@ def test_pip_commands_refuse_records_that_are_not_running_environments(tmp_path)
                                           types.SimpleNamespace(platform="freebsd"))
 
 
+@pytest.mark.posix_only
 def test_pip_commands_refuse_updater_folder_inside_environment(tmp_path):
     record, machine, prefix, _base = _posix_runtime(tmp_path)
     with pytest.raises(ValueError, match="outside the installed environment"):
         cleanup._pip_environment_commands(record, "2.0.0", str(prefix / "updater"), machine)
 
 
+@pytest.mark.posix_only
 def test_pip_commands_without_recorded_version_and_with_newer_runtime(tmp_path):
     record, machine, prefix, base = _posix_runtime(tmp_path)
     install, relaunch = cleanup._pip_environment_commands(replace(record, version=None), "2.0.0",
@@ -378,6 +380,7 @@ def _pip_plan(record, machine, base):
             "install": install, "relaunch": relaunch, "fetch": None}
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("change", ["frozen", "install"])
 def test_pip_update_refuses_frozen_or_altered_plans(tmp_path, change):
     record, machine, _prefix, base = _posix_runtime(tmp_path)
@@ -392,6 +395,7 @@ def test_pip_update_refuses_frozen_or_altered_plans(tmp_path, change):
     assert ran == []
 
 
+@pytest.mark.posix_only
 def test_pip_update_rechecks_interpreter_identity_after_shutdown(tmp_path, monkeypatch):
     record, machine, _prefix, base = _posix_runtime(tmp_path)
     plan = _pip_plan(record, machine, base)
@@ -437,6 +441,7 @@ def test_frozen_payload_refuses_oversized_manifest(tmp_path):
         cleanup._frozen_windows_payload(root, "2.0.0")
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("name", ["c:stream.dll", "back\\slash.dll"])
 def test_frozen_payload_refuses_names_windows_would_resolve_elsewhere(tmp_path, name):
     root = payload(tmp_path / "bundle", "2.0.0", manifest=False)
@@ -481,6 +486,7 @@ def test_previous_frozen_version_refuses_internal_without_executable(tmp_path):
         cleanup._frozen_windows_previous_version(tmp_path)
 
 
+@pytest.mark.needs_symlink
 def test_previous_frozen_version_refuses_linked_executable(tmp_path):
     target = tmp_path / "elsewhere.exe"
     target.write_bytes(b"exe")
@@ -522,6 +528,7 @@ def test_frozen_install_into_a_new_folder_has_no_previous_payload(tmp_path):
     assert not list(destination.parent.glob(".spacr-*"))
 
 
+@pytest.mark.needs_symlink
 def test_frozen_install_refuses_linked_destination_parent(tmp_path):
     source = payload(tmp_path / "download", "2.0.0")
     real = tmp_path / "real"

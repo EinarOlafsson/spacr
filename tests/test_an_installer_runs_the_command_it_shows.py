@@ -475,6 +475,7 @@ def test_an_exited_installer_on_windows_is_left_alone(monkeypatch):
     assert process.signals == []
 
 
+@pytest.mark.posix_only
 def test_what_is_left_of_a_group_is_killed(monkeypatch):
     sent = []
     process = FakeProcess()
@@ -532,6 +533,7 @@ def test_an_install_that_finishes_as_cancel_is_pressed_is_installed(
     assert outcome.location == "/usr/bin/fakecli"
 
 
+@pytest.mark.posix_only
 def test_a_group_that_ignores_sigterm_is_killed(monkeypatch):
     sent = []
     process = FakeProcess(gate=threading.Event())
@@ -542,6 +544,7 @@ def test_a_group_that_ignores_sigterm_is_killed(monkeypatch):
     assert sent == [signal.SIGTERM, signal.SIGKILL]
 
 
+@pytest.mark.posix_only
 def test_without_process_groups_the_process_itself_is_stopped(monkeypatch):
     process = FakeProcess(gate=threading.Event())
     monkeypatch.setattr(cli_install, "_signal_group", None)

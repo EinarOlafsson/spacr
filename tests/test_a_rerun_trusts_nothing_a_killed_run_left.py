@@ -676,6 +676,7 @@ _STALLING_WRITER = textwrap.dedent("""
 """)
 
 
+@pytest.mark.posix_only
 def test_a_run_killed_while_writing_an_archive_leaves_no_archive(tmp_path):
     """SIGKILL, not an exception: no ``finally`` runs. The old writer opened
     ``masks/stack_0_norm.npz`` itself, so the kill left the start of an

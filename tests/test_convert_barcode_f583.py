@@ -99,6 +99,7 @@ def test_bad_csv_schema_fails_before_image_output(acquisition):
     assert not Path(acquisition['dst']).exists()
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('kind', ['directory', 'file', 'symlink'])
 def test_existing_bundle_is_refused_without_touching_any_output(acquisition, kind, tmp_path):
     bundle = Path(acquisition['dst']) / 'plate_barcode_linkage'

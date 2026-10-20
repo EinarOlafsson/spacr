@@ -116,6 +116,7 @@ def test_discovery_stops_at_the_limit(tmp_path):
     assert len(found) == 2
 
 
+@pytest.mark.needs_symlink
 def test_a_symlink_loop_is_visited_once(tmp_path):
     """A folder linked back into itself would otherwise recurse forever."""
     root = tmp_path / "root"

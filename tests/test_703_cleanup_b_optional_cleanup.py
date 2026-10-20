@@ -25,12 +25,14 @@ def _tree(path, key):
         os.close(descriptor)
 
 
+@pytest.mark.posix_only
 def test_directory_walk_requires_no_follow_support(monkeypatch, tmp_path):
     monkeypatch.delattr(ic.os, 'O_NOFOLLOW')
     with pytest.raises(ValueError, match='no_nofollow_directory_support'):
         ic._optional_cleanup_directory(str(tmp_path))
 
 
+@pytest.mark.posix_only
 def test_directory_walk_releases_its_descriptor_on_a_missing_component(tmp_path):
     before = len(os.listdir('/proc/self/fd'))
     with pytest.raises(FileNotFoundError):
@@ -38,6 +40,7 @@ def test_directory_walk_releases_its_descriptor_on_a_missing_component(tmp_path)
     assert len(os.listdir('/proc/self/fd')) == before
 
 
+@pytest.mark.posix_only
 def test_tree_refuses_more_than_the_entry_budget(tmp_path):
     for index in range(515):
         (tmp_path / ('icon%03d-0123456789abcdef0123.png' % index)).write_bytes(b'i')
@@ -45,12 +48,14 @@ def test_tree_refuses_more_than_the_entry_budget(tmp_path):
         _tree(tmp_path, 'icons')
 
 
+@pytest.mark.posix_only
 def test_tree_refuses_an_unknown_sound_folder(tmp_path):
     (tmp_path / 'not a sound pack').mkdir()
     with pytest.raises(ValueError, match='layout'):
         _tree(tmp_path, 'sounds')
 
 
+@pytest.mark.posix_only
 def test_tree_refuses_an_unknown_file_inside_a_sound_pack(tmp_path):
     (tmp_path / SOUND).mkdir()
     (tmp_path / SOUND / 'notes.txt').write_bytes(b'x')
@@ -58,6 +63,7 @@ def test_tree_refuses_an_unknown_file_inside_a_sound_pack(tmp_path):
         _tree(tmp_path, 'sounds')
 
 
+@pytest.mark.posix_only
 def test_tree_refuses_a_sound_budget_reached_inside_a_pack(tmp_path):
     names = ['click-%d.wav' % i for i in range(4)] + ['hover-%d.wav' % i for i in range(4)] + [
         'run_finished.wav', 'run_failed.wav', 'bed.wav']
@@ -70,6 +76,7 @@ def test_tree_refuses_a_sound_budget_reached_inside_a_pack(tmp_path):
         _tree(tmp_path, 'sounds')
 
 
+@pytest.mark.posix_only
 def test_tree_lists_a_valid_sound_pack(tmp_path):
     (tmp_path / SOUND).mkdir()
     (tmp_path / SOUND / 'bed.wav').write_bytes(b'wave')
@@ -79,6 +86,7 @@ def test_tree_lists_a_valid_sound_pack(tmp_path):
     assert total == 4
 
 
+@pytest.mark.posix_only
 def test_tree_refuses_a_sound_pack_replaced_while_opened(tmp_path, monkeypatch):
     (tmp_path / SOUND).mkdir()
     real_fstat = os.fstat
@@ -113,6 +121,7 @@ def _row(preview, key):
     return next(row for row in preview['folders'] if row['key'] == key)
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('kind', ['list', 'fifo', 'oversized'])
 def test_unusable_relocation_manifest_is_ignored(home, kind):
     manifest = home.base / ic._CACHE_LOCATIONS_FILE
@@ -192,6 +201,7 @@ def _private(base):
     return found[0]
 
 
+@pytest.mark.posix_only
 def test_remove_refuses_a_root_replaced_before_detachment(held):
     root_fd, expected = held.open_root('news')
     (held.base / 'news').rename(held.base / 'news-old')
@@ -203,6 +213,7 @@ def test_remove_refuses_a_root_replaced_before_detachment(held):
     assert not list(held.base.glob('.spacr-cleanup-*'))
 
 
+@pytest.mark.posix_only
 def test_remove_keeps_the_cache_when_no_private_folder_can_be_made(held):
     root_fd, expected = held.open_root('news')
     os.chmod(held.base, 0o500)
@@ -214,6 +225,7 @@ def test_remove_keeps_the_cache_when_no_private_folder_can_be_made(held):
     assert (held.base / 'news' / 'releases.json').is_file()
 
 
+@pytest.mark.posix_only
 def test_remove_tolerates_a_vanished_private_folder_after_a_failed_detach(held, monkeypatch):
     root_fd, expected = held.open_root('news')
     real_rename, real_rmdir = os.rename, os.rmdir
@@ -230,6 +242,7 @@ def test_remove_tolerates_a_vanished_private_folder_after_a_failed_detach(held, 
     assert not list(held.base.glob('.spacr-cleanup-*'))
 
 
+@pytest.mark.posix_only
 def test_remove_retains_a_detached_tree_that_differs_from_the_preview(held):
     root_fd, expected = held.open_root('news')
     stale = [(name, details if name != 'releases.json' else details[:3] + (999,) + details[4:])
@@ -247,6 +260,7 @@ def _sound_root(held):
     return held.open_root('sounds')
 
 
+@pytest.mark.posix_only
 def test_remove_retains_a_sound_pack_replaced_after_detachment(held, monkeypatch):
     root_fd, expected = _sound_root(held)
     real_mkdir = os.mkdir
@@ -265,6 +279,7 @@ def test_remove_retains_a_sound_pack_replaced_after_detachment(held, monkeypatch
     assert (_private(held.base) / 'cache' / 'moved' / 'bed.wav').read_bytes() == b'wave'
 
 
+@pytest.mark.posix_only
 def test_remove_retains_a_sound_pack_replaced_after_its_files_are_removed(held, monkeypatch):
     root_fd, expected = _sound_root(held)
     real_unlink = os.unlink
@@ -284,6 +299,7 @@ def test_remove_retains_a_sound_pack_replaced_after_its_files_are_removed(held, 
     assert (_private(held.base) / 'cache' / SOUND).is_dir()
 
 
+@pytest.mark.posix_only
 def test_remove_retains_a_detached_root_replaced_after_removal(held, monkeypatch):
     root_fd, expected = held.open_root('news')
     real_unlink = os.unlink
@@ -303,6 +319,7 @@ def test_remove_retains_a_detached_root_replaced_after_removal(held, monkeypatch
     assert (_private(held.base) / 'cache').is_dir() and (_private(held.base) / 'moved').is_dir()
 
 
+@pytest.mark.posix_only
 def test_remove_retains_a_private_folder_replaced_before_cleanup(held, monkeypatch):
     root_fd, expected = held.open_root('news')
     real_rmdir = os.rmdir

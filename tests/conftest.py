@@ -1224,11 +1224,32 @@ def pytest_runtest_setup(item):
     carries `@pytest.mark.gpu`, and a guard written into each file is a
     guard the next file will not have.
     """
+    if item.get_closest_marker("posix_only") is not None and os.name == "nt":
+        pytest.skip("exercises a POSIX-only code path or API")
+    if item.get_closest_marker("needs_symlink") is not None and not _symlinks_available():
+        pytest.skip("creating a symbolic link needs a privilege this account lacks")
     if item.get_closest_marker("gpu") is None:
         return
     trouble = _no_room_on_the_gpu()
     if trouble:
         pytest.skip(trouble)
+
+
+_SYMLINKS = []
+
+
+def _symlinks_available() -> bool:
+    """Whether this process may create a symbolic link (Windows needs Developer Mode or a privilege)."""
+    if not _SYMLINKS:
+        import tempfile
+
+        with tempfile.TemporaryDirectory(prefix="spacr-symlink-probe-") as folder:
+            try:
+                os.symlink(folder, os.path.join(folder, "link"), target_is_directory=True)
+                _SYMLINKS.append(True)
+            except (OSError, NotImplementedError):
+                _SYMLINKS.append(False)
+    return _SYMLINKS[0]
 
 
 # ---------------------------------------------------------------------------

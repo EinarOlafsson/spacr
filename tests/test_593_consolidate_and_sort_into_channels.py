@@ -93,6 +93,7 @@ def test_consolidation_output_is_a_new_unused_folder(tmp_path):
         fc.consolidate_folder(src, first.output, log=lambda _t: None)
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.skipif(not hasattr(os, "symlink"), reason="needs symlinks")
 def test_consolidation_skips_symlinks_and_lists_them(tmp_path):
     """A linked file and a linked folder are not copied, but are recorded."""
