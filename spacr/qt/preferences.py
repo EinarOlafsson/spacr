@@ -4831,10 +4831,10 @@ def _set_layout_decision(record: dict) -> None:
 def _screen_default_scale() -> float:
     """The GUI and font scale a profile with no stored choice starts at.
 
-    The maintainer, 2026-10-20: a new user on a small screen starts at
-    75 % GUI and 75 % font. Small means the primary screen's available
-    geometry is under 1600 logical pixels wide, which takes in a 13-inch
-    1440 x 900 laptop and leaves out a 1920-wide display. A scale someone
+    A profile on a small screen starts at 75 % GUI and 75 % font. Small
+    means the primary screen's available geometry is under 1600 logical
+    pixels wide, which takes in a 13-inch 1440 x 900 laptop and leaves out
+    a 1920-wide display. A scale someone
     has stored is never replaced: the getters ask this only when the store
     holds no value, and Reset to defaults reads the getters against an
     empty store, so it lands here too.
