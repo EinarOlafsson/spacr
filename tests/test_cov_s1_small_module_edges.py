@@ -125,7 +125,7 @@ def test_a_sidecar_on_a_mount_that_will_not_answer_is_not_a_crashed_report(
 
     stack = tmp_path / "plate1.npy"
     stack.write_bytes(b"\x00" * 2048)
-    (tmp_path / "filename_map.csv").write_text("a,b\n")
+    (tmp_path / "filename_map.csv").write_text("a,b\n", encoding="utf-8")
     real_exists = Path.exists
 
     def _stale(self, *args, **kwargs):

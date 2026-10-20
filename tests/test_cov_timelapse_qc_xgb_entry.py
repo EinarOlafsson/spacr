@@ -1052,7 +1052,7 @@ def test_empty_merged_dir_raises(tmp_path):
 
     src = tmp_path / "empty_merged"
     (src / "merged").mkdir(parents=True)
-    (src / "merged" / "README.txt").write_text("not an npy")
+    (src / "merged" / "README.txt").write_text("not an npy", encoding="utf-8")
     with pytest.raises(FileNotFoundError, match="No .npy files found"):
         automated_motility_assay(_assay_settings(src))
 

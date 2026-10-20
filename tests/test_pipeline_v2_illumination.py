@@ -124,7 +124,7 @@ def _stack(tmp_path: Path):
     (merged / "channel_order.json").write_text(json.dumps({
         "image_channels": ["cell", "nucleus"],
         "mask_channels": [],
-    }))
+    }), encoding="utf-8")
     return PV.StackFile(
         field_id="A01_F001", path=path, shape=_raw().shape,
         channels=["cell", "nucleus"],

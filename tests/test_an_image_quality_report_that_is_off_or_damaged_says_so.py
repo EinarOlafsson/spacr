@@ -15,7 +15,7 @@ from spacr.qt.widgets.qc_summary import _read_image_quality
 def _write(root, payload):
     path = root / REPORT
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(payload if isinstance(payload, str) else json.dumps(payload))
+    path.write_text(payload if isinstance(payload, str) else json.dumps(payload), encoding="utf-8")
     return path
 
 

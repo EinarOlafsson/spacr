@@ -128,7 +128,7 @@ def selected_pairs(movie, sequence, segmentation, gaps, maximum, selection='even
 
 def reselected_pairs(movie, segmentation, previous):
     """Rebuild an earlier run's selection so two checkpoints score the same pairs."""
-    record = json.loads(Path(previous).read_text())
+    record = json.loads(Path(previous).read_text(encoding="utf-8"))
     if Path(record['movie']).resolve() != Path(movie).resolve() or record['segmentation_source'] != segmentation:
         raise ValueError('--pairs-from must name a run on the same movie and segmentation')
     result = []
@@ -236,7 +236,7 @@ def main(argv=None):
     if args.selection == 'hardest' and (args.pairs_per_gap < 1 or args.candidates_per_gap < args.pairs_per_gap):
         parser.error('--selection hardest needs pairs-per-gap >= 1 and candidates-per-gap >= pairs-per-gap')
     metadata = args.checkpoint.with_suffix(args.checkpoint.suffix + '.json')
-    provenance = json.loads(metadata.read_text())
+    provenance = json.loads(metadata.read_text(encoding="utf-8"))
     check_holdout(args.movie, provenance)
     selections = reselected_pairs(args.movie, args.segmentation, args.pairs_from) if args.pairs_from else [
                   pair for sequence in dict.fromkeys(args.sequences)
@@ -265,12 +265,12 @@ def main(argv=None):
            'scope': 'Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.',
            'holdout_check': 'Resolved movie paths and aliases; not a content comparison against all training images.',
            'controls': 'IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.'}
-    (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')
+    (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n', encoding="utf-8")
     if args.select_only:
         return 0
     predict = checkpoint_predictors(args.checkpoint, args.device, args.seed, args.precision)
     run['precision'] = predict.precision
-    (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n')
+    (args.out / 'run.json').write_text(json.dumps(run, indent=2) + '\n', encoding="utf-8")
     rows, stationary_rows = [], []
     started = time.perf_counter()
     with (args.out / 'pairs.jsonl').open('x') as handle:
@@ -308,7 +308,7 @@ def main(argv=None):
             print(f'{index + 1}/{len(selections)} pairs complete', flush=True)
     summary = {**run, 'complete': True, 'seconds': time.perf_counter() - started,
                'results': summarise(rows), 'copied_frame_control': summarise(stationary_rows)}
-    (args.out / 'summary.json').write_text(json.dumps(summary, indent=2, allow_nan=False) + '\n')
+    (args.out / 'summary.json').write_text(json.dumps(summary, indent=2, allow_nan=False) + '\n', encoding="utf-8")
     return 0
 
 

@@ -70,7 +70,7 @@ def no_network(monkeypatch):
 def _cached_set(folder: Path, reads: int = CACHED) -> Path:
     """Write a cached read set the way the builder lays one out."""
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / sra.CACHED_LISTING).write_text(LISTING)
+    (folder / sra.CACHED_LISTING).write_text(LISTING, encoding="utf-8")
     files = {}
     for one in sra.runs_for(opener=lambda _url: _Response(LISTING.encode())):
         with gzip.open(folder / one.filename, "wb") as handle:
@@ -79,7 +79,7 @@ def _cached_set(folder: Path, reads: int = CACHED) -> Path:
                                "reads": reads}
     (folder / sra.CACHED_MANIFEST).write_text(json.dumps(
         {"bioproject": sra.DEFAULT_BIOPROJECT, "reads_per_file": reads,
-         "files": files}))
+         "files": files}), encoding="utf-8")
     return folder
 
 
@@ -151,7 +151,7 @@ def test_without_a_cache_nothing_is_served_from_one(tmp_path):
     assert not sra._has_cached_reads(tmp_path / "missing")
     half = tmp_path / "half"
     half.mkdir()
-    (half / sra.CACHED_MANIFEST).write_text("{}")
+    (half / sra.CACHED_MANIFEST).write_text("{}", encoding="utf-8")
     assert not sra._has_cached_reads(half)
 
 

@@ -17,9 +17,9 @@ def test_forked_child_cannot_hide_the_workers_timeout(tmp_path, func_only):
     pytest.importorskip("pytest_timeout")
     pytest.importorskip("xdist")
     root = Path(__file__).resolve().parents[1]
-    (tmp_path / "pytest.ini").write_text("[pytest]\n")
+    (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
     (tmp_path / "conftest.py").write_text(
-        "from tests.conftest import pytest_timeout_set_timer\n")
+        "from tests.conftest import pytest_timeout_set_timer\n", encoding="utf-8")
     (tmp_path / "test_stalled.py").write_text('''\
 import json
 import os
@@ -39,7 +39,7 @@ def test_waiting_for_a_forked_child():
     Path("pids.tmp").replace("pids.json")
     print("the captured output is retained", flush=True)
     threading.Event().wait(30)
-''')
+''', encoding="utf-8")
     environment = dict(os.environ, PYTHONPATH=os.pathsep.join(
         part for part in (str(root), os.environ.get("PYTHONPATH", "")) if part),
                        PYTEST_DISABLE_PLUGIN_AUTOLOAD="1")

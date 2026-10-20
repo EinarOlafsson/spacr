@@ -60,7 +60,7 @@ def test_multiple_sources_are_independent_and_qc_exclusions_apply(tmp_path):
     qc.mkdir()
     (qc / 'image_quality.json').write_text(json.dumps({
         'version': 1, 'policy': {'image_qc_mode': 'exclude'},
-        'excluded_fields': ['plate2_A01_2.npy']}))
+        'excluded_fields': ['plate2_A01_2.npy']}), encoding="utf-8")
     settings = {**first, 'src': [first['src'], second['src']]}
     before = _hashes(tmp_path)
     reports = preview._plan_gains(settings)

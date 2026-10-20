@@ -54,7 +54,7 @@ def unreadable_dir(project):
 def test_scanning_something_that_is_not_a_folder_says_so(tmp_path):
     """A file path where a project was meant would otherwise scan as empty."""
     lonely = tmp_path / "notes.txt"
-    lonely.write_text("not a project")
+    lonely.write_text("not a project", encoding="utf-8")
     with pytest.raises(DM.DataManagerError) as excinfo:
         DM.scan_project(str(lonely))
     assert "nothing to measure" in str(excinfo.value)
@@ -339,14 +339,14 @@ def test_a_path_that_survives_its_own_deletion_is_reported(project,
 def test_a_ledger_nobody_can_parse_starts_a_new_one(tmp_path):
     """Losing the record about to be written is worse than losing the old."""
     ledger = tmp_path / DM.ARCHIVE_LEDGER_NAME
-    ledger.write_text("{ this was half-written when the box went down")
+    ledger.write_text("{ this was half-written when the box went down", encoding="utf-8")
     assert DM._read_ledger(str(ledger)) == []
 
 
 def test_a_ledger_that_is_not_a_list_is_wrapped_in_one(tmp_path):
     """An older single-record file still has to be carried forward."""
     ledger = tmp_path / DM.ARCHIVE_LEDGER_NAME
-    ledger.write_text(json.dumps({"archived_utc": "2020-01-01T00:00:00Z"}))
+    ledger.write_text(json.dumps({"archived_utc": "2020-01-01T00:00:00Z"}), encoding="utf-8")
     assert DM._read_ledger(str(ledger)) == [
         {"archived_utc": "2020-01-01T00:00:00Z"}]
 
@@ -354,7 +354,7 @@ def test_a_ledger_that_is_not_a_list_is_wrapped_in_one(tmp_path):
 def test_archiving_something_that_is_not_a_folder_says_so(tmp_path):
     """The same refusal as a scan, before a destination is even considered."""
     lonely = tmp_path / "notes.txt"
-    lonely.write_text("not a project")
+    lonely.write_text("not a project", encoding="utf-8")
     with pytest.raises(DM.DataManagerError) as excinfo:
         DM.plan_archive(str(lonely), str(tmp_path / "archive"))
     assert "is not a folder" in str(excinfo.value)

@@ -215,7 +215,7 @@ def test_unrecognised_items_are_listed_in_the_console(screen, tmp_path):
     assert "Not used from this drop" in screen._masks_console.text()
     assert "x.npy" in screen._masks_console.text()
     note = tmp_path / "n.txt"
-    note.write_text("x")
+    note.write_text("x", encoding="utf-8")
     assert not screen.open_paths([str(note)])
     assert "n.txt" in screen._masks_console.text()
 

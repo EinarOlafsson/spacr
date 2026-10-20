@@ -12,11 +12,11 @@ from compose_capture_set import compose
 
 def capture(tmp_path,name,visual,source_hash='same-source'):
     root=tmp_path/name;folder=root/'captures/home';folder.mkdir(parents=True)
-    (root/'exact-source.json').write_text(json.dumps({'sha256':{'spacr/qt/app.py':source_hash}}))
-    (folder/'provenance.json').write_text(json.dumps({'completed_capture':True}))
+    (root/'exact-source.json').write_text(json.dumps({'sha256':{'spacr/qt/app.py':source_hash}}), encoding="utf-8")
+    (folder/'provenance.json').write_text(json.dumps({'completed_capture':True}), encoding="utf-8")
     image=folder/(visual+'.png');image.write_bytes((visual+'-actual-frame').encode())
     frames={visual:{'image':image.name,'sha256':hashlib.sha256(image.read_bytes()).hexdigest()}}
-    (folder/'frames.json').write_text(json.dumps(frames));return folder
+    (folder/'frames.json').write_text(json.dumps(frames), encoding="utf-8");return folder
 
 
 def test_composed_alias_retains_original_frame_and_records_source(tmp_path):
@@ -42,13 +42,13 @@ def test_explicit_recorder_fix_retains_app_identity_and_both_exact_tool_sources(
     first=capture(tmp_path,'first','home');second=capture(tmp_path,'second','other')
     tool='tools/tutorials/capture_workflow_overview.py'
     for folder,version in ((first,'old'),(second,'new')):
-        path=folder.parent.parent/'exact-source.json';value=json.loads(path.read_text())
-        value['sha256'][tool]=version;path.write_text(json.dumps(value))
+        path=folder.parent.parent/'exact-source.json';value=json.loads(path.read_text(encoding="utf-8"))
+        value['sha256'][tool]=version;path.write_text(json.dumps(value), encoding="utf-8")
     out=tmp_path/'combined/captures/home'
     with pytest.raises(ValueError):compose([first,second],out)
     compose([first,second],out,recorder_delta_paths=[tool],
             recorder_delta_reason='Select unchanged bundled templates through actual editors.')
-    identity=json.loads((out/'exact-source.json').read_text())
+    identity=json.loads((out/'exact-source.json').read_text(encoding="utf-8"))
     assert identity['sha256']=={'spacr/qt/app.py':'same-source'}
     assert [row['source_files_sha256'][tool] for row in identity['composition']]==['old','new']
     assert identity['recorder_delta_paths']==[tool]
@@ -61,7 +61,7 @@ def test_composition_keeps_each_capture_identity_without_overwriting_stage_evide
     output=stage/'captures/home'
     compose([source],output)
     assert historical.read_bytes()==b'earlier stage evidence'
-    assert json.loads((output/'exact-source.json').read_text())['sha256']=={'spacr/qt/app.py':'same-source'}
+    assert json.loads((output/'exact-source.json').read_text(encoding="utf-8"))['sha256']=={'spacr/qt/app.py':'same-source'}
 
 
 @pytest.mark.parametrize('path',['spacr/qt/app.py','tools/tutorials/../spacr/qt/app.py'])
@@ -74,10 +74,10 @@ def test_application_changes_cannot_be_declared_as_recorder_fixes(tmp_path,path)
 
 def test_selected_source_scenes_preserve_full_original_manifest(tmp_path):
     first=capture(tmp_path,'first','kept')
-    manifest=json.loads((first/'frames.json').read_text())
+    manifest=json.loads((first/'frames.json').read_text(encoding="utf-8"))
     omitted=first/'superseded.png';omitted.write_bytes(b'original rejected image')
     manifest['superseded']={'image':omitted.name,'sha256':hashlib.sha256(omitted.read_bytes()).hexdigest()}
-    (first/'frames.json').write_text(json.dumps(manifest))
+    (first/'frames.json').write_text(json.dumps(manifest), encoding="utf-8")
     original=(first/'frames.json').read_bytes()
     second=capture(tmp_path,'second','replacement');out=tmp_path/'combined/captures/home'
     result=compose([first,second],out,source_scenes={str(first.resolve()):['kept']})
@@ -85,7 +85,7 @@ def test_selected_source_scenes_preserve_full_original_manifest(tmp_path):
     assert (first/'frames.json').read_bytes()==original
     assert omitted.read_bytes()==b'original rejected image'
     assert not (out/'superseded.png').exists()
-    receipt=json.loads((out/'provenance.json').read_text())
+    receipt=json.loads((out/'provenance.json').read_text(encoding="utf-8"))
     assert receipt['composition'][0]['omitted_source_scenes']==['superseded']
 
 

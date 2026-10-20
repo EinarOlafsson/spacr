@@ -112,7 +112,7 @@ def _simulation_in_child(index, settings):
         root = Path(options['src'])
         primary = root / f'primary-{i}'
         retry = primary.exists()
-        primary.write_text('primary complete')
+        primary.write_text('primary complete', encoding="utf-8")
         if i == 0 and not retry:
             raise MemoryError('injected primary simulation overload')
         if i == 0:

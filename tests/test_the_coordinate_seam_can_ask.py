@@ -96,7 +96,7 @@ def test_an_empty_chosen_table_says_so(tmp_path):
 
 def test_an_unreadable_database_says_so(tmp_path):
     junk = tmp_path / "notes.txt"
-    junk.write_text("not a database")
+    junk.write_text("not a database", encoding="utf-8")
 
     def ask(**_kw):
         return (str(junk), "cell", "x"), "using x"

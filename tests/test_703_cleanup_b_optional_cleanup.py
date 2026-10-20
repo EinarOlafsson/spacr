@@ -126,11 +126,11 @@ def _row(preview, key):
 def test_unusable_relocation_manifest_is_ignored(home, kind):
     manifest = home.base / ic._CACHE_LOCATIONS_FILE
     if kind == 'list':
-        manifest.write_text(json.dumps(['SPACR_NEWS_CACHE', '/elsewhere']))
+        manifest.write_text(json.dumps(['SPACR_NEWS_CACHE', '/elsewhere']), encoding="utf-8")
     elif kind == 'fifo':
         os.mkfifo(manifest)
     else:
-        manifest.write_text(json.dumps({'SPACR_NEWS_CACHE': 'x' * (1024 * 1024 + 8)}))
+        manifest.write_text(json.dumps({'SPACR_NEWS_CACHE': 'x' * (1024 * 1024 + 8)}), encoding="utf-8")
     preview = ic.preview_optional_cleanup('manifest-op', system=home.machine)
     news = _row(preview, 'news')
     assert news['path'] == str(home.base / 'news')
@@ -138,7 +138,7 @@ def test_unusable_relocation_manifest_is_ignored(home, kind):
 
 
 def test_valid_relocation_manifest_marks_the_cache_external(home, tmp_path):
-    (home.base / ic._CACHE_LOCATIONS_FILE).write_text(json.dumps({'SPACR_NEWS_CACHE': str(tmp_path / 'news')}))
+    (home.base / ic._CACHE_LOCATIONS_FILE).write_text(json.dumps({'SPACR_NEWS_CACHE': str(tmp_path / 'news')}), encoding="utf-8")
     news = _row(ic.preview_optional_cleanup('manifest-op', system=home.machine), 'news')
     assert news['path'] == str(tmp_path / 'news') and news['reason'] == 'unverified'
 

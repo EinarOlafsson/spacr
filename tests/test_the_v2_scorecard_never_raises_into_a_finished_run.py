@@ -20,7 +20,7 @@ def _v2_plate(tmp_path):
     merged = tmp_path / "merged"
     merged.mkdir()
     (merged / "channel_order.json").write_text(json.dumps({
-        "image_channels": ["dapi"], "mask_channels": ["cell"]}))
+        "image_channels": ["dapi"], "mask_channels": ["cell"]}), encoding="utf-8")
     np.save(merged / "stack_plate1_A01_F001.npy",
             np.zeros((8, 8, 2), dtype=np.uint16))
     return tmp_path
@@ -80,7 +80,7 @@ def test_a_plate_with_no_mask_channel_returns_none(tmp_path, capsys):
     merged = tmp_path / "merged"
     merged.mkdir()
     (merged / "channel_order.json").write_text(json.dumps({
-        "image_channels": ["dapi"], "mask_channels": []}))
+        "image_channels": ["dapi"], "mask_channels": []}), encoding="utf-8")
 
     out = core._score_v2_masks(tmp_path, {"verbose": True}, object_type="cell")
 

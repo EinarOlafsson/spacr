@@ -147,7 +147,7 @@ def _stage(root, prefix, name, state, *, family="windows-online-uv", owner=None,
             "state": state, "old_identity": old_identity or [details.st_dev, details.st_ino]}
     if owner is not None:
         data["owner"] = owner
-    (folder / "transaction.json").write_text(json.dumps(data))
+    (folder / "transaction.json").write_text(json.dumps(data), encoding="utf-8")
     return folder
 
 

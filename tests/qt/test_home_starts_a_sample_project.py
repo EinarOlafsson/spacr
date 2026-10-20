@@ -19,7 +19,7 @@ def test_the_pathways_come_from_the_shared_map_when_it_is_there(tmp_path):
     written = tmp_path / "module_workflows.json"
     written.write_text(json.dumps({"pathways": [
         {"id": "ops", "title": "An optical pooled screen",
-         "summary": "s", "modules": ["align", "regression"]}]}))
+         "summary": "s", "modules": ["align", "regression"]}]}), encoding="utf-8")
     (only,) = sp.pathways(written)
     assert only["id"] == "ops" and only["modules"][0] == "align"
 

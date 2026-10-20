@@ -95,7 +95,7 @@ def test_success_preserves_original_json_format_and_existing_mode(tmp_path):
     from spacr.utils import _save_settings_json
 
     path = tmp_path / 'settings.json'
-    path.write_text('old')
+    path.write_text('old', encoding="utf-8")
     path.chmod(0o640)
     settings = {'z': np.int64(3), 'a': (1, False, None), 'unicode': 'μm'}
     _save_settings_json(settings, str(path))
@@ -108,7 +108,7 @@ def test_existing_symlink_remains_a_link_to_the_updated_snapshot(tmp_path):
     from spacr.utils import _save_settings_json
 
     target = tmp_path / 'actual.json'
-    target.write_text('old')
+    target.write_text('old', encoding="utf-8")
     target.chmod(0o640)
     link = tmp_path / 'settings.json'
     try:

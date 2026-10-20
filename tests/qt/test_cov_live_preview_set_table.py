@@ -498,8 +498,8 @@ def test_files_that_are_not_images_are_skipped_over_not_stopped_at(tmp_path):
     rather than the first IMAGE would report "no supported preview image
     found" for a folder that is nothing but images and one text file.
     """
-    (tmp_path / "0_settings.csv").write_text("a,b\n")
-    (tmp_path / "1_readme.txt").write_text("notes")
+    (tmp_path / "0_settings.csv").write_text("a,b\n", encoding="utf-8")
+    (tmp_path / "1_readme.txt").write_text("notes", encoding="utf-8")
     (tmp_path / "2_field.tif").write_bytes(b"\x00")
 
     found = LP.first_supported_image(tmp_path)
@@ -515,8 +515,8 @@ def test_a_folder_of_nothing_but_unsupported_files_offers_no_image(tmp_path):
     decode, and the error the user sees would be about image formats rather
     than about the folder they picked.
     """
-    (tmp_path / "settings.csv").write_text("a,b\n")
-    (tmp_path / "notes.txt").write_text("notes")
+    (tmp_path / "settings.csv").write_text("a,b\n", encoding="utf-8")
+    (tmp_path / "notes.txt").write_text("notes", encoding="utf-8")
 
     assert LP.first_supported_image(tmp_path) is None
 

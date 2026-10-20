@@ -21,7 +21,7 @@ def record_motility(app, window, stage, captures, capture, settle, write_json, t
     from spacr.qt.widgets.fold_strip import FoldButton
 
     stage = Path(stage).resolve()
-    prior = json.loads((stage / 'captures/timelapse_verified_explicit_relink/scientific_acceptance.json').read_text())
+    prior = json.loads((stage / 'captures/timelapse_verified_explicit_relink/scientific_acceptance.json').read_text(encoding="utf-8"))
     source = Path(prior['source']).resolve()
     if not prior['accepted'] or not prior['synthetic'] or not source.is_relative_to(stage):
         raise ValueError('Motility requires the accepted private synthetic Timelapse source')

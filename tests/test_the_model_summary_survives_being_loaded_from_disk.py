@@ -142,7 +142,7 @@ def test_the_summary_is_written_whether_or_not_the_run_is_verbose():
 
 def test_a_run_folder_finds_its_own_summary(tmp_path):
     _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n")
+    (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n", encoding="utf-8")
 
     assert find_summary_file(str(tmp_path)) == str(
         tmp_path / "model_summary.txt")
@@ -150,14 +150,14 @@ def test_a_run_folder_finds_its_own_summary(tmp_path):
 
 def test_the_results_csv_finds_the_summary_beside_it(tmp_path):
     _frame, path = _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n")
+    (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n", encoding="utf-8")
 
     assert find_summary_file(path) == str(tmp_path / "model_summary.txt")
 
 
 def test_an_old_run_with_the_typo_name_still_answers(tmp_path):
     _results_table(tmp_path)
-    (tmp_path / "mode_summary.csv").write_text("OLS Regression Results\n")
+    (tmp_path / "mode_summary.csv").write_text("OLS Regression Results\n", encoding="utf-8")
 
     assert find_summary_file(str(tmp_path)) == str(
         tmp_path / "mode_summary.csv")
@@ -166,8 +166,8 @@ def test_an_old_run_with_the_typo_name_still_answers(tmp_path):
 def test_the_new_name_wins_when_a_folder_holds_both(tmp_path):
     """A re-run of an old folder leaves both. The new one is this run's."""
     _results_table(tmp_path)
-    (tmp_path / "mode_summary.csv").write_text("old\n")
-    (tmp_path / "model_summary.txt").write_text("new\n")
+    (tmp_path / "mode_summary.csv").write_text("old\n", encoding="utf-8")
+    (tmp_path / "model_summary.txt").write_text("new\n", encoding="utf-8")
 
     assert find_summary_file(str(tmp_path)).endswith("model_summary.txt")
 
@@ -178,7 +178,7 @@ def test_a_parent_of_a_run_folder_finds_the_runs_summary(tmp_path):
     run = tmp_path / "results" / "ols_1"
     run.mkdir(parents=True)
     _results_table(run)
-    (run / "model_summary.txt").write_text("OLS Regression Results\n")
+    (run / "model_summary.txt").write_text("OLS Regression Results\n", encoding="utf-8")
 
     assert find_summary_file(str(tmp_path)) == str(run / "model_summary.txt")
 
@@ -198,7 +198,7 @@ def test_a_folder_with_no_summary_is_none_not_a_traceback(tmp_path):
 def test_the_summary_is_read_back_rather_than_re_fitted(tmp_path):
     body = _fit().summary().as_text()
     _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text(body)
+    (tmp_path / "model_summary.txt").write_text(body, encoding="utf-8")
 
     text = summary_text(None, path=str(tmp_path))
 
@@ -212,7 +212,7 @@ def test_it_says_the_summary_is_the_runs_own_and_names_the_file(tmp_path):
     read from the run rather than recomputed here."""
     _results_table(tmp_path)
     path = tmp_path / "model_summary.txt"
-    path.write_text(_fit().summary().as_text())
+    path.write_text(_fit().summary().as_text(), encoding="utf-8")
 
     text = summary_text(None, path=str(tmp_path))
 
@@ -240,7 +240,7 @@ def test_no_path_does_not_claim_a_disk_that_was_never_read():
 def test_an_unreadable_summary_file_is_reported_not_raised(tmp_path):
     _results_table(tmp_path)
     path = tmp_path / "model_summary.txt"
-    path.write_text("something")
+    path.write_text("something", encoding="utf-8")
     os.chmod(path, 0o000)
     try:
         if os.access(path, os.R_OK):             # running as root
@@ -255,7 +255,7 @@ def test_an_unreadable_summary_file_is_reported_not_raised(tmp_path):
 
 def test_an_empty_summary_file_is_not_an_empty_tab(tmp_path):
     _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text("   \n")
+    (tmp_path / "model_summary.txt").write_text("   \n", encoding="utf-8")
 
     text = summary_text(None, path=str(tmp_path))
 
@@ -276,7 +276,7 @@ def test_a_table_opened_from_disk_shows_the_runs_summary(qtbot, tmp_path):
 
     body = _fit().summary().as_text()
     _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text(body)
+    (tmp_path / "model_summary.txt").write_text(body, encoding="utf-8")
 
     panel = RegressionResultsPanel()
     qtbot.addWidget(panel)
@@ -297,7 +297,7 @@ def test_a_new_table_does_not_leave_the_previous_runs_summary_up(qtbot,
     first = tmp_path / "run_a"
     first.mkdir()
     frame, _path = _results_table(first)
-    (first / "model_summary.txt").write_text("SUMMARY OF RUN A\n")
+    (first / "model_summary.txt").write_text("SUMMARY OF RUN A\n", encoding="utf-8")
     second = tmp_path / "run_b"
     second.mkdir()
     _results_table(second)

@@ -89,7 +89,7 @@ def main() -> int:
         "fields": records,
     }
     (STAGING.parent / "source_manifest.json").write_text(
-        json.dumps(manifest, indent=2) + "\n")
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(manifest, indent=2))
     return 0
 

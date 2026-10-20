@@ -656,7 +656,7 @@ def _v2_merged(root: Path, fields=("plate1_A01_1", "plate1_A01_2")) -> Path:
         np.save(path, stack)
         Path(_sidecar(path)).write_bytes(APPLEDOUBLE)
     (merged / "channel_order.json").write_text(json.dumps(
-        {"image_channels": ["cell"], "mask_channels": ["cell"]}))
+        {"image_channels": ["cell"], "mask_channels": ["cell"]}), encoding="utf-8")
     return merged
 
 

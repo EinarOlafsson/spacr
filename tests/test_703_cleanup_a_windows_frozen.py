@@ -105,7 +105,7 @@ def test_windows_pip_helper_requires_an_outside_base_interpreter(runtime, monkey
     empty.mkdir()
     helper = tmp_path / "outside helper"
     helper.mkdir()
-    (helper / "spacr_helper.py").write_text("")
+    (helper / "spacr_helper.py").write_text("", encoding="utf-8")
     monkeypatch.setattr(cleanup.sys, "base_prefix", str(empty))
     ran = []
     monkeypatch.setattr(cleanup, "_run", lambda *args, **kwargs: ran.append(args) or (0, "{}"))
@@ -326,9 +326,9 @@ def _posix_runtime(tmp_path, version="1.0.0"):
     prefix = base / "private" / "venv"
     (prefix / "bin").mkdir(parents=True)
     python = prefix / "bin" / "python"
-    python.write_text("#!/bin/sh\n")
+    python.write_text("#!/bin/sh\n", encoding="utf-8")
     python.chmod(0o755)
-    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n")
+    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n", encoding="utf-8")
     for directory in (prefix, prefix.parent):
         directory.chmod(0o755)
     record = cleanup.InstallRecord(kind="environment", layout="venv", platform="linux", root=str(prefix),
@@ -430,7 +430,7 @@ def test_pip_update_rechecks_interpreter_identity_after_shutdown(tmp_path, monke
 def _manifest(root, version):
     files = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
              for path in root.rglob("*") if path.is_file() and path.name != "spacr-payload.json"}
-    (root / "spacr-payload.json").write_text(json.dumps({"schema": 1, "version": version, "files": files}))
+    (root / "spacr-payload.json").write_text(json.dumps({"schema": 1, "version": version, "files": files}), encoding="utf-8")
 
 
 def test_frozen_payload_refuses_oversized_manifest(tmp_path):
@@ -468,7 +468,7 @@ def test_frozen_identity_refuses_an_oversized_receipt(tmp_path):
     root = payload(tmp_path / "bundle", "2.0.0")
 
     def oversized(argv):
-        Path(argv[-1]).write_text(json.dumps({"padding": "x" * 20000}))
+        Path(argv[-1]).write_text(json.dumps({"padding": "x" * 20000}), encoding="utf-8")
         return 0, ""
 
     with pytest.raises(ValueError, match="frozen_application_identity_unverified"):
@@ -509,13 +509,13 @@ def test_previous_frozen_version_ignores_foreign_distributions_and_requires_one(
     root = tmp_path / "install"
     foreign = root / "_internal" / "spacr_plugin-3.0.dist-info" / "METADATA"
     foreign.parent.mkdir(parents=True)
-    foreign.write_text("Name: spacr-plugin\nVersion: 3.0\n")
+    foreign.write_text("Name: spacr-plugin\nVersion: 3.0\n", encoding="utf-8")
     (root / "spacr.exe").write_bytes(b"exe")
     with pytest.raises(ValueError, match="previous_frozen_application_identity_unverified"):
         cleanup._frozen_windows_previous_version(root)
     own = root / "_internal" / "spacr-1.5.1.4.dist-info" / "METADATA"
     own.parent.mkdir()
-    own.write_text("Name: spacr\nVersion: 1.5.1.4\n")
+    own.write_text("Name: spacr\nVersion: 1.5.1.4\n", encoding="utf-8")
     assert cleanup._frozen_windows_previous_version(root) == "1.5.1.4"
 
 
@@ -581,7 +581,7 @@ def test_frozen_install_stops_when_installed_application_changes_during_approval
     source, old = _installed(tmp_path)
 
     def changed():
-        (old / "spacr.exe").write_text("1.5.1.4 modified by another process")
+        (old / "spacr.exe").write_text("1.5.1.4 modified by another process", encoding="utf-8")
 
     with pytest.raises(ValueError, match="changed during staging"):
         cleanup._install_frozen_windows(source, old, "1.5.1.5", run=identity, before_activate=changed)
@@ -622,7 +622,7 @@ def test_frozen_install_keeps_lock_and_recovery_when_restoration_fails(tmp_path,
     def wrong_identity(argv):
         if Path(argv[0]).parent != old.resolve():
             return identity(argv)
-        Path(argv[-1]).write_text(json.dumps({"schema": 1, "frozen": True, "version": "0.0.1"}))
+        Path(argv[-1]).write_text(json.dumps({"schema": 1, "frozen": True, "version": "0.0.1"}), encoding="utf-8")
         return 0, ""
 
     def replace_file(origin, target):

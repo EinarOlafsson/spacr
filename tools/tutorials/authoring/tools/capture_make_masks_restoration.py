@@ -204,15 +204,15 @@ def main() -> int:
     apply_seconds = time.monotonic() - started
     capture.save("05_apply", {"apply": screen._btn_apply, "canvas": screen._canvas})
 
-    (output / "geometry.json").write_text(json.dumps(capture.frames, indent=2) + "\n")
+    (output / "geometry.json").write_text(json.dumps(capture.frames, indent=2) + "\n", encoding="utf-8")
     (output / "scenes_en.json").write_text(json.dumps({
         "schema": 1, "item": 489, "lesson": "14_make_masks (restoration insert)",
-        "captions": CAPTIONS}, indent=2, ensure_ascii=False) + "\n")
+        "captions": CAPTIONS}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (output / "capture_receipt.json").write_text(json.dumps({
         "schema": 1,
         "item": 489,
         "captured_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "data_manifest": json.loads((data / "manifest.json").read_text()),
+        "data_manifest": json.loads((data / "manifest.json").read_text(encoding="utf-8")),
         "device": "cpu (SPACR_DEVICE=cpu, CUDA/HIP hidden)",
         "alpha_features": "off (CaptureSession.refuse_alpha_features per frame)",
         "restoration": {"operation": "denoise", "model": "cyto3",
@@ -225,7 +225,7 @@ def main() -> int:
         "frames": sorted(capture.frames),
         "claim": "UI walkthrough only; restored pixels are model output, "
                  "no accuracy or biological-improvement claim.",
-    }, indent=2, ensure_ascii=False) + "\n")
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     window.close()
     return 0
 

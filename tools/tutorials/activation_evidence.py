@@ -117,7 +117,7 @@ def prepare(stage):
             raise ValueError('Real crop escaped the downloaded dataset')
         crops.append(dict(source=str(source), name=source.name, sha256=_digest(source), identity=row))
     marker = Path(crops[0]['source']).parent/'.spacr_crop_format.json'
-    fmt = json.loads(marker.read_text())
+    fmt = json.loads(marker.read_text(encoding="utf-8"))
     if fmt.get('spacr_crop_format') != 3 or fmt.get('channel_order') != 'declared_rgb':
         raise ValueError('The current RGB crop format must be preserved explicitly')
     archive = project/'data/real_cell_crops.tar'
@@ -132,7 +132,7 @@ def prepare(stage):
     sources = {str(source_model): _digest(source_model), str(marker): _digest(marker)}
     model = project/source_model.name; shutil.copy2(source_model, model)
     card_source = source_model.with_suffix('.card.json'); sources[str(card_source)] = _digest(card_source)
-    card = json.loads(card_source.read_text()); card_copy = model.with_suffix('.card.json')
+    card = json.loads(card_source.read_text(encoding="utf-8")); card_copy = model.with_suffix('.card.json')
     shutil.copy2(card_source, card_copy)
     if card['epochs'] != 1 or card['extra']['image_size'] != 128 or card['extra']['channels'] != ['r','g','b']:
         raise ValueError('The trusted locally generated demonstration model changed')

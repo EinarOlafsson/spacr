@@ -100,13 +100,13 @@ def test_a_screen_with_nowhere_to_print_still_says_it_on_the_status_line(
 
 def _score_csv(tmp_path):
     path = tmp_path / "plate1_dv.csv"
-    path.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n")
+    path.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n", encoding="utf-8")
     return path
 
 
 def _annotation_csv(tmp_path):
     path = tmp_path / "grna_barcodes.csv"
-    path.write_text("name,sequence\nTGGT1_225160_2,ACGT\n")
+    path.write_text("name,sequence\nTGGT1_225160_2,ACGT\n", encoding="utf-8")
     return path
 
 
@@ -166,7 +166,7 @@ def test_a_settings_csv_that_does_not_parse_to_a_mapping_is_not_applied(
     import spacr.utils
 
     settings_csv = tmp_path / "settings.csv"
-    settings_csv.write_text("Key,Value\nsrc,/tmp\n")
+    settings_csv.write_text("Key,Value\nsrc,/tmp\n", encoding="utf-8")
 
     monkeypatch.setattr(spacr.utils, "load_settings",
                         lambda *args, **kwargs: ["src", "/tmp"])

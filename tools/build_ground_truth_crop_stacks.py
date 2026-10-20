@@ -155,7 +155,7 @@ def _merged_folders() -> Dict[str, List[str]]:
     out: Dict[str, List[str]] = {}
     for path in DATA.glob("_merged_index*.json"):
         try:
-            for key, folders in json.loads(path.read_text()).items():
+            for key, folders in json.loads(path.read_text(encoding="utf-8")).items():
                 out.setdefault(key, [])
                 out[key] += [f for f in folders if f not in out[key]]
         except (ValueError, OSError):
@@ -178,7 +178,7 @@ def _channel(plate_dir: str, plane: str) -> int:
     key, default = NAS_ROLES[plane]
     settings = os.path.join(plate_dir, "settings", "gen_mask_settings.csv")
     try:
-        text = Path(settings).read_text()
+        text = Path(settings).read_text(encoding="utf-8")
     except OSError:
         return default
     found = re.search(key + r',"?([0-9]+)', text)

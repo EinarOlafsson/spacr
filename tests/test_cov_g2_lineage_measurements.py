@@ -100,7 +100,7 @@ def _rewrite(path, change):
     manifest = lm.Path(str(path) + lm._SUFFIX)
     data = json.loads(manifest.read_text(encoding="utf-8"))
     change(data)
-    manifest.write_text(json.dumps(data))
+    manifest.write_text(json.dumps(data), encoding="utf-8")
 
 
 def test_frames_that_are_not_a_list_are_refused(project):  # noqa: F811

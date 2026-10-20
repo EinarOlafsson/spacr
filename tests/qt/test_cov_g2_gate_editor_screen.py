@@ -73,10 +73,10 @@ def test_unreadable_and_unrelated_locks_are_skipped(tmp_path):
     from spacr.run_journal import _locks_root
 
     root = _locks_root()
-    (root / "broken.json").write_text("{not json")
-    (root / "other.json").write_text(json.dumps({"gates": {"/x.json": {}}}))
+    (root / "broken.json").write_text("{not json", encoding="utf-8")
+    (root / "other.json").write_text(json.dumps({"gates": {"/x.json": {}}}), encoding="utf-8")
     strategy = tmp_path / "gates.json"
-    strategy.write_text(json.dumps({"gates": []}))
+    strategy.write_text(json.dumps({"gates": []}), encoding="utf-8")
     assert ge._gate_export_lock_verdicts(str(strategy), GateSet([])) == []
     assert ge._gate_export_lock_verdicts("", GateSet([])) == []
 
@@ -98,7 +98,7 @@ def test_loading_a_merged_strategy_needs_its_database(qtbot, tmp_path):
     screen = make_screen(qtbot, "gate")
     strategy = tmp_path / "gates.json"
     strategy.write_text(json.dumps({"gates": [], "merge_definition": {
-        "name": "m", "version": 1}}))
+        "name": "m", "version": 1}}), encoding="utf-8")
     screen._path = ""
     assert screen.load_gates(str(strategy)) is False
     assert "source database" in screen._source.text()
@@ -122,7 +122,7 @@ def test_gates_the_canvas_refuses_keep_the_previous_strategy(qtbot, db,  # noqa:
     screen = make_screen(qtbot, "gate")
     screen.load_path(db, "cell")
     strategy = tmp_path / "gates.json"
-    strategy.write_text(json.dumps({"gates": []}))
+    strategy.write_text(json.dumps({"gates": []}), encoding="utf-8")
     before = screen._gate_strategy_path
 
     def refuse(gates):
@@ -140,7 +140,7 @@ def test_a_merged_strategy_already_in_the_picker_is_not_added_twice(qtbot, db,  
     definition = default_definition(db, ["cell", "pathogen"], name="merged gates")
     screen._table_picker.addItem("merged gates")
     strategy = tmp_path / "gates.json"
-    strategy.write_text(json.dumps({"gates": [], "merge_definition": definition}))
+    strategy.write_text(json.dumps({"gates": [], "merge_definition": definition}), encoding="utf-8")
     screen.load_gates(str(strategy))
     names = [screen._table_picker.itemText(i)
              for i in range(screen._table_picker.count())]

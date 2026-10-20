@@ -123,7 +123,7 @@ def test_a_folder_with_no_results_table_says_where_it_looked(panel, tmp_path):
 def test_a_results_csv_that_cannot_be_parsed_is_reported(panel, tmp_path):
     """A broken CSV is a sentence over the table, not a traceback."""
     broken = tmp_path / "sweep_results.csv"
-    broken.write_text('a,b\n"unterminated\n1,2,3,4\n')
+    broken.write_text('a,b\n"unterminated\n1,2,3,4\n', encoding="utf-8")
 
     assert panel.load(tmp_path) is False
     assert "Could not read" in panel._status.text()
@@ -353,8 +353,8 @@ def test_a_folder_is_described_in_the_words_a_decision_needs(tmp_path):
     (folder / "sub").mkdir(parents=True)
     (folder / "a.png").write_bytes(b"x" * 10)
     (folder / "b.pdf").write_bytes(b"x" * 10)
-    (folder / "c.csv").write_text("a,b\n1,2\n")
-    (folder / "sub" / "notes.txt").write_text("hello")
+    (folder / "c.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+    (folder / "sub" / "notes.txt").write_text("hello", encoding="utf-8")
 
     described = SweepRunsPanel.describe_folder(str(folder))
 

@@ -20,7 +20,7 @@ def panel(qtbot):
 
 def test_a_dropped_file_that_is_not_an_image_is_ignored_and_the_rest_kept(tmp_path):
     note = tmp_path / "notes.txt"
-    note.write_text("x")
+    note.write_text("x", encoding="utf-8")
     image = tmp_path / "a.tif"
     image.write_bytes(b"")
     assert iw.images_under([str(note), str(image)]) == [str(image)]

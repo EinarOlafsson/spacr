@@ -309,7 +309,7 @@ def test_io_delete_empty_subdirectories_preserves_deep_structure(tmp_path):
     outer = tmp_path / "outer"
     inner = outer / "inner" / "deeper"
     inner.mkdir(parents=True)
-    (inner / "keep.tif").write_text("")
+    (inner / "keep.tif").write_text("", encoding="utf-8")
     delete_empty_subdirectories(str(tmp_path))
     assert outer.exists()
     assert inner.exists()

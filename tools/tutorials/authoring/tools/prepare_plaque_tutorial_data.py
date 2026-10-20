@@ -61,7 +61,7 @@ def main() -> int:
         "kind": "synthetic plaque-assay fields with precomputed labeled masks",
         "size": [768, 768],
         "records": records,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     print(OUTPUT)
     return 0
 

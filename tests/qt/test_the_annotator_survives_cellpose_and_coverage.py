@@ -77,7 +77,7 @@ def _run_child(tmp_path: Path, body: str, name: str) -> subprocess.CompletedProc
         os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
         """
     ).format(budget=CHILD_BUDGET_S - 25)
-    script.write_text(preamble + textwrap.dedent(body))
+    script.write_text(preamble + textwrap.dedent(body), encoding="utf-8")
 
     env = dict(os.environ)
     env["QT_QPA_PLATFORM"] = "offscreen"

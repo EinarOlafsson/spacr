@@ -22,7 +22,7 @@ EPOCHS = 10
 
 
 def _inputs(example):
-    manifest = json.loads((example / 'source_manifest.json').read_text())
+    manifest = json.loads((example / 'source_manifest.json').read_text(encoding="utf-8"))
     files = {}
     for pair in manifest['pairs']:
         files[example / 'training' / pair['file']] = pair['image_sha256']

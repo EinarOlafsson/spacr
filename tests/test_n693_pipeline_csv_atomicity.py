@@ -63,7 +63,7 @@ def test_success_preserves_csv_bytes_and_existing_mode(tmp_path):
     folder = tmp_path / 'settings'
     folder.mkdir()
     target = folder / 'sample.csv'
-    target.write_text('old')
+    target.write_text('old', encoding="utf-8")
     target.chmod(0o640)
     settings = {'src': str(tmp_path), 'value': 3, 'channels': [0, 1], 'none': None, 'text': 'μm,a'}
     expected = pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(index=False)
@@ -79,7 +79,7 @@ def test_existing_csv_symlink_is_preserved(tmp_path):
     folder = tmp_path / 'settings'
     folder.mkdir()
     target = tmp_path / 'actual.csv'
-    target.write_text('old')
+    target.write_text('old', encoding="utf-8")
     target.chmod(0o640)
     link = folder / 'sample.csv'
     try:

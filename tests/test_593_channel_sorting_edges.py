@@ -346,7 +346,7 @@ def test_unreadable_3d_and_mismatched_mask_images_are_problems(tmp_path):
 
 def test_a_curation_ledger_travels_with_its_mask(tmp_path):
     folder, sets = _pair_folder(tmp_path, n=1)
-    (folder / "masks" / "s1_nuc.tif.curation.json").write_text("{}")
+    (folder / "masks" / "s1_nuc.tif.curation.json").write_text("{}", encoding="utf-8")
     plan = cs.build_plan(str(folder), sets)
     row = next(r for r in plan.rows if r.channel == 1)
     assert row.source_ledger.endswith("s1_nuc.tif.curation.json")

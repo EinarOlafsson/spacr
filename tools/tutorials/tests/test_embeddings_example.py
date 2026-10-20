@@ -45,10 +45,10 @@ def test_existing_output_is_really_preserved(tmp_path):
     target = tmp_path / 'existing'
     target.mkdir()
     marker = target / 'user.txt'
-    marker.write_text('keep this exact content')
+    marker.write_text('keep this exact content', encoding="utf-8")
     with pytest.raises(FileExistsError, match='Refusing existing'):
         helper.run(tmp_path / 'not_even_loaded', target, count=4)
-    assert marker.read_text() == 'keep this exact content'
+    assert marker.read_text(encoding="utf-8") == 'keep this exact content'
 
 
 @pytest.mark.parametrize('corruption', ['npy', 'row', 'column', 'csv_value'])

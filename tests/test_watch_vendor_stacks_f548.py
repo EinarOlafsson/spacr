@@ -168,7 +168,7 @@ def test_vendor_volume_matches_raw_volume_batch_and_measure(tmp_path, fake_model
     measure = dict(MEASURE, anisotropy=2)
     measure_crop(dict(measure, src=str(batch / 'merged')))
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(measure))
+    recipe.write_text(json.dumps(measure), encoding="utf-8")
     tifffile.imwrite(watched / 'plate-1.ome.tif', volume, ome=True,
                      metadata={'axes': 'ZCYX'})
     settings = dict(_mask(watched), **_fast(watched), watch_pipeline='mask_measure',

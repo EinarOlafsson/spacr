@@ -289,7 +289,7 @@ def test_parquet_publication_keeps_a_concurrent_destination(tmp_path, monkeypatc
     def competing_mkdir(path, *args, **kwargs):
         if os.fspath(path) == str(target):
             native_mkdir(path, *args, **kwargs)
-            (target / "another-writer.txt").write_text("keep this")
+            (target / "another-writer.txt").write_text("keep this", encoding="utf-8")
             raise FileExistsError(path)
         return native_mkdir(path, *args, **kwargs)
 

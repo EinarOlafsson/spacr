@@ -121,7 +121,7 @@ def test_no_detected_well_passes_the_original_images_through(
     from spacr import plaque
 
     (tmp_path / "field.tif").write_bytes(b"image")
-    (tmp_path / "notes.txt").write_text("not an image")
+    (tmp_path / "notes.txt").write_text("not an image", encoding="utf-8")
     (tmp_path / "folder.png").mkdir()
     monkeypatch.setattr(sm, "_resolve_well_detector", lambda _settings: "wells.pt")
     monkeypatch.setattr(sm.cellpose.io, "imread", lambda _path: np.zeros((8, 8)))

@@ -95,7 +95,7 @@ def test_an_unreadable_table_is_skipped_and_leaves_no_cache_token(tmp_path):
     the parser error escape would make the whole tile unopenable.
     """
     empty = tmp_path / 'empty.csv'
-    empty.write_text('')
+    empty.write_text('', encoding="utf-8")
     assert GT._load(str(empty), 'default.csv') == (None, None)
 
 

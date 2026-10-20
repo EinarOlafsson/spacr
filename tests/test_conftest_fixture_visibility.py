@@ -73,7 +73,7 @@ def _interleaved_run(tmp_path, disable_canonicaliser=False):
         plugin_dir = tmp_path / "mutation"
         plugin_dir.mkdir()
         (plugin_dir / "spacr_undo_directory_nodes.py").write_text(
-            _DISABLE_PLUGIN)
+            _DISABLE_PLUGIN, encoding="utf-8")
         env["PYTHONPATH"] = os.pathsep.join(
             [str(plugin_dir), env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
         argv += ["-p", "spacr_undo_directory_nodes"]

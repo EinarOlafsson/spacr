@@ -52,7 +52,7 @@ def test_standalone_sheet_preserves_numeric_panels_and_complete_source(
             "    def find_spec(self, fullname, path=None, target=None):\n"
             "        if fullname == 'spacr' or fullname.startswith('spacr.'):\n"
             "            raise ImportError('standalone script must not import spaCR')\n"
-            "sys.meta_path.insert(0, RejectSpacr())\n")
+            "sys.meta_path.insert(0, RejectSpacr())\n", encoding="utf-8")
         environment = dict(os.environ, PYTHONPATH=str(blocker), MPLBACKEND="Agg")
         process = subprocess.run(
             [sys.executable, str(destination / "recreate_figure.py"), "png", "svg"],

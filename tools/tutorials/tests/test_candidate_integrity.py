@@ -29,7 +29,7 @@ def test_checkpoint_copy_preserves_a_hardlinked_previous_snapshot(tmp_path):
 
 def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value))
+    path.write_text(json.dumps(value), encoding="utf-8")
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def candidate(tmp_path):
     for filename in CATALOGS:
         save(tmp_path / 'web/catalog' / filename, {'lessons': lessons})
     player = tmp_path / 'web/app_v2.js'
-    player.write_text('/* unit fixture, not a production tutorial */')
+    player.write_text('/* unit fixture, not a production tutorial */', encoding="utf-8")
     media = tmp_path / 'media_host/ready/audio/en/test.m4a'
     media.parent.mkdir(parents=True)
     media.write_bytes(b'unit fixture, not playable media')
@@ -62,7 +62,7 @@ def candidate(tmp_path):
 
 
 def change_json(path, operation):
-    value = json.loads(path.read_text())
+    value = json.loads(path.read_text(encoding="utf-8"))
     operation(value)
     save(path, value)
 

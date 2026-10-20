@@ -18,7 +18,7 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtWidgets import QAbstractButton, QFileDialog, QDialogButtonBox, QLineEdit, QMessageBox
     from spacr.qt.screens.data_manager import ConfirmDeleteDialog
 
-    inputs = json.loads((Path(stage)/'data_manager_state'/f'{Path(captures).name}.json').read_text())
+    inputs = json.loads((Path(stage)/'data_manager_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     source = verify_bind(inputs)
     deadline = time.monotonic() + timeout
     proof = {'lesson': '44_data_manager', 'accepted': False, 'scope': 'Real scan and plans only',
@@ -285,8 +285,8 @@ def record_manager(app, window, stage, captures, capture, settle, write_json, ti
             destination = Path(inputs['archive'])
             proof['archive_files'] = verify_archived_files(before_archive, snapshot_source(destination),
                                                           snapshot_source(source))
-            manifest = json.loads((destination/'spacr_archive.json').read_text())
-            ledger = json.loads((source/'spacr_archive_log.json').read_text())
+            manifest = json.loads((destination/'spacr_archive.json').read_text(encoding="utf-8"))
+            ledger = json.loads((source/'spacr_archive_log.json').read_text(encoding="utf-8"))
             plan = proof['post_cleanup_archive_plan']
             keys = ('origin', 'destination', 'whole_project', 'total_bytes', 'total_files')
             expected = {'origin': str(source), **{key: plan[key] for key in keys if key != 'origin'}}

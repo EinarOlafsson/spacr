@@ -70,12 +70,12 @@ def test_settings_pack_runs_and_matches_independent_expected_results(project):
 
 def test_reusing_sample_preserves_changes_and_unknown_folders_are_not_replaced(project, tmp_path):
     changed = project / 'expected' / 'wells.csv'
-    changed.write_text('user kept notes here\n')
+    changed.write_text('user kept notes here\n', encoding="utf-8")
     assert build_example(project) == project
     assert changed.read_text(encoding="utf-8") == 'user kept notes here\n'
     unrelated = tmp_path / 'unrelated'
     unrelated.mkdir()
-    (unrelated / 'data.txt').write_text('preserve me')
+    (unrelated / 'data.txt').write_text('preserve me', encoding="utf-8")
     with pytest.raises(FileExistsError):
         build_example(unrelated)
     assert (unrelated / 'data.txt').read_text(encoding="utf-8") == 'preserve me'

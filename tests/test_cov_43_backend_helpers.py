@@ -188,7 +188,7 @@ def test_a_cellprofiler_run_keeps_only_numeric_object_features(
 
     adapters, loaded, folders = _cellprofiler(monkeypatch, _Measurements())
     pipe = tmp_path / "count.cppipe"
-    pipe.write_text("CellProfiler Pipeline")
+    pipe.write_text("CellProfiler Pipeline", encoding="utf-8")
     image = tmp_path / "images" / "A01.tif"
     output = tmp_path / "out"
     result = SB._worker_run_cellprofiler(
@@ -212,7 +212,7 @@ def test_a_cellprofiler_run_without_an_exit_status_is_read(
     adapters, _loaded, _folders = _cellprofiler(monkeypatch,
                                                 _Measurements(status=None))
     pipe = tmp_path / "count.cppipe"
-    pipe.write_text("CellProfiler Pipeline")
+    pipe.write_text("CellProfiler Pipeline", encoding="utf-8")
     result = SB._worker_run_cellprofiler(
         {"pipeline": pipe, "files": [tmp_path / "a.tif"],
          "output": tmp_path / "out"}, adapters)
@@ -233,7 +233,7 @@ def test_a_cellprofiler_run_that_cannot_finish_says_why(
     adapters, _loaded, _folders = _cellprofiler(monkeypatch, measurements)
     pipe = tmp_path / "count.cppipe"
     if case != "no-pipeline":
-        pipe.write_text("CellProfiler Pipeline")
+        pipe.write_text("CellProfiler Pipeline", encoding="utf-8")
     files = [] if case == "no-files" else [tmp_path / "a.tif"]
     with pytest.raises(error, match=match):
         SB._worker_run_cellprofiler(

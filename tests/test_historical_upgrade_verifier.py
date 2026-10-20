@@ -43,14 +43,14 @@ def _fixture(tmp_path, repair='1.5.0.5'):
             action_text='Check for updates…', actual_subprocess_commands=[commands[index]],
             terminal_dialog=('pip returned exit code 1. Check the terminal for details.' if index == 0 else
                              'Upgrade finished. Restart spaCR to use it.'))
-    (evidence / 'broken-gui.log').write_text('Verifier-only fixture: No module named pip\n')
+    (evidence / 'broken-gui.log').write_text('Verifier-only fixture: No module named pip\n', encoding="utf-8")
     return evidence, records
 
 
 def _verify(evidence, records, repair='1.5.0.5', target=TARGET):
     """Run only the stdlib final-verifier branch, never its installed-state or GUI paths."""
     for name, value in records.items():
-        (evidence / f'{name}.json').write_text(json.dumps(value))
+        (evidence / f'{name}.json').write_text(json.dumps(value), encoding="utf-8")
     output = evidence / 'acceptance.json'
     completed = subprocess.run([sys.executable, '-I', str(DRIVER), 'verify',
         '--target-version', target, '--repair-version', repair,
@@ -168,7 +168,7 @@ def test_verifier_rejects_incomplete_or_contradictory_receipts(tmp_path, fault, 
     elif fault == 'failed_stage':
         records['broken-gui']['passed'] = False
     else:
-        (evidence / 'broken-gui.log').write_text('Verifier-only unrelated failure\n')
+        (evidence / 'broken-gui.log').write_text('Verifier-only unrelated failure\n', encoding="utf-8")
     completed, accepted = _verify(evidence, records)
     assert completed.returncode != 0
     assert accepted['passed'] is False

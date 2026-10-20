@@ -61,7 +61,7 @@ def main() -> int:
         "source_dataset": str(args.dataset.resolve()),
         "purpose": "isolated real-data copy for the Make Masks tutorial",
         "fields": manifest,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     print(output)
     return 0
 

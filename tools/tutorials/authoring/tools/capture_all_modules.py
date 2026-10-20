@@ -132,7 +132,7 @@ def configure_mask(screen) -> None:
     settings_path = ROOT / "LIVE_IMAGE_SETTINGS.json"
     if not settings_path.exists() or not hasattr(screen, "apply_settings_dict"):
         return
-    spec = json.loads(settings_path.read_text())
+    spec = json.loads(settings_path.read_text(encoding="utf-8"))
     settings = dict(spec["mask_settings"])
     screen.apply_settings_dict(settings)
 
@@ -320,7 +320,7 @@ def finish_capture_batch(failures: list[dict]) -> Path | None:
     """
     failure_path = ROOT / "catalog" / "capture_failures.json"
     if failures:
-        failure_path.write_text(json.dumps(failures, indent=2) + "\n")
+        failure_path.write_text(json.dumps(failures, indent=2) + "\n", encoding="utf-8")
         return failure_path
     # A report describes only the most recent complete batch. It is safe to
     # clear here because every requested capture has already been written.
@@ -373,7 +373,7 @@ def main() -> int:
     app_screen_module._nvidia_smi_available = lambda: False
     from spacr.qt.preferences import apply_preferences_to_app
 
-    catalog = json.loads(CATALOG.read_text())
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     targets = [item for item in catalog["lessons"] if item.get("app_key")]
     if args.only:
         wanted = set(args.only)
@@ -676,7 +676,7 @@ def main() -> int:
                     raise RuntimeError("could not save Home opened-module capture")
                 window._on_nav_selected("__home__")
                 settle(app, 30)
-            geometry_path.write_text(json.dumps(geometry, indent=2) + "\n")
+            geometry_path.write_text(json.dumps(geometry, indent=2) + "\n", encoding="utf-8")
             print(
                 f"{index:02d}/{len(targets)} {item['id']} "
                 f"{pixmap.width()}x{pixmap.height()}",

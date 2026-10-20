@@ -43,7 +43,7 @@ def fake_cli(tmp_path):
         code = sys.stdin.readline().strip()
         print("Logged in." if code == "XYZ-42" else "Wrong code.")
         sys.exit(0 if code == "XYZ-42" else 1)
-    '''))
+    '''), encoding="utf-8")
     return [sys.executable, str(script)]
 
 
@@ -168,7 +168,7 @@ def test_stopping_a_launcher_also_stops_its_stubborn_child(
             "import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); "
             "print('child-ready', flush=True); time.sleep(3600)"])
         time.sleep(3600)
-    '''))
+    '''), encoding="utf-8")
     session = psi.PtySession([sys.executable, str(script), str(stubborn_launcher)])
     output = []
 

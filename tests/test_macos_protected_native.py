@@ -118,7 +118,7 @@ def test_native_inventory_rejects_unknown_fifo_in_actual_conditional_context(tmp
 
     tree = tmp_path / "tree"
     tree.mkdir()
-    (tree / "known.txt").write_text("known")
+    (tree / "known.txt").write_text("known", encoding="utf-8")
     expected = tmp_path / "expected.inventory"
     subprocess.run(["/bin/sh", "-c", _inventory_script(tree, expected)], check=True, timeout=10)
     unknown = tree / "unknown.fifo"
@@ -141,7 +141,7 @@ def test_native_inventory_distinguishes_modes_and_exact_link_bytes(tmp_path, cha
     tree = tmp_path / "tree"
     tree.mkdir()
     regular = tree / "payload"
-    regular.write_text("unchanged bytes")
+    regular.write_text("unchanged bytes", encoding="utf-8")
     regular.chmod(0o644)
     folder = tree / "directory"
     folder.mkdir(mode=0o755)
@@ -280,9 +280,9 @@ def test_native_journal_publication_propagates_printf_failure_in_conditional_con
     import shlex
 
     journal = tmp_path / "journal"
-    journal.write_text("previous durable state\n")
+    journal.write_text("previous durable state\n", encoding="utf-8")
     interrupted = tmp_path / "journal.next.INTERRUPTED"
-    interrupted.write_text("retain partial data\n")
+    interrupted.write_text("retain partial data\n", encoding="utf-8")
     values = {"txn": str(tmp_path), "phase": "recovering", "package_version": "1.5.1.1",
               "expected_digest": "a" * 64, "target": "/Applications/spaCR.app",
               "old_identity": "1:2", "new_identity": "1:3", "private_stage": str(tmp_path)}

@@ -127,7 +127,7 @@ def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
     (torch_dir / "hub").mkdir(parents=True)
     (torch_dir / "hub" / "m.pt").write_bytes(b"1")
     precious = tmp_path / "precious.txt"
-    precious.write_text("keep")
+    precious.write_text("keep", encoding="utf-8")
     try:
         (torch_dir / "link").symlink_to(precious)
     except OSError:
@@ -140,7 +140,7 @@ def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
 
 def test_clearing_refuses_the_home_folder(home, monkeypatch):
     monkeypatch.setenv("TORCH_HOME", str(home))
-    (home / "thesis.docx").write_text("mine")
+    (home / "thesis.docx").write_text("mine", encoding="utf-8")
     removed, refused = rj._clear_cache("torch")
     assert removed == 0 and refused and (home / "thesis.docx").exists()
 
@@ -148,7 +148,7 @@ def test_clearing_refuses_the_home_folder(home, monkeypatch):
 def test_relocating_moves_records_and_reapplies(home, tmp_path, monkeypatch):
     news = home / ".spacr" / "news"
     news.mkdir(parents=True)
-    (news / "releases.json").write_text("[]")
+    (news / "releases.json").write_text("[]", encoding="utf-8")
     target = rj._relocate_cache("news", tmp_path / "bigdisk")
     assert target.name == "spacr-news" and (target / "releases.json").exists()
     assert not news.exists()
@@ -181,7 +181,7 @@ def _user_files(home: Path) -> None:
                    ".config/spacr", "spacr-demos", ".cache/huggingface/hub",
                    ".cache/torch", "Documents"):
         (home / folder).mkdir(parents=True, exist_ok=True)
-        (home / folder / "f.txt").write_text("x")
+        (home / folder / "f.txt").write_text("x", encoding="utf-8")
 
 
 def test_purge_lists_only_spacr_owned_paths(home, tmp_path):
@@ -191,7 +191,7 @@ def test_purge_lists_only_spacr_owned_paths(home, tmp_path):
     shared = tmp_path / "data"
     shared.mkdir()
     (home / ".spacr" / "cache_locations.json").write_text(json.dumps(
-        {"SPACR_BACKENDS_DIR": str(backends), "HF_HOME": str(shared)}))
+        {"SPACR_BACKENDS_DIR": str(backends), "HF_HOME": str(shared)}), encoding="utf-8")
     targets = ic._purge_targets(_machine(home))
     names = {os.path.relpath(p, tmp_path) for p in targets}
     assert names == {"home/.spacr", "home/.cache/spacr", "home/.config/spacr",

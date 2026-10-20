@@ -40,7 +40,7 @@ def _no_cache():
 
 def _serve(tmp_path, payload):
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps(payload))
+    path.write_text(json.dumps(payload), encoding="utf-8")
     return path.as_uri()
 
 

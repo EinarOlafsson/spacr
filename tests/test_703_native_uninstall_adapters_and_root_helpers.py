@@ -306,7 +306,7 @@ def test_the_descriptor_walk_refuses_special_files_and_non_directories(tmp_path)
     with pytest.raises(ValueError, match="pipe"):
         ic._macos_uninstall_tree(str(root), ic._identity(str(root)), [], owner=os.getuid())
     single = tmp_path / "single-file"
-    single.write_text("x")
+    single.write_text("x", encoding="utf-8")
     with pytest.raises(ValueError, match="installation changed"):
         ic._macos_uninstall_tree(str(single), ic._identity(str(single)), [], owner=os.getuid())
 
@@ -315,7 +315,7 @@ def _plain_tree(tmp_path):
     root = tmp_path / "spaCR.app"
     payload = root / "Contents" / "payload"
     payload.parent.mkdir(parents=True)
-    payload.write_text("software")
+    payload.write_text("software", encoding="utf-8")
     for path in (root, root / "Contents"):
         path.chmod(0o755)
     return root, payload
@@ -522,7 +522,7 @@ def _approved(installation, tmp_path, native=None):
     path = tmp_path / "outside-helper" / "plan.json"
     if native is not None:
         plan["native"] = native
-        path.write_text(json.dumps(plan))
+        path.write_text(json.dumps(plan), encoding="utf-8")
     handshake = ic._FrozenUpdateHandshake(plan)
     handshake.ready()
     handshake.approve()
@@ -543,7 +543,7 @@ def test_a_native_choice_that_changed_since_review_stops_the_plan(installation, 
 def _native_plan(installation, tmp_path, monkeypatch, remaining_change=None, delete_fails=False):
     leftover = tmp_path / "Desktop" / "spaCR.desktop"
     leftover.parent.mkdir(parents=True)
-    leftover.write_text("[Desktop Entry]")
+    leftover.write_text("[Desktop Entry]", encoding="utf-8")
     _box, root, _machine, _plan, _path = _prepared_helper(installation, tmp_path)
     native = {"adapter": "linux-deb-native", "roots": [str(root)],
               "remaining": [{"path": str(leftover),

@@ -51,7 +51,7 @@ def _settings_csv(path, mapping) -> None:
     """Write a ``Key,Value`` settings CSV the way ``save_settings`` does."""
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = ["Key,Value"] + [f"{k},{v}" for k, v in mapping.items()]
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 class _Run:
@@ -101,7 +101,7 @@ def test_a_settings_file_with_nothing_in_it_is_not_the_provenance(tmp_path):
     model = tmp_path / "toxo.CP_model"
     _checkpoint(model)
     header_only = tmp_path / "toxo.CP_model_settings.csv"
-    header_only.write_text("Key,Value\n")
+    header_only.write_text("Key,Value\n", encoding="utf-8")
     _settings_csv(tmp_path / "toxo_settings.csv",
                   {"img_src": "/data/plaques/train", "n_epochs": 25,
                    "user": "ada"})
@@ -255,7 +255,7 @@ def test_a_catalogue_file_that_repeats_an_entry_does_not_repeat_the_row(
     other = {"key": "mirror_nuc", "name": "mirror_nuc.CP_model",
              "uri": "https://mirror.example/nuc", "sha256": "d" * 64}
     path = tmp_path / "catalogue.json"
-    path.write_text(json.dumps([record, dict(record), other]))
+    path.write_text(json.dumps([record, dict(record), other]), encoding="utf-8")
 
     assert len(mz.load_catalogue_file(path)) == 3
     names = [e.name for e in mz.catalogue(include_bundled=False, remote=True,
@@ -372,7 +372,7 @@ def test_a_stock_model_named_rather_than_downloaded_is_not_opened_as_a_file(
     # Give the same model a path, and the file is checked before anything
     # loads it.
     not_a_checkpoint = tmp_path / "cyto2.CP_model"
-    not_a_checkpoint.write_text("<html>404</html>")
+    not_a_checkpoint.write_text("<html>404</html>", encoding="utf-8")
     with pytest.raises(mz.ModelUnreadable, match="cyto2.CP_model"):
         mz.benchmark(replace(named, path=str(not_a_checkpoint)),
                      images=[_a_field()], field_names=["f1"],

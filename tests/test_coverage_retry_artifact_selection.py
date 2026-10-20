@@ -111,7 +111,7 @@ def test_selector_refuses_missing_or_foreign_measurements(tmp_path, damage, mess
         identity = artifacts[2] / "spacr-coverage-source.shard-02.json"
         value = json.loads(identity.read_text(encoding="utf-8"))
         value["head_sha"] = "b" * 40
-        identity.write_text(json.dumps(value))
+        identity.write_text(json.dumps(value), encoding="utf-8")
     elif damage == "wrong_run":
         _artifact(source, 2, 2, run_id=RUN_ID + 1)
     elif damage == "future":

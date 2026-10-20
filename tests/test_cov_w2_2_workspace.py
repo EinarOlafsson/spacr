@@ -241,7 +241,7 @@ def test_only_strings_that_look_like_paths_are_stat_ed(tmp_path):
     list, which is the whole plot.
     """
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\n")
+    table.write_text("gene,coef\n", encoding="utf-8")
 
     records = inventory({"volcano": {
         "genes": ["TP53", "BRCA1", "ROCK1"],
@@ -348,7 +348,7 @@ def test_a_copy_that_fails_is_recorded_rather_than_raised(tmp_path):
 
 def test_a_document_that_is_not_json_reads_as_absent(tmp_path, caplog):
     """A truncated write is a warning and a None, not an exception."""
-    (tmp_path / DOC_NAME).write_text("{ truncated")
+    (tmp_path / DOC_NAME).write_text("{ truncated", encoding="utf-8")
     with caplog.at_level("WARNING"):
         assert load(tmp_path) is None
     assert DOC_NAME in caplog.text
@@ -357,7 +357,7 @@ def test_a_document_that_is_not_json_reads_as_absent(tmp_path, caplog):
 def test_a_document_holding_something_other_than_an_object_is_refused(
         tmp_path):
     """Valid JSON that is not a document is still not a document."""
-    (tmp_path / DOC_NAME).write_text("[1, 2, 3]")
+    (tmp_path / DOC_NAME).write_text("[1, 2, 3]", encoding="utf-8")
     assert load(tmp_path) is None
 
 
@@ -384,7 +384,7 @@ def test_a_document_can_be_named_directly_or_by_its_folder(tmp_path):
     assert by_folder == by_file
     # a sibling file in the same folder resolves to the document too
     sibling = tmp_path / "settings.csv"
-    sibling.write_text("a,b\n")
+    sibling.write_text("a,b\n", encoding="utf-8")
     assert load(sibling) == by_folder
 
 
@@ -395,12 +395,12 @@ def test_a_document_can_be_named_directly_or_by_its_folder(tmp_path):
 def test_a_file_that_changed_since_the_save_says_so(tmp_path):
     """Same path, different bytes, is `changed` -- not `present`."""
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\nTP53,1.0\n")
+    table.write_text("gene,coef\nTP53,1.0\n", encoding="utf-8")
     doc = collect({"volcano": {"table": str(table)}}, saved="t")
 
     assert [e["state"] for e in check_files(doc)] == ["present"]
 
-    table.write_text("gene,coef\nTP53,9.9\n")
+    table.write_text("gene,coef\nTP53,9.9\n", encoding="utf-8")
     assert [e["state"] for e in check_files(doc)] == ["changed"]
 
 
@@ -807,7 +807,7 @@ def test_reference_mode_records_a_file_without_carrying_its_bytes(tmp_path):
     would be a surprise; `copy` is the mode that says to do that.
     """
     table = tmp_path / "coeffs.csv"
-    table.write_text("gene,coef\nTP53,1.0\n")
+    table.write_text("gene,coef\nTP53,1.0\n", encoding="utf-8")
     run = tmp_path / "run"
 
     doc = collect({"volcano": {"table": str(table)}}, saved="t")

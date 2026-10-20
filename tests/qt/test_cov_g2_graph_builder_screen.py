@@ -79,7 +79,7 @@ def test_export_reports_success_and_failure(screen, monkeypatch, tmp_path):
 
 def test_exporting_over_the_source_is_refused(screen, tmp_path):
     source = tmp_path / "table.csv"
-    source.write_text("a\n1\n")
+    source.write_text("a\n1\n", encoding="utf-8")
     screen._frame = pd.DataFrame({"a": [1]})
     screen._condition_source = {"path": str(source), "table": None}
     with pytest.raises(ValueError, match="new export path"):
@@ -106,14 +106,14 @@ def test_chart_file_dialogs_report_their_failures(screen, monkeypatch, tmp_path)
                         staticmethod(lambda *a, **k: (chosen, "")))
     screen.choose_save_chart()
     assert "Could not save chart" in screen._source.text()
-    (tmp_path / "chart.json").write_text("{not json")
+    (tmp_path / "chart.json").write_text("{not json", encoding="utf-8")
     screen.choose_load_chart()
     assert "Could not load chart" in screen._source.text()
 
 
 def test_a_chart_is_not_saved_over_its_source(screen, tmp_path):
     source = tmp_path / "table.csv"
-    source.write_text("a\n1\n")
+    source.write_text("a\n1\n", encoding="utf-8")
     screen._condition_source = {"path": str(source), "table": None}
     with pytest.raises(ValueError, match="new chart path"):
         screen.save_chart(source)

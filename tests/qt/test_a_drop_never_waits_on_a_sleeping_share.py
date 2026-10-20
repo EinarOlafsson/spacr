@@ -303,7 +303,7 @@ def test_a_disk_that_answers_is_decided_exactly_as_before(tmp_path):
     _mkimg(with_images / "plate1_A01_T0001F001L01A01Z01C01.tif")
     empty = tmp_path / "notes"
     empty.mkdir()
-    (empty / "readme.txt").write_text("hi")
+    (empty / "readme.txt").write_text("hi", encoding="utf-8")
 
     mask = MaskDropHandler()
     assert mask.can_accept(with_images) is True

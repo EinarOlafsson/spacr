@@ -24,7 +24,7 @@ def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
 
 
 def test_checkpoint_records_match_actual_committed_files():
-    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text())
+    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text(encoding="utf-8"))
     assert checkpoint['manifest_sha256'] == digest(ROOT / 'release-manifest.json')
     assert checkpoint['browser_checks_complete'] is True
     records = checkpoint['files']
@@ -36,7 +36,7 @@ def test_checkpoint_records_match_actual_committed_files():
 
 
 def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
-    english = json.loads((ROOT / 'web/catalog/lessons_en.json').read_text())
+    english = json.loads((ROOT / 'web/catalog/lessons_en.json').read_text(encoding="utf-8"))
     lessons = english['lessons']
     unavailable = [x for x in lessons if x.get('status') == 'coming_soon']
     ready = [x for x in lessons if x.get('status') != 'coming_soon']
@@ -52,7 +52,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     assert embeddings['app_key'] == 'embeddings'
     assert len(embeddings['scenes']) == 9
     nav = build(english)
-    manifest = json.loads((ROOT / 'release-manifest.json').read_text())
+    manifest = json.loads((ROOT / 'release-manifest.json').read_text(encoding="utf-8"))
     assert nav['missing_tutorials'] == manifest['outstanding_module_tutorials']
     assert nav['missing_tutorials'] == []
     # Alpha modules are excluded by name, never by weakening the check above:
@@ -62,7 +62,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     assert set(nav['alpha_modules_without_tutorials']) <= alpha_apps
     assert not {x.get('app_key') for x in lessons} & set(nav['alpha_modules_without_tutorials'])
     assert nav['routes']['76_ops']['host_app_key'] == 'mask'
-    navigation_text = (ROOT / 'web/module_navigation.js').read_text()
+    navigation_text = (ROOT / 'web/module_navigation.js').read_text(encoding="utf-8")
     assert navigation_text.startswith(NAV_PREFIX) and navigation_text.endswith(JS_SUFFIX)
     published_nav = json.loads(navigation_text[len(NAV_PREFIX):-len(JS_SUFFIX)])
     assert published_nav['routes'] == nav['routes']
@@ -79,7 +79,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     expected = [(x['id'], x.get('app_key'), x.get('host_app_key'), x.get('status'), len(x['scenes'])) for x in lessons]
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
-        localized = json.loads((ROOT / 'web/catalog' / filename).read_text())['lessons']
+        localized = json.loads((ROOT / 'web/catalog' / filename).read_text(encoding="utf-8"))['lessons']
         assert [(x['id'], x.get('app_key'), x.get('host_app_key'), x.get('status'), len(x['scenes'])) for x in localized] == expected
         for lesson in localized:
             if lesson['id'] in REMAINING_HOLDS:
@@ -87,7 +87,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] == []
             else:
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
-    manifest = json.loads((ROOT / 'release-manifest.json').read_text())
+    manifest = json.loads((ROOT / 'release-manifest.json').read_text(encoding="utf-8"))
     assert manifest['published'] is False and manifest['release_hold'] is True
     declared_tracks = [(lesson['id'], language, voice) for lesson in ready
                        for language, voices in lesson['narration_voices'].items() for voice in voices]
@@ -123,9 +123,9 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     orphan that evidence. The lift lives in checkpoint.json and the receipt,
     and it may only name a commit whose every media byte was read back.
     """
-    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text())
-    receipt = json.loads((ROOT / 'publication-receipt.json').read_text())
-    published = json.loads((ROOT / 'published-media-browser-checks.json').read_text())
+    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text(encoding="utf-8"))
+    receipt = json.loads((ROOT / 'publication-receipt.json').read_text(encoding="utf-8"))
+    published = json.loads((ROOT / 'published-media-browser-checks.json').read_text(encoding="utf-8"))
     manifest_sha = digest(ROOT / 'release-manifest.json')
     assert checkpoint['release_hold'] is False and checkpoint['media_uploaded'] is True
     assert checkpoint['media_revision']['commit'] == receipt['commit']

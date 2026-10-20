@@ -29,7 +29,7 @@ def _import(tmp_path, locale, rows, reviewer="codex"):
     work.write_text(json.dumps([
         {"domain": "page", "msgid": source, "msgstr": target}
         for source, target in rows
-    ]))
+    ]), encoding="utf-8")
     return guide.import_worklist("sv", work, locale_dir=locale, reviewer=reviewer)
 
 
@@ -88,7 +88,7 @@ def test_unknown_reviewer_and_false_header_do_not_pass(tmp_path):
     with pytest.raises(ValueError, match="Unsupported guide reviewer"):
         _import(tmp_path, locale, [("New paragraph.", "Nytt stycke.")], "native-speaker")
     assert path.read_bytes() == original
-    path.write_text(path.read_text(encoding="utf-8").replace(guide.REVIEW_KIND, "Human approved"))
+    path.write_text(path.read_text(encoding="utf-8").replace(guide.REVIEW_KIND, "Human approved"), encoding="utf-8")
     assert guide.audit(pot, ["sv"], locale)["languages"]["sv"]["label_missing"] == ["page"]
     with pytest.raises(ValueError, match="Unsupported guide review label"):
         _import(tmp_path, locale, [("New paragraph.", "Nytt stycke.")])

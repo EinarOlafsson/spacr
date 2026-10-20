@@ -50,7 +50,7 @@ class _Screen:
 
 def _touch(path: Path, text: str = "x") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return path
 
 

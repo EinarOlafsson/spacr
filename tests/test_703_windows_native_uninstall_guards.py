@@ -50,7 +50,7 @@ def test_the_native_adapter_binds_the_reviewed_root_menu_and_remaining_shortcuts
     root, request, _project, kept, shortcut = protected_windows
     desktop_link = tmp_path / "Desktop" / "spaCR.lnk"
     desktop_link.parent.mkdir()
-    desktop_link.write_text(str(root))
+    desktop_link.write_text(str(root), encoding="utf-8")
     preview = {"cleanup": [{"path": str(kept)}, {"path": "registry:Software\\spacr\\qt"},
                            {"path": str(tmp_path / "elsewhere")}]}
     adapter = ic._windows_native_uninstall_adapter(
@@ -78,7 +78,7 @@ def test_the_native_adapter_refuses_a_marker_it_does_not_know(protected_windows,
     root, _request, *_ = protected_windows
     path = root / "_internal" / "spacr-uninstall-protocol.json"
     path.write_text(" " * 1100 if marker == "oversized"
-                    else json.dumps({"schema": 1, "adapter": "windows-frozen-uninstall-v2"}))
+                    else json.dumps({"schema": 1, "adapter": "windows-frozen-uninstall-v2"}), encoding="utf-8")
     with pytest.raises(ValueError, match="invalid_windows_uninstall_protocol"):
         ic._windows_native_uninstall_adapter({"cleanup": []}, [_record(root)], _machine(tmp_path))
 
@@ -324,7 +324,7 @@ def frozen_windows_helper(protected_windows, tmp_path, monkeypatch):
     staged.parent.mkdir()
     staged.write_bytes((root / "_internal/spacr-update-helper.exe").read_bytes())
     request_path = tmp_path / "private-request.json"
-    request_path.write_text(json.dumps(request))
+    request_path.write_text(json.dumps(request), encoding="utf-8")
     desktop = str(root / "spacr.exe")
     monkeypatch.setattr(ic, "_windows_process_elevated", lambda: True)
     monkeypatch.setattr(ic.sys, "frozen", True, raising=False)
@@ -376,7 +376,7 @@ def test_the_outside_root_helper_refuses_before_touching_any_file(
     elif problem == "other-desktop":
         desktop = str(helper.root / "other.exe")
     elif problem == "oversized-request":
-        helper.request_path.write_text(" " * 70000)
+        helper.request_path.write_text(" " * 70000, encoding="utf-8")
     elif problem == "helper-inside":
         monkeypatch.setattr(ic.sys, "executable", str(helper.root / "_internal" / "h.exe"))
     else:
@@ -405,7 +405,7 @@ def test_the_helper_keeps_opted_out_folders_and_reports_a_folder_it_cannot_remov
     helper = frozen_windows_helper
     keep_dir = helper.root / "_internal" / "spacr-1.5.0.7.dist-info"
     helper.request["targets"][0]["keep"].append(str(keep_dir))
-    helper.request_path.write_text(json.dumps(helper.request))
+    helper.request_path.write_text(json.dumps(helper.request), encoding="utf-8")
     real_rmdir = os.rmdir
     attempted = []
 

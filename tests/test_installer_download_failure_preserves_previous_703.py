@@ -144,7 +144,7 @@ def test_checksum_outage_stops_real_plan_before_install_retirement_or_relaunch(t
             'fetch': {'url': URL, 'path': str(target)}, 'install': ['never execute'],
             'relaunch': ['never reopen'], 'log': None}
     path = tmp_path / 'plan.json'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     def forbidden(*args, **kwargs):
         pytest.fail('No installer/retirement/relaunch after checksum transport failure')
     machine = cleanup._Machine(platform='linux', fs_root=str(tmp_path), environ={'HOME': str(tmp_path / 'home')})

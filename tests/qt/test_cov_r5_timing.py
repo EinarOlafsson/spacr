@@ -150,7 +150,7 @@ def _page():
 def _slow_module(tmp_path, name="a_deliberately_slow_probe"):
     """A real source file and loader whose execution clears the floor."""
     path = tmp_path / f"{name}.py"
-    path.write_text("import time\ntime.sleep(0.02)\nVALUE = 1\n")
+    path.write_text("import time\ntime.sleep(0.02)\nVALUE = 1\n", encoding="utf-8")
     loader = importlib.machinery.SourceFileLoader(name, str(path))
     module = ModuleType(name)
     module.__file__ = str(path)

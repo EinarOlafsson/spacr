@@ -108,7 +108,7 @@ def main():
             app.processEvents()
         if set(frames) != {name for name, _ in SCENES}:
             raise RuntimeError('The recording did not capture every required scene')
-        (stage / 'frames.json').write_text(json.dumps(frames, indent=2) + '\n')
+        (stage / 'frames.json').write_text(json.dumps(frames, indent=2) + '\n', encoding="utf-8")
         (stage / 'provenance.json').write_text(json.dumps({
             'completed_capture': True, 'published': False,
             'platform': args.platform, 'settings': 'temporary isolated Qt configuration',
@@ -120,7 +120,7 @@ def main():
             'existing_scene_consumers': ['05_home', '04_platform_installers'],
             'existing_scene': '09_performance',
             'scope': 'Current Preferences captures and review clip; existing full lessons/audio unchanged',
-        }, indent=2) + '\n')
+        }, indent=2) + '\n', encoding="utf-8")
 
     # Relative filenames keep ffmpeg's concat parser independent of stage names.
     lines = []
@@ -129,8 +129,8 @@ def main():
         lines.extend([f"file '{name}.png'", 'duration 6'])
         captions.extend([f'00:00:{index*6:02d}.000 --> 00:00:{(index+1)*6:02d}.000', caption, ''])
     lines.append(f"file '{SCENES[-1][0]}.png'")
-    (stage / 'frames.concat').write_text('\n'.join(lines) + '\n')
-    (stage / 'preferences_appearance.vtt').write_text('\n'.join(captions))
+    (stage / 'frames.concat').write_text('\n'.join(lines) + '\n', encoding="utf-8")
+    (stage / 'preferences_appearance.vtt').write_text('\n'.join(captions), encoding="utf-8")
     subprocess.run([
         'ffmpeg', '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
         '-filter_threads', '2', '-f', 'concat', '-safe', '1', '-i', 'frames.concat',
@@ -145,7 +145,7 @@ def main():
         '<video controls><source src="preferences_appearance.mp4" type="video/mp4">'
         '<track default kind="captions" srclang="en" label="English" '
         'src="preferences_appearance.vtt"></video>'
-        '<p>Preferences: Performance, Appearance, Theme, and Animation.</p>')
+        '<p>Preferences: Performance, Appearance, Theme, and Animation.</p>', encoding="utf-8")
     print(f'Captured four current Preferences scenes and a 24-second review clip in {stage}')
     return 0
 

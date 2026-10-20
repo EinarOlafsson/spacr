@@ -104,14 +104,14 @@ def test_a_missing_or_broken_map_leaves_the_cover_plain(tmp_path, host,
                                                         monkeypatch):
     assert ls.MosaicMap.load(str(tmp_path)) is None
     (tmp_path / "photomosaic.json").write_text(json.dumps(
-        {"grid": 2, "tile_px": 1, "image": "gone.jpg", "occupied": "c0"}))
+        {"grid": 2, "tile_px": 1, "image": "gone.jpg", "occupied": "c0"}), encoding="utf-8")
     assert ls.MosaicMap.load(str(tmp_path)) is None
     (tmp_path / "gone.jpg").write_bytes(b"")
     assert ls.MosaicMap.load(str(tmp_path)) is not None
     (tmp_path / "photomosaic.json").write_text(json.dumps(
-        {"grid": 9, "tile_px": 1, "image": "gone.jpg", "occupied": "c0"}))
+        {"grid": 9, "tile_px": 1, "image": "gone.jpg", "occupied": "c0"}), encoding="utf-8")
     assert ls.MosaicMap.load(str(tmp_path)) is None
-    (tmp_path / "photomosaic.json").write_text("{not json")
+    (tmp_path / "photomosaic.json").write_text("{not json", encoding="utf-8")
     assert ls.MosaicMap.load(str(tmp_path)) is None
 
     monkeypatch.setattr(ls.MosaicMap, "load", classmethod(lambda cls: None))

@@ -108,7 +108,7 @@ def pytest_runtest_makereport(item, call):
     directory = Path(item.config.rootpath) / ".translation-reports"
     directory.mkdir(exist_ok=True)
     name = hashlib.sha256(item.nodeid.encode()).hexdigest() + f"-{os.getpid()}.json"
-    (directory / name).write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    (directory / name).write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     report.outcome = "skipped"
     report.wasxfail = "translation incompatibility registered in .translation-reports (report-only)"
 

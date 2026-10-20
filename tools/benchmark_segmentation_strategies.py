@@ -358,7 +358,7 @@ def resolve_models(out: Path, wanted: List[str],
     from spacr import model_zoo as zoo
 
     cache_path = out / "model_hashes.json"
-    cache = json.loads(cache_path.read_text()) if cache_path.is_file() else {}
+    cache = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.is_file() else {}
     resolved: Dict[str, Dict[str, str]] = {}
     remote = {e["key"]: e for e in zoo.BUNDLED_REMOTE_MODELS}
     for name in wanted:
@@ -375,9 +375,9 @@ def resolve_models(out: Path, wanted: List[str],
                                   zoo_key=entry["key"], source="local, zoo sha256")
         elif name in BIOIMAGEIO_KEYS:
             payload = json.loads(
-                (Path.home() / ".spacr/bioimageio_children.json").read_text())
+                (Path.home() / ".spacr/bioimageio_children.json").read_text(encoding="utf-8"))
             sizes = json.loads(
-                (Path.home() / ".spacr/bioimageio_weight_sizes.json").read_text())
+                (Path.home() / ".spacr/bioimageio_weight_sizes.json").read_text(encoding="utf-8"))
             rows = {r.key: r for r in zoo._bioimageio_rows(payload, sizes)}
             row = rows[BIOIMAGEIO_KEYS[name]]
             dest = out.parent / "models"
@@ -401,7 +401,7 @@ def resolve_models(out: Path, wanted: List[str],
             resolved[name] = dict(path=str(found), sha256=row.sha256,
                                   zoo_key=row.key, source=source)
     out.mkdir(parents=True, exist_ok=True)
-    cache_path.write_text(json.dumps(cache, indent=1))
+    cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
     return resolved
 
 
@@ -438,7 +438,7 @@ def stage_and_preprocess(item: Field, chain: str, root: Path) -> Dict[str, objec
     plate = root / "prep" / chain / item.dataset / item.stem
     done = plate / "prep.json"
     if done.is_file():
-        return json.loads(done.read_text())
+        return json.loads(done.read_text(encoding="utf-8"))
     if plate.exists():
         shutil.rmtree(plate)
     plate.mkdir(parents=True)
@@ -461,8 +461,8 @@ def stage_and_preprocess(item: Field, chain: str, root: Path) -> Dict[str, objec
                   npz_shape=shape, prep_s=round(seconds, 3))
     psf_record = plate / "psf" / "segmentation_application.json"
     if psf_record.is_file():
-        record["psf"] = json.loads(psf_record.read_text())
-    done.write_text(json.dumps(record, indent=1))
+        record["psf"] = json.loads(psf_record.read_text(encoding="utf-8"))
+    done.write_text(json.dumps(record, indent=1), encoding="utf-8")
     return record
 
 
@@ -646,7 +646,7 @@ def best_general(results_dir: Path, dataset: str) -> Optional[str]:
     best, best_f1 = None, -1.0
     general = {s.key for s in BASE_MODELS if s.family == "general"}
     for path in results_dir.glob(f"{dataset}__*.json"):
-        result = json.loads(path.read_text())
+        result = json.loads(path.read_text(encoding="utf-8"))
         key = result["strategy"]["key"]
         if key in general and result.get("pooled"):
             if result["pooled"]["f1_50"] > best_f1:
@@ -691,7 +691,7 @@ def fmt(value, digits=3):
 
 def report(out: Path) -> str:
     """Text tables of every result under ``out``."""
-    results = [json.loads(p.read_text()) for p in sorted((out / "results").glob("*.json"))]
+    results = [json.loads(p.read_text(encoding="utf-8")) for p in sorted((out / "results").glob("*.json"))]
     lines: List[str] = []
     for dataset in sorted({r["dataset"] for r in results}):
         chosen = [r for r in results if r["dataset"] == dataset]
@@ -781,7 +781,7 @@ def main(argv=None) -> int:
     if args.fields:
         keep = set(args.fields.split(","))
         fields = [f for f in fields if f.stem in keep]
-    (out / "fields.json").write_text(json.dumps([asdict(f) for f in fields], indent=1))
+    (out / "fields.json").write_text(json.dumps([asdict(f) for f in fields], indent=1), encoding="utf-8")
     print(f"{len(fields)} fields: "
           + ", ".join(f"{d} {sum(f.dataset == d for f in fields)}" for d in datasets),
           flush=True)
@@ -796,7 +796,7 @@ def main(argv=None) -> int:
     wanted = {s.model.split("@", 1)[1] for s, _ in jobs if "@" in s.model}
     models = resolve_models(out, sorted(wanted),
                             allow_fetch=not args.no_fetch)
-    (out / "models.json").write_text(json.dumps(models, indent=1))
+    (out / "models.json").write_text(json.dumps(models, indent=1), encoding="utf-8")
 
     def execute(strategy: Strategy, dataset: str) -> None:
         target = results_dir / f"{dataset}__{strategy.key}.json"
@@ -812,7 +812,7 @@ def main(argv=None) -> int:
         result = run_strategy(strategy, fields, dataset, out, models, args.device)
         result["wall_s"] = round(time.perf_counter() - start, 1)
         result["machine"] = machine()
-        target.write_text(json.dumps(result, indent=1))
+        target.write_text(json.dumps(result, indent=1), encoding="utf-8")
         p = result["pooled"] or {}
         print(f"done {dataset} {strategy.key}: F1@.5 {p.get('f1_50')} "
               f"F1@.75 {p.get('f1_75')} in {result['wall_s']} s", flush=True)
@@ -836,10 +836,10 @@ def main(argv=None) -> int:
                         execute(strategy, dataset)
 
     if args.receipt:
-        results = [json.loads(p.read_text()) for p in sorted(results_dir.glob("*.json"))]
+        results = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(results_dir.glob("*.json"))]
         args.receipt.write_text(json.dumps(dict(fields=[asdict(f) for f in fields],
                                                 models=models, results=results),
-                                           indent=1))
+                                           indent=1), encoding="utf-8")
     print(report(out))
     return 0
 

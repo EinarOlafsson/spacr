@@ -58,7 +58,7 @@ def test_legacy_done_ledger_retains_size_mtime_policy(tmp_path, capsys, changed)
     for entry in ledger['fields'].values():
         entry.pop('source_identity')
         entry.pop('snapshot_sha256')
-    ledger_path.write_text(json.dumps(ledger))
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
     before = ledger['fields']
     capsys.readouterr()
     if changed:

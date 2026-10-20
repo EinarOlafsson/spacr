@@ -116,7 +116,7 @@ def main():
                         default=ROOT / 'tools/tutorials/lessons/reviews')
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
-    bank = json.loads(args.bank.read_text())
+    bank = json.loads(args.bank.read_text(encoding="utf-8"))
     data = workflow.load()
     workflow.validate(data)
     digest = hashlib.sha256((ROOT / workflow.MAP_PATH).read_bytes()).hexdigest()
@@ -124,13 +124,13 @@ def main():
         path = args.output_dir / f"{lesson}.{bank['language']}.json"
         content = json.dumps(review, ensure_ascii=False, indent=2) + '\n'
         if args.check:
-            if path.read_text() != content:
+            if path.read_text(encoding="utf-8") != content:
                 raise ValueError(f'Generated translation review differs: {path}')
         else:
             if path.exists():
                 raise FileExistsError(f'Refusing to replace an existing review: {path}')
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(content)
+            path.write_text(content, encoding="utf-8")
         print(f"{lesson}/{bank['language']}: {len(review['scenes'])} source-bound scenes")
 
 

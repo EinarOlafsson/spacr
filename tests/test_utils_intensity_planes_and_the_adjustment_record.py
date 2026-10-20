@@ -64,7 +64,7 @@ def test_a_folder_cannot_be_fingerprinted(tmp_path):
 
 
 def test_a_record_that_is_not_a_mapping_means_adjust_everything(tmp_path):
-    (tmp_path / utils.ADJUSTED_CELLS_LEDGER).write_text(json.dumps(["f0"]))
+    (tmp_path / utils.ADJUSTED_CELLS_LEDGER).write_text(json.dumps(["f0"]), encoding="utf-8")
     assert utils._read_adjusted_cells(str(tmp_path)) == {}
 
 

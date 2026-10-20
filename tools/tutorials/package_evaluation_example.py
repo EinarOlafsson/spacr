@@ -138,12 +138,12 @@ def prepare_capture(source, archive, runs):
             target = root / 'evaluation' / key
             target.parent.mkdir(exist_ok=True)
             target.write_bytes(z.read(ROOT + '/' + key))
-    proof = json.loads((source / 'preparation.json').read_text())
+    proof = json.loads((source / 'preparation.json').read_text(encoding="utf-8"))
     proof.update(root=str(root), manifest=str(root / 'evaluation/evaluation_manifest.json'),
                  archive=str(Path(archive).resolve()), archive_sha256=hashlib.sha256(Path(archive).read_bytes()).hexdigest(),
                  portable_inspection_only=True, crops_included=False,
                  source_preparation=str(source / 'preparation.json'))
-    (root / 'preparation.json').write_text(json.dumps(proof, indent=2) + '\n')
+    (root / 'preparation.json').write_text(json.dumps(proof, indent=2) + '\n', encoding="utf-8")
     return root
 
 

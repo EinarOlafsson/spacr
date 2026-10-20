@@ -24,7 +24,7 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
         'accepted': False, 'reason': 'The actual tile stitch is not yet checked', 'published': False,
     })
     authoring = stage.parent
-    manifest = json.loads((authoring / 'derived/align_stitch/source_manifest.json').read_text())
+    manifest = json.loads((authoring / 'derived/align_stitch/source_manifest.json').read_text(encoding="utf-8"))
     source_path = authoring.parent / 'test_datasets/spacr/tutorials/orig/test/stack/test_E11_2_1.npy'
     source = np.load(source_path, mmap_mode='r')
     if source.shape != (2000, 2000, 4) or source.dtype != np.uint16:

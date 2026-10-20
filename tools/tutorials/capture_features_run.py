@@ -20,7 +20,7 @@ def record_features_run(app, features, captures, capture, settle, write_json, ti
     from PySide6.QtWidgets import QCheckBox, QDialogButtonBox, QFileDialog, QLineEdit, QSpinBox
     from spacr.qt.widgets.collapsible_section import CollapsibleSection
 
-    inputs = json.loads((captures / 'inputs.json').read_text())
+    inputs = json.loads((captures / 'inputs.json').read_text(encoding="utf-8"))
     stage = captures.parent.parent
     table = features.inputs
 

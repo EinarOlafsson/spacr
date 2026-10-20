@@ -25,7 +25,7 @@ def captures(tmp_path):
     gui, browser, output = [root / name for name in ('gui', 'browser', 'report_composed')]
     gui.mkdir(); browser.mkdir()
     html = tmp_path / 'fixture.html'
-    html.write_text('Fixture only; never loaded into a browser.')
+    html.write_text('Fixture only; never loaded into a browser.', encoding="utf-8")
     provenance = {'completed_capture': True, 'module': 'report', 'commit': 'a' * 40, 'version': 'fixture'}
     report = {'accepted': True, 'lesson': '29_report', 'original_preserved': True,
               'private_material_files_unchanged': True, 'output': str(html),
@@ -70,7 +70,7 @@ def test_positive_composition_writes_only_three_manifests_and_preserves_sources(
     result = compose.compose_report_capture(gui, browser, output)
     assert result['total_frames'] == 2
     assert sorted(path.name for path in output.iterdir()) == ['frames.json', 'provenance.json', 'scientific_acceptance.json']
-    frames = json.loads((output / 'frames.json').read_text())
+    frames = json.loads((output / 'frames.json').read_text(encoding="utf-8"))
     assert list(frames) == ['01_controls', 'browser_01_report_top']
     assert frames['01_controls']['image'] == '../gui/01_controls.png'
     assert frames['01_controls']['buttons'][0]['rect'] == [1, 2, 30, 40]
@@ -80,8 +80,8 @@ def test_positive_composition_writes_only_three_manifests_and_preserves_sources(
         assert compose._sha(output / frame['image']) == frame['sha256']
         with Image.open(output / frame['image']) as image:
             assert image.size == (3840, 2160)
-    provenance = json.loads((output / 'provenance.json').read_text())
-    acceptance = json.loads((output / 'scientific_acceptance.json').read_text())
+    provenance = json.loads((output / 'provenance.json').read_text(encoding="utf-8"))
+    acceptance = json.loads((output / 'scientific_acceptance.json').read_text(encoding="utf-8"))
     assert provenance['completed_capture'] is True
     assert provenance['commit'] == 'a' * 40
     assert acceptance['accepted'] is True and acceptance['composition_verified'] is True
@@ -98,11 +98,11 @@ def test_positive_composition_writes_only_three_manifests_and_preserves_sources(
     'overflow', 'human_publish', 'missing_version'])
 def test_rejects_broken_binding_or_acceptance_without_creating_destination(captures, change):
     gui, browser, output = captures
-    p = json.loads((gui / 'provenance.json').read_text())
-    a = json.loads((gui / 'scientific_acceptance.json').read_text())
-    g = json.loads((gui / 'frames.json').read_text())
-    r = json.loads((browser / 'browser_review.json').read_text())
-    f = json.loads((browser / 'frames.json').read_text())
+    p = json.loads((gui / 'provenance.json').read_text(encoding="utf-8"))
+    a = json.loads((gui / 'scientific_acceptance.json').read_text(encoding="utf-8"))
+    g = json.loads((gui / 'frames.json').read_text(encoding="utf-8"))
+    r = json.loads((browser / 'browser_review.json').read_text(encoding="utf-8"))
+    f = json.loads((browser / 'frames.json').read_text(encoding="utf-8"))
     if change == 'gui_incomplete': p['completed_capture'] = False
     elif change == 'gui_unaccepted': a['accepted'] = False
     elif change == 'gui_report_disagreement': a['source'] += '_wrong'
@@ -111,7 +111,7 @@ def test_rejects_broken_binding_or_acceptance_without_creating_destination(captu
     elif change == 'receipt_path': r['receipt'] = str(gui / 'other.json')
     elif change == 'html_sha': r['html_sha256'] = 'c' * 64
     elif change == 'html_path': r['html'] += '_wrong'
-    elif change == 'html_bytes': Path(r['html']).write_text('Changed fixture')
+    elif change == 'html_bytes': Path(r['html']).write_text('Changed fixture', encoding="utf-8")
     elif change == 'source_path': r['source'] += '_wrong'
     elif change == 'browser_manifest_sha': r['frames_manifest_sha256'] = 'c' * 64
     elif change == 'browser_inventory': r['frames'] = []
@@ -142,16 +142,16 @@ def test_rejects_broken_binding_or_acceptance_without_creating_destination(captu
 
 def test_existing_destination_is_never_overwritten(captures):
     gui, browser, output = captures
-    output.mkdir(); (output / 'keep').write_text('user content')
+    output.mkdir(); (output / 'keep').write_text('user content', encoding="utf-8")
     with pytest.raises(ValueError, match='new sibling'):
         compose.compose_report_capture(gui, browser, output)
-    assert (output / 'keep').read_text() == 'user content'
+    assert (output / 'keep').read_text(encoding="utf-8") == 'user content'
     assert list(output.iterdir()) == [output / 'keep']
 
 
 def test_frame_cannot_escape_its_source_capture(captures):
     gui, browser, output = captures
-    g = json.loads((gui / 'frames.json').read_text())
+    g = json.loads((gui / 'frames.json').read_text(encoding="utf-8"))
     g['01_controls']['image'] = '../browser/01_report_top.png'
     g['01_controls']['sha256'] = compose._sha(browser / '01_report_top.png')
     write(gui / 'frames.json', g)

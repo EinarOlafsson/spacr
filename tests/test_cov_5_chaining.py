@@ -59,7 +59,7 @@ def test_a_pin_that_cannot_be_written_still_holds_for_this_session(tmp_path):
     under them while they were still looking at it.
     """
     blocker = tmp_path / "not-a-directory"
-    blocker.write_text("this is a file, not a folder")
+    blocker.write_text("this is a file, not a folder", encoding="utf-8")
     store = chaining.PinStore(str(blocker / "pins.json"))
 
     store.pin("measure", "src", "/data/plate1/merged")
@@ -242,14 +242,14 @@ def test_the_result_tables_a_project_wrote_are_offered_together(tmp_path):
     """
     root = tmp_path / "plate1"
     (root / "results").mkdir(parents=True)
-    (root / "results" / "regression.csv").write_text("gene,effect\na,1\n")
+    (root / "results" / "regression.csv").write_text("gene,effect\na,1\n", encoding="utf-8")
     (root / "results" / "run1").mkdir()
-    (root / "results" / "run1" / "coefficients.csv").write_text("a,1\n")
+    (root / "results" / "run1" / "coefficients.csv").write_text("a,1\n", encoding="utf-8")
     (root / "results" / "run1" / "deep").mkdir()
-    (root / "results" / "run1" / "deep" / "buried.csv").write_text("a,1\n")
+    (root / "results" / "run1" / "deep" / "buried.csv").write_text("a,1\n", encoding="utf-8")
     (root / "results" / "run1" / "deep" / "deeper").mkdir()
-    (root / "results" / "run1" / "deep" / "deeper" / "gone.csv").write_text("a,1\n")
-    (root / "results" / "notes.txt").write_text("not a table")
+    (root / "results" / "run1" / "deep" / "deeper" / "gone.csv").write_text("a,1\n", encoding="utf-8")
+    (root / "results" / "notes.txt").write_text("not a table", encoding="utf-8")
 
     found = chaining.result_tables(str(root))
 
@@ -356,7 +356,7 @@ def test_sub_projects_skips_layout_folders_and_unreadable_ones(
     holder.mkdir()
     _plate(holder / "plate1")
     (holder / "merged").mkdir()          # a layout name: never a sub-project
-    (holder / "readme.txt").write_text("not a folder")
+    (holder / "readme.txt").write_text("not a folder", encoding="utf-8")
 
     found = chaining._sub_projects(str(holder), module_ports)
     assert found == (str(holder / "plate1"),)

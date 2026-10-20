@@ -44,7 +44,7 @@ def _cpu_segmenter(src, settings, object_type, *, batch_paths, on_batch_done, ru
         if settings.get('duplicate'):
             on_batch_done(path)
     metadata['end'] = time.monotonic()
-    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata))
+    (Path(src) / f'worker-{selected}.json').write_text(json.dumps(metadata), encoding="utf-8")
     print(f'worker {selected} finished')
 
 
@@ -175,11 +175,11 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
     folder = Path(src)
     marker = folder / f'primary-{selected}'
     primary = not marker.exists()
-    marker.write_text('primary attempted')
+    marker.write_text('primary attempted', encoding="utf-8")
     retry = not primary
     if retry:
         assert all((folder / f'primary-{device}').exists() for device in ('7', '3'))
-        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
     for index, path in enumerate(batch_paths):
         if primary and index == 1:
             raise MemoryError(f'primary buffer exhausted on {selected}')
@@ -190,7 +190,7 @@ def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
         np.save(target, np.array([[0, 1], [1, 1]], dtype=np.uint16))
         on_batch_done(path)
     if retry:
-        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()))
+        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()), encoding="utf-8")
 
 
 def test_overloaded_mask_workers_retry_serially_after_all_primaries_without_repeating_saves(

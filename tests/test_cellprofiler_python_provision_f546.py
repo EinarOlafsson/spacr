@@ -34,14 +34,14 @@ def fake_runner(root, calls, *, failure=None, version="3.9", external=False):
             return 1, ["download failed"]
         if "find" in argv:
             python.parent.mkdir(parents=True, exist_ok=True)
-            python.write_text("fake interpreter")
+            python.write_text("fake interpreter", encoding="utf-8")
             result = [str(python)]
         elif "-c" in argv:
             result = [version]
         elif "venv" in argv:
             env_python = Path(backend._env_python(argv[-1]))
             env_python.parent.mkdir(parents=True, exist_ok=True)
-            env_python.write_text("fake environment")
+            env_python.write_text("fake environment", encoding="utf-8")
             result = []
         elif "--selftest" in argv:
             result = ['{"ok": true, "python": "3.9", "packages": {}}']
@@ -96,7 +96,7 @@ def test_failed_provision_preserves_existing_environment(isolated, failure):
     """No replacement starts while download, discovery or validation fails."""
     sentinel = isolated / "cellprofiler" / "existing.txt"
     sentinel.parent.mkdir()
-    sentinel.write_text("preserve me")
+    sentinel.write_text("preserve me", encoding="utf-8")
     with pytest.raises(backend._InstallFailed, match="download failed"):
         backend._install_backend("cellprofiler", runner=fake_runner(
             isolated, [], failure=failure), torch_index="")
@@ -122,7 +122,7 @@ def test_cancellation_preserves_existing_environment(isolated, phase):
     """Cancellation at each provisioning boundary never replaces the old env."""
     sentinel = isolated / "cellprofiler" / "existing.txt"
     sentinel.parent.mkdir()
-    sentinel.write_text("preserve")
+    sentinel.write_text("preserve", encoding="utf-8")
     cancel = threading.Event()
     calls = []
     base = fake_runner(isolated, calls)
@@ -177,7 +177,7 @@ def test_bundled_uv_precedes_path_and_other_backends_are_unchanged(tmp_path, mon
     assert backend._provisioning_uv(spec) == "/path/uv"
     uv = tmp_path / "bootstrap" / ("uv.exe" if os.name == "nt" else "uv")
     uv.parent.mkdir()
-    uv.write_text("test")
+    uv.write_text("test", encoding="utf-8")
     uv.chmod(0o755)
     assert backend._provisioning_uv(spec) == str(uv)
     assert backend._provisioning_uv(backend._spec("cellpose3")) is None
@@ -215,7 +215,7 @@ def test_failed_reinstall_keeps_finished_backend_usable(isolated):
     env = isolated / "cellprofiler"
     python = Path(backend._env_python(str(env)))
     python.parent.mkdir(parents=True)
-    python.write_text("old Python")
+    python.write_text("old Python", encoding="utf-8")
     backend._write_marker(str(env), {"backend": "cellprofiler", "old": True})
     with pytest.raises(backend._InstallFailed):
         backend._install_backend("cellprofiler", reinstall=True,

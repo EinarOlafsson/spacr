@@ -127,7 +127,7 @@ def test_a_flat_folder_still_works(qtbot, tmp_path):
 def test_a_folder_with_no_figures_is_zero_not_an_error(qtbot, tmp_path):
     from spacr.qt.screens.app_screen import AppScreen
 
-    (tmp_path / "results.csv").write_text("a\n")
+    (tmp_path / "results.csv").write_text("a\n", encoding="utf-8")
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
 

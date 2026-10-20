@@ -274,7 +274,7 @@ def test_delete_empty_subdirectories(tmp_path):
     from spacr.io import delete_empty_subdirectories
     (tmp_path / "empty").mkdir()
     full = tmp_path / "full"; full.mkdir()
-    (full / "f.txt").write_text("x")
+    (full / "f.txt").write_text("x", encoding="utf-8")
     delete_empty_subdirectories(str(tmp_path))
     assert not (tmp_path / "empty").exists()
     assert full.exists()
@@ -284,7 +284,7 @@ def test_is_dir_empty(tmp_path):
     from spacr.io import _is_dir_empty
     e = tmp_path / "e"; e.mkdir()
     assert _is_dir_empty(str(e)) is True
-    (e / "x").write_text("1")
+    (e / "x").write_text("1", encoding="utf-8")
     assert _is_dir_empty(str(e)) is False
 
 

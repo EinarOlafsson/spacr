@@ -259,7 +259,7 @@ def test_measured_events_are_imaged_centred_on_their_objects(
             tifffile.imwrite(source / _name(well, channel), image)
     names = sorted(os.listdir(source))
     settings_file = tmp_path / "measure_settings.json"
-    settings_file.write_text(json.dumps(MEASURE))
+    settings_file.write_text(json.dumps(MEASURE), encoding="utf-8")
     positions = _positions(tmp_path, [("plate1_A01_0001_001", 1000, 2000),
                                       ("plate1_A02_0001_001", 5000, 2000)])
     watched = tmp_path / "watched"

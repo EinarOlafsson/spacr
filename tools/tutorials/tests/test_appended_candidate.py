@@ -26,16 +26,16 @@ def test_web_evidence_selects_current_sentence_checks_or_regular_checks(tmp_path
     current = hashlib.sha256(video.read_bytes()).hexdigest()
     proof = dict(lesson=identity, accepted=True, rendition_sha256=current,
                  all_frame_presentation_times_match=True, full_decode_passed=True)
-    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof))
+    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof), encoding="utf-8")
     regular = tmp_path / 'browser-web' / identity / 'en-af_heart/playback-checks.json'
     regular.parent.mkdir(parents=True)
     regular.write_text(json.dumps(dict(lesson=identity, passed=True,
-        checked_web_rendition={'sha256': 'stale' if sentence_hash == 'current' else current})))
+        checked_web_rendition={'sha256': 'stale' if sentence_hash == 'current' else current})), encoding="utf-8")
     sentence = regular.parent.parent / 'en-af_heart-sentence-cues/playback-checks.json'
     if sentence_hash is not None:
         sentence.parent.mkdir(parents=True)
         sentence.write_text(json.dumps(dict(lesson=identity, passed=True,
-            checked_web_rendition={'sha256': current if sentence_hash == 'current' else 'stale'})))
+            checked_web_rendition={'sha256': current if sentence_hash == 'current' else 'stale'})), encoding="utf-8")
     assert checked_web_input(tmp_path, identity) == (video, proof,
         sentence if sentence_hash == 'current' else regular)
 
@@ -58,11 +58,11 @@ def test_current_sentence_evidence_preserves_all_acceptance_guards(tmp_path, cha
         proof['full_decode_passed'] = False
     elif change == 'changed_video':
         proof['rendition_sha256'] = 'stale'
-    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof))
+    (video.parent.parent / 'rendition-checks.json').write_text(json.dumps(proof), encoding="utf-8")
     for tag in ('en-af_heart', 'en-af_heart-sentence-cues'):
         path = tmp_path / 'browser-web' / identity / tag / 'playback-checks.json'
         path.parent.mkdir(parents=True)
-        path.write_text(json.dumps(browser))
+        path.write_text(json.dumps(browser), encoding="utf-8")
     with pytest.raises(ValueError, match='Stale or failed web-copy evidence'):
         checked_web_input(tmp_path, identity)
 
@@ -78,14 +78,14 @@ def test_preserved_web_uses_verified_media_and_excludes_leftover_clips(tmp_path,
     leftover = published / 'production/02_held/video/02_held_silent.mp4'
     leftover.parent.mkdir(parents=True)
     leftover.write_bytes(b'retired clip')
-    (published / 'app_v2.js').write_text('current player')
+    (published / 'app_v2.js').write_text('current player', encoding="utf-8")
     if local_missing:
         (published / relative).unlink()
     manifest = {'files': [{'path': 'web/' + relative.as_posix(), 'bytes': 14,
                            'sha256': hashlib.sha256(b'verified video').hexdigest()}]}
     copied = copy_preserved_web(published, baseline, candidate, manifest,
                                 replacements=['01_existing'] if replace else [])
-    assert (candidate / 'web/app_v2.js').read_text() == 'current player'
+    assert (candidate / 'web/app_v2.js').read_text(encoding="utf-8") == 'current player'
     assert not (candidate / 'web/production/02_held').exists()
     assert (candidate / 'web' / relative).exists() is not replace
     if not replace:

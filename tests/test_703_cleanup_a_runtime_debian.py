@@ -27,9 +27,9 @@ def _fake_runtime(tmp_path):
     prefix = tmp_path / "runtime" / "venv"
     (prefix / "bin").mkdir(parents=True)
     (prefix / "lib").mkdir()
-    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n")
-    (prefix / "bin" / "python").write_text("#!/bin/sh\n")
-    (prefix / "lib" / "module.py").write_text("VALUE = 1\n")
+    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n", encoding="utf-8")
+    (prefix / "bin" / "python").write_text("#!/bin/sh\n", encoding="utf-8")
+    (prefix / "lib" / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
     record = ic.InstallRecord(kind="environment", layout="venv", platform="linux", root=str(prefix),
                               python=str(prefix / "bin" / "python"), version="1.0.0", running=True)
     return prefix, record
@@ -56,7 +56,7 @@ def _macos_root(tmp_path):
     for relative in ("venv/bin/python", "bootstrap/uv"):
         path = root / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("#!/bin/sh\n")
+        path.write_text("#!/bin/sh\n", encoding="utf-8")
         path.chmod(0o755)
     return root
 
@@ -78,9 +78,9 @@ def test_macos_online_commands_refuse_workdir_inside_the_environment(tmp_path):
 
 def test_runtime_staging_accepts_relative_path_configuration_files(tmp_path):
     prefix, _record = _fake_runtime(tmp_path)
-    (prefix / "lib" / "local.pth").write_text("../shared-packages\n")
+    (prefix / "lib" / "local.pth").write_text("../shared-packages\n", encoding="utf-8")
     assert ic._runtime_staging_allowed(str(prefix), _machine(tmp_path)) is None
-    (prefix / "lib" / "absolute.pth").write_text(os.path.realpath(prefix) + "/lib\n")
+    (prefix / "lib" / "absolute.pth").write_text(os.path.realpath(prefix) + "/lib\n", encoding="utf-8")
     with pytest.raises(ValueError, match="absolute links"):
         ic._runtime_staging_allowed(str(prefix), _machine(tmp_path))
 
@@ -192,7 +192,7 @@ def test_macos_online_update_refuses_unverified_current_runtime(tmp_path, monkey
 @pytest.mark.posix_only
 def test_debian_frontend_lock_refuses_a_group_writable_lock(tmp_path):
     lock = tmp_path / "lock-frontend"
-    lock.write_text("")
+    lock.write_text("", encoding="utf-8")
     lock.chmod(0o666)
     entered = []
     with pytest.raises(OSError, match="unsafe Debian frontend lock"):
@@ -323,7 +323,7 @@ def test_debian_desktop_verification_refuses_redirected_root(tmp_path):
 def test_debian_desktop_verification_refuses_user_owned_application(tmp_path):
     root = tmp_path / "spacr"
     root.mkdir()
-    (root / "spacr").write_text("#!/bin/sh\n")
+    (root / "spacr").write_text("#!/bin/sh\n", encoding="utf-8")
     with pytest.raises(ValueError, match="not a trusted system package"):
         ic._debian_verify_desktop("2.0.0", os.getuid(), root=str(root),
                                   invoke=lambda *args, **kwargs: pytest.fail("verification ran"))

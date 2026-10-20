@@ -40,7 +40,7 @@ def installation(tmp_path, monkeypatch, consumer, spelling):
     code = prefix / 'bin/python'
     code.parent.mkdir(parents=True)
     code.write_bytes(b'primary app code')
-    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     monkeypatch.setenv('HOME', str(home))
     monkeypatch.chdir(prefix)
     variable = consumer[0]

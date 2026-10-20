@@ -79,7 +79,7 @@ def test_changed_packaged_card_is_not_attached_to_approved_weights(monkeypatch, 
     repo = raw["repo_id"].split("/")[-1]
     card = deepcopy(model_cards._cards()[raw["key"]])
     card["scores"]["rows"][0]["this"] = 0.999
-    (tmp_path / (repo + ".json")).write_text(json.dumps(card))
+    (tmp_path / (repo + ".json")).write_text(json.dumps(card), encoding="utf-8")
     monkeypatch.setattr(model_cards, "_CARD_DIR", tmp_path)
     assert _construct(raw).metrics == raw["metrics"]
 

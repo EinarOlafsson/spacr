@@ -120,7 +120,7 @@ def test_missing_or_ambiguous_provenance_is_rejected(project, bad):
             frame['prcf'] = 'plate2_r1_c1_f1_t100'
         else:
             frame['frame'] = False
-        manifest.write_text(json.dumps(data))
+        manifest.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(ValueError, match='lineage'):
         _measured_lineage_inputs(db, path, 'cell_intensity')
     assert not (path.parent / 'lineage_measured').exists()
@@ -203,7 +203,7 @@ def test_strict_manifest_json_rejects_ambiguous_or_invalid_values(project, malfo
         data = data.replace('"frame_interval_s": null', '"frame_interval_s": NaN')
     else:
         data = data.replace('"frame_interval_s": null', '"frame_interval_s": true')
-    manifest.write_text(data)
+    manifest.write_text(data, encoding="utf-8")
     with pytest.raises(ValueError, match='lineage'):
         _measured_lineage_inputs(db, path, 'cell_intensity')
 

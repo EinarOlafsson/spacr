@@ -60,7 +60,7 @@ def test_the_measure_form_hides_and_shows_the_barcode_settings(
     from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
 
     records = tmp_path / "lims.csv"
-    records.write_text("barcode,well,strain\nBC9,A01,RH\n")
+    records.write_text("barcode,well,strain\nBC9,A01,RH\n", encoding="utf-8")
     src = tmp_path / "plate1" / "merged"
     src.mkdir(parents=True)
     np.save(src / "plate1_A01_1.npy", np.zeros((2, 2, 1)))

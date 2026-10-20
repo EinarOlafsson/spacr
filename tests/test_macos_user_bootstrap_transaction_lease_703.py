@@ -20,7 +20,7 @@ def _support(tmp_path):
     support.mkdir()
     wrapper = support / 'install-for-user.sh'
     shutil.copyfile(ONLINE / 'install_for_macos_user.sh', wrapper)
-    (support / 'installer_messages.sh').write_text('spacr_say() { printf "%s\\n" "$1"; }\n')
+    (support / 'installer_messages.sh').write_text('spacr_say() { printf "%s\\n" "$1"; }\n', encoding="utf-8")
     source = (ONLINE / 'install_spacr_unix.sh').read_text(encoding="utf-8").split(
         '# @SPACR_INSTALLER_LEASE_BEGIN@\n', 1)[1].split('# @SPACR_INSTALLER_LEASE_END@', 1)[0]
     journal = tmp_path / 'backend-entry'
@@ -36,7 +36,7 @@ def _support(tmp_path):
         '\nprintf "acquired\\n"\n'
         'if [[ "${SPACR_TEST_WAIT:-0}" == "1" ]]; then read -r finish; fi\n'
         'if [[ "${SPACR_TEST_RETAIN:-0}" == "1" ]]; then SPACR_INSTALLER_RETAIN_LEASE=1; fi\n'
-        'exit "${SPACR_TEST_EXIT:-0}"\n')
+        'exit "${SPACR_TEST_EXIT:-0}"\n', encoding="utf-8")
     backend.chmod(0o755)
     runtime = tmp_path / 'user runtime'
     env = dict(os.environ, SPACR_USER_INSTALL_ROOT=str(runtime), SPACR_NO_RELAUNCH='1')

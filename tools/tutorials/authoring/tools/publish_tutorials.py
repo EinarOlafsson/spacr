@@ -107,7 +107,7 @@ def _fingerprint(path: Path) -> dict:
 
 def load_manifest() -> dict:
     try:
-        return json.loads(ENCODE_MANIFEST.read_text())
+        return json.loads(ENCODE_MANIFEST.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
 
@@ -166,11 +166,11 @@ def publish_web() -> None:
         shutil.copy2(source, DESTINATION / filename)
     published_index = DESTINATION / "index.html"
     published_index.write_text(
-        published_index.read_text().replace(
+        published_index.read_text(encoding="utf-8").replace(
             'data-production-root="../production"',
             'data-production-root="production"',
         )
-    )
+    , encoding="utf-8")
     for name in ("fonts", "catalog"):
         source, target = WEB / name, DESTINATION / name
         if not source.is_dir():
@@ -318,7 +318,7 @@ def main() -> int:
             failed += 1
 
     ENCODE_MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    ENCODE_MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    ENCODE_MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
     print(f"  encoded {encoded}, unchanged {skipped}, failed {failed}")
 
     if not args.skip_hf:

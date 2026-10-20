@@ -64,13 +64,13 @@ def test_a_second_run_does_not_land_on_the_first(tmp_path):
     one setting changed left only the last on disk and said nothing."""
     first = tmp_path / "ols"
     first.mkdir()
-    (first / "results.csv").write_text("x\n")
+    (first / "results.csv").write_text("x\n", encoding="utf-8")
 
     assert _next_results_folder(str(tmp_path), "ols").endswith("ols_1")
 
     second = tmp_path / "ols_1"
     second.mkdir()
-    (second / "results.csv").write_text("x\n")
+    (second / "results.csv").write_text("x\n", encoding="utf-8")
     assert _next_results_folder(str(tmp_path), "ols").endswith("ols_2")
 
 
@@ -85,7 +85,7 @@ def test_each_type_counts_separately(tmp_path):
     for name in ("ols", "ridge"):
         folder = tmp_path / name
         folder.mkdir()
-        (folder / "r.csv").write_text("x\n")
+        (folder / "r.csv").write_text("x\n", encoding="utf-8")
     assert _next_results_folder(str(tmp_path), "ols").endswith("ols_1")
     assert _next_results_folder(str(tmp_path), "ridge").endswith("ridge_1")
 
@@ -97,7 +97,7 @@ def _paths(tmp_path, **extra):
     count = tmp_path / "plate_1_unique_combinations.csv"
     score = tmp_path / "plate1_dv.csv"
     for path in (count, score):
-        path.write_text("a,b\n1,2\n")
+        path.write_text("a,b\n1,2\n", encoding="utf-8")
     settings = {"count_data": [str(count)], "score_data": [str(score)],
                 "regression_type": "ols"}
     settings.update(extra)
@@ -121,7 +121,7 @@ def test_the_results_root_is_beside_the_count_data(tmp_path):
 
 def test_a_rerun_through_the_real_builder_does_not_overwrite(tmp_path):
     first = _paths(tmp_path)[4]
-    (pathlib.Path(first) / "results.csv").write_text("x\n")
+    (pathlib.Path(first) / "results.csv").write_text("x\n", encoding="utf-8")
 
     second = _paths(tmp_path)[4]
 

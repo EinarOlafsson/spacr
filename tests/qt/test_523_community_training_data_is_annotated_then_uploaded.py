@@ -105,7 +105,7 @@ def test_figure_mode_boxes_every_well_and_writes_yolo_labels(panel, qtbot, tmp_p
     page = _png(tmp_path / "fig1.png", size=(50, 100))
     (tmp_path / "paper.json").write_text(json.dumps(
         {"key": "doi:10.1/x", "source": "doi", "doi": "10.1/x",
-         "title": "Plaques"}))
+         "title": "Plaques"}), encoding="utf-8")
     panel.set_mode(ppv.FIGURE_MODE)
     panel.load_source_async(str(tmp_path))
     upload = _Upload()

@@ -122,7 +122,7 @@ def test_no_count_table_is_reported_rather_than_measured_as_zero():
 
 def test_a_count_table_that_will_not_parse_says_so(tmp_path):
     junk = tmp_path / "notes.csv"
-    junk.write_text("this file is a note about the screen\n")
+    junk.write_text("this file is a note about the screen\n", encoding="utf-8")
 
     got = read_the_counts([str(junk)])
 
@@ -138,7 +138,7 @@ def test_an_empty_count_table_says_so(tmp_path, monkeypatch):
                         lambda paths: pd.DataFrame(
                             columns=["prc", "grna", "fraction"]))
     path = tmp_path / "counts.csv"
-    path.write_text("plate,row_name,column_name,grna_name,count\n")
+    path.write_text("plate,row_name,column_name,grna_name,count\n", encoding="utf-8")
 
     got = read_the_counts([str(path)])
     assert got["trouble"] == ["the count tables are empty"]
@@ -154,7 +154,7 @@ def test_a_fraction_column_that_goes_missing_does_not_lose_the_rest(
                             "prc": ["p1_r1_c1", "p1_r1_c2"],
                             "grna": ["TGGT1_000001_1", "TGGT1_000001_2"]}))
     path = tmp_path / "counts.csv"
-    path.write_text("plate\np1\n")
+    path.write_text("plate\np1\n", encoding="utf-8")
 
     got = read_the_counts([str(path)])
 
@@ -237,7 +237,7 @@ def test_a_file_that_raises_while_being_read_is_named_and_skipped(tmp_path):
     """A good header over a body that will not tokenise -- an unterminated
     quote is what a half-written export looks like."""
     broken = tmp_path / "half_written.csv"
-    broken.write_text('prc,pred\np1_r1_c1,0.5\n"p1_r1_c2,0.6\n')
+    broken.write_text('prc,pred\np1_r1_c1,0.5\n"p1_r1_c2,0.6\n', encoding="utf-8")
 
     assert "pred" in sa._columns_of(str(broken))
     got = read_the_response([str(broken)])
@@ -376,7 +376,7 @@ def _qc_folder(tmp_path, payload):
 
     folder = tmp_path / "run_1" / "regression_qc"
     folder.mkdir(parents=True)
-    (folder / QC_NUMBERS_FILE).write_text(json.dumps(payload))
+    (folder / QC_NUMBERS_FILE).write_text(json.dumps(payload), encoding="utf-8")
     return str(tmp_path / "run_1")
 
 
@@ -393,7 +393,7 @@ def test_a_diagnostics_file_that_is_not_json_is_reported_not_used(tmp_path):
 
     folder = tmp_path / "run_1" / "regression_qc"
     folder.mkdir(parents=True)
-    (folder / QC_NUMBERS_FILE).write_text("{not json")
+    (folder / QC_NUMBERS_FILE).write_text("{not json", encoding="utf-8")
 
     got = read_the_last_run(str(tmp_path / "run_1"))
 

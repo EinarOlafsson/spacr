@@ -195,7 +195,7 @@ def test_non_png_and_over_budget_restore_leave_existing_queue_untouched(qtbot, t
     qtbot.addWidget(queue)
     path = append_raster(queue, tmp_path, "before", "red")
     bad = tmp_path / "disguised.png"
-    bad.write_text("not a PNG")
+    bad.write_text("not a PNG", encoding="utf-8")
     state = {"version": 1, "figures": [{"png": str(bad), "title": "bad"}],
              "runs": [], "current": 0}
     assert queue.apply_workspace_state(state) is False

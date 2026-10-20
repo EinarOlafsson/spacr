@@ -13,7 +13,7 @@ def record_graph(app, window, stage, captures, capture, settle, write_json, time
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit, QSplitter
 
-    inputs = json.loads((Path(stage)/'pipeline_graph_state'/f'{Path(captures).name}.json').read_text())
+    inputs = json.loads((Path(stage)/'pipeline_graph_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     root = verify_bind(inputs)
     deadline = time.monotonic()+timeout
     proof = {'accepted': False, 'lesson': '52_pipeline_graph', 'inputs': inputs,

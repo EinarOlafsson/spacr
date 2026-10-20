@@ -175,7 +175,7 @@ def main() -> int:
     }
     (output.parent / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2, default=str) + "\n"
-    )
+    , encoding="utf-8")
     window.close()
     settle(app, 30)
     app.quit()

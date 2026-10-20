@@ -145,5 +145,5 @@ if __name__ == '__main__':
     parser.add_argument('--receipt', type=Path, required=True)
     args = parser.parse_args()
     report = dict(schema=1, date='2026-09-25', **build(args.output))
-    args.receipt.write_text(json.dumps(report, indent=2) + '\n')
+    args.receipt.write_text(json.dumps(report, indent=2) + '\n', encoding="utf-8")
     print(json.dumps(report, indent=2))

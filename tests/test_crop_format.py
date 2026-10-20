@@ -314,11 +314,11 @@ def test_a_corrupt_sidecar_is_treated_as_absent(tmp_path):
     """A marker that will not parse must not outrank "no marker"."""
     folder = tmp_path / "cell_png"
     folder.mkdir()
-    (folder / CROP_FORMAT_SIDECAR).write_text("{not json")
+    (folder / CROP_FORMAT_SIDECAR).write_text("{not json", encoding="utf-8")
     assert read_crop_folder_marker(str(folder)) is None
     assert crop_folder_format(str(folder)) == CROP_FORMAT_LEGACY_BGR
 
-    (folder / CROP_FORMAT_SIDECAR).write_text(json.dumps({"spacr_crop_format": 99}))
+    (folder / CROP_FORMAT_SIDECAR).write_text(json.dumps({"spacr_crop_format": 99}), encoding="utf-8")
     crops.clear_crop_format_cache()
     assert read_crop_folder_marker(str(folder)) is None
 
@@ -1102,7 +1102,7 @@ def test_a_failed_marker_write_removes_its_temp_file(tmp_path, monkeypatch):
 
 def test_db_reads_survive_a_file_that_is_not_a_database(tmp_path, monkeypatch):
     junk = tmp_path / "not.db"
-    junk.write_text("hello")
+    junk.write_text("hello", encoding="utf-8")
     assert crops.read_db_crop_format(str(junk)) is None      # query fails
 
     db_path = _png_list_db(tmp_path, ["/a.png"], fmt=CROP_FORMAT_RGB)

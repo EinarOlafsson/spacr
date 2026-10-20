@@ -171,7 +171,7 @@ def test_results_upload_skips_folders_and_reports_a_missing_one(tmp_path):
     assert "does not exist" in said[0]
     nested = tmp_path / "merged"
     (tmp_path / "measurements" / "sub").mkdir(parents=True)
-    (tmp_path / "measurements" / "sub" / "a.csv").write_text("x\n")
+    (tmp_path / "measurements" / "sub" / "a.csv").write_text("x\n", encoding="utf-8")
     fs = fsspec.filesystem("memory")
     try:
         written = ome_zarr._upload_cloud_results(

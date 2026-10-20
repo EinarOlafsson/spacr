@@ -84,7 +84,7 @@ def main() -> int:
     }
     (DERIVED / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n"
-    )
+    , encoding="utf-8")
     print(DERIVED / "source_manifest.json")
     return 0
 

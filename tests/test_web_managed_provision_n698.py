@@ -33,7 +33,7 @@ class Response(io.BytesIO):
 def specimen(tmp_path, monkeypatch):
     root = tmp_path / "source"
     root.mkdir()
-    (root / "bound.py").write_text("source-bound fixture\n")
+    (root / "bound.py").write_text("source-bound fixture\n", encoding="utf-8")
     monkeypatch.setattr(p, "SOURCE_FILES", ("bound.py",))
     contents = {"family_v1": b"first exact checkpoint", "family_v2": b"second exact checkpoint"}
     rows = [{"family": "family", "key": key, "kind": "cellpose", "repo_type": "model",
@@ -109,7 +109,7 @@ def test_invalid_manifest_refuses_before_network_or_cache_mutation(specimen, cha
     elif change == "size_limit":
         s.manifest["models"][0]["bytes"] = p.MAX_MODEL_BYTES + 1
     elif change == "source":
-        (s.root / "bound.py").write_text("changed actual source\n")
+        (s.root / "bound.py").write_text("changed actual source\n", encoding="utf-8")
     else:
         s.manifest["schema"] = True
     rewrite(s)
@@ -120,7 +120,7 @@ def test_invalid_manifest_refuses_before_network_or_cache_mutation(specimen, cha
 
 def test_duplicate_json_fields_refuse_before_network(specimen):
     s = specimen
-    s.path.write_text('{"schema":1,"schema":1}')
+    s.path.write_text('{"schema":1,"schema":1}', encoding="utf-8")
     with pytest.raises(p.ProvisioningError, match="duplicate_json_key"):
         p.provision_models(s.path, s.cache, root=s.root)
     assert s.calls == [] and not s.cache.exists()

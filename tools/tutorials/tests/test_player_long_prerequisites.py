@@ -22,7 +22,7 @@ def test_prerequisite_is_visible_without_horizontal_scrolling(width):
         browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
         page = browser.new_page(viewport={'width': width, 'height': 844})
         for text in strings:
-            page.set_content('<style>' + STYLES.read_text() + '</style>'
+            page.set_content('<style>' + STYLES.read_text(encoding="utf-8") + '</style>'
                 '<main style="width:100%;padding:16px">'
                 '<div class="prerequisite"><svg></svg><div><strong>Before you start</strong>'
                 '<p id="prerequisite-copy">' + escape(text) + '</p></div></div></main>')

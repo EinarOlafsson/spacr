@@ -29,7 +29,7 @@ from spacr.crops import (CROP_FORMAT_LEGACY_BGR, CROP_FORMAT_RGB,
 def _manifest(folder, **payload):
     """Write a plane-layout sidecar into ``folder`` and return the folder."""
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / MERGED_LAYOUT_SIDECAR).write_text(json.dumps(payload))
+    (folder / MERGED_LAYOUT_SIDECAR).write_text(json.dumps(payload), encoding="utf-8")
     return str(folder)
 
 
@@ -46,7 +46,7 @@ def test_a_manifest_that_is_not_json_stops_the_run(tmp_path):
     """
     folder = tmp_path / "merged"
     folder.mkdir()
-    (folder / MERGED_LAYOUT_SIDECAR).write_text("{not json at all")
+    (folder / MERGED_LAYOUT_SIDECAR).write_text("{not json at all", encoding="utf-8")
 
     with pytest.raises(CorruptMergedFile, match="cannot read merged plane"):
         read_merged_plane_layout(str(folder))

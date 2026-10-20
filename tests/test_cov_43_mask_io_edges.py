@@ -110,7 +110,7 @@ def test_qupath_ids_come_from_measurements_or_the_name(tmp_path):
         feature(11, {"measurements": {"object_id": 4}}),
     ]}
     path = tmp_path / "objects.geojson"
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     masks = mask_io.geojson_to_masks(str(path), (8, 16), object_type="cell")
     cell = masks["cell"]
     assert cell[2, 2] == 7 and cell[2, 7] == 9 and cell[2, 12] == 4
@@ -193,7 +193,7 @@ def test_a_single_imagej_roi_file_is_read(tmp_path):
 
 def test_coco_image_names_are_read_from_a_file(tmp_path):
     path = tmp_path / "coco.json"
-    path.write_text(json.dumps(_coco()))
+    path.write_text(json.dumps(_coco()), encoding="utf-8")
     assert mask_io.coco_image_names(str(path)) == ["plate1_A01_1.png"]
 
 

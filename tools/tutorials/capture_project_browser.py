@@ -16,7 +16,7 @@ def record_browser(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit, QSplitter
 
-    inputs = json.loads((Path(stage)/'project_browser_state'/f'{Path(captures).name}.json').read_text())
+    inputs = json.loads((Path(stage)/'project_browser_state'/f'{Path(captures).name}.json').read_text(encoding="utf-8"))
     registered = verify_bind(inputs)
     conversion = Path(inputs['conversion_copy'])
     deadline = time.monotonic()+timeout

@@ -13,13 +13,13 @@ def test_preserved_intervals_hold_audio_and_finish_selected_video_at_one_speed(s
     monkeypatch.setattr(test_player_holds_narration, 'VIDEO_DELAY_SECONDS', 0)
     url = complete_fixture(served, tmp_path)
     visual_path = tmp_path / 'complete-native-visual.json'
-    visual = json.loads(visual_path.read_text())
+    visual = json.loads(visual_path.read_text(encoding="utf-8"))
     del visual['complete_native_clips']
     visual['preserve_visual_intervals'] = True
     visual['scenes'][0]['native_live_video'] = False
     visual['scenes'][-1]['native_live_video'] = False
-    visual_path.write_text(json.dumps(visual))
-    spoken = json.loads((tmp_path / 'complete-native-audio.json').read_text())
+    visual_path.write_text(json.dumps(visual), encoding="utf-8")
+    spoken = json.loads((tmp_path / 'complete-native-audio.json').read_text(encoding="utf-8"))
     with sync_playwright() as engine:
         browser, page = open_player(engine, url)
         try:
@@ -53,24 +53,24 @@ def test_preserved_static_chapter_seek_and_caption_cues_use_elapsed_speech(serve
     monkeypatch.setattr(test_player_holds_narration, 'VIDEO_DELAY_SECONDS', 0)
     url = complete_fixture(served, tmp_path)
     visual_path = tmp_path / 'complete-native-visual.json'
-    visual = json.loads(visual_path.read_text())
+    visual = json.loads(visual_path.read_text(encoding="utf-8"))
     del visual['complete_native_clips']
     visual['preserve_visual_intervals'] = True
     visual['scenes'][0]['native_live_video'] = False
     visual['scenes'][-1]['native_live_video'] = False
-    visual_path.write_text(json.dumps(visual))
+    visual_path.write_text(json.dumps(visual), encoding="utf-8")
     catalog_path = tmp_path / 'complete-native-catalog.js'
-    script = catalog_path.read_text()
+    script = catalog_path.read_text(encoding="utf-8")
     catalog = json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
     lesson = next(row for row in catalog['lessons'] if row['id'] == url.split('lesson=')[1])
     timing_path = tmp_path / 'complete-native-audio.json'
-    timing = json.loads(timing_path.read_text())
+    timing = json.loads(timing_path.read_text(encoding="utf-8"))
     for index, text in enumerate(('Static intro.', 'Native interval.', 'Static conclusion.')):
         lesson['scenes'][index]['narration'] = text
         timing['scenes'][index]['text'] = text
         timing['scenes'][index]['sentences'][0]['text'] = text
-    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
-    timing_path.write_text(json.dumps(timing))
+    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');', encoding="utf-8")
+    timing_path.write_text(json.dumps(timing), encoding="utf-8")
     with sync_playwright() as engine:
         browser, page = open_player(engine, url)
         try:
@@ -108,25 +108,25 @@ def test_cold_paused_sentence_seeks_never_rewind_the_requested_audio_offset(serv
     from playwright.sync_api import sync_playwright
     url = complete_fixture(served, tmp_path)
     visual_path = tmp_path / 'complete-native-visual.json'
-    visual = json.loads(visual_path.read_text())
+    visual = json.loads(visual_path.read_text(encoding="utf-8"))
     if visual_mode == 'preserved':
         del visual['complete_native_clips']
         visual['preserve_visual_intervals'] = True
         visual['scenes'][0]['native_live_video'] = False
         visual['scenes'][-1]['native_live_video'] = False
-    visual_path.write_text(json.dumps(visual))
+    visual_path.write_text(json.dumps(visual), encoding="utf-8")
     catalog_path = tmp_path / 'complete-native-catalog.js'
-    script = catalog_path.read_text()
+    script = catalog_path.read_text(encoding="utf-8")
     catalog = json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
     lesson = next(row for row in catalog['lessons'] if row['id'] == url.split('lesson=')[1])
     timing_path = tmp_path / 'complete-native-audio.json'
-    timing = json.loads(timing_path.read_text())
+    timing = json.loads(timing_path.read_text(encoding="utf-8"))
     for index, text in enumerate(('Opening guidance.', 'Recorded controls.', 'Closing guidance.')):
         lesson['scenes'][index]['narration'] = text
         timing['scenes'][index]['text'] = text
         timing['scenes'][index]['sentences'][0]['text'] = text
-    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
-    timing_path.write_text(json.dumps(timing))
+    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');', encoding="utf-8")
+    timing_path.write_text(json.dumps(timing), encoding="utf-8")
     with sync_playwright() as engine:
         browser, page = open_player(engine, url)
         try:

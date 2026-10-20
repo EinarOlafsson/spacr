@@ -96,7 +96,7 @@ def test_cancelling_the_folder_chooser_changes_nothing(picker, tmp_path,
 def test_a_folder_that_cannot_be_made_is_reported(picker, tmp_path,
                                                   monkeypatch):
     blocker = tmp_path / "a_file"
-    blocker.write_text("not a folder")
+    blocker.write_text("not a folder", encoding="utf-8")
     picker.folder_edit.setText(str(blocker / "models"))
     picker.table.selectRow(_first_downloadable_row(picker))
     warned = []

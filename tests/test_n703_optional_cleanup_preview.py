@@ -176,7 +176,7 @@ def test_retained_paths_honor_external_overrides_xdg_and_relocation_without_scan
     relocated = tmp_path / "relocated-news"
     relocated.mkdir()
     (relocated / "user-file").write_bytes(b"retain")
-    (folder.parent / "cache_locations.json").write_text(json.dumps({"SPACR_NEWS_CACHE": str(relocated), "TORCH_HOME": "~/relocated-torch"}))
+    (folder.parent / "cache_locations.json").write_text(json.dumps({"SPACR_NEWS_CACHE": str(relocated), "TORCH_HOME": "~/relocated-torch"}), encoding="utf-8")
     machine.environ.update({"SPACR_BACKENDS_DIR": " ~/private-backends ", "XDG_CACHE_HOME": str(tmp_path / "xdg")})
     rows = {row["key"]: row for row in ic.preview_optional_cleanup("op", system=machine)["folders"]}
     assert rows["news"]["path"] == str(relocated) and rows["news"]["contents"] == ()

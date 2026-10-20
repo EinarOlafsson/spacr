@@ -140,14 +140,14 @@ def _write_run_dir(root: Path, name: str, settings, app_key="mask",
     run_dir = root / name
     run_dir.mkdir(parents=True, exist_ok=True)
     if settings is not None:
-        (run_dir / "settings.json").write_text(json.dumps(settings, default=str))
+        (run_dir / "settings.json").write_text(json.dumps(settings, default=str), encoding="utf-8")
     if manifest_text is None:
         manifest_text = json.dumps({
             "app_key": app_key, "start_utc": start,
             "elapsed_s": 1200.0, "status": status,
             "env": {"spacr": "1.3.6", "python": "3.11.9"},
         })
-    (run_dir / "manifest.json").write_text(manifest_text)
+    (run_dir / "manifest.json").write_text(manifest_text, encoding="utf-8")
     return run_dir
 
 
@@ -248,7 +248,7 @@ def test_a_runs_src_setting_is_matched_in_every_shape_it_is_stored_in(tmp_path):
 
 def test_walking_a_path_that_is_not_a_directory_yields_nothing(tmp_path):
     loose = tmp_path / "file.txt"
-    loose.write_text("x")
+    loose.write_text("x", encoding="utf-8")
     assert R._iter_dir_files(loose) == ([], False)
     assert R._iter_dir_files(tmp_path / "missing") == ([], False)
 
@@ -256,8 +256,8 @@ def test_walking_a_path_that_is_not_a_directory_yields_nothing(tmp_path):
 def test_the_walk_descends_subfolders_but_never_into_bulk_pixel_folders(tmp_path):
     root = tmp_path / "results"
     (root / "deep" / "deeper").mkdir(parents=True)
-    (root / "deep" / "deeper" / "kept.csv").write_text("a\n")
-    (root / "top.csv").write_text("a\n")
+    (root / "deep" / "deeper" / "kept.csv").write_text("a\n", encoding="utf-8")
+    (root / "top.csv").write_text("a\n", encoding="utf-8")
     (root / "orig").mkdir()                     # a BULK_DIR
     (root / "orig" / "raw_0001.tif").write_bytes(b"\x00")
 
@@ -275,7 +275,7 @@ def test_the_walk_stops_at_its_budget_and_says_that_it_did(tmp_path):
     root = tmp_path / "many"
     root.mkdir()
     for i in range(6):
-        (root / f"f{i}.csv").write_text("a\n")
+        (root / f"f{i}.csv").write_text("a\n", encoding="utf-8")
     files, truncated = R._iter_dir_files(root, budget=4)
     assert len(files) == 4
     assert truncated is True
@@ -285,8 +285,8 @@ def test_a_folder_the_user_cannot_open_is_skipped_not_fatal(tmp_path):
     root = tmp_path / "results"
     locked = root / "locked"
     locked.mkdir(parents=True)
-    (locked / "hidden.csv").write_text("a\n")
-    (root / "readable.csv").write_text("a\n")
+    (locked / "hidden.csv").write_text("a\n", encoding="utf-8")
+    (root / "readable.csv").write_text("a\n", encoding="utf-8")
     os.chmod(locked, 0o000)
     try:
         files, truncated = R._iter_dir_files(root)
@@ -327,7 +327,7 @@ def test_a_file_deleted_mid_walk_is_stepped_over(tmp_path, monkeypatch):
     root = tmp_path / "results"
     root.mkdir()
     for i in range(3):
-        (root / f"f{i}.csv").write_text("a\n")
+        (root / f"f{i}.csv").write_text("a\n", encoding="utf-8")
 
     real_scandir = os.scandir
 
@@ -384,7 +384,7 @@ def test_the_file_inventory_lists_loose_top_level_files(tmp_path):
 def test_the_file_inventory_of_an_unreadable_folder_is_empty_not_fatal(tmp_path):
     src = tmp_path / "plate"
     src.mkdir()
-    (src / "a.txt").write_text("x")
+    (src / "a.txt").write_text("x", encoding="utf-8")
     os.chmod(src, 0o000)
     try:
         assert R._file_inventory(src) == ([], False)
@@ -555,7 +555,7 @@ def test_the_journal_scan_keeps_exactly_the_runs_whose_src_is_this_folder(
 def test_a_journal_that_cannot_be_read_is_a_note_not_a_crash(
         tmp_path, monkeypatch):
     not_a_home = tmp_path / "home_is_a_file"
-    not_a_home.write_text("x")
+    not_a_home.write_text("x", encoding="utf-8")
     monkeypatch.setenv("HOME", str(not_a_home))
     # The real resolver against a home that is a FILE, which is the whole
     # subject: `runs_root` mkdirs, mkdir raises NotADirectoryError, and the
@@ -631,8 +631,8 @@ def test_a_broken_install_degrades_the_report_instead_of_killing_it(tmp_path):
 def test_a_corrupt_run_status_sidecar_is_noted_not_fatal(tmp_path):
     src = tmp_path / "plate_bad_sidecar"
     (src / "results").mkdir(parents=True)
-    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n")
-    (src / "results" / "wells.run_status.json").write_text("{ not json")
+    (src / "results" / "wells.csv").write_text("well,value\nA01,1\n", encoding="utf-8")
+    (src / "results" / "wells.run_status.json").write_text("{ not json", encoding="utf-8")
 
     report = collect_report(src, run_dirs=[])
     first = report.sections[0]
@@ -651,9 +651,9 @@ def test_a_recorded_verdict_json_is_shown_beside_the_scorecard(tmp_path):
     _write_csv(src / "qc" / "segmentation_qc_cell.csv", QC_HEADER,
                [_qc_row(f"plate1_A{i:02d}_1") for i in range(1, 9)])
     (src / "qc" / "segmentation_qc_cell.json").write_text(json.dumps(
-        {"object_type": "cell", "verdict": "warn", "n_fields": 8}))
-    (src / "qc" / "no_object_type.json").write_text(json.dumps({"note": "hi"}))
-    (src / "qc" / "half_written.json").write_text("{ oops")
+        {"object_type": "cell", "verdict": "warn", "n_fields": 8}), encoding="utf-8")
+    (src / "qc" / "no_object_type.json").write_text(json.dumps({"note": "hi"}), encoding="utf-8")
+    (src / "qc" / "half_written.json").write_text("{ oops", encoding="utf-8")
 
     report = collect_report(src, run_dirs=[])
     section = report.section("segmentation_qc")

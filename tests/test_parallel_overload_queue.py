@@ -43,7 +43,7 @@ def _slow_echo(value):
 def _overload_then_invalid_in_child(folder):
     marker = Path(folder) / 'primary-error-recorded'
     if not marker.exists():
-        marker.write_text('failed once')
+        marker.write_text('failed once', encoding="utf-8")
         raise MemoryError('first overload at original calculation')
     raise ValueError('final invalid result at different calculation')
 
@@ -260,12 +260,12 @@ def _overloaded_field(arguments):
     directory = Path(directory)
     started = directory / f'primary-{identity}'
     if not started.exists():
-        started.write_text('primary')
+        started.write_text('primary', encoding="utf-8")
         if identity == 0:
             raise sqlite3.OperationalError('database is locked')
         return identity
     assert all((directory / f'primary-{index}').exists() for index in range(4))
-    (directory / 'final-retry').write_text('once')
+    (directory / 'final-retry').write_text('once', encoding="utf-8")
     return identity
 
 
@@ -478,8 +478,8 @@ def test_sweep_final_retry_follows_all_primaries_keeps_one_csv_row_and_original_
         if identity == 1 and calls.count(1) == 1:
             folder = tmp_path / 'trial_0001'
             folder.mkdir()
-            (folder / 'error.txt').write_text('original complete traceback')
-            (folder / '_trial_result.json').write_text('original result')
+            (folder / 'error.txt').write_text('original complete traceback', encoding="utf-8")
+            (folder / '_trial_result.json').write_text('original result', encoding="utf-8")
             raise sqlite3.OperationalError('database is locked')
         if identity == 1 and second_failure:
             raise MemoryError('final failure')
@@ -511,7 +511,7 @@ def test_contained_retry_cannot_read_the_previous_attempts_result(tmp_path, monk
     import subprocess
     from spacr import parameter_sweep as sweep
     result = tmp_path / '_trial_result.json'
-    result.write_text('{"status":"ok","trial_id":7}')
+    result.write_text('{"status":"ok","trial_id":7}', encoding="utf-8")
     monkeypatch.setattr(sweep, 'containment_available', lambda: False)
     monkeypatch.setattr(subprocess, 'run', lambda *_args, **_kw: SimpleNamespace(
         returncode=137, stderr='worker killed without result'))
@@ -529,7 +529,7 @@ def test_sweep_child_reports_explicit_overload_without_losing_original_traceback
     import json
     from spacr import ml, sweep_child
     settings, result = tmp_path / 'settings.json', tmp_path / 'result.json'
-    settings.write_text(json.dumps({'settings': {'src': str(tmp_path)}, 'trial_id': 4}))
+    settings.write_text(json.dumps({'settings': {'src': str(tmp_path)}, 'trial_id': 4}), encoding="utf-8")
     def fail(_settings):
         raise error
     monkeypatch.setattr(ml, 'perform_regression', fail)

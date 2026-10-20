@@ -345,7 +345,7 @@ def test_save_settings_survives_unwritable_src(tmp_path, capsys):
     from spacr.utils import save_settings
 
     bogus = tmp_path / "not_a_dir.txt"
-    bogus.write_text("i am a file\n")
+    bogus.write_text("i am a file\n", encoding="utf-8")
 
     # Must not raise.
     assert save_settings({"src": str(bogus)}, name="settings") is None
@@ -699,7 +699,7 @@ def test_check_mask_folder_counts_only_npy(tmp_path, capsys):
         # Masks are whole arrays: an empty mask is not counted (2026-09-19).
         np.save(masks / f"{i}.npy", np.zeros((4, 4), np.uint16))
     # Clutter that must not be counted.
-    (masks / "notes.txt").write_text("hi")
+    (masks / "notes.txt").write_text("hi", encoding="utf-8")
     (stack / "preview.png").write_bytes(b"")
 
     assert check_mask_folder(str(src), "cell_mask_stack") is False

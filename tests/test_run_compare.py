@@ -320,11 +320,11 @@ def test_settings_are_loaded_from_a_dict_a_json_file_or_a_csv(tmp_path):
     assert _load({"a": 1}) == {"a": 1}
 
     as_json = tmp_path / "settings.json"
-    as_json.write_text(json.dumps({"cell_diameter": 30}))
+    as_json.write_text(json.dumps({"cell_diameter": 30}), encoding="utf-8")
     assert _load(as_json) == {"cell_diameter": 30}
 
     as_csv = tmp_path / "settings.csv"
-    as_csv.write_text("Key,Value\ncell_diameter,30\nempty\n")
+    as_csv.write_text("Key,Value\ncell_diameter,30\nempty\n", encoding="utf-8")
     assert _load(as_csv) == {"cell_diameter": "30", "empty": ""}
 
     with pytest.raises(ValueError):

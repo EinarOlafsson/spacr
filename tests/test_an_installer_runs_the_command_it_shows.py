@@ -724,7 +724,7 @@ def test_a_real_installer_process_streams_and_is_found(monkeypatch,
         f"mkdir -p '{target}'\n"
         f"printf '#!/bin/sh\\nexit 0\\n' > '{target}/fakecli'\n"
         f"chmod +x '{target}/fakecli'\n"
-        "echo done\n")
+        "echo done\n", encoding="utf-8")
     fake_npm.chmod(0o755)
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}/usr/bin{os.pathsep}/bin")

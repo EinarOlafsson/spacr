@@ -19,7 +19,7 @@ def bundle(tmp_path):
     for name in pack.FILES:
         (source / name).write_bytes(b'recorded bytes')
     manifest = dict(files={n: n for n in pack.FILES}, leakage_passed=False)
-    (source / 'evaluation_manifest.json').write_text(json.dumps(manifest))
+    (source / 'evaluation_manifest.json').write_text(json.dumps(manifest), encoding="utf-8")
     rows = [dict(sample='/private/original/plate1_r1_c1_f1_o%d.png' % i,
                  basename='plate1_r1_c1_f1_o%d.png' % i, confidence='0.866123',
                  true_label='1') for i in range(234)]
@@ -32,7 +32,7 @@ def put_rows(source, rows):
     writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator='\n')
     writer.writeheader()
     writer.writerows(rows)
-    (source / 'oof_predictions.csv').write_text(stream.getvalue())
+    (source / 'oof_predictions.csv').write_text(stream.getvalue(), encoding="utf-8")
 
 
 def test_exact_archive_is_deterministic_readable_and_preserves_numeric_cells(bundle, tmp_path):
@@ -81,12 +81,12 @@ def test_real_external_symlink_is_rejected(bundle, tmp_path):
 def test_manifest_guard(bundle, changed):
     assert pack.members(bundle)
     path = bundle / 'evaluation_manifest.json'
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     if changed == 'inventory':
         data['files']['calibration.csv'] = '../calibration.csv'
     else:
         data['leakage_passed'] = True
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(ValueError, match='inventory|leakage'):
         pack.members(bundle)
 
@@ -110,11 +110,11 @@ def test_capture_extracts_verified_files_and_rejects_a_changed_member(bundle, tm
     source = tmp_path / 'source'
     source.mkdir()
     bundle.rename(source / 'evaluation')
-    (source / 'preparation.json').write_text(json.dumps(dict(input_prepared=True)))
+    (source / 'preparation.json').write_text(json.dumps(dict(input_prepared=True)), encoding="utf-8")
     archive = tmp_path / 'example.zip'
     pack.build_archive(source / 'evaluation', archive)
     root = pack.prepare_capture(source, archive, tmp_path)
-    proof = json.loads((root / 'preparation.json').read_text())
+    proof = json.loads((root / 'preparation.json').read_text(encoding="utf-8"))
     assert proof['portable_inspection_only'] is True
     assert proof['crops_included'] is False
     assert {p.name: p.read_bytes() for p in (root / 'evaluation').iterdir()} == pack.members(source / 'evaluation')

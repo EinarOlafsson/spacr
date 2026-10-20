@@ -132,7 +132,7 @@ def _documented_functions():
         if path.name in LEGACY_MODULES:
             continue
         try:
-            tree = ast.parse(path.read_text(errors="replace"))
+            tree = ast.parse(path.read_text(errors="replace", encoding="utf-8"))
         except SyntaxError:
             continue
         for node in ast.walk(tree):
@@ -1017,7 +1017,7 @@ def _source_module_infos(root: pathlib.Path) -> list[dict]:
         if exposure is None:
             continue
         try:
-            tree = ast.parse(path.read_text(errors="replace"))
+            tree = ast.parse(path.read_text(errors="replace", encoding="utf-8"))
         except SyntaxError:
             continue
         imports = _imported_names(

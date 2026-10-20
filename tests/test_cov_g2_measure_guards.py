@@ -165,7 +165,7 @@ def test_a_failed_backend_copy_is_reported_not_raised(tmp_path, monkeypatch,
 
 
 def test_cellprofiler_export_skips_files_that_are_not_stacks(tmp_path):
-    (tmp_path / "notes.txt").write_text("x")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
     np.save(tmp_path / "flat.npy", np.zeros((4, 4)))
     assert M._cellprofiler_export(str(tmp_path), {}, str(tmp_path / "out")) == []
 

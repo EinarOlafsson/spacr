@@ -99,9 +99,9 @@ def _installer(tmp_path,wheel,*,fail_install=False,fail_check=False):
         +'if args[1]=="check" and failed_check: sys.exit(8)\n'
         +f'base={[sys.executable,"-I","-B","-m","pip"]!r}+["--python",python,"--isolated","--no-cache-dir"]\n'
         +f'command=base+(["check"] if args[1]=="check" else ["install","--no-index","--no-deps","--upgrade",{str(wheel)!r}])\n'
-        +'sys.exit(subprocess.run(command).returncode)\n')
+        +'sys.exit(subprocess.run(command).returncode)\n', encoding="utf-8")
     uv=tmp_path/'uv'
-    uv.write_text('#!/bin/sh\nexec '+shlex.quote(sys.executable)+' -I -B '+shlex.quote(str(script))+' "$@"\n')
+    uv.write_text('#!/bin/sh\nexec '+shlex.quote(sys.executable)+' -I -B '+shlex.quote(str(script))+' "$@"\n', encoding="utf-8")
     uv.chmod(0o755)
     return uv
 
@@ -155,11 +155,11 @@ def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(
 @pytest.mark.parametrize('unsupported',['system-site','conda','absolute-pth','editable','user-data','egg-link'])
 def test_unsupported_environment_is_refused_before_any_package_mutation(installation,unsupported,monkeypatch):
     record,machine,prefix,site=installation
-    if unsupported=='system-site':(prefix/'pyvenv.cfg').write_text('include-system-site-packages = true\n')
+    if unsupported=='system-site':(prefix/'pyvenv.cfg').write_text('include-system-site-packages = true\n', encoding="utf-8")
     elif unsupported=='conda':(prefix/'conda-meta').mkdir()
-    elif unsupported=='absolute-pth':(site/'old-path.pth').write_text(str(prefix)+'\n')
-    elif unsupported=='egg-link':(site/'linked.egg-link').write_text('/external/source\n')
-    elif unsupported=='editable':(site/'spacr-1.5.1.4.dist-info/direct_url.json').write_text('{"dir_info":{"editable":true}}')
+    elif unsupported=='absolute-pth':(site/'old-path.pth').write_text(str(prefix)+'\n', encoding="utf-8")
+    elif unsupported=='egg-link':(site/'linked.egg-link').write_text('/external/source\n', encoding="utf-8")
+    elif unsupported=='editable':(site/'spacr-1.5.1.4.dist-info/direct_url.json').write_text('{"dir_info":{"editable":true}}', encoding="utf-8")
     else:monkeypatch.setattr(ic,'_user_data',lambda machine:[str(prefix/'my extra package data')])
     before=_snapshot(prefix)
     with pytest.raises(ValueError):

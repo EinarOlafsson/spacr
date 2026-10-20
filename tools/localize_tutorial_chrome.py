@@ -238,7 +238,7 @@ def _supported_title_maps(source: dict) -> dict[str, dict[str, str]]:
 
 
 def main() -> int:
-    source = json.loads((CATALOG_DIR / "lessons_en.json").read_text())
+    source = json.loads((CATALOG_DIR / "lessons_en.json").read_text(encoding="utf-8"))
     ids = [lesson["id"] for lesson in source["lessons"]]
     if len(ids) != 73 or len(set(ids)) != 73:
         raise RuntimeError("review title rows before moving the 73-lesson ratchet")
@@ -250,7 +250,7 @@ def main() -> int:
     title_maps["ja"] = dict(zip(ids, JAPANESE_TITLES))
     for suffix, titles in title_maps.items():
         path = CATALOG_DIR / f"lessons_{suffix}.json"
-        catalog = json.loads(path.read_text())
+        catalog = json.loads(path.read_text(encoding="utf-8"))
         target_ids = [lesson["id"] for lesson in catalog["lessons"]]
         if target_ids != ids:
             raise RuntimeError(f"lesson alignment differs in {path.name}")
@@ -265,7 +265,7 @@ def main() -> int:
                 raise RuntimeError(
                     f"unreviewed section {section!r} in {path.name}"
                 )
-        path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
+        path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(path)
     return 0
 

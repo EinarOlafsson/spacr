@@ -160,7 +160,7 @@ def test_existing_masks_folder_short_circuits_and_empty_dirs_are_pruned(tmp_path
 
     src = tmp_path / "plate1"
     src.mkdir()
-    (src / "notes.txt").write_text("not an image")
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
     for name in ("stack", "channel_stack", "masks"):
         d = src / name
         d.mkdir()
@@ -234,7 +234,7 @@ def test_existing_stack_without_masks_is_reused_not_remerged(tmp_path, capsys, m
 
     src = tmp_path / "plate1"
     src.mkdir()
-    (src / "notes.txt").write_text("not an image")
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
     stack = src / "stack"
     stack.mkdir()
     np.save(stack / "fov.npy", np.zeros((4, 4, 2), dtype=np.uint16))
@@ -334,7 +334,7 @@ def test_channel_subfolders_are_merged_into_a_stack(tmp_path, monkeypatch):
 
     src = tmp_path / "plate1"
     src.mkdir()
-    (src / "notes.txt").write_text("not an image")
+    (src / "notes.txt").write_text("not an image", encoding="utf-8")
     imgs = {}
     for chan in ("0", "1"):
         d = src / chan
@@ -440,7 +440,7 @@ def test_test_mode_reports_undeletable_test_folder_and_uses_subset(
     src = yokogawa_cellvoyager_dir["src"]
     leftover = src / "test"
     leftover.mkdir()
-    (leftover / "stale.txt").write_text("blocks rmdir")
+    (leftover / "stale.txt").write_text("blocks rmdir", encoding="utf-8")
 
     recs = _patch_common(monkeypatch)  # real _rename_and_organize runs
     settings = _settings(src, plot=False, test_mode=True, test_images=1,
@@ -482,7 +482,7 @@ def test_test_mode_deletes_empty_test_folder_when_cleanup_is_skipped(tmp_path, c
         name = f"plate1_{well}_T0001F{field}L01A01Z01C{chan}.tif"
         _write_tif(src / name, _tiny_img(seed=i))
     for i in range(100):
-        (src / f"pad_{i:03d}.txt").write_text("x")
+        (src / f"pad_{i:03d}.txt").write_text("x", encoding="utf-8")
     (src / "test").mkdir()          # empty: must survive the < 100 pruning check
     (src / "junk").mkdir()          # empty: proves pruning was skipped
 

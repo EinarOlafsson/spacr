@@ -59,7 +59,7 @@ def test_refresh_refuses_incomplete_locale_evidence_without_writing(
                   "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
                   "translation": target}
         (directory / "review.json").write_text(json.dumps(
-            {"schema": 1, "language": locale, "records": [record]}))
+            {"schema": 1, "language": locale, "records": [record]}), encoding="utf-8")
     original_import = importlib.import_module
     def load_catalog(name, *args, **kwargs):
         prefix = "spacr.qt.i18n_catalogs."

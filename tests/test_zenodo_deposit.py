@@ -69,8 +69,8 @@ def make_run(root: Path) -> tuple:
     run.mkdir(parents=True)
     (run / "manifest.json").write_text(json.dumps(
         {"app_key": "measure", "status": "ok",
-         "start_utc": "2026-09-27T00:00:00Z"}))
-    (run / "settings.json").write_text(json.dumps({"src": str(src)}))
+         "start_utc": "2026-09-27T00:00:00Z"}), encoding="utf-8")
+    (run / "settings.json").write_text(json.dumps({"src": str(src)}), encoding="utf-8")
     return src, run
 
 

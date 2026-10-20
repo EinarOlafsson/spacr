@@ -994,7 +994,7 @@ def apply_release_overrides(catalog: dict) -> None:
     collapsing the accepted release back to a placeholder walkthrough.
     """
     for filename in ("37_batch_override.json",):
-        override = json.loads((CATALOG_DIR / filename).read_text())
+        override = json.loads((CATALOG_DIR / filename).read_text(encoding="utf-8"))
         for index, current in enumerate(catalog["lessons"]):
             if current["id"] == override["id"]:
                 catalog["lessons"][index] = override
@@ -1035,7 +1035,7 @@ def main() -> int:
     apply_speech_overrides(catalog)
     CATALOG_DIR.mkdir(parents=True, exist_ok=True)
     target = CATALOG_DIR / "lessons_en.json"
-    target.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
+    target.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(target)
     print(f"lessons={len(LESSONS)} scenes={sum(len(x['scenes']) for x in LESSONS)}")
     return 0

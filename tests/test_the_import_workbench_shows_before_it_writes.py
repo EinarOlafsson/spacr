@@ -182,7 +182,7 @@ def images(tmp_path):
     folder.mkdir()
     for name in _names():
         (folder / name).write_bytes(b"")
-    (folder / "notes.txt").write_text("not an image")
+    (folder / "notes.txt").write_text("not an image", encoding="utf-8")
     return folder
 
 

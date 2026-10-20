@@ -34,7 +34,7 @@ def main() -> int:
     parser.add_argument("--run", action="store_true")
     parser.add_argument("--run-timeout", type=float, default=180.0)
     args = parser.parse_args()
-    settings = json.loads(args.settings_json.read_text())
+    settings = json.loads(args.settings_json.read_text(encoding="utf-8"))
     detail_keys = [key for key in args.detail_keys.split(",") if key]
     output = ROOT / "production" / args.lesson_id / "keyframes"
 
@@ -509,7 +509,7 @@ def main() -> int:
     }
     (output.parent / "source_manifest.json").write_text(
         json.dumps(manifest, indent=2, default=str) + "\n"
-    )
+    , encoding="utf-8")
     screen.close()
     settle(app, 40)
     window.close()

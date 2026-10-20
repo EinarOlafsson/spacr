@@ -731,7 +731,7 @@ def test_a_database_without_png_list_reports_inline(screen, tmp_path):
 
 def test_a_file_that_is_not_a_database_reports_inline(screen, tmp_path):
     junk = tmp_path / "notadb.db"
-    junk.write_text("plate,well,value\n1,A01,3\n" * 50)
+    junk.write_text("plate,well,value\n1,A01,3\n" * 50, encoding="utf-8")
     assert screen.set_database(str(junk)) is False
     assert screen.last_error
     assert screen.available_columns() == []

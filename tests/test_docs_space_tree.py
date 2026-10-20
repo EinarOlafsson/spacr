@@ -90,6 +90,6 @@ def test_mutable_or_invalid_revision_is_refused_before_network(uploaded, revisio
 
 def test_locally_supplied_gitattributes_must_match_too(uploaded):
     site, files, entries, calls = uploaded
-    (site / '.gitattributes').write_text('different')
+    (site / '.gitattributes').write_text('different', encoding="utf-8")
     with pytest.raises(ValueError, match='Space file size differs: .gitattributes'):
         verify_space_tree(site, 'owner/docs', 'a' * 40)

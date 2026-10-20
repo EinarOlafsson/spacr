@@ -97,7 +97,7 @@ def test_no_signed_artifact_is_published_until_every_check_passes(
     package = tmp_path / 'spaCR.pkg'
     package.write_bytes(b'unsigned')
     receipt = package.with_suffix('.pkg.notarization.json')
-    receipt.write_text('stale old acceptance')
+    receipt.write_text('stale old acceptance', encoding="utf-8")
     calls = []
     def run(args, **kwargs):
         calls.append(args)
@@ -215,7 +215,7 @@ def test_native_launcher_executes_private_python_with_exact_arguments(launcher, 
     home = tmp_path / 'a home with spaces'
     python = home / 'Library/Application Support/spaCR/venv/bin/python'
     python.parent.mkdir(parents=True)
-    python.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit 7\n')
+    python.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit 7\n', encoding="utf-8")
     python.chmod(0o755)
     args = ['--argument', 'a b', '$(touch forbidden-file)', '日本語']
     result = subprocess.run([str(launcher), *args], env={**os.environ, 'HOME': str(home)},

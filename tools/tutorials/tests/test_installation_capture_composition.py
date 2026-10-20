@@ -16,10 +16,10 @@ def fixture(tmp_path):
     image = source / 'frame.png'
     Image.new('RGB', (3840, 2160), 'black').save(image)
     frame = {'image': image.name, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest()}
-    (source / 'frames.json').write_text(json.dumps({'original': frame}))
+    (source / 'frames.json').write_text(json.dumps({'original': frame}), encoding="utf-8")
     proof = {'completed_capture': True, 'installed_identity': {
         'version': '1.5.1.3', 'package': '/home/user/env/site-packages/spacr/__init__.py'}}
-    (source / 'provenance.json').write_text(json.dumps(proof))
+    (source / 'provenance.json').write_text(json.dumps(proof), encoding="utf-8")
     lesson = {'id': '02_install_spacr', 'scenes': [{'visual': 'current', 'narration': 'Published package output.'}]}
     digest = hashlib.sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     plan = {'lesson': lesson['id'], 'english_sha256': digest, 'scenes': {'current': {
@@ -34,7 +34,7 @@ def test_composition_retains_original_native_pixels_and_public_identity(tmp_path
     compose(lesson, plan, output)
     assert (output / 'current.png').read_bytes() == original
     assert (source / 'frame.png').read_bytes() == original
-    proof = json.loads((output / 'provenance.json').read_text())
+    proof = json.loads((output / 'provenance.json').read_text(encoding="utf-8"))
     assert proof['not_one_application_session']
     assert proof['frame_origins']['current']['installed_identity']['version'] == '1.5.1.3'
 
@@ -45,10 +45,10 @@ def test_invalid_role_or_source_is_rejected_before_writing(tmp_path, failure):
     if failure == 'source': lesson['scenes'][0]['narration'] = 'Changed narration.'
     elif failure == 'bytes': (source / 'frame.png').write_bytes(b'changed')
     elif failure in ('incomplete', 'identity'):
-        proof = json.loads((source / 'provenance.json').read_text())
+        proof = json.loads((source / 'provenance.json').read_text(encoding="utf-8"))
         if failure == 'incomplete': proof['completed_capture'] = False
         else: proof.pop('installed_identity')
-        (source / 'provenance.json').write_text(json.dumps(proof))
+        (source / 'provenance.json').write_text(json.dumps(proof), encoding="utf-8")
     elif failure == 'card': plan['scenes']['current']['kind'] = 'reference_guidance'
     else: plan['scenes']['current']['kind'] = 'current_nightly'
     output = tmp_path / 'result'

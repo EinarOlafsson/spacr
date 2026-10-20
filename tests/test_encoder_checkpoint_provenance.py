@@ -123,6 +123,7 @@ def test_unsupported_cell_dino_has_no_invented_weight_provider(monkeypatch):
     ("cell_dino_hpa_vitl14", (2, 0, 3, 1)),
     ("cell_dino_cp_vits8", (4, 2, 0, 3, 1)),
 ])
+@pytest.mark.needs_symlink
 def test_cell_dino_entry_verifies_declared_bytes_without_loading_a_model(
         tmp_path, monkeypatch, factory, channels):
     checkpoint = tmp_path / "local.pth"
@@ -149,6 +150,7 @@ def test_cell_dino_entry_verifies_declared_bytes_without_loading_a_model(
     "missing_path", "missing_digest", "bad_digest", "wrong_digest",
     "missing_file", "directory", "fifo", "unreadable",
 ])
+@pytest.mark.posix_only
 def test_cell_dino_invalid_checkpoint_has_no_claimed_provenance(
         tmp_path, monkeypatch, condition):
     import os

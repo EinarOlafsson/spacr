@@ -15,7 +15,7 @@ def _plan(tmp_path, **values):
             'install': ['installer', '--quiet'], 'fetch': None, 'relaunch': None}
     plan.update(values)
     path = tmp_path / 'plan.json'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     return str(path)
 
 
@@ -245,7 +245,7 @@ def test_metadata_restore_refuses_another_schema(metadata):
     journal = metadata.folder / 'metadata.json'
     state = json.loads(journal.read_text(encoding="utf-8"))
     state['schema'] = 2
-    journal.write_text(json.dumps(state))
+    journal.write_text(json.dumps(state), encoding="utf-8")
     assert _restore_code(metadata.folder) == 'invalid_metadata_binding'
 
 
@@ -268,7 +268,7 @@ def test_metadata_restore_refuses_an_unknown_record_kind(metadata):
     journal = metadata.folder / 'metadata.json'
     state = json.loads(journal.read_text(encoding="utf-8"))
     state['records'][_record_index(metadata, 'file')]['kind'] = 'device'
-    journal.write_text(json.dumps(state))
+    journal.write_text(json.dumps(state), encoding="utf-8")
     assert _restore_code(metadata.folder) == 'invalid_metadata_kind'
     assert metadata.sidecar.read_bytes() == b'original sidecar'
 

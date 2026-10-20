@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _write(path, text='preserved'):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return path
 
 
@@ -44,7 +44,7 @@ def installation(tmp_path):
                       'sys.modules[spec.name]=module\nspec.loader.exec_module(module)\n'
                       'original=module._Machine\n'
                       f'module._Machine=lambda **kw: original(platform="linux", environ={environment!r}, fs_root={str(tmp_path)!r})\n'
-                      'raise SystemExit(module._main(sys.argv[1:]))\n')
+                      'raise SystemExit(module._main(sys.argv[1:]))\n', encoding="utf-8")
     python = _write(root / 'venv/bin/python', '#!/bin/sh\nshift 3\nexec ' +
                     shlex.quote(sys.executable) + ' -I ' + shlex.quote(str(driver)) + ' "$@"\n')
     python.chmod(0o755)
@@ -54,7 +54,7 @@ def installation(tmp_path):
     generator = tmp_path / 'generate.sh'
     values = {'uninstall_path': script, 'VENV_DIR': root / 'venv', 'LAUNCHER': launcher,
               'DESKTOP_DIR': desktop.parent, 'INSTALL_ROOT': root}
-    generator.write_text('\n'.join(key + '=' + shlex.quote(str(value)) for key, value in values.items()) + '\n' + heredoc)
+    generator.write_text('\n'.join(key + '=' + shlex.quote(str(value)) for key, value in values.items()) + '\n' + heredoc, encoding="utf-8")
     subprocess.run(['bash', str(generator)], check=True, capture_output=True, timeout=10)
     return root, script, launcher, desktop, protected, other, driver
 
@@ -75,8 +75,8 @@ def test_generated_uninstaller_removes_only_application_and_preserves_folder_inv
 
 def test_changed_launcher_is_not_deleted_by_unconditional_shell_commands(installation):
     _root, script, launcher, desktop, protected, other, _driver = installation
-    launcher.write_text(f'exec "{other}/venv/bin/python" -I -m spacr.qt\n')
-    desktop.write_text(f'Exec={other}/venv/bin/python -I -m spacr.qt\n')
+    launcher.write_text(f'exec "{other}/venv/bin/python" -I -m spacr.qt\n', encoding="utf-8")
+    desktop.write_text(f'Exec={other}/venv/bin/python -I -m spacr.qt\n', encoding="utf-8")
     before = launcher.read_bytes(), desktop.read_bytes()
     result = subprocess.run(['sh', str(script)], capture_output=True, text=True, timeout=20)
     assert result.returncode == 0, result.stdout + result.stderr

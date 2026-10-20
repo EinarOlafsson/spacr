@@ -107,7 +107,7 @@ def test_tampered_lock_is_recorded_without_claiming_verification(journal):
     lock_path = rj._locks_root() / (record["lock_id"] + ".json")
     altered = json.loads(lock_path.read_text(encoding="utf-8"))
     altered["locked_by"] = "edited"
-    lock_path.write_text(json.dumps(altered))
+    lock_path.write_text(json.dumps(altered), encoding="utf-8")
     result = GateEditorScreen._write_gates_checked(path, "cell", gates(), str(strategy))
     assert result[2][0]["status"] == "tampered"
 

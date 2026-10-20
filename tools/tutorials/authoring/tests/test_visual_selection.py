@@ -51,7 +51,7 @@ def test_hosted_visual_keeps_scene_count_and_uses_the_live_host_capture(
         "settings": [200, 200, 900, 1200],
         "run": [200, 1700, 200, 80],
         "output": [1200, 200, 1800, 1200],
-    }))
+    }), encoding="utf-8")
     lesson = {
         "id": "10_classify_cv",
         "app_key": "classify",
@@ -67,7 +67,7 @@ def test_hosted_visual_keeps_scene_count_and_uses_the_live_host_capture(
         ],
     }
     module.build_hosted_app_lesson(lesson)
-    spec = json.loads((tmp_path / "10_classify_cv" / "scenes.json").read_text())
+    spec = json.loads((tmp_path / "10_classify_cv" / "scenes.json").read_text(encoding="utf-8"))
     assert spec["host_app_key"] == "classify_merged"
     assert len(spec["scenes"]) == len(lesson["scenes"])
     assert {scene["image"] for scene in spec["scenes"]} == {
@@ -86,7 +86,7 @@ def test_hosted_visual_rejects_a_retired_standalone_capture(
     (keyframes / "geometry.json").write_text(json.dumps({
         "frame_size": [3840, 2160],
         "frames": {"overview": {"file": "01_overview.png"}},
-    }))
+    }), encoding="utf-8")
     lesson = {
         "id": "48_hit_list",
         "app_key": "hit_list",
@@ -109,7 +109,7 @@ def test_hosted_visual_rejects_a_capture_from_the_wrong_host(
         "app_key": "napari_bridge",
         "host_app_key": "napari_bridge",
         "frame_size": [3840, 2160],
-    }))
+    }), encoding="utf-8")
     lesson = {
         "id": "46_napari_bridge",
         "app_key": "napari_bridge",

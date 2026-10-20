@@ -269,7 +269,7 @@ def test_a_prediction_path_that_is_not_a_file_leaves_the_dropdowns_alone(
 
 def test_a_prediction_file_that_will_not_read_says_so(explain, tmp_path):
     broken = tmp_path / "predictions.csv"
-    broken.write_text('path,pred\n"unterminated,1\n')
+    broken.write_text('path,pred\n"unterminated,1\n', encoding="utf-8")
     explain.predictions.setText(str(broken))
 
     explain._refresh_prediction_columns()
@@ -532,7 +532,7 @@ def test_the_score_dropdown_is_filled_from_the_prediction_file(investigate,
 def test_a_prediction_file_that_will_not_read_is_reported(investigate,
                                                           tmp_path):
     broken = tmp_path / "predictions.csv"
-    broken.write_text('prediction,path\n"unterminated,1\n')
+    broken.write_text('prediction,path\n"unterminated,1\n', encoding="utf-8")
     investigate.predictions.setText(str(broken))
 
     investigate._refresh_prediction_columns()

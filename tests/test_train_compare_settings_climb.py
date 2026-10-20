@@ -52,7 +52,7 @@ def _write_curve(folder, rows=3):
     for name in ("train.csv", "validation.csv"):
         (folder / name).write_text(
             "epoch,accuracy,loss\n"
-            + "".join(f"{e},0.5,1.0\n" for e in range(1, rows + 1)))
+            + "".join(f"{e},0.5,1.0\n" for e in range(1, rows + 1)), encoding="utf-8")
 
 
 def _training_dst(src, model_type="maxvit_t", channels="rgb", epochs=10):

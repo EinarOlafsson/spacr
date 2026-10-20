@@ -65,7 +65,7 @@ def test_frozen_desktop_launch_ignores_an_older_path_installation(tmp_path):
         executable.write_text(
             '#!/bin/sh\nprintf "%s\n" ' + shlex.quote(identity)
             + ' "$@" > "$SPACR_LAUNCH_PROOF"\n'
-        )
+        , encoding="utf-8")
         executable.chmod(0o755)
     environment = dict(os.environ, PATH=str(shadow.parent), HOME=str(tmp_path),
                        SPACR_LAUNCH_PROOF=str(proof))

@@ -535,7 +535,7 @@ def test_a_progress_file_missing_a_result_column_is_rejected_by_its_header(
                                         if c != "run_key"]
     path = tmp_path / "scan.tsv"
     path.write_text("\t".join(columns) + "\n"
-                    + "\t".join(["1"] * len(columns)) + "\n")
+                    + "\t".join(["1"] * len(columns)) + "\n", encoding="utf-8")
 
     def _never_called(**_kwargs):
         raise AssertionError("the header check must fire before any fit")
@@ -548,7 +548,7 @@ def test_a_progress_file_missing_a_result_column_is_rejected_by_its_header(
     # it gets past it to the resume=False refusal further down.
     full = ["n_wells_per_screen"] + list(pm._SCAN_RESULT_COLUMNS)
     path.write_text("\t".join(full) + "\n"
-                    + "\t".join(["1"] * len(full)) + "\n")
+                    + "\t".join(["1"] * len(full)) + "\n", encoding="utf-8")
     with pytest.raises(pm.PowerFitError, match="resume=False"):
         pm.scan_parameters(n_wells_per_screen=[4], backend="torch",
                            progress_file=str(path), resume=False,

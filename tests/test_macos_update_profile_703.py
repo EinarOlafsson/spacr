@@ -13,7 +13,7 @@ def profile_for(record, **changes):
                "without_wgpu": True}
     profile.update(changes)
     path = Path(record.root) / "install-profile.json"
-    path.write_text(json.dumps(profile))
+    path.write_text(json.dumps(profile), encoding="utf-8")
     return path
 
 
@@ -22,7 +22,7 @@ def test_online_update_binds_resolution_to_its_own_saved_profile(installation, t
     record, _machine, _kept = installation
     profile_for(record, without_wgpu=choice is not False)
     other = tmp_path / "unrelated-profile.json"
-    other.write_text(json.dumps({"schema": 1, "requested_backend": "cu128", "active_backend": "cuda"}))
+    other.write_text(json.dumps({"schema": 1, "requested_backend": "cu128", "active_backend": "cuda"}), encoding="utf-8")
     monkeypatch.setenv("SPACR_INSTALL_PROFILE", str(other))
     written = []
 
@@ -53,7 +53,7 @@ def test_online_update_binds_resolution_to_its_own_saved_profile(installation, t
     '{"schema": 1, "requested_backend": "cpu", "active_backend": "cpu", "without_wgpu": "false"}'])
 def test_unreadable_saved_choice_refuses_without_starting_update(installation, tmp_path, profile):
     record, machine, _ = installation
-    (Path(record.root) / "install-profile.json").write_text(profile)
+    (Path(record.root) / "install-profile.json").write_text(profile, encoding="utf-8")
     plan = ic.start_update_helper([record], "1.5.1.1", workdir=str(tmp_path / "helper"),
         system=machine, spawn=lambda *_: pytest.fail("invalid profile cannot start an update"))
     assert plan["command"] is None and "choices could not be read" in plan["error"]

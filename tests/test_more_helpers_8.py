@@ -144,7 +144,7 @@ def test_sequencing_map_sequences_to_names_empty_input(tmp_path):
     """Empty sequence list should return an empty result."""
     from spacr.sequencing import map_sequences_to_names
     csv = tmp_path / "barcodes.csv"
-    csv.write_text("sequence,name\nACGT,alpha\nTTTT,beta\n")
+    csv.write_text("sequence,name\nACGT,alpha\nTTTT,beta\n", encoding="utf-8")
     got = map_sequences_to_names(str(csv), [], rc=False)
     assert got == []
 
@@ -153,7 +153,7 @@ def test_sequencing_map_sequences_to_names_all_unknown_returns_pd_na(tmp_path):
     """None of the query sequences are in the CSV — all return pd.NA."""
     from spacr.sequencing import map_sequences_to_names
     csv = tmp_path / "barcodes.csv"
-    csv.write_text("sequence,name\nACGT,alpha\n")
+    csv.write_text("sequence,name\nACGT,alpha\n", encoding="utf-8")
     got = map_sequences_to_names(str(csv), ["GGGG", "CCCC"], rc=False)
     assert len(got) == 2
     for g in got:
@@ -164,7 +164,7 @@ def test_sequencing_map_sequences_to_names_partial_match(tmp_path):
     """Some sequences match, others don't — indices preserved."""
     from spacr.sequencing import map_sequences_to_names
     csv = tmp_path / "barcodes.csv"
-    csv.write_text("sequence,name\nACGT,alpha\nTTTT,beta\n")
+    csv.write_text("sequence,name\nACGT,alpha\nTTTT,beta\n", encoding="utf-8")
     got = map_sequences_to_names(str(csv), ["ACGT", "GGGG", "TTTT"], rc=False)
     assert got[0] == "alpha"
     assert pd.isna(got[1])

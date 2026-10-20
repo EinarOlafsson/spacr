@@ -424,7 +424,7 @@ def test_an_unreadable_run_stamp_means_go_and_check_the_files(monkeypatch):
 def test_a_run_journal_folder_yields_the_settings_it_recorded(tmp_path):
     """A journal directory is one of the three shapes a resume can read."""
     (tmp_path / "settings.json").write_text(
-        json.dumps({"cell_mask_dim": 4, "channels": [0, 1]}))
+        json.dumps({"cell_mask_dim": 4, "channels": [0, 1]}), encoding="utf-8")
 
     recorded = read_recorded_settings(str(tmp_path))
 
@@ -438,7 +438,7 @@ def test_a_journal_folder_that_cannot_be_read_is_no_information(tmp_path):
     Treating it as a match would let a resume continue across a settings
     change it never saw.
     """
-    (tmp_path / "settings.json").write_text("{not json at all")
+    (tmp_path / "settings.json").write_text("{not json at all", encoding="utf-8")
 
     assert read_recorded_settings(str(tmp_path)) == {}
 
@@ -446,7 +446,7 @@ def test_a_journal_folder_that_cannot_be_read_is_no_information(tmp_path):
 def test_a_settings_csv_that_cannot_be_opened_is_no_information(tmp_path):
     """Same rule for the CSV shape `save_settings` writes."""
     path = tmp_path / "measure_crop_settings.csv"
-    path.write_text("Key,Value\ncell_mask_dim,4\n")
+    path.write_text("Key,Value\ncell_mask_dim,4\n", encoding="utf-8")
     path.chmod(0o000)
     try:
         assert read_recorded_settings(str(path)) == {}
@@ -458,7 +458,7 @@ def test_a_settings_csv_that_cannot_be_opened_is_no_information(tmp_path):
 def test_a_settings_json_that_will_not_parse_is_no_information(tmp_path, body):
     """A truncated settings.json must not silently authorise a resume."""
     path = tmp_path / "settings.json"
-    path.write_text(body)
+    path.write_text(body, encoding="utf-8")
 
     assert read_recorded_settings(str(path)) == {}
 

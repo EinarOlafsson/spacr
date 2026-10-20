@@ -193,7 +193,7 @@ def test_on_a_real_computer_a_uv_on_path_outside_the_copy_is_used(tmp_path, monk
     root = tmp_path / "spacr"
     outside = tmp_path / "tools" / "uv"
     outside.parent.mkdir()
-    outside.write_text("uv")
+    outside.write_text("uv", encoding="utf-8")
     inside = root / "bin" / "uv"
     machine = ic._Machine(platform="linux", executable=str(root / "venv" / "bin" / "python"),
                           running_prefix=str(root / "venv"), which=lambda name: str(outside))

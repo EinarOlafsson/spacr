@@ -181,11 +181,11 @@ def test_open_loads_installed_recipe_into_its_real_module_without_running(
         "key": "fit", "name": "Fit recipe", "version": "1",
         "app": module, "settings": values,
     }]}
-    source.write_text(json.dumps(data))
+    source.write_text(json.dumps(data), encoding="utf-8")
     plugins._install_from_catalogue("fit", str(source))
     data["recipes"][0].update(version="2", app="measure",
                               settings={"fdr_alpha": 0.9})
-    source.write_text(json.dumps(data))
+    source.write_text(json.dumps(data), encoding="utf-8")
     prefs._set_plugin_catalogue(str(source))
     dialog = QDialog(window)
     qtbot.addWidget(dialog)

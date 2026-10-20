@@ -13,15 +13,15 @@ from spacr import install_cleanup as cleanup
 
 def _payload(root, version):
     root.mkdir()
-    (root / "spacr.exe").write_text(version)
+    (root / "spacr.exe").write_text(version, encoding="utf-8")
     metadata = root / "_internal" / ("spacr-" + version + ".dist-info") / "METADATA"
     metadata.parent.mkdir(parents=True)
-    metadata.write_text("Name: spacr\nVersion: " + version + "\n")
+    metadata.write_text("Name: spacr\nVersion: " + version + "\n", encoding="utf-8")
     (root / "_internal" / "runtime.dll").write_bytes(version.encode())
     files = {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
              for path in root.rglob("*") if path.is_file()}
     (root / "spacr-payload.json").write_text(json.dumps(
-        {"schema": 1, "version": version, "files": files}))
+        {"schema": 1, "version": version, "files": files}), encoding="utf-8")
     return root
 
 
@@ -32,7 +32,7 @@ def _identity(argv):
         "executable": str(root / "spacr.exe"), "bundle_root": str(root),
         "import_root": str(root / "_internal"),
         "module": str(root / "_internal" / "spacr" / "__init__.py"),
-    }))
+    }), encoding="utf-8")
     return 0, ""
 
 

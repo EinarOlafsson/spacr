@@ -78,7 +78,7 @@ def test_settings_files_that_do_not_match_the_stem_are_passed_over(tmp_path):
     # has to advance past the earlier ones -- the arc that goes round.
     wanted = tmp_path / f"{stems[-1]}.csv"
     for name in ("metrics.csv", "train_test_resnet50_10.csv", wanted.name):
-        (tmp_path / name).write_text("setting,value\n")
+        (tmp_path / name).write_text("setting,value\n", encoding="utf-8")
 
     picked = _pick_settings_file(sorted(tmp_path.iterdir()), "maxvit_t", "25")
 

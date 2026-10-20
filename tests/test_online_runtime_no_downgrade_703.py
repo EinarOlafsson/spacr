@@ -30,11 +30,11 @@ def _runtime(root, version, *, broken_import=False, with_packaging=False):
     package.mkdir()
     (package / '__init__.py').write_text(
         'raise ImportError("unavailable optional GUI dependency")\n' if broken_import else
-        'from ._version import __version__\n')
-    (package / '_version.py').write_text(f'__version__ = {version!r}\n')
+        'from ._version import __version__\n', encoding="utf-8")
+    (package / '_version.py').write_text(f'__version__ = {version!r}\n', encoding="utf-8")
     info = site / f'spacr-{version}.dist-info'
     info.mkdir()
-    (info / 'METADATA').write_text(f'Metadata-Version: 2.1\nName: spacr\nVersion: {version}\n')
+    (info / 'METADATA').write_text(f'Metadata-Version: 2.1\nName: spacr\nVersion: {version}\n', encoding="utf-8")
     retained = root / 'private cache'
     retained.mkdir()
     (retained / 'weights.bin').write_bytes(b'original model bytes')
@@ -95,7 +95,7 @@ def test_older_staged_runtime_cannot_replace_newer_even_with_broken_import(tmp_p
 def test_untrusted_previous_identity_is_refused_without_modifying_either_runtime(tmp_path, damage):
     old = tmp_path / 'previous runtime'
     if damage == 'file':
-        old.write_text('unknown previous runtime')
+        old.write_text('unknown previous runtime', encoding="utf-8")
     else:
         previous_python, package, info = _runtime(old, '1.5.1.4', broken_import=True)
         if damage == 'missing-python':
@@ -103,19 +103,19 @@ def test_untrusted_previous_identity_is_refused_without_modifying_either_runtime
         elif damage == 'missing-metadata':
             shutil.rmtree(info)
         elif damage == 'different-code':
-            (package / '_version.py').write_text('__version__ = "1.5.1.6"\n')
+            (package / '_version.py').write_text('__version__ = "1.5.1.6"\n', encoding="utf-8")
         elif damage == 'duplicate-owner':
             other = info.with_name('spacr_nightly-1.5.1.6.dist-info')
             other.mkdir()
-            (other / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr-nightly\nVersion: 1.5.1.6\n')
+            (other / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr-nightly\nVersion: 1.5.1.6\n', encoding="utf-8")
         elif damage == 'editable':
-            (info / 'direct_url.json').write_text('{"dir_info":{"editable":true}}')
+            (info / 'direct_url.json').write_text('{"dir_info":{"editable":true}}', encoding="utf-8")
         elif damage == 'shadow':
             shadow = tmp_path / 'foreign code'
             (shadow / 'spacr').mkdir(parents=True)
-            (shadow / 'spacr/__init__.py').write_text('raise RuntimeError("never execute this")\n')
+            (shadow / 'spacr/__init__.py').write_text('raise RuntimeError("never execute this")\n', encoding="utf-8")
             (package.parent / 'foreign.pth').write_text(
-                f'import sys; sys.path.insert(0, {str(shadow)!r})\n')
+                f'import sys; sys.path.insert(0, {str(shadow)!r})\n', encoding="utf-8")
         elif damage == 'linked-metadata':
             outside = tmp_path / 'unrelated package metadata'
             shutil.move(str(info), str(outside))
@@ -124,7 +124,7 @@ def test_untrusted_previous_identity_is_refused_without_modifying_either_runtime
             except OSError:
                 pytest.skip('native filesystem does not permit disposable directory symlinks')
         elif damage == 'malformed-metadata':
-            (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\n')
+            (info / 'METADATA').write_text('Metadata-Version: 2.1\nName: spacr\n', encoding="utf-8")
     python, _, _ = _runtime(tmp_path / 'staged runtime', '1.5.1.5', with_packaging=True)
     before = _snapshot(tmp_path)
     result = _verify(python, old)

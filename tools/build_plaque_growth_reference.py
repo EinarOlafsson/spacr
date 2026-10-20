@@ -65,7 +65,7 @@ def build(source, destination):
         endpoint_mae_hours=statistics.mean(e['held_out_absolute_error_hours'] for e in experiments),
     )
     destination.mkdir(parents=True, exist_ok=True)
-    (destination / 'reference.json').write_text(json.dumps(reference, indent=2) + '\n')
+    (destination / 'reference.json').write_text(json.dumps(reference, indent=2) + '\n', encoding="utf-8")
     with (destination / 'control_areas.csv').open('w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader()

@@ -21,9 +21,9 @@ def acquisition(tmp_path):
         folder.mkdir(parents=True)
         tifffile.imwrite(folder / 'field01_C1.tif', np.arange(64, dtype=np.uint16).reshape(8, 8))
     records = tmp_path / 'records.csv'
-    records.write_text('barcode,well,strain,compound,concentration\n00123,A01,RH,DMSO,0\n00123,A03,ME49,drug,5\n')
+    records.write_text('barcode,well,strain,compound,concentration\n00123,A01,RH,DMSO,0\n00123,A03,ME49,drug,5\n', encoding="utf-8")
     own = tmp_path / 'own.csv'
-    own.write_text('plateID,well,compound,concentration\nplate1,A01,DMSO,1\n')
+    own.write_text('plateID,well,compound,concentration\nplate1,A01,DMSO,1\n', encoding="utf-8")
     settings = {'src': str(raw), 'dst': str(tmp_path / 'converted'),
                 'plate_barcode_source': str(records),
                 'plate_barcodes': {'plate1': '00123'},
@@ -65,7 +65,7 @@ def test_convert_settings_entry_links_only_imported_wells_with_mismatches(acquis
 def test_normal_cli_settings_path_performs_the_import_linkage(acquisition, tmp_path):
     from spacr import cli
     settings = tmp_path / 'settings.json'
-    settings.write_text(json.dumps(acquisition))
+    settings.write_text(json.dumps(acquisition), encoding="utf-8")
     assert cli.main(['convert', '--settings', str(settings)]) == cli.EXIT_OK
     assert (Path(acquisition['dst']) / 'plate_barcode_linkage/complete.json').is_file()
 
@@ -93,7 +93,7 @@ def test_bad_configuration_fails_before_image_output(acquisition, override, matc
 
 
 def test_bad_csv_schema_fails_before_image_output(acquisition):
-    Path(acquisition['plate_barcode_source']).write_text('barcode,not_a_well\n00123,x\n')
+    Path(acquisition['plate_barcode_source']).write_text('barcode,not_a_well\n00123,x\n', encoding="utf-8")
     with pytest.raises(ValueError):
         cv.convert_folder(acquisition)
     assert not Path(acquisition['dst']).exists()
@@ -107,7 +107,7 @@ def test_existing_bundle_is_refused_without_touching_any_output(acquisition, kin
     if kind == 'directory':
         bundle.mkdir()
     elif kind == 'file':
-        bundle.write_text('existing bundle')
+        bundle.write_text('existing bundle', encoding="utf-8")
     else:
         bundle.symlink_to(tmp_path / 'absent')
     before = list(bundle.parent.iterdir())
@@ -146,7 +146,7 @@ def test_changed_records_during_conversion_refuse_stale_metadata(acquisition, mo
     def changed(*args, **kwargs):
         """Model an independent metadata edit after preflight."""
         result = actual(*args, **kwargs)
-        Path(acquisition['plate_barcode_source']).write_text('barcode,well,strain\n00123,A01,changed\n')
+        Path(acquisition['plate_barcode_source']).write_text('barcode,well,strain\n00123,A01,changed\n', encoding="utf-8")
         return result
 
     monkeypatch.setattr(cv, 'convert', changed)
@@ -163,7 +163,7 @@ def test_late_bundle_collision_is_preserved(acquisition, monkeypatch):
         """Create a competing bundle at the real publication boundary."""
         result = actual(*args, **kwargs)
         marker.parent.mkdir()
-        marker.write_text('other run')
+        marker.write_text('other run', encoding="utf-8")
         return result
 
     monkeypatch.setattr(cv, 'convert', collided)

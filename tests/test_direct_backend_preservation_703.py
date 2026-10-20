@@ -13,7 +13,7 @@ def installation(tmp_path, monkeypatch, spelling='absolute'):
     code = prefix / 'bin' / 'python'
     code.parent.mkdir(parents=True)
     code.write_bytes(b'old primary runtime')
-    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('include-system-site-packages = false\n', encoding="utf-8")
     backends = prefix / 'spacr-backends'
     interpreter = backends / 'cellpose' / 'bin' / 'python'
     interpreter.parent.mkdir(parents=True)
@@ -41,6 +41,7 @@ def installation(tmp_path, monkeypatch, spelling='absolute'):
     return root, prefix, code, backends, interpreter, weights, machine, record
 
 
+@pytest.mark.needs_symlink
 @pytest.mark.parametrize('spelling', ['absolute', 'relative', 'home', 'padded', 'alias'])
 def test_retirement_preserves_direct_backend_runtime_and_models(tmp_path, monkeypatch, spelling):
     root, _prefix, code, _backends, interpreter, weights, machine, record = installation(

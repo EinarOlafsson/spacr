@@ -130,8 +130,8 @@ def pytest_configure(config: pytest.Config) -> None:
             root=str(config.rootpath.resolve()),
             executable=str(executable),
             executable_sha256=digest.hexdigest(),
-            process_start_ticks=Path("/proc/self/stat").read_text().rsplit(") ", 1)[1].split()[19],
-            boot_id=Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+            process_start_ticks=Path("/proc/self/stat").read_text(encoding="utf-8").rsplit(") ", 1)[1].split()[19],
+            boot_id=Path("/proc/sys/kernel/random/boot_id").read_text(encoding="utf-8").strip(),
             worker=os.environ.get("PYTEST_XDIST_WORKER", "controller"),
         )
         return

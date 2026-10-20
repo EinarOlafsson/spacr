@@ -66,7 +66,7 @@ def test_disjoint_generated_caption_additions_merge_without_conflicts(generate_e
     )
     assert merged.returncode == 0, "Independent generated caption additions conflicted"
     output = tmp_path / "merged.py"
-    output.write_text(merged.stdout)
+    output.write_text(merged.stdout, encoding="utf-8")
     result = read_generated(output)
     expected = read_generated(generate_english("expected", captions | {left_added, right_added}))
     for assignment in (

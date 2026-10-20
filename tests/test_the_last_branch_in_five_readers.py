@@ -25,7 +25,7 @@ def _v2_merged(tmp_path, names):
     merged = tmp_path / "merged"
     merged.mkdir()
     (merged / "channel_order.json").write_text(json.dumps({
-        "image_channels": ["dapi"], "mask_channels": ["cell"]}))
+        "image_channels": ["dapi"], "mask_channels": ["cell"]}), encoding="utf-8")
     for name in names:
         np.save(merged / name, np.zeros((4, 4, 2), dtype=np.uint16))
     return merged
@@ -54,7 +54,7 @@ def test_a_file_that_is_not_an_npy_is_skipped(tmp_path):
     from spacr._v1_v2_bridge import v2_mask_source
 
     merged = _v2_merged(tmp_path, ["stack_plate1_A01_F001.npy"])
-    (merged / "notes.txt").write_text("not a field")
+    (merged / "notes.txt").write_text("not a field", encoding="utf-8")
 
     assert set(v2_mask_source(merged, object_type="cell")) == {"plate1_A01_F001"}
 
@@ -114,10 +114,10 @@ def test_a_screen_folder_with_no_test_output_is_left_out_of_the_index(tmp_path):
     from spacr.classifier_quality import discover_test_splits
 
     (tmp_path / "model_a").mkdir()
-    (tmp_path / "model_a" / "epoch3_test_predictions.csv").write_text("a,b\n1,2\n")
+    (tmp_path / "model_a" / "epoch3_test_predictions.csv").write_text("a,b\n1,2\n", encoding="utf-8")
     (tmp_path / "model_b").mkdir()                       # started, not evaluated
     (tmp_path / "model_c").mkdir()
-    (tmp_path / "model_c" / "notes.txt").write_text("nothing matching")
+    (tmp_path / "model_c" / "notes.txt").write_text("nothing matching", encoding="utf-8")
 
     found = discover_test_splits(str(tmp_path))
 
@@ -130,7 +130,7 @@ def test_a_root_that_is_not_a_directory_is_refused(tmp_path):
     from spacr.classifier_quality import discover_test_splits
 
     plain = tmp_path / "a_file"
-    plain.write_text("")
+    plain.write_text("", encoding="utf-8")
     with pytest.raises(ValueError, match="not a directory"):
         discover_test_splits(str(plain))
 

@@ -211,7 +211,7 @@ def test_make_masks_queues_a_mix_across_folders(masks_screen, tmp_path,
 def test_make_masks_still_refuses_what_it_cannot_open(masks_screen,
                                                       tmp_path, said):
     note = tmp_path / "notes.txt"
-    note.write_text("not an image")
+    note.write_text("not an image", encoding="utf-8")
     _drop(masks_screen, [note])
     assert masks_screen._image_files == []
     assert said and "Make Masks" in said[0][0]
@@ -282,7 +282,7 @@ def test_plaque_refusals_never_mention_make_masks(plaque_screen, tmp_path,
                         asked.append(question) or mode)
     empty = tmp_path / "nothing_here"
     empty.mkdir()
-    (empty / "readme.txt").write_text("x")
+    (empty / "readme.txt").write_text("x", encoding="utf-8")
     _drop(plaque_screen, [empty])
     _drop(plaque_screen, [empty / "readme.txt"])
     pdf = tmp_path / "paper.pdf"

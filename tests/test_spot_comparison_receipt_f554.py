@@ -26,14 +26,14 @@ def comparison(tmp_path, monkeypatch):
     database = tmp_path / 'measurements.db'
     database.write_bytes(b'recorded measurement input')
     library = tmp_path / 'library.csv'
-    library.write_text('barcode\nACGT\n')
+    library.write_text('barcode\nACGT\n', encoding="utf-8")
     envs = {}
     for name in ['spotnet', 'spotiflow']:
         env = tmp_path / name
         cache = env / ('models' if name == 'spotiflow' else 'home/.deepcell/models')
         cache.mkdir(parents=True)
         (cache / 'weights.bin').write_bytes(name.encode())
-        (env / 'spacr-backend.json').write_text('{}')
+        (env / 'spacr-backend.json').write_text('{}', encoding="utf-8")
         envs[name] = env
     monkeypatch.setattr(tool.SB, '_backend_state', lambda name: SimpleNamespace(env=str(envs[name])))
     monkeypatch.setattr(tool.SB, '_listen_to_workers', lambda *a: None)
@@ -134,7 +134,7 @@ def test_existing_destination_or_input_alias_is_refused_before_decode(comparison
 def test_atomic_publish_collision_keeps_previous_file_and_cleans_scratch(tmp_path):
     tool = _tool()
     target = tmp_path / 'receipt.json'
-    target.write_text('previous')
+    target.write_text('previous', encoding="utf-8")
     with pytest.raises(FileExistsError):
         tool._write_strict_receipt(target, 'new')
     assert target.read_text(encoding="utf-8") == 'previous'

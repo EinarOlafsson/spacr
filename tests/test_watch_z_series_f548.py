@@ -100,7 +100,7 @@ def test_projected_z_watch_matches_batch_mask_and_measure(tmp_path, real_pipelin
     core.preprocess_generate_masks(dict(MASK, src=str(batch)))
     measure_crop(dict(MEASURE, src=str(batch / 'merged')))
     recipe = tmp_path / 'measure.json'
-    recipe.write_text(json.dumps(MEASURE))
+    recipe.write_text(json.dumps(MEASURE), encoding="utf-8")
     result = core.preprocess_generate_masks(dict(
         MASK, **_fast(watched), watch_pipeline='mask_measure',
         watch_measure_settings=str(recipe)))

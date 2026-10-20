@@ -85,9 +85,9 @@ def test_a_zero_row_log_is_not_described_as_ordered_by_row(tmp_path):
     dst = tmp_path / "epochs_10"
     dst.mkdir()
     # Header only: killed before epoch 1 was appended.
-    (dst / "train.csv").write_text("accuracy,loss\n")
+    (dst / "train.csv").write_text("accuracy,loss\n", encoding="utf-8")
     # Rows, but an older writer that never wrote an epoch column.
-    (dst / "validation.csv").write_text("accuracy,loss\n0.51,0.90\n0.58,0.71\n")
+    (dst / "validation.csv").write_text("accuracy,loss\n0.51,0.90\n0.58,0.71\n", encoding="utf-8")
 
     run = load_run(dst, run_id="R")
     notes = "\n".join(run.notes)

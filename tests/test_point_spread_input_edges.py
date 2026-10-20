@@ -138,7 +138,7 @@ def test_the_first_image_is_found_in_a_list_a_folder_or_its_orig(tmp_path):
     assert ps._first_image(None) is None
     assert ps._first_image([tmp_path / 'nothing', str(tmp_path)]) is None
     note = tmp_path / 'readme.txt'
-    note.write_text('x')
+    note.write_text('x', encoding="utf-8")
     assert ps._first_image(note) is None
     orig = tmp_path / 'orig'
     orig.mkdir()

@@ -13,9 +13,9 @@ LANGUAGES = {'es', 'fr', 'it', 'pt-BR', 'hi', 'ja', 'zh-CN', 'da', 'de', 'is', '
 
 
 def test_complete_source_pinned_editorial_matrix():
-    english = json.loads((ROOT / 'lessons/12_map_barcodes.json').read_text())
+    english = json.loads((ROOT / 'lessons/12_map_barcodes.json').read_text(encoding="utf-8"))
     digest = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-    reviews = {path.name.split('.')[1]: json.loads(path.read_text())
+    reviews = {path.name.split('.')[1]: json.loads(path.read_text(encoding="utf-8"))
                for path in (ROOT / 'lessons/reviews').glob('12_map_barcodes.*.json')
                if path.name != '12_map_barcodes.reviewed.json'}
     assert set(reviews) == LANGUAGES

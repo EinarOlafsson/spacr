@@ -36,7 +36,7 @@ def main():
     parser.add_argument("--context", type=Path, required=True)
     parser.add_argument("--evidence", type=Path, required=True)
     args = parser.parse_args()
-    context = json.loads(args.context.read_text())
+    context = json.loads(args.context.read_text(encoding="utf-8"))
     binding = source_guard(context)
     args.evidence.mkdir(parents=True, exist_ok=True)
     if args.mode == "bind":
@@ -61,11 +61,11 @@ def main():
                    "scope": context["scope"], "diagnostic_only": True,
                    "run_id": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
                    "workflow_sha": os.environ.get("GITHUB_SHA")}
-        (args.evidence / "source-runtime-binding.json").write_text(json.dumps(receipt, indent=2) + "\n")
+        (args.evidence / "source-runtime-binding.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
         subprocess.run([sys.executable, "-m", "pip", "list", "--format=json"], check=True,
                        stdout=(args.evidence / "installed-packages.json").open("w"))
         return 0
-    expected_binding = json.loads((args.evidence / "source-runtime-binding.json").read_text())
+    expected_binding = json.loads((args.evidence / "source-runtime-binding.json").read_text(encoding="utf-8"))
     assert expected_binding["source_sha"] == binding["source_sha"]
     command = [sys.executable, "-m", "pytest", *context["nodes"],
         "-m", "qt and not slow and not heavy and not gpu and not network and not nas and not gui",
@@ -77,7 +77,7 @@ def main():
         "scope": context["scope"], "timeout_seconds": 2700, "retries": 0,
         "post_failure_capture_only": True, "original_concurrent_gw1_reproduced": False,
         "workflow_sha": expected_binding["workflow_sha"],
-        "native_child_GITHUB_SHA_is_actual_test_checkout": context["source_sha"]}, indent=2) + "\n")
+        "native_child_GITHUB_SHA_is_actual_test_checkout": context["source_sha"]}, indent=2) + "\n", encoding="utf-8")
     sys.path.insert(0, str(Path.cwd()))
     from tools.run_pytest_batches import _run_bounded
     child_environment = os.environ.copy()
@@ -120,8 +120,8 @@ def main():
     receipt["context_integrity_pass"] = integrity
     diagnostic_exit = original.returncode if original.returncode != 0 else 0 if integrity else 3
     receipt["actual_diagnostic_exit"] = diagnostic_exit
-    (args.evidence / "terminal.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    (args.evidence / "actual-original-pytest.exit").write_text(str(original.returncode) + "\n")
+    (args.evidence / "terminal.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    (args.evidence / "actual-original-pytest.exit").write_text(str(original.returncode) + "\n", encoding="utf-8")
     return diagnostic_exit
 
 

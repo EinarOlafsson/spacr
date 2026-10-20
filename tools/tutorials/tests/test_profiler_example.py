@@ -64,6 +64,6 @@ def test_package_preserves_fit_and_refuses_changed_input(tmp_path):
     saved = (tmp_path/'example.zip').read_bytes()
     with pytest.raises(FileExistsError): example.package(source, tmp_path/'example.zip')
     assert (tmp_path/'example.zip').read_bytes() == saved
-    (source/'SYNTHETIC_OLS_coefficients.csv').write_text('feature,coefficient\nIntercept,999\n')
+    (source/'SYNTHETIC_OLS_coefficients.csv').write_text('feature,coefficient\nIntercept,999\n', encoding="utf-8")
     with pytest.raises(ValueError, match='manifest'): example.package(source, tmp_path/'bad.zip')
     assert not (tmp_path/'bad.zip').exists()

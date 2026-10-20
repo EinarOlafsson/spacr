@@ -564,7 +564,7 @@ def test_sequencing_is_clean_when_the_csvs_exist(tmp_path):
     settings = {"src": str(src)}
     for key in ("grna_csv", "row_csv", "column_csv"):
         path = tmp_path / f"{key}.csv"
-        path.write_text("name,sequence\na,ACGT\n")
+        path.write_text("name,sequence\na,ACGT\n", encoding="utf-8")
         settings[key] = str(path)
     assert not errors(validate_settings(settings, "map_barcodes"))
 

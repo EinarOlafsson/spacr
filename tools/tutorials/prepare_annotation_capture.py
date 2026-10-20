@@ -83,7 +83,7 @@ def prepare(source: Path, destination: Path, visible: Path):
                    existing_values_sha256=hashlib.sha256(json.dumps(
                        unchanged(rows), ensure_ascii=False).encode()).hexdigest())
     (destination / 'annotation_capture_copy.json').write_text(
-        json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
+        json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding="utf-8")
     return receipt
 
 

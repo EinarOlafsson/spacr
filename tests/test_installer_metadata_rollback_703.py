@@ -17,7 +17,7 @@ UNIX = ROOT / 'packaging/online/install_spacr_unix.sh'
 
 def _write(path, text):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text)
+    path.write_text(text, encoding="utf-8")
     return path
 
 
@@ -38,10 +38,10 @@ def test_real_subprocess_restores_original_bytes_modes_links_and_absent_receipt(
     folder = tmp_path / 'snapshot'
     snapshot = _cli('snapshot', '--folder', folder, '--paths', source, receipt, launcher)
     assert snapshot.returncode == 0, snapshot.stdout + snapshot.stderr
-    source.write_text('new profile')
-    receipt.write_text('new identity')
+    source.write_text('new profile', encoding="utf-8")
+    receipt.write_text('new identity', encoding="utf-8")
     launcher.unlink()
-    launcher.write_text('new launcher')
+    launcher.write_text('new launcher', encoding="utf-8")
     for _ in range(2):
         restored = _cli('restore', '--folder', folder)
         assert restored.returncode == 0, restored.stdout + restored.stderr
@@ -60,10 +60,10 @@ def test_restore_validates_all_backup_bindings_before_writing_any_target(tmp_pat
     second = _write(tmp_path / 'live/second', 'original second')
     folder = tmp_path / 'snapshot'
     state = ic._installer_metadata_snapshot(str(folder), [str(first), str(second)])
-    first.write_text('new first');second.write_text('new second')
+    first.write_text('new first', encoding="utf-8");second.write_text('new second', encoding="utf-8")
     journal = folder / 'metadata.json'
     backup = folder / state['records'][1]['backup']
-    if damage == 'backup-content': backup.write_text('corrupt backup')
+    if damage == 'backup-content': backup.write_text('corrupt backup', encoding="utf-8")
     elif damage == 'backup-link':
         backup.unlink();backup.symlink_to(first)
     elif damage == 'journal-link':
@@ -72,9 +72,9 @@ def test_restore_validates_all_backup_bindings_before_writing_any_target(tmp_pat
         first.parent.rename(tmp_path / 'original-live')
         (tmp_path / 'live').symlink_to(tmp_path / 'original-live', target_is_directory=True)
     elif damage == 'traversal':
-        state['records'][1]['backup'] = '../live/first';journal.write_text(json.dumps(state))
+        state['records'][1]['backup'] = '../live/first';journal.write_text(json.dumps(state), encoding="utf-8")
     elif damage == 'duplicate':
-        state['records'][1]['path'] = state['records'][0]['path'];journal.write_text(json.dumps(state))
+        state['records'][1]['path'] = state['records'][0]['path'];journal.write_text(json.dumps(state), encoding="utf-8")
     with pytest.raises((ValueError, OSError)):
         ic._installer_metadata_restore(str(folder))
     assert first.read_text(encoding="utf-8") == 'new first' and second.read_text(encoding="utf-8") == 'new second'
@@ -127,7 +127,7 @@ def test_actual_linux_exit_trap_restores_runtime_and_matching_sidecars_or_retain
     if corrupt_backup:
         commands += ['printf corrupt > "$metadata_backup/0"']
     commands += ['exit 17']
-    script.write_text('\n'.join(commands)+'\n')
+    script.write_text('\n'.join(commands)+'\n', encoding="utf-8")
     result = subprocess.run(['bash',str(script)],capture_output=True,text=True,timeout=20)
     assert result.returncode == 17, result.stderr
     assert (live/'code').read_text(encoding="utf-8") == 'old runtime'

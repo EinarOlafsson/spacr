@@ -301,7 +301,7 @@ def capture_report_browser(receipt_path, receipt_sha256, output_dir, *,
                 'native_scroll_actions': [], 'native_disclosure_actions': []}
 
     def write(name, value):
-        (destination / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+        (destination / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n', encoding="utf-8")
 
     def remaining():
         left = timeout - (time.monotonic() - started)

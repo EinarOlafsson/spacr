@@ -75,7 +75,7 @@ def test_bad_schema_keeps_valid_draft_preview_and_apply(qtbot, tmp_path, monkeyp
     filename_recipe(qtbot, dialog)
     previous = copy.deepcopy(dialog.configuration())
     result = dialog.result_frame
-    path.write_text('{not json')
+    path.write_text('{not json', encoding="utf-8")
     click(qtbot, dialog.load_schema_button)
     assert dialog.configuration() == previous
     assert dialog.result_frame is result
@@ -85,14 +85,14 @@ def test_bad_schema_keeps_valid_draft_preview_and_apply(qtbot, tmp_path, monkeyp
     click(qtbot, dialog.save_schema_button)
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload['columns'][0]['metadata_column'] = 'missing_column'
-    path.write_text(json.dumps(payload))
+    path.write_text(json.dumps(payload), encoding="utf-8")
     click(qtbot, dialog.load_schema_button)
     assert dialog.configuration() == previous
     assert dialog.result_frame is result
     assert dialog.apply_button.isEnabled()
     payload['columns'] = [{'column': 'invalid', 'kind': 'rules', 'conditions': [{
         'name': 'bad', 'metadata_column': ['filename'], 'include': 'WT'}]}]
-    path.write_text(json.dumps(payload))
+    path.write_text(json.dumps(payload), encoding="utf-8")
     click(qtbot, dialog.load_schema_button)
     assert dialog.configuration() == previous
     assert dialog.result_frame is result
@@ -163,7 +163,7 @@ def test_schema_criteria_retains_exact_and_regex_exclusions(qtbot, tmp_path, mon
                 'criteria': [{'metadata_column': 'filename', 'operator': 'regex', 'value': '.*'}], **extra}
         path.write_text(json.dumps({'format': 'spacr.annotation-schema', 'version': 1,
                                    'recipe_version': 3, 'manual_rows': 'excluded',
-                                   'columns': [{'column': 'assigned', 'kind': 'rules', 'conditions': [rule]}]}))
+                                   'columns': [{'column': 'assigned', 'kind': 'rules', 'conditions': [rule]}]}), encoding="utf-8")
         dialog = dialog_for(qtbot)
         click(qtbot, dialog.load_schema_button)
         assert dialog.apply_button.isEnabled(), dialog.status.text()

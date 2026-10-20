@@ -48,7 +48,7 @@ def _tree(root: Path) -> Path:
     for rel in ("nuc/a.tif", "nuc/b.tif", "cell/a.tif", "cell/deep/c.tif",
                 "top.tif", "nuc/masks/a.tif", "notes.txt"):
         _tif(src / rel, np.zeros((4, 4), np.uint16)) if rel.endswith(".tif") \
-            else (src / rel).write_text("x")
+            else (src / rel).write_text("x", encoding="utf-8")
     return src
 
 
@@ -255,7 +255,7 @@ def _masked_folder(root: Path, shapes=((20, 30), (20, 30), (24, 24))):
         _tif(folder / cell, np.full(shape, 100 + i, np.uint16))
         _tif(folder / "masks" / (nuc[:-4] + ".tif"), np.full(shape, i + 1, np.uint16))
         _tif(folder / "masks" / (cell[:-4] + ".tif"), np.full(shape, i + 1, np.uint16))
-        (folder / "masks" / (cell[:-4] + ".tif.curation.json")).write_text("{}")
+        (folder / "masks" / (cell[:-4] + ".tif.curation.json")).write_text("{}", encoding="utf-8")
         channels[nuc], channels[cell] = 1, 2
     return folder, channels
 

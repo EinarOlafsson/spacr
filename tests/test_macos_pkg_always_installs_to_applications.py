@@ -33,7 +33,7 @@ def test_the_1499_system_runtime_is_retired_and_its_cache_kept(tmp_path):
     legacy = tmp_path / "Library" / "Application Support" / "spaCR"
     for part in ("venv/bin", "python/cpython", "bootstrap", "cache/wheels-v6"):
         (legacy / part).mkdir(parents=True)
-    (legacy / "install-online.sh").write_text("helper")
+    (legacy / "install-online.sh").write_text("helper", encoding="utf-8")
     elsewhere = tmp_path / "keep"
     elsewhere.mkdir()
     (legacy / "linked").symlink_to(elsewhere)

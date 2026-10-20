@@ -42,7 +42,7 @@ def record_investigate_hit(app, window, host, stage, captures, capture,
     database = example / 'measurements/measurements.db'
     predictions = example / 'cv_predictions.csv'
     fractions = run / 'regression_data.csv'
-    manifest = json.loads((example / 'example_manifest.json').read_text())
+    manifest = json.loads((example / 'example_manifest.json').read_text(encoding="utf-8"))
     proof = dict(accepted=False, zip_sha256=_digest(archive), synthetic_data=False,
                  inputs={str(p.relative_to(work)): _digest(p) for p in
                          (database, predictions, fractions, run / 'results_gene.csv')},

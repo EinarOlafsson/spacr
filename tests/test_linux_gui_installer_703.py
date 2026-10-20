@@ -38,7 +38,7 @@ elif '--text-info' in args and not any(a.startswith('--filename=') for a in args
     time.sleep(30)
 elif '--progress' in args:
     time.sleep(30)
-''')
+''', encoding="utf-8")
     stub.chmod(0o755)
     backend = tmp_path / 'backend.sh'
     backend.write_text('''#!/bin/bash
@@ -57,7 +57,7 @@ case "$GUI_CASE" in
         ;;
 esac
 printf 'backend complete\\n'
-''')
+''', encoding="utf-8")
     source = SCRIPT.read_text(encoding="utf-8").split('# @SPACR_LINUX_GUI_BEGIN@',1)[1].split('# @SPACR_LINUX_GUI_END@',1)[0]
     harness = tmp_path / 'harness.sh'
     harness.write_text('''#!/bin/bash
@@ -69,7 +69,7 @@ if [[ "$GUI_CASE" == missing ]]; then
     command() { if [[ "${2:-}" == zenity ]]; then return 1; fi; builtin command "$@"; }
 fi
 spacr_linux_gui_install ''' + shlex.quote(str(backend)) + ''' --package-spec 'fake wheel.whl' --gui --share-diagnostics --report-issues
-''')
+''', encoding="utf-8")
     environment = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        XDG_CACHE_HOME=str(tmp_path / 'cache'), DIALOG_RECORD=str(tmp_path / 'dialogs.jsonl'),
                        BACKEND_ARGS=str(tmp_path / 'backend-args'), DIALOG_READY=str(tmp_path / 'dialog-ready'), ROLLBACK_PROOF=str(tmp_path / 'restored'))
@@ -171,7 +171,7 @@ def test_actual_desktop_routing_preserves_explicit_headless_and_child_invocation
     harness = tmp_path / 'route.sh'
     harness.write_text('set -Eeuo pipefail\nSPACR_ORIGINAL_ARGS=()\n' +
                        '\n'.join(key + '=' + shlex.quote(value) for key,value in values.items()) +
-                       '\nspacr_linux_gui_install() { printf GUI; }\n' + route + '\nprintf CLI\n')
+                       '\nspacr_linux_gui_install() { printf GUI; }\n' + route + '\nprintf CLI\n', encoding="utf-8")
     result = subprocess.run(['bash', str(harness)], stdin=subprocess.DEVNULL,
                             capture_output=True, text=True, timeout=5)
     assert result.returncode == 0 and result.stdout == expected, result.stderr
@@ -197,11 +197,11 @@ def test_desktop_entry_runs_verified_private_python_without_command_launcher(tmp
         'exec ' + shlex.quote(sys.executable) + ' -I -c '
         + shlex.quote('import json,os,sys; from pathlib import Path; Path(os.environ["SPACR_LAUNCH_PROOF"]).write_text(json.dumps(sys.argv[1:]))')
         + ' "$@"\n'
-    )
+    , encoding="utf-8")
     python.chmod(0o755)
     launcher = tmp_path / "command directory" / "spacr"
     launcher.parent.mkdir()
-    launcher.write_text('#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n')
+    launcher.write_text('#!/bin/sh\nprintf stale > "$SPACR_LAUNCH_PROOF"\n', encoding="utf-8")
     launcher.chmod(0o755)
     shadow_python = launcher.parent / "python"
     shadow_python.write_bytes(launcher.read_bytes())
@@ -217,7 +217,7 @@ def test_desktop_entry_runs_verified_private_python_without_command_launcher(tmp
     harness = tmp_path / "desktop.sh"
     harness.write_text('set -euo pipefail\nspacr_say() { printf "%s" "$1"; }\n'
                        + '\n'.join(key + '=' + shlex.quote(value) for key, value in values.items())
-                       + '\n' + source[start:end] + '\nfi\n')
+                       + '\n' + source[start:end] + '\nfi\n', encoding="utf-8")
     environment = dict(os.environ, HOME=str(tmp_path), SPACR_LAUNCH_PROOF=str(proof))
     generated = subprocess.run(['bash', str(harness)], env=environment, capture_output=True, text=True, timeout=10)
     assert generated.returncode == 0, generated.stdout + generated.stderr

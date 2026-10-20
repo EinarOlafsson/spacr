@@ -53,7 +53,7 @@ def _merged(tmp_path, with_sidecar=True):
         (merged / MERGED_LAYOUT_SIDECAR).write_text(json.dumps({
             "version": 1, "intensity_channels": [0, 1, 2, 3],
             "mask_plane_order": list(masks),
-            "mask_dims": {role: 4 + i for i, role in enumerate(masks)}}))
+            "mask_dims": {role: 4 + i for i, role in enumerate(masks)}}), encoding="utf-8")
     return path, masks
 
 

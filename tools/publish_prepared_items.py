@@ -51,7 +51,7 @@ def validate(job):
         raise ValueError("Changes must match the exact prepared file allowlist")
     if job["item"] not in job["files"]:
         raise ValueError("Item must belong to the prepared file allowlist")
-    source = (root / job["item"]).read_text()
+    source = (root / job["item"]).read_text(encoding="utf-8")
     if not re.search(
             r"^Status:\s*(?:COMPLETE|DONE)\s+100%(?:\s|$)", source, re.I | re.M):
         raise ValueError("Prepared item must explicitly record full completion")
@@ -77,17 +77,17 @@ def counts(path):
 
 def save(path, value):
     temporary = path.with_suffix(".tmp")
-    temporary.write_text(json.dumps(value, indent=2) + "\n")
+    temporary.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
 
 
 def process(manifest, output):
     result = output / (manifest.stem + ".json")
     if result.exists():
-        prior = json.loads(result.read_text())
+        prior = json.loads(result.read_text(encoding="utf-8"))
         if prior["status"] == "committed":
             try:
-                root = Path(json.loads(manifest.read_text())["root"])
+                root = Path(json.loads(manifest.read_text(encoding="utf-8"))["root"])
                 if git(root, "rev-parse", "HEAD") != prior["commit"] or git(root, "status", "--porcelain"):
                     raise ValueError("Committed checkpoint changed; do not retry publication")
                 git(root, "push", "origin", "HEAD:nightly")
@@ -104,7 +104,7 @@ def process(manifest, output):
     state = dict(job=str(manifest), status="running", started=time.time())
     save(result, state)
     try:
-        job = json.loads(manifest.read_text())
+        job = json.loads(manifest.read_text(encoding="utf-8"))
         root = validate(job)
         env = dict(os.environ, CUDA_VISIBLE_DEVICES="", QT_QPA_PLATFORM="offscreen",
                    OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")

@@ -253,5 +253,5 @@ def test_describe_npz_reports_multiple_arrays(tmp_path):
 def test_describe_file_returns_none_for_random_file(tmp_path):
     from spacr.qt.multi_format import describe_file
     p = tmp_path / "not_a_dataset.txt"
-    p.write_text("just some notes")
+    p.write_text("just some notes", encoding="utf-8")
     assert describe_file(p) is None

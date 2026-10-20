@@ -230,7 +230,7 @@ def test_lif_without_images_is_not_a_field(tmp_path, monkeypatch):
 
 def _write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     return path
 
 
@@ -273,7 +273,7 @@ OME = 'http://www.openmicroscopy.org/Schemas/OME/2016-06'
 
 
 def _companion(path, body):
-    path.write_text(f'<?xml version="1.0"?><OME xmlns="{OME}">{body}</OME>')
+    path.write_text(f'<?xml version="1.0"?><OME xmlns="{OME}">{body}</OME>', encoding="utf-8")
     return str(path)
 
 
@@ -316,7 +316,7 @@ def test_ome_companion_tiffdata_past_the_declared_planes_waits(tmp_path):
 
 
 def _index(path, body):
-    path.write_text(f'<EvaluationInputData xmlns="urn:h">{body}</EvaluationInputData>')
+    path.write_text(f'<EvaluationInputData xmlns="urn:h">{body}</EvaluationInputData>', encoding="utf-8")
     return str(path)
 
 

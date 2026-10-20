@@ -914,7 +914,7 @@ def test_a_paired_row_that_is_not_a_mapping_is_skipped():
 def test_a_single_path_given_as_a_string_is_still_one_path(tmp_path):
     widgets = SM.SettingsWidgets("regression")
     csv_path = tmp_path / "scores.csv"
-    csv_path.write_text("plateID,x\np1,1\n")
+    csv_path.write_text("plateID,x\np1,1\n", encoding="utf-8")
 
     found = widgets._loaded_table_paths({"score_data": str(csv_path)})
 
@@ -942,7 +942,7 @@ def test_a_csv_the_sniffer_cannot_read_is_parsed_as_ordinary_csv(tmp_path):
     """A one-column file gives the sniffer nothing to sniff."""
     widgets = SM.SettingsWidgets("regression")
     odd = tmp_path / "one_column.csv"
-    odd.write_text("plateID\nplate1\nplate2\n")
+    odd.write_text("plateID\nplate1\nplate2\n", encoding="utf-8")
 
     context = widgets._plate_context([(0, str(odd))])
 

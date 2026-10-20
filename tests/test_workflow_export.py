@@ -165,7 +165,7 @@ def test_input_database_and_model_checkpoint_are_not_output_files(
 def test_explicit_convert_resume_input_cannot_be_silently_relocated(
         recorded, tmp_path, engine):
     checkpoint = tmp_path / "existing.json"
-    checkpoint.write_text('{"retained": true}')
+    checkpoint.write_text('{"retained": true}', encoding="utf-8")
     original = {"src": ["/a/plate", "/b/plate"], "dst": "/outputs",
                 "checkpoint_path": str(checkpoint), "resume": True}
     run = recorded("convert", original)

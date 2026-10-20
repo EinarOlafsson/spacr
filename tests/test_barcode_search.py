@@ -472,7 +472,7 @@ def test_plain_and_compressed_files_read_the_same(tmp_path):
 def test_a_truncated_final_record_is_dropped_rather_than_raising(tmp_path):
     """Copying a file that is still being written leaves a partial record."""
     path = tmp_path / "cut.fastq"
-    path.write_text("@a\nACGT\n+\nIIII\n@b\nTTTT\n+\n")
+    path.write_text("@a\nACGT\n+\nIIII\n@b\nTTTT\n+\n", encoding="utf-8")
 
     assert bs.sample_fastq_reads(str(path), 10) == ("ACGT",)
 
@@ -512,7 +512,7 @@ def test_a_reference_table_is_read_with_its_names(planted):
 def test_a_table_without_a_sequence_column_is_refused(tmp_path):
     """A file of the wrong shape is named rather than silently empty."""
     path = tmp_path / "wrong.csv"
-    path.write_text("name,barcode\nc1,ACGTACGT\n")
+    path.write_text("name,barcode\nc1,ACGTACGT\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="sequence"):
         bs.load_barcode_table(str(path))
@@ -521,7 +521,7 @@ def test_a_table_without_a_sequence_column_is_refused(tmp_path):
 def test_a_row_without_a_sequence_is_skipped(tmp_path):
     """A trailing or half filled row is a normal thing to find in a csv."""
     path = tmp_path / "gappy.csv"
-    path.write_text("name,sequence\nc1,\nc2,ACGTACGT\nc3,   \n")
+    path.write_text("name,sequence\nc1,\nc2,ACGTACGT\nc3,   \n", encoding="utf-8")
 
     table = bs.load_barcode_table(str(path), role="column")
 
@@ -531,7 +531,7 @@ def test_a_row_without_a_sequence_is_skipped(tmp_path):
 def test_an_empty_table_is_refused(tmp_path):
     """A header alone would otherwise search for nothing and find nothing."""
     path = tmp_path / "empty.csv"
-    path.write_text("name,sequence\n\n")
+    path.write_text("name,sequence\n\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="no barcode sequences"):
         bs.load_barcode_table(str(path))
@@ -540,7 +540,7 @@ def test_an_empty_table_is_refused(tmp_path):
 def test_a_table_without_names_still_loads(tmp_path):
     """A bare list of sequences is usable, just less readable."""
     path = tmp_path / "bare.csv"
-    path.write_text("sequence\nACGTACGT\nTTTTGGGG\n")
+    path.write_text("sequence\nACGTACGT\nTTTTGGGG\n", encoding="utf-8")
 
     table = bs.load_barcode_table(str(path), name="bare", role="column")
 

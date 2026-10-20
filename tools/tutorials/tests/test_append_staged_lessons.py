@@ -223,8 +223,8 @@ def folders(tmp_path, catalogs):
         (folder / 'catalog').mkdir(parents=True)
         for name, value in values.items():
             (folder / 'catalog' / name).write_text(json.dumps(value), encoding='utf-8')
-    (root / 'lesson_catalog.js').write_text(appender.JS_PREFIX + json.dumps(catalogs[2]) + appender.JS_SUFFIX)
-    (root / 'module_navigation.js').write_text('Original navigation bytes\n')
+    (root / 'lesson_catalog.js').write_text(appender.JS_PREFIX + json.dumps(catalogs[2]) + appender.JS_SUFFIX, encoding="utf-8")
+    (root / 'module_navigation.js').write_text('Original navigation bytes\n', encoding="utf-8")
     return root, stage
 
 
@@ -243,9 +243,9 @@ def test_plan_is_read_only_and_local_apply_writes_only_sixteen_catalog_files(fol
     assert set(snapshot(root)) == set(before) and len(plan.outputs) == 16
     assert snapshot(stage) == source
     for name in appender.CATALOGS:
-        actual = json.loads((root / 'catalog' / name).read_text())
+        actual = json.loads((root / 'catalog' / name).read_text(encoding="utf-8"))
         assert actual['lessons'][:73] == catalogs[0][name]['lessons']
-    js = appender.parse_javascript((root / 'lesson_catalog.js').read_text())
+    js = appender.parse_javascript((root / 'lesson_catalog.js').read_text(encoding="utf-8"))
     assert js['lessons'][:73] == catalogs[2]['lessons']
 
 
@@ -280,14 +280,14 @@ def test_navigation_must_cover_selected_routes_and_leave_only_ops(folders, kind)
 
 
 def test_malformed_javascript_wrapper_is_rejected_without_execution(folders):
-    (folders[0] / 'lesson_catalog.js').write_text('throw new Error("Do not execute");')
+    (folders[0] / 'lesson_catalog.js').write_text('throw new Error("Do not execute");', encoding="utf-8")
     with pytest.raises(ValueError, match='wrapper'):
         appender.plan_append(*folders, appender.ALLOWED_IDS, navigation_builder=navigation)
 
 
 @pytest.mark.parametrize('payload', ['{"lessons":[],"lessons":[]}', '{"lessons":[],"value":NaN}'])
 def test_ambiguous_or_nonfinite_json_is_rejected(folders, payload):
-    (folders[1] / 'catalog/lessons_en.json').write_text(payload)
+    (folders[1] / 'catalog/lessons_en.json').write_text(payload, encoding="utf-8")
     with pytest.raises(ValueError, match='Duplicate JSON member|Nonfinite JSON'):
         appender.plan_append(*folders, appender.ALLOWED_IDS, navigation_builder=navigation)
 

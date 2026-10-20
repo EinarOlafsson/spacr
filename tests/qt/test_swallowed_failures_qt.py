@@ -35,7 +35,7 @@ class _Screen:
 
 def _snapshot(folder, name):
     path = folder / name
-    path.write_text("Key,Value\nsrc,/data/plate1\nnucleus_channel,0\n")
+    path.write_text("Key,Value\nsrc,/data/plate1\nnucleus_channel,0\n", encoding="utf-8")
     return path
 
 

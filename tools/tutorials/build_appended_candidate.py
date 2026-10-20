@@ -430,7 +430,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     receipt = read(baseline / 'publication-receipt.json')
     require_baseline_receipt(previous, receipt, digest(baseline / 'release-manifest.json'))
     published = REPO / 'docs/source/_extra/tutorials'
-    index = (published / 'index.html').read_text()
+    index = (published / 'index.html').read_text(encoding="utf-8")
     roots = re.findall(r'data-(?:audio|video4k)-root="([^"]+)"', index)
     if len(roots) != 2 or set(roots) != {receipt['media_root']}:
         raise ValueError('Baseline media revision is not the currently published revision')
@@ -538,7 +538,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                browser_report_sha256=digest(browser_path)))
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
-    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text())
+    js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text(encoding="utf-8"))
     original_js_catalog = deepcopy(js_catalog)
     js_catalog = {**js_catalog, 'lessons': [lesson for lesson in js_catalog['lessons']
                                             if lesson['id'] not in withdraw]}
@@ -569,14 +569,14 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
         (root / 'web' / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
-                                       + json.dumps(data, ensure_ascii=False) + ');\n')
+                                       + json.dumps(data, ensure_ascii=False) + ');\n', encoding="utf-8")
     (root / 'web/app_v2.js').write_bytes((REPO / 'tools/tutorials/authoring/web/app_v2.js').read_bytes())
     index = ensure_web_root(index)
     for attribute in ('audio', 'video4k', 'web'):
         index, count = re.subn(rf'data-{attribute}-root="[^"]+"', f'data-{attribute}-root="../media_host"', index)
         if count != 1:
             raise ValueError('Expected one media root per type')
-    (root / 'web/index.html').write_text(index)
+    (root / 'web/index.html').write_text(index, encoding="utf-8")
     write(root / 'web/translation-compatibility.json', dict(policy='report-only; English fallback', entries=compatibility))
     records = [record for record in records if record['path'].startswith('media_host/')]
     records.extend(dict(path=path.relative_to(root).as_posix(), sha256=digest(path), bytes=path.stat().st_size)

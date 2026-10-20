@@ -10,7 +10,7 @@ from tools.test_count_badge import endpoint
 def records(tmp_path, rows):
     (tmp_path / "results.jsonl").write_text(
         "".join(json.dumps(dict(session=s, nodeid=n, outcome=o)) + "\n"
-                for s, n, o in rows))
+                for s, n, o in rows), encoding="utf-8")
 
 
 @pytest.mark.parametrize("passed,color", [(100,"green"),(91,"green"),
@@ -90,7 +90,7 @@ def test_readme_install_retires_old_badge_and_is_idempotent(tmp_path):
     from tools.test_count_badge import install_readme_badges
     path = tmp_path / "README.rst"
     path.write_text("|Tests|\n\n.. |Tests| image:: status.svg\n"
-                    ".. |Qt| image:: qt.svg\n")
+                    ".. |Qt| image:: qt.svg\n", encoding="utf-8")
     install_readme_badges(tmp_path)
     before = path.read_bytes()
     install_readme_badges(tmp_path)

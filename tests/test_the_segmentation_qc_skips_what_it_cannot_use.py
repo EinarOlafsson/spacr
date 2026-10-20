@@ -115,10 +115,10 @@ def test_files_that_are_not_scorecards_are_passed_over(tmp_path):
     qc = tmp_path / "qc"
     qc.mkdir()
     real = qc / f"{CARD_PREFIX}cell.csv"
-    real.write_text("field,objects\n")
+    real.write_text("field,objects\n", encoding="utf-8")
     (qc / f"{CARD_PREFIX}cell.png").write_bytes(b"\x89PNG")
-    (qc / "notes.csv").write_text("not a scorecard\n")
-    (qc / "unrelated.txt").write_text("nothing\n")
+    (qc / "notes.csv").write_text("not a scorecard\n", encoding="utf-8")
+    (qc / "unrelated.txt").write_text("nothing\n", encoding="utf-8")
 
     found = find_scorecards(str(tmp_path))
 
@@ -131,7 +131,7 @@ def test_a_scorecard_is_found_whatever_the_case_of_its_extension(tmp_path):
 
     qc = tmp_path / "qc"
     qc.mkdir()
-    (qc / f"{CARD_PREFIX}nucleus.CSV").write_text("field,objects\n")
+    (qc / f"{CARD_PREFIX}nucleus.CSV").write_text("field,objects\n", encoding="utf-8")
 
     found = find_scorecards(str(tmp_path))
 

@@ -43,7 +43,7 @@ def test_plaque_inputs_sorts_files_folders_and_what_is_neither(tmp_path):
     folder = tmp_path / "plate"
     _image(folder / "b.tif")
     _image(folder / "a.tif")
-    (folder / "notes.txt").write_text("x")
+    (folder / "notes.txt").write_text("x", encoding="utf-8")
     (folder / "sub.tif").mkdir()
 
     pdfs, images, papers = dh.plaque_inputs(
@@ -84,11 +84,11 @@ def test_a_folder_whose_papers_cannot_be_listed_holds_none(
 def test_plaque_others_counts_only_visible_unusable_files(tmp_path):
     folder = tmp_path / "drop"
     _image(folder / "a.tif")
-    (folder / "readme.txt").write_text("x")
-    (folder / ".DS_Store").write_text("x")
+    (folder / "readme.txt").write_text("x", encoding="utf-8")
+    (folder / ".DS_Store").write_text("x", encoding="utf-8")
     (folder / "sub").mkdir()
     stray = tmp_path / "stray.csv"
-    stray.write_text("x")
+    stray.write_text("x", encoding="utf-8")
 
     assert dh.plaque_others([folder, stray, _image(tmp_path / "b.tif"),
                              tmp_path / "gone"]) == 2
@@ -276,7 +276,7 @@ def test_a_paper_folder_dropped_in_figure_mode_becomes_the_source(
 
     paper = tmp_path / "smith_2020"
     figure = _image(paper / "figures" / "fig1.tif")
-    (paper / LEGENDS_FILE).write_text("file,legend\nfig1.tif,Plaques\n")
+    (paper / LEGENDS_FILE).write_text("file,legend\nfig1.tif,Plaques\n", encoding="utf-8")
     monkeypatch.setattr(pp, "follow_the_input",
                         lambda screen, pdfs, images, papers, name: FIGURE_MODE)
     taken = []
@@ -361,7 +361,7 @@ def test_a_mask_file_is_accepted_only_when_it_can_be_described(
 
     image = _image(tmp_path / "a.tif")
     other = tmp_path / "a.txt"
-    other.write_text("x")
+    other.write_text("x", encoding="utf-8")
     monkeypatch.setattr(multi_format, "describe_file", lambda path: object())
     assert dh.scan_mask_drop(image)["accepted"] is True
     assert dh.scan_mask_drop(other)["accepted"] is False

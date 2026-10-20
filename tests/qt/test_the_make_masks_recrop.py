@@ -375,7 +375,7 @@ def test_an_unreadable_manifest_does_not_stop_a_retirement(folder):
     """The files are the recovery; the manifest is the map to them."""
     archive = folder / engine.RECROP_ARCHIVE_DIRNAME
     archive.mkdir()
-    (archive / engine.RECROP_MANIFEST).write_text("{ not json")
+    (archive / engine.RECROP_MANIFEST).write_text("{ not json", encoding="utf-8")
     engine.retire_recropped_original(str(folder), "field_a.tif",
                                      children=["field_a__r00.tif"],
                                      boxes=[(10, 10, 90, 90)])
@@ -665,7 +665,7 @@ def test_restoring_skips_records_and_moves_it_cannot_honour(folder):
     record = next(r for r in records if r["original"] == "field_a.tif")
     record["moved"].append(["only-one-half"])
     (archive / "masks" / "field_a.tif").unlink()
-    manifest_path.write_text(json.dumps(records))
+    manifest_path.write_text(json.dumps(records), encoding="utf-8")
 
     restored = engine.restore_recropped_original(str(folder), "field_a.tif")
 

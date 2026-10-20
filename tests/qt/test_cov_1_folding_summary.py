@@ -129,7 +129,7 @@ def test_a_save_that_cannot_be_written_says_so_by_returning_nothing(panel,
     a button handler would take the results window with it.
     """
     blocker = tmp_path / "not-a-directory"
-    blocker.write_text("x")
+    blocker.write_text("x", encoding="utf-8")
 
     assert panel.save_to_file(str(blocker / "summary.txt")) == ""
 

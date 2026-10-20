@@ -227,9 +227,9 @@ def test_delete_folder_removes_nested_tree(tmp_path, capsys):
 
     root = tmp_path / "victim"
     (root / "sub" / "deeper").mkdir(parents=True)
-    (root / "top.txt").write_text("x")
-    (root / "sub" / "mid.txt").write_text("y")
-    (root / "sub" / "deeper" / "leaf.txt").write_text("z")
+    (root / "top.txt").write_text("x", encoding="utf-8")
+    (root / "sub" / "mid.txt").write_text("y", encoding="utf-8")
+    (root / "sub" / "deeper" / "leaf.txt").write_text("z", encoding="utf-8")
 
     assert delete_folder(str(root)) is None
     assert not root.exists()
@@ -250,7 +250,7 @@ def test_delete_folder_rejects_a_file(tmp_path, capsys):
     from spacr.utils import delete_folder
 
     f = tmp_path / "a_file.txt"
-    f.write_text("keep me")
+    f.write_text("keep me", encoding="utf-8")
     delete_folder(str(f))
     assert f.exists() and f.read_text(encoding="utf-8") == "keep me"
     assert "does not exist or is not a directory" in capsys.readouterr().out
@@ -266,12 +266,12 @@ def test_measure_test_mode_copies_subset_and_clears_stale_folder(tmp_path, capsy
     src = tmp_path / "merged"
     src.mkdir()
     for i in range(6):
-        (src / f"plate1_A01_{i}.npy").write_text(str(i))
+        (src / f"plate1_A01_{i}.npy").write_text(str(i), encoding="utf-8")
 
     # a stale test/merged tree that must be wiped by delete_folder first
     stale = tmp_path / "test" / "merged"
     (stale / "leftover_dir").mkdir(parents=True)
-    (stale / "stale.npy").write_text("old")
+    (stale / "stale.npy").write_text("old", encoding="utf-8")
 
     settings = {"src": str(src), "test_mode": True, "test_nr": 3}
     out = measure_test_mode(settings)

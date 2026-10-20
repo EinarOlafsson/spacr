@@ -65,7 +65,7 @@ def test_retention_rejects_changed_content_and_inventory(retained, change):
     if change == 'audio':
         path.write_bytes(b'changed')
     elif change == 'timing':
-        path.with_suffix('.json').write_text('{}')
+        path.with_suffix('.json').write_text('{}', encoding="utf-8")
     elif change == 'missing':
         path.unlink()
     elif change == 'extra_nested':
@@ -73,7 +73,7 @@ def test_retention_rejects_changed_content_and_inventory(retained, change):
         nested.parent.mkdir(parents=True)
         nested.write_bytes(path.read_bytes())
     elif change.startswith('extra'):
-        path.with_name('unpublished' + ('.json' if change == 'extra_timing' else '.m4a')).write_text('x')
+        path.with_name('unpublished' + ('.json' if change == 'extra_timing' else '.m4a')).write_text('x', encoding="utf-8")
     elif change == 'catalog':
         filename = retained.stage / 'catalog/captions_ko.json'
         data = candidate.read(filename)

@@ -307,7 +307,7 @@ def test_add_current_reports_a_callback_that_raises(screen,
 def test_importing_a_csv_adds_every_plate_in_it(screen, tmp_path,
                                                 monkeypatch):
     csv_path = tmp_path / "plates.csv"
-    csv_path.write_text("src,magnification\n/data/p1,20\n/data/p2,20\n")
+    csv_path.write_text("src,magnification\n/data/p1,20\n/data/p2,20\n", encoding="utf-8")
     monkeypatch.setattr(
         "PySide6.QtWidgets.QFileDialog.getOpenFileName",
         staticmethod(lambda *a, **k: (str(csv_path), "CSV files (*.csv)")))

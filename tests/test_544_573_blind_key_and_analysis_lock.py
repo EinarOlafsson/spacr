@@ -163,7 +163,7 @@ def test_an_edited_lock_and_a_changed_model_file_are_caught(journal):
     path = rj._locks_root() / f"{lock['lock_id']}.json"
     edited = json.loads(path.read_text(encoding="utf-8"))
     edited["settings"]["prediction_threshold"] = 0.1
-    path.write_text(json.dumps(edited))
+    path.write_text(json.dumps(edited), encoding="utf-8")
     tampered = rj.check_analysis_lock(_settings(journal, model_path=str(model)),
                                       app_key="ml_analyze")
     assert tampered["status"] == "tampered"

@@ -36,7 +36,7 @@ def test_release_notes_and_versions_that_cannot_be_read(monkeypatch):
 
 def test_a_network_config_that_is_not_an_object_reads_empty(tmp_path, monkeypatch):
     path = tmp_path / "network.json"
-    path.write_text(json.dumps(["proxy"]))
+    path.write_text(json.dumps(["proxy"]), encoding="utf-8")
     monkeypatch.setenv(updater._ENV_NETWORK_CONFIG, str(path))
     assert updater._read_network_config() == {"proxy": "", "ca_bundle": ""}
 
@@ -54,7 +54,7 @@ def test_a_proxy_keeps_an_existing_no_proxy_and_survives_urllib(monkeypatch,
     import urllib.request
 
     path = tmp_path / "network.json"
-    path.write_text(json.dumps({"proxy": "http://proxy:3128"}))
+    path.write_text(json.dumps({"proxy": "http://proxy:3128"}), encoding="utf-8")
     monkeypatch.setenv(updater._ENV_NETWORK_CONFIG, str(path))
     monkeypatch.setenv("NO_PROXY", "intranet")
     for key in updater._PROXY_VARIABLES:
@@ -95,9 +95,9 @@ def test_an_http_error_still_means_the_server_answered(monkeypatch):
 
 def test_a_certificate_bundle_that_is_not_pem_fails(tmp_path, monkeypatch):
     bundle = tmp_path / "ca.pem"
-    bundle.write_text("not a certificate")
+    bundle.write_text("not a certificate", encoding="utf-8")
     config = tmp_path / "network.json"
-    config.write_text(json.dumps({"ca_bundle": str(bundle)}))
+    config.write_text(json.dumps({"ca_bundle": str(bundle)}), encoding="utf-8")
     monkeypatch.setenv(updater._ENV_NETWORK_CONFIG, str(config))
     try:
         result = doctor._check_network(doctor.Context(probe_gpu=False))

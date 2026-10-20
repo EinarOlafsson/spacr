@@ -343,7 +343,7 @@ def test_child_capture_failure_preserves_original_call_and_outcome(
     """Broken evidence storage cannot replace the original result/exception."""
     sidecar = _sidecar('safe_child_evidence')
     launcher = tmp_path / 'launch_once.py'
-    launcher.write_text('original launcher')
+    launcher.write_text('original launcher', encoding="utf-8")
     monkeypatch.setenv('SPACR_SAFE_ORIGINAL_LAUNCHER_SHA',
                        hashlib.sha256(launcher.read_bytes()).hexdigest())
     monkeypatch.setenv('SPACR_SAFE_DIAGNOSTIC_DIR', str(tmp_path / 'evidence'))

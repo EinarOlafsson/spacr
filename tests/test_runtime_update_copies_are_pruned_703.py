@@ -28,7 +28,7 @@ def runtime(tmp_path):
     root = tmp_path / "spaCR"
     prefix = root / "venv"
     (prefix / "bin").mkdir(parents=True)
-    (prefix / "bin" / "python").write_text("python")
+    (prefix / "bin" / "python").write_text("python", encoding="utf-8")
     return root, str(prefix.resolve())
 
 
@@ -42,7 +42,7 @@ def _copy(root, prefix, name, state, mtime, *, family="posix-runtime", new_ident
     journal.write_text(json.dumps({
         "schema": schema, "family": family, "prefix": prefix, "rollback_runtime": str(folder / child),
         "state": state, "new_identity": new_identity or [details.st_dev, details.st_ino],
-        "new_inventory": inventory if inventory is not None else {"live": True}}))
+        "new_inventory": inventory if inventory is not None else {"live": True}}), encoding="utf-8")
     os.utime(journal, (mtime, mtime))
     return folder
 
@@ -71,11 +71,11 @@ def test_a_copy_that_is_not_committed_is_kept(runtime, state):
 def test_an_unreadable_or_foreign_journal_is_kept(runtime):
     root, prefix = runtime
     broken = _copy(root, prefix, "broken", "committed", 100)
-    (broken / "transaction.json").write_text("{not json")
+    (broken / "transaction.json").write_text("{not json", encoding="utf-8")
     other = _copy(root, prefix, "other", "committed", 200)
     data = json.loads((other / "transaction.json").read_text(encoding="utf-8"))
     data["prefix"] = prefix + "-elsewhere"
-    (other / "transaction.json").write_text(json.dumps(data))
+    (other / "transaction.json").write_text(json.dumps(data), encoding="utf-8")
     _copy(root, prefix, "older", "committed", 1000)
     _copy(root, prefix, "newer", "committed", 2000)
     ic._prune_runtime_transactions(prefix, "posix-runtime")
@@ -86,11 +86,11 @@ def test_a_link_is_never_followed(runtime, tmp_path):
     root, prefix = runtime
     outside = tmp_path / "precious"
     outside.mkdir()
-    (outside / "data").write_text("keep")
+    (outside / "data").write_text("keep", encoding="utf-8")
     real = _copy(root, prefix, "real", "committed", 1000)
     (real / "transaction.json").rename(outside / "transaction.json")
     data = json.loads((outside / "transaction.json").read_text(encoding="utf-8"))
-    (outside / "transaction.json").write_text(json.dumps(dict(data, rollback_runtime=str(root / ".spacr-runtime-update-link" / "runtime"))))
+    (outside / "transaction.json").write_text(json.dumps(dict(data, rollback_runtime=str(root / ".spacr-runtime-update-link" / "runtime"))), encoding="utf-8")
     (root / ".spacr-runtime-update-link").symlink_to(outside, target_is_directory=True)
     (real / "transaction.json").symlink_to(outside / "transaction.json")
     _copy(root, prefix, "older", "committed", 1500)

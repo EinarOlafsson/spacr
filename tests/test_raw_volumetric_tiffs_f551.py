@@ -121,7 +121,7 @@ def test_late_destination_collision_is_not_overwritten(tmp_path, monkeypatch):
     def late_directory(destination, *args, **kwargs):
         if str(destination) == str(tmp_path/'stack'):
             real_mkdir(destination)
-            (Path(destination)/'other.txt').write_text('unrelated')
+            (Path(destination)/'other.txt').write_text('unrelated', encoding="utf-8")
         return real_mkdir(destination, *args, **kwargs)
 
     monkeypatch.setattr(io.os, 'mkdir', late_directory)

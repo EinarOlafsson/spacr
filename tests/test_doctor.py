@@ -49,8 +49,8 @@ def _only(outcome) -> Result:
 def _make_checkout(root: Path) -> Path:
     """Build the minimum directory shape ``_checkout_root`` recognises."""
     (root / "spacr").mkdir(parents=True)
-    (root / "spacr" / "__init__.py").write_text("")
-    (root / "setup.py").write_text("from setuptools import setup\n")
+    (root / "spacr" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "setup.py").write_text("from setuptools import setup\n", encoding="utf-8")
     return root
 
 
@@ -298,8 +298,8 @@ def test_checkout_root_walks_up_to_the_clone(tmp_path):
 def test_checkout_root_accepts_a_pyproject_only_clone(tmp_path):
     root = tmp_path / "modern"
     (root / "spacr").mkdir(parents=True)
-    (root / "spacr" / "__init__.py").write_text("")
-    (root / "pyproject.toml").write_text("[project]\n")
+    (root / "spacr" / "__init__.py").write_text("", encoding="utf-8")
+    (root / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
     assert doctor._checkout_root(root) == root
 
 
@@ -462,7 +462,7 @@ def test_importable_spacr_dirs_finds_the_editable_install_not_just_sys_path():
 def test_importable_spacr_dirs_reports_a_shadowing_copy(tmp_path, monkeypatch):
     shadow = tmp_path / "shadow"
     (shadow / "spacr").mkdir(parents=True)
-    (shadow / "spacr" / "__init__.py").write_text("")
+    (shadow / "spacr" / "__init__.py").write_text("", encoding="utf-8")
     monkeypatch.syspath_prepend(str(shadow))
     found = doctor._importable_spacr_dirs()
     assert (shadow / "spacr").resolve() in found
@@ -504,7 +504,7 @@ def test_importable_spacr_dirs_uses_cwd_for_the_empty_sys_path_entry(
     import importlib.util
 
     (tmp_path / "spacr").mkdir()
-    (tmp_path / "spacr" / "__init__.py").write_text("")
+    (tmp_path / "spacr" / "__init__.py").write_text("", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
     monkeypatch.setattr(doctor.sys, "path", [""])
@@ -922,7 +922,7 @@ def test_path_check_fails_when_another_environment_shadows_it(
 ):
     other = tmp_path / "other-env" / "bin" / "spacr"
     other.parent.mkdir(parents=True)
-    other.write_text("#!/bin/sh\n")
+    other.write_text("#!/bin/sh\n", encoding="utf-8")
     monkeypatch.setattr(doctor.shutil, "which", lambda name: str(other))
     row = doctor.check_command_on_path(ctx)
     assert row.status == FAIL
@@ -1378,11 +1378,11 @@ def test_declared_pins_check_catches_environment_yaml_contradicting_setup_py(
     root = _make_checkout(tmp_path / "clone")
     (root / "setup.py").write_text(
         "dependencies = ['cellpose>=4.0,<5.0', 'numpy>=1.26.4,<3.0']\n"
-    )
+    , encoding="utf-8")
     (root / "environment.yaml").write_text(
         "name: spacr\ndependencies:\n  - python=3.9.19\n  - pip:\n"
         "      - cellpose==3.0.11\n      - numpy==1.26.4\n"
-    )
+    , encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == WARN
     assert row.details == (
@@ -1394,8 +1394,8 @@ def test_declared_pins_check_catches_environment_yaml_contradicting_setup_py(
 
 def test_declared_pins_check_passes_when_the_two_files_agree(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n")
-    (root / "environment.yaml").write_text("  - pip:\n      - cellpose==4.0.7\n")
+    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - pip:\n      - cellpose==4.0.7\n", encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == PASS
 
@@ -1414,8 +1414,8 @@ def test_declared_pins_check_skips_without_both_files(tmp_path):
 
 def test_declared_pins_check_skips_an_unreadable_dependency_list(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("something_else = ['cellpose>=4.0']\n")
-    (root / "environment.yaml").write_text("  - cellpose==3.0.11\n")
+    (root / "setup.py").write_text("something_else = ['cellpose>=4.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - cellpose==3.0.11\n", encoding="utf-8")
     row = doctor.check_declared_pins(Context(checkout=root))
     assert row.status == SKIP
     assert "Could not read the dependency list" in row.message
@@ -1423,23 +1423,23 @@ def test_declared_pins_check_skips_an_unreadable_dependency_list(tmp_path):
 
 def test_declared_pins_check_ignores_packages_setup_py_does_not_name(tmp_path):
     root = _make_checkout(tmp_path / "clone")
-    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n")
-    (root / "environment.yaml").write_text("  - pytorch==1.0.0\n")
+    (root / "setup.py").write_text("dependencies = ['cellpose>=4.0,<5.0']\n", encoding="utf-8")
+    (root / "environment.yaml").write_text("  - pytorch==1.0.0\n", encoding="utf-8")
     assert doctor.check_declared_pins(Context(checkout=root)).status == PASS
 
 
 def test_setup_dependency_parser_survives_every_shape_of_bad_input(tmp_path):
     broken = tmp_path / "broken.py"
-    broken.write_text("def (:\n")
+    broken.write_text("def (:\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(broken) == {}
     assert doctor._parse_setup_dependencies(tmp_path / "absent.py") == {}
 
     indirect = tmp_path / "indirect.py"
-    indirect.write_text("dependencies = some_other_name\n")
+    indirect.write_text("dependencies = some_other_name\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(indirect) == {}
 
     mixed = tmp_path / "mixed.py"
-    mixed.write_text("other = 1\ndependencies = [1, '!!!', 'numpy>=2']\n")
+    mixed.write_text("other = 1\ndependencies = [1, '!!!', 'numpy>=2']\n", encoding="utf-8")
     assert doctor._parse_setup_dependencies(mixed) == {"numpy": ">=2"}
 
 
@@ -1452,7 +1452,7 @@ def test_environment_pin_parser_reads_conda_and_pip_spellings(tmp_path):
     path.write_text(
         "dependencies:\n  - python=3.9.19\n  - pip:\n"
         "      - cellpose==3.0.11\n      - some-git-dep\n      - '-e .'\n"
-    )
+    , encoding="utf-8")
     assert doctor._parse_environment_pins(path) == {
         "python": "3.9.19",
         "cellpose": "3.0.11",
@@ -1713,7 +1713,7 @@ def test_settings_check_fails_when_the_file_is_missing(tmp_path):
 
 def test_settings_check_warns_without_an_app_key(tmp_path):
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     row = _only(doctor.check_settings(Context(settings=path)))
     assert row.status == WARN
     assert "--app measure" in row.fix
@@ -1721,7 +1721,7 @@ def test_settings_check_warns_without_an_app_key(tmp_path):
 
 def test_settings_check_fails_when_the_file_cannot_be_read(tmp_path):
     path = tmp_path / "settings.json"
-    path.write_text("{not valid json at all")
+    path.write_text("{not valid json at all", encoding="utf-8")
     row = _only(doctor.check_settings(Context(settings=path, app="measure")))
     assert row.status == FAIL
     assert "could not be read" in row.message
@@ -1735,7 +1735,7 @@ def test_settings_check_reports_a_combination_that_cannot_work(tmp_path):
         f"src,{tmp_path}\n"
         "normalize,True\n"
         "normalize_by,bogus\n"
-    )
+    , encoding="utf-8")
     rows = _rows(doctor.check_settings(Context(settings=path, app="measure")))
     assert any(row.status == FAIL and "normalize" in row.message for row in rows)
     assert all(row.fix for row in rows), "every problem must carry a fix"
@@ -1745,7 +1745,7 @@ def test_settings_check_passes_a_clean_configuration(tmp_path, monkeypatch):
     from spacr import validate
 
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     monkeypatch.setattr(validate, "validate_settings", lambda *_a: [])
     row = _only(doctor.check_settings(Context(settings=path, app="measure")))
     assert row.status == PASS
@@ -1757,7 +1757,7 @@ def test_settings_check_renders_a_dataset_level_warning_without_a_key(
     from spacr import validate
 
     path = tmp_path / "settings.csv"
-    path.write_text("setting_key,setting_value\nsrc,/tmp\n")
+    path.write_text("setting_key,setting_value\nsrc,/tmp\n", encoding="utf-8")
     monkeypatch.setattr(
         validate,
         "validate_settings",

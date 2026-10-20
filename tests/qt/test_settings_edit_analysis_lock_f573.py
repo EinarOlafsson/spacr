@@ -240,7 +240,7 @@ def test_invalid_barcode_pattern_and_tampered_lock_cannot_record_edits(qtbot, jo
     path = rj._locks_root() / f"{record['lock_id']}.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     data["note"] = "altered"
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding="utf-8")
     model._widgets["n_jobs"].setText("3")
     model._widgets["n_jobs"].editingFinished.emit()
     assert not events(record)

@@ -20,8 +20,8 @@ def read_saved_table(path):
 
 def verify(capture):
     capture = Path(capture)
-    proof = json.loads((capture/'scientific_acceptance.json').read_text())
-    provenance = json.loads((capture/'provenance.json').read_text())
+    proof = json.loads((capture/'scientific_acceptance.json').read_text(encoding="utf-8"))
+    provenance = json.loads((capture/'provenance.json').read_text(encoding="utf-8"))
     work = Path(proof['private_folder']); output = work/'surrogate'
     if not provenance['completed_capture'] or not proof.get('computational_run_completed'):
         raise ValueError('The actual surrogate recording did not finish')
@@ -38,7 +38,7 @@ def verify(capture):
             'SELECT png_path,prcfo,plateID,rowID,columnID FROM png_list')]
     matched=[row for row in metadata if Path(row['png_path']).name in source]
     if len(matched)!=len(source): raise ValueError('Prediction-to-database population differs')
-    manifest=json.loads((output/'manifest.json').read_text())
+    manifest=json.loads((output/'manifest.json').read_text(encoding="utf-8"))
     # Reuse the unfitted application's database join, not its split, scorer or
     # model. State this boundary: this is not an independent feature-join audit.
     from spacr.surrogate import build_surrogate_frame

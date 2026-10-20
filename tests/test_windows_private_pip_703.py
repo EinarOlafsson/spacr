@@ -62,10 +62,10 @@ def runtime(tmp_path, monkeypatch):
     base_python.write_bytes(b'MZ modeled outside base interpreter')
     base_python.chmod(0o700)
     (base / 'Lib').mkdir()
-    (prefix / 'pyvenv.cfg').write_text('home = ' + str(base) + '\ninclude-system-site-packages = false\n')
+    (prefix / 'pyvenv.cfg').write_text('home = ' + str(base) + '\ninclude-system-site-packages = false\n', encoding="utf-8")
     package = prefix / 'Lib/site-packages/spacr'
     package.mkdir(parents=True)
-    (package / '__init__.py').write_text('__version__ = "1.5.1.4"\n')
+    (package / '__init__.py').write_text('__version__ = "1.5.1.4"\n', encoding="utf-8")
     user_file = prefix / 'unknown-user-files/keep.bin'
     user_file.parent.mkdir()
     user_file.write_bytes(b'private user data stays exact\x00\xff')
@@ -154,9 +154,9 @@ def test_unsupported_environment_is_not_replaced(runtime, defect, symlinks):
     if defect == 'conda':
         (runtime.prefix / 'conda-meta').mkdir()
     elif defect == 'system_site':
-        (runtime.prefix / 'pyvenv.cfg').write_text('include-system-site-packages = true\n')
+        (runtime.prefix / 'pyvenv.cfg').write_text('include-system-site-packages = true\n', encoding="utf-8")
     elif defect == 'editable':
-        (runtime.prefix / 'editable.egg-link').write_text('/outside/source')
+        (runtime.prefix / 'editable.egg-link').write_text('/outside/source', encoding="utf-8")
     elif defect == 'link':
         symlinks()
         (runtime.prefix / 'outside').symlink_to(runtime.base, target_is_directory=True)
@@ -199,7 +199,7 @@ class PackageRunner:
             assert 'staged' == target.name
             if self.failure == 'install':
                 return 1, 'modeled package error'
-            (target / 'Lib/site-packages/spacr/__init__.py').write_text('__version__ = "1.5.1.5"\n')
+            (target / 'Lib/site-packages/spacr/__init__.py').write_text('__version__ = "1.5.1.5"\n', encoding="utf-8")
             return 0, 'staged package installed'
         if argv[1:] == ['-I', '-m', 'pip', 'check']:
             return (1, 'modeled dependency error') if self.failure == 'check' else (0, 'dependencies verified')
@@ -372,15 +372,15 @@ def test_real_distlib_windows_launcher_and_record_relocation(runtime, mode):
     site = stage / 'Lib/site-packages'
     metadata = site / 'spacr-1.5.1.5.dist-info'
     metadata.mkdir()
-    (metadata / 'METADATA').write_text('Name: spacr\nVersion: 1.5.1.5\n')
+    (metadata / 'METADATA').write_text('Name: spacr\nVersion: 1.5.1.5\n', encoding="utf-8")
     group = 'gui_scripts' if mode == 'gui' else 'console_scripts'
-    (metadata / 'entry_points.txt').write_text('[' + group + ']\nspacr = spacr.cli:main\n')
+    (metadata / 'entry_points.txt').write_text('[' + group + ']\nspacr = spacr.cli:main\n', encoding="utf-8")
     with (metadata / 'RECORD').open('w', newline='') as stream:
         csv.writer(stream).writerow(['../../Scripts/spacr.exe' if mode != 'missing_record' else 'unrelated.py', '', ''])
     if mode == 'ambiguous_owner':
         other = site / 'foreign-1.0.dist-info'
         shutil.copytree(metadata, other)
-        (other / 'METADATA').write_text('Name: foreign\nVersion: 1.0\n')
+        (other / 'METADATA').write_text('Name: foreign\nVersion: 1.0\n', encoding="utf-8")
     unchanged = stage / 'Scripts/user-custom.exe'
     unchanged.write_bytes(b'MZ arbitrary preexisting user script remains exact')
     context = '''import builtins, os, sys, types
@@ -470,7 +470,7 @@ def test_a_message_replaced_while_it_is_read_is_read_again(runtime, monkeypatch)
     helper = cleanup._WindowsPipHandshake(plan)
     helper._write('readiness.json', 'ready')
     other = runtime.helper / 'other.json'
-    other.write_text('{}')
+    other.write_text('{}', encoding="utf-8")
     real = cleanup.os.lstat
     replaced = {'left': 2}
 
@@ -536,14 +536,14 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
     elif failure == 'foreign_binding':
         contents = json.loads(path.read_text(encoding="utf-8"))
         contents['binding'] = 'foreign'
-        path.write_text(json.dumps(contents))
+        path.write_text(json.dumps(contents), encoding="utf-8")
     elif failure == 'symlink':
         symlinks()
         outside = runtime.helper.parent / 'foreign.json'
         path.rename(outside)
         path.symlink_to(outside)
     elif failure == 'oversized':
-        path.write_text(' ' * 8193)
+        path.write_text(' ' * 8193, encoding="utf-8")
     elif failure == 'foreign_acl':
         def foreign_acl(checked):
             evidence = acl()
@@ -556,7 +556,7 @@ def test_windows_handshake_refuses_untrusted_or_cancelled_messages(runtime, monk
         def replace_at_open(checked, flags, *args, **kwargs):
             if Path(checked) == path:
                 os.replace(path, path.with_suffix('.original'))
-                path.write_text(path.with_suffix('.original').read_text(encoding="utf-8"))
+                path.write_text(path.with_suffix('.original').read_text(encoding="utf-8"), encoding="utf-8")
             return original_open(checked, flags, *args, **kwargs)
         monkeypatch.setattr(cleanup.os, 'open', replace_at_open)
     with pytest.raises((RuntimeError, ValueError)):
@@ -568,7 +568,7 @@ def test_windows_update_uses_real_handshake_and_plan_dispatch(runtime, monkeypat
     plan = handshake_plan(runtime)
     plan.update(log=str(runtime.helper / 'update.log'), schema=1)
     path = runtime.helper / 'plan.json'
-    path.write_text(json.dumps(plan))
+    path.write_text(json.dumps(plan), encoding="utf-8")
     ready = cleanup._WindowsPipHandshake.ready
     events = []
 

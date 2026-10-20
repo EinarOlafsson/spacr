@@ -77,7 +77,7 @@ def test_snapshot_hash_and_preservation_have_positive_counterparts(tmp_path):
     folder.mkdir()
     raw = b'{"plot": true}'
     (folder/'settings.json').write_bytes(raw)
-    (folder/'manifest.json').write_text(json.dumps({'settings_sha256': hashlib.sha256(raw).hexdigest()}))
+    (folder/'manifest.json').write_text(json.dumps({'settings_sha256': hashlib.sha256(raw).hexdigest()}), encoding="utf-8")
     assert read_record(tmp_path, 'run-one')['settings'] == {'plot': True}
     before = snapshot(tmp_path)
     assert verify_preserved(tmp_path, before) == {'files': 2, 'unchanged': True}
@@ -89,8 +89,8 @@ def test_snapshot_hash_and_preservation_have_positive_counterparts(tmp_path):
 
 
 def test_missing_journal_file_is_detected(tmp_path):
-    (tmp_path/'first').write_text('one')
-    (tmp_path/'second').write_text('two')
+    (tmp_path/'first').write_text('one', encoding="utf-8")
+    (tmp_path/'second').write_text('two', encoding="utf-8")
     before = snapshot(tmp_path)
     assert verify_preserved(tmp_path, before)['unchanged']
     (tmp_path/'second').rename(tmp_path.parent/(tmp_path.name+'-preserved-second'))

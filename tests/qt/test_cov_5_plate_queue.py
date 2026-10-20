@@ -65,7 +65,7 @@ def test_one_malformed_entry_does_not_cost_the_other_plates(
         {"id": "a1", "app_key": "mask", "settings": {"src": "/plates/one"}},
         {"app_key": "mask", "settings": {"src": "/plates/broken"}},
         {"id": "c3", "app_key": "mask", "settings": {"src": "/plates/two"}},
-    ]}))
+    ]}), encoding="utf-8")
 
     with caplog.at_level(logging.INFO, logger="spacr.qt.plate_queue"):
         queue = PlateQueue(path=path)
@@ -85,7 +85,7 @@ def test_a_csv_row_with_no_source_is_not_a_plate(tmp_path: Path):
     csv_path.write_text("src,cell_diameter\n"
                         "/plates/one,30\n"
                         "   ,40\n"
-                        ",50\n")
+                        ",50\n", encoding="utf-8")
 
     items = import_plates_from_csv(csv_path, {"src": "/base", "nucleus": 1})
 
@@ -103,7 +103,7 @@ def test_a_csv_says_no_as_well_as_yes(tmp_path: Path):
     """
     csv_path = tmp_path / "plates.csv"
     csv_path.write_text("src,plot,save,verbose,timelapse\n"
-                        "/plates/one,false,no,true,none\n")
+                        "/plates/one,false,no,true,none\n", encoding="utf-8")
 
     settings = import_plates_from_csv(csv_path, {})[0].settings
 

@@ -321,7 +321,7 @@ def test_no_module_imports_umap_directly():
     pat = re.compile(r"^\s*(?:import\s+umap|from\s+umap(\.|\s))")
     offenders = []
     for py in root.rglob("*.py"):
-        for i, line in enumerate(py.read_text(errors="ignore").splitlines(), 1):
+        for i, line in enumerate(py.read_text(errors="ignore", encoding="utf-8").splitlines(), 1):
             if pat.match(line):
                 offenders.append(f"{py.relative_to(root)}:{i}: {line.strip()}")
     assert not offenders, (
@@ -353,7 +353,7 @@ def test_no_tf_import_string_in_source():
         if py.parent == root:
             excused = {line for line, _name, scope in tf_rooted_imports(py)
                        if (py.name, scope) in WORKER_ONLY_TF_IMPORTS}
-        for i, line in enumerate(py.read_text(errors="ignore").splitlines(), 1):
+        for i, line in enumerate(py.read_text(errors="ignore", encoding="utf-8").splitlines(), 1):
             if pat.match(line) and i not in excused:
                 offenders.append(f"{py.relative_to(root)}:{i}: {line.strip()}")
     assert not offenders, (

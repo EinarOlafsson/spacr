@@ -169,7 +169,7 @@ def test_a_file_the_probe_has_already_answered_for_is_refused(panel, tmp_path,
     that accepts anything at all, forever.
     """
     stray = tmp_path / "notes.txt"
-    stray.write_text("not a plate")
+    stray.write_text("not a plate", encoding="utf-8")
     path_probe.exists(str(stray), want_dir=True)
     qtbot.waitUntil(
         lambda: path_probe.known(str(stray), want_dir=True) is False,

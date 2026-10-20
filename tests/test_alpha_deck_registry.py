@@ -39,7 +39,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
     source = tmp_path / "settings.py"
-    source.write_text("ALPHA_FEATURES = {999999: {}}")
+    source.write_text("ALPHA_FEATURES = {999999: {}}", encoding="utf-8")
     target = tmp_path / "deck"
     target.mkdir()
     sentinel = target / "spacr_deck.pdf"
@@ -64,7 +64,7 @@ def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
     writer.write(tmp_path / "spacr_deck.pdf")
     slides = [{"title": title, "image": f"{i}.jpg", "thumb": f"{i}-thumb.jpg"}
               for i, title in enumerate(("before", deck.TITLE, "after"))]
-    (tmp_path / "slides.json").write_text(json.dumps({"count": 3, "slides": slides}))
+    (tmp_path / "slides.json").write_text(json.dumps({"count": 3, "slides": slides}), encoding="utf-8")
     for slide in slides:
         for field in ("image", "thumb"):
             Image.new("RGB", (8, 8), "red").save(tmp_path / slide[field])
@@ -93,7 +93,7 @@ def test_render_failure_preserves_the_published_deck(tmp_path, monkeypatch):
     writer.add_blank_page(width=960, height=540)
     writer.write(tmp_path / "spacr_deck.pdf")
     (tmp_path / "slides.json").write_text(json.dumps({
-        "count": 1, "slides": [{"title": deck.TITLE, "image": "a.jpg", "thumb": "b.jpg"}]}))
+        "count": 1, "slides": [{"title": deck.TITLE, "image": "a.jpg", "thumb": "b.jpg"}]}), encoding="utf-8")
     for name in ("a.jpg", "b.jpg"):
         (tmp_path / name).write_bytes(b"published image")
     before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}

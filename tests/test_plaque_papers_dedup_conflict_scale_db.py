@@ -481,7 +481,7 @@ def test_the_folder_keeps_the_papers_doi_and_licence(tmp_path):
     _save(_figure(11), tmp_path / "fig.png")
     (tmp_path / pp.PAPER_FILE).write_text(json.dumps({
         "key": "10.1371/x.9", "source": "europepmc", "doi": "10.1371/x.9",
-        "pmcid": "PMC9", "licence": "cc by", "unknown_field": 1}))
+        "pmcid": "PMC9", "licence": "cc by", "unknown_field": 1}), encoding="utf-8")
     summary = _measure_folder(tmp_path)
     assert _rows(summary["database"], "SELECT paper_key, licence FROM papers") \
         == [("10.1371/x.9", "cc by")]

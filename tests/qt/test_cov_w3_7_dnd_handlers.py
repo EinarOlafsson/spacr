@@ -133,7 +133,7 @@ def test_a_bare_database_file_is_its_own_answer(tmp_path):
 
 def test_one_csv_is_one_table(tmp_path):
     csv = tmp_path / "scores.csv"
-    csv.write_text("prc,pred\nplate1_r1_c1,0.5\n")
+    csv.write_text("prc,pred\nplate1_r1_c1,0.5\n", encoding="utf-8")
     assert dh.SweepInputsDropHandler._tables(csv) == [csv]
     assert dh.SweepInputsDropHandler._tables(tmp_path / "gone.csv") == []
 
@@ -170,11 +170,11 @@ def test_regression_takes_a_database_or_the_sweeps_csvs(tmp_path):
     assert handler.can_accept(root) is True
 
     csv = tmp_path / "counts.csv"
-    csv.write_text("prc,grna,count\nplate1_r1_c1,A,7\n")
+    csv.write_text("prc,grna,count\nplate1_r1_c1,A,7\n", encoding="utf-8")
     assert handler.can_accept(csv) is True
 
     nothing = tmp_path / "notes.txt"
-    nothing.write_text("hello")
+    nothing.write_text("hello", encoding="utf-8")
     assert handler.can_accept(nothing) is False
     assert "measurements/measurements.db" in handler.error_message(nothing)
     assert "score / gRNA count CSVs" in handler.error_message(nothing)
@@ -203,9 +203,9 @@ def test_each_csv_lands_on_the_side_its_header_says(tmp_path):
     """The header decides, not the filename: a count filed as a score is a
     wrong sweep rather than an error the user ever sees."""
     counts = tmp_path / "table_one.csv"
-    counts.write_text("prc,grna,count\nplate1_r1_c1,A,7\n")
+    counts.write_text("prc,grna,count\nplate1_r1_c1,A,7\n", encoding="utf-8")
     scores = tmp_path / "table_two.csv"
-    scores.write_text("prc,pred\nplate1_r1_c1,0.5\n")
+    scores.write_text("prc,pred\nplate1_r1_c1,0.5\n", encoding="utf-8")
     screen = _regression_screen()
 
     dh.RegressionDropHandler().apply(counts, screen)
@@ -218,7 +218,7 @@ def test_each_csv_lands_on_the_side_its_header_says(tmp_path):
 
 def test_a_regression_screen_with_no_sweep_card_says_so(tmp_path):
     csv = tmp_path / "counts.csv"
-    csv.write_text("prc,grna,count\nplate1_r1_c1,A,7\n")
+    csv.write_text("prc,grna,count\nplate1_r1_c1,A,7\n", encoding="utf-8")
     screen = _Screen({}, app_key="regression")
 
     with pytest.raises(TypeError, match="no parameter-sweep inputs"):
