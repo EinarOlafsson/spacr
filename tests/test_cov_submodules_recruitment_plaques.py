@@ -687,7 +687,7 @@ def test_count_phenotypes_pivots_counts_per_well(tmp_path, monkeypatch):
     settings = {"src": str(tmp_path), "annotation_column": "value"}
     assert SUB.count_phenotypes(settings) is None
     assert settings["src"] == os.path.join(str(tmp_path),
-                                           "measurements/measurements.db")
+                                           "measurements", "measurements.db")
 
     out_csv = tmp_path / "measurements" / "phenotype_counts.csv"
     assert out_csv.exists()

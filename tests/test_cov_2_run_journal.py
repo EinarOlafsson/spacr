@@ -289,6 +289,7 @@ def test_a_path_that_is_neither_a_file_nor_a_folder_yields_nothing(tmp_path):
 # file records
 # ---------------------------------------------------------------------------
 
+@pytest.mark.posix_only
 def test_a_file_that_cannot_be_read_gets_no_record(tmp_path):
     """A file that stats but will not open produces no provenance record.
 
@@ -377,6 +378,7 @@ def test_recording_an_output_is_free_when_hashing_is_off(runs_dir, tmp_path):
     assert run.output_hashes == {}
 
 
+@pytest.mark.posix_only
 def test_a_file_in_a_recorded_folder_that_will_not_hash_is_named(runs_dir,
                                                                  tmp_path):
     """One unreadable file in an input folder is reported, not skipped.
@@ -422,6 +424,7 @@ def test_an_empty_input_folder_is_reported_as_holding_nothing(runs_dir,
                for w in run.provenance_warnings)
 
 
+@pytest.mark.posix_only
 def test_a_path_that_cannot_even_be_expanded_is_reported(runs_dir):
     """``record_input`` swallows whatever the path layer throws.
 
@@ -456,6 +459,7 @@ def test_an_output_folder_that_was_never_created_inventories_nothing(runs_dir,
     assert run.provenance_warnings == []
 
 
+@pytest.mark.posix_only
 def test_an_output_file_that_cannot_be_hashed_is_named_in_the_warnings(
         runs_dir, tmp_path):
     """A new output that will not open is reported, not silently dropped.
@@ -649,6 +653,7 @@ def test_a_legacy_run_has_its_warnings_read_out_of_the_log(runs_dir):
     assert "all done" not in record["warnings"]
 
 
+@pytest.mark.posix_only
 def test_a_log_that_cannot_be_read_is_reported_rather_than_skipped(runs_dir):
     """An unreadable log is itself worth showing in the history row.
 

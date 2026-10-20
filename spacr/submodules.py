@@ -2062,7 +2062,7 @@ def count_phenotypes(settings):
     from .io import _read_db
 
     if not settings['src'].replace('\\', '/').endswith('/measurements/measurements.db'):
-        settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
+        settings['src'] = os.path.join(settings['src'], 'measurements', 'measurements.db')
 
     df = _read_db(settings['src'], tables=['png_list'])[0]
 
@@ -2848,7 +2848,7 @@ def analyze_endodyogeny(settings):
     if not isinstance(settings['src'], list):
         settings['src'] = [settings['src']]
 
-    locs = [os.path.join(s, 'measurements/measurements.db') for s in settings['src']]
+    locs = [os.path.join(s, 'measurements', 'measurements.db') for s in settings['src']]
 
     if 'png_list' not in settings['tables']:
         settings['tables'] = settings['tables'] + ['png_list']
@@ -3828,7 +3828,7 @@ def analyze_replication(settings):
 
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
-        location = os.path.join(source, 'measurements/measurements.db')
+        location = os.path.join(source, 'measurements', 'measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
             frame['plateID'] = f'plate{index + 1}'
@@ -5302,7 +5302,7 @@ def analyze_invasion(settings):
 
     parasite_frames, cell_frames = [], []
     for index, source in enumerate(settings['src']):
-        location = os.path.join(source, 'measurements/measurements.db')
+        location = os.path.join(source, 'measurements', 'measurements.db')
         frame = _read_db(location, [parasite_table])[0]
         if settings['change_plate']:
             frame['plateID'] = f'plate{index + 1}'
@@ -5615,7 +5615,7 @@ def analyze_class_proportion(settings):
     
     locs = []
     for s in settings['src']:
-        loc = os.path.join(s, 'measurements/measurements.db')
+        loc = os.path.join(s, 'measurements', 'measurements.db')
         locs.append(loc)
         
     if 'png_list' not in settings['tables']:

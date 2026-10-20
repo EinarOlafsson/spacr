@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import gzip
+import os
 from pathlib import Path
 
 import numpy as np
@@ -178,14 +179,14 @@ def test_is_multiprocessing_process_false():
 # ---------------------------------------------------------------------------
 
 def test_get_db_paths_str_and_list():
-    assert U.get_db_paths("/a")[0].endswith("measurements/measurements.db")
+    assert U.get_db_paths("/a")[0].endswith(os.path.join("measurements", "measurements.db"))
     both = U.get_db_paths(["/a", "/b"])
     assert len(both) == 2
 
 
 def test_get_sequencing_paths():
     assert U.get_sequencing_paths("/a")[0].endswith(
-        "sequencing/sequencing_data.csv")
+        os.path.join("sequencing", "sequencing_data.csv"))
 
 
 def test_get_percentiles():

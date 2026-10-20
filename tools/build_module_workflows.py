@@ -495,7 +495,7 @@ def outputs(data):
                 "<tutorials/", "<" + tutorial_root)
         result[Path(f"docs/source/_generated/module_workflows/{api}.rst")] = text
     for key, lesson in data["tutorials"].items():
-        payload = dict(lesson, schema_version=1, source=str(MAP_PATH),
+        payload = dict(lesson, schema_version=1, source=MAP_PATH.as_posix(),
                        module_contracts={k: data["modules"][k] for k in lesson["modules"]},
                        pathway_steps={k: data["pathways"][k] for k in lesson["pathways"]},
                        connections=[e for e in data["connections"]
@@ -521,7 +521,7 @@ def main():
                 stale.append(str(path))
         else:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(content, encoding="utf-8")
+            destination.write_bytes(content.encode("utf-8"))
     if stale:
         print("Workflow artifacts need regeneration:\n" + "\n".join(stale))
         return 1

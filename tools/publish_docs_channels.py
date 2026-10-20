@@ -35,6 +35,18 @@ _HF_STATIC_INJECTION = re.compile(
     rb'"[0-9a-f]{24}"\}\};</script>')
 
 
+def _read_text(path: Path) -> str:
+    """Read UTF-8 text keeping its line endings byte for byte on every OS."""
+    with open(path, encoding="utf-8", newline="") as handle:
+        return handle.read()
+
+
+def _write_text(path: Path, text: str) -> None:
+    """Write UTF-8 text without the platform's newline translation."""
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(text)
+
+
 def verified_video_hosts(build: Path, checkpoint: Path) -> dict:
     """Bind local renditions to their verified full-resolution hosted recordings."""
     manifest_path = checkpoint / "release-manifest.json"
@@ -82,17 +94,17 @@ def prepare(build: Path, report_path: Path, branch: str, commit: str,
         if not row["source_compatible"]:
             path = build / "_static/i18n/api" / f"{language}.json"
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps({"schema": 2, "language": language,
-                                       "symbols": {}, "unavailable": True}) + "\n", encoding="utf-8")
-    (build / "translation-compatibility.json").write_text(
-        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (build / "publication.json").write_text(json.dumps({
+            _write_text(path, json.dumps({"schema": 2, "language": language,
+                                          "symbols": {}, "unavailable": True}) + "\n")
+    _write_text(build / "translation-compatibility.json",
+                json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+    _write_text(build / "publication.json", json.dumps({
         "schema": 1, "branch": branch, "commit": commit,
         "translation_policy": "report-only; incompatible locales fall back to English",
-    }, indent=2) + "\n", encoding="utf-8")
+    }, indent=2) + "\n")
     if checkpoint is not None and (build / "tutorials").is_dir():
-        (build / "tutorials/verified-video-hosts.json").write_text(
-            json.dumps(verified_video_hosts(build, checkpoint), indent=2) + "\n", encoding="utf-8")
+        _write_text(build / "tutorials/verified-video-hosts.json",
+                    json.dumps(verified_video_hosts(build, checkpoint), indent=2) + "\n")
 
 
 def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
@@ -102,7 +114,7 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     production = tutorial / "production"
     if not player.exists() or not production.exists():
         return
-    text = player.read_text(encoding="utf-8")
+    text = _read_text(player)
     lookups = ("`${PRODUCTION_ROOT}/${lesson.silent}`",
                "`${PRODUCTION_ROOT}/${activeLesson.poster}`")
     if any(text.count(lookup) != 1 for lookup in lookups):
@@ -142,18 +154,18 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     text = text.replace(lookups[0], "publishedMedia(lesson.silent)")
     text = text.replace(lookups[1], "publishedMedia(activeLesson.poster)")
     text = text.replace('"use strict";', '"use strict";' + helper, 1)
-    player.write_text(text, encoding="utf-8")
+    _write_text(player, text)
     index = tutorial / "index.html"
     version = hashlib.sha256(player.read_bytes()).hexdigest()
     html, matches = re.subn(
         r'''(<script\b[^>]*\bsrc=["'])app_v2\.js(?:\?[^"']*)?(["'])''',
         lambda match: match[1] + "app_v2.js?v=" + version + match[2],
-        index.read_text(encoding="utf-8"),
+        _read_text(index),
     )
     if matches != 1:
         raise ValueError(f"{branch}: expected one tutorial player script reference")
-    index.write_text(html, encoding="utf-8")
-    (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    _write_text(index, html)
+    _write_text(tutorial / "published-media.json", json.dumps(manifest, indent=2) + "\n")
 
 
 def channel_banner(branch: str, main_url: str, nightly_url: str) -> str:
@@ -169,12 +181,12 @@ def channel_banner(branch: str, main_url: str, nightly_url: str) -> str:
 def add_banner(channel: Path, banner: str) -> None:
     """Insert the switcher after <body>, or above the tutorial player."""
     for path in channel.rglob("*.html"):
-        text = path.read_text(encoding="utf-8")
+        text = _read_text(path)
         target = (r'(<main\b[^>]*id="lesson-content"[^>]*>)'
                   if path == channel / "tutorials/index.html" and 'id="lesson-content"' in text
                   else r"(<body\b[^>]*>)")
         text = re.sub(target, lambda match: match[0] + banner, text, count=1)
-        path.write_text(text, encoding="utf-8")
+        _write_text(path, text)
 
 
 def site_size(root: Path) -> int:
@@ -190,7 +202,7 @@ def write_channel_receipt(output: Path, receipt: dict) -> dict:
         content = json.dumps(receipt, indent=2) + "\n"
         total = content_size + len(content.encode("utf-8"))
         if total == receipt["size_bytes"]:
-            target.write_text(content, encoding="utf-8")
+            _write_text(target, content)
             return receipt
         receipt["size_bytes"] = total
 
@@ -221,26 +233,28 @@ def write_nightly_stub(output: Path, base: str, nightly_url: str) -> None:
     script = nightly_redirect(base, nightly_url)
     stub = output / "nightly"
     stub.mkdir()
-    (stub / "index.html").write_text(
+    _write_text(
+        stub / "index.html",
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         f'<meta http-equiv="refresh" content="0; url={nightly_url}">'
         f'<link rel="canonical" href="{nightly_url}">'
         f"<title>spaCR nightly documentation moved</title>{script}</head>"
         f'<body><p>The nightly preview moved to <a href="{nightly_url}">{nightly_url}</a>.</p>'
-        "</body></html>\n", encoding="utf-8")
+        "</body></html>\n")
     missing = output / "404.html"
     if missing.is_file():
-        text = missing.read_text(encoding="utf-8")
+        text = _read_text(missing)
         text, count = re.subn(r"(<head\b[^>]*>)", lambda match: match[0] + script, text, count=1)
         if count != 1:
             raise ValueError("main: 404.html has no <head>")
-        missing.write_text(text, encoding="utf-8")
+        _write_text(missing, text)
     else:
-        missing.write_text(
+        _write_text(
+            missing,
             '<!doctype html><html lang="en"><head><meta charset="utf-8">'
             f"<title>Page not found · spaCR documentation</title>{script}</head>"
             f'<body><p>Page not found. Open the <a href="{base}/">spaCR documentation</a>.</p>'
-            "</body></html>\n", encoding="utf-8")
+            "</body></html>\n")
 
 
 def assemble_main(main: Path, output: Path, base_path: str = "/spacr",
@@ -281,7 +295,7 @@ def explicit_index_links(root: Path) -> int:
     pattern = re.compile(r'''(\b(?:href|src)=)(["\'])([^"\'<>]*)\2''')
     rewritten = 0
     for page in root.rglob("*.html"):
-        text = page.read_text(encoding="utf-8")
+        text = _read_text(page)
 
         def fix(match):
             nonlocal rewritten
@@ -298,7 +312,7 @@ def explicit_index_links(root: Path) -> int:
 
         updated = pattern.sub(fix, text)
         if updated != text:
-            page.write_text(updated, encoding="utf-8")
+            _write_text(page, updated)
     return rewritten
 
 
@@ -329,7 +343,7 @@ def assemble_nightly(nightly: Path, output: Path, main_url: str = MAIN_URL,
     share_tutorial_media(output, output, "nightly")
     add_banner(output, channel_banner("nightly", main_url, nightly_url))
     index_links = explicit_index_links(output)
-    (output / "README.md").write_text(SPACE_README.format(main_url=main_url), encoding="utf-8")
+    _write_text(output / "README.md", SPACE_README.format(main_url=main_url))
     receipt = {"schema": 2, "channels": {"nightly": record}, "nightly_url": nightly_url,
                "index_links": index_links,
                "media_files": len(list((output / "_media").glob("*")))}

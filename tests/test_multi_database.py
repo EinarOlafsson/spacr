@@ -524,15 +524,19 @@ def test_a_merge_decision_is_written_down(tmp_path, colliding):
     assert len(log.read_text(encoding="utf-8").splitlines()) == 2
 
 
-def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding):
+def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding,
+                                                                  tmp_path):
     """An audit line is never worth failing a load for -- but the caller is
     told it was not kept, rather than being left to assume it was."""
     from spacr.multi_database import decision_for, record_decision
 
+    blocker = tmp_path / "a-file-not-a-folder"
+    blocker.write_text("", encoding="utf-8")
     plan = describe_merge(list(colliding), "cell")
     written = record_decision(decision_for(plan, outcome="refused"),
-                              "/proc/not/a/writable/place/merge.jsonl")
+                              str(blocker / "place" / "merge.jsonl"))
     assert written == ""
+    assert blocker.is_file()
 
 
 # --------------------------------------------------------------------------- #
