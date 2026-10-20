@@ -572,6 +572,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     from spacr import plot
 
     monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
+    # The checks below are about which notes are made, not how fast; the
+    # half-second production budget expires on a loaded runner first.
+    monkeypatch.setattr(plot, "_SOURCE_REGION_SECONDS", 60.0)
+    monkeypatch.setattr(plot, "_SPATIAL_SECONDS", 60.0)
     view, _root, db_path, _csv = _view(qtbot, tmp_path, with_png=False)
     with sqlite3.connect(db_path) as connection:
         for index in range(4):

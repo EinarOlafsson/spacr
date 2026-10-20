@@ -513,6 +513,8 @@ def test_the_published_colony_detector_is_fetched_by_its_zoo_key(
     monkeypatch.setattr(model_zoo, "open_uri", lambda uri, **kw: (
         asked.append(uri) or iter([payload])))
     monkeypatch.setenv("HOME", str(tmp_path))
+    # Windows expands ~ from USERPROFILE.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     path = submodules._resolve_detector_weights(
         "colony_yolo11n_makrai_v1", "colony_detector")
     assert asked == [entry.uri]
