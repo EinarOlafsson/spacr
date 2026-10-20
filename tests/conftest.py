@@ -197,6 +197,88 @@ os.environ["SPACR_PYTEST_SESSION"] = "1"
 # inert now and cleared before any test module is imported.
 os.environ.pop("SPACR_ALLOW_GITHUB_WRITES", None)
 
+# A TEST THAT MOVES HOME MOVES IT ON WINDOWS TOO.
+#
+# Dozens of tests sandbox the user's home with `monkeypatch.setenv("HOME",
+# tmp_path)`. On Windows, `Path.home()` and `os.path.expanduser` read
+# USERPROFILE and ignore HOME, so those tests read and WROTE the developer's
+# real home: a fake 19-byte colony detector landed in the real
+# `~/.spacr/models` on 2026-10-20, and cached bioimage.io listings leaked in
+# the other direction. Mirroring HOME into USERPROFILE, through the same
+# monkeypatch so it is undone with it, gives every such test the sandbox it
+# asked for. A test that has already pointed USERPROFILE somewhere of its
+# own is left alone.
+if os.name == "nt":
+    _REAL_USERPROFILE = os.environ.get("USERPROFILE")
+    _monkeypatch_setenv = pytest.MonkeyPatch.setenv
+
+    def _setenv_moving_the_windows_home_too(self, name, value, prepend=None):
+        _monkeypatch_setenv(self, name, value, prepend)
+        if (name == "HOME" and prepend is None
+                and os.environ.get("USERPROFILE") == _REAL_USERPROFILE):
+            _monkeypatch_setenv(self, "USERPROFILE", str(value))
+
+    pytest.MonkeyPatch.setenv = _setenv_moving_the_windows_home_too
+
+
+# WHERE THE NATIVE QSETTINGS STORE CANNOT BE MOVED, NOTHING MAY USE IT.
+#
+# The sandbox further down redirects every QSettings format with `setPath`.
+# On Linux that moves `QSettings("spacr", "qt")`; on Windows it is the
+# registry and on macOS CFPreferences, and neither moves. There the suite
+# shared the developer's REAL store: `HKCU\Software\spacr\qt\recent` filled
+# with pytest tmp paths, tests that `.clear()` the store to start clean
+# erased the developer's preferences, and a value one test wrote failed
+# another (found natively on Windows 2026-10-20). So, before spaCR or any
+# test module is imported, `QtCore.QSettings` becomes a subclass that builds
+# every NativeFormat store as an IniFormat one, which `setPath` does move.
+# Asked by probing, not by naming operating systems: on a platform where the
+# native store follows `setPath`, nothing is replaced.
+def _native_qsettings_follow_set_path() -> bool:
+    try:
+        from PySide6 import QtCore
+    except Exception:
+        return True
+    probe = tempfile.mkdtemp(prefix="spacr-qsettings-probe-")
+    try:
+        QtCore.QSettings.setPath(QtCore.QSettings.NativeFormat,
+                                 QtCore.QSettings.UserScope, probe)
+        where = QtCore.QSettings("spacr-native-probe", "probe").fileName()
+        try:
+            return Path(where).resolve().is_relative_to(Path(probe).resolve())
+        except (OSError, ValueError):
+            return False
+    finally:
+        import shutil as _probe_shutil
+        _probe_shutil.rmtree(probe, ignore_errors=True)
+
+
+if not _native_qsettings_follow_set_path():
+    from PySide6 import QtCore as _QtCore
+
+    _NativeQSettings = _QtCore.QSettings
+
+    class _QSettingsThatSetPathMoves(_NativeQSettings):
+        """``QSettings`` with every NativeFormat store built as IniFormat."""
+
+        def __init__(self, *args, **kwargs):
+            native, ini = _NativeQSettings.NativeFormat, _NativeQSettings.IniFormat
+            if args and isinstance(args[0], str) and not (
+                    len(args) > 1 and isinstance(args[1], _NativeQSettings.Format)):
+                args = (ini, _NativeQSettings.UserScope) + args
+            elif args and isinstance(args[0], _NativeQSettings.Scope):
+                args = (ini,) + args
+            elif args and args[0] == native and len(args) > 2:
+                args = (ini,) + args[1:]
+            elif (not args or isinstance(args[0], _QtCore.QObject)) and not kwargs \
+                    and _NativeQSettings.defaultFormat() == native:
+                app = _QtCore.QCoreApplication
+                args = (ini, _NativeQSettings.UserScope, app.organizationName(),
+                        app.applicationName()) + args
+            super().__init__(*args, **kwargs)
+
+    _QtCore.QSettings = _QSettingsThatSetPathMoves
+
 # Make the in-tree spacr importable without an editable install.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:

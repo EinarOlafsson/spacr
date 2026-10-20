@@ -54,6 +54,7 @@ def test_partial_export_stream_preserves_both_previous_files(tmp_path, monkeypat
         ['settings.csv', 'settings.json'] if exists else [])
 
 
+@pytest.mark.needs_symlink
 def test_successful_export_preserves_modes_and_symlink_destinations(tmp_path):
     targets = tmp_path / 'targets'
     targets.mkdir()
@@ -63,14 +64,15 @@ def test_successful_export_preserves_modes_and_symlink_destinations(tmp_path):
     js.write_text('old json', encoding="utf-8")
     csv.chmod(0o640)
     js.chmod(0o600)
+    modes = (csv.stat().st_mode & 0o777, js.stat().st_mode & 0o777)
+    assert modes == (0o640, 0o600) or os.name == 'nt'
     alias = tmp_path / 'settings.csv'
     alias.symlink_to(csv)
     alias.with_suffix('.json').symlink_to(js)
     settings = {'src': '/new', 'nested': {'channels': [0, 2]}}
     assert write_settings_file(settings, alias) == [str(alias), str(alias.with_suffix('.json'))]
     assert alias.is_symlink() and alias.with_suffix('.json').is_symlink()
-    assert csv.stat().st_mode & 0o777 == 0o640
-    assert js.stat().st_mode & 0o777 == 0o600
+    assert (csv.stat().st_mode & 0o777, js.stat().st_mode & 0o777) == modes
     assert json.loads(js.read_text(encoding="utf-8")) == settings
 
 
@@ -107,10 +109,15 @@ def test_first_publication_failure_preserves_both_files(tmp_path, monkeypatch):
 
 def test_new_exports_retain_normal_umask_mode(tmp_path):
     csv = tmp_path / 'settings.csv'
+    peer = tmp_path / 'peer.txt'
     previous = os.umask(0o027)
     try:
         write_settings_file({'src': '/new'}, csv)
+        with open(peer, 'w', encoding='utf-8') as stream:
+            stream.write('peer')
     finally:
         os.umask(previous)
-    assert csv.stat().st_mode & 0o777 == 0o640
-    assert csv.with_suffix('.json').stat().st_mode & 0o777 == 0o640
+    normal = peer.stat().st_mode & 0o777
+    assert normal == 0o640 or os.name == 'nt'
+    assert csv.stat().st_mode & 0o777 == normal
+    assert csv.with_suffix('.json').stat().st_mode & 0o777 == normal

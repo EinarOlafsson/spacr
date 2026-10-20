@@ -2791,7 +2791,26 @@ def path_is_under(path: Any, root: Any) -> bool:
     there = path_components(root)
     if not there or not here:
         return False
+    if os.name == "nt":
+        here = tuple(part.casefold() for part in here)
+        there = tuple(part.casefold() for part in there)
     return len(there) <= len(here) and here[:len(there)] == there
+
+
+def _join_in_root_spelling(root: Any, parts: Sequence[str]) -> str:
+    """Join ``parts`` under ``root`` with the separator ``root`` itself uses.
+
+    A root chosen as ``C:/lab/exp1`` stays forward-slashed and one typed as
+    ``C:\\lab\\exp1`` stays backslashed, so a re-anchored path never mixes the
+    two spellings. Off Windows the separator is always ``/``.
+
+    :param root: the experiment root on this machine.
+    :param parts: the components to place under it.
+    :returns: the joined path.
+    """
+    text = os.fspath(root)
+    sep = os.sep if os.sep in text else "/"
+    return sep.join((text.rstrip("/\\"), *parts))
 
 
 def reanchor_path(path: Any, root: Any,
@@ -2820,7 +2839,8 @@ def reanchor_path(path: Any, root: Any,
     for index in range(len(parts) - 2, -1, -1):
         if parts[index] in wanted:
             remainder = parts[index + 1:]
-            return os.path.join(str(root), parts[index], *remainder), REANCHORED
+            return (_join_in_root_spelling(root, (parts[index], *remainder)),
+                    REANCHORED)
     return text, NO_ANCHOR
 
 

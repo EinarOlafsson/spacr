@@ -66,9 +66,18 @@ def test_a_flag_that_is_already_a_bool_is_passed_straight_through():
 
 
 @pytest.fixture
-def _fakes(monkeypatch):
-    """Swap both modal dialogs for recorders and clear their ledgers."""
+def _fakes(monkeypatch, tmp_path):
+    """Swap both modal dialogs for recorders and clear their ledgers.
+
+    Portable mode keeps every spaCR ``QSettings`` store in an INI file under
+    ``tmp_path``: the native store is the registry on Windows and a plist on
+    macOS, which the suite's sandbox cannot move, and the consent flag and
+    privacy choices written here must never reach a developer's real settings.
+    """
     import spacr.qt.widgets.ai_chat_panel as chat_panel
+
+    monkeypatch.setenv("SPACR_PORTABLE", str(tmp_path / "portable"))
+    monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr-home"))
 
     _FakeConsentDialog.instances = []
     _FakeProvidersDialog.opened = []

@@ -58,7 +58,9 @@ def test_real_encodings_are_measured_without_changing_the_sources(corpus, monkey
     assert all(path.read_bytes() == content for path, content in before.items())
 
 
-@pytest.mark.parametrize("target", ["manifest", "image", "symlink", "hardlink"])
+@pytest.mark.parametrize("target", [
+    "manifest", "image", pytest.param("symlink", marks=pytest.mark.needs_symlink),
+    "hardlink"])
 def test_output_cannot_overwrite_an_input(corpus, monkeypatch, target):
     manifest, images, output = corpus
     source = next(images.rglob("*.png"))
@@ -99,6 +101,7 @@ def test_altered_or_missing_sources_leave_existing_evidence_intact(corpus, monke
     assert output.read_text(encoding="utf-8") == "prior measurement\n"
 
 
+@pytest.mark.needs_symlink
 def test_symlink_cannot_import_an_image_outside_the_source_root(corpus, monkeypatch):
     manifest, images, output = corpus
     source = next(images.rglob("*.png"))

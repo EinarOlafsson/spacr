@@ -25,6 +25,8 @@ compared without re-deriving either.
 """
 from __future__ import annotations
 
+import os
+
 import time
 
 import pytest
@@ -373,7 +375,7 @@ def prefs(monkeypatch, tmp_path):
 
     store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
     monkeypatch.setattr(module, "_settings", lambda: store)
-    assert str(tmp_path) in module._settings().fileName()
+    assert str(tmp_path) in os.path.normpath(module._settings().fileName())
     return module
 
 

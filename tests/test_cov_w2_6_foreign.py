@@ -907,7 +907,7 @@ def test_no_mask_folder_at_all_is_allowed():
 def test_one_folder_on_its_own_is_taken_as_the_cell_masks():
     assert foreign._mask_folders("/data/masks") == {"cell": "/data/masks"}
     assert foreign._mask_folders(Path("/data/masks")) == {
-        "cell": "/data/masks"}
+        "cell": str(Path("/data/masks"))}
 
 
 def test_mask_folders_come_back_in_the_order_a_merged_array_holds_them():

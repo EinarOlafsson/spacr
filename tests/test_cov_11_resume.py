@@ -41,8 +41,14 @@ from spacr.resume import (
     run_already_complete,
     validate_merged_field,
 )
+from tests.refused_access import refused
 
 _MAGIC = b'\x93NUMPY'
+
+
+def _unreadable(path):
+    """Refuse reads of ``path`` on every platform."""
+    return refused(path, 0o000, windows="read")
 
 
 # ---------------------------------------------------------------------------
@@ -141,11 +147,8 @@ def test_a_field_that_cannot_be_opened_is_pending_not_done(tmp_path):
     """
     path = tmp_path / "unreadable.npy"
     np.save(path, np.zeros((4, 4, 3), dtype="uint16"))
-    path.chmod(0o000)
-    try:
+    with _unreadable(path):
         ok, reason = validate_merged_field(str(path))
-    finally:
-        path.chmod(0o644)
 
     assert ok is False
     assert reason == REASON_UNREADABLE
@@ -447,11 +450,8 @@ def test_a_settings_csv_that_cannot_be_opened_is_no_information(tmp_path):
     """Same rule for the CSV shape `save_settings` writes."""
     path = tmp_path / "measure_crop_settings.csv"
     path.write_text("Key,Value\ncell_mask_dim,4\n", encoding="utf-8")
-    path.chmod(0o000)
-    try:
+    with _unreadable(path):
         assert read_recorded_settings(str(path)) == {}
-    finally:
-        path.chmod(0o644)
 
 
 @pytest.mark.parametrize("body", ["{not json", ""])

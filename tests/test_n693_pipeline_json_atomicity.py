@@ -97,10 +97,12 @@ def test_success_preserves_original_json_format_and_existing_mode(tmp_path):
     path = tmp_path / 'settings.json'
     path.write_text('old', encoding="utf-8")
     path.chmod(0o640)
+    mode = stat.S_IMODE(path.stat().st_mode)
+    assert mode == 0o640 or os.name == 'nt'
     settings = {'z': np.int64(3), 'a': (1, False, None), 'unicode': 'μm'}
     _save_settings_json(settings, str(path))
     assert path.read_text(encoding="utf-8") == json.dumps({'z': 3, 'a': [1, False, None], 'unicode': 'μm'}, indent=2, sort_keys=True)
-    assert stat.S_IMODE(path.stat().st_mode) == 0o640
+    assert stat.S_IMODE(path.stat().st_mode) == mode
     assert sorted(p.name for p in tmp_path.iterdir()) == ['settings.json']
 
 
@@ -149,13 +151,15 @@ def test_read_only_snapshot_still_refuses_overwrite(tmp_path, capsys):
     path = tmp_path / 'settings.json'
     path.write_bytes(b'previous valid snapshot')
     path.chmod(0o440)
+    mode = stat.S_IMODE(path.stat().st_mode)
+    assert mode == 0o440 or os.name == 'nt'
     if os.access(path, os.W_OK):
         pytest.skip('Current account can write read-only files')
     try:
         _save_settings_json({'value': 3}, str(path))
         assert 'Warning:' in capsys.readouterr().out
         assert path.read_bytes() == b'previous valid snapshot'
-        assert stat.S_IMODE(path.stat().st_mode) == 0o440
+        assert stat.S_IMODE(path.stat().st_mode) == mode
         assert sorted(p.name for p in tmp_path.iterdir()) == ['settings.json']
     finally:
         path.chmod(0o640)

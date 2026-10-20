@@ -289,7 +289,7 @@ def _eval_doubles():
                          + args.kwonlyargs if a.arg != "self"]
                 if not named:
                     continue      # torch's eval(self), not cellpose's
-                out.append((str(path.relative_to(TESTS_DIR)), cls.name,
+                out.append((path.relative_to(TESTS_DIR).as_posix(), cls.name,
                             fn.lineno, fn))
     return out
 

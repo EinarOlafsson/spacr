@@ -107,6 +107,36 @@ def _as_uint16_mask(mask: np.ndarray) -> np.ndarray:
     return labels.astype(np.uint16, copy=False)
 
 
+def _overwrite_mapped_npy_in_place(path: Path, mask: np.ndarray) -> bool:
+    """Rewrite a same-size ``.npy`` whose file is still memory-mapped.
+
+    Windows refuses to truncate a file that has a live mapping, which is what
+    ``np.save`` asks for when a mask is saved over the array it was loaded
+    from with ``mmap_mode``. Writing the same number of bytes in place needs
+    no truncation, so it succeeds there.
+
+    :param path: the existing ``.npy`` destination.
+    :param mask: the owned uint16 labels to write.
+    :returns: ``True`` when the file was rewritten, ``False`` when it cannot
+        be done in place (missing file or a different payload size).
+    """
+    import io
+
+    buffer = io.BytesIO()
+    np.save(buffer, mask)
+    payload = buffer.getvalue()
+    try:
+        if os.path.getsize(path) != len(payload):
+            return False
+        with open(path, "r+b") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except OSError:
+        return False
+    return True
+
+
 def save_mask(path: PathLike, mask: np.ndarray,
                 fmt: str = None) -> Path:
     """Write a Cellpose mask to disk.
@@ -145,7 +175,11 @@ def save_mask(path: PathLike, mask: np.ndarray,
         )
     elif fmt == "npy":
         p = p.with_suffix(".npy")
-        np.save(str(p), mask)
+        try:
+            np.save(str(p), mask)
+        except OSError:
+            if not _overwrite_mapped_npy_in_place(p, mask):
+                raise
     else:
         raise ValueError(f"unknown mask format: {fmt!r}")
     return p

@@ -13,10 +13,17 @@
 # `git config` that installs it.
 instructions/00_INDEX.txt merge=spacr-index
 
-# HASH-PINNED EVIDENCE IS CHECKED OUT BYTE FOR BYTE. Tests pin these files'
-# SHA-256, so a core.autocrlf=true checkout (Git for Windows' default) that
-# rewrote LF as CRLF would fail them on a file nobody changed.
-features/data/combined_feature_progress_2026-10-14/** -text
-features/data/ci_api_assignment_arrival_contract_2026-10-15/historical-english-surface-delta.json -text
-features/data/ci_api_assignment_arrival_contract_2026-10-15/twenty-arrivals-provenance.json -text
-features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/56-scenes.json -text
+# HASH-PINNED EVIDENCE IS CHECKED OUT BYTE FOR BYTE. Feature evidence and the
+# published site's sources are pinned by SHA-256, so a core.autocrlf=true
+# checkout (Git for Windows' default) that rewrote LF as CRLF would fail them
+# on a file nobody changed.
+features/data/** -text
+docs/source/_extra/** -text
+tools/repair/*.commit -text
+
+# PACKAGE DATA IS BYTES. Everything under spacr/resources ships in the wheel
+# byte for byte, and several files are pinned by SHA-256 (the barcode
+# references, the bundled examples). A core.autocrlf=true checkout rewrote
+# 78 of them as CRLF on Windows, so a source checkout refused its own
+# bundled data as 'not the one this release ships'.
+spacr/resources/** -text

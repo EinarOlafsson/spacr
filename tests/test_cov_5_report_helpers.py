@@ -294,7 +294,7 @@ def test_a_plate_list_that_went_through_a_csv_is_read_back(tmp_path):
     plate = tmp_path / "plate1"
     plate.mkdir()
 
-    assert R._settings_point_at({"src": f"['{plate}', '/other']"}, plate) is True
+    assert R._settings_point_at({"src": repr([str(plate), "/other"])}, plate) is True
 
 
 def test_a_broken_plate_list_is_treated_as_one_path_not_dropped(tmp_path):

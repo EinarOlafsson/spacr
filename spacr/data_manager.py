@@ -339,7 +339,8 @@ def _real(path: str) -> str:
 
 def _contained(path: str, root: str) -> bool:
     """True when ``path`` is ``root`` or lies under it, symlinks resolved."""
-    real_path, real_root = _real(path), _real(root)
+    real_path = os.path.normpath(_real(path))
+    real_root = os.path.normpath(_real(root))
     return real_path == real_root or real_path.startswith(real_root + os.sep)
 
 

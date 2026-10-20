@@ -202,7 +202,7 @@ def test_cancel_during_bundle_write_removes_unfinished_metadata(acquisition, mon
     def cancel_after_first_csv(frame, path, *args, **kwargs):
         """Cancel after the first owned bundle CSV has actually been written."""
         result = actual(frame, path, *args, **kwargs)
-        if str(getattr(path, 'name', '')).endswith('/plate_barcode_linkage/plate_map_lims.csv'):
+        if Path(str(getattr(path, 'name', ''))).as_posix().endswith('/plate_barcode_linkage/plate_map_lims.csv'):
             token.cancel()
         return result
 

@@ -107,7 +107,7 @@ def test_the_enumeration_is_the_whole_set():
         text = path.read_text(encoding="utf-8", errors="replace")
         if "if TYPE_CHECKING:" in text:
             found.add(
-                str(path.relative_to(ROOT)).replace("/", ".")[: -len(".py")])
+                path.relative_to(ROOT).as_posix().replace("/", ".")[: -len(".py")])
 
     assert found == {name for name, _ in GUARDED + TYPE_ONLY_RELATIVE}, (
         "the set of TYPE_CHECKING guards changed; add the new one to "

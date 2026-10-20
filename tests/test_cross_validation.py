@@ -548,7 +548,7 @@ def test_nested_cv_uses_inner_validation_and_untouched_outer_folds(
 
     assert len(calls) == 4
     assert sorted(
-        os.path.relpath(call["dst"], os.path.dirname(out))
+        os.path.relpath(call["dst"], os.path.dirname(out)).replace(os.sep, "/")
         for call in calls
     ) == [
         "fold_1/inner_1",

@@ -623,9 +623,10 @@ def test_real_merged_montage_notes_only_verified_overlapping_source_windows(
     for name in {panel["source"][0]["path"] for panel in first["panels"]
                  if panel["source"]}:
         source = Path(name)
-        pixels = np.load(source, allow_pickle=False)
+        pixels = np.load(source, mmap_mode="r+", allow_pickle=False)
         pixels[0, 0, 0] += 1
-        np.save(source, pixels)
+        pixels.flush()
+        del pixels
     assert not any(finding["check"] == "cross_figure_source_region"
                    for finding in export("source-changed.png", 96)
                    ["integrity"]["findings"])
@@ -775,8 +776,8 @@ def test_each_plate_gets_its_own_crop_source(tmp_path):
 
 
 def test_experiment_root_and_channel_parsing():
-    assert experiment_root("/x/y/measurements/measurements.db") == "/x/y"
-    assert experiment_root("/x/y/measurements.db") == "/x/y"
+    assert experiment_root("/x/y/measurements/measurements.db") == os.path.abspath("/x/y")
+    assert experiment_root("/x/y/measurements.db") == os.path.abspath("/x/y")
     assert parse_channels("") is None
     assert parse_channels("0, 1;2") == (0, 1, 2)
     with pytest.raises(ValueError):

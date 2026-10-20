@@ -19,6 +19,8 @@ import os
 import pandas as pd
 import pytest
 
+from tests.refused_access import refused
+
 pytest.importorskip("PySide6")
 
 from spacr.qt.widgets.regression_results import (  # noqa: E402
@@ -156,11 +158,8 @@ def test_a_summary_that_cannot_be_opened_reads_as_no_summary(tmp_path):
     from spacr.ml import SUMMARY_FILENAME
 
     path = folder / SUMMARY_FILENAME
-    os.chmod(path, 0o000)
-    try:
+    with refused(path, 0o000, windows="read"):
         assert _spacr_summary_text(str(folder)) == ""
-    finally:
-        os.chmod(path, 0o644)
 
 
 def test_a_file_written_before_spacr_had_its_own_summary_is_not_prepended(

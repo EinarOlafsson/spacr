@@ -2892,7 +2892,10 @@ def _uninstall_frozen_windows(request, root, endpoint, desktop_pid, desktop_exec
     if os.path.normcase(executable) != os.path.normcase(os.path.realpath(desktop_executable)):
         raise ValueError(tr("The running desktop could not be identified."))
     _installer_metadata_folder(request, "windows_uninstall_request", windows=True)
-    _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    try:
+        _windows_pip_private_access(request, owner_sid=owner, private_read=True)
+    except ValueError as error:
+        raise ValueError("invalid_windows_uninstall_request") from error
     before = os.lstat(request)
     if not stat.S_ISREG(before.st_mode) or before.st_size > 65536:
         raise ValueError("invalid_windows_uninstall_request")

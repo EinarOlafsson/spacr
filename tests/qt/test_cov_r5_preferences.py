@@ -15,6 +15,8 @@ on the way to a window opening.
 """
 from __future__ import annotations
 
+import os
+
 import json
 
 import pytest
@@ -34,7 +36,7 @@ def store(qapp, tmp_path, monkeypatch):
     settings = QSettings(str(tmp_path / "spacr-qt.ini"), QSettings.IniFormat)
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     monkeypatch.setattr(prefs, "_SAFE_MODE", False)
-    assert str(tmp_path) in prefs._settings().fileName()
+    assert str(tmp_path) in os.path.normpath(prefs._settings().fileName())
     return settings
 
 

@@ -6648,7 +6648,7 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
 
         raise ModelZooError(tr(
             "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
-            name=repr(name)) + "\n" + _model_resolution_context(
+            name=f"'{name}'") + "\n" + _model_resolution_context(
                 name, setting=field, kinds=("cellpose",)))
     elif name in LEGACY_CELLPOSE_MODELS:
         _report_cellpose_once(

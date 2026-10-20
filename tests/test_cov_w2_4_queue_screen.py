@@ -340,7 +340,10 @@ def test_an_import_that_cannot_be_read_names_the_file(screen, tmp_path,
     screen._on_import()
 
     assert len(screen.queue()) == 0
-    assert any(str(missing) in str(args) for args in no_blocking_dialogs)
+    # Each argument as the user reads it, not the tuple's repr, which doubles
+    # every backslash of a Windows path.
+    assert any(str(missing) in " ".join(map(str, args))
+               for args in no_blocking_dialogs)
 
 
 def test_clear_finished_removes_only_the_finished_plates(screen, queue):

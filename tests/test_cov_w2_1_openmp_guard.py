@@ -29,6 +29,7 @@ def a_resident_runtime():
     return runtimes[0]
 
 
+@pytest.mark.posix_only
 def test_a_handle_reads_the_real_thread_limit(a_resident_runtime):
     """The handle is a live CDLL whose omp symbols answer with real values."""
     handle = openmp_guard._handle(a_resident_runtime)
@@ -38,6 +39,7 @@ def test_a_handle_reads_the_real_thread_limit(a_resident_runtime):
     assert handle.omp_set_num_threads.restype is None
 
 
+@pytest.mark.posix_only
 def test_the_same_runtime_is_opened_once(a_resident_runtime):
     """Repeated entries share one handle rather than dlopening again."""
     first = openmp_guard._handle(a_resident_runtime)

@@ -23,6 +23,7 @@ import pytest
 
 from spacr import data_manager as DM
 from spacr import ports
+from tests.refused_access import refused
 from tests.test_data_manager import build_project, register_pipeline
 
 
@@ -40,11 +41,8 @@ def unreadable_dir(project):
     root, registry = project
     locked = os.path.join(root, "locked")
     os.makedirs(locked)
-    os.chmod(locked, 0o000)
-    try:
+    with refused(locked, 0o000, windows="read"):
         yield root, registry, locked
-    finally:
-        os.chmod(locked, 0o755)
 
 
 # ---------------------------------------------------------------------------

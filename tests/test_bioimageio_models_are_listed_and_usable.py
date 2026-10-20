@@ -104,6 +104,8 @@ COLLECTION = [CYTO3, MUSCLE, STANDIN, SAM, DINO, ODD, NOTEBOOK, UNET]
 def _sandboxed(tmp_path, monkeypatch):
     """Own home, so no real cache counts, and no backend environments."""
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    # Path.home() reads USERPROFILE, not HOME, on Windows.
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
     monkeypatch.setenv(SB._ROOT_ENV, str(tmp_path / "backends"))
     return tmp_path
 
