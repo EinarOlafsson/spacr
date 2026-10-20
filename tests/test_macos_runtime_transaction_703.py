@@ -106,6 +106,7 @@ def _installer(tmp_path,wheel,*,fail_install=False,fail_check=False):
     return uv
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('failure',[None,'install','dependencies','import','final_identity','restart','stage_identity','stage_json','final_json','final_version','final_import'])
 def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(installation,tmp_path,failure):
     record,machine,prefix,_=installation
@@ -152,6 +153,7 @@ def test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation(
     assert installs and all(argv[argv.index('--python')+1]!=record.python for argv in installs)
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize('unsupported',['system-site','conda','absolute-pth','editable','user-data','egg-link'])
 def test_unsupported_environment_is_refused_before_any_package_mutation(installation,unsupported,monkeypatch):
     record,machine,prefix,site=installation
@@ -169,6 +171,7 @@ def test_unsupported_environment_is_refused_before_any_package_mutation(installa
     assert not list(prefix.parent.glob('.spacr-runtime-update-*'))
 
 
+@pytest.mark.posix_only
 def test_unknown_target_is_refused_without_package_mutation(installation):
     record,machine,prefix,_=installation
     before=_snapshot(prefix)
@@ -179,6 +182,7 @@ def test_unknown_target_is_refused_without_package_mutation(installation):
     assert not list(prefix.parent.glob('.spacr-runtime-update-*'))
 
 
+@pytest.mark.posix_only
 def test_failed_restoration_keeps_original_bytes_journal_and_lock(installation,tmp_path,monkeypatch):
     record,machine,prefix,_=installation
     before=_snapshot(prefix)

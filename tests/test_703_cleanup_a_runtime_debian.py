@@ -42,7 +42,9 @@ def test_retiring_identity_refuses_unverified_probe_output(tmp_path, monkeypatch
     monkeypatch.setattr(ic, "_run", lambda argv, timeout: calls.append(argv) or reply)
     with pytest.raises(ValueError, match="previous_runtime_identity_unverified"):
         ic._retiring_runtime_identity(str(tmp_path))
-    assert calls and calls[0][0] == os.path.join(str(tmp_path), "bin", "python")
+    expected = (os.path.join(str(tmp_path), "Scripts", "python.exe") if os.name == "nt"
+                else os.path.join(str(tmp_path), "bin", "python"))
+    assert calls and calls[0][0] == expected
 
 
 def test_retiring_identity_accepts_verified_probe(tmp_path, monkeypatch):
@@ -85,6 +87,7 @@ def test_runtime_staging_accepts_relative_path_configuration_files(tmp_path):
         ic._runtime_staging_allowed(str(prefix), _machine(tmp_path))
 
 
+@pytest.mark.posix_only
 def test_recovery_refuses_a_journal_readable_by_others(updated):
     prefix, transaction, machine, _original, run = updated
     (transaction / "transaction.json").chmod(0o644)
@@ -94,6 +97,7 @@ def test_recovery_refuses_a_journal_readable_by_others(updated):
     assert _snapshot(prefix.parent) == before
 
 
+@pytest.mark.posix_only
 @pytest.mark.parametrize("pid", [0, True, "43210"])
 def test_recovery_requires_a_real_previous_desktop_process(updated, pid):
     prefix, transaction, machine, _original, run = updated
@@ -103,6 +107,7 @@ def test_recovery_requires_a_real_previous_desktop_process(updated, pid):
     assert _snapshot(prefix.parent) == before
 
 
+@pytest.mark.posix_only
 def test_recovery_preserves_both_runtimes_when_retained_runtime_is_unverified(updated):
     prefix, transaction, machine, _original, _run = updated
     before = _snapshot(prefix), _snapshot(transaction / "runtime")
@@ -424,6 +429,7 @@ def _root_stat(directory, mode, uid=0):
     return os.stat_result(((stat.S_IFDIR if directory else stat.S_IFREG) | mode, 1, 1, 1, uid, 0, 64, 0, 0, 0))
 
 
+@pytest.mark.posix_only
 def test_debian_root_apply_refuses_a_different_desktop_owner(monkeypatch):
     stage = "/var/lib/spacr-updates/transaction-fixture"
     helper = stage + "/spacr-update-helper"

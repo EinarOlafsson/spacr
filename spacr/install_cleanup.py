@@ -702,7 +702,7 @@ def _windows_desktops(machine: _Machine) -> List[str]:
         if value:
             for name in ("USERPROFILE", "HOMEDRIVE", "HOMEPATH", "OneDrive"):
                 value = value.replace(f"%{name}%", machine.env(name))
-            folders.insert(0, value)
+            folders.insert(0, os.path.normpath(value))
     return folders
 
 
@@ -5509,13 +5509,14 @@ def _runtime_exchange(first, second):
     """Atomically exchange two runtime directories, with no missing-prefix gap."""
     import ctypes
 
-    library = ctypes.CDLL(None, use_errno=True)
     left, right = os.fsencode(first), os.fsencode(second)
     if sys.platform == "darwin":
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renamex_np
         operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
         arguments = (left, right, 2)
     elif sys.platform.startswith("linux"):
+        library = ctypes.CDLL(None, use_errno=True)
         operation = library.renameat2
         operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
         arguments = (-100, left, -100, right, 2)
@@ -9368,19 +9369,25 @@ def preview_optional_cleanup(operation_id, *, system=None, guard=None):
     cache_home = normalized(cache_home)
     locations = {}
     try:
-        home_fd = _optional_cleanup_directory(cache_home)
-        try:
-            descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
-            with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
-                details = os.fstat(stream.fileno())
-                if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
-                    raw = stream.read(1_048_577)
-                    data = json.loads(raw) if len(raw) <= 1_048_576 else None
-                    if isinstance(data, dict):
-                        locations = {key: value for key, value in data.items()
-                                     if isinstance(value, str) and value.strip() and "\x00" not in value}
-        finally:
-            os.close(home_fd)
+        if hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW"):
+            home_fd = _optional_cleanup_directory(cache_home)
+            try:
+                descriptor = os.open(_CACHE_LOCATIONS_FILE, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0), dir_fd=home_fd)
+            finally:
+                os.close(home_fd)
+        else:
+            manifest = os.path.join(cache_home, _CACHE_LOCATIONS_FILE)
+            if os.path.islink(cache_home) or os.path.islink(manifest):
+                raise ValueError("link")
+            descriptor = os.open(manifest, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+            details = os.fstat(stream.fileno())
+            if stat.S_ISREG(details.st_mode) and details.st_size <= 1_048_576:
+                raw = stream.read(1_048_577)
+                data = json.loads(raw) if len(raw) <= 1_048_576 else None
+                if isinstance(data, dict):
+                    locations = {key: value for key, value in data.items()
+                                 if isinstance(value, str) and value.strip() and "\x00" not in value}
     except (OSError, ValueError, RecursionError):
         pass
 
