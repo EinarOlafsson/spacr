@@ -588,9 +588,30 @@ def _apply_portable_mode() -> Optional[Path]:
     return data
 
 
+_ISOLATED_PROFILE_ENVS = ("SPACR_DISTRIBUTION_SMOKE", "SPACR_ISOLATED_PROFILE")
+
+
+def _isolated_profile_requested() -> bool:
+    """Whether this run asked for a profile that shares nothing with the user's.
+
+    A distribution smoke (``SPACR_DISTRIBUTION_SMOKE=1``) or an explicit
+    ``SPACR_ISOLATED_PROFILE=1``. Moving ``HOME`` alone isolates nothing on
+    macOS, whose native store goes through cfprefsd, nor on Windows, whose
+    native store is the registry: a "fresh profile" smoke read and wrote the
+    user's real GUI scale and onboarding flags (macOS, 2026-10-20).
+    """
+    return any(os.environ.get(name, "").strip() == "1"
+               for name in _ISOLATED_PROFILE_ENVS)
+
+
 def _portable_settings_dir() -> Optional[Path]:
-    """Return the folder Qt settings are kept in when portable, else ``None``."""
-    if _portable_root() is None:
+    """Return the folder Qt settings are kept in as INI files, else ``None``.
+
+    Portable mode and an isolated profile (:func:`_isolated_profile_requested`)
+    keep them under :func:`_spacr_home`, so neither touches the registry or
+    the macOS preferences; an ordinary run uses the platform's native store.
+    """
+    if _portable_root() is None and not _isolated_profile_requested():
         return None
     return _spacr_home() / "settings"
 
