@@ -105,9 +105,15 @@ def test_home_contains_only_enabled_maturity_stages(
     qtbot,
     qt_theme_applied,
     maturity_prefs,
+    monkeypatch,
 ):
     from spacr.qt.app import make_home_page
     from spacr.qt.widgets.home import AppTile
+    # No shipped tile is beta since 2026-10-20 (the last four were signed
+    # off stable for the paper), so one is staged beta here to keep the
+    # beta path under test.
+    from spacr.qt import app as _app
+    monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
 
     maturity_prefs.set_show_alpha(False)
     maturity_prefs.set_show_beta(True)
@@ -214,8 +220,14 @@ def test_open_settings_toggle_in_place_without_losing_sections(
 
 def test_hidden_numeric_shortcut_does_not_open_a_filtered_module(
     maturity_prefs,
+    monkeypatch,
 ):
     from spacr.qt import shortcuts
+    # No shipped tile is beta since 2026-10-20 (the last four were signed
+    # off stable for the paper), so one is staged beta here to keep the
+    # beta path under test.
+    from spacr.qt import app as _app
+    monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
 
     class Window:
         def __init__(self):

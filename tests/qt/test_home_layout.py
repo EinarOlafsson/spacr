@@ -246,8 +246,10 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     for key in ("plasmodium", "candida", "trypanosoma", "leishmania",
                 "giardia", "virus", "mammalian"):
         assert app_stage(key) == "alpha", key
-    assert len(staged) == 37, (
-        f"{len(staged)} apps staged, not 37 — if that is intended, say so "
+    # 37 -> 33 on 2026-10-20, -4, intended: Make Masks, Analyze Plaques,
+    # Replication and Image UMAP were signed off stable for the paper.
+    assert len(staged) == 33, (
+        f"{len(staged)} apps staged, not 33 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

@@ -272,6 +272,11 @@ def test_hovering_a_tile_lights_it_in_its_stage_colour(qtbot, monkeypatch,
     All three stages are on the Home tab, which is why this hovers
     there: Core alone has no alpha module in it.
     """
+    # No shipped tile is beta since 2026-10-20 (the last four were signed
+    # off stable for the paper), so one is staged beta here to keep the
+    # beta path under test.
+    from spacr.qt import app as _app
+    monkeypatch.setitem(_app.APP_STAGE, "umap", "beta")
     page = _themed_page(qtbot, monkeypatch, theme_name)
     picked = _one_per_stage(page)
     assert set(picked) == {"stable", "beta", "alpha"}, (
