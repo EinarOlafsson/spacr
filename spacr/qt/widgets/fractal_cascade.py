@@ -25,6 +25,27 @@ from typing import Final
 
 import numpy as np
 
+
+def _use_spacrs_kernel_cache() -> None:
+    """Point numba's kernel cache at spaCR's folder before anything is decorated."""
+    try:
+        from spacr.logging_util import _numba_cache_folder
+    except Exception:
+        return
+    _numba_cache_folder()
+
+
+def _prime_kernels() -> None:
+    """Have the kernel cache filled by a helper process before a first compile."""
+    try:
+        from spacr.qt.widgets.ambient import _prime_before_first_kernel
+    except Exception:
+        return
+    _prime_before_first_kernel()
+
+
+_use_spacrs_kernel_cache()
+
 try:
     from numba import njit, prange
 except Exception:
@@ -544,6 +565,7 @@ class CascadeEngine:
         """
         from numba import set_num_threads
 
+        _prime_kernels()
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
         render_into(self.output, t, speed, dream, iterations,

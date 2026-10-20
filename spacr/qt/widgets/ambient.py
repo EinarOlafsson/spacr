@@ -5413,30 +5413,36 @@ def _numba_cache_directory():
     so frozen and read-only installs work. An unwritable folder means no
     cache, silently.
     """
-    import os
-    from pathlib import Path
+    from ...logging_util import _numba_cache_folder
 
-    try:
-        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
-        if configured:
-            folder = Path(configured).expanduser()
-        else:
-            from ...logging_util import _spacr_home
-            folder = _spacr_home() / "cache" / "numba"
-        folder.mkdir(parents=True, exist_ok=True)
-        if not os.access(folder, os.W_OK):
-            return None
-        os.environ["NUMBA_CACHE_DIR"] = str(folder)
-        import sys
-        if "numba.core.config" in sys.modules:
-            sys.modules["numba.core.config"].CACHE_DIR = str(folder)
-        return folder
-    except Exception:
-        return None
+    return _numba_cache_folder()
 
 
 _PRIME_LOCK = threading.Lock()
 _PRIME_TIMEOUT_S = 240
+_PRECOMPILED_KERNELS = frozenset((
+    "spacr.qt.widgets.ambient._scatter_packed_grains",
+    "spacr.qt.widgets.ambient._scatter_subpixel_grains",
+    "spacr.qt.widgets.ambient._blend_colored_words",
+    "spacr.qt.widgets.ambient._scatter_colored_grains",
+    "spacr.qt.widgets.ambient._warp_satin_columns",
+    "spacr.qt.widgets.fractal_cascade.render_into",
+    "spacr.qt.widgets.fractal_space._object_color",
+    "spacr.qt.widgets.fractal_space.sample_space",
+    "spacr.qt.widgets.fractal_space.render_space_frame",
+    "spacr.qt.widgets.fractal_space._add_galaxies",
+    "spacr.qt.widgets.fractal_travel._render_into",
+    "spacr.qt.widgets.fractal_travel._blend_temporal",
+    "spacr.qt.widgets.fractal_travel._blend_weighted",
+))
+_PRECOMPILE_EXCLUDED = {
+    "spacr.qt.widgets.fractal_space._hash2":
+        "inline='always': compiled into its callers, never called alone",
+    "spacr.qt.widgets.fractal_space._atlas_texel":
+        "inline='always': compiled into _add_galaxies, never called alone",
+}
+_PRIMED_SOURCES = ("ambient", "fractal_cascade", "fractal_space",
+                   "fractal_travel")
 
 
 def _on_a_worker_thread() -> bool:
@@ -5466,9 +5472,12 @@ def _primed_marker(folder):
         numba_version = metadata.version("numba")
     except Exception:
         numba_version = "?"
-    stat = os.stat(__file__)
-    stamp = f"{os.path.abspath(__file__)}|{stat.st_mtime_ns}|{stat.st_size}"
-    stamp += f"|{numba_version}|{sys.version_info[:2]}"
+    here = os.path.dirname(os.path.abspath(__file__))
+    stamp = f"{numba_version}|{sys.version_info[:2]}"
+    for name in _PRIMED_SOURCES:
+        path = os.path.join(here, name + ".py")
+        stat = os.stat(path)
+        stamp += f"|{path}|{stat.st_mtime_ns}|{stat.st_size}"
     digest = hashlib.sha256(stamp.encode("utf-8")).hexdigest()[:16]
     return folder / f"spacr-ambient-primed-{digest}"
 
@@ -5490,10 +5499,55 @@ def _prime_kernel_cache() -> int:
     if _PACKED_SCATTER is None or _SATIN_COMPILER.kernel is None:
         return 1
     try:
+        _prime_fractal_kernels()
+    except Exception:
+        LOG.debug("the fractal kernels did not compile", exc_info=True)
+        return 1
+    try:
         _primed_marker(folder).touch()
     except OSError:
         return 1
     return 0
+
+
+def _prime_fractal_kernels() -> None:
+    """Render one tiny frame of every night-theme engine, as the app calls it.
+
+    The arguments have the types the fractal worker sends, so the cached
+    signatures are the ones the application asks for.
+    """
+    from .fractal_cascade import CascadeEngine
+    from .fractal_space import SpaceEngine, _add_galaxies, _galaxies_at
+    from .fractal_space import _galaxy_atlas, render_space_frame
+    from .fractal_travel import OrbitEngine
+
+    for samples in (1, 2, 3):
+        for engine in (CascadeEngine(1), SpaceEngine(1), OrbitEngine(1)):
+            engine.samples = samples
+            for _frame in range(samples * samples + 1):
+                engine.render(8, 6, 0.25, 1.0, 0.5, 8, 0.0, 0.0, 0.0, 0.0)
+    frame = render_space_frame(8, 6, 0.25, 1.0, 0.0, 0.0, 1)
+    _add_galaxies(frame, 0.25, 0.0, 0.0, _galaxies_at(0.25, 1.0),
+                  _galaxy_atlas())
+
+
+_PRIMED_ONCE = threading.Event()
+
+
+def _prime_before_first_kernel() -> None:
+    """Fill the kernel cache once, from a render worker, before it compiles.
+
+    The night-theme engines call this at the top of every render; after the
+    first call it is one flag test.
+    """
+    if _PRIMED_ONCE.is_set():
+        return
+    _PRIMED_ONCE.set()
+    try:
+        if _on_a_worker_thread():
+            _prime_in_helper_process()
+    except Exception:
+        LOG.debug("the kernel cache could not be filled", exc_info=True)
 
 
 def _prime_in_helper_process() -> bool:
