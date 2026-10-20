@@ -16,7 +16,7 @@ def extract_metadata(tmp_path, monkeypatch):
             'remote_execution.py', 'install_cleanup.py', 'doctor.py', 'updater.py',
             'model_zoo.py', 'utils.py',
             'attribution.py', 'measure.py', 'channel_sorting.py', 'object_classifier.py', 'core.py',
-            'psf_pipeline.py', '_lineage_trees.py', 'plot.py'):
+            'psf_pipeline.py', '_lineage_trees.py', 'plot.py', 'run_journal.py', 'ml.py'):
         (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)

@@ -20,7 +20,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "attribution.py", "measure.py", "object_classifier.py", "core.py",
         "psf_pipeline.py",
         "_lineage_trees.py",
-        "utils.py", "channel_sorting.py",
+        "utils.py", "channel_sorting.py", "run_journal.py", "ml.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
