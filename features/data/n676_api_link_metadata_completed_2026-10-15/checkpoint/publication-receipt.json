@@ -1,20 +1,20 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "n676-ws-53-prediction-profiler-20261020",
+  "branch": "n676-ws-78-spacr-screens-20261020",
   "base_commit": "64ff46ea440928b3a84d805d415b647266b65de4",
-  "commit": "fa44641c4bed37ffb7f597fe01dc8cf2cf9358e6",
-  "tag": "n676-ws-53-prediction-profiler-20261020-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/fa44641c4bed37ffb7f597fe01dc8cf2cf9358e6",
-  "manifest_sha256": "44c8b2d0d127419cd6d8ac934060372d1b68649e4de363fe00ca363ef84e3065",
-  "media_files": 5932,
-  "media_bytes": 11787826033,
+  "commit": "af7bb6f5aa7bf10b314864a2828040cecbc70118",
+  "tag": "n676-ws-78-spacr-screens-20261020-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/af7bb6f5aa7bf10b314864a2828040cecbc70118",
+  "manifest_sha256": "428e76d8496c790d07c1a14434577c989f89c95b118fb5169e6e7b006f96bf6c",
+  "media_files": 5979,
+  "media_bytes": 12160528624,
   "readback": {
-    "commit": "fa44641c4bed37ffb7f597fe01dc8cf2cf9358e6",
-    "files_expected": 5932,
-    "metadata_matched": 5932,
+    "commit": "af7bb6f5aa7bf10b314864a2828040cecbc70118",
+    "files_expected": 5979,
+    "metadata_matched": 5979,
     "metadata_failures": [],
-    "bytes_read_back": 11787826033,
-    "downloaded_sha256_matched": 5932,
+    "bytes_read_back": 12160528624,
+    "downloaded_sha256_matched": 5979,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
       ".gitattributes",
@@ -2433,16 +2433,16 @@
       "deck/anim/slide_33_image-33-3.gif",
       "deck/spacr_deck.pdf"
     ],
-    "seconds": 497.5,
+    "seconds": 421.3,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 142,
     "bundled_tutorial_index_sha256": "afc880e1e65c8b2fb38be760761ac9575c32fe4f5f5be113507ec927b3675065",
-    "index_sha256": "0cf6825f55ec809c4849dc3923dc831541017b06121f7dfd799efa07883714cb",
-    "candidate_index_sha256": "d09a607bb1bc8b482aad60ac41fee2b95d8acf4117a2e15fa70ec0dfaf1b1846",
-    "cache_key": "n676-ws-53-prediction-profiler-20261020-verified",
+    "index_sha256": "7820b1a40978e2aea164efe0e981d19a2f26a9cc93800d876440c15797fd55b4",
+    "candidate_index_sha256": "0ed87a886491a56a6813f73bae366a9e845d4082dd0bf5088a93b95afdb77473",
+    "cache_key": "n676-ws-78-spacr-screens-20261020-verified",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -2451,14 +2451,14 @@
     "versioned_assets": {
       "app_v2.js": "n676-ws-04-installers-20261017-verified",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "n676-ws-53-prediction-profiler-20261020-verified",
-      "module_navigation.js": "n676-ws-53-prediction-profiler-20261020-verified",
+      "lesson_catalog.js": "n676-ws-78-spacr-screens-20261020-verified",
+      "module_navigation.js": "n676-ws-78-spacr-screens-20261020-verified",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
     "withdrawn_pages_archive": {
-      "directory": "/media/carruthers/mnt3/claude/n676_stages/host/stage-53-t17/release-candidate-append-bjkt3lkh/retired-pages",
+      "directory": "/media/carruthers/mnt3/claude/n676_stages/host/stage-78c-t17/release-candidate-append-ke6k886g/retired-pages",
       "files": []
     },
     "ready": 84,
