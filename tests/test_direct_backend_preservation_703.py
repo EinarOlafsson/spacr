@@ -21,6 +21,7 @@ def installation(tmp_path, monkeypatch, spelling='absolute'):
     weights = backends / 'model.bin'
     weights.write_bytes(b'preserved model bytes\x00\xff')
     monkeypatch.setenv('HOME', str(home))
+    monkeypatch.setenv('USERPROFILE', str(home))
     monkeypatch.chdir(tmp_path)
     configured = str(backends)
     if spelling == 'relative':

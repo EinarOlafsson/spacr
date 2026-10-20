@@ -27,9 +27,9 @@ from tests.test_install_cleanup import (
     _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 from tests.test_uninstall_selection_703 import (
-    _prepared_helper,
     installation,
     protected_windows,
+    windows_uninstall_plan,
 )
 
 __all__ = ["installation", "protected_windows"]
@@ -247,13 +247,12 @@ def _windows_plan(installation, tmp_path, monkeypatch, *, events, authorize,
                   fail_cancel=False, executable=None):
     from contextlib import nullcontext
 
-    _box, _root, machine, plan, _calls = _prepared_helper(installation, tmp_path)
-    handshake = ic._FrozenUpdateHandshake(plan)
+    plan, handshake, desktop = windows_uninstall_plan(installation, tmp_path)
     uninstaller = tmp_path / "Uninstall.exe"
     uninstaller.write_bytes(b"native")
     adapter = {"uninstaller": str(uninstaller), "request": {"targets": []},
                "uninstaller_sha256": ic._macos_digest(str(uninstaller)),
-               "desktop_executable": executable or machine.executable}
+               "desktop_executable": executable or desktop}
     monkeypatch.setattr(ic, "_windows_pip_private_access", lambda *a, **k: None)
     monkeypatch.setattr(ic, "_windows_frozen_installer_pin", lambda *a: nullcontext())
     monkeypatch.setattr(ic, "_windows_authorized_process", authorize)
@@ -264,7 +263,6 @@ def _windows_plan(installation, tmp_path, monkeypatch, *, events, authorize,
     return plan, adapter, handshake
 
 
-@pytest.mark.posix_only
 def test_a_native_uninstaller_that_cannot_start_is_reported_and_cancelled(
         installation, tmp_path, monkeypatch):
     events = []
@@ -280,7 +278,6 @@ def test_a_native_uninstaller_that_cannot_start_is_reported_and_cancelled(
     assert "activate" not in events and events[-1] == "cancel"
 
 
-@pytest.mark.posix_only
 def test_a_native_uninstaller_that_reports_failure_after_completion_is_an_error(
         installation, tmp_path, monkeypatch):
     events = []
@@ -303,7 +300,6 @@ def test_a_native_uninstaller_that_reports_failure_after_completion_is_an_error(
     ("quote", "invalid_windows_uninstall_argument"),
     ("long", "windows_uninstall_scope_too_large"),
 ])
-@pytest.mark.posix_only
 def test_native_uninstaller_arguments_cannot_be_injected_or_overflow(
         installation, tmp_path, monkeypatch, problem, error):
     events = []

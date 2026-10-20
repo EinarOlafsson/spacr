@@ -44,7 +44,9 @@ def test_only_the_installers_managed_python_and_stdlib_helper_are_copied(private
 
 
 @pytest.mark.parametrize('reason', ['shared-python', 'wrong-interpreter', 'wrong-prefix', 'inside-folder',
-                                    'nonempty-folder', 'linked-content', 'configured-data'])
+                                    'nonempty-folder',
+                                    pytest.param('linked-content', marks=pytest.mark.needs_symlink),
+                                    'configured-data'])
 def test_preparation_refuses_to_copy_unowned_or_linked_runtime(private_runtime, tmp_path, reason):
     root, base, work, machine = private_runtime
     if reason == 'shared-python':

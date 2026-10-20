@@ -26,7 +26,6 @@ from tests.test_install_cleanup import (
     _nothing_here_reaches_this_computer as _nothing_here_reaches_this_computer,
 )
 
-pytestmark = pytest.mark.skipif(os.name == "nt", reason="POSIX shell and descriptor fixtures")
 
 
 def test_a_running_frozen_bundle_outside_applications_is_found(tmp_path, monkeypatch):
@@ -103,6 +102,7 @@ def test_a_lock_that_cannot_be_inspected_is_released_and_reported(tmp_path, monk
     assert len(closed) == 1
 
 
+@pytest.mark.posix_only
 def test_a_lock_removed_by_someone_else_and_an_unclosable_handle_are_tolerated(
         tmp_path, monkeypatch):
     box = Box(tmp_path)
@@ -165,6 +165,7 @@ class _Phase:
         return {"phase": "activate" if "activate" in expected else "confirmed"}
 
 
+@pytest.mark.posix_only
 def test_the_relay_waits_for_slow_output_and_reports_the_helper_error(monkeypatch):
     monkeypatch.setattr(ic, "_wait_for_exit", lambda pid, **kwargs: True)
     script = 'sleep 0.5; printf "almost\\n"; echo "the journal is locked" >&2; exit 3'
@@ -176,11 +177,13 @@ def test_the_relay_waits_for_slow_output_and_reports_the_helper_error(monkeypatc
     "head -c 66000 /dev/zero | tr '\\0' a",
     "i=0; while [ $i -lt 3900 ]; do echo receipt-line-$i; i=$((i+1)); done",
 ])
+@pytest.mark.posix_only
 def test_oversized_helper_output_is_refused(script):
     with pytest.raises(ValueError, match="invalid transaction receipt"):
         ic._macos_phased_transaction(script, _Phase(), "1.5.1.5", 4242)
 
 
+@pytest.mark.posix_only
 def test_a_relay_past_its_deadline_stops(monkeypatch):
     clock = iter([0.0] + [20000.0] * 10)
     monkeypatch.setattr(ic.time, "monotonic", lambda: next(clock))
@@ -206,6 +209,7 @@ class _Child:
         raise subprocess.TimeoutExpired("sh", timeout)
 
 
+@pytest.mark.posix_only
 def test_a_helper_that_will_not_exit_retains_its_recovery_files():
     with pytest.raises(ic._UpdateActivationUnconfirmed, match="still running"):
         ic._macos_phased_transaction("printf done", _Phase(), "1.5.1.5", 4242, popen=_Child)

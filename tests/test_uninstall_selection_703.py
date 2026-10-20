@@ -905,14 +905,33 @@ def test_frozen_macos_authorized_helper_requires_activation_and_actual_exit(monk
         assert events.index("prepared") < events.index("exited") < events.index(removals[0]) < events.index("complete")
 
 
-@pytest.mark.posix_only
+def _native_windows_plan(tmp_path):
+    """A Windows uninstall plan in a private helper folder, bound by the native Windows handshake."""
+    import os
+    import time
+
+    workdir = tmp_path / "outside-helper"
+    workdir.mkdir(mode=0o700)
+    plan = {"schema": 1, "adapter": "windows-frozen-native", "version": "1.5.0.7", "pid": 98765,
+            "records": [], "ticked": [], "workdir": str(workdir),
+            "handshake": {"schema": 1, "token": os.urandom(32).hex(), "expires": time.time() + 300}}
+    return plan, ic._WindowsPipHandshake(plan), str(tmp_path / "desktop" / "spacr.exe")
+
+
+def windows_uninstall_plan(installation, tmp_path):
+    """The handshake each platform's helper would use: native on Windows, the POSIX one elsewhere."""
+    if ic.os.name == "nt":
+        return _native_windows_plan(tmp_path)
+    _box, _root, machine, plan, _calls = _prepared_helper(installation, tmp_path)
+    return plan, ic._FrozenUpdateHandshake(plan), machine.executable
+
+
 @pytest.mark.parametrize("cancelled", [False, True])
 def test_windows_uninstall_bootstrap_exit_is_not_authenticated_completion(installation, tmp_path, monkeypatch, cancelled):
     from contextlib import contextmanager
     from threading import Event
 
-    box, root, machine, plan, calls = _prepared_helper(installation, tmp_path)
-    handshake = ic._FrozenUpdateHandshake(plan)
+    plan, handshake, executable = windows_uninstall_plan(installation, tmp_path)
     uninstaller = tmp_path / "Uninstall.exe"
     uninstaller.write_bytes(b"native fixture")
     completed_bootstrap = Event()
@@ -920,7 +939,7 @@ def test_windows_uninstall_bootstrap_exit_is_not_authenticated_completion(instal
     pinned = []
     adapter = {"uninstaller": str(uninstaller), "request": {"targets": []},
                "uninstaller_sha256": ic._macos_digest(str(uninstaller)),
-               "desktop_executable": machine.executable}
+               "desktop_executable": executable}
 
     @contextmanager
     def pin(path, digest):
@@ -968,7 +987,7 @@ def test_windows_uninstall_bootstrap_exit_is_not_authenticated_completion(instal
 
     def ready():
         events.append("ready")
-        ic._FrozenUpdateHandshake.ready(handshake)
+        type(handshake).ready(handshake)
         handshake.cancel() if cancelled else handshake.approve()
 
     monkeypatch.setattr(ic, "_windows_pip_private_access", lambda *args, **kwargs: None)

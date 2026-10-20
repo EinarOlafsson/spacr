@@ -12,12 +12,14 @@ import pytest
 from spacr import install_cleanup as ic
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX owner identity; Windows ACL cases are separate")
 def test_real_child_exchanges_staging_and_startup_phases_without_secret_in_argv(tmp_path):
     source = str(Path(ic.__file__).parents[1])
     with ic._UpdatePhaseServer(str(tmp_path)) as server:
         descriptor = Path(server.endpoint)
-        assert descriptor.stat().st_mode & 0o077 == 0
+        if os.name == "nt":
+            ic._windows_pip_private_access(server.endpoint, private_read=True)
+        else:
+            assert descriptor.stat().st_mode & 0o077 == 0
         script = """import sys
 sys.path.insert(0, sys.argv[1])
 from spacr.install_cleanup import _UpdatePhaseClient
@@ -45,16 +47,23 @@ with _UpdatePhaseClient(sys.argv[2], int(sys.argv[3]), sys.argv[4]) as channel:
     assert not descriptor.exists()
 
 
-@pytest.mark.parametrize("fault", ["mode", "owner", "symlink", "oversized", "executable"])
+def _desktop_owner(path):
+    """This user's identity as the desktop lookup reports it: a SID on Windows, a uid elsewhere."""
+    return ic._windows_pip_acl(str(path))["user"] if os.name == "nt" else os.getuid()
+
+
+@pytest.mark.parametrize("fault", [pytest.param("mode", marks=pytest.mark.posix_only), "owner",
+                                   pytest.param("symlink", marks=pytest.mark.needs_symlink),
+                                   "oversized", "executable"])
 def test_untrusted_descriptor_or_desktop_refuses_before_connecting(tmp_path, monkeypatch, fault):
     with ic._UpdatePhaseServer(str(tmp_path)) as server:
         endpoint = Path(server.endpoint)
         executable = sys.executable
-        owner = os.getuid()
+        owner = _desktop_owner(tmp_path)
         if fault == "mode":
             endpoint.chmod(0o644)
         elif fault == "owner":
-            owner += 1
+            owner = "S-1-5-21-1-2-3-4" if os.name == "nt" else owner + 1
         elif fault == "symlink":
             kept = endpoint.with_suffix(".kept")
             endpoint.rename(kept)
@@ -71,7 +80,8 @@ def test_untrusted_descriptor_or_desktop_refuses_before_connecting(tmp_path, mon
 
 @pytest.mark.parametrize("fault", ["wrong-secret", "replayed-sequence", "reflected-direction", "unknown-phase", "oversized"])
 def test_invalid_authenticated_phase_never_allows_activation(tmp_path, monkeypatch, fault):
-    monkeypatch.setattr(ic, "_desktop_process_identity", lambda _pid: (os.getuid(), os.path.realpath(sys.executable)))
+    owner = _desktop_owner(tmp_path)
+    monkeypatch.setattr(ic, "_desktop_process_identity", lambda _pid: (owner, os.path.realpath(sys.executable)))
     with ic._UpdatePhaseServer(str(tmp_path)) as server:
         with ic._UpdatePhaseClient(server.endpoint, 1234, sys.executable) as client:
             payload = {"sequence": 1, "direction": "installer", "phase": "prepared", "details": {}}

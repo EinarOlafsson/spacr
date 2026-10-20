@@ -176,6 +176,7 @@ def windows_install(tmp_path):
     return types.SimpleNamespace(root=root, python=python, workdir=workdir, machine=machine)
 
 
+@pytest.mark.posix_only
 def test_uninstall_preparation_refuses_a_shared_posix_folder(windows_install):
     with pytest.raises(ValueError, match='private owner folder'):
         cleanup._prepare_windows_uninstall(windows_install.root, windows_install.workdir,
