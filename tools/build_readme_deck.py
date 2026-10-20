@@ -49,6 +49,13 @@ a lossless PDF so no image is compressed twice, and saved without chroma
 subsampling. The published PDF is LibreOffice's own, with vector text; its
 title page is the stamped picture (``replace_first_page``).
 
+THE PDF AND THE ANIMATIONS ARE NOT IN GIT (item 710). They are served from
+the public dataset ``einarolafsson/spacr-tutorials`` under ``deck/`` at the
+revision ``docs/media_revision.json`` pins; ``tools/fetch_docs_media.py
+fetch`` puts them in this folder and the docs build runs it. After a rebuild
+lands in ``docs/source/_static/deck/``, ``--publish`` uploads the files that
+changed and bumps the pin; commit the pin with the pictures.
+
 Run it again with a new deck to replace the old one; slides the new deck no
 longer has are removed::
 
@@ -431,6 +438,9 @@ def stamp_title(folder: Path, version: Optional[str] = None) -> Optional[str]:
         if pdf.is_file():
             print("info deck: pypdf is not installed here, so the PDF's title "
                   "page keeps its old version line; the pictures are stamped.")
+        elif pinned_media(pdf):
+            print("info deck: the PDF comes from docs/media_revision.json; "
+                  "tools/fetch_docs_media.py fetch stamps its title page.")
         else:
             slides = [folder / s["image"] for s in manifest["slides"]]
             pdf_from(slides, pdf)
@@ -438,6 +448,38 @@ def stamp_title(folder: Path, version: Optional[str] = None) -> Optional[str]:
     manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False)
                              + "\n", encoding="utf-8")
     return text
+
+
+def pinned_media(path: Path) -> bool:
+    """Whether ``path`` is a file the docs fetch from the media pin.
+
+    Item 710: the published PDF and animations live in the Hugging Face
+    dataset at the revision ``docs/media_revision.json`` names.
+
+    :param path: a file in the published deck folder.
+    :returns: True when the pin lists it.
+    """
+    pin = ROOT / "docs" / "media_revision.json"
+    try:
+        relative = path.resolve().relative_to(ROOT.resolve()).as_posix()
+        groups = json.loads(pin.read_text(encoding="utf-8"))["groups"]
+    except (OSError, ValueError, KeyError):
+        return False
+    return any(relative in group.get("files", {}) for group in groups.values())
+
+
+def publish_media() -> Optional[str]:
+    """Upload the rebuilt deck's PDF and animations and bump the media pin.
+
+    :returns: the new dataset revision, or None when nothing changed.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "fetch_docs_media", Path(__file__).resolve().parent / "fetch_docs_media.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.publish("deck", ROOT, "deck: rebuilt spaCR info deck")
 
 
 def replace_first_page(pdf: Path, picture) -> bool:
@@ -608,7 +650,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--refresh-pages", help="comma-separated pages from an already rendered complete deck")
     parser.add_argument("--rendered", type=Path, help="complete private output of the normal deck builder")
     parser.add_argument("--baseline", type=Path, default=OUT, help="accepted deck preserved by --refresh-pages")
+    parser.add_argument("--publish", action="store_true",
+                        help="upload the published deck's PDF and animations and bump docs/media_revision.json")
     args = parser.parse_args(argv)
+    if args.publish:
+        revision = publish_media()
+        print(f"deck media pinned at {revision}" if revision else "deck media unchanged")
+        return 0
     if args.refresh_pages:
         if args.rendered is None or args.stamp or args.pptx is not None:
             parser.error("--refresh-pages requires --rendered, without a PPTX or --stamp")

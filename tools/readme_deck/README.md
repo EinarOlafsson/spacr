@@ -12,10 +12,17 @@ Rebuild, from the repository root:
     npm ci
     PUBLIC=1 node scripts/build.js
     cd ../..
+    python tools/fetch_docs_media.py fetch
     python tools/build_readme_deck.py tools/readme_deck/spacr_overview.pptx --out /private/rendered
     python tools/build_readme_deck.py --refresh-pages 8,32,48 --rendered /private/rendered --out /private/checked
     rsync -a /private/checked/ docs/source/_static/deck/
     python tools/refresh_alpha_deck.py
+    python tools/build_readme_deck.py --publish
+
+The published PDF and the animations are not in git: `fetch` puts the pinned copies from the
+dataset `einarolafsson/spacr-tutorials` (`deck/`) in place, and `refresh_alpha_deck.py` and
+`--publish` upload what changed and bump `docs/media_revision.json`, which is committed with the
+pictures. Publishing needs a Hugging Face token with write access to that dataset.
 
 `python tools/build_readme_deck.py --out /private/rendered` runs the node steps itself;
 `--pres DIR` selects other sources. `--out` must be a new folder. Choose the pages that

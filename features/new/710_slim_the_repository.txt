@@ -2,8 +2,8 @@
 SLIM THE REPOSITORY: EVIDENCE AND MEDIA TO HUGGING FACE, CATALOGS BUILT IN CI
 ================================================================================
 
-Status:    in progress — phases 1-2 done (features/data slimmed to the
-           73-file keep-list); phases 3-4 remain.
+Status:    in progress — phases 1-2 and the phase 3 deck done; API
+           catalogs (after 678 batch 4), WS tutorial media and phase 4 remain.
 Requested: maintainer, 2026-10-18 (question tool, main session). Approved
            steps: "Move features/data to HF", "Move tutorial media + deck
            renders", "Build generated catalogs in CI", "Rewrite history
@@ -96,11 +96,13 @@ lesson publication target): docs/source/_extra/tutorials/production/**
 (87 MB), examples/** (77 MB), catalog/** (13 MB), tools/tutorials/
 release_candidate/** (115 MB). Player code stays in git (*.js, styles.css,
 fonts/, logo, notice, translation-compatibility.json).
-Home-owned, moving to einarolafsson/spacr-tutorials under deck/:
-docs/source/_static/deck/spacr_deck.pdf, slides/, anim/, thumbs/,
-title_base.jpg and tools/readme_deck/images/ (69 MB). Keep deck/index.html,
-slides.json and pages/*.md; pages switch their ../slides/ links to the Pages
-URL so the GitHub README keeps working.
+Home-owned deck (coordinator 2026-10-20: deck only; API catalogs wait for
+678 batch 4, tutorial media stays with WS). Site must stay byte-identical
+and files tests/tools read stay in git, so only spacr_deck.pdf and anim/
+(69.8 MB) move to einarolafsson/spacr-tutorials deck/. slides/ (README cover
+and the GitHub pages/*.md show them), thumbs/, title_base.jpg, index.html,
+slides.json, pages/ stay, as do tools/readme_deck/images/ (scripts/build.js
+inputs). Version bumps restamp the PDF title page at fetch time.
 Docs build: a pin file (docs/media_revision.json: repo, revision sha, per
 file sha256) and a tool tools/fetch_docs_media.py that runs
 `hf download ... --revision <sha> --local-dir` into the docs tree and
@@ -172,5 +174,5 @@ Coordination checklist:
 2026-10-18 — Registered (bdc360004). Inventory, secret/PII scan, HF staging and mirror rewrite measured (11.26 GiB -> 1.19 GiB approved paths, 744 MiB with deleted folders).
 2026-10-18 — Keep-list validated in a throwaway clone with the 22,797 files removed: the 43-file cohort gives the same 4 pre-existing nightly failures plus only the README checkout-size test. Remaining: phases 2-4 after 1.5.1.5.
 2026-10-18 — Private HF dataset einarolafsson/spacr-evidence uploaded and verified (a9971ff7634d); maintainer approved purging the eight already-deleted folders, now in the phase 4 list (744 MiB measured).
-2026-10-20 — Phase 2: keep-list re-derived on nightly 850c2e30a3 (unchanged, 73 files kept in place); 33 n676 checkpoint files changed since phase 1 uploaded (HF revision 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash verification. Cohort before/after identical except the README checkout-size test, whose 4657 MB figure needs a README re-measure. Remaining: README size, phases 3-4.
-2026-10-20 — README checkout size re-measured with packaging/measure_clone_forms.sh (nightly depth1 worktree 1178.3 MB): source, nine locale sentences (number and date only), reviewed records and generated README/images updated; README cohort 517 passed. Remaining: phases 3-4.
+2026-10-20 — Phase 2: keep-list re-derived on 850c2e30a3 (same 73 files, kept in place); 33 changed n676 files uploaded (spacr-evidence 1f6fb59e90cd); 22,797 files (4,097,622,132 bytes) removed after hash check (5400e02335). README checkout size re-measured to 1178 MB (a95558196a).
+2026-10-20 — Phase 3 deck: spacr_deck.pdf and anim/ (69,793,628 bytes) pinned in docs/media_revision.json at spacr-tutorials 64ff46ea4409; tools/fetch_docs_media.py fetches/checks/publishes, docs.yml fetches before Sphinx, deck builder --publish and refresh_alpha_deck bump the pin. Remaining: API catalogs, WS tutorial media, phase 4.
