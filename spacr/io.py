@@ -8288,6 +8288,65 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_loaders.crop_loading_policy = data.crop_loading_policy
         return train_loaders, val_loaders, train_fig
 
+def _no_training_crops_error(src, db_path, object_type, png_type):
+    """Build the error for a training set whose source has no crop rows at all.
+
+    Neither ``png_list`` nor the ``object_type`` measurement table gave a row,
+    so there is nothing to select classes from. The message says which of the
+    two the database lacks, or that there is no database, and what to change.
+
+    :param src: the source folder the user chose.
+    :param db_path: ``<src>/measurements/measurements.db``.
+    :param object_type: the object table the crop list falls back to.
+    :param png_type: the ``path_string`` the crops were filtered on.
+    :returns: a :class:`FileNotFoundError` when there is no database, else a
+        :class:`ValueError`.
+    """
+    import sqlite3
+
+    from .database_concurrency import connect as _connect_database
+
+    if os.path.isfile(src):
+        return FileNotFoundError(
+            f"No crops to train on: src is the file {src}, but Classify "
+            f"needs the plate folder that holds measurements/measurements.db. "
+            f"Set src to that plate folder.")
+    if not os.path.isfile(db_path):
+        return FileNotFoundError(
+            f"No crops to train on in {src}: there is no {db_path}. Classify "
+            f"builds its training set from the objects the Measure step "
+            f"recorded there. Set src to the plate folder Measure ran on (the "
+            f"folder that holds measurements/, not its parent or a "
+            f"sub-folder), or run Measure on this plate first.")
+    counts = {}
+    try:
+        conn = _connect_database(db_path, readonly=True)
+        try:
+            names = [row[0] for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")]
+            for name in ('png_list', object_type):
+                if name in names:
+                    quoted = name.replace('"', '""')
+                    counts[name] = conn.execute(
+                        f'SELECT COUNT(*) FROM "{quoted}"').fetchone()[0]
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        names = []
+
+    said = [f"'{name}' has {counts[name]} row(s)" if name in counts
+            else f"no '{name}' table" for name in ('png_list', object_type)]
+    present = ', '.join(sorted(names)) or 'none'
+    return ValueError(
+        f"No crops to train on in {src}: {db_path} has {said[0]} "
+        f"and {said[1]} (tables present: {present}). The crop "
+        f"type comes from path_string={png_type!r}, which reads the "
+        f"'{object_type}' objects. Run Measure on this plate with the "
+        f"{object_type} objects segmented, or set path_string to the crop "
+        f"type the project has, for example 'nucleus_png' for nucleus "
+        f"crops.")
+
+
 def generate_training_dataset(settings):
     """
     Build a balanced training/testing dataset from one of:
@@ -8615,6 +8674,8 @@ def generate_training_dataset(settings):
 
         object_type = crop_object_type(png_type)
         png_df = _load_png_table(db_path, object_type)
+        if png_df.empty or 'png_path' not in png_df.columns:
+            raise _no_training_crops_error(src, db_path, object_type, png_type)
 
         fixed_paths = [ _fix_path_under_src(src, p) for p in png_df['png_path'] ]
         png_df['png_path'] = fixed_paths
